@@ -1,5 +1,5 @@
 {
-  "name": "tetrisfish2",
+  "name": "nestris",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -16,16 +16,16 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^17.0.8",
+    "@angular/animations": "^16.2.0",
     "@angular/cdk": "^16.2.11",
-    "@angular/common": "^17.0.8",
-    "@angular/compiler": "^17.0.8",
-    "@angular/core": "^17.0.8",
-    "@angular/forms": "^17.0.8",
+    "@angular/common": "^16.2.0",
+    "@angular/compiler": "^16.2.0",
+    "@angular/core": "^16.2.0",
+    "@angular/forms": "^16.2.0",
     "@angular/material": "^16.2.11",
-    "@angular/platform-browser": "^17.0.8",
-    "@angular/platform-browser-dynamic": "^17.0.8",
-    "@angular/router": "^17.0.8",
+    "@angular/platform-browser": "^16.2.0",
+    "@angular/platform-browser-dynamic": "^16.2.0",
+    "@angular/router": "^16.2.0",
     "@types/axios": "^0.14.0",
     "@types/express-session": "^1.17.10",
     "@types/livereload": "^0.9.4",
@@ -51,12 +51,12 @@
     "stripe": "^14.5.0",
     "tslib": "^2.3.0",
     "uuid": "^9.0.1",
-    "zone.js": "~0.14.2"
+    "zone.js": "~0.13.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^17.0.8",
-    "@angular/cli": "^17.0.8",
-    "@angular/compiler-cli": "^17.0.8",
+    "@angular-devkit/build-angular": "^16.2.4",
+    "@angular/cli": "^16.2.4",
+    "@angular/compiler-cli": "^16.2.0",
     "@types/connect-livereload": "^0.6.2",
     "@types/express": "^4.17.20",
     "@types/jasmine": "~4.3.0",
@@ -73,6 +73,6 @@
     "karma-jasmine-html-reporter": "~2.1.0",
     "livereload": "^0.9.3",
     "nodemon": "^3.0.1",
-    "typescript": "~5.2.2"
+    "typescript": "~5.1.3"
   }
 }

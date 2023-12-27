@@ -10,7 +10,7 @@ on the right of the tab, and when tab is clicked it sets the tab in the sidebar 
 @Component({
   selector: 'app-sidebar-tab',
   templateUrl: './sidebar-tab.component.html',
-  styleUrl: './sidebar-tab.component.scss',
+  styleUrls: ['./sidebar-tab.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SidebarTabComponent implements OnChanges {
