@@ -1,0 +1,15 @@
+@import "../../../../../styles.scss";
+
+.sidebar {
+    background-color: $section-color;
+    height: 100%;
+    border-radius: 10px;
+
+    width: 320px;
+}
+
+@media only screen and (max-width: 1000px) {
+    .sidebar {
+       width: 70px;
+    }
+}

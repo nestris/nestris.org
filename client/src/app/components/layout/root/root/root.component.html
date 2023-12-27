@@ -1,5 +1,7 @@
 <div class="root">
-    <app-sidebar></app-sidebar>
+    <app-sidebar class="sidebar" />
     <ng-container *ngIf="sidebarTabService.getSelectedTab() | async as selectedTab">
+        <app-home-page *ngIf="selectedTab.tab === Tab.HOME" />
+        <app-play-page *ngIf="selectedTab.tab === Tab.PLAY" />
     </ng-container>
 </div>

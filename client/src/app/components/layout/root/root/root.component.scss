@@ -1,0 +1,10 @@
+.root {
+    display: flex;
+    flex-direction: row;
+
+    padding: 20px;
+    gap: 20px;
+    
+    height: 100%;
+    box-sizing: border-box;
+}

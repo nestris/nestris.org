@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { HomePageComponent } from '../../home/home-page/home-page.component';
 import { PlayPageComponent } from '../../play/play-page/play-page.component';
-import { SidebarTabService } from 'client/src/app/services/sidebar-tab.service';
+import { SidebarTabService, Tab } from 'client/src/app/services/sidebar-tab.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -11,6 +11,8 @@ import { SidebarTabService } from 'client/src/app/services/sidebar-tab.service';
   styleUrls: ['./root.component.scss'],
 })
 export class RootComponent {
+
+  readonly Tab = Tab;
 
   constructor(public sidebarTabService: SidebarTabService) { }
 
