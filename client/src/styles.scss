@@ -1,0 +1,28 @@
+/* You can add global styles to this file, and also import other style files */
+@import "node_modules/angular-notifier/styles";
+
+$section-color: #2D2D31;
+
+html {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #242325;
+}
+
+@font-face {
+    font-family: 'NES';
+    src: url('../../client/src/assets/fonts/Pixel_NES.otf') format('opentype');
+}
+
+.prevent-text-select {
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10 and IE 11 */
+    user-select: none; /* Standard syntax */
+  }

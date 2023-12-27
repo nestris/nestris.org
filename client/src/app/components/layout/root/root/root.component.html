@@ -1,0 +1,5 @@
+<div class="root">
+    <app-sidebar></app-sidebar>
+    <ng-container *ngIf="sidebarTabService.getSelectedTab() | async as selectedTab">
+    </ng-container>
+</div>
