@@ -4,11 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { AppComponent } from './app.component';
 import { NotifierModule, NotifierOptions } from 'angular-notifier';
-import { AppRoutingModule } from './app-routing.module';
-import { RootComponent } from './components/layout/root/root/root.component';
 import { HomePageComponent } from './components/layout/home/home-page/home-page.component';
 import { SidebarComponent } from './components/layout/root/sidebar/sidebar.component';
 import { PlayPageComponent } from './components/layout/play/play-page/play-page.component';
+import { SidebarTabComponent } from './components/layout/root/sidebar-tab/sidebar-tab.component';
+import { LayoutComponent } from './components/layout/root/layout/layout.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -54,14 +54,14 @@ const customNotifierOptions: NotifierOptions = {
 @NgModule({
   declarations: [
     AppComponent,
-    RootComponent,
+    LayoutComponent,
     SidebarComponent,
+    SidebarTabComponent,
     HomePageComponent,
     PlayPageComponent,
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule,
     FormsModule,
     NotifierModule.withConfig(customNotifierOptions),
     HttpClientModule
@@ -69,4 +69,4 @@ const customNotifierOptions: NotifierOptions = {
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}

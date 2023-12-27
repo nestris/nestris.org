@@ -1,0 +1,10 @@
+<div class="tab"
+[ngClass]="(sidebarTabService.getSelectedTab() | async)!.tab === tab ? 'selected' : ''"
+(click)="onTabClick()">
+
+    <div class="tab-left">
+        <img class="icon" [src]="tabIcon" width="27px">
+        <h1 class="label">{{ tabName }}</h1>
+    </div>
+
+</div>

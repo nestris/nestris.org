@@ -5,11 +5,9 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './app.component.html'
 })
 export class AppComponent {
-  constructor(private http: HttpClient) {  }
-  nameInput: string = '';
-  responseDisplay: string = '';
-  greetMe(): void {
-    this.http.get(`/api/${ this.nameInput }`)
-      .subscribe((response: any) => this.responseDisplay = response.greeting);
+
+  constructor() {
+    console.log("AppComponent constructor called");
   }
+
 }

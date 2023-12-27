@@ -1,40 +1,41 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-
-export enum Tab {
-  MY_PROFILE = 'my-profile',
-  FRIENDS = 'friends',
-  ALERTS = 'alerts',
-  HOME = 'home',
-  PLAY = 'play',
-  REVIEW = 'review',
-  PUZZLES = 'puzzles',
-  LEADERBOARD = 'leaderboard',
-  MORE = 'more',
-}
-
-export type ParametrizedTab = {
-  tab: Tab,
-  params: URLSearchParams | undefined,
-};
+import { ParametrizedTab, TabID } from '../models/tabs';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class SidebarTabService {
 
-  private selectedTab$ = new BehaviorSubject<ParametrizedTab>({tab: Tab.HOME, params: undefined});
+  private selectedTab$ = new BehaviorSubject<ParametrizedTab>({tab: TabID.HOME, params: undefined});
+
+
+  constructor() {
+
+    console.log('SidebarTabService constructor');
+
+    // whenever user clicks back/forward button, update selectedTab$ to state
+    window.addEventListener('popstate', (event) => {
+      console.log('popstate', event.state);
+      this.setSelectedTab(event.state);
+    });
+
+  }
 
   getSelectedTab(): Observable<ParametrizedTab> {
+    console.log('getSelectedTab', this.selectedTab$.value);
     return this.selectedTab$.asObservable();
   }
 
-  setSelectedTab(tab: Tab, params?: URLSearchParams): void {
+  setSelectedTab(parametrizedTab: ParametrizedTab, pushToURLHistory: boolean = true): void {
 
-    // set URL to {baseUrl}/{tab}?{params}
-    // e.g. /home?param1=foo&param2=bar
-    history.pushState({}, '', `/${tab}${params ? '?' + params.toString() : ''}`);
-    this.selectedTab$.next({tab, params});
+    console.log('setSelectedTab', parametrizedTab);
+    this.selectedTab$.next(parametrizedTab);
+
+    if (pushToURLHistory) {
+      history.pushState(parametrizedTab, '', `/${parametrizedTab.tab}${parametrizedTab.params ? '?' + parametrizedTab.params.toString() : ''}`);
+    }
+    
   }
 
 }
