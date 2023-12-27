@@ -1,5 +1,9 @@
 @import "../../../../../styles.scss";
 
+:host {
+    width: 100%;
+}
+
 .tab {
     width: 100%;
     height: 55px;
@@ -42,4 +46,36 @@
 
 .tab.selected .tab-left {
     opacity: 1;
+}
+
+@media only screen and (max-width: 1000px) {
+
+    .tab-right {
+        display: none;
+    }
+
+    .label {
+       display: none;
+    }
+
+    .tab {
+        justify-content: center;
+        background-color: transparent !important;
+    }
+
+    .tab.left {
+        justify-content: center;
+    }
+
+    .icon {
+        margin-left: 0;
+    }
+
+    .tab {
+        opacity: 0.5;
+    }
+
+    .tab.selected {
+        opacity: 1;
+    }
 }
