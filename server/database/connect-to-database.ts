@@ -12,7 +12,7 @@ function getConnectionString() {
 }
 
 // must call this function to initialize the MongoDB connection
-async function connect() {
+export async function connectToDatabase() {
     const connectionString = getConnectionString();
     console.log("Connecting to MongoDB instance:", connectionString);
 

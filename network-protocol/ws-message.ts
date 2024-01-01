@@ -13,8 +13,8 @@ As a STRING, which is a stringified JSON with the following format:
 or as BINARY, which means its for realtime game/board data, following protocol defined in datum.ts
 */
 export enum MessageType {
-    JSON,
-    BINARY
+    JSON = "JSON",
+    BINARY = "BINARY",
 }
 
 export function decodeMessage(message: any): {type: MessageType, data: JsonMessage | BinaryDecoder} {
@@ -24,12 +24,25 @@ export function decodeMessage(message: any): {type: MessageType, data: JsonMessa
             type: MessageType.JSON,
             data: jsonMessage
         };
-    } else if (message instanceof Uint8Array) {
-        return {
-            type: MessageType.BINARY,
-            data: BinaryDecoder.fromUInt8Array(message)
-        };
-    } else {
-        throw new Error('Unknown message type');
+
     }
+
+    // try to decode as json if its an arraybuffer
+    const messageString = message.toString('utf8');
+    if (messageString) {
+        try {
+            const jsonMessage = JSON.parse(messageString);
+            return {
+                type: MessageType.JSON,
+                data: jsonMessage
+            };
+        } catch {
+            // do nothing
+        }
+    }
+    
+    return {
+        type: MessageType.BINARY,
+        data: BinaryDecoder.fromUInt8Array(message)
+    };
 }

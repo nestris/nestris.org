@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BinaryDecoder } from 'network-protocol/binary-codec';
-import { JsonMessage, JsonMessageType } from 'network-protocol/json-message';
+import { JsonMessage, JsonMessageType, OnConnectMessage } from 'network-protocol/json-message';
 import { MessageType, decodeMessage } from 'network-protocol/ws-message';
 import { Observable, Subject, filter } from 'rxjs';
 
@@ -36,15 +36,20 @@ export class WebsocketService {
     }
   }
 
+  sendJsonMessage(message: JsonMessage) {
+    console.log('Sending JSON message:', message);
+    this.ws?.send(JSON.stringify(message));
+  } 
+
   // called to connect to server and as a logged in user
-  connect() {
+  connect(username: string, gmail: string) {
 
     const host = location.origin.replace(/^http/, 'ws');
     this.ws = new WebSocket(host);
 
     this.ws.onopen = () => {
       console.log('Connected to the WebSocket server');
-      this.ws!.send('Hello from the client!');
+      this.sendJsonMessage(new OnConnectMessage(username, gmail));
     };
     
     this.ws.onmessage = (event) => {
@@ -53,6 +58,10 @@ export class WebsocketService {
     
     this.ws.onerror = (error) => {
       console.error('WebSocket Error:', error);
+    };
+
+    this.ws.onclose = (event) => {
+      console.log(`WebSocket closed: ${event.code} ${event.reason}`);
     };
   }
 

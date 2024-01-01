@@ -1,16 +1,15 @@
-import mongoose from "mongoose";
-import { IUserSchema } from "./user-schema";
+import DBUser, { IUserSchema } from "./user-schema";
 
 // Retrieves a user from the database based on the provided username.
 export async function getUserByUsername(username: string): Promise<IUserSchema | undefined> {
-    const user = await mongoose.model('User').findOne({ username: username });
+    const user = await DBUser.findOne({ username: username });
     if (!user) return undefined;
     return user;
 }
 
 // Retrieves a user from the database based on the provided Gmail address.
 export async function getUserByGmail(gmail: string): Promise<IUserSchema | undefined> {
-    const user = await mongoose.model('User').findOne({ gmail: gmail });
+    const user = await DBUser.findOne({ gmail: gmail });
     if (!user) return undefined;
     return user;
 }
@@ -21,8 +20,7 @@ export async function getUserByGmail(gmail: string): Promise<IUserSchema | undef
  */
 export async function createUser(username: string, gmail: string): Promise<IUserSchema> {
     try {
-        const User = mongoose.model('User'); // Get the User model
-        const newUser = new User({ username, gmail });
+        const newUser = new DBUser({ username, gmail });
         await newUser.save();
         return newUser;
     } catch (error: any) {

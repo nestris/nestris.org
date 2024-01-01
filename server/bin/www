@@ -2,7 +2,7 @@
 /**
  * Module dependencies.
  */
-require('../app').default().then(({app, state}) => {
+require('../server/app').default().then(({app, state}) => {
 
   const debug = require('debug')('NameApp:server');
   const http = require('http');
@@ -16,18 +16,19 @@ require('../app').default().then(({app, state}) => {
    * Create HTTP server.
    */
 
-
   const server = http.createServer(app);
   const wss = new WebSocket.Server({ server });
 
   wss.on('connection', function connection(ws) {
+
     ws.on('message', function incoming(message) {
-      console.log('received: %s', message);
-      // Echo the message back to the client.
-      ws.send(`Server received: ${message}`);
+      state.onlineUserManager.onSocketMessage(ws, message);
     });
-  
-    ws.send('Welcome to the WebSocket server!');
+
+    ws.on('close', function close(code, reason) {
+      state.onlineUserManager.onSocketClose(ws, code, reason);
+    });
+
   });
 
   /**

@@ -1,5 +1,4 @@
-import { JsonMessage } from "network-protocol/json-message";
-import { getUserByUsername } from "server/database/user/user-service";
+import { JsonMessage } from "../../network-protocol/json-message";
 
 export enum OnlineUserStatus {
     IDLE = 0,
@@ -10,6 +9,21 @@ export enum OnlineUserStatus {
     ANALYSIS = 5,
     OFFLINE = 6
 }
+
+export enum SocketCloseCode {
+    NORMAL = 1000,
+    ALREADY_LOGGED_IN = 4000,
+    NEW_USER_DUPLICATE_INFO = 4001,
+    EMAIL_MISMATCH = 4002,
+}
+
+const SocketCloseExplanation: Map<SocketCloseCode, string> = new Map<SocketCloseCode, string>([
+    [SocketCloseCode.NORMAL, "User closed window or logged out normally."],
+    [SocketCloseCode.ALREADY_LOGGED_IN, "User is already logged in; only one session can be active at a time."],
+    [SocketCloseCode.NEW_USER_DUPLICATE_INFO, "User tried to create a new account with an existing username or email."],
+    [SocketCloseCode.EMAIL_MISMATCH, "User tried to log in with an incorrect email address."],
+]);
+
 
 /*
 Represents a singular online user connected through socket. Track user status and socket connection.
@@ -31,6 +45,11 @@ export class OnlineUser {
     // using the live websocket connection, send a JsonMessage to the client
     sendJsonMessage(message: JsonMessage) {
         this.socket.send(JSON.stringify(message));
+    }
+
+    // close the websocket connection with the specified close code. Must remove user from OnlineUserManager after calling this.
+    closeSocket(closeCode: SocketCloseCode) {
+        this.socket.close(closeCode, SocketCloseExplanation.get(closeCode));
     }
 
 }

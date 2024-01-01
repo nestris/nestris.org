@@ -25,6 +25,14 @@ export interface IUserSchema {
     dailyBest: { date: Date, score: number }[];
 }
 
+class DailyBest {
+    @prop({ required: true })
+    public date!: Date;
+
+    @prop({ required: true })
+    public score!: number;
+}
+
 // User class with Typegoose decorators, implementing the IUser interface
 class UserSchema implements IUserSchema {
     @prop({ required: true, unique: true, index: true })
@@ -84,8 +92,8 @@ class UserSchema implements IUserSchema {
     @prop({ required: true, default: 0 })
     public bestTrophies!: number;
 
-    @prop({ type: () => [{ date: Date, score: Number }], required: true, default: [] })
-    public dailyBest!: { date: Date, score: number }[];
+    @prop({ required: true, default: [] })
+    public dailyBest!: DailyBest[];
 }
 
 // Convert User class to a Mongoose model

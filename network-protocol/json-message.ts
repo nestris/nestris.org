@@ -6,9 +6,9 @@ the type of message being sent. All other fields are optional and depend on the
 type of message being sent.
 */
 export enum JsonMessageType {
-    // Client to server
-    LOGIN = 'login',
+    ON_CONNECT = 'on_connect',
     FRIEND_STATUS = 'friend_status',
+    BROADCAST_ANNOUNCEMENT = 'broadcast_announcement',
 }
 
 export abstract class JsonMessage {
@@ -17,17 +17,32 @@ export abstract class JsonMessage {
     ) {}
 }
 
-// schemas for each message type
-export class LoginMessage extends JsonMessage {
-    constructor() {
-        super(JsonMessageType.LOGIN);
+// SCHEMAS FOR EACH MESSAGE TYPE
+
+// sent as initial message from client to server when user connects
+export class OnConnectMessage extends JsonMessage {
+    constructor(
+        public readonly username: string,
+        public readonly gmail: string,
+    ) {
+        super(JsonMessageType.ON_CONNECT)
     }
 }
 
+// sent when a friend comes online or goes offline
 export class FriendIsOnlineMessage extends JsonMessage {
     constructor(
         public readonly isOnline: boolean,
     ) {
         super(JsonMessageType.FRIEND_STATUS)
+    }
+}
+
+// sent when an announcement is broadcasted to all online users
+export class BroadcastAnnouncementMessage extends JsonMessage {
+    constructor(
+        public readonly announcement: string,
+    ) {
+        super(JsonMessageType.BROADCAST_ANNOUNCEMENT)
     }
 }

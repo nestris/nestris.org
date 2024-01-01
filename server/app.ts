@@ -8,6 +8,8 @@ import * as morgan from 'morgan'; // Import Morgan
 
 import { Express, Request, Response } from 'express';
 import { ServerState } from './server-state/server-state';
+import { broadcastAnnouncementRoute } from './routes/broadcast-route';
+import { connectToDatabase } from './database/connect-to-database';
 
 
 require('dotenv').config();
@@ -17,7 +19,10 @@ export default async function createApp(): Promise<{
     state : ServerState
 }> {
     const app = express();
-    const clientDir = path.join(__dirname, '../public/');
+    const clientDir = path.join(__dirname, '../../public/');
+
+    // block until connect to MongoDB
+    await connectToDatabase();
 
     const state = new ServerState();
 
@@ -26,6 +31,9 @@ export default async function createApp(): Promise<{
     // set response to json
     app.use(express.json({limit: '50mb'}));
     app.use(express.static(clientDir));
+
+    // announce message to all online users. useful for maintenance announcements and the like
+    app.get('/api/broadcast-announcement', async (req: Request, res: Response) => broadcastAnnouncementRoute(req, res, state));
     
     // catch all invalid api routes
     app.get('/api/*', (req, res) => {
@@ -38,7 +46,7 @@ export default async function createApp(): Promise<{
     });
 
     return {
-        app,
-        state
+        app: app,
+        state: state,
     }
 }
