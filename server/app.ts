@@ -7,15 +7,19 @@ import * as morgan from 'morgan'; // Import Morgan
 
 
 import { Express, Request, Response } from 'express';
+import { ServerState } from './server-state/server-state';
 
 
 require('dotenv').config();
 
 export default async function createApp(): Promise<{
-    app : Express
+    app : Express,
+    state : ServerState
 }> {
     const app = express();
     const clientDir = path.join(__dirname, '../public/');
+
+    const state = new ServerState();
 
     app.use(morgan('dev'));
 
@@ -34,6 +38,7 @@ export default async function createApp(): Promise<{
     });
 
     return {
-        app
+        app,
+        state
     }
 }
