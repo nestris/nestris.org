@@ -1,12 +1,13 @@
 import { ColorGrid } from "client/src/app/models/tetris/color-grid";
 import { BinaryDecoder, BinaryEncoder } from "./binary-codec";
 
+// each code has its own binary schema
 export enum DatumOpcode {
     NON_GAME_BOARD_STATE_CHANGE = 0,
     NON_GAME_NEXT_PIECE_CHANGE = 1,
     NON_GAME_SCORE_CHANGE = 2,
 }
-
+// the number of bits used to encode the opcode. make sure this is large enough to encode all opcodes
 export const OPCODE_BITS = 4;
 
 /*
@@ -45,6 +46,8 @@ export class NonGameNextPieceChangeDatum extends Datum {
     }
 }
 
+// given a string of 0s and 1s with the first 4 bits being the opcode, return a Datum of the
+// corresponding type, which maps binary data to the datum's schema
 export function datumFactory(bitsWithOpcode: string): Datum {
 
     const decoder = new BinaryDecoder(bitsWithOpcode);

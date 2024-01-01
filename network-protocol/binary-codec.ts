@@ -1,7 +1,8 @@
 import { TetrominoType } from "client/src/app/models/tetris/tetrominos";
 
 /*
-Builds a Uint8Array
+Builder for compact binary encoding. Allows you to add different types of data
+and then convert to a string of 0s and 1s and/or a Uint8Array.
 */
 export class BinaryEncoder {
     private bits: string = '';
@@ -65,6 +66,11 @@ export class BinaryEncoder {
     }
 }
 
+/*
+Decodes from either a string of 0s and 1s or a Uint8Array into different types of data.
+Iterator-style syntax to read data one block at a time by calling next*() methods
+specifying the type and length of the data to read.
+*/
 export class BinaryDecoder {
 
     private bitCount: number = 0;
