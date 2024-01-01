@@ -70,7 +70,7 @@ export class BinaryDecoder {
     private bitCount: number = 0;
     private currentBitIndex: number = 0;
 
-    constructor(private bits: string) {
+    constructor(public readonly bits: string) {
         this.bitCount = bits.length;
     }
 
