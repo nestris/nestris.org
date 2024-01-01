@@ -7,6 +7,7 @@ type of message being sent.
 */
 export enum JsonMessageType {
     ON_CONNECT = 'on_connect',
+    CONNECTION_SUCCESSFUL = 'connection_successful',
     FRIEND_STATUS = 'friend_status',
     BROADCAST_ANNOUNCEMENT = 'broadcast_announcement',
 }
@@ -26,6 +27,14 @@ export class OnConnectMessage extends JsonMessage {
         public readonly gmail: string,
     ) {
         super(JsonMessageType.ON_CONNECT)
+    }
+}
+
+// send as response to OnConnectMessage to indicate successful connection
+// if not successful, no message is sent but the socket is closed with error code instead
+export class ConnectionSuccessfulMessage extends JsonMessage {
+    constructor() {
+        super(JsonMessageType.CONNECTION_SUCCESSFUL)
     }
 }
 

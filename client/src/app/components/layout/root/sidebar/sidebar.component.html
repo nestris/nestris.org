@@ -1,17 +1,23 @@
 <div class="sidebar">
-    <img class="logo" src="./assets/img/branding/tetrisfish_logo.svg" width="110px" />
-    <img class="logo-small" src="./assets/img/branding/tetrisfish_logo.svg" width="50px" />
-    <h1 class="brand-name">nestris.org</h1>
+    <div class="sidebar-top">
+        <img class="logo" src="./assets/img/branding/tetrisfish_logo.svg" width="110px" />
+        <img class="logo-small" src="./assets/img/branding/tetrisfish_logo.svg" width="50px" />
+        <h1 class="brand-name">nestris.org</h1>
 
-    <app-sidebar-tab class="profile-tab" [tab]="TabID.MY_PROFILE" />
-    <app-sidebar-tab [tab]="TabID.FRIENDS" />
-    <app-sidebar-tab [tab]="TabID.ALERTS" />
+        <app-sidebar-tab *ngIf="isSignedIn" class="profile-tab" [tab]="TabID.MY_PROFILE" />
+        <app-sidebar-tab *ngIf="isSignedIn" [tab]="TabID.FRIENDS" />
+        <app-sidebar-tab *ngIf="isSignedIn" [tab]="TabID.ALERTS" />
 
-    <app-sidebar-tab class="home-tab" [tab]="TabID.HOME" />
-    <app-sidebar-tab [tab]="TabID.PLAY" />
-    <app-sidebar-tab [tab]="TabID.REVIEW" />
-    <app-sidebar-tab [tab]="TabID.PUZZLES" />
-    <app-sidebar-tab [tab]="TabID.LEADERBOARD" />
-    <app-sidebar-tab [tab]="TabID.MORE" />
+        <app-sidebar-tab class="home-tab" [tab]="TabID.HOME" />
+        <app-sidebar-tab [tab]="TabID.PLAY" />
+        <app-sidebar-tab [tab]="TabID.REVIEW" />
+        <app-sidebar-tab [tab]="TabID.PUZZLES" />
+        <app-sidebar-tab [tab]="TabID.LEADERBOARD" />
+        <app-sidebar-tab [tab]="TabID.MORE" />
+    </div>
+    <div class="sidebar-bottom">
+        <app-sign-out *ngIf="isSignedIn" />
+    </div>
+    
     
 </div>

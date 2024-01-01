@@ -1,0 +1,36 @@
+@import "../../../../../styles.scss";
+
+:host {
+    display: block;
+    width: 100%;
+}
+
+.signout-button {
+    display: flex;
+    width: 100%;
+    height: 45px;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+
+    transition: background-color 0.2s ease-in-out;
+}
+
+.label {
+    color: #F15757 !important;
+    font-family: $main-font;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.signout-button:hover {
+    background-color: rgba(255, 0, 0, 0.15);
+}
+
+.signout-button:active {
+    background-color: rgba(255, 0, 0, 0.2);
+}

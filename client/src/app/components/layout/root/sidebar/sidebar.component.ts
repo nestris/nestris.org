@@ -1,5 +1,6 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input } from '@angular/core';
 import { TabID } from 'client/src/app/models/tabs';
+import { WebsocketService } from 'client/src/app/services/websocket.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -8,6 +9,7 @@ import { TabID } from 'client/src/app/models/tabs';
   styleUrls: ['./sidebar.component.scss']
 })
 export class SidebarComponent {
+  @Input() isSignedIn!: boolean;
 
   readonly TabID = TabID;
 

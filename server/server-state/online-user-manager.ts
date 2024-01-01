@@ -1,6 +1,6 @@
 import { createUser, getUserByUsername } from "../database/user/user-service";
 import { OnlineUser, OnlineUserStatus, SocketCloseCode } from "./online-user";
-import { FriendIsOnlineMessage as FriendOnlineMessage, JsonMessage, JsonMessageType, OnConnectMessage } from "../../network-protocol/json-message";
+import { ConnectionSuccessfulMessage, FriendIsOnlineMessage as FriendOnlineMessage, JsonMessage, JsonMessageType, OnConnectMessage } from "../../network-protocol/json-message";
 import { MessageType, decodeMessage } from "../../network-protocol/ws-message";
 
 /*
@@ -63,8 +63,6 @@ export class OnlineUserManager {
             return;
         }
 
-        console.log(`User ${username} connected.`);
-
         // create a new OnlineUser
         const onlineUser = new OnlineUser(username, socket, user.friends);
 
@@ -87,6 +85,11 @@ export class OnlineUserManager {
                 friendOnlineUser.sendJsonMessage(new FriendOnlineMessage(true));
             }
         }
+
+        // finish handshake by sending the user a message that they are connected
+        console.log(`User ${username} connected.`);
+        onlineUser.sendJsonMessage(new ConnectionSuccessfulMessage());
+
     }
 
     // on user disconnect, remove from online pool, and update friends' online friends

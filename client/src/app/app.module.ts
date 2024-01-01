@@ -9,6 +9,7 @@ import { SidebarComponent } from './components/layout/root/sidebar/sidebar.compo
 import { PlayPageComponent } from './components/layout/play/play-page/play-page.component';
 import { SidebarTabComponent } from './components/layout/root/sidebar-tab/sidebar-tab.component';
 import { LayoutComponent } from './components/layout/root/layout/layout.component';
+import { SignOutComponent } from './components/layout/root/sign-out/sign-out.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -59,6 +60,7 @@ const customNotifierOptions: NotifierOptions = {
     SidebarTabComponent,
     HomePageComponent,
     PlayPageComponent,
+    SignOutComponent,
   ],
   imports: [
     BrowserModule,
