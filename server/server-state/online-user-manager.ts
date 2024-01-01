@@ -115,7 +115,7 @@ export class OnlineUserManager {
         console.log(`User ${username} disconnected.`);
     }
 
-    // called directly from www when a message is received from a client
+    // called when a message is received from a client
     public async onSocketMessage(ws: WebSocket, message: any) {
 
         console.log(`Received message from ${this.getOnlineUserBySocket(ws)?.username}: ${message}`);
@@ -139,6 +139,7 @@ export class OnlineUserManager {
         this.printOnlineUsers();
     }
 
+    // called when a socket connection is closed
     public async onSocketClose(ws: WebSocket, code: number, reason: string) {
 
         console.log(`Socket closed with code ${code} and reason ${reason}`);
