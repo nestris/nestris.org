@@ -1,7 +1,7 @@
 <app-solid-button class="add-friend-button"
     label="Add Friend" color="#54A165"
     icon="./assets/img/friend-status-icons/not-friend.svg"
-    (click)="openFriendModal($event)" />
+    (click)="toggleFriendModal($event)" />
 
 <app-add-friend-modal
     [visibility$]="friendModalVisibility$" />

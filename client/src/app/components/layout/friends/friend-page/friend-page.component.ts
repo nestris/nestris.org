@@ -12,8 +12,8 @@ export class FriendPageComponent {
   public friendModalVisibility$ = new BehaviorSubject<boolean>(false);
 
   // opens the friend modal when the user clicks on the friend button
-  openFriendModal(event: MouseEvent) {
-    this.friendModalVisibility$.next(true);
+  toggleFriendModal(event: MouseEvent) {
+    this.friendModalVisibility$.next(!this.friendModalVisibility$.getValue());
     event.stopPropagation(); // prevent the same click from closing the modal
   }
 

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 @Component({
@@ -7,9 +7,9 @@ import { BehaviorSubject } from 'rxjs';
   styleUrls: ['./add-friend-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AddFriendModalComponent {
+export class AddFriendModalComponentt {
   @Input() visibility$!: BehaviorSubject<boolean>;
-
+  
   public typedUsername: string = "";
 
 }
