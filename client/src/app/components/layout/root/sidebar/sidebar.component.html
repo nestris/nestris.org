@@ -4,7 +4,7 @@
         <img class="logo-small" src="./assets/img/branding/tetrisfish_logo.svg" width="50px" />
         <h1 class="brand-name">nestris.org</h1>
 
-        <app-sidebar-tab *ngIf="isSignedIn" class="profile-tab" [tab]="TabID.MY_PROFILE" />
+        <app-profile-tab *ngIf="isSignedIn" class="profile-tab"/>
         <app-sidebar-tab *ngIf="isSignedIn" [tab]="TabID.FRIENDS" />
         <app-sidebar-tab *ngIf="isSignedIn" [tab]="TabID.ALERTS" />
 

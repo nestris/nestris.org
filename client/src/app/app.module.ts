@@ -10,6 +10,8 @@ import { PlayPageComponent } from './components/layout/play/play-page/play-page.
 import { SidebarTabComponent } from './components/layout/root/sidebar-tab/sidebar-tab.component';
 import { LayoutComponent } from './components/layout/root/layout/layout.component';
 import { SignOutComponent } from './components/layout/root/sign-out/sign-out.component';
+import { ProfileTabComponent } from './components/layout/root/profile-tab/profile-tab.component';
+import { PingIconComponent } from './components/layout/root/ping-icon/ping-icon.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -61,6 +63,8 @@ const customNotifierOptions: NotifierOptions = {
     HomePageComponent,
     PlayPageComponent,
     SignOutComponent,
+    ProfileTabComponent,
+    PingIconComponent,
   ],
   imports: [
     BrowserModule,

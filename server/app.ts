@@ -24,6 +24,7 @@ export default async function createApp(): Promise<{
     // block until connect to MongoDB
     await connectToDatabase();
 
+    // all global state is stored in ServerState
     const state = new ServerState();
 
     app.use(morgan('dev'));

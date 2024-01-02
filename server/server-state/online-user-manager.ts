@@ -1,7 +1,9 @@
 import { createUser, getUserByUsername } from "../database/user/user-service";
 import { OnlineUser, OnlineUserStatus, SocketCloseCode } from "./online-user";
-import { ConnectionSuccessfulMessage, FriendIsOnlineMessage as FriendOnlineMessage, JsonMessage, JsonMessageType, OnConnectMessage } from "../../network-protocol/json-message";
+import { ConnectionSuccessfulMessage, ErrorHandshakeIncompleteMessage, FriendIsOnlineMessage as FriendOnlineMessage, JsonMessage, JsonMessageType, OnConnectMessage } from "../../network-protocol/json-message";
 import { MessageType, decodeMessage } from "../../network-protocol/ws-message";
+import { ServerState } from "./server-state";
+import { handleJsonMessage } from "./message-handler";
 
 /*
 Manages the users that are online right now and thus are connected to socket with websocket
@@ -11,7 +13,7 @@ export class OnlineUserManager {
     // map of username to OnlineUser
     private onlineUsers: Map<string, OnlineUser> = new Map<string, OnlineUser>();
 
-    constructor() {}
+    constructor(private readonly state: ServerState) {}
 
     public getOnlineUsernames(): string[] {
         return Array.from(this.onlineUsers.keys());
@@ -134,12 +136,13 @@ export class OnlineUserManager {
                 const userInfo = (data as OnConnectMessage);
                 await this.onUserConnect(userInfo.username, userInfo.gmail, ws);
             }
+            else { // if the message is not ON_CONNECT, then client is not allowed to send messages until handshake is complete
+                ws.send(JSON.stringify(new ErrorHandshakeIncompleteMessage()));
+            }
         } else {
             // recieved message from socket recognized as online user
-            // TODO: handle messages from client
+            handleJsonMessage(this.state, onlineUser, data as JsonMessage);
         }
-
-        this.printOnlineUsers();
     }
 
     // called when a socket connection is closed

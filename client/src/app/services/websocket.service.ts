@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BinaryDecoder } from 'network-protocol/binary-codec';
 import { JsonMessage, JsonMessageType, OnConnectMessage } from 'network-protocol/json-message';
 import { MessageType, decodeMessage } from 'network-protocol/ws-message';
-import { BehaviorSubject, Observable, Subject, filter } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, filter, map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +10,7 @@ import { BehaviorSubject, Observable, Subject, filter } from 'rxjs';
 export class WebsocketService {
 
   private ws?: WebSocket;
+  private username?: string;
 
   private jsonEventSubject$ = new Subject<JsonMessage>();
   private binaryEventSubject$ = new Subject<BinaryDecoder>();
@@ -34,11 +35,25 @@ export class WebsocketService {
 
   }
 
-  // when websocket connects, the user is signed in
-  // when websocket disconnects, the user is signed out
-  // subscribe to this observable to know when the user is signed in
+  // observable emits true when signed in, false when signed out
   onSignInUpdate(): Observable<boolean> {
     return this.signedInSubject$.asObservable();
+  }
+
+  // subscribe to this observable when the user signs in
+  onSignIn(): Observable<void> {
+    return this.signedInSubject$.asObservable().pipe(
+      filter((signedIn) => signedIn), // Continue only if signedIn is true
+      map((signedIn) => undefined) // Transform the emitted value to 'undefined' (void)
+    );
+  }
+
+  // subscribe to this observable when the user signs out
+  onSignOut(): Observable<void> {
+    return this.signedInSubject$.asObservable().pipe(
+      filter((signedIn) => !signedIn), // Continue only if signedIn is false
+      map((signedIn) => undefined) // Transform the emitted value to 'undefined' (void)
+    );
   }
 
   // regular call to check whether the user is signed in
@@ -46,11 +61,17 @@ export class WebsocketService {
     return this.signedInSubject$.getValue();
   }
 
-  // subscribe to this observable for the given message type
+  // subscribe to this observable when a message is sent from server to client with matching type
   onEvent(event: JsonMessageType): Observable<JsonMessage> {
     return this.jsonEventSubject$.asObservable().pipe(
       filter((message) => message.type === event)
     );
+  }
+
+  // get the username of the signed in user, or undefined if not signed in
+  getUsername(): string | undefined {
+    if (!this.isSignedIn()) return undefined;
+    return this.username;
   }
 
   // called when server sends a binary or json message to the client
@@ -66,6 +87,8 @@ export class WebsocketService {
     }
   }
 
+  // send some json message to the server
+  // subclass JsonMessage to define the message type and schema
   sendJsonMessage(message: JsonMessage) {
     console.log('Sending JSON message:', message);
     this.ws?.send(JSON.stringify(message));
@@ -80,6 +103,8 @@ export class WebsocketService {
       console.error('Cannot connect when already signed in');
       return;
     }
+
+    this.username = username;
 
     const host = location.origin.replace(/^http/, 'ws');
     this.ws = new WebSocket(host);

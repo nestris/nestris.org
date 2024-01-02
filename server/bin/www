@@ -21,10 +21,12 @@ require('../server/app').default().then(({app, state}) => {
 
   wss.on('connection', function connection(ws) {
 
+    // forward websocket messages to the online user manager
     ws.on('message', function incoming(message) {
       state.onlineUserManager.onSocketMessage(ws, message);
     });
 
+    // forward websocket close events to the online user manager
     ws.on('close', function close(code, reason) {
       state.onlineUserManager.onSocketClose(ws, code, reason);
     });

@@ -8,6 +8,9 @@ type of message being sent.
 export enum JsonMessageType {
     ON_CONNECT = 'on_connect',
     CONNECTION_SUCCESSFUL = 'connection_successful',
+    ERROR_HANDSHAKE_INCOMPLETE = 'error_handshake_incomplete',
+    PING = 'ping',
+    PONG = 'pong',
     FRIEND_STATUS = 'friend_status',
     BROADCAST_ANNOUNCEMENT = 'broadcast_announcement',
 }
@@ -35,6 +38,27 @@ export class OnConnectMessage extends JsonMessage {
 export class ConnectionSuccessfulMessage extends JsonMessage {
     constructor() {
         super(JsonMessageType.CONNECTION_SUCCESSFUL)
+    }
+}
+
+// sent from server to client when client attempts to make a request when handshake is not complete
+export class ErrorHandshakeIncompleteMessage extends JsonMessage {
+    constructor() {
+        super(JsonMessageType.ERROR_HANDSHAKE_INCOMPLETE)
+    }
+}
+
+// sent by client to server to check if connection is still alive
+export class PingMessage extends JsonMessage {
+    constructor() {
+        super(JsonMessageType.PING)
+    }
+}
+
+// sent by server to client in response to PingMessage
+export class PongMessage extends JsonMessage {
+    constructor() {
+        super(JsonMessageType.PONG)
     }
 }
 
