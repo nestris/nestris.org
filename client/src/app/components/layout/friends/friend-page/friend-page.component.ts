@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-friend-page',
@@ -8,8 +9,12 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 })
 export class FriendPageComponent {
 
-  onClickAddFriend() {
-    console.log("Add Friend clicked");
+  public friendModalVisibility$ = new BehaviorSubject<boolean>(false);
+
+  // opens the friend modal when the user clicks on the friend button
+  openFriendModal(event: MouseEvent) {
+    this.friendModalVisibility$.next(true);
+    event.stopPropagation(); // prevent the same click from closing the modal
   }
 
 }
