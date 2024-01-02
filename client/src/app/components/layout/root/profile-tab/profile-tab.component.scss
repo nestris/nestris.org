@@ -51,7 +51,7 @@
 
 .ping {
     font-family: Montserrat;
-    font-size: 9px;
+    font-size: 9.5px;
     font-style: normal;
     font-weight: 500;
     line-height: normal;
@@ -76,6 +76,13 @@
 
 .tab.selected .tab-left {
     opacity: 1;
+}
+
+.tab-right {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
 }
 
 @media only screen and (max-width: 1000px) {

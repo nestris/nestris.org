@@ -34,7 +34,7 @@ export default async function createApp(): Promise<{
     app.use(express.static(clientDir));
 
     // announce message to all online users. useful for maintenance announcements and the like
-    app.get('/api/broadcast-announcement', async (req: Request, res: Response) => broadcastAnnouncementRoute(req, res, state));
+    app.post('/api/broadcast-announcement', async (req: Request, res: Response) => broadcastAnnouncementRoute(req, res, state));
     
     // catch all invalid api routes
     app.get('/api/*', (req, res) => {

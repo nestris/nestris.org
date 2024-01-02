@@ -18,9 +18,9 @@ export async function broadcastAnnouncementRoute(req: Request, res: Response, st
         return;
     }
 
-    state.onlineUserManager.getOnlineUsernames().forEach(username => {
-        const onlineUser = state.onlineUserManager.getOnlineUserByUsername(username)!;
-        onlineUser.sendJsonMessage(new BroadcastAnnouncementMessage(message));
-    });
+    state.onlineUserManager.sendToAllOnlineUsers(new BroadcastAnnouncementMessage(message));
+
+    const numOnlineUsers = state.onlineUserManager.numOnlineUsers();
+    res.status(200).send("Message sent to " + numOnlineUsers + " online users");
 
 }

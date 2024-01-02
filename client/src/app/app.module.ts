@@ -12,6 +12,7 @@ import { LayoutComponent } from './components/layout/root/layout/layout.componen
 import { SignOutComponent } from './components/layout/root/sign-out/sign-out.component';
 import { ProfileTabComponent } from './components/layout/root/profile-tab/profile-tab.component';
 import { PingIconComponent } from './components/layout/root/ping-icon/ping-icon.component';
+import { GoogleSigninComponent } from './components/ui/google-signin/google-signin.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -27,8 +28,8 @@ const customNotifierOptions: NotifierOptions = {
   },
   theme: 'material',
   behaviour: {
-    autoHide: 5000,
-    onClick: false,
+    autoHide: false,
+    onClick: 'hide',
     onMouseover: 'pauseAutoHide',
     showDismissButton: true,
     stacking: 4,
@@ -65,6 +66,7 @@ const customNotifierOptions: NotifierOptions = {
     SignOutComponent,
     ProfileTabComponent,
     PingIconComponent,
+    GoogleSigninComponent,
   ],
   imports: [
     BrowserModule,

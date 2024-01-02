@@ -19,6 +19,10 @@ export class OnlineUserManager {
         return Array.from(this.onlineUsers.keys());
     }
 
+    public numOnlineUsers(): number {
+        return this.onlineUsers.size;
+    }
+
     public getOnlineUserByUsername(username: string): OnlineUser | undefined {
         return this.onlineUsers.get(username);
     }
@@ -29,6 +33,10 @@ export class OnlineUserManager {
 
     public isOnline(username: string): boolean {
         return this.onlineUsers.has(username);
+    }
+
+    public sendToAllOnlineUsers(message: JsonMessage) {
+        this.onlineUsers.forEach(onlineUser => onlineUser.sendJsonMessage(message));
     }
 
     // on user connect, add to online pool, and update friends' online friends

@@ -14,14 +14,7 @@ export class HomePageComponent implements OnInit {
 
   public username: string = "test";
 
-  constructor(public websocketService: WebsocketService, private notifier: NotifierService) {
-
-    // whenever the server sends a broadcast announcement, create a notification
-    websocketService.onEvent(JsonMessageType.BROADCAST_ANNOUNCEMENT).subscribe((message) => {
-      const announcement = (message as BroadcastAnnouncementMessage).announcement;
-      console.log('Received broadcast announcement:', announcement);
-      this.notifier.notify('info', announcement);
-    });
+  constructor(public websocketService: WebsocketService) {
 
   }
 
