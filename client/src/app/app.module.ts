@@ -13,6 +13,8 @@ import { SignOutComponent } from './components/layout/root/sign-out/sign-out.com
 import { ProfileTabComponent } from './components/layout/root/profile-tab/profile-tab.component';
 import { PingIconComponent } from './components/layout/root/ping-icon/ping-icon.component';
 import { GoogleSigninComponent } from './components/ui/google-signin/google-signin.component';
+import { SolidButtonComponent } from './components/ui/solid-button/solid-button.component';
+import { FriendPageComponent } from './components/layout/friends/friend-page/friend-page.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -67,6 +69,8 @@ const customNotifierOptions: NotifierOptions = {
     ProfileTabComponent,
     PingIconComponent,
     GoogleSigninComponent,
+    SolidButtonComponent,
+    FriendPageComponent,
   ],
   imports: [
     BrowserModule,

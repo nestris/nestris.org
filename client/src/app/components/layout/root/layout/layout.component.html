@@ -1,6 +1,7 @@
 <div class="root">
     <app-sidebar class="sidebar" [isSignedIn]="(websocketService.onSignInUpdate() | async) ?? false" />
     <ng-container *ngIf="sidebarTabService.getSelectedTab() | async as selectedTab">
+        <app-friend-page *ngIf="selectedTab.tab === TabID.FRIENDS" />
         <app-home-page *ngIf="selectedTab.tab === TabID.HOME" />
         <app-play-page *ngIf="selectedTab.tab === TabID.PLAY" />
     </ng-container>

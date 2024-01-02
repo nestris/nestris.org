@@ -24,7 +24,7 @@ body {
     src: url('../../client/src/assets/fonts/Pixel_NES.otf') format('opentype');
 }
 
-.prevent-text-select {
+.prevent-select {
     -webkit-user-select: none; /* Safari */
     -ms-user-select: none; /* IE 10 and IE 11 */
     user-select: none; /* Standard syntax */
