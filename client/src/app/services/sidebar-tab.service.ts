@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ParametrizedTab, TabID } from '../models/tabs';
+import { WebsocketService } from './websocket.service';
 
 /*
 Handles which tab is selected in the sidebar. Exposes an observable that emits the currently selected tab.
@@ -14,12 +15,19 @@ export class SidebarTabService {
   private selectedTab$ = new BehaviorSubject<ParametrizedTab>({tab: TabID.HOME, params: undefined});
 
 
-  constructor() {
+  constructor(
+    private websocketService: WebsocketService
+  ) {
 
     // whenever user clicks back/forward button, update selectedTab$ to state
     window.addEventListener('popstate', (event) => {
       this.setSelectedTab(event.state);
     });
+
+    // on log out, go to home page
+    this.websocketService.onSignOut().subscribe(() => {
+      this.setSelectedTab({tab: TabID.HOME, params: undefined});
+    })
 
   }
 
