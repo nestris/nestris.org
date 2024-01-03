@@ -1,4 +1,4 @@
-import { OnlineUserStatus } from "./models/friends"
+import { FriendInfo, OnlineUserStatus } from "./models/friends"
 
 /*
 Data sent over websocket as JSON. type is the only required field and specifies
@@ -15,7 +15,11 @@ export enum JsonMessageType {
     FRIEND_ONLINE_STATUS_CHANGE = 'friend_online_status_change',
     BROADCAST_ANNOUNCEMENT = 'broadcast_announcement',
     SEND_FRIEND_REQUEST = 'send_friend_request',
+    ON_SEND_FRIEND_REQUEST ='on_send_friend_request',
+    ACCEPT_FRIEND_REQUEST = 'accept_friend_request',
+    DECLINE_FRIEND_REQUEST = 'decline_friend_request',
     ON_FRIEND_REQUEST_ACCEPTED = 'on_friend_request_accepted',
+    ON_FRIEND_REQUEST_DECLINED = 'on_friend_request_declined',
 }
 
 export abstract class JsonMessage {
@@ -103,11 +107,47 @@ export class SendFriendRequestMessage extends JsonMessage {
     }
 }
 
+// sent from server to client to confirm that the user sent a friend request
+export class OnSendFriendRequestMessage extends JsonMessage {
+    constructor(
+        public readonly friendInfo: FriendInfo,
+    ) {
+        super(JsonMessageType.ON_SEND_FRIEND_REQUEST)
+    }
+}
+
+// sent from client to server to accept friend request sent by another user
+export class AcceptFriendRequestMessage extends JsonMessage {
+    constructor(
+        public readonly requesterUsername: string
+    ) {
+        super(JsonMessageType.ACCEPT_FRIEND_REQUEST)
+    }
+}
+
+// sent from client to server to decline friend request sent by another user
+export class DeclineFriendRequestMessage extends JsonMessage {
+    constructor(
+        public readonly requesterUsername: string
+    ) {
+        super(JsonMessageType.DECLINE_FRIEND_REQUEST)
+    }
+}
+
 // sent from server to client when client gets a friend request accepted
 export class OnFriendRequestAcceptedMessage extends JsonMessage {
     constructor(
         public readonly newFriend: string,
     ) {
         super(JsonMessageType.ON_FRIEND_REQUEST_ACCEPTED)
+    }
+}
+
+// sent from server to client when client gets a friend request declined
+export class OnFriendRequestDeclinedMessage extends JsonMessage {
+    constructor(
+        public readonly newFriend: string,
+    ) {
+        super(JsonMessageType.ON_FRIEND_REQUEST_DECLINED)
     }
 }

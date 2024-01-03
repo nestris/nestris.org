@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, filter } from 'rxjs';
 import { ParametrizedTab, TabID } from '../models/tabs';
 import { WebsocketService } from './websocket.service';
 
@@ -33,6 +33,12 @@ export class SidebarTabService {
 
   getSelectedTab(): Observable<ParametrizedTab> {
     return this.selectedTab$.asObservable();
+  }
+
+  onSwitchToTab(tab: TabID): Observable<ParametrizedTab> {
+    return this.getSelectedTab().pipe(
+      filter((currentTab) => currentTab.tab === tab)
+    );
   }
 
   // set the selected tab. if pushToURLHistory is true, update the URL to reflect the new tab

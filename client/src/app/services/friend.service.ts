@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { FriendInfo, FriendStatus, OnlineUserStatus } from 'network-protocol/models/friends';
-import { BehaviorSubject, Observable, filter } from 'rxjs';
+import { BehaviorSubject, Observable, filter, map } from 'rxjs';
 import { getFriendInfoFromServer } from '../scripts/fetch-user';
 import { WebsocketService } from './websocket.service';
 import { NotificationService, NotificationType } from './notification.service';
-import { FriendOnlineStatusChange, JsonMessageType, OnFriendRequestAcceptedMessage, SendFriendRequestMessage } from 'network-protocol/json-message';
+import { FriendOnlineStatusChange, JsonMessageType, OnFriendRequestAcceptedMessage, OnSendFriendRequestMessage, SendFriendRequestMessage } from 'network-protocol/json-message';
 
 /*
   Handles downloading friend data for logged in user from server
@@ -52,6 +52,17 @@ export class FriendService {
     return this.friendsInfo.getValue();
   }
 
+  // subscribe to a count of the number of online friends
+  onNumOnlineFriendsUpdate(): Observable<number> {
+    return this.onFriendsInfoUpdate().pipe(
+      map( // Transform the emitted value to the count of online friends
+        (friendsInfo) => (
+          friendsInfo.filter((friendInfo) => friendInfo.onlineStatus !== OnlineUserStatus.OFFLINE) // filter to only online friends
+        ).length // count number of online friends
+      )
+    );
+  }
+
   constructor(
     private websocketService: WebsocketService,
     private notificationService: NotificationService
@@ -62,18 +73,34 @@ export class FriendService {
       this.syncWithServer();
     });
 
+    // when it's confirmed by the server that the user sent a friend request, update cache
+    this.websocketService.onEvent(JsonMessageType.ON_SEND_FRIEND_REQUEST).subscribe((message) => {
+
+      const friendInfo = (message as OnSendFriendRequestMessage).friendInfo;
+      this.addFriend(friendInfo);
+    });
+
     // when a friend request is accepted, notify the user
     this.websocketService.onEvent(JsonMessageType.ON_FRIEND_REQUEST_ACCEPTED).subscribe((message) => {
       const newFriend = (message as OnFriendRequestAcceptedMessage).newFriend;
       this.notificationService.notify(NotificationType.SUCCESS, `You are now friends with ${newFriend}!`);
-      this.syncWithServer(); // TODO: do not refetch and modify cache instead
 
       // update friends cache to change friend status to FriendStatus.FRIENDS
       const friendInfo = this.getFriendInfo(newFriend);
       if (friendInfo !== undefined) {
         friendInfo.friendStatus = FriendStatus.FRIENDS;
-        this.modifyFriend(friendInfo)
+        this.modifyFriend(friendInfo);
       }
+    });
+
+    // when a friend request is declined, notify the user
+    this.websocketService.onEvent(JsonMessageType.ON_FRIEND_REQUEST_DECLINED).subscribe((message) => {
+      const newFriend = (message as OnFriendRequestAcceptedMessage).newFriend;
+      this.notificationService.notify(NotificationType.ERROR, `${newFriend} declined your friend request.`);
+
+      // delete friend from friend cache
+      this.deleteFriend(newFriend);
+
     });
 
     // when someone sends a friend request, notify the user
@@ -121,6 +148,42 @@ export class FriendService {
     return this.friendsInfo.value.find((friendInfo) => friendInfo.username === username);
   }
 
+  private addFriend(friendInfo: FriendInfo) {
+
+    if (this.friendsInfo.value === undefined) return;
+
+    // make sure friend does not exist
+    if (this.getFriendInfo(friendInfo.username) !== undefined) {
+      throw new Error(`Cannot add friend; ${friendInfo.username} already exists`);
+    }
+
+    const newFriendsInfo = this.friendsInfo.value.map((i) => i);
+    newFriendsInfo.push(friendInfo);
+
+    // emit new value    
+    this.friendsInfo.next(newFriendsInfo);
+    console.log("addFriend:", this.friendsInfo.value);
+
+  }
+
+  // delete a friend and emit new value
+  private deleteFriend(username: string) {
+
+    if (this.friendsInfo.value === undefined) return;
+
+    // make sure friend already exists
+    if (this.getFriendInfo(username) === undefined) {
+      throw new Error("Cannot delete friend: " + username + "doesn't exist in cache");
+    }
+
+    // delete friend
+    const newFriendsInfo = this.friendsInfo.value.filter((friendInfo) => friendInfo.username !== username);
+
+    // emit new value    
+    this.friendsInfo.next(newFriendsInfo);
+    console.log("deleteFriend:", this.friendsInfo.value);
+  }
+
   // we make a shallow copy, remove old friendInfo, and and update new one
   // so that angular change detection works
   private modifyFriend(modifiedFriendInfo: FriendInfo) {
@@ -144,6 +207,7 @@ export class FriendService {
     
     // emit new value    
     this.friendsInfo.next(newFriendsInfo);
+    console.log("modifyFriend:", this.friendsInfo.value);
   }
 
 }

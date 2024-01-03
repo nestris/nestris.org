@@ -85,6 +85,9 @@ export class AddFriendModalComponent implements OnInit, OnDestroy {
     this.potentialFriends = [];
     this.allUsernamesCache.forEach((username: string) => {
 
+      // do not show myself in list
+      if (username === this.websocketService.getUsername()) return;
+
       let status = FriendStatus.NOT_FRIENDS;
       const friend = friendsInfo.find((friendInfo) => friendInfo.username === username); // find matching username on friends list, if any
       if (friend !== undefined) status = friend.friendStatus;

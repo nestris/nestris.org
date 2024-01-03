@@ -1,9 +1,20 @@
-<div class="container">
+<div class="container" [ngClass]="getStatusClass()">
     <div class="container-left">
         <app-online-indicator class="online-indicator" [status]="friendInfo.onlineStatus" />
         <p class="username">{{friendInfo.username}}</p>
+        <p class="status-description pending" *ngIf="friendInfo.friendStatus === FriendStatus.PENDING">friend request sent</p>
+        <p class="status-description incoming" *ngIf="friendInfo.friendStatus === FriendStatus.INCOMING">sent you a friend request</p>
     </div>
     <div class="container-right">
-
+        <div class="accept-decline" *ngIf="friendInfo.friendStatus === FriendStatus.INCOMING">
+            <app-solid-button class="accept-friend-button"
+                label="Accept" [color]="ButtonColor.GREEN"
+                (click)="acceptFriendRequest()" />
+            <app-solid-button class="decline-friend-button"
+                label="Decline" [color]="ButtonColor.RED"
+                (click)="declineFriendRequest()" />
+        </div>
+        
+        
     </div>
 </div>

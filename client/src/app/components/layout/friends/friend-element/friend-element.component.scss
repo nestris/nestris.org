@@ -13,6 +13,14 @@
     justify-content: space-between;
 }
 
+.container.status-incoming {
+    background-color: $transparent-green-color;
+}
+
+.container.status-pending {
+    background-color: $transparent-orange-color;
+}
+
 .container-left, .container-right {
     display: flex;
     flex-direction: row;
@@ -25,6 +33,7 @@
 
 .container-right {
     justify-content: flex-end;
+    margin-right: 10px;
 }
 
 .online-indicator {
@@ -37,4 +46,25 @@
     font-style: normal;
     font-weight: 600;
     line-height: normal;
+
+    min-width: 60px;
+    margin-right: 20px;
+}
+
+.status-description {
+    font-family: $player-font;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.status-description.pending, .status-description.incoming {
+    font-style: italic;
+}
+
+.accept-decline {
+    display: flex;
+    flex-direction: flex-end;
+    align-items: center;
+    gap: 5px;
 }

@@ -3,6 +3,7 @@ import { BinaryDecoder } from 'network-protocol/binary-codec';
 import { JsonMessage, JsonMessageType, OnConnectMessage } from 'network-protocol/json-message';
 import { MessageType, decodeMessage } from 'network-protocol/ws-message';
 import { BehaviorSubject, Observable, Subject, filter, map } from 'rxjs';
+import { NotificationService, NotificationType } from './notification.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +18,9 @@ export class WebsocketService {
 
   private signedInSubject$ = new BehaviorSubject<boolean>(false);
 
-  constructor() {
+  constructor(
+    private notificationService: NotificationService
+  ) {
 
     /*
      Sign in requires a handshake that works as follows:
@@ -32,6 +35,14 @@ export class WebsocketService {
     this.onEvent(JsonMessageType.CONNECTION_SUCCESSFUL).subscribe((message) => {
       this.signedInSubject$.next(true);
     });
+
+    this.onSignIn().subscribe(() =>
+      this.notificationService.notify(NotificationType.SUCCESS, `Signed in as ${this.getUsername()}`)
+    );
+
+    this.onSignOut().subscribe(() =>
+      this.notificationService.notify(NotificationType.ERROR, "You are now signed out")
+    );
 
   }
 
