@@ -13,6 +13,10 @@ export class UserService {
 
   private userInfo = new BehaviorSubject<IUserSchema | undefined>(undefined);
 
+  /*
+  Send GET request to server to get user info for the logged in user
+  // update userInfo subject when received
+  */
   async syncWithServer() {
 
     console.log("Syncing user info with server");
@@ -36,6 +40,8 @@ export class UserService {
     );
 }
 
+  // regular call to get user info. may be undefined until syncWithServer() is called and a response is received.
+  // to make a blocking call with a guaranteed non-undefined value, pipe onUserInfoUpdate() observable with first()
   getUserInfo(): IUserSchema | undefined {
     return this.userInfo.getValue();
   }

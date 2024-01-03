@@ -9,6 +9,7 @@ import { BehaviorSubject, first, firstValueFrom } from 'rxjs';
 export enum FriendStatus {
   FRIENDS = "Friends",
   PENDING = "Pending",
+  INCOMING = "Incoming",
   NOT_FRIENDS = "Not Friends"
 }
 
@@ -90,6 +91,8 @@ export class AddFriendModalComponent implements OnInit, OnDestroy {
           status = FriendStatus.FRIENDS;
         } else if (myInfo.outgoingFriendRequests.includes(username)) { // outgoing friend requests
           status = FriendStatus.PENDING;
+        } else if (myInfo.incomingFriendRequests.includes(username)) { // incoming friend requests
+          status = FriendStatus.INCOMING;
         }
 
         this.potentialFriends!.push({

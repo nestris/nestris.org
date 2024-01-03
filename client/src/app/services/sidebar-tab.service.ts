@@ -2,6 +2,10 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ParametrizedTab, TabID } from '../models/tabs';
 
+/*
+Handles which tab is selected in the sidebar. Exposes an observable that emits the currently selected tab.
+*/
+
 @Injectable({
     providedIn: 'root'
 })
@@ -23,6 +27,7 @@ export class SidebarTabService {
     return this.selectedTab$.asObservable();
   }
 
+  // set the selected tab. if pushToURLHistory is true, update the URL to reflect the new tab
   setSelectedTab(parametrizedTab: ParametrizedTab, pushToURLHistory: boolean = true): void {
 
     this.selectedTab$.next(parametrizedTab);
