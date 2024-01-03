@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { FriendService } from 'client/src/app/services/friend.service';
 import { BehaviorSubject } from 'rxjs';
 
 @Component({
@@ -10,6 +11,14 @@ import { BehaviorSubject } from 'rxjs';
 export class FriendPageComponent {
 
   public friendModalVisibility$ = new BehaviorSubject<boolean>(false);
+
+  constructor(
+    public friendService: FriendService
+  ) {
+    friendService.onFriendsInfoUpdate().subscribe((friendsInfo) => {
+      console.log("on friends info update");
+    });
+  }
 
   // opens the friend modal when the user clicks on the friend button
   toggleFriendModal(event: MouseEvent) {

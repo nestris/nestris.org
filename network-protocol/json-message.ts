@@ -1,4 +1,4 @@
-import { OnlineUserStatus } from "server/server-state/online-user";
+import { OnlineUserStatus } from "./models/friends"
 
 /*
 Data sent over websocket as JSON. type is the only required field and specifies
@@ -12,7 +12,7 @@ export enum JsonMessageType {
     ERROR_HANDSHAKE_INCOMPLETE = 'error_handshake_incomplete',
     PING = 'ping',
     PONG = 'pong',
-    FRIEND_STATUS = 'friend_status',
+    FRIEND_ONLINE_STATUS_CHANGE = 'friend_online_status_change',
     BROADCAST_ANNOUNCEMENT = 'broadcast_announcement',
     SEND_FRIEND_REQUEST = 'send_friend_request',
     ON_FRIEND_REQUEST_ACCEPTED = 'on_friend_request_accepted',
@@ -75,11 +75,12 @@ export class PongMessage extends JsonMessage {
 }
 
 // sent when a friend comes online or goes offline
-export class FriendIsOnlineMessage extends JsonMessage {
+export class FriendOnlineStatusChange extends JsonMessage {
     constructor(
-        public readonly isOnline: boolean,
+        public readonly friendUsername: string, // the user who's status changed
+        public readonly status: OnlineUserStatus, // the new status
     ) {
-        super(JsonMessageType.FRIEND_STATUS)
+        super(JsonMessageType.FRIEND_ONLINE_STATUS_CHANGE)
     }
 }
 

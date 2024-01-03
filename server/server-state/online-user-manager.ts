@@ -1,9 +1,10 @@
 import { createUser, getUserByUsername } from "../database/user/user-service";
-import { OnlineUser, OnlineUserStatus, SocketCloseCode } from "./online-user";
-import { ConnectionSuccessfulMessage, ErrorHandshakeIncompleteMessage, ErrorMessage, FriendIsOnlineMessage as FriendOnlineMessage, JsonMessage, JsonMessageType, OnConnectMessage } from "../../network-protocol/json-message";
+import { OnlineUser, SocketCloseCode } from "./online-user";
+import { ConnectionSuccessfulMessage, ErrorHandshakeIncompleteMessage, ErrorMessage, FriendOnlineStatusChange as FriendOnlineMessage, JsonMessage, JsonMessageType, OnConnectMessage } from "../../network-protocol/json-message";
 import { MessageType, decodeMessage } from "../../network-protocol/ws-message";
 import { ServerState } from "./server-state";
 import { handleJsonMessage } from "./message-handler";
+import { OnlineUserStatus } from "../../network-protocol/models/friends";
 
 /*
 Manages the users that are online right now and thus are connected to socket with websocket
@@ -27,12 +28,33 @@ export class OnlineUserManager {
         return this.onlineUsers.get(username);
     }
 
+    // return a list of OnlineUser objects for each of a user's friends
+    public getFriendsOfUser(username: string): OnlineUser[] {
+        const user = this.getOnlineUserByUsername(username);
+        if (!user) throw new Error("User does not exist or is not online");
+        
+        const onlineFriends: OnlineUser[] = [];
+        for (let friendUsername of user.onlineFriends) {
+            const friend = this.getOnlineUserByUsername(friendUsername);
+            if (friend) onlineFriends.push(friend);
+        }
+
+        return onlineFriends;
+    }
+
     public getOnlineUserBySocket(socket: WebSocket): OnlineUser | undefined {
         return Array.from(this.onlineUsers.values()).find(onlineUser => onlineUser.socket === socket);
     }
 
     public isOnline(username: string): boolean {
         return this.onlineUsers.has(username);
+    }
+
+    // get whether the user is online, and if so, what the user is doing
+    public getOnlineStatus(username: string): OnlineUserStatus {
+        const user = this.getOnlineUserByUsername(username);
+        if (user === undefined) return OnlineUserStatus.OFFLINE;
+        return user.status;
     }
 
     public sendToAllOnlineUsers(message: JsonMessage) {
@@ -92,7 +114,7 @@ export class OnlineUserManager {
                 friendOnlineUser.onlineFriends.add(username);
 
                 // send the friend a message that the user is online
-                friendOnlineUser.sendJsonMessage(new FriendOnlineMessage(true));
+                friendOnlineUser.sendJsonMessage(new FriendOnlineMessage(username, OnlineUserStatus.IDLE));
             }
         }
 
@@ -116,7 +138,7 @@ export class OnlineUserManager {
                 friendOnlineUser.onlineFriends.delete(username);
 
                 // send the friend a message that the user is offline
-                friendOnlineUser.sendJsonMessage(new FriendOnlineMessage(false));
+                friendOnlineUser.sendJsonMessage(new FriendOnlineMessage(username, OnlineUserStatus.OFFLINE));
             }
         }
 
@@ -131,7 +153,7 @@ export class OnlineUserManager {
     // called when a message is received from a client
     public async onSocketMessage(ws: WebSocket, message: any) {
 
-        console.log(`Received message from ${this.getOnlineUserBySocket(ws)?.username}: ${message}`);
+        // console.log(`Received message from ${this.getOnlineUserBySocket(ws)?.username}: ${message}`);
 
         const { type, data } = decodeMessage(message);
         const onlineUser = this.getOnlineUserBySocket(ws);

@@ -79,7 +79,7 @@ export class WebsocketService {
 
     const { type, data } = decodeMessage(message.data);
     if (type === MessageType.JSON) {
-      console.log('Received JSON message:', data);
+      if ((data as JsonMessage).type !== JsonMessageType.PONG) console.log('Received JSON message:', data);
       this.jsonEventSubject$.next(data as JsonMessage);
     } else {
       console.log('Received BINARY message:', (data as BinaryDecoder).bits);
@@ -90,7 +90,7 @@ export class WebsocketService {
   // send some json message to the server
   // subclass JsonMessage to define the message type and schema
   sendJsonMessage(message: JsonMessage) {
-    console.log('Sending JSON message:', message);
+    if (message.type !== JsonMessageType.PING) console.log('Sending JSON message:', message);
     this.ws?.send(JSON.stringify(message));
   } 
 

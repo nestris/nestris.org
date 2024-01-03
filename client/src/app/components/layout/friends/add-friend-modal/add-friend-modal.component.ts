@@ -1,17 +1,10 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Method, fetchServer } from 'client/src/app/scripts/fetch-server';
-import { getUserInfoFromServer } from 'client/src/app/scripts/fetch-user';
-import { UserService } from 'client/src/app/services/user.service';
+import { FriendService } from 'client/src/app/services/friend.service';
 import { WebsocketService } from 'client/src/app/services/websocket.service';
 import { SendFriendRequestMessage } from 'network-protocol/json-message';
-import { BehaviorSubject, first, firstValueFrom } from 'rxjs';
-
-export enum FriendStatus {
-  FRIENDS = "Friends",
-  PENDING = "Pending",
-  INCOMING = "Incoming",
-  NOT_FRIENDS = "Not Friends"
-}
+import { FriendStatus } from 'network-protocol/models/friends';
+import { BehaviorSubject, firstValueFrom } from 'rxjs';
 
 export interface PotentialFriend {
   username: string;
@@ -34,7 +27,7 @@ export class AddFriendModalComponent implements OnInit, OnDestroy {
 
   constructor(
     private websocketService: WebsocketService,
-    private userService: UserService,
+    private friendService: FriendService,
     private cdr: ChangeDetectorRef
     ) {
 
@@ -51,7 +44,7 @@ export class AddFriendModalComponent implements OnInit, OnDestroy {
     });
 
     // when user info is updated and modal is open, update potential friends
-    this.userService.onUserInfoUpdate().subscribe((userInfo) => {
+    this.friendService.onFriendsInfoUpdate().subscribe((friendsInfo) => {
       if (this.visibility$.getValue()) {
         this.updatePotentialFriends();
       }
@@ -59,7 +52,7 @@ export class AddFriendModalComponent implements OnInit, OnDestroy {
 
   }
 
-  // update the list of usernames from the server
+  // update the list of all usernames from the server. should be called only on opening the modal
   async updateAllUsernamesCache() {
      
      const {status, content} = await fetchServer(Method.GET, '/api/all-usernames');
@@ -71,34 +64,34 @@ export class AddFriendModalComponent implements OnInit, OnDestroy {
   }
 
   /*
-    Get the list of usernames from the server.
-    Compare with user's list of friends and see which ones are not already friends.
+    Using the fetched global usernames list, compare with user's list of friends and
+    see which ones are not already friends.
+    Updates this.potentialFriends[]
+
+    FUTURE CONSIDERATION: if this is too slow, consider delaying fetch until
+    user has typed in a letter or two to user search, then only return the subset
+    of usernames beginning with those letters
   */
   async updatePotentialFriends() {
 
-    // get the first value from the observable
-    this.userService.onUserInfoUpdate().pipe(first()).subscribe((myInfo) => {
-      console.log("myInfo", myInfo);
+    console.log("updating potential friends...");
 
-      // compare the list of usernames with the user's friends list
-      this.potentialFriends = [];
-      this.allUsernamesCache.forEach((username: string) => {
+    // block until friends info has been loaded
+    const friendsInfo = await firstValueFrom(this.friendService.onFriendsInfoUpdate());
 
-        let status = FriendStatus.NOT_FRIENDS;
-        if (username === myInfo.username) { // don't show yourself
-          return;
-        } else if (myInfo.friends.includes(username)) { // friends
-          status = FriendStatus.FRIENDS;
-        } else if (myInfo.outgoingFriendRequests.includes(username)) { // outgoing friend requests
-          status = FriendStatus.PENDING;
-        } else if (myInfo.incomingFriendRequests.includes(username)) { // incoming friend requests
-          status = FriendStatus.INCOMING;
-        }
+    console.log("friends info loaded");
+    
+    // compare the list of usernames with the user's friends list
+    this.potentialFriends = [];
+    this.allUsernamesCache.forEach((username: string) => {
 
-        this.potentialFriends!.push({
-          username: username,
-          status: status
-        });
+      let status = FriendStatus.NOT_FRIENDS;
+      const friend = friendsInfo.find((friendInfo) => friendInfo.username === username); // find matching username on friends list, if any
+      if (friend !== undefined) status = friend.friendStatus;
+
+      this.potentialFriends!.push({
+        username: username,
+        status: status
       });
     });
 

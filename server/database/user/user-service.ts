@@ -58,3 +58,24 @@ export async function updateUser(username: string, newData: IUserSchema): Promis
         throw error; // Rethrow the error for further handling
     }
 }
+
+export type UserTrophiesXP = {
+    username: string;
+    trophies: number;
+    xp: number;
+}
+
+// for a list of usernames,read from database to get the trophies and xp for each user
+// do as a single database operation for faster read
+// return as a list of UserTrophiesXP structs
+export async function getTrophiesXPForUsers(usernames: string[]): Promise<UserTrophiesXP[]> {
+    
+    // dummy code, TODO
+    return usernames.map((username) => {
+        return {
+            username: username,
+            trophies: 0, // DUMMY VALUE
+            xp: 0, // DUMMY VALUE
+        } as UserTrophiesXP;
+    });
+}

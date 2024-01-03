@@ -1,15 +1,7 @@
+import { OnlineUserStatus } from "../../network-protocol/models/friends";
 import { JsonMessage } from "../../network-protocol/json-message";
 
-export enum OnlineUserStatus {
-    IDLE = 0,
-    SOLO = 1,
-    VERSUS = 2,
-    SANDBOX = 3,
-    PUZZLES = 4,
-    ANALYSIS = 5,
-    OFFLINE = 6
-}
-
+// the reason for closing the socket connection for one specific user. will be sent as an error code in close frame
 export enum SocketCloseCode {
     NORMAL = 1000,
     ALREADY_LOGGED_IN = 4000,
@@ -17,6 +9,7 @@ export enum SocketCloseCode {
     EMAIL_MISMATCH = 4002,
 }
 
+// a mapping to text explanation for the SocketCloseCode
 const SocketCloseExplanation: Map<SocketCloseCode, string> = new Map<SocketCloseCode, string>([
     [SocketCloseCode.NORMAL, "User closed window or logged out normally."],
     [SocketCloseCode.ALREADY_LOGGED_IN, "User is already logged in; only one session can be active at a time."],

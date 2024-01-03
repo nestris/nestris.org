@@ -20,6 +20,8 @@ import { XComponent } from './components/ui/x/x.component';
 import { ClickOutsideDirective } from './directives/click-outside.directive';
 import { AddFriendModalComponent } from './components/layout/friends/add-friend-modal/add-friend-modal.component';
 import { FriendIconComponent } from './components/layout/friends/friend-icon/friend-icon.component';
+import { FriendElementComponent } from './components/layout/friends/friend-element/friend-element.component';
+import { OnlineIndicatorComponent } from './components/ui/online-indicator/online-indicator.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -81,6 +83,8 @@ const customNotifierOptions: NotifierOptions = {
     AddFriendModalComponent,
     ClickOutsideDirective,
     FriendIconComponent,
+    FriendElementComponent,
+    OnlineIndicatorComponent,
   ],
   imports: [
     BrowserModule,

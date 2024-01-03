@@ -1,0 +1,15 @@
+@import "../../../../styles.scss";
+
+// by default, indicator color is grey for offline
+
+.online-indicator {
+    padding: 10px;
+}
+
+.online-indicator.idle circle {
+    fill: $ui-green-color;
+}
+
+.online-indicator.busy circle {
+    fill: $ui-orange-color;
+}

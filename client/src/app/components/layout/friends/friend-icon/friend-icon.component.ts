@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { FriendStatus } from '../add-friend-modal/add-friend-modal.component';
+import { FriendStatus } from 'network-protocol/models/friends';
 
 @Component({
   selector: 'app-friend-icon',

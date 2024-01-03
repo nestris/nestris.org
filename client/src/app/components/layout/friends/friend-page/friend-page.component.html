@@ -5,3 +5,7 @@
 
 <app-add-friend-modal
     [visibility$]="friendModalVisibility$" />
+
+<div class="friends-list" *ngIf="friendService.onFriendsInfoUpdate() | async as friendsInfo">
+    <app-friend-element *ngFor="let friendInfo of friendsInfo" [friendInfo]="friendInfo" />
+</div>
