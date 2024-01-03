@@ -1,11 +1,11 @@
-.not-friends {
+.interactable {
     cursor: pointer;
 }
 
-.not-friends:hover {
+.interactable:hover {
     opacity: 0.6;
 }
 
-.not-friends:active {
+.interactable:active {
     opacity: 0.5;
 }

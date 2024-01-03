@@ -6,10 +6,10 @@
     <img src="./assets/img/friend-status-icons/pending-friend.svg" width="15px"
         [ngStyle]="{display: (status === FriendStatus.PENDING ? 'block' : 'none')}">
 
-    <img src="./assets/img/friend-status-icons/incoming-friend.svg" width="17px"
+    <img src="./assets/img/friend-status-icons/incoming-friend.svg" width="17px" class="interactable"
         [ngStyle]="{display: (status === FriendStatus.INCOMING ? 'block' : 'none')}">
         
-    <img src="./assets/img/friend-status-icons/not-friend.svg" width="15px" class="not-friends"
+    <img src="./assets/img/friend-status-icons/not-friend.svg" width="15px" class="interactable"
         [ngStyle]="{display: (status === FriendStatus.NOT_FRIENDS ? 'block' : 'none')}">
 
 </div>

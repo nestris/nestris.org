@@ -109,8 +109,8 @@ export class AddFriendModalComponent implements OnInit, OnDestroy {
   // called when user clicks on a potential friend "add friend" icon
   sendFriendRequest(potentialFriend: PotentialFriend) {
 
-    // don't send friend request if already friends or pending
-    if (potentialFriend.status !== FriendStatus.NOT_FRIENDS) return;
+    // only send friend request if user isn't already friends or hasn't already sent a friend request
+    if (potentialFriend.status !== FriendStatus.NOT_FRIENDS && potentialFriend.status !== FriendStatus.INCOMING) return;
 
     // send friend request to server
     this.websocketService.sendJsonMessage(

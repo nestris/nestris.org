@@ -13,7 +13,11 @@ function getConnectionString() {
 
 // must call this function to initialize the MongoDB connection
 export async function connectToDatabase() {
-    const connectionString = getConnectionString();
+    //const connectionString = getConnectionString();
+
+    // connect to local db (mongosh "mongodb://localhost:27017")
+    const connectionString = "mongodb://localhost:27017";
+
     console.log("Connecting to MongoDB instance:", connectionString);
 
     try {
