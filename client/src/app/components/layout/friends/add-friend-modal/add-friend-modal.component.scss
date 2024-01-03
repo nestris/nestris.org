@@ -1,6 +1,6 @@
 .container {
 
-    width: 400px;
+    width: 250px;
 
 }
 
@@ -28,8 +28,11 @@
     border-radius: 5px; /* Set border radius */
     background-color: rgba(255, 255, 255, 0.07); /* Set background color */
     padding: 5px; /* Add some padding inside the input */
-    width: 200px; /* Set a specific width */
+    box-sizing: border-box;
+    width: 100%; /* Set a specific width */
     font-size: 16px; /* Set font size */
+
+    margin-bottom: 10px;
 }
 
 /* Placeholder styles */
@@ -44,4 +47,43 @@
 
 #username::placeholder {
     color: rgba(255, 255, 255, 0.8);
+}
+
+.loading {
+    font-family: Montserrat;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.usernames {
+    display: flex;
+    flex-direction: column;
+}
+
+.username {
+    box-sizing: border-box;
+    width: 100%;
+    border-radius: 5px;
+    padding-inline: 5px;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.username:hover {
+    background-color: rgba(255, 255, 255, 0.02);
+
+}
+
+.username-text {
+    font-family: Alegreya;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    margin: 4px;
 }

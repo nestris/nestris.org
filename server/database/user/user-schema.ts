@@ -8,6 +8,8 @@ export interface IUserSchema {
     lastOnline: Date;
     isProUser: boolean;
     friends: string[];
+    outgoingFriendRequests: string[];
+    incomingFriendRequests: string[];
     joinDate: Date;
     gamesPlayedConsole: number;
     gamesPlayedOnline: number;
@@ -49,6 +51,12 @@ class UserSchema implements IUserSchema {
 
     @prop({ type: () => [String], required: true, default: [] })
     public friends!: string[];
+
+    @prop({ type: () => [String], required: true, default: [] })
+    public outgoingFriendRequests!: string[];
+
+    @prop({ type: () => [String], required: true, default: [] })
+    public incomingFriendRequests!: string[];
 
     @prop({ required: true, default: Date.now })
     public joinDate!: Date;

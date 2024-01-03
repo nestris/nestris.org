@@ -15,11 +15,11 @@ import { PingIconComponent } from './components/layout/root/ping-icon/ping-icon.
 import { GoogleSigninComponent } from './components/ui/google-signin/google-signin.component';
 import { SolidButtonComponent } from './components/ui/solid-button/solid-button.component';
 import { FriendPageComponent } from './components/layout/friends/friend-page/friend-page.component';
-import { FriendElementComponent } from './components/layout/friends/friend-element/friend-element.component';
 import { ModalComponent } from './components/ui/modal/modal.component';
 import { XComponent } from './components/ui/x/x.component';
-import { AddFriendModalComponent } from './components/layout/friends/add-friend-modal/add-friend-modal.component';
 import { ClickOutsideDirective } from './directives/click-outside.directive';
+import { AddFriendModalComponent } from './components/layout/friends/add-friend-modal/add-friend-modal.component';
+import { FriendIconComponent } from './components/layout/friends/friend-icon/friend-icon.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -76,11 +76,11 @@ const customNotifierOptions: NotifierOptions = {
     GoogleSigninComponent,
     SolidButtonComponent,
     FriendPageComponent,
-    FriendElementComponent,
     ModalComponent,
     XComponent,
     AddFriendModalComponent,
     ClickOutsideDirective,
+    FriendIconComponent,
   ],
   imports: [
     BrowserModule,

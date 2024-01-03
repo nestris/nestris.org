@@ -1,6 +1,6 @@
 import { createUser, getUserByUsername } from "../database/user/user-service";
 import { OnlineUser, OnlineUserStatus, SocketCloseCode } from "./online-user";
-import { ConnectionSuccessfulMessage, ErrorHandshakeIncompleteMessage, FriendIsOnlineMessage as FriendOnlineMessage, JsonMessage, JsonMessageType, OnConnectMessage } from "../../network-protocol/json-message";
+import { ConnectionSuccessfulMessage, ErrorHandshakeIncompleteMessage, ErrorMessage, FriendIsOnlineMessage as FriendOnlineMessage, JsonMessage, JsonMessageType, OnConnectMessage } from "../../network-protocol/json-message";
 import { MessageType, decodeMessage } from "../../network-protocol/ws-message";
 import { ServerState } from "./server-state";
 import { handleJsonMessage } from "./message-handler";
@@ -149,7 +149,13 @@ export class OnlineUserManager {
             }
         } else {
             // recieved message from socket recognized as online user
-            handleJsonMessage(this.state, onlineUser, data as JsonMessage);
+            try {
+                await handleJsonMessage(this.state, onlineUser, data as JsonMessage);
+            } catch (error: any) {
+                console.error(error);
+                onlineUser.sendJsonMessage(new ErrorMessage(error.toString()));
+            }
+            
         }
     }
 

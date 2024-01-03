@@ -6,6 +6,7 @@ the type of message being sent. All other fields are optional and depend on the
 type of message being sent.
 */
 export enum JsonMessageType {
+    ERROR_MESSAGE = 'error_message',
     ON_CONNECT = 'on_connect',
     CONNECTION_SUCCESSFUL = 'connection_successful',
     ERROR_HANDSHAKE_INCOMPLETE = 'error_handshake_incomplete',
@@ -13,6 +14,8 @@ export enum JsonMessageType {
     PONG = 'pong',
     FRIEND_STATUS = 'friend_status',
     BROADCAST_ANNOUNCEMENT = 'broadcast_announcement',
+    SEND_FRIEND_REQUEST = 'send_friend_request',
+    ON_FRIEND_REQUEST_ACCEPTED = 'on_friend_request_accepted',
 }
 
 export abstract class JsonMessage {
@@ -22,6 +25,15 @@ export abstract class JsonMessage {
 }
 
 // SCHEMAS FOR EACH MESSAGE TYPE
+
+// sent from server to client when an error occurs
+export class ErrorMessage extends JsonMessage {
+    constructor(
+        public readonly error: string,
+    ) {
+        super(JsonMessageType.ERROR_MESSAGE)
+    }
+}
 
 // sent as initial message from client to server when user connects
 export class OnConnectMessage extends JsonMessage {
@@ -77,5 +89,24 @@ export class BroadcastAnnouncementMessage extends JsonMessage {
         public readonly announcement: string,
     ) {
         super(JsonMessageType.BROADCAST_ANNOUNCEMENT)
+    }
+}
+
+// sent from client to server when a user sends a friend request
+// also sent from server to client when a user receives a friend request
+export class SendFriendRequestMessage extends JsonMessage {
+    constructor(
+        public readonly potentialFriend: string,
+    ) {
+        super(JsonMessageType.SEND_FRIEND_REQUEST)
+    }
+}
+
+// sent from server to client when client gets a friend request accepted
+export class OnFriendRequestAcceptedMessage extends JsonMessage {
+    constructor(
+        public readonly newFriend: string,
+    ) {
+        super(JsonMessageType.ON_FRIEND_REQUEST_ACCEPTED)
     }
 }

@@ -1,0 +1,12 @@
+<div class="container">
+
+    <img src="./assets/img/friend-status-icons/is-friend.svg" width="15px"
+        [ngStyle]="{display: (status === FriendStatus.FRIENDS ? 'block' : 'none')}">
+
+    <img src="./assets/img/friend-status-icons/pending-friend.svg" width="15px"
+        [ngStyle]="{display: (status === FriendStatus.PENDING ? 'block' : 'none')}">
+        
+    <img src="./assets/img/friend-status-icons/not-friend.svg" width="15px" class="not-friends"
+        [ngStyle]="{display: (status === FriendStatus.NOT_FRIENDS ? 'block' : 'none')}">
+
+</div>

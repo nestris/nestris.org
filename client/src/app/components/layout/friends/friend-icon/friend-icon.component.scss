@@ -1,0 +1,11 @@
+.not-friends {
+    cursor: pointer;
+}
+
+.not-friends:hover {
+    opacity: 0.6;
+}
+
+.not-friends:active {
+    opacity: 0.5;
+}

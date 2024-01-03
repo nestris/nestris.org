@@ -10,6 +10,8 @@ import { Express, Request, Response } from 'express';
 import { ServerState } from './server-state/server-state';
 import { broadcastAnnouncementRoute } from './routes/broadcast-route';
 import { connectToDatabase } from './database/connect-to-database';
+import { getAllUsernamesRoute, getUserByUsernameRoute } from './routes/user-route';
+import { get } from 'mongoose';
 
 
 require('dotenv').config();
@@ -36,6 +38,12 @@ export default async function createApp(): Promise<{
     // announce message to all online users. useful for maintenance announcements and the like
     app.post('/api/broadcast-announcement', async (req: Request, res: Response) => broadcastAnnouncementRoute(req, res, state));
     
+    // returns a list of all usernames in the database
+    app.get('/api/all-usernames', getAllUsernamesRoute);
+
+    // get all the info on a user by their username
+    app.get('/api/user/:username', getUserByUsernameRoute);
+
     // catch all invalid api routes
     app.get('/api/*', (req, res) => {
         res.status(404).send("Invalid API route");

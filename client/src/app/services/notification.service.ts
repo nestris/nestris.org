@@ -27,7 +27,7 @@ export class NotificationService {
   // message is the message to display
   // id is a unique identifier for this notification
   // durationSeconds is the number of seconds to display the notification for, or undefined for no hide
-  notify(type: NotificationType, message: string, autohide: NotificationAutohide) {
+  notify(type: NotificationType, message: string, autohide: NotificationAutohide = NotificationAutohide.SHORT) {
 
     const id = uuidv4();
     this.notifier.notify(type, message, id);
@@ -43,7 +43,7 @@ export class NotificationService {
     if (durationSeconds !== null) {
       setTimeout(() => {
         this.notifier.hide(id!);
-      }, durationSeconds * durationSeconds);
+      }, durationSeconds * 1000);
     }
     
   }
