@@ -55,12 +55,19 @@ export async function getFriendsInfoRoute(req: Request, res: Response, state: Se
 
         // build up FriendInfo list with corresponding friend status
         const friendsInfo: FriendInfo[] = [];
-        user.friends.forEach((friend) => friendsInfo.push(new FriendInfo(
-            friend,
-            FriendStatus.FRIENDS,
-            state.onlineUserManager.getOnlineStatus(friend),
-            0, 0 // trophies and xp to be set in the next step
-        )));
+
+        const addFriends = (usernames: string[], friendStatus: FriendStatus) => {
+            usernames.forEach((friend) => friendsInfo.push(new FriendInfo(
+                friend,
+                friendStatus,
+                state.onlineUserManager.getOnlineStatus(friend),
+                0, 0 // trophies and xp to be set in the next step
+            )));
+        }
+        // ordered so that incoming requests, then pending requests, then friends are displayed in friends list
+        addFriends(user.incomingFriendRequests, FriendStatus.INCOMING);
+        addFriends(user.outgoingFriendRequests, FriendStatus.PENDING);
+        addFriends(user.friends, FriendStatus.FRIENDS);
 
         // get trophies/xp for each friend/potential friend from db and update friendsInfo
         const friendUsernames = friendsInfo.map((info) => info.username); // get list of usernames from all friends/potential friends

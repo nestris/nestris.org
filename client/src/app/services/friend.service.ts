@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { FriendInfo, OnlineUserStatus } from 'network-protocol/models/friends';
+import { FriendInfo, FriendStatus, OnlineUserStatus } from 'network-protocol/models/friends';
 import { BehaviorSubject, Observable, filter } from 'rxjs';
 import { getFriendInfoFromServer } from '../scripts/fetch-user';
 import { WebsocketService } from './websocket.service';
@@ -21,6 +21,7 @@ export class FriendService {
   Call this function to fetch current friend data
   Send GET request to server to get user info for the logged in user
   update friendInfo subject when received
+  This is expensive. prefer to modify it on change events instead of completely redownloading every time
   */
   async syncWithServer() {
 
@@ -66,6 +67,13 @@ export class FriendService {
       const newFriend = (message as OnFriendRequestAcceptedMessage).newFriend;
       this.notificationService.notify(NotificationType.SUCCESS, `You are now friends with ${newFriend}!`);
       this.syncWithServer(); // TODO: do not refetch and modify cache instead
+
+      // update friends cache to change friend status to FriendStatus.FRIENDS
+      const friendInfo = this.getFriendInfo(newFriend);
+      if (friendInfo !== undefined) {
+        friendInfo.friendStatus = FriendStatus.FRIENDS;
+        this.modifyFriend(friendInfo)
+      }
     });
 
     // when someone sends a friend request, notify the user
@@ -100,23 +108,42 @@ export class FriendService {
           this.notificationService.notify(NotificationType.ERROR, `${friendInfo.username} went offline`);
         }
 
-        // update online status. instead of modifying the relevant friendInfo directly,
-        // we make a shallow copy, remove old friendInfo, and and update new one
-        // so that angular change detection works
-        const newFriendInfo = new FriendInfo(
-          friendInfo.username,
-          friendInfo.friendStatus,
-          statusChange.status,
-          friendInfo.trophies,
-          friendInfo.xp
-        );
-        const newFriendsInfo = this.friendsInfo.value.filter((friendInfo) => friendInfo.username !== statusChange.friendUsername);
-        newFriendsInfo.push(newFriendInfo);
-
-        this.friendsInfo.next(newFriendsInfo);
-        console.log("updated", friendInfo.username, "to", friendInfo.onlineStatus);
+        // update friend info
+        friendInfo.onlineStatus = statusChange.status;
+        this.modifyFriend(friendInfo);
       }
     });
-
   }
+
+  // get the friend info for a given username, if it exists
+  getFriendInfo(username: string): FriendInfo | undefined {
+    if (this.friendsInfo.value === undefined) return undefined;
+    return this.friendsInfo.value.find((friendInfo) => friendInfo.username === username);
+  }
+
+  // we make a shallow copy, remove old friendInfo, and and update new one
+  // so that angular change detection works
+  private modifyFriend(modifiedFriendInfo: FriendInfo) {
+
+    if (this.friendsInfo.value === undefined) return;
+    
+    // make sure friend already exists
+    if (this.getFriendInfo(modifiedFriendInfo.username) === undefined) {
+      throw new Error("Cannot modify friend; " + modifiedFriendInfo.username + "doesn't exist in cache");
+    }
+
+    // replace friend info and make shallow copy
+    const newFriendsInfo = this.friendsInfo.value.filter((friendInfo) => friendInfo.username !== modifiedFriendInfo.username);
+    newFriendsInfo.push(new FriendInfo(
+      modifiedFriendInfo.username,
+      modifiedFriendInfo.friendStatus,
+      modifiedFriendInfo.onlineStatus,
+      modifiedFriendInfo.xp,
+      modifiedFriendInfo.trophies
+    ));
+    
+    // emit new value    
+    this.friendsInfo.next(newFriendsInfo);
+  }
+
 }
