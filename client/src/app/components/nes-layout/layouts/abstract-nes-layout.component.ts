@@ -22,5 +22,5 @@ export abstract class AbstractNesLayoutComponent {
   @Input() score: number = 0;
   @Input() trt: number = 0;
   @Input() drought?: number = undefined; // if undefined, not in drought and hidden. if drought, replace trt
-  @Input() keybindInstructions?: string; // optional instructions that would typically appear below the board
+  @Input() keybinds?: string[]; // optional keybind instructions that would typically appear below the board
 }

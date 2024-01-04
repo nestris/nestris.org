@@ -31,3 +31,25 @@
     width: 120px;
     height: 80px;
 }
+
+.board-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.keybinds-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.keybinds {
+    text-align: center;
+    text-wrap: nowrap;
+    font-family: $main-font;
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    margin: 2px;
+}

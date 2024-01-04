@@ -1,3 +1,8 @@
 <app-outline-button class="leave-fullscreen-button" label="Exit" (click)="exitFullscreen()" />
 
-<app-layout-one class="game" [board]="board" [level]="17" [nextPiece]="TetrominoType.L_TYPE" />
+<app-layout-one class="game"
+    [board]="board" [level]="17"
+    [nextPiece]="TetrominoType.L_TYPE"
+    [trt]="0.874"
+    [keybinds]="['Rotate (Z & X) / Shift (left arrow & right arrow)', 'Quit (Q) / Restart (R)']"
+    />
