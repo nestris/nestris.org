@@ -25,4 +25,16 @@ export class PlayPageComponent {
     this.platform = platform;
   }
 
+  playSolo() {
+
+  }
+
+  playVersus() {
+
+  }
+
+  playSandbox() {
+    
+  }
+
 }

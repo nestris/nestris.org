@@ -28,3 +28,26 @@
 
 <h1 class="header">Select Gamemode</h1>
 
+<section class="play-section">
+
+    <div class="play-container hoverable" (click)="playSolo()">
+        <h1>Solo</h1>
+        <img src="./assets/img/button-icons/play-icons/solo.svg" width="220px">
+        <p>
+            Improve your stacking skills and gain XP in solo mode!
+        </p>
+    </div>
+    <div class="play-container hoverable" (click)="playVersus()">
+        <h1>Versus</h1>
+        <img src="./assets/img/button-icons/play-icons/versus.svg" width="220px">
+        <p>
+            Gain trophies and move up the leagues by winning matches!
+        </p>
+    </div>
+    <div class="play-container hoverable" (click)="playSandbox()">
+        <h1>Sandbox</h1>
+        <img src="./assets/img/button-icons/play-icons/sandbox.svg" width="220px">
+        <p>
+            Create rooms to play unranked games with friends!
+        </p>
+    </div>
