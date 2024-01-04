@@ -69,6 +69,11 @@ export async function handleSendFriendRequestMessage(state: ServerState, author:
         if (recipient) {
             recipient.sendJsonMessage(new OnFriendRequestAcceptedMessage(author.username));
         }
+
+        // update multiplayer manager state
+        state.onlineUserManager.getOnlineUserByUsername(dbSender.username)?.friends.push(dbRecipient.username);
+        if (dbRecipient) state.onlineUserManager.getOnlineUserByUsername(dbRecipient.username)?.friends.push(dbSender.username);
+
     } else { // otherwise, send friend request to recipient if they are online
 
         // get XP and trophies of the recipient
@@ -103,8 +108,8 @@ export async function handleAcceptFriendRequestMessage(state: ServerState, autho
     if (!contains(dbAccepter?.incomingFriendRequests, dbRequester.username)) throw new Error(`Cannot accept friend request, ${dbRequester.username} did not send a request to ${dbAccepter.username}`);
 
     // this is a valid request. remove the incoming/outgoing friends and convert to real friends
-    dbRequester.outgoingFriendRequests = dbRequester.outgoingFriendRequests.filter((username) => username === dbAccepter.username);
-    dbAccepter.incomingFriendRequests = dbAccepter.incomingFriendRequests.filter((username) => username === dbRequester.username);
+    dbRequester.outgoingFriendRequests = dbRequester.outgoingFriendRequests.filter((username) => username !== dbAccepter.username);
+    dbAccepter.incomingFriendRequests = dbAccepter.incomingFriendRequests.filter((username) => username !== dbRequester.username);
     dbRequester.friends.push(dbAccepter.username);
     dbAccepter.friends.push(dbRequester.username);
 
@@ -118,6 +123,11 @@ export async function handleAcceptFriendRequestMessage(state: ServerState, autho
     // get the requester's OnlineUser object if they are online, or undefined if not
     const requester = state.onlineUserManager.getOnlineUserByUsername(dbRequester.username);
     if (requester) requester.sendJsonMessage(new OnFriendRequestAcceptedMessage(dbAccepter.username));
+
+    // update multiplayer manager state
+    state.onlineUserManager.getOnlineUserByUsername(dbAccepter.username)?.friends.push(dbRequester.username);
+    if (requester) state.onlineUserManager.getOnlineUserByUsername(dbRequester.username)?.friends.push(dbAccepter.username);
+
 }
 
 // sent when a user declines friend request from another user
@@ -132,8 +142,8 @@ export async function handleDeclineFriendRequestMessage(state: ServerState, auth
     if (!contains(dbDecliner?.incomingFriendRequests, dbRequester.username)) throw new Error(`Cannot decline friend request, ${dbRequester.username} did not send a request to ${dbDecliner.username}`);
 
     // this is a valid request. remove the incoming/outgoing friends
-    dbRequester.outgoingFriendRequests = dbRequester.outgoingFriendRequests.filter((username) => username === dbDecliner.username);
-    dbDecliner.incomingFriendRequests = dbDecliner.incomingFriendRequests.filter((username) => username === dbRequester.username);
+    dbRequester.outgoingFriendRequests = dbRequester.outgoingFriendRequests.filter((username) => username !== dbDecliner.username);
+    dbDecliner.incomingFriendRequests = dbDecliner.incomingFriendRequests.filter((username) => username !== dbRequester.username);
 
     // save changes to database
     await updateUser(dbRequester.username, dbRequester);

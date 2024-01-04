@@ -5,6 +5,8 @@ import { MessageType, decodeMessage } from "../../network-protocol/ws-message";
 import { ServerState } from "./server-state";
 import { handleJsonMessage } from "./message-handler";
 import { OnlineUserStatus } from "../../network-protocol/models/friends";
+import { contains } from "misc/array-functions";
+import { concat } from "rxjs";
 
 /*
 Manages the users that are online right now and thus are connected to socket with websocket
@@ -26,20 +28,6 @@ export class OnlineUserManager {
 
     public getOnlineUserByUsername(username: string): OnlineUser | undefined {
         return this.onlineUsers.get(username);
-    }
-
-    // return a list of OnlineUser objects for each of a user's friends
-    public getFriendsOfUser(username: string): OnlineUser[] {
-        const user = this.getOnlineUserByUsername(username);
-        if (!user) throw new Error("User does not exist or is not online");
-        
-        const onlineFriends: OnlineUser[] = [];
-        for (let friendUsername of user.onlineFriends) {
-            const friend = this.getOnlineUserByUsername(friendUsername);
-            if (friend) onlineFriends.push(friend);
-        }
-
-        return onlineFriends;
     }
 
     public getOnlineUserBySocket(socket: WebSocket): OnlineUser | undefined {
@@ -106,14 +94,8 @@ export class OnlineUserManager {
             
             if (this.isOnline(friend)) { // if user's friend is online
 
-                // add the friend to the user's online friends
-                onlineUser.onlineFriends.add(friend);
-
-                // add the user to the friend's online friends
-                const friendOnlineUser = this.getOnlineUserByUsername(friend)!;
-                friendOnlineUser.onlineFriends.add(username);
-
                 // send the friend a message that the user is online
+                const friendOnlineUser = this.getOnlineUserByUsername(friend)!;
                 friendOnlineUser.sendJsonMessage(new FriendOnlineMessage(username, OnlineUserStatus.IDLE));
             }
         }
@@ -133,11 +115,8 @@ export class OnlineUserManager {
             
             if (this.isOnline(friend)) { // if user's friend is online
 
-                // remove the user from the friend's online friends
-                const friendOnlineUser = this.getOnlineUserByUsername(friend)!;
-                friendOnlineUser.onlineFriends.delete(username);
-
                 // send the friend a message that the user is offline
+                const friendOnlineUser = this.getOnlineUserByUsername(friend)!;
                 friendOnlineUser.sendJsonMessage(new FriendOnlineMessage(username, OnlineUserStatus.OFFLINE));
             }
         }

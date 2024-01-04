@@ -7,7 +7,10 @@
         <app-google-signin *ngIf="!isSignedIn" class="signin-tab" />
 
         <app-profile-tab *ngIf="isSignedIn" class="profile-tab"/>
-        <app-sidebar-tab *ngIf="isSignedIn" [tab]="TabID.FRIENDS" />
+        <app-sidebar-tab *ngIf="isSignedIn" [tab]="TabID.FRIENDS">
+            <p class="online-users">{{friendService.onNumOnlineFriendsUpdate() | async}}</p>
+            <app-online-indicator [status]="(friendService.onNumOnlineFriendsUpdate() | async) === 0 ? OnlineUserStatus.OFFLINE : OnlineUserStatus.IDLE" />
+        </app-sidebar-tab>
         <app-sidebar-tab *ngIf="isSignedIn" [tab]="TabID.ALERTS" />
 
         <app-sidebar-tab class="home-tab" [tab]="TabID.HOME" />

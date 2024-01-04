@@ -7,5 +7,5 @@
     [visibility$]="friendModalVisibility$" />
 
 <div class="friends-list" *ngIf="friendService.onFriendsInfoUpdate() | async as friendsInfo">
-    <app-friend-element *ngFor="let friendInfo of friendsInfo" [friendInfo]="friendInfo" />
+    <app-friend-element *ngFor="let friendInfo of sort(friendsInfo)" [friendInfo]="friendInfo" />
 </div>

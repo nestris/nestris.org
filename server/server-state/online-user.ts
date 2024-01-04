@@ -26,8 +26,6 @@ export class OnlineUser {
     public connectTime: number = Date.now();
     public status: OnlineUserStatus = OnlineUserStatus.IDLE; // status should not be offline as long as object exists
 
-    // set of usernames of online friends. maintained by OnlineUserManager
-    public onlineFriends: Set<string> = new Set<string>(); 
 
     constructor(
         public readonly username: string, // unique identifier for the user
