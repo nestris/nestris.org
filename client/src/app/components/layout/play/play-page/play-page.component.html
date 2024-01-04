@@ -1,1 +1,30 @@
-<p>play-page works!</p>
+<h1 class="header">Select Platform</h1>
+
+<section class="platform-section">
+    <div class="platform online" [ngClass]="platform === Platform.ONLINE ? 'selected' : ''" (click)="selectPlatform(Platform.ONLINE)" >
+        <h1 class="platform-label">Play Online</h1>
+        <img class="platform-icon" height="110px" src="./assets/img/button-icons/platform-icons/online-platform.png">
+        <p class="platform-description">
+            Just playing on your computer? Select this option!
+        </p>
+        <app-solid-button [color]="ButtonColor.BLUE" class="platform-button"
+            label="Edit keybindings"
+            icon="./assets/img/button-icons/calibrate.svg"
+            />
+    </div>
+    <div class="platform ocr"[ngClass]="platform === Platform.OCR ? 'selected' : ''" (click)="selectPlatform(Platform.OCR)">
+        <h1 class="platform-label">OCR Capture</h1>
+        <img class="platform-icon" height="78px" src="./assets/img/button-icons/platform-icons/ocr-platform.png">
+        <p class="platform-description">
+            Have an actual NES console? You can capture gameplay through capture card!
+        </p>
+        <app-solid-button [color]="ButtonColor.BLUE" class="platform-button"
+            label="Setup Calibration"
+            icon="./assets/img/button-icons/calibrate.svg"
+             />
+        <p class="platform-error">Calibration not yet set</p>
+    </div>
+</section>
+
+<h1 class="header">Select Gamemode</h1>
+

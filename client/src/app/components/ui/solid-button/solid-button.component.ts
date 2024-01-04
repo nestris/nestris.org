@@ -2,7 +2,8 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 export enum ButtonColor {
   GREEN = "#54A165",
-  RED = "#A15454"
+  RED = "#A15454",
+  BLUE = "#626EDF"
 }
 
 @Component({

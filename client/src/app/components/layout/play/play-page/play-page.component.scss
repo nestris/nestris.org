@@ -1,0 +1,86 @@
+@import "../../../../../styles.scss";
+
+:host {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.header {
+    font-family: Montserrat;
+    font-size: 25px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.platform-section {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 10px;
+}
+
+.platform {
+    background-color: $section-color;
+    border-radius: 5px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 400px;
+    height: 100%;
+
+    transition: background-color 0.3s ease;
+    box-shadow: 0 0.4vh 1.5vh 0.05vh rgb(0,0,0,0.2);
+
+    border: rgb(0,0,0,0) solid 2px;
+}
+
+.platform:hover {
+    opacity: 0.8;
+    background-color: lighten($section-color, 10%);
+    box-shadow: 0 0.4vh 1.5vh 0.05vh rgb(0,0,0,0.5);
+
+    border: rgb(0,0,0,0.5) solid 2px;
+}
+
+.platform.selected {
+    border: white solid 2px;
+}
+
+.platform-label {
+    font-family: Montserrat;
+    font-size: 40px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    margin: 10px;
+}
+
+.platform-description {
+    font-family: Montserrat;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+
+    text-align: center;
+    text-wrap: pretty;
+    width: 80%;
+}
+
+.platform-error {
+    color: #F15757;
+    font-family: Montserrat;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    margin: 10px;
+}
