@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component } from '@angular/core';
 import { SidebarTabService } from 'client/src/app/services/sidebar-tab.service';
 import { TabID } from 'client/src/app/models/tabs';
 import { WebsocketService } from 'client/src/app/services/websocket.service';

@@ -1,1 +1,22 @@
-<p>nes-board works!</p>
+<div class="board-container">
+    <svg class="board-svg"
+        [attr.width]="(scale*boardWidthPixels) + 'px'"
+        [attr.height]="(scale*boardHeightPixels) + 'px'"
+        [attr.viewBox]="'0 0 ' + boardWidthPixels + ' ' + boardHeightPixels">
+
+        <g>
+            <g *ngFor="let y of ZERO_TO_NINETEEN">
+                <g *ngFor="let x of ZERO_TO_NINE">
+                    <g app-nes-block
+                        [color]="board.getAt(x,y)"
+                        [level]="level"
+                        [interactable]="interactable"
+                        [offsetX]="9*x + 1"
+                        [offsetY]="9*y + 1"
+                    />
+                </g>
+            </g>
+        </g>
+
+    </svg>
+</div>

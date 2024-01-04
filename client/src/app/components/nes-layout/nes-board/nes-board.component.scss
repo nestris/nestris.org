@@ -1,0 +1,9 @@
+.board-container {
+    background-color: black;
+    border-radius: 5px;
+    border: solid white 1px;
+}
+
+.board-svg {
+    display: block; // prevents the weird space in the bottom of the board
+}
