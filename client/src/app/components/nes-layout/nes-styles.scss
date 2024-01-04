@@ -2,7 +2,7 @@
 
 $panel-margin: 4px;
 
-h1, h2 {
+h1, h2, p {
     font-family: 'NES';
     color: white;
 }
@@ -13,6 +13,11 @@ h1 {
 }
 
 h2 {
+    font-size: 30px;
+    margin: -2px 0;
+}
+
+p {
     font-size: 20px;
     margin: 0;
 }
