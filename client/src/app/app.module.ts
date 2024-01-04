@@ -88,7 +88,6 @@ const customNotifierOptions: NotifierOptions = {
     FriendIconComponent,
     FriendElementComponent,
     OnlineIndicatorComponent,
-    AbstractNesLayoutComponent,
     NesPanelComponent,
     NesBoardComponent,
   ],

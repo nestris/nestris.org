@@ -16,10 +16,10 @@ export class TetrisBoard {
 
     // initialize the grid to be empty
     constructor() {
-        for (let i = 0; i < 20; i++) {
+        for (let y = 0; y < 20; y++) {
             this.grid.push([]);
-            for (let j = 0; j < 10; j++) {
-                this.grid[i].push(ColorType.EMPTY);
+            for (let x = 0; x < 10; x++) {
+                this.grid[y].push(ColorType.EMPTY);
             }
         }
     }
@@ -30,10 +30,10 @@ export class TetrisBoard {
         const grid = new TetrisBoard();
 
         let index = 0;
-        for (let i = 0; i < 20; i++) {
-            for (let j = 0; j < 10; j++) {
+        for (let y = 0; y < 20; y++) {
+            for (let x = 0; x < 10; x++) {
                 const colorType = parseInt(binaryString[index++]) as ColorType;
-                grid.setAt(i, j, colorType);
+                grid.setAt(x, y, colorType);
             }
         }
 
@@ -41,22 +41,38 @@ export class TetrisBoard {
     }
 
     // set the color of a cell at a given row and column
-    setAt(row: number, column: number, color: ColorType): void {
-        this.grid[row][column] = color;
+    setAt(x: number, y: number, color: ColorType): void {
+        this.grid[y][x] = color;
     }
 
     // get the color of a cell at a given row and column
-    getAt(row: number, column: number): ColorType {
-        return this.grid[row][column];
+    getAt(x: number, y: number): ColorType {
+        return this.grid[y][x];
+    }
+
+    // whether block at (x,y) exists
+    exists(x: number, y: number): boolean {
+        return this.getAt(x, y) != ColorType.EMPTY;
+    }
+
+    // count the number of tetrominos in the board
+    count(): number {
+        let count = 0;
+        for (let y = 0; y < 20; y++) {
+            for (let x = 0; x < 10; x++) {
+                if (this.exists(x,y)) count++;
+            }
+        }
+        return count;
     }
 
     // make a copy of the grid
     copy(): TetrisBoard {
         const grid = new TetrisBoard();
 
-        for (let i = 0; i < 20; i++) {
-            for (let j = 0; j < 10; j++) {
-                grid.setAt(i, j, this.getAt(i, j));
+        for (let y = 0; y < 20; y++) {
+            for (let x = 0; x < 10; x++) {
+                grid.setAt(x, y, this.getAt(x, y));
             }
         }
 
@@ -67,13 +83,25 @@ export class TetrisBoard {
     toBinaryString(): string {
         let binaryString = '';
 
-        for (let i = 0; i < 20; i++) {
-            for (let j = 0; j < 10; j++) {
-                binaryString += this.grid[i][j];
+        for (let y = 0; y < 20; y++) {
+            for (let x = 0; x < 10; x++) {
+                binaryString += this.getAt(x,y);
             }
         }
 
         return binaryString;
+    }
+
+    // print 20x10 grid with the color numbers
+    print() {
+        let str = "";
+        for (let y = 0; y < 20; y++) {
+            for (let x = 0; x < 10; x++) {
+                str += "" + this.getAt(x,y) + " ";
+            }
+            str += "\n"
+        }
+        console.log(str);
     }
 
 }

@@ -1,4 +1,4 @@
-import { TetrominoType } from "./tetrominos";
+import { TetrominoType } from "./tetromino-type";
 
 const PIECE_I = [
     [

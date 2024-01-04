@@ -1,4 +1,4 @@
-import { TetrominoType } from "client/src/app/models/tetris/tetrominos";
+import { TetrominoType } from "client/src/app/models/tetris/tetromino-type";
 
 /*
 Builder for compact binary encoding. Allows you to add different types of data

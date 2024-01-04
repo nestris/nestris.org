@@ -1,6 +1,5 @@
 import { ColorType } from "./tetris-board";
-import { TetrominoType } from "./tetrominos";
-
+import { TetrominoType } from "./tetromino-type";
 
 export function getColorTypeForTetromino(tetrominoType: TetrominoType): ColorType {
     switch (tetrominoType) {

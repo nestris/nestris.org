@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { TetrisBoard } from 'client/src/app/models/tetris/tetris-board';
-import { TetrominoType } from 'client/src/app/models/tetris/tetrominos';
+import { TetrominoType } from 'client/src/app/models/tetris/tetromino-type';
 
 /*
 An abstract layout that defines the game state interface and leaves layout html and css up to implementation
