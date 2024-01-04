@@ -4,6 +4,8 @@ import { TetrominoType } from 'client/src/app/models/tetris/tetromino-type';
 
 /*
 An abstract layout that defines the game state interface and leaves layout html and css up to implementation
+To create your own layout, create a component that extends AbstractNesLayoutComponent
+and build an HTML template using <app-nes-panel> and <app-nes-board> from @Inputs()
 */
 
 @Component({

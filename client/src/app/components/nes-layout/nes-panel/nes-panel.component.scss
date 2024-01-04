@@ -1,10 +1,12 @@
 @import "../nes-styles.scss"; 
 
-.nes-panel {
+:host {
+    display: block;
+
     background-color: black;
     border: solid white 1px;
     border-radius: 5px;
-    padding: 5px;
+    padding: 5px 15px;
 
     display: flex;
     flex-direction: column;

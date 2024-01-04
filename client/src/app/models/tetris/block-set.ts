@@ -32,7 +32,28 @@ Objects are immutable. Transformations return new objects
 */
 export class BlockSet {
 
-    constructor(public readonly blocks: BlockPosition[]) {}
+    public readonly minX;
+    public readonly minY;
+    public readonly maxX;
+    public readonly maxY;
+    constructor(public readonly blocks: BlockPosition[]) {
+
+        // cache the four corner coordinates of the blockset, which is useful for things like bounds checking
+        let minX = 100;
+        let minY = 100;
+        let maxX = -100;
+        let maxY = -100;
+        blocks.forEach((block) => {
+            minX = Math.min(minX, block.x);
+            minY = Math.min(minY, block.y);
+            maxX = Math.max(maxX, block.x);
+            maxY = Math.max(maxY, block.y);
+        });
+        this.minX = minX;
+        this.minY = minY;
+        this.maxX = maxX;
+        this.maxY = maxY;
+    }
 
     // Returns a new BlockSet with the blocks translated by the given amount
     translate(x: number, y: number): BlockSet {

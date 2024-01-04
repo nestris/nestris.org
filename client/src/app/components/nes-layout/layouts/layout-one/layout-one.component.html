@@ -1,0 +1,27 @@
+<div class="columns">
+    <app-nes-board [scale]="3" [board]="board" [level]="level" />
+    <div class="panels">
+
+        <app-nes-panel class="score-panel">
+            <h2>Score</h2>
+            <h1>{{score}}</h1>
+        </app-nes-panel>
+
+        <div class="level-lines">
+            <app-nes-panel class="level-panel">
+                <h2>Level</h2>
+                <h1>{{level}}</h1>
+            </app-nes-panel>
+            <app-nes-panel class="lines-panel">
+                <h2>Lines</h2>
+                <h1>{{lines}}</h1>
+            </app-nes-panel>
+        </div>
+
+        <app-nes-panel class="next-box-panel">
+            <app-nes-piece [scale]="3" [piece]="nextPiece" [level]="level" />
+        </app-nes-panel>
+
+
+    </div>
+</div>

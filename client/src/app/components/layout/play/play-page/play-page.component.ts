@@ -28,14 +28,6 @@ export class PlayPageComponent {
     private routingService: RoutingService
   ) {
 
-    // testing tetromino shapes 
-    ALL_TETROMINO_TYPES.forEach((type) => {
-      const tetromino = Tetromino.getPieceByType(type);
-      for (let rot = 0; rot < tetromino.numPossibleRotations(); rot++) {
-        const mt = new MoveableTetromino(type, rot, 0, 0);
-        mt.print();
-      }
-    });
   }
 
   // called when a platform option is clicked. set that platform to active

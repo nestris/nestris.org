@@ -1,4 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ColorType, TetrisBoard } from 'client/src/app/models/tetris/tetris-board';
+import { TetrominoType } from 'client/src/app/models/tetris/tetromino-type';
 import { FullscreenMode, RoutingService } from 'client/src/app/services/routing.service';
 
 @Component({
@@ -9,9 +11,25 @@ import { FullscreenMode, RoutingService } from 'client/src/app/services/routing.
 })
 export class SoloPageComponent {
 
+  public board: TetrisBoard;
+
+  readonly TetrominoType = TetrominoType;
+
   constructor(
     private routingService: RoutingService
-  ) {}
+  ) {
+
+    // test random board
+    this.board = new TetrisBoard();
+    for (let y = 0; y < 20; y++) {
+      for (let x = 0; x < 20; x++) {
+        const r = Math.random();
+        if (r > 0.8) this.board.setAt(x,y, ColorType.WHITE);
+        else if (r > 0.6) this.board.setAt(x,y, ColorType.PRIMARY);
+        else if (r > 0.4) this.board.setAt(x,y, ColorType.SECONDARY);
+      }
+    }
+  }
 
   exitFullscreen() {
     this.routingService.setFullscreenMode(FullscreenMode.DISABLED);

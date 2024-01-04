@@ -32,6 +32,8 @@ export class NesBlockComponent {
   }
 
   getBackgroundColor(): string {
+    
+    if (this.color === ColorType.EMPTY || this.color === undefined) return "rgb(0,0,0,0)"; // invisible if empty
     const colorType = (this.color === ColorType.WHITE) ? ColorType.PRIMARY : this.color;
     return getColorForLevel(colorType, this.level);
   }

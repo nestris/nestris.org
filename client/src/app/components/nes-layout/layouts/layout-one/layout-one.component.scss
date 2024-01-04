@@ -1,0 +1,33 @@
+@import "../../nes-styles.scss";
+
+.columns {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start; // align at top
+    gap: $panel-margin;
+}
+
+.panels {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: $panel-margin;
+}
+
+.score-panel {
+    width: 100%; // stretch to take same width as level and lines panels combined
+    box-sizing: border-box;
+}
+
+.level-lines {
+    display: flex;
+    flex-direction: row;
+    gap: $panel-margin;
+}
+
+.next-box-panel {
+    width: 120px;
+    height: 80px;
+}
