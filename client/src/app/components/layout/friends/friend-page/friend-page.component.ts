@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FriendService } from 'client/src/app/services/friend.service';
 import { BehaviorSubject } from 'rxjs';
 import { ButtonColor } from '../../../ui/solid-button/solid-button.component';
-import { SidebarTabService } from 'client/src/app/services/sidebar-tab.service';
+import { RoutingService } from 'client/src/app/services/routing.service';
 import { TabID } from 'client/src/app/models/tabs';
 import { FriendInfo, FriendStatus, OnlineUserStatus } from 'network-protocol/models/friends';
 
@@ -20,7 +20,7 @@ export class FriendPageComponent {
 
   constructor(
     public friendService: FriendService,
-    public tabService: SidebarTabService
+    public tabService: RoutingService
   ) {
 
     // resync friends data (specifically, xp and trophies) when switching to friends tab

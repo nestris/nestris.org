@@ -3,6 +3,7 @@ import { ButtonColor } from '../../../ui/solid-button/solid-button.component';
 import { Tetromino } from 'client/src/app/models/tetris/tetrominos';
 import MoveableTetromino from 'client/src/app/models/tetris/moveable-tetromino';
 import { ALL_TETROMINO_TYPES } from 'client/src/app/models/tetris/tetromino-type';
+import { FullscreenMode, RoutingService } from 'client/src/app/services/routing.service';
 
 export enum Platform {
   ONLINE = "ONLINE",
@@ -23,7 +24,9 @@ export class PlayPageComponent {
   // default mode is online
   public platform = Platform.ONLINE;
 
-  constructor() {
+  constructor(
+    private routingService: RoutingService
+  ) {
 
     // testing tetromino shapes 
     ALL_TETROMINO_TYPES.forEach((type) => {
@@ -41,15 +44,15 @@ export class PlayPageComponent {
   }
 
   playSolo() {
-
+    this.routingService.setFullscreenMode(FullscreenMode.SOLO);
   }
 
   playVersus() {
-
+    this.routingService.setFullscreenMode(FullscreenMode.MULTIPLAYER);
   }
 
   playSandbox() {
-    
+    this.routingService.setFullscreenMode(FullscreenMode.MULTIPLAYER);
   }
 
 }

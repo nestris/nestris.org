@@ -1,0 +1,11 @@
+:host {
+    display: block;
+    background: linear-gradient(7deg,rgba(4,43,182,.5) 0%,rgba(0,0,0,1) 70%);
+    position: relative;
+}
+
+.leave-fullscreen-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}

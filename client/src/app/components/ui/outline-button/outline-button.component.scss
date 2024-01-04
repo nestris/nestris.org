@@ -1,0 +1,37 @@
+@import "../../../../styles.scss";
+
+.button {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    border-radius: 5px;
+    padding-inline: 8px;
+    border: 2px solid $ui-red-color;
+
+    width:fit-content;
+
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.button:hover {
+    opacity: 0.8;
+    transform: scale(1.1);
+    cursor: pointer;
+}
+
+.button:active {
+    opacity: 0.7;
+}
+
+.label {
+    font-family: Montserrat;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    margin-block: 4px;
+
+    color: $ui-red-color;
+}

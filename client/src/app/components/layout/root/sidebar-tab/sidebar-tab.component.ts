@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input, OnChanges } from '@angular/core';
 import { TabID, getTabDisplayName, getTabIcon } from 'client/src/app/models/tabs';
-import { SidebarTabService } from 'client/src/app/services/sidebar-tab.service';
+import { RoutingService } from 'client/src/app/services/routing.service';
 
 /*
 A dumb component that takes in a Tab enum, an optional <ng-content> element for icons
@@ -19,7 +19,7 @@ export class SidebarTabComponent implements OnChanges {
   public tabName!: string;
   public tabIcon!: string;
 
-  constructor(public sidebarTabService: SidebarTabService) { 
+  constructor(public sidebarTabService: RoutingService) { 
     console.log("SidebarTabComponent constructor called", this.sidebarTabService);
   }
 

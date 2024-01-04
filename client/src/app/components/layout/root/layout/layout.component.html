@@ -1,4 +1,4 @@
-<div class="root">
+<div class="root" *ngIf="(sidebarTabService.getFullscreenMode() | async) === FullscreenMode.DISABLED">
     <app-sidebar class="sidebar" [isSignedIn]="(websocketService.onSignInUpdate() | async) ?? false" />
     <ng-container *ngIf="sidebarTabService.getSelectedTab() | async as selectedTab">
         <app-friend-page *ngIf="selectedTab.tab === TabID.FRIENDS" />
@@ -7,5 +7,10 @@
         <app-puzzles-page *ngIf="selectedTab.tab === TabID.PUZZLES" />
     </ng-container>
 </div>
+
+<ng-container *ngIf="(sidebarTabService.getFullscreenMode() | async) as mode">
+    <app-solo-page class="fullscreen" *ngIf="mode === FullscreenMode.SOLO" />
+    <app-multiplayer-page class="fullscreen" *ngIf="mode === FullscreenMode.MULTIPLAYER" />
+</ng-container>
 
 <notifier-container></notifier-container>

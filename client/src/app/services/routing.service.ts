@@ -3,6 +3,13 @@ import { BehaviorSubject, Observable, filter } from 'rxjs';
 import { ParametrizedTab, TabID } from '../models/tabs';
 import { WebsocketService } from './websocket.service';
 
+// during fullscreen mode, sidebar is not shown and page component gets full screen
+export enum FullscreenMode {
+  DISABLED = "DISABLED",
+  SOLO = "SOLO",
+  MULTIPLAYER = "MULTIPLAYER"
+}
+
 /*
 Handles which tab is selected in the sidebar. Exposes an observable that emits the currently selected tab.
 */
@@ -10,10 +17,10 @@ Handles which tab is selected in the sidebar. Exposes an observable that emits t
 @Injectable({
     providedIn: 'root'
 })
-export class SidebarTabService {
+export class RoutingService {
 
   private selectedTab$ = new BehaviorSubject<ParametrizedTab>({tab: TabID.HOME, params: undefined});
-
+  private fullscreenMode$ = new BehaviorSubject<FullscreenMode>(FullscreenMode.DISABLED);
 
   constructor(
     private websocketService: WebsocketService
@@ -29,6 +36,14 @@ export class SidebarTabService {
       this.setSelectedTab({tab: TabID.HOME, params: undefined});
     })
 
+  }
+
+  getFullscreenMode(): Observable<FullscreenMode> {
+    return this.fullscreenMode$.asObservable();
+  }
+
+  setFullscreenMode(mode: FullscreenMode) {
+    this.fullscreenMode$.next(mode);
   }
 
   getSelectedTab(): Observable<ParametrizedTab> {
@@ -49,7 +64,6 @@ export class SidebarTabService {
     if (pushToURLHistory) {
       history.pushState(parametrizedTab, '', `/${parametrizedTab.tab}${parametrizedTab.params ? '?' + parametrizedTab.params.toString() : ''}`);
     }
-    
   }
 
 }

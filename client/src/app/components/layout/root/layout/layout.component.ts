@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { SidebarTabService } from 'client/src/app/services/sidebar-tab.service';
+import { FullscreenMode, RoutingService } from 'client/src/app/services/routing.service';
 import { TabID } from 'client/src/app/models/tabs';
 import { WebsocketService } from 'client/src/app/services/websocket.service';
 
@@ -12,9 +12,10 @@ import { WebsocketService } from 'client/src/app/services/websocket.service';
 export class LayoutComponent {
 
   readonly TabID = TabID;
+  readonly FullscreenMode = FullscreenMode;
 
   constructor(
-    public sidebarTabService: SidebarTabService,
+    public sidebarTabService: RoutingService,
     public websocketService: WebsocketService,
     ) { 
     console.log("Root constructor called", this.sidebarTabService);

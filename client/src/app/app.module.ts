@@ -26,6 +26,9 @@ import { NesPanelComponent } from './components/nes-layout/nes-panel/nes-panel.c
 import { NesBoardComponent } from './components/nes-layout/nes-board/nes-board.component';
 import { NesBlockComponent } from './components/nes-layout/nes-block/nes-block.component';
 import { PuzzlesPageComponent } from './components/layout/puzzles/puzzles-page/puzzles-page.component';
+import { SoloPageComponent } from './components/layout/solo/solo-page/solo-page.component';
+import { MultiplayerPageComponent } from './components/layout/multiplayer/multiplayer-page/multiplayer-page.component';
+import { OutlineButtonComponent } from './components/ui/outline-button/outline-button.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -93,6 +96,9 @@ const customNotifierOptions: NotifierOptions = {
     NesBoardComponent,
     NesBlockComponent,
     PuzzlesPageComponent,
+    SoloPageComponent,
+    MultiplayerPageComponent,
+    OutlineButtonComponent,
   ],
   imports: [
     BrowserModule,

@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { SidebarTabService } from './sidebar-tab.service';
+import { RoutingService } from './routing.service';
 
 describe('SidebarTabService', () => {
-  let service: SidebarTabService;
+  let service: RoutingService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(SidebarTabService);
+    service = TestBed.inject(RoutingService);
   });
 
   it('should be created', () => {
