@@ -16,6 +16,12 @@ export default class MoveableTetromino {
 
     public readonly color: ColorType;
 
+    // Returns the starting pose of a piece at spawn
+    static fromSpawnPose(tetrominoType: TetrominoType): MoveableTetromino {
+        // TODO: implement this. right now just dummy
+        return new MoveableTetromino(tetrominoType, 0, 0, 0);
+    }
+
     constructor(public readonly tetrominoType: TetrominoType, private rotation: number, private translateX: number, private translateY: number) {
         this.color = getColorTypeForTetromino(tetrominoType);
         this.updateCurrentBlockSet()
@@ -106,6 +112,16 @@ export default class MoveableTetromino {
         if (translateY !== undefined) {
             this.translateY = translateY;
         }
+        this.updateCurrentBlockSet();
+    }
+
+    public moveBy(dr: number, dx: number, dy: number): void {
+        this.updatePose(this.rotation + dr, this.translateX + dx, this.translateY + dy);
+    }
+
+    public rotateBy(delta: number): void {
+        const numPossibleRotations = Tetromino.getPieceByType(this.tetrominoType).numPossibleRotations();
+        this.rotation = (this.rotation + delta) % numPossibleRotations;
         this.updateCurrentBlockSet();
     }
 
