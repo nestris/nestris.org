@@ -1,4 +1,4 @@
-import { ColorGrid } from "client/src/app/models/tetris/color-grid";
+import { TetrisBoard } from "client/src/app/models/tetris/tetris-board";
 import { BinaryDecoder, BinaryEncoder } from "./binary-codec";
 
 // each code has its own binary schema
@@ -7,7 +7,7 @@ export enum DatumOpcode {
     NON_GAME_NEXT_PIECE_CHANGE = 1,
     NON_GAME_SCORE_CHANGE = 2,
 }
-// the number of bits used to encode the opcode. make sure this is large enough to encode all opcodes
+// the number of bits used to encode the opcode. make sure thi-s is large enough to encode all opcodes
 export const OPCODE_BITS = 4;
 
 /*
@@ -30,11 +30,11 @@ export class NonGameNextPieceChangeDatum extends Datum {
 
     static fromBinaryDecoder(decoder: BinaryDecoder): NonGameNextPieceChangeDatum {
         const milliseconds = decoder.nextUnsignedInteger(this.MILLISECONDS_BITS);
-        const grid = ColorGrid.fromBinaryString(decoder.nextBinaryString(this.COLOR_GRID_BITS));
+        const grid = TetrisBoard.fromBinaryString(decoder.nextBinaryString(this.COLOR_GRID_BITS));
         return new NonGameNextPieceChangeDatum(milliseconds, grid);
     }
 
-    constructor(public readonly milliseconds: number, public readonly grid: ColorGrid) {
+    constructor(public readonly milliseconds: number, public readonly grid: TetrisBoard) {
         super(DatumOpcode.NON_GAME_NEXT_PIECE_CHANGE);
     }
 

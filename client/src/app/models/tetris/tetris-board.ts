@@ -6,10 +6,10 @@ export enum ColorType {
     EMPTY = 0,
     PRIMARY = 1,
     SECONDARY = 2,
-    UNKNOWN = 3
+    WHITE = 3
 }
 
-export class ColorGrid {
+export class TetrisBoard {
 
     // 20 rows, 10 columns
     private grid: ColorType[][] = [];
@@ -25,9 +25,9 @@ export class ColorGrid {
     }
 
     // given a string of 400 bits, return a ColorGrid
-    static fromBinaryString(binaryString: string): ColorGrid {
+    static fromBinaryString(binaryString: string): TetrisBoard {
 
-        const grid = new ColorGrid();
+        const grid = new TetrisBoard();
 
         let index = 0;
         for (let i = 0; i < 20; i++) {
@@ -51,8 +51,8 @@ export class ColorGrid {
     }
 
     // make a copy of the grid
-    copy(): ColorGrid {
-        const grid = new ColorGrid();
+    copy(): TetrisBoard {
+        const grid = new TetrisBoard();
 
         for (let i = 0; i < 20; i++) {
             for (let j = 0; j < 10; j++) {

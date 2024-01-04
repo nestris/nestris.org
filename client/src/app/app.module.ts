@@ -22,6 +22,9 @@ import { AddFriendModalComponent } from './components/layout/friends/add-friend-
 import { FriendIconComponent } from './components/layout/friends/friend-icon/friend-icon.component';
 import { FriendElementComponent } from './components/layout/friends/friend-element/friend-element.component';
 import { OnlineIndicatorComponent } from './components/ui/online-indicator/online-indicator.component';
+import { AbstractNesLayoutComponent } from './components/nes-layout/abstract-nes-layout/abstract-nes-layout.component';
+import { NesPanelComponent } from './components/nes-layout/nes-panel/nes-panel.component';
+import { NesBoardComponent } from './components/nes-layout/nes-board/nes-board.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -85,6 +88,9 @@ const customNotifierOptions: NotifierOptions = {
     FriendIconComponent,
     FriendElementComponent,
     OnlineIndicatorComponent,
+    AbstractNesLayoutComponent,
+    NesPanelComponent,
+    NesBoardComponent,
   ],
   imports: [
     BrowserModule,

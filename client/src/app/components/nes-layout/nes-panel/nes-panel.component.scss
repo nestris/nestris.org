@@ -1,0 +1,13 @@
+@import "../nes-styles.scss"; 
+
+.nes-panel {
+    background-color: black;
+    border: solid white 1px;
+    border-radius: 5px;
+    padding: 5px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
