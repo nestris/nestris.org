@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NotifierService } from 'angular-notifier';
+import { Observable, Subject } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
 export enum NotificationType {
@@ -20,7 +21,9 @@ export enum NotificationAutohide {
 })
 export class NotificationService {
 
-  constructor(private notifier: NotifierService) { }
+  constructor(
+    private notifier: NotifierService,
+  ) { }
 
   // send a notification to the user
   // type is one of 'info', 'success', 'warning', 'error'
@@ -28,9 +31,13 @@ export class NotificationService {
   // id is a unique identifier for this notification
   // durationSeconds is the number of seconds to display the notification for, or undefined for no hide
   notify(type: NotificationType, message: string, autohide: NotificationAutohide = NotificationAutohide.SHORT) {
-
     const id = uuidv4();
-    this.notifier.notify(type, message, id);
+
+    // angular-notifier is broken and needs a setTimeout to register change detection
+    setTimeout(() => {
+      this.notifier.notify(type, message, id);
+    }, 0);
+
     console.log("show:", message, id);
 
     let durationSeconds;

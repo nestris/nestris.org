@@ -3,12 +3,9 @@ import { ButtonColor } from '../../../ui/solid-button/solid-button.component';
 import { Tetromino } from 'client/src/app/models/tetris/tetrominos';
 import MoveableTetromino from 'client/src/app/models/tetris/moveable-tetromino';
 import { ALL_TETROMINO_TYPES } from 'client/src/app/models/tetris/tetromino-type';
-import { FullscreenMode, RoutingService } from 'client/src/app/services/routing.service';
-
-export enum Platform {
-  ONLINE = "ONLINE",
-  OCR = "OCR"
-}
+import { RoutingService } from 'client/src/app/services/routing.service';
+import { Platform, PlatformInterfaceService } from 'client/src/app/services/platform-interface.service';
+import { TabID } from 'client/src/app/models/tabs';
 
 @Component({
   selector: 'app-play-page',
@@ -18,33 +15,26 @@ export enum Platform {
 })
 export class PlayPageComponent {
 
-  readonly Platform = Platform;
   readonly ButtonColor = ButtonColor;
+  readonly Platform = Platform;
   
-  // default mode is online
-  public platform = Platform.ONLINE;
-
   constructor(
-    private routingService: RoutingService
+    private routingService: RoutingService,
+    public platformService: PlatformInterfaceService,
   ) {
 
   }
 
-  // called when a platform option is clicked. set that platform to active
-  selectPlatform(platform: Platform) {
-    this.platform = platform;
-  }
-
   playSolo() {
-    this.routingService.setFullscreenMode(FullscreenMode.SOLO);
+    this.routingService.setSelectedTab({tab: TabID.SOLO, params: undefined});
   }
 
   playVersus() {
-    this.routingService.setFullscreenMode(FullscreenMode.MULTIPLAYER);
+    this.routingService.setSelectedTab({tab: TabID.MULTIPLAYER, params: undefined});
   }
 
   playSandbox() {
-    this.routingService.setFullscreenMode(FullscreenMode.MULTIPLAYER);
+    this.routingService.setSelectedTab({tab: TabID.MULTIPLAYER, params: undefined});
   }
 
 }

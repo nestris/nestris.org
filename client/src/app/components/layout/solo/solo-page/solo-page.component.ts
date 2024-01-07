@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { TabID } from 'client/src/app/models/tabs';
 import { ColorType, TetrisBoard } from 'client/src/app/models/tetris/tetris-board';
 import { TetrominoType } from 'client/src/app/models/tetris/tetromino-type';
-import { FullscreenMode, RoutingService } from 'client/src/app/services/routing.service';
+import { RoutingService } from 'client/src/app/services/routing.service';
 
 @Component({
   selector: 'app-solo-page',
@@ -32,7 +33,10 @@ export class SoloPageComponent {
   }
 
   exitFullscreen() {
-    this.routingService.setFullscreenMode(FullscreenMode.DISABLED);
+    // go back to previous tab. if no previous tab, go to home
+    const lastTab = this.routingService.getLastTab() ?? TabID.HOME;
+    console.log("exitFullscreen", lastTab);
+    this.routingService.setSelectedTab({tab: lastTab, params: undefined});
   }
 
 }

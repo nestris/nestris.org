@@ -1,14 +1,8 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, filter } from 'rxjs';
-import { ParametrizedTab, TabID } from '../models/tabs';
+import { BehaviorSubject, Observable, Subject, filter, map } from 'rxjs';
+import { ParametrizedTab, TabID, isTabFullscreen } from '../models/tabs';
 import { WebsocketService } from './websocket.service';
 
-// during fullscreen mode, sidebar is not shown and page component gets full screen
-export enum FullscreenMode {
-  DISABLED = "DISABLED",
-  SOLO = "SOLO",
-  MULTIPLAYER = "MULTIPLAYER"
-}
 
 /*
 Handles which tab is selected in the sidebar. Exposes an observable that emits the currently selected tab.
@@ -20,16 +14,11 @@ Handles which tab is selected in the sidebar. Exposes an observable that emits t
 export class RoutingService {
 
   private selectedTab$ = new BehaviorSubject<ParametrizedTab>({tab: TabID.HOME, params: undefined});
-  private fullscreenMode$ = new BehaviorSubject<FullscreenMode>(FullscreenMode.DISABLED);
+  private lastTab$ = new BehaviorSubject<TabID | undefined>(undefined);
 
   constructor(
     private websocketService: WebsocketService
   ) {
-
-    // whenever user clicks back/forward button, update selectedTab$ to state
-    window.addEventListener('popstate', (event) => {
-      this.setSelectedTab(event.state);
-    });
 
     // on log out, go to home page
     this.websocketService.onSignOut().subscribe(() => {
@@ -38,32 +27,42 @@ export class RoutingService {
 
   }
 
-  getFullscreenMode(): Observable<FullscreenMode> {
-    return this.fullscreenMode$.asObservable();
+  getIsFullscreenMode(): Observable<boolean> {
+    return this.getSelectedTab().pipe(
+      map((parametrizedTab) => isTabFullscreen(parametrizedTab.tab))
+    );
   }
 
-  setFullscreenMode(mode: FullscreenMode) {
-    this.fullscreenMode$.next(mode);
-  }
-
+  // observable that emits whenever tab changes
   getSelectedTab(): Observable<ParametrizedTab> {
     return this.selectedTab$.asObservable();
   }
 
+  // observable that emits when switching to the given tab
   onSwitchToTab(tab: TabID): Observable<ParametrizedTab> {
     return this.getSelectedTab().pipe(
       filter((currentTab) => currentTab.tab === tab)
     );
   }
 
-  // set the selected tab. if pushToURLHistory is true, update the URL to reflect the new tab
-  setSelectedTab(parametrizedTab: ParametrizedTab, pushToURLHistory: boolean = true): void {
+  // get the last tab. not an observable
+  getLastTab(): TabID | undefined {
+    return this.lastTab$.getValue();
+  }
 
+  // observable that emits when leaving the given tab
+  onLeaveTab(tab: TabID): Observable<void> {
+    return this.lastTab$.asObservable().pipe(
+      filter((leftTab) => leftTab === tab),
+      map(() => {})
+    );
+  }
+
+  // set the selected tab.
+  setSelectedTab(parametrizedTab: ParametrizedTab): void {
+    this.lastTab$.next(this.selectedTab$.getValue().tab);
     this.selectedTab$.next(parametrizedTab);
-
-    if (pushToURLHistory) {
-      history.pushState(parametrizedTab, '', `/${parametrizedTab.tab}${parametrizedTab.params ? '?' + parametrizedTab.params.toString() : ''}`);
-    }
+    // TODO: do something with params
   }
 
 }

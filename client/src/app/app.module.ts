@@ -102,7 +102,7 @@ const customNotifierOptions: NotifierOptions = {
     MultiplayerPageComponent,
     OutlineButtonComponent,
     LayoutOneComponent,
-    NesPieceComponent,
+    NesPieceComponent
   ],
   imports: [
     BrowserModule,

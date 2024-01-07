@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FullscreenMode, RoutingService } from 'client/src/app/services/routing.service';
+import { RoutingService } from 'client/src/app/services/routing.service';
 import { TabID } from 'client/src/app/models/tabs';
 import { WebsocketService } from 'client/src/app/services/websocket.service';
 
@@ -12,7 +12,6 @@ import { WebsocketService } from 'client/src/app/services/websocket.service';
 export class LayoutComponent {
 
   readonly TabID = TabID;
-  readonly FullscreenMode = FullscreenMode;
 
   constructor(
     public sidebarTabService: RoutingService,
