@@ -1,8 +1,8 @@
 <app-outline-button class="leave-fullscreen-button" label="Exit" (click)="exitFullscreen()" />
 
-<app-layout-one class="game"
-    [board]="board" [level]="17"
-    [nextPiece]="TetrominoType.L_TYPE"
-    [trt]="0.874"
-    [keybinds]="['Rotate (Z & X) / Shift (left arrow & right arrow)', 'Quit (Q) / Restart (R)']"
+<app-layout-one class="game" *ngIf="(platform.getPolledGameData() | async) as data"
+    [board]="data.board" [level]="data.level"
+    [nextPiece]="data.nextPiece"
+    [trt]="data.trt"
+    [keybinds]="['Rotate (Z & X) / Shift (L arrow & R arrow)', 'Quit (Q) / Restart (R)']"
     />

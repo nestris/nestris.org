@@ -1,7 +1,9 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, HostListener } from '@angular/core';
 import { TabID } from 'client/src/app/models/tabs';
 import { ColorType, TetrisBoard } from 'client/src/app/models/tetris/tetris-board';
 import { TetrominoType } from 'client/src/app/models/tetris/tetromino-type';
+import { EmulatorService } from 'client/src/app/services/emulator/emulator.service';
+import { PlatformInterfaceService } from 'client/src/app/services/platform-interface.service';
 import { RoutingService } from 'client/src/app/services/routing.service';
 
 @Component({
@@ -12,24 +14,33 @@ import { RoutingService } from 'client/src/app/services/routing.service';
 })
 export class SoloPageComponent {
 
-  public board: TetrisBoard;
-
   readonly TetrominoType = TetrominoType;
 
   constructor(
-    private routingService: RoutingService
+    private routingService: RoutingService,
+    private emulatorService: EmulatorService,
+    public platform: PlatformInterfaceService,
   ) {
 
-    // test random board
-    this.board = new TetrisBoard();
-    for (let y = 0; y < 20; y++) {
-      for (let x = 0; x < 20; x++) {
-        const r = Math.random();
-        if (r > 0.8) this.board.setAt(x,y, ColorType.WHITE);
-        else if (r > 0.6) this.board.setAt(x,y, ColorType.PRIMARY);
-        else if (r > 0.4) this.board.setAt(x,y, ColorType.SECONDARY);
-      }
-    }
+    // TEMPORARY, NEED MORE FLEXIBLE SYSTEM TO START GAME
+    // start game when switch to solo tab
+    this.routingService.onSwitchToTab(TabID.SOLO).subscribe(() => {
+      this.emulatorService.startGame(18);
+    });
+
+    this.routingService.onLeaveTab(TabID.SOLO).subscribe(() => {
+      this.emulatorService.stopGame();
+    });
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeydown(event: KeyboardEvent) {
+    this.emulatorService.handleKeydown(event);
+  }
+
+  @HostListener('window:keyup', ['$event'])
+  handleKeyup(event: KeyboardEvent) {
+    this.emulatorService.handleKeyup(event);
   }
 
   exitFullscreen() {

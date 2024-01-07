@@ -24,12 +24,12 @@ Struct storing all the keybinds
 export class Keybinds {
 
     private keybinds: {[keybind in Keybind] : string} = {
-        [Keybind.QUIT] : "Q",
-        [Keybind.RESTART] : "R",
-        [Keybind.SHIFT_LEFT] : ",",
-        [Keybind.SHIFT_RIGHT] : ".",
-        [Keybind.ROTATE_LEFT] : "ArrowLeft",
-        [Keybind.ROTATE_RIGHT] : "ArrowRight",
+        [Keybind.QUIT] : "q",
+        [Keybind.RESTART] : "r",
+        [Keybind.SHIFT_LEFT] : "ArrowLeft",
+        [Keybind.SHIFT_RIGHT] : "ArrowRight",
+        [Keybind.ROTATE_LEFT] : "z",
+        [Keybind.ROTATE_RIGHT] : "x",
         [Keybind.PUSHDOWN] : "ArrowDown",
     }
 
