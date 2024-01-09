@@ -18,8 +18,11 @@ export default class MoveableTetromino {
 
     // Returns the starting pose of a piece at spawn
     static fromSpawnPose(tetrominoType: TetrominoType): MoveableTetromino {
-        // TODO: implement this. right now just dummy
-        return new MoveableTetromino(tetrominoType, 0, 0, 0);
+
+        // special case: I piece needs to be one higher
+        const y = (tetrominoType === TetrominoType.I_TYPE) ? 0 : -1;
+
+        return new MoveableTetromino(tetrominoType, 0, 3, y);
     }
 
     constructor(public readonly tetrominoType: TetrominoType, private rotation: number, private translateX: number, private translateY: number) {
@@ -101,6 +104,10 @@ export default class MoveableTetromino {
         return this.translateY;
     }
 
+    public getLowestY(): number {
+        return this.getCurrentBlockSet().maxY;
+    }
+
     public updatePose(rotation: number | undefined, translateX: number | undefined, translateY: number | undefined): void {
         if (rotation !== undefined) {
             const numPossibleRotations = Tetromino.getPieceByType(this.tetrominoType).numPossibleRotations();
@@ -116,7 +123,7 @@ export default class MoveableTetromino {
     }
 
     public moveBy(dr: number, dx: number, dy: number): void {
-        this.updatePose(this.rotation + dr, this.translateX + dx, this.translateY + dy);
+        this.updatePose(this.rotation + dr + 4, this.translateX + dx, this.translateY + dy);
     }
 
     public rotateBy(delta: number): void {

@@ -66,6 +66,31 @@ export class TetrisBoard {
         return count;
     }
 
+    public isRowFull(y: number): boolean {
+        return this.grid[y].every(cell => cell !== ColorType.EMPTY);
+    }
+
+    // modifies grid in place to delete line clears, and returns the number of lines cleared
+    public processLineClears(): number {
+        // remove all full rows
+        let y = 19;
+        let numLinesCleared = 0;
+        while (y >= 0) {
+            if (this.isRowFull(y)) {
+                this.grid.splice(y, 1);
+                numLinesCleared++;
+            }
+            y--;
+        }
+
+        // insert new empty rows at the top
+        for (let i = 0; i < numLinesCleared; i++) {
+            this.grid.unshift(new Array(10).fill(ColorType.EMPTY));
+        }
+
+        return numLinesCleared;
+    }
+
     // make a copy of the grid
     copy(): TetrisBoard {
         const grid = new TetrisBoard();
