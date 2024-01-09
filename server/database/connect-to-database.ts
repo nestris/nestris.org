@@ -4,20 +4,23 @@ function getConnectionString() {
 
     const isProduction = process.env['PRODUCTION'] === 'true'
 
-    const username = process.env[isProduction ? 'MONGODB_USERNAME_PRODUCTION' : 'MONGODB_USERNAME_DEBUG']!;
-    const password = process.env[isProduction ? 'MONGODB_PASSWORD_PRODUCTION' : 'MONGODB_PASSWORD_DEBUG']!;
-    const database = process.env[isProduction ? 'MONGODB_DATABASE_PRODUCTION' : 'MONGODB_DATABASE_DEBUG']!;
-    console.log(isProduction ? 'Connecting to production database...' : 'Connecting to debug database...')
-    return `mongodb+srv://${username}:${password}@${database}/?retryWrites=true&w=majority`;
+    if (isProduction) {
+        console.log("Connecting to production database...");
+        const username = process.env['MONGODB_USERNAME']!;
+        const password = process.env['MONGODB_PASSWORD']!;
+        const database = process.env['MONGODB_DATABASE']!;
+        return `mongodb+srv://${username}:${password}@${database}/?retryWrites=true&w=majority`;
+    } else {
+        console.log("Connecting to local database...");
+        return "mongodb://localhost:27017";
+    }
+
 }
 
 // must call this function to initialize the MongoDB connection
 export async function connectToDatabase() {
-    //const connectionString = getConnectionString();
-
-    // connect to local db (mongosh "mongodb://localhost:27017")
-    const connectionString = "mongodb://localhost:27017";
-
+    
+    const connectionString = getConnectionString();
     console.log("Connecting to MongoDB instance:", connectionString);
 
     try {
