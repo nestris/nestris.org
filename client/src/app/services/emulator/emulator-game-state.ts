@@ -93,41 +93,50 @@ export class EmulatorGameState {
     }
 
     // attempts to move the active piece by dr, dt
-    private attemptMove(dr: number, dt: number) {
-        if (this.activePiece === undefined) return; // do nothing if no active piece
+    // return true if successful, false if illegal
+    private attemptMove(dr: number, dt: number): boolean {
+        if (this.activePiece === undefined) return false; // do nothing if no active piece
+        
         this.activePiece.moveBy(dr, dt, 0);
 
         // if illegal, undo
         if (!this.activePiece.isInBounds() || this.activePiece.intersectsBoard(this.isolatedBoard)) {
             this.activePiece.moveBy(-dr, -dt, 0);
+            return false;
         }
+
+        return true;
     }
 
     private handleTranslate(pressedKeys: CurrentlyPressedKeys) {
+
         // attempt translate if key is pressed
         if (pressedKeys.isJustPressed(Keybind.SHIFT_LEFT)) {
-            this.attemptMove(0, -1);
-            this.currentDAS = 0;
+            // if legal, reset DAS. otherwise, set DAS to max (wall charge)
+            this.currentDAS = this.attemptMove(0, -1) ? 0 : this.MAX_DAS;
         }
         else if (pressedKeys.isJustPressed(Keybind.SHIFT_RIGHT)) {
-            this.attemptMove(0, 1);
-            this.currentDAS = 0;
-        }
+            // if legal, reset DAS. otherwise, set DAS to max (wall charge)
+            this.currentDAS = this.attemptMove(0, 1) ? 0 : this.MAX_DAS;
+        } else {
 
-        // handle DAS for left/right
-        const leftPressed = pressedKeys.isPressed(Keybind.SHIFT_LEFT);
-        const rightPressed = pressedKeys.isPressed(Keybind.SHIFT_RIGHT);
-        if (leftPressed || rightPressed) {
-            this.currentDAS++;
+            // handle normal DAS for left/right
+            const leftPressed = pressedKeys.isPressed(Keybind.SHIFT_LEFT);
+            const rightPressed = pressedKeys.isPressed(Keybind.SHIFT_RIGHT);
+            if (leftPressed || rightPressed) {
+                this.currentDAS++;
 
-            if (this.currentDAS >= this.MAX_DAS) {
-                this.attemptMove(0, leftPressed ? -1 : 1);
-                this.currentDAS = this.RESET_DAS;
+                if (this.currentDAS >= this.MAX_DAS) {
+                    this.attemptMove(0, leftPressed ? -1 : 1);
+                    this.currentDAS = this.RESET_DAS;
+                }
             }
+            else {
+                this.currentDAS = 0;
+            }
+
         }
-        else {
-            this.currentDAS = 0;
-        }
+        
     }
 
     private handleRotate(pressedKeys: CurrentlyPressedKeys) {
