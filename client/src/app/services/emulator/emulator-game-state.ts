@@ -34,8 +34,8 @@ export class EmulatorGameState {
     private currentDAS = 0;
 
     // DAS settings
-    private readonly MAX_DAS = 16;
-    private readonly RESET_DAS = 10;
+    private MAX_DAS = 16;
+    private RESET_DAS = 10;
 
     // Number of frames since piece spawn
     private placementFrameCount: number = 0;
@@ -46,7 +46,45 @@ export class EmulatorGameState {
     ) {
         this.status = new SmartGameStatus(startLevel);
         this.nextPieceType = this.rng.getNextPiece();
-        }
+    }
+
+    // used only for copy() operation. should not be used otherwise
+    _setState(
+        isolatedBoard: TetrisBoard,
+        status: SmartGameStatus,
+        nextPieceType: TetrominoType,
+        activePiece?: MoveableTetromino,
+        initialSpawnDelay: number = 10,
+        toppedOut: boolean = false,
+        currentDAS: number = 0,
+        placementFrameCount: number = 0,
+    ) {
+        this.isolatedBoard = isolatedBoard;
+        this.status = status;
+        this.nextPieceType = nextPieceType;
+        this.activePiece = activePiece;
+        this.initialSpawnDelay = initialSpawnDelay;
+        this.toppedOut = toppedOut;
+        this.currentDAS = currentDAS;
+        this.placementFrameCount = placementFrameCount;
+    }
+
+    // generate a deep copy of full game state
+    copy(): EmulatorGameState {
+        const copy = new EmulatorGameState(this.startLevel, this.rng);
+        copy._setState(
+            this.isolatedBoard.copy(),
+            this.status.copy(),
+            this.nextPieceType,
+            this.activePiece?.copy(),
+            this.initialSpawnDelay,
+            this.toppedOut,
+            this.currentDAS,
+            this.placementFrameCount,
+        );
+        return copy;
+    }
+
 
     getDisplayBoard(): TetrisBoard {
         if (this.activePiece === undefined) return this.isolatedBoard;
@@ -174,9 +212,6 @@ export class EmulatorGameState {
 
     // given the current state and a set of pressed keys, progress the state
     executeFrame(pressedKeys: CurrentlyPressedKeys) {
-
-        // poll currently pressed keys for this frame
-        pressedKeys.tick();
 
         // do nothing on topout
         if (this.toppedOut) return;

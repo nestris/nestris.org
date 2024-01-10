@@ -9,6 +9,11 @@
     box-sizing: border-box;
 }
 
+// make page content scroll but not sidebar
+.root > :nth-child(2) {
+    overflow-y: scroll;
+}
+
 .fullscreen {
     margin: 0;
     padding: 0;

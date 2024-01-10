@@ -1,6 +1,4 @@
 export enum Keybind {
-    QUIT = 0,
-    RESTART = 1,
     SHIFT_LEFT = 2,
     SHIFT_RIGHT = 3,
     ROTATE_LEFT = 4,
@@ -9,8 +7,6 @@ export enum Keybind {
 }
 
 export const ALL_KEYBINDS = [
-    Keybind.QUIT,
-    Keybind.RESTART,
     Keybind.SHIFT_LEFT,
     Keybind.SHIFT_RIGHT,
     Keybind.ROTATE_LEFT,
@@ -24,8 +20,6 @@ Struct storing all the keybinds
 export class Keybinds {
 
     private keybinds: {[keybind in Keybind] : string} = {
-        [Keybind.QUIT] : "q",
-        [Keybind.RESTART] : "r",
         [Keybind.SHIFT_LEFT] : "ArrowLeft",
         [Keybind.SHIFT_RIGHT] : "ArrowRight",
         [Keybind.ROTATE_LEFT] : "z",

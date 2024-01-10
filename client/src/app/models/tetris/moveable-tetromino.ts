@@ -30,6 +30,10 @@ export default class MoveableTetromino {
         this.updateCurrentBlockSet()
     }
 
+    copy(): MoveableTetromino {
+        return new MoveableTetromino(this.tetrominoType, this.rotation, this.translateX, this.translateY);
+    }
+
     // encoding format: TRXXYY
     public encodeAsNumber(): number {
 
