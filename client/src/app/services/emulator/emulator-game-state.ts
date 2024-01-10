@@ -110,6 +110,10 @@ export class EmulatorGameState {
         return 0; // TODO: implement this
     }
 
+    getCurrentDAS(): number {
+        return this.currentDAS;
+    }
+
     isToppedOut(): boolean {
         return this.toppedOut;
     }
@@ -130,6 +134,27 @@ export class EmulatorGameState {
         }
     }
 
+    // whether piece can move left/right. don't actually move piece
+    private canMoveDirection(dt: number): boolean {
+        if (this.activePiece === undefined) return false; // do nothing if no active piece
+        
+        // test move
+        this.activePiece.moveBy(0, dt, 0);
+        
+        // get legality
+        let legal;
+        if (!this.activePiece.isInBounds() || this.activePiece.intersectsBoard(this.isolatedBoard)) {
+            legal = false;
+        } else {
+            legal = true;
+        }
+
+        // undo move
+        this.activePiece.moveBy(0, -dt, 0);
+
+        return legal;
+    }
+
     // attempts to move the active piece by dr, dt
     // return true if successful, false if illegal
     private attemptMove(dr: number, dt: number): boolean {
@@ -141,6 +166,11 @@ export class EmulatorGameState {
         if (!this.activePiece.isInBounds() || this.activePiece.intersectsBoard(this.isolatedBoard)) {
             this.activePiece.moveBy(-dr, -dt, 0);
             return false;
+        } else {
+            if (dr === -1) console.log("rotate left");
+            if (dr === 1) console.log("rotate right");
+            if (dt === -1) console.log("translate left");
+            if (dt === 1) console.log("translate right");
         }
 
         return true;
@@ -150,12 +180,12 @@ export class EmulatorGameState {
 
         // attempt translate if key is pressed
         if (pressedKeys.isJustPressed(Keybind.SHIFT_LEFT)) {
-            // if legal, reset DAS. otherwise, set DAS to max (wall charge)
-            this.currentDAS = this.attemptMove(0, -1) ? 0 : this.MAX_DAS;
+            // if legal, reset DAS.
+            this.currentDAS = this.attemptMove(0, -1) ? 0 : this.currentDAS;
         }
         else if (pressedKeys.isJustPressed(Keybind.SHIFT_RIGHT)) {
-            // if legal, reset DAS. otherwise, set DAS to max (wall charge)
-            this.currentDAS = this.attemptMove(0, 1) ? 0 : this.MAX_DAS;
+            // if legal, reset DAS.
+            this.currentDAS = this.attemptMove(0, 1) ? 0 : this.currentDAS;
         } else {
 
             // handle normal DAS for left/right
@@ -165,12 +195,19 @@ export class EmulatorGameState {
                 this.currentDAS++;
 
                 if (this.currentDAS >= this.MAX_DAS) {
-                    this.attemptMove(0, leftPressed ? -1 : 1);
-                    this.currentDAS = this.RESET_DAS;
+                    // if successful shift, reset DAS.
+                    this.currentDAS = this.attemptMove(0, leftPressed ? -1 : 1) ? this.RESET_DAS : 0;
                 }
             }
-            else {
-                this.currentDAS = 0;
+
+            // if left pressing and can't move left, wall charge
+            if (leftPressed && !this.canMoveDirection(-1)) {
+               this.currentDAS = this.MAX_DAS;
+            }
+
+            // if right pressing and can't move right, wall charge
+            if (rightPressed && !this.canMoveDirection(1)) {
+                this.currentDAS = this.MAX_DAS;
             }
 
         }
@@ -205,8 +242,10 @@ export class EmulatorGameState {
 
             // FOR NOW: instant lineclears
             const linesCleared = this.isolatedBoard.processLineClears();
-            console.log("lines cleared", linesCleared);
+            // console.log("lines cleared", linesCleared);
             this.status.onLineClear(linesCleared);
+        } else {
+            console.log("drop piece");
         }
     }
 
@@ -215,6 +254,8 @@ export class EmulatorGameState {
 
         // do nothing on topout
         if (this.toppedOut) return;
+
+        console.log("frame", this.placementFrameCount, pressedKeys.toString(), "DAS:", this.currentDAS);
 
         // on first frame, spawn piece
         if (this.placementFrameCount === 0 && this.activePiece === undefined) {

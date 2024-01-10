@@ -21,6 +21,9 @@ export class EmulatorService {
 
   private gameInterval: any;
 
+  private isPaused = false;
+
+
   constructor() { }
 
   // starting game will create a game object and execute game frames at 60fps
@@ -41,8 +44,8 @@ export class EmulatorService {
     // start game loop at 60fps
     this.gameInterval = setInterval(
       () => {
-        this.advanceEmulatorState();
-      }, 1000 / 60 // game runs at 60fps
+        if (!this.isPaused) this.advanceEmulatorState();
+      }, 300 // tick every half second
     );
   }
 
@@ -52,23 +55,30 @@ export class EmulatorService {
   private advanceEmulatorState() {
     const pressedKeys = this.keyManager.generate();
 
+
     // if a key was just pressed or released, initiate rollback by
     // applying 
     if (pressedKeys.hasChanged() && this.previousState !== undefined) {
+
+      console.log("rollback");
 
       // rollback to previous state and execute previous state with current keys
       this.previousState.executeFrame(pressedKeys);
       this.currentState = this.previousState;
 
+      // update previous state
+      this.previousState = this.currentState?.copy();
+
       // re-execute current state after rollback
       this.currentState.executeFrame(pressedKeys.generateNext());  
     } else {
+
+      // update previous state
+      this.previousState = this.currentState?.copy();
+
       // no rollback, just execute current state
       this.currentState?.executeFrame(pressedKeys);
     }
-
-    // update previous state
-    this.previousState = this.currentState?.copy();
 
     // if topped out, stop game
     if (this.currentState?.isToppedOut()) this.stopGame();
@@ -91,13 +101,13 @@ export class EmulatorService {
     // ignore keydown events if game is not running
     if (this.currentState === undefined) return;
 
-    console.log("keydown", event.key);
-
     const keybind = this.keybinds.stringToKeybind(event.key);
     if (keybind) {
       this.keyManager.onPress(keybind);
       event.stopPropagation();
       event.preventDefault();
+    } else if (event.key === "Enter") {
+      this.isPaused = !this.isPaused;
     }
     
   }

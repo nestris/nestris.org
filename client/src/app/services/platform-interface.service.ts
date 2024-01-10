@@ -33,6 +33,7 @@ export class PolledGameData {
     public readonly score: number,
     public readonly trt: number,
     public readonly drought?: number,
+    public readonly das?: number,
   ) {}
 } 
 
@@ -112,6 +113,7 @@ export class PlatformInterfaceService {
         status.score,
         gameState.getTrt(),
         gameState.getDrought(),
+        gameState.getCurrentDAS(),
       ));
     }
   }

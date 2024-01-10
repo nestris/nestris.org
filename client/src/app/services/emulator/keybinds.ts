@@ -14,6 +14,18 @@ export const ALL_KEYBINDS = [
     Keybind.PUSHDOWN
 ]
 
+const KEYBIND_TO_NAME: {[keybind in Keybind] : string} = {
+    [Keybind.SHIFT_LEFT] : "L",
+    [Keybind.SHIFT_RIGHT] : "R",
+    [Keybind.ROTATE_LEFT] : "Z",
+    [Keybind.ROTATE_RIGHT] : "X",
+    [Keybind.PUSHDOWN] : "D",
+}
+
+export function keybindToName(keybind: Keybind): string {
+    return KEYBIND_TO_NAME[keybind];
+}
+
 /*
 Struct storing all the keybinds
 */

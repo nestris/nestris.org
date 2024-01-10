@@ -1,4 +1,4 @@
-import { ALL_KEYBINDS, Keybind } from "./keybinds";
+import { ALL_KEYBINDS, Keybind, keybindToName } from "./keybinds";
 
 /*
 Struct storing the key state for a single frame
@@ -22,6 +22,14 @@ export class CurrentlyPressedKeys {
     // whether a keybind was just released this frame
     isJustReleased(keybind: Keybind): boolean {
         return !this.thisFramePressed[keybind] && this.lastFramePressed[keybind];
+    }
+
+    toString(): string {
+        let str = "";
+        ALL_KEYBINDS.forEach((keybind) => {
+            if (this.isPressed(keybind)) str += keybindToName(keybind) + " ";
+        });
+        return str;
     }
 
     // whether any keybind was just pressed or released this frame
