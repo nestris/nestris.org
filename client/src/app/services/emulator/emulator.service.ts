@@ -113,6 +113,9 @@ export class EmulatorService {
       event.preventDefault();
     } else if (event.key === "Enter") {
       this.isPaused = !this.isPaused;
+    } else if (event.key === "r") { // restart game
+      this.stopGame();
+      this.startGame(18);
     }
     
   }
