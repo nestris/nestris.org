@@ -63,19 +63,19 @@ export class EmulatorService {
 
     // if a key was just pressed or released, initiate rollback by
     // applying 
-    if (pressedKeys.hasChanged() && this.previousState !== undefined) {
+    if (false && pressedKeys.hasChanged() && this.previousState !== undefined) {
 
       console.log("rollback");
 
-      // rollback to previous state and execute previous state with current keys
-      this.previousState.executeFrame(pressedKeys);
-      this.currentState = this.previousState;
+      // // rollback to previous state and execute previous state with current keys
+      // this.previousState.executeFrame(pressedKeys);
+      // this.currentState = this.previousState;
 
-      // update previous state
-      this.previousState = this.currentState?.copy();
+      // // update previous state
+      // this.previousState = this.currentState?.copy();
 
-      // re-execute current state after rollback
-      this.currentState.executeFrame(pressedKeys.generateNext());  
+      // // re-execute current state after rollback
+      // this.currentState.executeFrame(pressedKeys.generateNext());  
     } else {
 
       // update previous state
