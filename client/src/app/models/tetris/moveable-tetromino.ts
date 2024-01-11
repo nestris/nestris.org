@@ -20,7 +20,7 @@ export default class MoveableTetromino {
     static fromSpawnPose(tetrominoType: TetrominoType): MoveableTetromino {
 
         // special case: I piece needs to be one higher
-        const y = (tetrominoType === TetrominoType.I_TYPE) ? 0 : -1;
+        const y = (tetrominoType === TetrominoType.I_TYPE) ? -2 : -1;
 
         return new MoveableTetromino(tetrominoType, 0, 3, y);
     }
