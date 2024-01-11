@@ -27,7 +27,8 @@ export class EmulatorService {
   constructor() { }
 
   // starting game will create a game object and execute game frames at 60fps
-  startGame(level: number) {
+  // if slowmode, will execute games at 5ps instead
+  startGame(level: number, slowMode: boolean = false) {
 
     if (this.currentState !== undefined) {
       throw new Error('Game already started');
@@ -41,11 +42,15 @@ export class EmulatorService {
     // generate initial game state
     this.currentState = new EmulatorGameState(level, new RandomRNG());
 
+    let fps;
+    if (slowMode) fps = 5;
+    else fps = 60;
+
     // start game loop at 60fps
     this.gameInterval = setInterval(
       () => {
         if (!this.isPaused) this.advanceEmulatorState();
-      }, 300 // tick every half second
+      }, 1000 / fps // tick at 60fps
     );
   }
 

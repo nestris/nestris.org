@@ -28,7 +28,15 @@ export class SoloPageComponent {
       this.emulatorService.startGame(18);
     });
 
+    this.routingService.onSwitchToTab(TabID.MULTIPLAYER).subscribe(() => {
+      this.emulatorService.startGame(18, true);
+    });
+
     this.routingService.onLeaveTab(TabID.SOLO).subscribe(() => {
+      this.emulatorService.stopGame();
+    });
+
+    this.routingService.onLeaveTab(TabID.MULTIPLAYER).subscribe(() => {
       this.emulatorService.stopGame();
     });
   }

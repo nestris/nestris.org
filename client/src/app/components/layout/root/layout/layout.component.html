@@ -11,6 +11,8 @@
 <ng-container *ngIf="(sidebarTabService.getIsFullscreenMode() | async)">
     <ng-container *ngIf="sidebarTabService.getSelectedTab() | async as selectedTab">
         <app-solo-page class="fullscreen" *ngIf="selectedTab.tab === TabID.SOLO" />
-        <app-multiplayer-page class="fullscreen" *ngIf="selectedTab.tab === TabID.MULTIPLAYER" />
+
+        <!-- SHOULD BE MULTIPLE PAGE, TESTING PURPOSES ONLY -->
+        <app-solo-page class="fullscreen" *ngIf="selectedTab.tab === TabID.MULTIPLAYER" />
     </ng-container>
 </ng-container>

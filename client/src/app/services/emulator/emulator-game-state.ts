@@ -180,12 +180,12 @@ export class EmulatorGameState {
 
         // attempt translate if key is pressed
         if (pressedKeys.isJustPressed(Keybind.SHIFT_LEFT)) {
-            // if legal, reset DAS.
-            this.currentDAS = this.attemptMove(0, -1) ? 0 : this.currentDAS;
+            // if legal, reset DAS. otherwise, set DAS to max (wall charge)
+            this.currentDAS = this.attemptMove(0, -1) ? 0 : this.MAX_DAS;
         }
         else if (pressedKeys.isJustPressed(Keybind.SHIFT_RIGHT)) {
-            // if legal, reset DAS.
-            this.currentDAS = this.attemptMove(0, 1) ? 0 : this.currentDAS;
+            // if legal, reset DAS. otherwise, set DAS to max (wall charge)
+            this.currentDAS = this.attemptMove(0, 1) ? 0 : this.MAX_DAS;
         } else {
 
             // handle normal DAS for left/right
@@ -195,19 +195,9 @@ export class EmulatorGameState {
                 this.currentDAS++;
 
                 if (this.currentDAS >= this.MAX_DAS) {
-                    // if successful shift, reset DAS.
-                    this.currentDAS = this.attemptMove(0, leftPressed ? -1 : 1) ? this.RESET_DAS : 0;
+                    // if successful shift, reset DAS. otherwise, set DAS to max (wall charge)
+                    this.currentDAS = this.attemptMove(0, leftPressed ? -1 : 1) ? this.RESET_DAS : this.MAX_DAS;
                 }
-            }
-
-            // if left pressing and can't move left, wall charge
-            if (leftPressed && !this.canMoveDirection(-1)) {
-               this.currentDAS = this.MAX_DAS;
-            }
-
-            // if right pressing and can't move right, wall charge
-            if (rightPressed && !this.canMoveDirection(1)) {
-                this.currentDAS = this.MAX_DAS;
             }
 
         }
