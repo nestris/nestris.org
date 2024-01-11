@@ -103,15 +103,12 @@ export class EmulatorService {
   // if matching keybind, update currently pressed keys on keydown
   handleKeydown(event: KeyboardEvent) {
 
-    // ignore keydown events if game is not running
-    if (this.currentState === undefined) return;
-
     const keybind = this.keybinds.stringToKeybind(event.key);
     if (keybind) {
       this.keyManager.onPress(keybind);
       event.stopPropagation();
       event.preventDefault();
-    } else if (event.key === "Enter") {
+    } else if (event.key === "Enter" && this.currentState !== undefined) {
       this.isPaused = !this.isPaused;
     } else if (event.key === "r") { // restart game
       this.stopGame();
@@ -122,9 +119,6 @@ export class EmulatorService {
 
   // if matching keybind, update currently pressed keys on keyup
   handleKeyup(event: KeyboardEvent) {
-
-    // ignore keyup events if game is not running
-    if (this.currentState === undefined) return;
 
     console.log("keyup", event.key);
 
