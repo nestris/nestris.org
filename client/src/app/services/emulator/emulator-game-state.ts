@@ -40,12 +40,17 @@ export class EmulatorGameState {
     // Number of frames since piece spawn
     private placementFrameCount: number = 0;
 
+    private gravity: number;
+    private gravityCounter = 1;
+
     constructor(
         public readonly startLevel: number,
         private readonly rng: RNG,
     ) {
         this.status = new SmartGameStatus(startLevel);
         this.nextPieceType = this.rng.getNextPiece();
+
+        this.gravity = getGravity(this.status.level);
     }
 
     // used only for copy() operation. should not be used otherwise
@@ -119,6 +124,9 @@ export class EmulatorGameState {
     }
 
     private spawnNewPiece() {
+
+        // reset gravity counter. not 0 because gravity is not applied on first frame
+        this.gravityCounter = 1;
 
         // set active piece to spawn location of next piece
         this.activePiece = MoveableTetromino.fromSpawnPose(this.nextPieceType);
@@ -233,7 +241,13 @@ export class EmulatorGameState {
             // FOR NOW: instant lineclears
             const linesCleared = this.isolatedBoard.processLineClears();
             // console.log("lines cleared", linesCleared);
-            this.status.onLineClear(linesCleared);
+
+            // update score/line/level count, and update gravity accordingly
+            if (linesCleared > 0) {
+                this.status.onLineClear(linesCleared);
+                this.gravity = getGravity(this.status.level);
+            }
+            
         } else {
             console.log("drop piece");
         }
@@ -265,13 +279,18 @@ export class EmulatorGameState {
             this.initialSpawnDelay--;
         } else {
 
-            if ((this.placementFrameCount + 1) % getGravity(this.status.level) === 0) {
-                // every [getGravity()] frames, drop piece
+            if (this.gravityCounter === 0) {
+                // gravityCounter cycles mod gravity, so this only happens once every gravity frames
                 this.handlePieceDrop();
             }
     
             // increment placement frame counter
             this.placementFrameCount++;
+
+            // increment gravity counter. if pushdown, gravity is bounded at 2
+            let gravity = this.gravity;
+            if (pressedKeys.isPressed(Keybind.PUSHDOWN)) gravity = Math.min(2, gravity);
+            this.gravityCounter = (this.gravityCounter + 1) % gravity;
     
         }
         
