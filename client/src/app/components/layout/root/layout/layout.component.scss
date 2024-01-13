@@ -4,17 +4,18 @@
 
     height: 100%;
     box-sizing: border-box;
+
+    position: relative
 }
 
 // make page content scroll but not sidebar
 .content {
     overflow-y: scroll;
-    position: relative;
     width: 100%;
     box-sizing: border-box;
 }
 
-.page {
+.content-with-padding {
     margin-left: 15px;
 }
 
