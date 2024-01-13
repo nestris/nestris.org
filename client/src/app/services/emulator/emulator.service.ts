@@ -65,7 +65,7 @@ export class EmulatorService {
   private advanceEmulatorState() {
 
     // tick fps tracker
-    this.fpsTracker!.tick();
+    this.fpsTracker?.tick();
     console.log("FPS:", this.fpsTracker!.getFPS());
     
     const pressedKeys = this.keyManager.generate();
