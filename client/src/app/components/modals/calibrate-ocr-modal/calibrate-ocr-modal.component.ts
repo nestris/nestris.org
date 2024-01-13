@@ -8,4 +8,12 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 })
 export class CalibrateOcrModalComponent {
 
+  public steps: string[] = [
+    "Select video source",
+    "Locate tetris board",
+    "Verify OCR",
+    "Anti-cheat"
+  ];
+
+  public activeStep: number = 0;
 }

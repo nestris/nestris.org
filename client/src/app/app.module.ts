@@ -34,6 +34,7 @@ import { NesPieceComponent } from './components/nes-layout/nes-piece/nes-piece.c
 import { VideoCaptureComponent } from './components/ocr/video-capture/video-capture.component';
 import { ModalContainerComponent } from './components/ui/modal-container/modal-container.component';
 import { CalibrateOcrModalComponent } from './components/modals/calibrate-ocr-modal/calibrate-ocr-modal.component';
+import { StepperComponent } from './components/ui/stepper/stepper.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -108,7 +109,8 @@ const customNotifierOptions: NotifierOptions = {
     NesPieceComponent,
     VideoCaptureComponent,
     ModalContainerComponent,
-    CalibrateOcrModalComponent
+    CalibrateOcrModalComponent,
+    StepperComponent
   ],
   imports: [
     BrowserModule,

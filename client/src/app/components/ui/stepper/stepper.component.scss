@@ -1,0 +1,72 @@
+@import "../../../../styles.scss";
+
+:host {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.visual, .text {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.visual {
+    gap: 7px;
+}
+
+.element {
+    width: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.line {
+    width: 114px;
+}
+
+.line-hr {
+    height: 2px;
+    border-width: 0;
+    color: $button-active-color;
+    background-color: $button-active-color;
+    margin: 0;
+}
+
+.line-hr.disabled {
+    color: $button-disabled-color;
+    background-color: $button-disabled-color;
+}
+
+.circle {
+    width:22px;
+    height:22px;
+    border-radius:11px;
+    line-height:22px;
+    text-align:center;
+
+    text-align: center;
+    font-family: Montserrat;
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 700;
+    background: $button-active-color;
+}
+
+.circle.disabled {
+    background: $button-disabled-color;
+}
+
+.label {
+    color: #FFF;
+    text-align: center;
+    font-family: Montserrat;
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
