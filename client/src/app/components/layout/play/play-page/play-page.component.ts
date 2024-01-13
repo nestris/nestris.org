@@ -6,6 +6,7 @@ import { ALL_TETROMINO_TYPES } from 'client/src/app/models/tetris/tetromino-type
 import { RoutingService } from 'client/src/app/services/routing.service';
 import { Platform, PlatformInterfaceService } from 'client/src/app/services/platform-interface.service';
 import { TabID } from 'client/src/app/models/tabs';
+import { ModalManagerService, ModalType } from 'client/src/app/services/modal-manager.service';
 
 @Component({
   selector: 'app-play-page',
@@ -21,6 +22,7 @@ export class PlayPageComponent {
   constructor(
     private routingService: RoutingService,
     public platformService: PlatformInterfaceService,
+    private modalManager: ModalManagerService
   ) {
 
   }
@@ -35,6 +37,10 @@ export class PlayPageComponent {
 
   playSandbox() {
     this.routingService.setSelectedTab({tab: TabID.MULTIPLAYER, params: undefined});
+  }
+
+  setupCalibration() {
+    this.modalManager.showModal(ModalType.CALIBRATE_OCR);
   }
 
 }

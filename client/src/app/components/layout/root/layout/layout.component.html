@@ -1,11 +1,15 @@
 <div class="root" *ngIf="!(sidebarTabService.getIsFullscreenMode() | async)">
     <app-sidebar class="sidebar" [isSignedIn]="(websocketService.onSignInUpdate() | async) ?? false" />
-    <ng-container *ngIf="sidebarTabService.getSelectedTab() | async as selectedTab">
-        <app-friend-page *ngIf="selectedTab.tab === TabID.FRIENDS" />
-        <app-home-page *ngIf="selectedTab.tab === TabID.HOME" />
-        <app-play-page *ngIf="selectedTab.tab === TabID.PLAY" />
-        <app-puzzles-page *ngIf="selectedTab.tab === TabID.PUZZLES" />
-    </ng-container>
+    <div class="content" *ngIf="sidebarTabService.getSelectedTab() | async as selectedTab">
+
+        <app-friend-page class="page" *ngIf="selectedTab.tab === TabID.FRIENDS" />
+        <app-home-page class="page" *ngIf="selectedTab.tab === TabID.HOME" />
+        <app-play-page class="page" *ngIf="selectedTab.tab === TabID.PLAY" />
+        <app-puzzles-page class="page" *ngIf="selectedTab.tab === TabID.PUZZLES" />
+
+        <app-modal-container />
+
+    </div>
 </div>
 
 <ng-container *ngIf="(sidebarTabService.getIsFullscreenMode() | async)">
@@ -14,5 +18,8 @@
 
         <!-- SHOULD BE MULTIPLE PAGE, TESTING PURPOSES ONLY -->
         <app-solo-page class="fullscreen" *ngIf="selectedTab.tab === TabID.MULTIPLAYER" />
+
+        <app-modal-container />
+
     </ng-container>
 </ng-container>

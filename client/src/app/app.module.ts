@@ -31,6 +31,9 @@ import { MultiplayerPageComponent } from './components/layout/multiplayer/multip
 import { OutlineButtonComponent } from './components/ui/outline-button/outline-button.component';
 import { LayoutOneComponent } from './components/nes-layout/layouts/layout-one/layout-one.component';
 import { NesPieceComponent } from './components/nes-layout/nes-piece/nes-piece.component';
+import { VideoCaptureComponent } from './components/ocr/video-capture/video-capture.component';
+import { ModalContainerComponent } from './components/ui/modal-container/modal-container.component';
+import { CalibrateOcrModalComponent } from './components/modals/calibrate-ocr-modal/calibrate-ocr-modal.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -102,7 +105,10 @@ const customNotifierOptions: NotifierOptions = {
     MultiplayerPageComponent,
     OutlineButtonComponent,
     LayoutOneComponent,
-    NesPieceComponent
+    NesPieceComponent,
+    VideoCaptureComponent,
+    ModalContainerComponent,
+    CalibrateOcrModalComponent
   ],
   imports: [
     BrowserModule,

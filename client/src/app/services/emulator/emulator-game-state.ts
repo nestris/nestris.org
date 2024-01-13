@@ -138,6 +138,8 @@ export class EmulatorGameState {
         if (this.activePiece.intersectsBoard(this.isolatedBoard)) {
             this.toppedOut = true;
             this.activePiece.blitToBoard(this.isolatedBoard);
+            console.log("topped out");
+            this.isolatedBoard.print();
             this.activePiece = undefined;
         }
     }
@@ -175,10 +177,10 @@ export class EmulatorGameState {
             this.activePiece.moveBy(-dr, -dt, 0);
             return false;
         } else {
-            if (dr === -1) console.log("rotate left");
-            if (dr === 1) console.log("rotate right");
-            if (dt === -1) console.log("translate left");
-            if (dt === 1) console.log("translate right");
+            // if (dr === -1) console.log("rotate left");
+            // if (dr === 1) console.log("rotate right");
+            // if (dt === -1) console.log("translate left");
+            // if (dt === 1) console.log("translate right");
         }
 
         return true;
@@ -227,7 +229,7 @@ export class EmulatorGameState {
 
         // if illegal, undo and lock piece instead
         if (!this.activePiece!.isInBounds() || this.activePiece.intersectsBoard(this.isolatedBoard)) {
-            console.log("piece locked");
+            // console.log("piece locked");
 
             this.activePiece.moveBy(0, 0, -1); // undo piece drop
 
@@ -249,7 +251,7 @@ export class EmulatorGameState {
             }
             
         } else {
-            console.log("drop piece");
+            // console.log("drop piece");
         }
     }
 
@@ -259,7 +261,7 @@ export class EmulatorGameState {
         // do nothing on topout
         if (this.toppedOut) return;
 
-        console.log("frame", this.placementFrameCount, pressedKeys.toString(), "DAS:", this.currentDAS);
+        // console.log("frame", this.placementFrameCount, pressedKeys.toString(), "DAS:", this.currentDAS);
 
         // on first frame, spawn piece
         if (this.placementFrameCount === 0 && this.activePiece === undefined) {

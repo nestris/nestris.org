@@ -20,7 +20,7 @@
 .platform-section {
     display: flex;
     flex-direction: row;
-    align-items: center;
+    align-items: stretch;
     justify-content: center;
     gap: 30px;
     margin-bottom: 10px;
@@ -34,7 +34,7 @@
     flex-direction: column;
     align-items: center;
     width: 400px;
-    height: 100%;
+    // height: 100%;
 
     transition: background-color 0.3s ease;
     box-shadow: 0 0.4vh 1.5vh 0.05vh rgb(0,0,0,0.2);

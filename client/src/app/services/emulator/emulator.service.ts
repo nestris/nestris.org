@@ -3,6 +3,7 @@ import { CurrentlyPressedKeys, KeyManager } from './currently-pressed-keys';
 import { Keybinds } from './keybinds';
 import { EmulatorGameState } from './emulator-game-state';
 import { RandomRNG } from '../../models/piece-sequence-generation/random-rng';
+import { FpsTracker } from 'misc/fps-tracker';
 
 /*
 Emulates a NES game as a 60fps state machine with keyboard input
@@ -23,24 +24,28 @@ export class EmulatorService {
 
   private isPaused = false;
 
+  private fpsTracker?: FpsTracker;
 
-  constructor() { }
+
+  constructor() {
+  }
 
   // starting game will create a game object and execute game frames at 60fps
   // if slowmode, will execute games at 5ps instead
   startGame(level: number, slowMode: boolean = false) {
 
-    if (this.currentState !== undefined) {
-      throw new Error('Game already started');
-    }
-
     console.log("starting game at level", level);
+
+    this.fpsTracker = new FpsTracker();
 
     // set all keys to unpressed
     this.keyManager.resetAll();
 
     // generate initial game state
     this.currentState = new EmulatorGameState(level, new RandomRNG());
+
+    // unpause
+    this.isPaused = false;
 
     let fps;
     if (slowMode) fps = 5;
@@ -58,6 +63,11 @@ export class EmulatorService {
   // if keyboard input, rollback and runahead
   // if topped out, stop game
   private advanceEmulatorState() {
+
+    // tick fps tracker
+    this.fpsTracker!.tick();
+    console.log("FPS:", this.fpsTracker!.getFPS());
+    
     const pressedKeys = this.keyManager.generate();
 
 
@@ -91,7 +101,7 @@ export class EmulatorService {
 
   stopGame() {
     clearInterval(this.gameInterval);
-    this.currentState = undefined;
+    this.fpsTracker = undefined;
     console.log("game stopped");
   }
 
@@ -120,13 +130,16 @@ export class EmulatorService {
   // if matching keybind, update currently pressed keys on keyup
   handleKeyup(event: KeyboardEvent) {
 
-    console.log("keyup", event.key);
-
     const keybind = this.keybinds.stringToKeybind(event.key);
     if (keybind) {
       this.keyManager.onRelease(keybind);
       event.stopPropagation();
       event.preventDefault();
     }
+  }
+
+  // returns the average number of ticks per second over the last second
+  getFPS(): number {
+    return this.fpsTracker?.getFPS() ?? 0;
   }
 }
