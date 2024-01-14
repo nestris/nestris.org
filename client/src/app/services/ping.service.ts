@@ -3,6 +3,11 @@ import { WebsocketService } from './websocket.service';
 import { JsonMessageType, PingMessage } from 'network-protocol/json-message';
 import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
 
+
+/*
+Sends a ping to server frequently to determine latency
+*/
+
 export enum PingSpeed {
   FAST = "fast", // less than 50ms
   MEDIUM = "medium", // less than 150ms

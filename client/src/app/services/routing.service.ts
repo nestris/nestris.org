@@ -6,6 +6,7 @@ import { WebsocketService } from './websocket.service';
 
 /*
 Handles which tab is selected in the sidebar. Exposes an observable that emits the currently selected tab.
+Lots of useful observables for observing tab changes.
 */
 
 @Injectable({

@@ -5,6 +5,15 @@ import { MessageType, decodeMessage } from 'network-protocol/ws-message';
 import { BehaviorSubject, Observable, Subject, filter, map } from 'rxjs';
 import { NotificationService, NotificationType } from './notification.service';
 
+/*
+The central event bus for dealing with websocket messages to/from the server.
+Use sendJsonMessage() to send a message to the server.
+Subscribe to different message types using onEvent() to define handlers for different message types.
+
+Also handles sign in, as the websocket connection is established when the user signs in and 
+closed when the user signs out.
+*/
+
 @Injectable({
   providedIn: 'root'
 })

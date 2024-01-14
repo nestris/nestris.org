@@ -3,6 +3,13 @@ import { NotifierService } from 'angular-notifier';
 import { Observable, Subject } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
+/*
+A wrapper to angular-notifier library to support the following:
+- disable autohide
+- hide after a certain duration
+- wrap notification type into an enum
+*/
+
 export enum NotificationType {
   INFO = 'info',
   SUCCESS = 'success',

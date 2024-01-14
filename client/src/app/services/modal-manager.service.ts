@@ -5,6 +5,13 @@ export enum ModalType {
   CALIBRATE_OCR = "CALIBRATE_OCR",
 }
 
+/*
+Manages creation of modals and the modal components automatically.
+Call showModal() to show a modal, and hideModal() to hide it.
+Each modal type is tied to a component, and the modal manager will automatically
+create the component when the modal is shown, and destroy it when the modal is hidden.
+*/
+
 @Injectable({
   providedIn: 'root'
 })
