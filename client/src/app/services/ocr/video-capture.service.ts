@@ -39,7 +39,8 @@ export class VideoCaptureService {
       const settings = videoTrack.getSettings();
       this.canvasElement.nativeElement.width = settings.width!;
       this.canvasElement.nativeElement.height = settings.height!;
-      console.log("set video resolution", settings.width, settings.height);
+      
+      console.log("set media stream with video resolution", settings.width, settings.height);
 
     } catch (err) {
       this.permissionError$.next((err as Error).message);

@@ -2,12 +2,23 @@
     <app-stepper class="stepper" [steps]="ALL_CALIBRATION_STEPS" [activeStep]="stepIndex" />
     <div class="content">
 
+        <div class="select-video-source" *ngIf="currentStep === CalibrationStep.SELECT_VIDEO_SOURCE">
+            <div class="col">
+                <app-solid-button [color]="ButtonColor.BLUE" label="Screen Capture"
+                    tooltip="Capture gameplay from an emulator on this computer through screen capture"
+                    (click)="screenCapture()" />
+            </div>
+            <div class="col">
+
+            </div>
+        </div>
+
     </div>
     <div class="buttons">
         <app-solid-button [color]="ButtonColor.GREY" label="Back"
-            [disabled]="!nextAllowed()" (click)="next()" />
-        <app-solid-button [color]="ButtonColor.BLUE" label="Next"
-            [tooltip]="nextTooltip()"
             [disabled]="!previousAllowed()" (click)="previous()" />
+        <app-solid-button [color]="ButtonColor.BLUE" [label]="isLastStep() ? 'Finish' : 'Next'"
+            [tooltip]="nextTooltip()"
+            [disabled]="!nextAllowed()" (click)="next()" />
     </div>
 </div>

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ButtonColor } from '../../ui/solid-button/solid-button.component';
 import { VideoCaptureService } from 'client/src/app/services/ocr/video-capture.service';
+import { ModalManagerService } from 'client/src/app/services/modal-manager.service';
 
 export enum CalibrationStep {
   SELECT_VIDEO_SOURCE = "Select video source",
@@ -30,6 +31,7 @@ export class CalibrateOcrModalComponent {
 
   constructor(
     public videoCapture: VideoCaptureService,
+    private modalManager: ModalManagerService
   ) {}
 
   // whether allowed to go to next step of stepper for calibration
@@ -58,10 +60,19 @@ export class CalibrateOcrModalComponent {
     return this.stepIndex > 0;
   }
 
+  isLastStep(): boolean {
+    return this.stepIndex === this.ALL_CALIBRATION_STEPS.length - 1;
+  }
+
   // go to next step of stepper for calibration
   next() {
     if (this.nextAllowed()) {
-      this.stepIndex++;
+
+      // if at the last step, finish and hide modal
+      if (this.isLastStep()) this.modalManager.hideModal();
+
+      // otherwise, go to next step
+      else this.stepIndex++;
     }
   }
 
@@ -94,6 +105,18 @@ export class CalibrateOcrModalComponent {
       default:
         return "";
     }
+  }
+
+  async screenCapture() {
+
+    // get screen capture, requesting with 800px width
+    const mediaStream = await navigator.mediaDevices.getDisplayMedia({
+      video: {
+        width: 800,
+      }
+    });
+
+    this.videoCapture.setCaptureSource(mediaStream);
   }
 
 }
