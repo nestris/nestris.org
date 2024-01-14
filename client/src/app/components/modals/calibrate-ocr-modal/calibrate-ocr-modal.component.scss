@@ -1,8 +1,23 @@
 .modal {
     width: 750px;
     height: 400px;
+
+    display: flex;
+    flex-direction: column;
 }
 
 .stepper {
     
+}
+
+.content {
+    flex-grow: 1;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+
+    gap: 10px;
 }

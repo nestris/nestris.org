@@ -35,6 +35,8 @@ import { VideoCaptureComponent } from './components/ocr/video-capture/video-capt
 import { ModalContainerComponent } from './components/ui/modal-container/modal-container.component';
 import { CalibrateOcrModalComponent } from './components/modals/calibrate-ocr-modal/calibrate-ocr-modal.component';
 import { StepperComponent } from './components/ui/stepper/stepper.component';
+import { TooltipDirective } from './directives/tooltip.directive';
+import { TooltipComponent } from './components/ui/tooltip/tooltip.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -110,7 +112,9 @@ const customNotifierOptions: NotifierOptions = {
     VideoCaptureComponent,
     ModalContainerComponent,
     CalibrateOcrModalComponent,
-    StepperComponent
+    StepperComponent,
+    TooltipDirective,
+    TooltipComponent
   ],
   imports: [
     BrowserModule,

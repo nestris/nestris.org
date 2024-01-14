@@ -1,3 +1,13 @@
 <div class="modal">
-    <app-stepper class="stepper" [steps]="steps" [activeStep]="activeStep" />
+    <app-stepper class="stepper" [steps]="ALL_CALIBRATION_STEPS" [activeStep]="stepIndex" />
+    <div class="content">
+
+    </div>
+    <div class="buttons">
+        <app-solid-button [color]="ButtonColor.GREY" label="Back"
+            [disabled]="!nextAllowed()" (click)="next()" />
+        <app-solid-button [color]="ButtonColor.BLUE" label="Next"
+            [tooltip]="nextTooltip()"
+            [disabled]="!previousAllowed()" (click)="previous()" />
+    </div>
 </div>

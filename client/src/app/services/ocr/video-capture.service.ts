@@ -46,10 +46,14 @@ export class VideoCaptureService {
     };
   }
 
+  hasCaptureSource(): boolean {
+    return this.videoElement.nativeElement.srcObject !== null;
+  }
+
   startCapture() {
 
     // make sure capture source is set
-    if (!this.videoElement.nativeElement.srcObject) {
+    if (!this.hasCaptureSource()) {
       throw new Error("capture source not set");
     }
 

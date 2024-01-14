@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 export enum ButtonColor {
-  GREEN = "#54A165",
+  GREEN = "#3CB75E",
   RED = "#A15454",
-  BLUE = "#626EDF"
+  BLUE = "#3C5EB7",
+  GREY = "#2F3033"
 }
 
 @Component({
@@ -16,4 +17,5 @@ export class SolidButtonComponent {
   @Input() icon?: string;
   @Input() label!: string;
   @Input() color!: string | ButtonColor;
+  @Input() disabled: boolean = false;
 }

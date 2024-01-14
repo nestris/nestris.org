@@ -1,4 +1,13 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ButtonColor } from '../../ui/solid-button/solid-button.component';
+import { VideoCaptureService } from 'client/src/app/services/ocr/video-capture.service';
+
+export enum CalibrationStep {
+  SELECT_VIDEO_SOURCE = "Select video source",
+  LOCATE_TETRIS_BOARD = "Locate tetris board",
+  VERIFY_OCR = "Verify OCR",
+  ANTI_CHEAT = "Anti-cheat"
+}
 
 @Component({
   selector: 'app-calibrate-ocr-modal',
@@ -8,12 +17,83 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 })
 export class CalibrateOcrModalComponent {
 
-  public steps: string[] = [
-    "Select video source",
-    "Locate tetris board",
-    "Verify OCR",
-    "Anti-cheat"
-  ];
+  readonly ButtonColor = ButtonColor;
 
-  public activeStep: number = 0;
+  readonly CalibrationStep = CalibrationStep;
+  readonly ALL_CALIBRATION_STEPS = Object.values(CalibrationStep);
+
+  public stepIndex: number = 0;
+
+  get currentStep(): CalibrationStep {
+    return this.ALL_CALIBRATION_STEPS[this.stepIndex];
+  }
+
+  constructor(
+    public videoCapture: VideoCaptureService,
+  ) {}
+
+  // whether allowed to go to next step of stepper for calibration
+  nextAllowed(): boolean {
+
+    switch (this.currentStep) {
+      case CalibrationStep.SELECT_VIDEO_SOURCE:
+        return this.videoCapture.hasCaptureSource();
+
+      case CalibrationStep.LOCATE_TETRIS_BOARD:
+        return true;
+
+      case CalibrationStep.VERIFY_OCR:
+        return true;
+
+      case CalibrationStep.ANTI_CHEAT:
+        return true;
+
+      default:
+        return false;
+    }
+  }
+
+  // whether allowed to go to previous step of stepper for calibration
+  previousAllowed(): boolean {
+    return this.stepIndex > 0;
+  }
+
+  // go to next step of stepper for calibration
+  next() {
+    if (this.nextAllowed()) {
+      this.stepIndex++;
+    }
+  }
+
+  // go to previous step of stepper for calibration
+  previous() {
+    if (this.previousAllowed()) {
+      this.stepIndex--;
+    }
+  }
+
+  // show a tooltip for next button if not allowed to go to next step
+  nextTooltip(): string {
+
+    if (this.nextAllowed()) return "";
+
+
+    switch (this.currentStep) {
+      case CalibrationStep.SELECT_VIDEO_SOURCE:
+        return "Video source not set yet";
+
+      case CalibrationStep.LOCATE_TETRIS_BOARD:
+        return "Tetris board not located yet";
+
+      case CalibrationStep.VERIFY_OCR:
+        return "OCR has not been verified yet";
+
+      case CalibrationStep.ANTI_CHEAT:
+        return "Complete anti-cheat first";
+
+      default:
+        return "";
+    }
+  }
+
 }
