@@ -13,6 +13,17 @@
             </div>
         </div>
 
+        <div class="locate-tetris-board" *ngIf="currentStep === CalibrationStep.LOCATE_TETRIS_BOARD">
+            <div class="col">
+                <app-preview-canvas />
+            </div>
+            <div class="col">
+                <app-nes-board [hide]="true" [scale]="1.65">
+                    <h2 class="no-board-text">Click on an empty part of the tetris board!</h2>
+                </app-nes-board>
+            </div>
+        </div>
+
     </div>
     <div class="buttons">
         <app-solid-button [color]="ButtonColor.GREY" label="Back"

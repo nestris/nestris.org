@@ -21,6 +21,9 @@ export class NesBoardComponent {
   // optional current piece that, if passed in, displays the rest of the board in lower saturation
   @Input() activePiece?: MoveableTetromino; // TODO
 
+  // if hidden, <ng-content> will be displayed instead of board
+  @Input() hide: boolean = false;
+
   public readonly boardWidthPixels = 8*10 + 11; // 10 blocks 8px wide plus 1px gap and 1px margins
   public readonly boardHeightPixels = 8*20 + 21; // 20 blocks 8px wide plus 1px gap and 1px margins
 

@@ -1,5 +1,11 @@
 <div class="board-container">
-    <svg class="board-svg"
+
+    <div class="empty-board" *ngIf="hide"
+        [style.width]="(scale*boardWidthPixels) + 'px'"
+        [style.height]="(scale*boardHeightPixels) + 'px'"
+    ><ng-content></ng-content></div>
+
+    <svg class="board-svg" *ngIf="!hide"
         [attr.width]="(scale*boardWidthPixels) + 'px'"
         [attr.height]="(scale*boardHeightPixels) + 'px'"
         [attr.viewBox]="'0 0 ' + boardWidthPixels + ' ' + boardHeightPixels">

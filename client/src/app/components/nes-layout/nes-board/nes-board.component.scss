@@ -7,3 +7,9 @@
 .board-svg {
     display: block; // prevents the weird space in the bottom of the board
 }
+
+.empty-board {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
