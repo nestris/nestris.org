@@ -9,11 +9,11 @@ import { VideoCaptureService } from 'client/src/app/services/ocr/video-capture.s
 })
 export class VideoCaptureComponent implements AfterViewInit {
   @ViewChild('videoElement') videoElement!: ElementRef<HTMLVideoElement>;
-  @ViewChild('canvasElement') canvasElement!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('canvasParentElement') canvasParentElement!: ElementRef<HTMLElement>;
 
   constructor(private service: VideoCaptureService) {}
 
   ngAfterViewInit(): void {
-      this.service.initVideoCapture(this.videoElement, this.canvasElement);
+      this.service.initVideoCapture(this.videoElement, this.canvasParentElement);
   }
 }

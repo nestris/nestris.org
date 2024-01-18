@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { ButtonColor } from '../../ui/solid-button/solid-button.component';
+import { ButtonColor } from '../../../ui/solid-button/solid-button.component';
 import { VideoCaptureService } from 'client/src/app/services/ocr/video-capture.service';
 import { ModalManagerService } from 'client/src/app/services/modal-manager.service';
 
@@ -117,6 +117,7 @@ export class CalibrateOcrModalComponent {
     });
 
     this.videoCapture.setCaptureSource(mediaStream);
+    this.videoCapture.startCapture();
   }
 
 }

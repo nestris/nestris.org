@@ -33,10 +33,11 @@ import { LayoutOneComponent } from './components/nes-layout/layouts/layout-one/l
 import { NesPieceComponent } from './components/nes-layout/nes-piece/nes-piece.component';
 import { VideoCaptureComponent } from './components/ocr/video-capture/video-capture.component';
 import { ModalContainerComponent } from './components/ui/modal-container/modal-container.component';
-import { CalibrateOcrModalComponent } from './components/modals/calibrate-ocr-modal/calibrate-ocr-modal.component';
+import { CalibrateOcrModalComponent } from './components/modals/calibrate-ocr-modal-components/calibrate-ocr-modal/calibrate-ocr-modal.component';
 import { StepperComponent } from './components/ui/stepper/stepper.component';
 import { TooltipDirective } from './directives/tooltip.directive';
 import { TooltipComponent } from './components/ui/tooltip/tooltip.component';
+import { PreviewCanvasComponent } from './components/modals/calibrate-ocr-modal-components/preview-canvas/preview-canvas.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -114,7 +115,8 @@ const customNotifierOptions: NotifierOptions = {
     CalibrateOcrModalComponent,
     StepperComponent,
     TooltipDirective,
-    TooltipComponent
+    TooltipComponent,
+    PreviewCanvasComponent
   ],
   imports: [
     BrowserModule,

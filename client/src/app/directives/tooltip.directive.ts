@@ -12,8 +12,10 @@ export class TooltipDirective {
 
   @HostListener('mouseenter', ['$event']) onMouseEnter(event: MouseEvent) {
 
+    console.log("Mouse enter event triggered", this.tooltipText);
+
     // If there is no tooltip text, don't show the tooltip
-    if (!this.tooltipText) return;
+    if (!this.tooltipText || this.tooltipText === "") return;
 
     this.tooltipManager.show(this.tooltipText, event.clientX, event.clientY);
   }

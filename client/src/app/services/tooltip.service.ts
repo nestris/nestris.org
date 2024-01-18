@@ -24,8 +24,12 @@ export class TooltipService {
 
   // set by TooltipDirective when mouse moves
   setPosition(x: number, y: number) {
+
+    const prevInfo = this.info$.getValue();
+    if (prevInfo === undefined) return;
+
     this.info$.next({
-      text: this.info$.getValue()?.text ?? "",
+      text: prevInfo.text,
       position: { x, y },
     });
   }

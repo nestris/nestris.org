@@ -1,4 +1,4 @@
-import { ElementRef, Injectable } from '@angular/core';
+import { ElementRef, Injectable, Renderer2, RendererFactory2 } from '@angular/core';
 import { FpsTracker } from 'misc/fps-tracker';
 import { BehaviorSubject, Observable } from 'rxjs';
 
@@ -7,9 +7,14 @@ import { BehaviorSubject, Observable } from 'rxjs';
 })
 export class VideoCaptureService {
 
+  private renderer: Renderer2;
+
   // we hold a reference to hidden global video and canvas elements from VideoCaptureComponent
-  private videoElement!: ElementRef<HTMLVideoElement>;
-  private canvasElement!: ElementRef<HTMLCanvasElement>;
+  private videoElement!: HTMLVideoElement;
+  private canvasElement!: HTMLCanvasElement;
+
+  private defaultCanvasParent!: HTMLElement;
+  private currentCanvasParent?: HTMLElement = undefined;
 
   // whether capture source is being polled for pixels every frame
   // this is an expensive task
@@ -25,27 +30,56 @@ export class VideoCaptureService {
   private fpsTracker!: FpsTracker;
    
 
-  constructor() {}
+  constructor(rendererFactory: RendererFactory2) {
+    this.renderer = rendererFactory.createRenderer(null, null);
+    this.canvasElement = this.renderer.createElement('canvas');
+  }
+
+  private moveCanvasToDOM(parentElement: HTMLElement, hidden: boolean) {
+    if (this.currentCanvasParent) {
+      this.renderer.removeChild(this.currentCanvasParent, this.canvasElement);
+    }
+    this.renderer.appendChild(parentElement, this.canvasElement);
+    this.renderer.setStyle(this.canvasElement, 'display', hidden ? 'none' : 'block');
+  }
 
   // must be called when VideoCaptureComponent is initialized to set the video and canvas elements
-  initVideoCapture(videoElement: ElementRef<HTMLVideoElement>, canvasElement: ElementRef<HTMLCanvasElement>): void {
-    this.videoElement = videoElement;
-    this.canvasElement = canvasElement;
+  initVideoCapture(videoElement: ElementRef<HTMLVideoElement>, defaultCanvasParent: ElementRef<HTMLElement>): void {
+    this.videoElement = videoElement.nativeElement;
+    this.defaultCanvasParent = defaultCanvasParent.nativeElement;
+    this.resetCanvasLocation();
+  }
+
+  // move canvas to a different parent element and make it visible
+  setCanvasLocation(parentElement: ElementRef<HTMLElement>, displayWidth: number, displayHeight: number) {
+    this.moveCanvasToDOM(parentElement.nativeElement, false);
+    this.canvasElement.style.width = displayWidth + 'px';
+    this.canvasElement.style.height = displayHeight + 'px';
+  }
+
+  // go back to default canvas parent and hide canvas
+  resetCanvasLocation() {
+    this.moveCanvasToDOM(this.defaultCanvasParent, true);
   }
 
   // set the video capture source, whether from screen capture or video source
   // recommended to set media stream with width bounded to 800px to reduce processing time
   async setCaptureSource(mediaStream: MediaStream) {
 
+
+    if (this.videoElement === undefined) {
+      throw new Error("video element not set");
+    }
+
     try {
-      this.videoElement.nativeElement.srcObject = mediaStream;
+      this.videoElement.srcObject = mediaStream;
       this.permissionError$.next(null); // Clear any previous error
 
       // set canvas to video resolution
       const videoTrack = mediaStream.getVideoTracks()[0];
       const settings = videoTrack.getSettings();
-      this.canvasElement.nativeElement.width = settings.width!;
-      this.canvasElement.nativeElement.height = settings.height!;
+      this.canvasElement.width = settings.width!;
+      this.canvasElement.height = settings.height!;
 
       console.log("set media stream with video resolution", settings.width, settings.height);
 
@@ -56,7 +90,8 @@ export class VideoCaptureService {
 
   // whether a capture source has been set through setCaptureSource()
   hasCaptureSource(): boolean {
-    return this.videoElement.nativeElement.srcObject !== null;
+    const captureSource = this.videoElement.srcObject;
+    return captureSource !== null && captureSource !== undefined;
   }
 
   // start capturing pixels from capture source as fast as possible
@@ -97,7 +132,7 @@ export class VideoCaptureService {
 
   // get the video element itself. useful if wanting to blit the video to another canvas in addition to the internal one
   getVideoElement(): HTMLVideoElement {
-    return this.videoElement.nativeElement;
+    return this.videoElement;
   }
 
   // polls the video capture source for pixels and emits them.
@@ -108,11 +143,11 @@ export class VideoCaptureService {
     // calculate fps
     this.fpsTracker.tick();
 
-    const canvas = this.canvasElement.nativeElement;
+    const canvas = this.canvasElement;
     const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
 
     // Draw the video frame onto the canvas. the most expensive operation (~10-15ms)
-    ctx.drawImage(this.videoElement.nativeElement, 0, 0, this.canvasElement.nativeElement.width, this.canvasElement.nativeElement.height);
+    ctx.drawImage(this.videoElement, 0, 0, this.canvasElement.width, this.canvasElement.height);
 
     // Get the pixel data from the canvas and emit it
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);

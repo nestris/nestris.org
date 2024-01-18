@@ -20,11 +20,11 @@ export class EmulatorService {
   private previousState?: EmulatorGameState; // for runahead
   private currentState?: EmulatorGameState; // if not undefined, then game is currently going on
 
-  private gameInterval: any;
-
   private isPaused = false;
 
   private fpsTracker?: FpsTracker;
+
+  private stoppingGame = false;
 
 
   constructor() {
@@ -47,17 +47,36 @@ export class EmulatorService {
     // unpause
     this.isPaused = false;
 
-    let fps;
+    let fps: number;
     if (slowMode) fps = 5;
     else fps = 60;
 
-    // start game loop at 60fps
-    this.gameInterval = setInterval(
-      () => {
+    const epoch = performance.now();
+    let framesDone = 0;
+
+    const loop = () => {
+
+      if (this.stoppingGame) {
+        this.stoppingGame = false;
+        return;
+      }
+
+      requestAnimationFrame(loop);
+  
+      // calculate how many frames to advance based on time elapsed to maintain 60fps
+      const diff = performance.now() - epoch;
+      const frames = diff / 1000 * fps | 0;
+      const frameAmount = frames - framesDone;
+  
+      for (let i = 0; i < frameAmount; i++) {
         if (!this.isPaused) this.advanceEmulatorState();
-      }, 1000 / fps // tick at 60fps
-    );
-  }
+      }
+
+      framesDone = frames;
+  };
+  loop();
+
+}
 
   // run emulator for one tick
   // if keyboard input, rollback and runahead
@@ -100,10 +119,11 @@ export class EmulatorService {
   }
 
   stopGame() {
-    clearInterval(this.gameInterval);
     this.fpsTracker = undefined;
+    this.stoppingGame = true;
     console.log("game stopped");
   }
+
 
   // returns the current game state, if there is one
   getGameState(): EmulatorGameState | undefined {
