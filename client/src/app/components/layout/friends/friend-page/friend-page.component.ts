@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
 import { FriendService } from 'client/src/app/services/friend.service';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 import { ButtonColor } from '../../../ui/solid-button/solid-button.component';
 import { RoutingService } from 'client/src/app/services/routing.service';
 import { TabID } from 'client/src/app/models/tabs';
@@ -12,11 +12,13 @@ import { FriendInfo, FriendStatus, OnlineUserStatus } from 'network-protocol/mod
   styleUrls: ['./friend-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FriendPageComponent {
+export class FriendPageComponent implements OnDestroy {
 
   readonly ButtonColor = ButtonColor;
 
   public friendModalVisibility$ = new BehaviorSubject<boolean>(false);
+
+  private tabSubscription!: Subscription;
 
   constructor(
     public friendService: FriendService,
@@ -25,7 +27,7 @@ export class FriendPageComponent {
 
     // resync friends data (specifically, xp and trophies) when switching to friends tab
     // stuff like online status should already be updated through events
-    tabService.onSwitchToTab(TabID.FRIENDS).subscribe(() => {
+    this.tabSubscription = tabService.onSwitchToTab(TabID.FRIENDS).subscribe(() => {
       this.friendService.syncWithServer();
     });
 
@@ -65,6 +67,10 @@ export class FriendPageComponent {
 
     return friendsInfo;
 
+  }
+
+  ngOnDestroy(): void {
+    this.tabSubscription.unsubscribe();
   }
 
 }

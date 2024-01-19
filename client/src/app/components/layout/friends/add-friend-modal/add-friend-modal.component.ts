@@ -4,7 +4,7 @@ import { FriendService } from 'client/src/app/services/friend.service';
 import { WebsocketService } from 'client/src/app/services/websocket.service';
 import { SendFriendRequestMessage } from 'network-protocol/json-message';
 import { FriendStatus } from 'network-protocol/models/friends';
-import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { BehaviorSubject, Subscription, firstValueFrom } from 'rxjs';
 
 export interface PotentialFriend {
   username: string;
@@ -25,6 +25,9 @@ export class AddFriendModalComponent implements OnInit, OnDestroy {
 
   private allUsernamesCache: string[] = [];
 
+  private visibilitySubscription!: Subscription;
+  private friendInfoSubscription!: Subscription;
+
   constructor(
     private websocketService: WebsocketService,
     private friendService: FriendService,
@@ -36,7 +39,7 @@ export class AddFriendModalComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
 
     // when modal is opened, sync usernames from server then update potential friends
-    this.visibility$.subscribe(async (visible) => {
+    this.visibilitySubscription = this.visibility$.subscribe(async (visible) => {
       if (visible) {
         await this.updateAllUsernamesCache();
         await this.updatePotentialFriends();
@@ -44,7 +47,7 @@ export class AddFriendModalComponent implements OnInit, OnDestroy {
     });
 
     // when user info is updated and modal is open, update potential friends
-    this.friendService.onFriendsInfoUpdate().subscribe((friendsInfo) => {
+    this.friendInfoSubscription = this.friendService.onFriendsInfoUpdate().subscribe((friendsInfo) => {
       if (this.visibility$.getValue()) {
         this.updatePotentialFriends();
       }
@@ -123,6 +126,8 @@ export class AddFriendModalComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.visibility$.complete();
+    this.visibilitySubscription.unsubscribe();
+    this.friendInfoSubscription.unsubscribe();
   }
 
 

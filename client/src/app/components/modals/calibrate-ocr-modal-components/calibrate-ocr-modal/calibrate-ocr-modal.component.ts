@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
 import { ButtonColor } from '../../../ui/solid-button/solid-button.component';
 import { VideoCaptureService } from 'client/src/app/services/ocr/video-capture.service';
 import { ModalManagerService } from 'client/src/app/services/modal-manager.service';
+import { Subscription } from 'rxjs';
 
 export enum CalibrationStep {
   SELECT_VIDEO_SOURCE = "Select video source",
@@ -16,7 +17,7 @@ export enum CalibrationStep {
   styleUrls: ['./calibrate-ocr-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CalibrateOcrModalComponent {
+export class CalibrateOcrModalComponent implements OnDestroy {
 
   readonly ButtonColor = ButtonColor;
 
@@ -25,6 +26,8 @@ export class CalibrateOcrModalComponent {
 
   public stepIndex: number = 0;
 
+  private clickCanvasSubscription!: Subscription;
+
   get currentStep(): CalibrationStep {
     return this.ALL_CALIBRATION_STEPS[this.stepIndex];
   }
@@ -32,7 +35,12 @@ export class CalibrateOcrModalComponent {
   constructor(
     public videoCapture: VideoCaptureService,
     private modalManager: ModalManagerService
-  ) {}
+  ) {
+
+    this.clickCanvasSubscription = this.videoCapture.getMouseClick$().subscribe((mouse) => {
+      console.log("Clicked:", mouse);
+    });
+  }
 
   // whether allowed to go to next step of stepper for calibration
   nextAllowed(): boolean {
@@ -118,6 +126,10 @@ export class CalibrateOcrModalComponent {
 
     this.videoCapture.setCaptureSource(mediaStream);
     this.videoCapture.startCapture();
+  }
+
+  ngOnDestroy() {
+    this.clickCanvasSubscription.unsubscribe();
   }
 
 }

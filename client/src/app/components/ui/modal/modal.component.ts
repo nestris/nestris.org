@@ -7,17 +7,10 @@ import { BehaviorSubject, Observable } from 'rxjs';
   styleUrls: ['./modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ModalComponent implements OnInit {
+export class ModalComponent {
   @Input() visibility$!: BehaviorSubject<boolean>;
 
   constructor() {
   }
-
-  ngOnInit(): void {
-    this.visibility$.subscribe((visibility) => {
-      console.log("Modal visibility changed to " + visibility);
-    });
-  }
-
 
 }

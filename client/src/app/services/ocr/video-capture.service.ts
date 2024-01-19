@@ -28,6 +28,9 @@ export class VideoCaptureService {
 
   // track fps for polling video
   private fpsTracker!: FpsTracker;
+
+  // subject for location of mouse when clicking on canvas
+  private mouseClick$ = new BehaviorSubject<{ x: number, y: number } | null>(null);
    
 
   constructor(rendererFactory: RendererFactory2) {
@@ -55,6 +58,20 @@ export class VideoCaptureService {
     this.moveCanvasToDOM(parentElement.nativeElement, false);
     this.canvasElement.style.width = displayWidth + 'px';
     this.canvasElement.style.height = displayHeight + 'px';
+  }
+
+  getCanvasElement(): HTMLCanvasElement {
+    return this.canvasElement;
+  }
+
+  // only called by preview canvas component
+  _onMouseClick(x: number, y: number) {
+    this.mouseClick$.next({ x, y });
+  }
+
+  // subscribe to this to get mouse click events on canvas
+  getMouseClick$(): Observable<{ x: number, y: number } | null> {
+    return this.mouseClick$.asObservable();
   }
 
   // go back to default canvas parent and hide canvas

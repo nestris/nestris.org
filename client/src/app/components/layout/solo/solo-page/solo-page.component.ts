@@ -1,10 +1,11 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, HostListener } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, HostListener, OnDestroy } from '@angular/core';
 import { TabID } from 'client/src/app/models/tabs';
 import { ColorType, TetrisBoard } from 'client/src/app/models/tetris/tetris-board';
 import { TetrominoType } from 'client/src/app/models/tetris/tetromino-type';
 import { EmulatorService } from 'client/src/app/services/emulator/emulator.service';
 import { PlatformInterfaceService } from 'client/src/app/services/platform-interface.service';
 import { RoutingService } from 'client/src/app/services/routing.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-solo-page',
@@ -12,9 +13,14 @@ import { RoutingService } from 'client/src/app/services/routing.service';
   styleUrls: ['./solo-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SoloPageComponent {
+export class SoloPageComponent implements OnDestroy {
 
   readonly TetrominoType = TetrominoType;
+
+  private onSoloSubscription!: Subscription;
+  private onMultiplayerSubscription!: Subscription;
+  private onLeaveSoloSubscription!: Subscription;
+  private onLeaveMultiplayerSubscription!: Subscription;
 
   constructor(
     private routingService: RoutingService,
@@ -24,19 +30,19 @@ export class SoloPageComponent {
 
     // TEMPORARY, NEED MORE FLEXIBLE SYSTEM TO START GAME
     // start game when switch to solo tab
-    this.routingService.onSwitchToTab(TabID.SOLO).subscribe(() => {
+    this.onSoloSubscription = this.routingService.onSwitchToTab(TabID.SOLO).subscribe(() => {
       this.emulatorService.startGame(18);
     });
 
-    this.routingService.onSwitchToTab(TabID.MULTIPLAYER).subscribe(() => {
+    this.onMultiplayerSubscription = this.routingService.onSwitchToTab(TabID.MULTIPLAYER).subscribe(() => {
       this.emulatorService.startGame(18, true);
     });
 
-    this.routingService.onLeaveTab(TabID.SOLO).subscribe(() => {
+    this.onLeaveSoloSubscription = this.routingService.onLeaveTab(TabID.SOLO).subscribe(() => {
       this.emulatorService.stopGame();
     });
 
-    this.routingService.onLeaveTab(TabID.MULTIPLAYER).subscribe(() => {
+    this.onLeaveMultiplayerSubscription = this.routingService.onLeaveTab(TabID.MULTIPLAYER).subscribe(() => {
       this.emulatorService.stopGame();
     });
   }
@@ -56,6 +62,13 @@ export class SoloPageComponent {
     const lastTab = this.routingService.getLastTab() ?? TabID.HOME;
     console.log("exitFullscreen", lastTab);
     this.routingService.setSelectedTab({tab: lastTab, params: undefined});
+  }
+
+  ngOnDestroy(): void {
+    this.onSoloSubscription.unsubscribe();
+    this.onMultiplayerSubscription.unsubscribe();
+    this.onLeaveSoloSubscription.unsubscribe();
+    this.onLeaveMultiplayerSubscription.unsubscribe();
   }
 
 }
