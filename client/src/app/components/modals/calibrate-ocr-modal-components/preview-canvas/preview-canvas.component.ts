@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, OnDestroy, Renderer2, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Input, OnDestroy, Renderer2, ViewChild } from '@angular/core';
 import { VideoCaptureService } from 'client/src/app/services/ocr/video-capture.service';
 
 @Component({
@@ -9,6 +9,9 @@ import { VideoCaptureService } from 'client/src/app/services/ocr/video-capture.s
 })
 export class PreviewCanvasComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvasParentElement') canvasParentElement!: ElementRef<HTMLElement>;
+
+  // whether to display the bounding boxes of the different OCR elements, if they exist
+  @Input() showBoundingBoxes: boolean = false;
 
   private isMouseOnVideo: boolean = false;
   private mouseX: number = 0;
@@ -29,7 +32,7 @@ export class PreviewCanvasComponent implements AfterViewInit, OnDestroy {
 
   // on construction, move canvas from default parent to preview canvas parent
   ngAfterViewInit(): void {
-    this.videoCapture.setCanvasLocation(this.canvasParentElement, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
+    this.videoCapture.setCanvasLocation(this.canvasParentElement, this.CANVAS_WIDTH, this.CANVAS_HEIGHT, this.showBoundingBoxes);
   }
 
   // on destruction, move canvas back to default parent and hide it

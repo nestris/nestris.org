@@ -1,6 +1,11 @@
 import { ElementRef, Injectable, Renderer2, RendererFactory2 } from '@angular/core';
 import { FpsTracker } from 'misc/fps-tracker';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { Pixels } from '../../models/ocr/pixels';
+import { OCRBox, Rectangle } from '../../models/ocr/ocr-box';
+import { OCRType, OcrService } from './ocr.service';
+import { Point } from '../../models/point';
+import { TetrisBoard } from '../../models/tetris/tetris-board';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +21,9 @@ export class VideoCaptureService {
   private defaultCanvasParent!: HTMLElement;
   private currentCanvasParent?: HTMLElement = undefined;
 
+  private hidden: boolean = true;
+  private showBoundingBoxes: boolean = false;
+
   // whether capture source is being polled for pixels every frame
   // this is an expensive task
   private capturing: boolean = false;
@@ -24,7 +32,7 @@ export class VideoCaptureService {
   private permissionError$ = new BehaviorSubject<string | null>(null);
 
   // observable for pixels of video capture source. updated every frame
-  private pixels$ = new BehaviorSubject<Uint8ClampedArray | null>(null);
+  private pixels$ = new BehaviorSubject<Pixels | null>(null);
 
   // track fps for polling video
   private fpsTracker!: FpsTracker;
@@ -33,7 +41,10 @@ export class VideoCaptureService {
   private mouseClick$ = new BehaviorSubject<{ x: number, y: number } | null>(null);
    
 
-  constructor(rendererFactory: RendererFactory2) {
+  constructor(
+    rendererFactory: RendererFactory2,
+    private ocrService: OcrService,
+  ) {
     this.renderer = rendererFactory.createRenderer(null, null);
     this.canvasElement = this.renderer.createElement('canvas');
   }
@@ -44,6 +55,8 @@ export class VideoCaptureService {
     }
     this.renderer.appendChild(parentElement, this.canvasElement);
     this.renderer.setStyle(this.canvasElement, 'display', hidden ? 'none' : 'block');
+
+    this.hidden = hidden;
   }
 
   // must be called when VideoCaptureComponent is initialized to set the video and canvas elements
@@ -54,10 +67,11 @@ export class VideoCaptureService {
   }
 
   // move canvas to a different parent element and make it visible
-  setCanvasLocation(parentElement: ElementRef<HTMLElement>, displayWidth: number, displayHeight: number) {
+  setCanvasLocation(parentElement: ElementRef<HTMLElement>, displayWidth: number, displayHeight: number, showBoundingBoxes: boolean = false) {
     this.moveCanvasToDOM(parentElement.nativeElement, false);
     this.canvasElement.style.width = displayWidth + 'px';
     this.canvasElement.style.height = displayHeight + 'px';
+    this.showBoundingBoxes = showBoundingBoxes;
   }
 
   getCanvasElement(): HTMLCanvasElement {
@@ -66,7 +80,7 @@ export class VideoCaptureService {
 
   // only called by preview canvas component
   _onMouseClick(x: number, y: number) {
-    this.mouseClick$.next({ x, y });
+    this.mouseClick$.next({ x: Math.floor(x), y: Math.floor(y) });
   }
 
   // subscribe to this to get mouse click events on canvas
@@ -77,6 +91,7 @@ export class VideoCaptureService {
   // go back to default canvas parent and hide canvas
   resetCanvasLocation() {
     this.moveCanvasToDOM(this.defaultCanvasParent, true);
+    this.showBoundingBoxes = false;
   }
 
   // set the video capture source, whether from screen capture or video source
@@ -123,12 +138,14 @@ export class VideoCaptureService {
     this.fpsTracker = new FpsTracker();
 
     // start capturing
+    console.log("starting capture");
     this.captureFrame();
   }
 
   // stop capturing pixels from capture source.
   // sets the capturing flag to false, which will terminate the captureFrame() loop on the start of the next frame
   stopCapture() {
+    console.log("stopping capture");
     this.capturing = false;
   }
 
@@ -143,8 +160,12 @@ export class VideoCaptureService {
   }
 
   // subscribe to pixels of last polled video frame
-  getPixels$(): Observable<Uint8ClampedArray | null> {
+  getPixels$(): Observable<Pixels | null> {
     return this.pixels$.asObservable();
+  }
+
+  getPixels(): Pixels | null {
+    return this.pixels$.getValue();
   }
 
   // get the video element itself. useful if wanting to blit the video to another canvas in addition to the internal one
@@ -168,9 +189,87 @@ export class VideoCaptureService {
 
     // Get the pixel data from the canvas and emit it
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    this.pixels$.next(imageData.data);
+    this.pixels$.next(new Pixels(imageData.data, canvas.width, canvas.height));
+
+    // perform ocr for board and other elements
+    this.ocrService.executeOCR(this.getPixels()!);
+
+    // draw bounding boxes if enabled
+    if (!this.hidden && this.showBoundingBoxes) {
+      this.drawBoundingBoxes(ctx);
+    }
 
     requestAnimationFrame(() => this.captureFrame());
+  }
+
+  // draw bounding boxes on canvas
+  private drawBoundingBoxes(ctx: CanvasRenderingContext2D) {
+
+    this.drawOCROverlay(ctx, this.ocrService.getOCRBox(OCRType.BOARD));
+    this.drawOCROverlay(ctx, this.ocrService.getOCRBox(OCRType.BOARD_SHINE))
+
+  }
+
+  // draw the bounding box of an OCRBox onto the canvas
+  private drawOCROverlay(ctx: CanvasRenderingContext2D, ocr?: OCRBox): void {
+
+    if (!ocr) return;
+
+    // draw board rect
+    this.drawRect(ctx, ocr.getBoundingRect(), "rgb(0, 255, 0)");
+
+    // draw OCR positions
+    this.drawOCRPositions(ctx, ocr.getPositions(), this.ocrService.getBoard());
+  }
+
+  // draw a rectangle given a rectangle, with border just outside of rectangle bounds
+  private drawRect(ctx: CanvasRenderingContext2D, boardRect: Rectangle, color: string): void {
+    ctx.strokeStyle = color;
+
+    // draw border so that the border is outside the rect
+    const BORDER_WIDTH = 2;
+    ctx.lineWidth = BORDER_WIDTH;
+    ctx.strokeRect(
+      boardRect.left - BORDER_WIDTH,
+      boardRect.top - BORDER_WIDTH,
+      boardRect.right - boardRect.left + BORDER_WIDTH*2,
+      boardRect.bottom - boardRect.top + BORDER_WIDTH*2);
+  }
+
+  // draw a dot for each OCR position
+  private drawOCRPositions(ctx: CanvasRenderingContext2D, positions: Point[][], board?: TetrisBoard) {
+
+    for (let yIndex = 0; yIndex < positions.length; yIndex++) {
+      for (let xIndex = 0; xIndex < positions[yIndex].length; xIndex++) {
+        const {x,y} = positions[yIndex][xIndex];
+        const isMino = board?.exists(xIndex, yIndex) ?? false;
+        const color = isMino ? "rgb(0,255,0)" : "rgb(255,0,0)";
+        this.drawCircle(ctx, x, y, 2, color);
+      }
+    }
+  }
+
+  // example: drawCircle(ctx, 50, 50, 25, 'black', 'red', 2)
+  private drawCircle(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    radius: number,
+    fill?: string | CanvasGradient | CanvasPattern,
+    stroke?: string | CanvasGradient | CanvasPattern,
+    strokeWidth?: number
+  ): void {
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
+    if (fill) {
+      ctx.fillStyle = fill;
+      ctx.fill();
+    }
+    if (stroke) {
+      ctx.lineWidth = strokeWidth || 1; // Default to 1 if strokeWidth is not provided
+      ctx.strokeStyle = stroke;
+      ctx.stroke();
+    }
   }
 
 }

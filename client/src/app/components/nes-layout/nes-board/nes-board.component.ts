@@ -12,7 +12,7 @@ export class NesBoardComponent {
   // by default, each block will take up 8 pixels. scale can adjust, respecting proportions and aspect ratio
   @Input() scale: number = 1;
 
-  @Input() board: TetrisBoard = new TetrisBoard();
+  @Input() board: TetrisBoard | undefined | null = new TetrisBoard();
   @Input() level: number = 18; // for deriving block color
 
   // if true, hovered blocks will dim. hovering over active piece, if it exists, will dim

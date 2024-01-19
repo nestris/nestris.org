@@ -3,6 +3,7 @@ import { ButtonColor } from '../../../ui/solid-button/solid-button.component';
 import { VideoCaptureService } from 'client/src/app/services/ocr/video-capture.service';
 import { ModalManagerService } from 'client/src/app/services/modal-manager.service';
 import { Subscription } from 'rxjs';
+import { OcrService } from 'client/src/app/services/ocr/ocr.service';
 
 export enum CalibrationStep {
   SELECT_VIDEO_SOURCE = "Select video source",
@@ -34,11 +35,18 @@ export class CalibrateOcrModalComponent implements OnDestroy {
 
   constructor(
     public videoCapture: VideoCaptureService,
+    public ocr: OcrService,
     private modalManager: ModalManagerService
   ) {
 
+    // if on "locate tetris board step", clicking canvas initiates floodfill
     this.clickCanvasSubscription = this.videoCapture.getMouseClick$().subscribe((mouse) => {
-      console.log("Clicked:", mouse);
+      
+      if (this.currentStep === CalibrationStep.LOCATE_TETRIS_BOARD) {
+        const pixels = this.videoCapture.getPixels();
+        if (pixels && mouse) this.ocr.calibrateOCRBoxes(pixels, mouse.x, mouse.y);
+      }
+
     });
   }
 
@@ -130,6 +138,7 @@ export class CalibrateOcrModalComponent implements OnDestroy {
 
   ngOnDestroy() {
     this.clickCanvasSubscription.unsubscribe();
+    this.videoCapture.stopCapture(); // don't capture when not necessary to save processing time
   }
 
 }
