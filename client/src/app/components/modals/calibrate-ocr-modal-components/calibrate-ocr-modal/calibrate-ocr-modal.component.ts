@@ -4,6 +4,7 @@ import { VideoCaptureService } from 'client/src/app/services/ocr/video-capture.s
 import { ModalManagerService } from 'client/src/app/services/modal-manager.service';
 import { Subscription } from 'rxjs';
 import { OcrService } from 'client/src/app/services/ocr/ocr.service';
+import { TetrominoType } from 'client/src/app/models/tetris/tetromino-type';
 
 export enum CalibrationStep {
   SELECT_VIDEO_SOURCE = "Select video source",
@@ -66,7 +67,7 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
         return this.videoCapture.hasCaptureSource();
 
       case CalibrationStep.LOCATE_TETRIS_BOARD:
-        return true;
+        return this.ocr.getNextPiece() !== undefined && this.ocr.getNextPiece() !== TetrominoType.ERROR_TYPE;
 
       case CalibrationStep.VERIFY_OCR:
         return true;
@@ -118,7 +119,7 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
         return "Video source not set yet";
 
       case CalibrationStep.LOCATE_TETRIS_BOARD:
-        return "Tetris board not located yet";
+        return this.ocr.getBoard() === undefined ? "Tetris board not located yet" : "Valid next piece not detected";
 
       case CalibrationStep.VERIFY_OCR:
         return "OCR has not been verified yet";

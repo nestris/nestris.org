@@ -121,6 +121,10 @@ export class OcrService {
     return this.nextType$.asObservable();
   }
 
+  getNextPiece(): TetrominoType | undefined {
+    return this.nextType$.getValue();
+  }
+
   private getColorForMino(level: number, rgbShine: RGBColor, rgbColor: RGBColor): ColorType {
     const hsvShine = rgbToHsv(rgbShine);
 
