@@ -1,4 +1,4 @@
-import { HostListener, Injectable } from '@angular/core';
+import { AfterViewInit, HostListener, Injectable, OnInit } from '@angular/core';
 import { CurrentlyPressedKeys, KeyManager } from './currently-pressed-keys';
 import { Keybinds } from './keybinds';
 import { EmulatorGameState } from './emulator-game-state';
@@ -24,10 +24,39 @@ export class EmulatorService {
 
   private fpsTracker?: FpsTracker;
 
-  private stoppingGame = false;
+  private fps: number = 60;
+  private framesDone: number = 0;
+  private epoch: number = performance.now();
 
 
   constructor() {
+
+    this.loop();
+  }
+
+  loop() {
+
+      if (this.currentState === undefined) {
+        setTimeout(() => this.loop(), 100);
+        return;
+      }
+
+      
+
+      // requestAnimationFrame(loop);
+  
+      // calculate how many frames to advance based on time elapsed to maintain 60fps
+      const diff = performance.now() - this.epoch;
+      const frames = diff / 1000 * this.fps | 0;
+      const frameAmount = frames - this.framesDone;
+  
+      for (let i = 0; i < frameAmount; i++) {
+        if (!this.isPaused) this.advanceEmulatorState();
+      }
+
+      this.framesDone = frames;
+
+      setTimeout(() => this.loop(), 0);
   }
 
   // starting game will create a game object and execute game frames at 60fps
@@ -41,41 +70,17 @@ export class EmulatorService {
     // set all keys to unpressed
     this.keyManager.resetAll();
 
-    // generate initial game state
-    this.currentState = new EmulatorGameState(level, new RandomRNG());
-
     // unpause
     this.isPaused = false;
 
-    let fps: number;
-    if (slowMode) fps = 5;
-    else fps = 60;
+    if (slowMode) this.fps = 5;
+    else this.fps = 60;
 
-    const epoch = performance.now();
-    let framesDone = 0;
+    this.epoch = performance.now();
+    this.framesDone = 0;
 
-    const loop = () => {
-
-      if (this.stoppingGame) {
-        this.stoppingGame = false;
-        return;
-      }
-
-      requestAnimationFrame(loop);
-  
-      // calculate how many frames to advance based on time elapsed to maintain 60fps
-      const diff = performance.now() - epoch;
-      const frames = diff / 1000 * fps | 0;
-      const frameAmount = frames - framesDone;
-  
-      for (let i = 0; i < frameAmount; i++) {
-        if (!this.isPaused) this.advanceEmulatorState();
-      }
-
-      framesDone = frames;
-  };
-  loop();
-
+    // generate initial game state
+    this.currentState = new EmulatorGameState(level, new RandomRNG());
 }
 
   // run emulator for one tick
@@ -114,13 +119,11 @@ export class EmulatorService {
       this.currentState?.executeFrame(pressedKeys);
     }
 
-    // if topped out, stop game
-    if (this.currentState?.isToppedOut()) this.stopGame();
   }
 
   stopGame() {
     this.fpsTracker = undefined;
-    this.stoppingGame = true;
+    this.currentState = undefined;
     console.log("game stopped");
   }
 
