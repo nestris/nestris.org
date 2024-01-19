@@ -2,6 +2,8 @@
     background-color: black;
     border-radius: 5px;
     border: solid white 1px;
+
+    position: relative;
 }
 
 .board-svg {
@@ -12,4 +14,13 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.next-piece {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+
+    margin: 5px;
 }

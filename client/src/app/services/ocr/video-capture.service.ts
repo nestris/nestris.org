@@ -7,6 +7,7 @@ import { OCRType, OcrService } from './ocr.service';
 import { Point } from '../../models/point';
 import { TetrisBoard } from '../../models/tetris/tetris-board';
 
+
 @Injectable({
   providedIn: 'root'
 })
@@ -207,13 +208,25 @@ export class VideoCaptureService {
   // draw bounding boxes on canvas
   private drawBoundingBoxes(ctx: CanvasRenderingContext2D) {
 
-    this.drawOCROverlay(ctx, this.ocrService.getOCRBox(OCRType.BOARD));
-    this.drawOCROverlay(ctx, this.ocrService.getOCRBox(OCRType.BOARD_SHINE))
+    // draw board bounding box with both block shine and center of board
+    const boardExists = (x: number, y: number) => {
+      return this.ocrService.getBoard()?.exists(x, y) ?? false;
+    }
+    this.drawOCROverlay(ctx, this.ocrService.getOCRBox(OCRType.BOARD), boardExists);
+    this.drawOCROverlay(ctx, this.ocrService.getOCRBox(OCRType.BOARD_SHINE), boardExists);
+    
+    // draw next box bounding box
+    const nextExists = (x: number, y: number) => {
+      return this.ocrService.getNextBox()?.existsAt(x, y) ?? false;
+    }
+    this.drawOCROverlay(ctx, this.ocrService.getOCRBox(OCRType.NEXT), nextExists);
 
   }
 
   // draw the bounding box of an OCRBox onto the canvas
-  private drawOCROverlay(ctx: CanvasRenderingContext2D, ocr?: OCRBox): void {
+  private drawOCROverlay(ctx: CanvasRenderingContext2D, ocr?: OCRBox,
+    exists: (x: number, y: number) => boolean = () => false
+  ): void {
 
     if (!ocr) return;
 
@@ -221,7 +234,7 @@ export class VideoCaptureService {
     this.drawRect(ctx, ocr.getBoundingRect(), "rgb(0, 255, 0)");
 
     // draw OCR positions
-    this.drawOCRPositions(ctx, ocr.getPositions(), this.ocrService.getBoard());
+    this.drawOCRPositions(ctx, ocr.getPositions(), exists);
   }
 
   // draw a rectangle given a rectangle, with border just outside of rectangle bounds
@@ -239,12 +252,14 @@ export class VideoCaptureService {
   }
 
   // draw a dot for each OCR position
-  private drawOCRPositions(ctx: CanvasRenderingContext2D, positions: Point[][], board?: TetrisBoard) {
+  private drawOCRPositions(ctx: CanvasRenderingContext2D, positions: Point[][],
+    exists: (x: number, y: number) => boolean = () => false  
+  ) {
 
     for (let yIndex = 0; yIndex < positions.length; yIndex++) {
       for (let xIndex = 0; xIndex < positions[yIndex].length; xIndex++) {
         const {x,y} = positions[yIndex][xIndex];
-        const isMino = board?.exists(xIndex, yIndex) ?? false;
+        const isMino = exists(xIndex, yIndex);
         const color = isMino ? "rgb(0,255,0)" : "rgb(255,0,0)";
         this.drawCircle(ctx, x, y, 2, color);
       }

@@ -5,6 +5,11 @@
         [style.height]="(scale*boardHeightPixels) + 'px'"
     ><ng-content></ng-content></div>
 
+    <app-nes-piece class="next-piece" *ngIf="nextPiece"
+        [piece]="nextPiece"
+        [level]="level"
+        [scale]="1" />
+
     <svg class="board-svg" *ngIf="!hide && board"
         [attr.width]="(scale*boardWidthPixels) + 'px'"
         [attr.height]="(scale*boardHeightPixels) + 'px'"

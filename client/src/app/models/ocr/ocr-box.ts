@@ -37,6 +37,11 @@ export const BOARD_SHINE_OCR_POSITION = new OCRPosition(
     10, 0.03, 0.058, // numCols, paddingLeft, paddingRight
 );
 
+export const NEXT_OCR_POSITION = new OCRPosition(
+    6, 0.37, 0.18, // numRows, paddingTop, paddingBottom
+    8, 0.08, 0.06, // numCols, paddingLeft, paddingRight
+)
+
 
 export class OCRBox {
 

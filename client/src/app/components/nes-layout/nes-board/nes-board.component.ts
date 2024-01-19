@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import MoveableTetromino from 'client/src/app/models/tetris/moveable-tetromino';
 import { TetrisBoard } from 'client/src/app/models/tetris/tetris-board';
+import { TetrominoType } from 'client/src/app/models/tetris/tetromino-type';
 
 @Component({
   selector: 'app-nes-board',
@@ -23,6 +24,8 @@ export class NesBoardComponent {
 
   // if hidden, <ng-content> will be displayed instead of board
   @Input() hide: boolean = false;
+
+  @Input() nextPiece?: TetrominoType; // if defined, will be shown at top right corner
 
   public readonly boardWidthPixels = 8*10 + 11; // 10 blocks 8px wide plus 1px gap and 1px margins
   public readonly boardHeightPixels = 8*20 + 21; // 20 blocks 8px wide plus 1px gap and 1px margins
