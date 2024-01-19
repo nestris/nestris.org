@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { ButtonColor } from '../../../ui/solid-button/solid-button.component';
 import { VideoCaptureService } from 'client/src/app/services/ocr/video-capture.service';
 import { ModalManagerService } from 'client/src/app/services/modal-manager.service';
@@ -18,7 +18,7 @@ export enum CalibrationStep {
   styleUrls: ['./calibrate-ocr-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CalibrateOcrModalComponent implements OnDestroy {
+export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
 
   readonly ButtonColor = ButtonColor;
 
@@ -48,6 +48,14 @@ export class CalibrateOcrModalComponent implements OnDestroy {
       }
 
     });
+  }
+
+  ngOnInit() {
+
+    // if there is already a video source, start capturing immediately
+    if (this.videoCapture.hasCaptureSource()) {
+      this.videoCapture.startCapture();
+    }
   }
 
   // whether allowed to go to next step of stepper for calibration

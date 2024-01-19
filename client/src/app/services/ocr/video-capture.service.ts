@@ -134,6 +134,8 @@ export class VideoCaptureService {
       throw new Error("capture source not set");
     }
 
+    if (this.capturing) return;
+
     this.capturing = true;
     this.fpsTracker = new FpsTracker();
 
