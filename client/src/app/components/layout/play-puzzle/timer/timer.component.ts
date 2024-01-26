@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { PuzzleService } from 'client/src/app/services/puzzle.service';
 
 @Component({
   selector: 'app-timer',
@@ -8,7 +9,12 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 })
 export class TimerComponent {
 
-  @Input() currentTime: number = 0;
-  @Input() maxTime: number = 0;
+  public maxTime: number;
+
+  constructor(
+    public puzzleService: PuzzleService,
+  ) {
+    this.maxTime = this.puzzleService.getPuzzleTimeLimit();
+  }
 
 }

@@ -15,15 +15,15 @@ import { BehaviorSubject } from 'rxjs';
   styleUrls: ['./play-puzzle-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PlayPuzzlePageComponent implements AfterViewInit {
+export class PlayPuzzlePageComponent {
 
-  placedFirstPiece?: MoveableTetromino;
-  placedSecondPiece?: MoveableTetromino;
+  placedFirstPiece$ = new BehaviorSubject<MoveableTetromino | undefined>(undefined);
+  placedSecondPiece$ = new BehaviorSubject<MoveableTetromino | undefined>(undefined);
 
   hoveredPiece = new BehaviorSubject<MoveableTetromino | undefined>(undefined);
   hoveredBlock?: Point;
 
-  currentBoard?: TetrisBoard;
+  currentBoard = new BehaviorSubject<TetrisBoard | undefined>(undefined);
 
   rotation: number = 0;
 
@@ -32,9 +32,6 @@ export class PlayPuzzlePageComponent implements AfterViewInit {
     public puzzleService: PuzzleService,
   ) {
 
-  }
-
-  ngAfterViewInit() {
     const puzzle = {
       board: new TetrisBoard(),
       currentType: TetrominoType.T_TYPE,
@@ -44,8 +41,16 @@ export class PlayPuzzlePageComponent implements AfterViewInit {
       elo: 1000
     }
 
-    this.puzzleService.startPuzzle(puzzle);
-    this.currentBoard = this.puzzleService.getPuzzle()!.board.copy();
+    // TEMPORARY: NEED MORE FLEXIBLE SYSTEM TO START PUZZLE
+    this.routingService.onSwitchToTab(TabID.PLAY_PUZZLE).subscribe(() => {
+      this.puzzleService.startPuzzle(puzzle);
+      this.currentBoard.next(this.puzzleService.getPuzzle()?.board.copy());
+    });
+
+    this.routingService.onLeaveTab(TabID.PLAY_PUZZLE).subscribe(() => {
+      this.puzzleService.resetPuzzle();
+    });
+
   }
 
   exitFullscreen() {
@@ -79,7 +84,7 @@ export class PlayPuzzlePageComponent implements AfterViewInit {
   computeHoveredPiece() {
 
     // if both pieces are already placed, no piece is hovered
-    if (this.placedFirstPiece !== undefined && this.placedSecondPiece !== undefined) {
+    if (this.placedFirstPiece$.getValue() !== undefined && this.placedSecondPiece$.getValue() !== undefined) {
       this.hoveredPiece.next(undefined);
       return;
     }
@@ -92,7 +97,11 @@ export class PlayPuzzlePageComponent implements AfterViewInit {
 
     let x = this.hoveredBlock.x - 2;
     let y = this.hoveredBlock.y - 2;
-    const piece = this.getActivePieceType()!;
+    const piece = this.getActivePieceType();
+    if (piece === undefined) {
+      this.hoveredPiece.next(undefined);
+      return;
+    }
     
     if ([TetrominoType.J_TYPE, TetrominoType.L_TYPE, TetrominoType.T_TYPE].includes(piece)) {
       y += 1;
@@ -102,7 +111,7 @@ export class PlayPuzzlePageComponent implements AfterViewInit {
     
     // attempt to find a valid placement for the piece
     MT.moveIntoBounds();
-    MT.kickToValidPlacement(this.currentBoard!);
+    MT.kickToValidPlacement(this.currentBoard.getValue()!);
 
     // update hovered piece
     this.hoveredPiece.next(MT);
@@ -112,7 +121,9 @@ export class PlayPuzzlePageComponent implements AfterViewInit {
   getActivePieceType(): TetrominoType | undefined {
     const puzzle = this.puzzleService.getPuzzle();
     if (puzzle === undefined) return undefined;
-    return (this.placedFirstPiece === undefined) ? puzzle.currentType : puzzle.nextType;
+    if (this.placedFirstPiece$.getValue() === undefined) return puzzle.currentType;
+    if (this.placedSecondPiece$.getValue() === undefined) return puzzle.nextType;
+    return undefined;
   }
 
   // if clicking and hovering with valid piece placement, place the piece
@@ -126,22 +137,36 @@ export class PlayPuzzlePageComponent implements AfterViewInit {
     if (this.hoveredPiece.getValue() === undefined) return;
 
     // if not hovering over a valid piece placement, do nothing
-    if (!this.hoveredPiece.getValue()!.isValidPlacement(puzzle.board)) return;
+    if (!this.hoveredPiece.getValue()!.isValidPlacement(this.currentBoard.getValue()!)) return;
 
     // place the piece
-    if (this.placedFirstPiece === undefined) { // placing first piece
-      this.placedFirstPiece = this.hoveredPiece.getValue()!.copy();
-      this.placedFirstPiece.blitToBoard(this.currentBoard!);
-      this.currentBoard!.processLineClears();
+    if (this.placedFirstPiece$.getValue() === undefined) { // placing first piece
+      const placedFirstPiece = this.hoveredPiece.getValue()!.copy();
+      placedFirstPiece.blitToBoard(this.currentBoard.getValue()!);
+
+      const newBoard = this.currentBoard.getValue()!.copy();
+      newBoard.processLineClears();
+      this.currentBoard.next(newBoard);
+
       this.rotation = 0;
-    } else if (this.placedSecondPiece === undefined) { // placing second piece
-      this.placedSecondPiece = this.hoveredPiece.getValue()!.copy();
-      this.placedSecondPiece.blitToBoard(this.currentBoard!);
-      this.currentBoard!.processLineClears();
+      this.placedFirstPiece$.next(placedFirstPiece);
+
+    } else if (this.placedSecondPiece$.getValue() === undefined) { // placing second piece
+      const placedSecondPiece = this.hoveredPiece.getValue()!.copy();
+      placedSecondPiece.blitToBoard(this.currentBoard.getValue()!);
+
+      const newBoard = this.currentBoard.getValue()!.copy();
+      newBoard.processLineClears();
+      this.currentBoard.next(newBoard);
+
       this.rotation = 0;
+      this.placedSecondPiece$.next(placedSecondPiece);
+
+      // submit the puzzle
+      this.puzzleService.submitPuzzle(this.placedFirstPiece$.getValue(), this.placedSecondPiece$.getValue());
+
     } else {
-      this.puzzleService.submitPuzzle(this.placedFirstPiece, this.placedSecondPiece);
-      return; // do nothing if both pieces are already placed
+      return;
     }
 
     // update hovered piece
@@ -151,15 +176,15 @@ export class PlayPuzzlePageComponent implements AfterViewInit {
 
   // only show undo button if placed first piece but not second piece
   showUndoButton(): boolean {
-    return (this.placedFirstPiece !== undefined) && (this.placedSecondPiece === undefined);
+    return (this.placedFirstPiece$.getValue() !== undefined) && (this.placedSecondPiece$.getValue() === undefined);
   }
 
   // undo the first piece placement
   undo() {
     if (!this.showUndoButton()) return;
 
-    this.placedFirstPiece = undefined; // reset first piece placement
-    this.currentBoard = this.puzzleService.getPuzzle()!.board.copy(); // reset board
+    this.placedFirstPiece$.next(undefined); // reset first piece placement
+    this.currentBoard.next(this.puzzleService.getPuzzle()!.board.copy()); // reset board
     this.rotation = 0; // reset rotation
     this.computeHoveredPiece(); // update hovered piece
   }

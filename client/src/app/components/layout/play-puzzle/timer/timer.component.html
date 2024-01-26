@@ -1,4 +1,5 @@
-<div class="border" [ngClass]="(maxTime - currentTime < 10) ? 'red' : ''">
+<div class="border" *ngIf="(puzzleService.getCurrentPuzzleTime$() | async) as currentTime"
+[ngClass]="(maxTime - currentTime < 10.5) ? 'red' : ''">
     <div class="fill" [ngStyle]="{width: (currentTime / maxTime * 100) + '%'}">
     </div>
 

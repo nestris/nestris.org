@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import MoveableTetromino from 'client/src/app/models/tetris/moveable-tetromino';
 import { ColorType } from 'client/src/app/models/tetris/tetris-board';
 import { getColorTypeForTetromino } from 'client/src/app/models/tetris/tetromino-colors';
 import { TetrominoType } from 'client/src/app/models/tetris/tetromino-type';
 import { Tetromino } from 'client/src/app/models/tetris/tetrominos';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-nes-piece',
@@ -15,12 +16,12 @@ export class NesPieceComponent implements OnChanges {
   // by default, each block will take up 8 pixels. scale can adjust, respecting proportions and aspect ratio
   @Input() scale: number = 1;
 
-  @Input() piece: TetrominoType = TetrominoType.ERROR_TYPE;
+  @Input() piece?: TetrominoType = TetrominoType.ERROR_TYPE;
   @Input() level: number = 18;
 
   // the smallest grid that can fit the next box piece at first rotation
   // recalculated every time the piece changes
-  public nextBox: ColorType[][] = [];
+  public nextBox?: ColorType[][];
 
   // for iterating over rows and columns in template. computed in ngOnChanges
   public ROWS!: number[];
@@ -30,11 +31,17 @@ export class NesPieceComponent implements OnChanges {
   public boardWidthPixels!: number;
   public boardHeightPixels!: number;
 
+  readonly ColorType = ColorType;
+
+  constructor(private cdr: ChangeDetectorRef) {
+
+  }
+
   ngOnChanges(): void {
 
     // if error type, do not display anything
-    if (this.piece === TetrominoType.ERROR_TYPE) {
-      this.nextBox = [];
+    if (this.piece === TetrominoType.ERROR_TYPE || this.piece === undefined) {
+      this.nextBox = undefined;
       return;
     }
 
@@ -45,13 +52,13 @@ export class NesPieceComponent implements OnChanges {
     const height = blockset.maxY - blockset.minY + 1;
 
     // populate empty next box but with correct size
-    this.nextBox = [];
+    const nextBox: ColorType[][] = [];
     for (let y = 0; y < height; y++) {
       let row: ColorType[] = [];
       for (let x = 0; x < width; x++) {
         row.push(ColorType.EMPTY);
       }
-      this.nextBox.push(row);
+      nextBox.push(row);
     }
 
     // for each block in the blockset, assign the proper color
@@ -62,7 +69,7 @@ export class NesPieceComponent implements OnChanges {
       const y = block.y - blockset.minY;
 
       // assign block of correct color to the corresponding position in next box
-      this.nextBox[y][x] = color;
+      nextBox[y][x] = color;
     });
 
     this.COLS = Array(width).fill(0).map((x, i) => i);
@@ -71,6 +78,7 @@ export class NesPieceComponent implements OnChanges {
     this.boardWidthPixels = 9 * width - 1;
     this.boardHeightPixels = 9 * height - 1;
 
-    console.log(this.nextBox);
+    this.nextBox = nextBox;
+    this.cdr.detectChanges();
   }
 }

@@ -7,7 +7,7 @@
             <g *ngFor="let y of ROWS">
                 <g *ngFor="let x of COLS">
                     <g app-nes-block
-                        [color]="nextBox[y][x]"
+                        [color]="nextBox ? nextBox[y][x] : ColorType.EMPTY"
                         [level]="level"
                         [interactable]="false"
                         [offsetX]="9*x"

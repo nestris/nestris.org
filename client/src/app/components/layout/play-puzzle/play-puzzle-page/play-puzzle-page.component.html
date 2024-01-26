@@ -19,11 +19,11 @@
 
         <app-nes-board *ngIf="puzzleService.getPuzzle$() | async as puzzle"
             class="board" [scale]="3" [interactable]="true"
-            [board]="currentBoard"
+            [board]="currentBoard | async"
             [level]="18"
-            [nextPiece]="(placedFirstPiece === undefined && (hoveredPiece | async) === undefined) ? puzzle.currentType : undefined"
+            [nextPiece]="((hoveredPiece | async) === undefined) ? getActivePieceType() : undefined"
             [activePiece]="(hoveredPiece | async) ?? undefined"
-            [activePieceOpacity]="(hoveredPiece | async)?.isValidPlacement(currentBoard!) ? 0.7 : 0.35"
+            [activePieceOpacity]="(hoveredPiece | async)?.isValidPlacement(currentBoard.getValue()!) ? 0.7 : 0.35"
             (hoveringBlock)="onHoveringBlock($event)"
             (click)="onClickBoard()"
         />
@@ -35,7 +35,7 @@
             <app-nes-panel class="next-box-panel" *ngIf="puzzleService.getPuzzle$() | async as puzzle">
                 <h2 class="next-box-text">NEXT</h2>
                 <div class="next-piece-container">
-                    <app-nes-piece [scale]="3" [piece]="puzzle.nextType" [level]="18" />
+                    <app-nes-piece [scale]="3" [piece]="(placedFirstPiece$ | async) === undefined ? puzzle.nextType : undefined" [level]="18" />
                 </div>
             </app-nes-panel>
 
@@ -51,7 +51,7 @@
 
     </div>
 
-    <app-timer class="timer" [currentTime]="(puzzleService.getCurrentPuzzleTime$() | async) ?? 0" [maxTime]="puzzleService.getPuzzleTimeLimit()" />
+    <app-timer class="timer" />
     
 
 </div>

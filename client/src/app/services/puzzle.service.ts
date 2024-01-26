@@ -17,13 +17,18 @@ export class PuzzleService {
 
   private submitted: boolean = false;
 
+  private timerInterval: any;
+
   constructor() { }
 
   startPuzzle(puzzle: PuzzleDefinition) {
 
     if (this.getPuzzle()) {
-      throw new Error("Puzzle already started");
+      console.log("Puzzle already started");
+      return;
     }
+
+    console.log("startPuzzle", puzzle);
 
     this.submitted = false;
 
@@ -33,15 +38,17 @@ export class PuzzleService {
     this.currentPuzzleTime$.next(0);
 
     // start timer
-    const interval = setInterval(() => {
-      this.currentPuzzleTime$.next((Date.now() - this.startPuzzleTime!) / 1000);
-    }, 10);
+    this.timerInterval = setInterval(() => {
+      let time = (Date.now() - this.startPuzzleTime!) / 1000;
+      time = Math.min(time, PUZZLE_TIME_LIMIT);
+      this.currentPuzzleTime$.next(time);
+      // console.log("timer", time);
+    }, 20);
 
     // stop timer when puzzle is finished
     this.currentPuzzleTime$.subscribe((currentPuzzleTime) => {
       if (currentPuzzleTime >= PUZZLE_TIME_LIMIT) {
         this.submitPuzzle(undefined, undefined);
-        clearInterval(interval);
       }
     });
 
@@ -82,8 +89,16 @@ export class PuzzleService {
 
   submitPuzzle(firstPlacement?: MoveableTetromino, secondPlacement?: MoveableTetromino) {
     this.submitted = true;
+    clearInterval(this.timerInterval);
+
     const isCorrect = this.evaluatePuzzleResult(firstPlacement, secondPlacement);
 
-    console.log("submitPuzzle", isCorrect);
+  }
+
+  resetPuzzle() {
+    clearInterval(this.timerInterval);
+    this.submitted = false;
+    this.puzzle$.next(undefined);
+    console.log("resetPuzzle");
   }
 }

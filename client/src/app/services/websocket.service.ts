@@ -27,6 +27,8 @@ export class WebsocketService {
 
   private signedInSubject$ = new BehaviorSubject<boolean>(false);
 
+  private hasSignedInBefore = false;
+
   constructor(
     private notificationService: NotificationService
   ) {
@@ -45,13 +47,14 @@ export class WebsocketService {
       this.signedInSubject$.next(true);
     });
 
-    this.onSignIn().subscribe(() =>
+    this.onSignIn().subscribe(() => {
+      this.hasSignedInBefore = true;
       this.notificationService.notify(NotificationType.SUCCESS, `Signed in as ${this.getUsername()}`)
-    );
+    });
 
-    this.onSignOut().subscribe(() =>
-      this.notificationService.notify(NotificationType.ERROR, "You are now signed out")
-    );
+    this.onSignOut().subscribe(() => {
+      if (this.hasSignedInBefore) this.notificationService.notify(NotificationType.ERROR, "You are now signed out");
+  });
 
   }
 
@@ -69,6 +72,7 @@ export class WebsocketService {
   }
 
   // subscribe to this observable when the user signs out
+  // ignore first emitted value (false)
   onSignOut(): Observable<void> {
     return this.signedInSubject$.asObservable().pipe(
       filter((signedIn) => !signedIn), // Continue only if signedIn is false
