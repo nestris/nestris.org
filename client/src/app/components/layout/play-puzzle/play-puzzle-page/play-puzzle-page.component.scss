@@ -63,6 +63,7 @@
     flex-direction: column;
     height: 100%;
     justify-content: space-between;
+    align-items: center;
 }
 
 .next-box-text {
@@ -82,4 +83,29 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.next-box-panel {
+    width: fit-content;
+}
+
+.instructions {
+    color: #FFF;
+    text-align: center;
+    font-family: Neucha;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    width: 130px;
+}
+
+.undo-button {
+    align-self: flex-end;
+    margin-right: 5px;
+}
+
+.timer {
+    width: 90%;
+    margin-bottom: 20px;
 }
