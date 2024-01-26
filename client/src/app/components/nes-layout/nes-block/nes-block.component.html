@@ -14,7 +14,7 @@
         [attr.x]="offsetX" [attr.y]="offsetY"
         [attr.width]="8"
         [attr.height]="8"
-        [attr.opacity]="(isHovering | async) ? 1 : 0"
+        [attr.opacity]="isHovering ? 1 : 0"
         fill="rgb(50,50,50)" />
 
     <!-- Draw the block background -->
@@ -22,7 +22,7 @@
         [attr.x]="offsetX" [attr.y]="offsetY"
         [attr.width]="8"
         [attr.height]="8"
-        [attr.opacity]="(isHovering | async) ? 0.8 : 1"
+        [attr.opacity]="isHovering ? 0.8 : 1"
         [attr.fill]="getBackgroundColor()" />
 
     <!-- draw a white pxiel at the top left corner -->

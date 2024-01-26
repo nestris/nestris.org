@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BOARD_OCR_POSITION, BOARD_SHINE_OCR_POSITION, NEXT_OCR_POSITION, OCRBox } from '../../models/ocr/ocr-box';
+import { BOARD_OCR_POSITION, BOARD_SHINE_OCR_POSITION, NEXT_OCR_POSITION, OCRBox, OCRPosition } from '../../models/ocr/ocr-box';
 import { Pixels } from '../../models/ocr/pixels';
 import { FloodFill } from '../../models/ocr/floodfill';
 import { RGBColor, rgbToHsv } from '../../scripts/color';
@@ -8,6 +8,7 @@ import { ColorType, TetrisBoard } from '../../models/tetris/tetris-board';
 import { classifyColor } from '../../models/tetris/tetromino-colors';
 import { NextBoxOCR } from './next-box-ocr';
 import { TetrominoType } from '../../models/tetris/tetromino-type';
+import { Point } from '../../models/point';
 
 /*
 Service to poll current video capture frame for different OCR results
@@ -57,17 +58,14 @@ export class OcrService {
     this.ocr$[OCRType.BOARD_SHINE].next(new OCRBox(floodfillRect, BOARD_SHINE_OCR_POSITION));
   }
 
-  private calibrateNextOCR(image: Pixels) {
-
-    // relative positioning for next box from board
-    const NEXTBOX_LOCATIONS = [
-      {x: 1.5, y: 0.41}, // top of the next box
-      {x: 1.5, y: 0.595} // bottom of the next box
-    ];
+  // given an image and OCR type, define an OCR bounding box positioned relative to main board through locations param
+  // Locations param is defined as a list of points defined relatve to main board
+  // ocrPosition defines the position of the ocr polling matrix within the bounding box
+  private calibrateOCRRelativeToBoard(image: Pixels, type: OCRType, locations: Point[], ocrPosition: OCRPosition) {
 
     // floodfill for next box to get nextOCRBox
     const floodfill = new FloodFill(image.width, image.height);
-    NEXTBOX_LOCATIONS.forEach((loc) => {
+    locations.forEach((loc) => {
       const canvasPosition = this.getOCRBox(OCRType.BOARD)!.getCanvasPositionFromRelative(loc);
       floodfill.floodfill(image, canvasPosition.x, canvasPosition.y, this.floodfillCondition.bind(this));
     });
@@ -75,9 +73,11 @@ export class OcrService {
     if (!floodfillRect) {
       throw new Error("floodfill failed");
     }
-    console.log("set nextOCRBox", floodfillRect);
-    this.ocr$[OCRType.NEXT].next(new OCRBox(floodfillRect, NEXT_OCR_POSITION));
+    console.log("set", type, floodfillRect);
+    this.ocr$[type].next(new OCRBox(floodfillRect, NEXT_OCR_POSITION));
+
   }
+
 
   // when user clicks on a location on canvas, floodfill to determine bounding box for
   // tetris board, and use relative positioning to determine OCR boxes for other elements
@@ -87,7 +87,15 @@ export class OcrService {
     try {
 
       this.calibrateBoardOCR(image, mouseX, mouseY);
-      this.calibrateNextOCR(image);
+
+      // relative positioning for next box from board
+      const NEXTBOX_LOCATIONS = [
+        {x: 1.5, y: 0.41}, // top of the next box
+        {x: 1.5, y: 0.595} // bottom of the next box
+      ];
+      this.calibrateOCRRelativeToBoard(image, OCRType.NEXT, NEXTBOX_LOCATIONS, NEXT_OCR_POSITION);
+
+
 
       return true;
 

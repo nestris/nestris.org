@@ -16,20 +16,11 @@ export class NesBlockComponent {
 
   @Input() offsetX: number = 0;
   @Input() offsetY: number = 0;
-
-  public isHovering = new BehaviorSubject<boolean>(false);
+  @Input() isHovering: boolean = false;
 
   readonly Color = ColorType;
 
   constructor() {}
-
-  @HostListener('mouseover') onMouseOver() {
-    if (this.interactable) this.isHovering.next(true);
-  }
-
-  @HostListener('mouseout') onMouseOut() {
-    if (this.interactable) this.isHovering.next(false);
-  }
 
   getBackgroundColor(): string {
     

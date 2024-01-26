@@ -1,3 +1,4 @@
+import { Point } from "../point";
 import { BlockSet } from "./block-set";
 import { ColorType, TetrisBoard } from "./tetris-board";
 import { getColorTypeForTetromino } from "./tetromino-colors";
@@ -32,6 +33,10 @@ export default class MoveableTetromino {
 
     copy(): MoveableTetromino {
         return new MoveableTetromino(this.tetrominoType, this.rotation, this.translateX, this.translateY);
+    }
+
+    public contains(x: number, y: number): boolean {
+        return this.getCurrentBlockSet().contains(x, y);
     }
 
     // encoding format: TRXXYY
@@ -134,6 +139,53 @@ export default class MoveableTetromino {
         const numPossibleRotations = Tetromino.getPieceByType(this.tetrominoType).numPossibleRotations();
         this.rotation = (this.rotation + delta) % numPossibleRotations;
         this.updateCurrentBlockSet();
+    }
+
+    // attempt to kick the piece in all directions to a valid placement
+    public kickToValidPlacement(board: TetrisBoard): void {
+
+        // no need to kick if already valid
+        if (this.isValidPlacement(board)) return;
+
+        const kickOffsets: Point[] = [
+            { x: 1, y: 0 },
+            { x: -1, y: 0 },
+            { x: 0, y: -1 },
+            { x: 0, y: 1 },
+            { x: 1, y: -1 },
+            { x: -1, y: -1 },
+            { x: 1, y: 1 },
+            { x: -1, y: 1 },
+        ];
+
+        for (let offset of kickOffsets) {
+            const MT = new MoveableTetromino(this.tetrominoType, this.rotation, this.translateX + offset.x, this.translateY + offset.y);
+            if (MT.isValidPlacement(board)) {
+                this.moveBy(0, offset.x, offset.y);
+                return;
+            }
+        };
+    }
+
+    public moveIntoBounds(): void {
+        const blockSet = this.getCurrentBlockSet();
+        const minX = blockSet.minX;
+        const maxX = blockSet.maxX;
+        const minY = blockSet.minY;
+        const maxY = blockSet.maxY;
+
+        if (minX < 0) {
+            this.moveBy(0, -minX, 0);
+        }
+        if (maxX > 9) {
+            this.moveBy(0, 9 - maxX, 0);
+        }
+        if (minY < 0) {
+            this.moveBy(0, 0, -minY);
+        }
+        if (maxY > 19) {
+            this.moveBy(0, 0, 19 - maxY);
+        }
     }
 
     // whether the entire MT is within the bounds of the board

@@ -38,6 +38,7 @@ import { StepperComponent } from './components/ui/stepper/stepper.component';
 import { TooltipDirective } from './directives/tooltip.directive';
 import { TooltipComponent } from './components/ui/tooltip/tooltip.component';
 import { PreviewCanvasComponent } from './components/modals/calibrate-ocr-modal-components/preview-canvas/preview-canvas.component';
+import { PlayPuzzlePageComponent } from './components/layout/play-puzzle/play-puzzle-page/play-puzzle-page.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -116,7 +117,8 @@ const customNotifierOptions: NotifierOptions = {
     StepperComponent,
     TooltipDirective,
     TooltipComponent,
-    PreviewCanvasComponent
+    PreviewCanvasComponent,
+    PlayPuzzlePageComponent,
   ],
   imports: [
     BrowserModule,

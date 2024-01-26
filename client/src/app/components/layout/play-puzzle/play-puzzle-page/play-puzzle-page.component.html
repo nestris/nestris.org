@@ -1,0 +1,38 @@
+<app-outline-button class="leave-fullscreen-button" label="Exit" (click)="exitFullscreen()" />
+<div class="content">
+
+    <header>
+        <h1 class="title">PUZZLES</h1>
+        <div class="subtitle-container">
+            <hr>
+            <h2 class="subtitle">ZEN MODE</h2>
+            <hr>
+        </div>
+    </header>
+
+    <div class="main-row">
+        <div class="leaderboard"></div>
+        <app-nes-board class="board" [scale]="3" [interactable]="true"
+            [board]="puzzle.board"
+            [level]="18"
+            [nextPiece]="(placedFirstPiece === undefined && (hoveredPiece | async) === undefined) ? puzzle.currentType : undefined"
+            [activePiece]="(hoveredPiece | async) ?? undefined"
+            [activePieceOpacity]="0.5"
+            (hoveringBlock)="onHoveringBlock($event)"
+        />
+
+        <div class="puzzle-details">
+            <app-nes-panel class="next-box-panel">
+                <h2 class="next-box-text">NEXT</h2>
+                <div class="next-piece-container">
+                    <app-nes-piece [scale]="3" [piece]="puzzle.nextType" [level]="18" />
+                </div>
+            </app-nes-panel>
+        </div>
+
+    </div>
+
+    <div class="timer"></div>
+    
+
+</div>

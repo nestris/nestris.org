@@ -1,0 +1,85 @@
+:host {
+    display: block;
+    background: linear-gradient(7deg,rgba(4,182,32,.5) 0%,rgba(0,0,0,1) 70%);
+    position: relative;
+}
+
+.leave-fullscreen-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.title, .subtitle {
+    font-family: 'NES';
+    color: white;
+    text-wrap: nowrap;
+}
+
+.title {
+    font-size: 70px;
+    margin: 20px;
+    margin-bottom: 0px;
+}
+
+.subtitle {
+    font-size: 40px;
+    margin: 0px;
+}
+
+.subtitle-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 90%;
+    gap: 30px;
+}
+
+.subtitle-container hr {
+    width: 100%;
+    margin: 0;
+    border: solid 1.5px;
+}
+
+.main-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.puzzle-details {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+}
+
+.next-box-text {
+    font-family: 'NES';
+    color: white;
+    font-size: 20px;
+    margin: 0;
+}
+
+.board {
+    margin-right: 40px;
+}
+
+.next-piece-container {
+    width: 100px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

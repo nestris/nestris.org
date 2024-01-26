@@ -12,6 +12,7 @@ export enum TabID {
     // fullscreen tabs
     SOLO = 'solo',
     MULTIPLAYER = 'multiplayer',
+    PLAY_PUZZLE = 'play-puzzle',
 }
 
 const IS_TAB_FULLSCREEN: {[key in TabID]: boolean} = {
@@ -26,6 +27,7 @@ const IS_TAB_FULLSCREEN: {[key in TabID]: boolean} = {
     [TabID.MORE]: false,
     [TabID.SOLO]: true,
     [TabID.MULTIPLAYER]: true,
+    [TabID.PLAY_PUZZLE]: true,
 };
 
 export const isTabFullscreen = (tab: TabID): boolean => IS_TAB_FULLSCREEN[tab];
@@ -47,6 +49,7 @@ const TAB_DISPLAY_NAMES: {[key in TabID]: string} = {
     [TabID.MORE]: 'More',
     [TabID.SOLO]: 'Solo',
     [TabID.MULTIPLAYER]: 'Multiplayer',
+    [TabID.PLAY_PUZZLE]: 'Play Puzzle',
 };
 export const getTabDisplayName = (tab: TabID): string => TAB_DISPLAY_NAMES[tab];
 

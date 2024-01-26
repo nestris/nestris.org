@@ -16,7 +16,7 @@ export type Rectangle = {
 };
 
 
-class OCRPosition {
+export class OCRPosition {
     constructor(
         public numRows: number, // how many OCR dots to read vertically
         public paddingTop: number, // distance (in percent of height) before first OCR dot row
