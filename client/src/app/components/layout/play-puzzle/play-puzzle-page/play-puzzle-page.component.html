@@ -13,12 +13,13 @@
     <div class="main-row">
         <div class="leaderboard"></div>
         <app-nes-board class="board" [scale]="3" [interactable]="true"
-            [board]="puzzle.board"
+            [board]="currentBoard"
             [level]="18"
             [nextPiece]="(placedFirstPiece === undefined && (hoveredPiece | async) === undefined) ? puzzle.currentType : undefined"
             [activePiece]="(hoveredPiece | async) ?? undefined"
-            [activePieceOpacity]="0.5"
+            [activePieceOpacity]="(hoveredPiece | async)?.isValidPlacement(currentBoard) ? 0.7 : 0.35"
             (hoveringBlock)="onHoveringBlock($event)"
+            (click)="onClickBoard()"
         />
 
         <div class="puzzle-details">
