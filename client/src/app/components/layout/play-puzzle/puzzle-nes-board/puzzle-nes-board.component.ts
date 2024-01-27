@@ -43,6 +43,7 @@ export class PuzzleNesBoardComponent implements OnInit {
   ngOnInit(): void {
 
     // initialize board
+    this.puzzle.board.print();
     this.currentBoard$.next(this.puzzle.board.copy());
 
     // when undo$ emits, undo the first piece placement

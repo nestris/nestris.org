@@ -41,6 +41,7 @@ import { PreviewCanvasComponent } from './components/modals/calibrate-ocr-modal-
 import { PlayPuzzlePageComponent } from './components/layout/play-puzzle/play-puzzle-page/play-puzzle-page.component';
 import { TimerComponent } from './components/layout/play-puzzle/timer/timer.component';
 import { PuzzleNesBoardComponent } from './components/layout/play-puzzle/puzzle-nes-board/puzzle-nes-board.component';
+import { EloRatingComponent } from './components/layout/play-puzzle/elo-rating/elo-rating.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -123,6 +124,7 @@ const customNotifierOptions: NotifierOptions = {
     PlayPuzzlePageComponent,
     TimerComponent,
     PuzzleNesBoardComponent,
+    EloRatingComponent,
   ],
   imports: [
     BrowserModule,

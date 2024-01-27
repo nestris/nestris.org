@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { PuzzleDefinition } from '../models/puzzles/puzzle';
+import { PuzzleDefinition, PuzzleSubmission } from '../models/puzzles/puzzle';
 import { ColorType, TetrisBoard } from '../models/tetris/tetris-board';
 import { TetrominoType, getRandomTetrominoType } from '../models/tetris/tetromino-type';
 import MoveableTetromino from '../models/tetris/moveable-tetromino';
@@ -55,4 +55,26 @@ export class FetchPuzzleService {
       }, 1000);
     });
   }
+
+  async submitPuzzle(puzzle: PuzzleDefinition, submission: PuzzleSubmission): Promise<boolean> {
+
+    // if submission is incomplete, return false
+    if (!submission.firstPiece || !submission.secondPiece) {
+      return false;
+    }
+
+    // if first piece is not in the correct position, return false
+    if (!puzzle.correctCurrentPlacement.equals(submission.firstPiece)) {
+      return false;
+    }
+
+    // if second piece is not in the correct position, return false
+    if (!puzzle.correctNextPlacement.equals(submission.secondPiece)) {
+      return false;
+    }
+
+    // if both pieces are in the correct position, return true
+    return true;
+  }
+
 }

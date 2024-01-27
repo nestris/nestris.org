@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Host, HostListener, OnInit } from '@angular/core';
 import { PuzzleDefinition, PuzzleSubmission } from 'client/src/app/models/puzzles/puzzle';
 import { TabID } from 'client/src/app/models/tabs';
-import { FetchPuzzleService } from 'client/src/app/services/fetch-puzzle.service';
+import { FetchPuzzleService as PuzzleService } from 'client/src/app/services/puzzle.service';
 import { RoutingService } from 'client/src/app/services/routing.service';
 import { BehaviorSubject, Subject } from 'rxjs';
 
@@ -21,7 +21,8 @@ export class PlayPuzzlePageComponent implements OnInit {
   clickUndo$ = new Subject<void>();
 
   // if true, in the process of solving puzzle. if false, showing puzzle solution
-  solvingPuzzle$ = new BehaviorSubject<boolean>(false);
+  solvingPuzzle$ = new BehaviorSubject<boolean>(true);
+  puzzleIsCorrect = false;
 
   public currentPuzzleTime$ = new BehaviorSubject<number>(0);
   private startPuzzleTime?: number;
@@ -29,7 +30,7 @@ export class PlayPuzzlePageComponent implements OnInit {
 
   constructor(
     private routingService: RoutingService,
-    private fetchPuzzleService: FetchPuzzleService,
+    private PuzzleService: PuzzleService,
   ) {
   }
 
@@ -47,7 +48,7 @@ export class PlayPuzzlePageComponent implements OnInit {
   // fetch a new puzzle from the server, start puzzle, and start timer
   async startNewPuzzle() {
     this.puzzle$.next(undefined);
-    this.puzzle$.next(await this.fetchPuzzleService.fetchPuzzle());
+    this.puzzle$.next(await this.PuzzleService.fetchPuzzle());
     this.startTimer();
     this.solvingPuzzle$.next(true);
   }
@@ -78,11 +79,14 @@ export class PlayPuzzlePageComponent implements OnInit {
   }
 
   // submit puzzle and go to puzzle solution page
-  submitPuzzle(submission: PuzzleSubmission) {
+  async submitPuzzle(submission: PuzzleSubmission) {
     console.log("submit puzzle", submission);
 
     // stop timer
     clearInterval(this.timerInterval);
+
+    // submit puzzle to server
+    this.puzzleIsCorrect = await this.PuzzleService.submitPuzzle(this.puzzle$.getValue()!, submission);
 
     // go to puzzle solution page
     this.solvingPuzzle$.next(false);
