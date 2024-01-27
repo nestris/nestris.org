@@ -10,48 +10,66 @@
         </div>
     </header>
 
+    <p class="instructions">
+        Find the best place to put the given two pieces. There’s only one right answer!
+    </p>
+
     <div class="main-row">
-        <div class="leaderboard"></div>
 
+        <!-- show instructions if in puzzle solving mode -->
+        <p class="instructions narrow" *ngIf="solvingPuzzle$ | async">
+            Hover your mouse on the board to move the piece, or use the arrow keys! Rotate with Z and X.
+        </p>
+
+        <!-- show leaderboard if not in puzzle solving mode -->
+        <div *gIf="!(solvingPuzzle$ | async)" class="leaderboard"></div>
+
+        <!-- show undo button if in puzzle solving mode and can undo -->
         <app-outline-button class="undo-button" label="Undo"
-        [ngStyle]="{visibility: showUndoButton() ? 'visible' : 'hidden'}" (click)="undo()" />
+        [ngStyle]="{visibility: ((solvingPuzzle$ | async) && (canUndo$ | async)) ? 'visible' : 'hidden'}" (click)="undo()" />
 
+        <!-- show nes board if it's in puzzle solving mode but no puzzle is loaded yet -->
+        <app-nes-board *ngIf="(solvingPuzzle$ | async) && (puzzle$ | async) === undefined"
+            class="board" [scale]="3"
+        />
 
-        <app-nes-board *ngIf="puzzleService.getPuzzle$() | async as puzzle"
-            class="board" [scale]="3" [interactable]="true"
-            [board]="currentBoard | async"
-            [level]="18"
-            [nextPiece]="((hoveredPiece | async) === undefined) ? getActivePieceType() : undefined"
-            [activePiece]="(hoveredPiece | async) ?? undefined"
-            [activePieceOpacity]="(hoveredPiece | async)?.isValidPlacement(currentBoard.getValue()!) ? 0.7 : 0.35"
-            (hoveringBlock)="onHoveringBlock($event)"
-            (click)="onClickBoard()"
+        <!-- show puzzle board if it's in puzzle solving mode and a puzzle is loaded -->
+        <app-puzzle-nes-board *ngIf="(solvingPuzzle$ | async) && (puzzle$ | async)"
+            class="board" [scale]="3" 
+            [puzzle]="(puzzle$ | async)!" (submitPuzzle)="submitPuzzle($event)"
+            [undo$]="clickUndo$" (canUndo)="canUndo$.next($event)"
+        />
+
+        <!-- show puzzle solution if it's not in puzzle solving mode -->
+        <app-nes-board *ngIf="!(solvingPuzzle$ | async) && (puzzle$ | async)"
+            class="board" [scale]="3"
+            [board]="(puzzle$ | async)!.board" [level]="18"
+            [activePiece]="(puzzle$ | async)!.correctCurrentPlacement"
         />
 
         <div class="puzzle-details">
 
             <div class="elo-container"></div>
 
-            <app-nes-panel class="next-box-panel" *ngIf="puzzleService.getPuzzle$() | async as puzzle">
+            <app-nes-panel class="next-box-panel">
                 <h2 class="next-box-text">NEXT</h2>
                 <div class="next-piece-container">
-                    <app-nes-piece [scale]="3" [piece]="(placedFirstPiece$ | async) === undefined ? puzzle.nextType : undefined" [level]="18" />
+                    <app-nes-piece *ngIf="(puzzle$ | async)" [scale]="3"
+                        [piece]="(canUndo$ | async) ? undefined: (puzzle$ | async)!.nextType" [level]="18"
+                    />
                 </div>
             </app-nes-panel>
-
-            <p class="instructions">
-                Find the best place to put the given two pieces. There’s only one right answer!
-            </p>
-
-            <p class="instructions">
-                Press z or x to rotate, and click to place!
-            </p>
 
         </div>
 
     </div>
 
-    <app-timer class="timer" />
+    <!-- show timer if in puzzle solving mode -->
+    <app-timer class="timer"
+        [ngStyle]="{visibility: (solvingPuzzle$ | async) ? 'visible' : 'hidden'}"
+        [currentTime]="(currentPuzzleTime$ | async) ?? 0"
+        [maxTime]="PUZZLE_TIME_LIMIT"
+    />
     
 
 </div>

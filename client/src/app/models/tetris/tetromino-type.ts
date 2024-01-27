@@ -19,3 +19,7 @@ export const ALL_TETROMINO_TYPES = [
     TetrominoType.S_TYPE,
     TetrominoType.Z_TYPE,
 ]
+
+export function getRandomTetrominoType(): TetrominoType {
+    return ALL_TETROMINO_TYPES[Math.floor(Math.random() * ALL_TETROMINO_TYPES.length)];
+}

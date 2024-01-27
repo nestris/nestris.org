@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { PuzzleService } from './puzzle.service';
+import { FetchPuzzleService } from './fetch-puzzle.service';
 
-describe('PuzzleService', () => {
-  let service: PuzzleService;
+describe('FetchPuzzleService', () => {
+  let service: FetchPuzzleService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(PuzzleService);
+    service = TestBed.inject(FetchPuzzleService);
   });
 
   it('should be created', () => {

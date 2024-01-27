@@ -10,3 +10,8 @@ export interface PuzzleDefinition {
     correctNextPlacement: MoveableTetromino,
     elo: number
 }
+
+export interface PuzzleSubmission {
+    firstPiece?: MoveableTetromino;
+    secondPiece?: MoveableTetromino;
+  }

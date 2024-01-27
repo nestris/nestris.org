@@ -40,6 +40,7 @@ import { TooltipComponent } from './components/ui/tooltip/tooltip.component';
 import { PreviewCanvasComponent } from './components/modals/calibrate-ocr-modal-components/preview-canvas/preview-canvas.component';
 import { PlayPuzzlePageComponent } from './components/layout/play-puzzle/play-puzzle-page/play-puzzle-page.component';
 import { TimerComponent } from './components/layout/play-puzzle/timer/timer.component';
+import { PuzzleNesBoardComponent } from './components/layout/play-puzzle/puzzle-nes-board/puzzle-nes-board.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -121,6 +122,7 @@ const customNotifierOptions: NotifierOptions = {
     PreviewCanvasComponent,
     PlayPuzzlePageComponent,
     TimerComponent,
+    PuzzleNesBoardComponent,
   ],
   imports: [
     BrowserModule,
