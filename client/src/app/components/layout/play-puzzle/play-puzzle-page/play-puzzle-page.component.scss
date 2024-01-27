@@ -62,8 +62,12 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    justify-content: space-between;
     align-items: center;
+
+    width: 320px;
+
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.10);;
 }
 
 .next-box-text {
@@ -77,17 +81,15 @@
     margin-right: 40px;
 }
 
-.next-piece-container {
-    width: 100px;
-    height: 60px;
+.next-box-container {
+    width: 100%;
+    height: 80px;
     display: flex;
     justify-content: center;
     align-items: center;
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
-.next-box-panel {
-    width: fit-content;
-}
 
 .instructions {
     color: #FFF;
@@ -97,6 +99,7 @@
     font-style: normal;
     font-weight: 400;
     line-height: normal;
+    margin: 0;
 }
 
 .instructions.narrow {

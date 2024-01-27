@@ -51,14 +51,11 @@
 
             <div class="elo-container"></div>
 
-            <app-nes-panel class="next-box-panel">
-                <h2 class="next-box-text">NEXT</h2>
-                <div class="next-piece-container">
-                    <app-nes-piece *ngIf="(puzzle$ | async)" [scale]="3"
-                        [piece]="(canUndo$ | async) ? undefined: (puzzle$ | async)!.nextType" [level]="18"
-                    />
-                </div>
-            </app-nes-panel>
+            <div class="next-box-container" *ngIf="(puzzle$ | async)">
+                <app-nes-piece  [scale]="3"
+                    [piece]="(canUndo$ | async) ? undefined: (puzzle$ | async)!.nextType" [level]="18"
+                />
+            </div>
 
         </div>
 
