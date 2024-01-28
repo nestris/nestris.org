@@ -1,1 +1,12 @@
-<p>elo-graph works!</p>
+<div class="root">
+    <div class="labels">
+        <p class="label" *ngFor="let label of eloLines">{{label}}</p>
+    </div>
+    <svg class="graph" preserveAspectRatio="none"
+        [attr.viewBox]="'0 ' + (eloLines[0]-10) + ' 14 ' + (eloLines[3]-eloLines[0]+20)">
+        
+        <line *ngFor="let elo of eloLines" x1="0" x2="14"
+            stroke-width="2"
+            [attr.y1]="elo" [attr.y2]="elo" stroke="white" stroke-opacity="0.5"></line>
+    </svg>
+</div>
