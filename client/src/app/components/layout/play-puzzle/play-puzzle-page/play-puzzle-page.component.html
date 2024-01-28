@@ -61,7 +61,18 @@
             <div class="puzzle-details">
 
                 <div class="puzzle-details-top">
-                    <h1>{{(solvingPuzzle$ | async) ? "Rated Puzzle" : (puzzleIsCorrect ? "Correct" : "Incorrect")}}</h1>
+                    <div class="puzzle-header">
+
+                        <img *ngIf="!(solvingPuzzle$ | async)" class="puzzle-header-icon"
+                            [src]="'./assets/img/display-icons/' + (puzzleIsCorrect ? 'correct.svg' : '/incorrect.svg')"
+                        >
+
+                        <h1 [ngClass]="{
+                            'correct': !(solvingPuzzle$ | async) && puzzleIsCorrect,
+                            'incorrect': !(solvingPuzzle$ | async) && !puzzleIsCorrect
+                        }">{{(solvingPuzzle$ | async) ? "Rated Puzzle" : (puzzleIsCorrect ? "Correct" : "Incorrect")}}</h1>
+                    </div>
+                    
 
                     <app-elo-rating class="elo-container" *ngIf="(puzzle$ | async) as puzzle"
                         [rating]="(puzzleService.getCurrentElo$() | async) ?? 1000"

@@ -1,3 +1,5 @@
+@import "../../../../../styles.scss";
+
 .root {
     display: block;
     background: linear-gradient(7deg,rgba(126, 4, 182, 0.5) 0%,rgba(0,0,0,1) 70%);
@@ -109,7 +111,20 @@ header {
     padding: 10px;
 }
 
-.puzzle-details-top h1 {
+.puzzle-header {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.puzzle-header-icon {
+    transform: translateY(1px);
+}
+
+.puzzle-header h1 {
     color: #FFF;
     text-align: center;
     font-family: Montserrat;
@@ -117,7 +132,15 @@ header {
     font-style: normal;
     font-weight: 800;
     line-height: normal;
-    margin-bottom: 5px;
+    margin: 0;
+}
+
+.puzzle-details-top h1.correct {
+    color: $ui-green-color;
+}
+
+.puzzle-details-top h1.incorrect {
+    color: $ui-red-color;
 }
 
 .next-box-text {

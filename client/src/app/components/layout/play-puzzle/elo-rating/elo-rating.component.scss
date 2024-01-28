@@ -77,3 +77,7 @@ p.decrease {
 .row.loss .col .win {
     opacity: 0;
 }
+
+.icon-text.win img {
+    transform: translateX(-2.8px);
+}
