@@ -54,7 +54,7 @@ p.decrease {
 
 // Move up and down on win/lose
 .row .col {
-    transition: transform 0.4s ease-in-out 0.2s;
+    transition: transform 0.4s ease-in-out 0.1s;
 }
 
 .row.win .col {
@@ -67,7 +67,7 @@ p.decrease {
 
 // Fade out on win/lose
 .icon-text {
-    transition: opacity 0.4s ease-in-out 0.2s;
+    transition: opacity 0.4s ease-in-out 0.1s;
 
 }
 .row.win .col .loss {

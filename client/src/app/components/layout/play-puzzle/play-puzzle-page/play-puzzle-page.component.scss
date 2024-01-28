@@ -164,6 +164,15 @@ header {
 }
 
 
+.left-col {
+    width: 400px;
+    margin-left: 20px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+
 .instructions {
     color: #FFF;
     text-align: center;
@@ -177,6 +186,7 @@ header {
 
 .instructions.narrow {
     width: 300px;
+    align-self: right;
 }
 
 .undo-button {

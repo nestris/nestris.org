@@ -27,13 +27,17 @@
 
         <div class="main-row">
 
-            <!-- show instructions if in puzzle solving mode -->
-            <p class="instructions narrow" *ngIf="solvingPuzzle$ | async">
-                Hover your mouse on the board to move the piece, or use the arrow keys! Rotate with Z and X.
-            </p>
+            <div class="left-col">
 
-            <!-- show leaderboard if not in puzzle solving mode -->
-            <div *gIf="!(solvingPuzzle$ | async)" class="leaderboard"></div>
+                <!-- show instructions if in puzzle solving mode -->
+                <p class="instructions narrow" *ngIf="solvingPuzzle$ | async">
+                    Hover your mouse on the board to move the piece, or use the arrow keys! Rotate with Z and X.
+                </p>
+
+                <!-- show leaderboard if not in puzzle solving mode -->
+                <app-leaderboard *ngIf="!(solvingPuzzle$ | async)" class="leaderboard" />
+
+            </div>
 
             <!-- show undo button if in puzzle solving mode and can undo -->
             <app-outline-button class="undo-button" label="Undo"

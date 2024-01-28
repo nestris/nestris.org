@@ -42,6 +42,8 @@ import { PlayPuzzlePageComponent } from './components/layout/play-puzzle/play-pu
 import { TimerComponent } from './components/layout/play-puzzle/timer/timer.component';
 import { PuzzleNesBoardComponent } from './components/layout/play-puzzle/puzzle-nes-board/puzzle-nes-board.component';
 import { EloRatingComponent } from './components/layout/play-puzzle/elo-rating/elo-rating.component';
+import { LeaderboardComponent } from './components/layout/play-puzzle/leaderboard/leaderboard.component';
+import { LoadingAnimationComponent } from './components/ui/loading-animation/loading-animation.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -125,6 +127,8 @@ const customNotifierOptions: NotifierOptions = {
     TimerComponent,
     PuzzleNesBoardComponent,
     EloRatingComponent,
+    LeaderboardComponent,
+    LoadingAnimationComponent,
   ],
   imports: [
     BrowserModule,
