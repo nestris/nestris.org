@@ -11,10 +11,16 @@ import { BehaviorSubject, Observable, map } from 'rxjs';
 })
 export class PuzzleService {
 
-  private eloHistory: BehaviorSubject<number[]> = new BehaviorSubject<number[]>([1000]);
+  private eloHistory: BehaviorSubject<number[]> = new BehaviorSubject<number[]>([]);
 
   constructor() {
-    this.syncEloHistory();
+    this.fetchPlayerElo();
+  }
+
+  // fetch player's elo from server
+  // called at beginning to determine elo starting point for this session
+  async fetchPlayerElo() {
+    this.eloHistory.next([1000]); // TEMPORARY
   }
 
   // observable that emits elo history
@@ -33,11 +39,6 @@ export class PuzzleService {
   // get current elo (not observable)
   getCurrentElo(): number {
     return this.eloHistory.getValue()[this.eloHistory.getValue().length - 1];
-  }
-
-  // fetch elo history from server
-  async syncEloHistory() {
-    // TODO
   }
 
   // FOR TESTING ONLY
@@ -113,11 +114,9 @@ export class PuzzleService {
     const newElo = this.getCurrentElo() + eloChange;
     console.log("newElo", newElo, "eloChange", eloChange);
 
-    // update cached client-side elo history for instant update client-side
+    // update client-side elo history
     this.eloHistory.next([...this.eloHistory.getValue(), newElo]);
 
-    // start syncing elo history with server, but don't wait for it to finish
-    this.syncEloHistory();
 
     return result;
   }

@@ -27,7 +27,7 @@ h1 {
     color: #FFF;
     text-align: center;
     font-family: Montserrat;
-    font-size: 50px;
+    font-size: 40px;
     font-style: normal;
     font-weight: 800;
     line-height: normal;
@@ -37,7 +37,7 @@ h1 {
 p {
     text-align: center;
     font-family: Montserrat;
-    font-size: 20px;
+    font-size: 15px;
     font-style: normal;
     font-weight: 800;
     line-height: normal;
@@ -58,11 +58,11 @@ p.decrease {
 }
 
 .row.win .col {
-    transform: translateY(12px);
+    transform: translateY(11px);
 }
 
 .row.loss .col {
-    transform: translateY(-12px);
+    transform: translateY(-11px);
 }
 
 // Fade out on win/lose

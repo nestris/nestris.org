@@ -11,6 +11,13 @@ export class EloGraphComponent implements OnChanges {
   @Input() eloHistory: number[] = [1000];
 
   eloLines!: number[]; // the four lines to plot
+  invertedEloPairs!: [number, number][]; // the pairs of elo values to plot
+  invertedEloHistory!: number[]; // the elo history, but inverted
+
+  // because SVG y coordinate is flipped, we need to invert the elo
+  invertElo(elo: number): number {
+    return this.eloLines[3] - (elo - this.eloLines[0])
+  }
 
 
   ngOnChanges(): void {
@@ -31,6 +38,16 @@ export class EloGraphComponent implements OnChanges {
     // now, we can plot four lines from x = lowest to x = highest
     this.eloLines = [lowest, lowest + delta / 3, lowest + delta * 2 / 3, highest];
     console.log(this.eloLines);
+
+    // calculate the inverted elo history. Get only the last 15 values
+    this.invertedEloHistory = this.eloHistory.map(elo => this.invertElo(elo));
+    this.invertedEloHistory = this.invertedEloHistory.slice(-15);
+
+    // calculate the adjacent pairs of elo values
+    this.invertedEloPairs = [];
+    for (let i = 0; i < this.invertedEloHistory.length - 1; i++) {
+      this.invertedEloPairs.push([this.invertedEloHistory[i], this.invertedEloHistory[i + 1]]);
+    }
       
   }
 

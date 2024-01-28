@@ -45,19 +45,19 @@
 
             <!-- show nes board if it's in puzzle solving mode but no puzzle is loaded yet -->
             <app-nes-board *ngIf="(solvingPuzzle$ | async) && (puzzle$ | async) === undefined"
-                class="board" [scale]="3.2"
+                class="board" [scale]="3"
             />
 
             <!-- show puzzle board if it's in puzzle solving mode and a puzzle is loaded -->
             <app-puzzle-nes-board *ngIf="(solvingPuzzle$ | async) && (puzzle$ | async)"
-                class="board" [scale]="3.2" 
+                class="board" [scale]="3" 
                 [puzzle]="(puzzle$ | async)!" (submitPuzzle)="submitPuzzle($event)"
                 [undo$]="clickUndo$" (canUndo)="canUndo$.next($event)"
             />
 
             <!-- show puzzle solution if it's not in puzzle solving mode -->
             <app-nes-board *ngIf="!(solvingPuzzle$ | async) && (puzzle$ | async)"
-                class="board" [scale]="3.2"
+                class="board" [scale]="3"
                 [board]="(puzzle$ | async)!.board" [level]="18"
                 [activePiece]="(puzzle$ | async)!.correctSolution.firstPiece"
             />
