@@ -89,6 +89,14 @@
                             [piece]="(canUndo$ | async) ? undefined: (puzzle$ | async)!.nextType" [level]="18"
                         />
                     </div>
+
+                    <!-- all the elements in puzzle solution mode -->
+                    <ng-container *ngIf="!(solvingPuzzle$ | async)">
+
+                        <app-elo-graph [eloHistory]="(puzzleService.getEloHistory$() | async) ?? [1000]"/>
+
+                    </ng-container>
+
                 </div>
                 <div class="puzzle-details-bottom">
                     <app-solid-button *ngIf="!(solvingPuzzle$ | async)"
