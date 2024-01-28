@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostBinding, Input } from '@angular/core';
 
 export enum ButtonColor {
   GREEN = "#3CB75E",
@@ -19,4 +19,6 @@ export class SolidButtonComponent {
   @Input() color!: string | ButtonColor;
   @Input() disabled: boolean = false;
   @Input() stretch: boolean = false; // stretch to fit parent width
+
+  @HostBinding('class.stretchHost') get stretchHost() { return this.stretch; }
 }

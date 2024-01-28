@@ -1,6 +1,6 @@
 @import "../../../../styles.scss";
 
-:host {
+:host.stretchHost {
     width: 100%;
     box-sizing: border-box;
 }
