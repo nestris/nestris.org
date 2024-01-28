@@ -1,10 +1,11 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Host, HostListener, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { PuzzleDefinition, PuzzleSubmission } from 'client/src/app/models/puzzles/puzzle';
 import { TabID } from 'client/src/app/models/tabs';
 import { PuzzleService as PuzzleService } from 'client/src/app/services/puzzle.service';
 import { RoutingService } from 'client/src/app/services/routing.service';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { EloMode } from '../elo-rating/elo-rating.component';
+import { ButtonColor } from '../../../ui/solid-button/solid-button.component';
 
 @Component({
   selector: 'app-play-puzzle-page',
@@ -26,11 +27,15 @@ export class PlayPuzzlePageComponent implements OnInit {
   puzzleIsCorrect = false;
   puzzleSolutionExplanation: string = "";
 
+  nextPuzzleLoaded$ = new BehaviorSubject<boolean>(false);
+  nextPuzzle: PuzzleDefinition | undefined;
+
   public currentPuzzleTime$ = new BehaviorSubject<number>(0);
   private startPuzzleTime?: number;
   private timerInterval: any;
 
   readonly EloMode = EloMode;
+  readonly ButtonColor = ButtonColor;
 
   constructor(
     private routingService: RoutingService,
@@ -39,7 +44,8 @@ export class PlayPuzzlePageComponent implements OnInit {
   }
 
   async ngOnInit() {
-    await this.startNewPuzzle();
+    const puzzle = await this.puzzleService.fetchPuzzle();
+    this.startNewPuzzle(puzzle);
   }
 
   exitFullscreen() {
@@ -49,12 +55,25 @@ export class PlayPuzzlePageComponent implements OnInit {
     this.routingService.setSelectedTab({tab: lastTab, params: undefined});
   }
 
+  async startNextPuzzle() {
+
+    // if next puzzle is not loaded, cannot start next puzzle
+    if (!this.nextPuzzleLoaded$.getValue()) return;
+
+    if (!this.nextPuzzle) throw new Error("next puzzle is undefined");
+
+    // start next puzzle
+    await this.startNewPuzzle(this.nextPuzzle!);
+
+  }
+
   // fetch a new puzzle from the server, start puzzle, and start timer
-  async startNewPuzzle() {
-    this.puzzle$.next(undefined);
-    this.puzzle$.next(await this.puzzleService.fetchPuzzle());
+  startNewPuzzle(puzzle: PuzzleDefinition) {
+    this.puzzle$.next(puzzle);
     this.startTimer();
     this.solvingPuzzle$.next(true);
+    this.nextPuzzle = undefined;
+    this.nextPuzzleLoaded$.next(false);
   }
 
   private startTimer() {
@@ -95,6 +114,13 @@ export class PlayPuzzlePageComponent implements OnInit {
 
     // go to puzzle solution page
     this.solvingPuzzle$.next(false);
+
+    // start loading next puzzle
+    this.puzzleService.fetchPuzzle().then((puzzle) => {
+      this.nextPuzzle = puzzle;
+      this.nextPuzzleLoaded$.next(true);
+    });
+
   }
 
 }

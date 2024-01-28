@@ -1,5 +1,10 @@
 @import "../../../../styles.scss";
 
+:host {
+    width: 100%;
+    box-sizing: border-box;
+}
+
 .button {
     display: flex;
     flex-direction: row;
@@ -11,6 +16,14 @@
     padding-inline: 15px;
 
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    width:fit-content;
+}
+
+.button.stretch {
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 5px;
+    height: 40px;
 }
 
 
@@ -28,15 +41,16 @@
     cursor: not-allowed;
 }
 
-.icon {
 
-}
-
-.label {
+.button .label {
     font-family: Montserrat;
     font-size: 16px;
     font-style: normal;
     font-weight: 600;
     line-height: normal;
     margin-block: 6px;
+}
+
+.button.stretch .label {
+    font-weight: 700;
 }

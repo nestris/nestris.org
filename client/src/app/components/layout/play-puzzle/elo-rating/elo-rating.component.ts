@@ -49,8 +49,6 @@ export class EloRatingComponent implements OnInit, OnChanges {
   // recursively call itself until displayRating is equal to rating
   animateRating() {
 
-    console.log("animateRating", this.displayRating.getValue());
-
     // how fast to approach rating
     const RATE = 0.1;
 

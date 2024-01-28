@@ -18,4 +18,5 @@ export class SolidButtonComponent {
   @Input() label!: string;
   @Input() color!: string | ButtonColor;
   @Input() disabled: boolean = false;
+  @Input() stretch: boolean = false; // stretch to fit parent width
 }

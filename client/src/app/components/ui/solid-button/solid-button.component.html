@@ -1,4 +1,10 @@
-<div class="button prevent-select" [ngStyle]="{backgroundColor: color}" [ngClass]="disabled ? 'disabled':''">
+<div class="button prevent-select"
+    [ngStyle]="{backgroundColor: color}"
+    [ngClass]="{
+        'disabled': disabled,
+        'stretch': stretch,
+    }"
+>
     <img class="icon" *ngIf="icon" [src]="icon" height="18px">
     <h1 class="label">{{ label }}</h1>
 </div>

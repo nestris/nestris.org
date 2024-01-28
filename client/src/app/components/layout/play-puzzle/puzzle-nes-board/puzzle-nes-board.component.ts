@@ -138,7 +138,7 @@ export class PuzzleNesBoardComponent implements OnInit {
 
       this.rotation = 0;
       this.placedFirstPiece$.next(placedFirstPiece);
-      this.canUndo.next(true);
+      this.canUndo.next(true); // after placing first piece, can undo it
 
     } else if (this.placedSecondPiece$.getValue() === undefined) { // placing second piece
       const placedSecondPiece = this.hoveredPiece$.getValue()!.copy();
@@ -150,6 +150,9 @@ export class PuzzleNesBoardComponent implements OnInit {
 
       this.rotation = 0;
       this.placedSecondPiece$.next(placedSecondPiece);
+
+      // disable undo
+      this.canUndo.next(false);
 
       // submit the puzzle
       this.submitPuzzle.emit({

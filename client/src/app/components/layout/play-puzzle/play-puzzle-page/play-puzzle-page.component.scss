@@ -82,15 +82,34 @@ header {
     display: flex;
     flex-direction: column;
     height: 100%;
+    justify-content: space-between;
     align-items: center;
 
     width: 320px;
-
     border-radius: 10px;
     background-color: rgba(255, 255, 255, 0.10);;
 }
 
-.puzzle-details h1 {
+.puzzle-details-top {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box
+};
+
+.puzzle-details-bottom {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+.puzzle-details-top h1 {
     color: #FFF;
     text-align: center;
     font-family: Montserrat;
