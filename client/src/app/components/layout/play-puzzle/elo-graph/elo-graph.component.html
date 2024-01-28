@@ -23,7 +23,8 @@
             <line *ngFor="let invertedElo of invertedEloHistory; let i = index"
             [attr.x1]="i" [attr.x2]="i"
             [attr.y1]="invertedElo" [attr.y2]="invertedElo+0.1"
-            stroke-width="6" stroke="#E4E4E4" stroke-linecap="round" vector-effect="non-scaling-stroke" />
+            stroke-width="6" stroke-linecap="round" vector-effect="non-scaling-stroke"
+            [attr.stroke]="(i === invertedEloHistory.length-1) ? (lastResult ? '#58D774' : '#F15757') : '#E4E4E4'" />
         <!-- (tooltip hitbox) -->
         <line *ngFor="let invertedElo of invertedEloHistory; let i = index"
             [tooltip]="invertElo(invertedElo).toFixed(0)"

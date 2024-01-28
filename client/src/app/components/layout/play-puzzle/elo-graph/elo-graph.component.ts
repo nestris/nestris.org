@@ -13,6 +13,7 @@ export class EloGraphComponent implements OnChanges {
   eloLines!: number[]; // the four lines to plot
   invertedEloPairs!: [number, number][]; // the pairs of elo values to plot
   invertedEloHistory!: number[]; // the elo history, but inverted
+  lastResult!: boolean; // whether the last result was a win or loss
 
   // because SVG y coordinate is flipped, we need to invert the elo
   invertElo(elo: number): number {
@@ -22,7 +23,13 @@ export class EloGraphComponent implements OnChanges {
 
   ngOnChanges(): void {
 
+    if (this.eloHistory.length < 2) {
+      return;
+    }
+
     console.log("elo history: ", this.eloHistory);
+
+    this.lastResult = this.eloHistory[this.eloHistory.length - 1] > this.eloHistory[this.eloHistory.length - 2];
 
     // get lowest and round down to the nearest 100
     let lowest = Math.min(...this.eloHistory) - 10;
