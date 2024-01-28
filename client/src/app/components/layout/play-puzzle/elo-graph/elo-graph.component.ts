@@ -1,5 +1,9 @@
 import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
+/*
+Graphs the last 15 elo values
+*/
+
 @Component({
   selector: 'app-elo-graph',
   templateUrl: './elo-graph.component.html',
@@ -29,13 +33,15 @@ export class EloGraphComponent implements OnChanges {
 
     console.log("elo history: ", this.eloHistory);
 
-    this.lastResult = this.eloHistory[this.eloHistory.length - 1] > this.eloHistory[this.eloHistory.length - 2];
+    const eloHistory = this.eloHistory.slice(-15);
+
+    this.lastResult = eloHistory[eloHistory.length - 1] > eloHistory[eloHistory.length - 2];
 
     // get lowest and round down to the nearest 100
-    let lowest = Math.min(...this.eloHistory) - 10;
+    let lowest = Math.min(...eloHistory) - 10;
     lowest = Math.floor(lowest / 100) * 100;
 
-    let highest = Math.max(...this.eloHistory) + 10;
+    let highest = Math.max(...eloHistory) + 10;
     let delta = highest - lowest;
 
     // round delta up to nearest 300
@@ -46,9 +52,8 @@ export class EloGraphComponent implements OnChanges {
     this.eloLines = [lowest, lowest + delta / 3, lowest + delta * 2 / 3, highest];
     console.log(this.eloLines);
 
-    // calculate the inverted elo history. Get only the last 15 values
-    this.invertedEloHistory = this.eloHistory.map(elo => this.invertElo(elo));
-    this.invertedEloHistory = this.invertedEloHistory.slice(-15);
+    // calculate the inverted elo history
+    this.invertedEloHistory = eloHistory.map(elo => this.invertElo(elo));
 
     // calculate the adjacent pairs of elo values
     this.invertedEloPairs = [];
