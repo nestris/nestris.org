@@ -9,6 +9,13 @@
     height: 100%;
 }
 
+header {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 .root.correct {
     background: linear-gradient(7deg,rgba(4,182,32,.5) 0%,rgba(0,0,0,1) 70%);
 }
@@ -39,13 +46,13 @@
 }
 
 .title {
-    font-size: 70px;
+    font-size: 60px;
     margin: 20px;
     margin-bottom: 0px;
 }
 
 .subtitle {
-    font-size: 40px;
+    font-size: 30px;
     margin: 0px;
 }
 
@@ -54,7 +61,7 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    width: 90%;
+    width: 75%;
     gap: 30px;
 }
 
