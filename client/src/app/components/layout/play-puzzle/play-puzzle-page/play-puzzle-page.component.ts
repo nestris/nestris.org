@@ -1,9 +1,10 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Host, HostListener, OnInit } from '@angular/core';
 import { PuzzleDefinition, PuzzleSubmission } from 'client/src/app/models/puzzles/puzzle';
 import { TabID } from 'client/src/app/models/tabs';
-import { FetchPuzzleService as PuzzleService } from 'client/src/app/services/puzzle.service';
+import { PuzzleService as PuzzleService } from 'client/src/app/services/puzzle.service';
 import { RoutingService } from 'client/src/app/services/routing.service';
 import { BehaviorSubject, Subject } from 'rxjs';
+import { EloMode } from '../elo-rating/elo-rating.component';
 
 @Component({
   selector: 'app-play-puzzle-page',
@@ -23,14 +24,17 @@ export class PlayPuzzlePageComponent implements OnInit {
   // if true, in the process of solving puzzle. if false, showing puzzle solution
   solvingPuzzle$ = new BehaviorSubject<boolean>(true);
   puzzleIsCorrect = false;
+  puzzleSolutionExplanation: string = "";
 
   public currentPuzzleTime$ = new BehaviorSubject<number>(0);
   private startPuzzleTime?: number;
   private timerInterval: any;
 
+  readonly EloMode = EloMode;
+
   constructor(
     private routingService: RoutingService,
-    private PuzzleService: PuzzleService,
+    public puzzleService: PuzzleService,
   ) {
   }
 
@@ -48,7 +52,7 @@ export class PlayPuzzlePageComponent implements OnInit {
   // fetch a new puzzle from the server, start puzzle, and start timer
   async startNewPuzzle() {
     this.puzzle$.next(undefined);
-    this.puzzle$.next(await this.PuzzleService.fetchPuzzle());
+    this.puzzle$.next(await this.puzzleService.fetchPuzzle());
     this.startTimer();
     this.solvingPuzzle$.next(true);
   }
@@ -80,13 +84,14 @@ export class PlayPuzzlePageComponent implements OnInit {
 
   // submit puzzle and go to puzzle solution page
   async submitPuzzle(submission: PuzzleSubmission) {
-    console.log("submit puzzle", submission);
 
     // stop timer
     clearInterval(this.timerInterval);
 
     // submit puzzle to server
-    this.puzzleIsCorrect = await this.PuzzleService.submitPuzzle(this.puzzle$.getValue()!, submission);
+    const result = await this.puzzleService.submitPuzzle(this.puzzle$.getValue()!, submission);
+    this.puzzleIsCorrect = result.isCorrect;
+    this.puzzleSolutionExplanation = result.explanation;
 
     // go to puzzle solution page
     this.solvingPuzzle$.next(false);

@@ -1,16 +1,46 @@
 import { Injectable } from '@angular/core';
-import { PuzzleDefinition, PuzzleSubmission } from '../models/puzzles/puzzle';
+import { PuzzleDefinition, PuzzleResult, PuzzleSolution, PuzzleSubmission } from '../models/puzzles/puzzle';
 import { ColorType, TetrisBoard } from '../models/tetris/tetris-board';
 import { TetrominoType, getRandomTetrominoType } from '../models/tetris/tetromino-type';
 import MoveableTetromino from '../models/tetris/moveable-tetromino';
+import { evaluatePuzzleSubmission } from '../models/puzzles/evaluate-puzzle-submission';
+import { BehaviorSubject, Observable, map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
-export class FetchPuzzleService {
+export class PuzzleService {
 
-  constructor() { }
+  private eloHistory: BehaviorSubject<number[]> = new BehaviorSubject<number[]>([1000]);
 
+  constructor() {
+    this.syncEloHistory();
+  }
+
+  // observable that emits elo history
+  getEloHistory$(): Observable<number[]> {
+    return this.eloHistory.asObservable();
+  }
+
+  // observable that emits current elo
+  getCurrentElo$(): Observable<number> {
+    return this.eloHistory.asObservable().pipe(
+      // get last element of array
+      map((eloHistory) => eloHistory[eloHistory.length - 1])
+    );
+  }
+
+  // get current elo (not observable)
+  getCurrentElo(): number {
+    return this.eloHistory.getValue()[this.eloHistory.getValue().length - 1];
+  }
+
+  // fetch elo history from server
+  async syncEloHistory() {
+    // TODO
+  }
+
+  // FOR TESTING ONLY
   private generateTestPuzzle(): PuzzleDefinition {
 
     const board = new TetrisBoard();
@@ -35,19 +65,33 @@ export class FetchPuzzleService {
     const currentType = getRandomTetrominoType();
     const nextType = getRandomTetrominoType();
 
+    const correctSolution: PuzzleSolution = {
+      votes: 5,
+      score: 3.24,
+      firstPiece: MoveableTetromino.fromSpawnPose(currentType),
+      secondPiece: MoveableTetromino.fromSpawnPose(nextType),
+      comment: "[Comment on correct answer here]"
+    }
+
     return {
       board: board,
       currentType: currentType,
       nextType: nextType,
-      correctCurrentPlacement: new MoveableTetromino(currentType, 0, 0, 0),
-      correctNextPlacement: new MoveableTetromino(nextType, 0, 0, 0),
-      elo: 1000
+      correctSolution: correctSolution,
+      incorrectSolutions: [],
+      elo: 1000,
+      eloGain: 31,
+      eloLoss: 28,
+      attempts: 4,
+      successes: 3
     }
   }
 
-  // FOR TESTING PURPOSES ONLY
-  // return random puzzle after one second
+  // fetch a puzzle from the server
   async fetchPuzzle(): Promise<PuzzleDefinition> {
+
+    // FOR TESTING PURPOSES ONLY
+    // return random puzzle after one second
 
     return new Promise(resolve => {
       setTimeout(() => {
@@ -56,25 +100,26 @@ export class FetchPuzzleService {
     });
   }
 
-  async submitPuzzle(puzzle: PuzzleDefinition, submission: PuzzleSubmission): Promise<boolean> {
 
-    // if submission is incomplete, return false
-    if (!submission.firstPiece || !submission.secondPiece) {
-      return false;
-    }
+  async submitPuzzle(puzzle: PuzzleDefinition, submission: PuzzleSubmission): Promise<PuzzleResult> {
+    
+    const result = evaluatePuzzleSubmission(puzzle, submission);
+    console.log("submitPuzzle", result);
 
-    // if first piece is not in the correct position, return false
-    if (!puzzle.correctCurrentPlacement.equals(submission.firstPiece)) {
-      return false;
-    }
+    // TODO: submit puzzle to server
 
-    // if second piece is not in the correct position, return false
-    if (!puzzle.correctNextPlacement.equals(submission.secondPiece)) {
-      return false;
-    }
+    // update elo history
+    const eloChange = result.isCorrect ? puzzle.eloGain : -puzzle.eloLoss;
+    const newElo = this.getCurrentElo() + eloChange;
+    console.log("newElo", newElo, "eloChange", eloChange);
 
-    // if both pieces are in the correct position, return true
-    return true;
+    // update cached client-side elo history for instant update client-side
+    this.eloHistory.next([...this.eloHistory.getValue(), newElo]);
+
+    // start syncing elo history with server, but don't wait for it to finish
+    this.syncEloHistory();
+
+    return result;
   }
 
 }

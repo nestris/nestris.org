@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import { prop, getModelForClass } from '@typegoose/typegoose';
 
 // Define the IUser interface
@@ -19,8 +18,7 @@ export interface IUserSchema {
     matchesLost: number;
     trophies: number;
     xp: number;
-    puzzleElo: number;
-    puzzlesSolved: number;
+    puzzleElo: number[]; // stores the history of puzzle ELOs as user plays puzzles. last element is current ELO
     bestScore: number;
     bestAccuracy: number;
     bestTrophies: number;
@@ -85,11 +83,8 @@ class UserSchema implements IUserSchema {
     @prop({ required: true, default: 0, index: true })
     public xp!: number;
 
-    @prop({ required: true, default: 0, index: true })
-    public puzzleElo!: number;
-
-    @prop({ required: true, default: 0 })
-    public puzzlesSolved!: number;
+    @prop({ required: true, default: [1000], index: true })
+    public puzzleElo!: number[];
 
     @prop({ required: true, default: 0 })
     public bestScore!: number;

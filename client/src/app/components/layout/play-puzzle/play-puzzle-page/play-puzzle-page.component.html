@@ -17,8 +17,12 @@
             </div>
         </header>
 
-        <p class="instructions">
+        <p class="instructions" *ngIf="solvingPuzzle$ | async">
             Find the best place to put the given two pieces. There’s only one right answer!
+        </p>
+
+        <p class="instructions" *ngIf="!(solvingPuzzle$ | async)">
+            {{puzzleSolutionExplanation}}
         </p>
 
         <div class="main-row">
@@ -51,19 +55,20 @@
             <app-nes-board *ngIf="!(solvingPuzzle$ | async) && (puzzle$ | async)"
                 class="board" [scale]="3"
                 [board]="(puzzle$ | async)!.board" [level]="18"
-                [activePiece]="(puzzle$ | async)!.correctCurrentPlacement"
+                [activePiece]="(puzzle$ | async)!.correctSolution.firstPiece"
             />
 
             <div class="puzzle-details">
 
                 <h1>{{(solvingPuzzle$ | async) ? "Rated Puzzle" : (puzzleIsCorrect ? "Correct" : "Incorrect")}}</h1>
 
-                <app-elo-rating class="elo-container"
-                    [rating]="(puzzle$ | async)?.elo ?? 0"
-                    [increase]="30" [decrease]="24"
+                <app-elo-rating class="elo-container" *ngIf="(puzzle$ | async) as puzzle"
+                    [rating]="(puzzleService.getCurrentElo$() | async) ?? 1000"
+                    [increase]="puzzle.eloGain" [decrease]="puzzle.eloLoss"
+                    [mode]="(solvingPuzzle$ | async) ? EloMode.NEUTRAL : (puzzleIsCorrect ? EloMode.WIN : EloMode.LOSS)"
                 />
 
-                <div class="next-box-container" *ngIf="(solvingPuzzle$ | async)">
+                <div class="next-box-container" *ngIf="(solvingPuzzle$ | async) && (puzzle$ | async)">
                     <app-nes-piece  [scale]="3"
                         [piece]="(canUndo$ | async) ? undefined: (puzzle$ | async)!.nextType" [level]="18"
                     />

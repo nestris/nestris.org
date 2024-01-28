@@ -51,3 +51,29 @@ p.increase {
 p.decrease {
     color: $ui-red-color;
 }
+
+// Move up and down on win/lose
+.row .col {
+    transition: transform 0.4s ease-in-out 0.2s;
+}
+
+.row.win .col {
+    transform: translateY(12px);
+}
+
+.row.loss .col {
+    transform: translateY(-12px);
+}
+
+// Fade out on win/lose
+.icon-text {
+    transition: opacity 0.4s ease-in-out 0.2s;
+
+}
+.row.win .col .loss {
+    opacity: 0;
+}
+
+.row.loss .col .win {
+    opacity: 0;
+}
