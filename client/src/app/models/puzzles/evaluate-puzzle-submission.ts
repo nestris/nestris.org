@@ -26,6 +26,10 @@ export function equalToSolution(submission: PuzzleSubmission, solution: PuzzleSo
     return true;
 }
 
+const RIGHT_ANSWER_COMMENTS = [
+    "You got it!"
+]
+
 const WRONG_ANSWER_COMMENTS = [
     "Good try! This puzzle's a toughie.",
     "Not quite, but you got the next one!",
@@ -60,7 +64,7 @@ export function evaluatePuzzleSubmission(puzzle: PuzzleDefinition, submission: P
     if (equalToSolution(submission, puzzle.correctSolution)) {
         return {
             isCorrect: true,
-            explanation: puzzle.correctSolution.comment
+            explanation: RIGHT_ANSWER_COMMENTS[Math.floor(Math.random() * RIGHT_ANSWER_COMMENTS.length)]
         }
     }
 
@@ -71,7 +75,7 @@ export function evaluatePuzzleSubmission(puzzle: PuzzleDefinition, submission: P
     if (incorrectSolution) {
         return {
             isCorrect: false,
-            explanation: incorrectSolution.comment
+            explanation: WRONG_ANSWER_COMMENTS[Math.floor(Math.random() * WRONG_ANSWER_COMMENTS.length)]
         }
     } else { // if not, we give a generic wrong answer comment
         return {

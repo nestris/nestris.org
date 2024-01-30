@@ -1,3 +1,4 @@
+import { IActivePuzzleSchema } from "server/puzzles/puzzle-microservice-models"
 import { FriendInfo, OnlineUserStatus } from "./models/friends"
 
 /*
@@ -20,6 +21,8 @@ export enum JsonMessageType {
     DECLINE_FRIEND_REQUEST = 'decline_friend_request',
     ON_FRIEND_REQUEST_ACCEPTED = 'on_friend_request_accepted',
     ON_FRIEND_REQUEST_DECLINED = 'on_friend_request_declined',
+    FETCH_PUZZLE_REQUEST = 'fetch_puzzle_request',
+    FETCH_PUZZLE_RESPONSE = 'fetch_puzzle_response'
 }
 
 export abstract class JsonMessage {
@@ -149,5 +152,22 @@ export class OnFriendRequestDeclinedMessage extends JsonMessage {
         public readonly newFriend: string,
     ) {
         super(JsonMessageType.ON_FRIEND_REQUEST_DECLINED)
+    }
+}
+
+// sent by client to server to request for a puzzle
+export class FetchPuzzleRequestMessage extends JsonMessage {
+    constructor() {
+        super(JsonMessageType.FETCH_PUZZLE_REQUEST)
+    }
+}
+
+// response by server to client with requested puzzle
+export class FetchPuzzleResponseMessage extends JsonMessage {
+    constructor(
+        public readonly puzzle?: IActivePuzzleSchema,
+        public readonly error?: string
+    ) {
+        super(JsonMessageType.FETCH_PUZZLE_RESPONSE)
     }
 }

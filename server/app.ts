@@ -44,7 +44,6 @@ export default async function createApp(): Promise<{
     // get all the info on a user by their username
     app.get('/api/user/:username', getUserByUsernameRoute);
 
-
     // get online, status, xp and trophy stats for all friends and potential friends (incoming/outcoming) for a user
     app.get('/api/friends/:username', async (req: Request, res: Response) => getFriendsInfoRoute(req, res, state));
 

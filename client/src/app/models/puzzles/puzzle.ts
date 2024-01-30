@@ -2,6 +2,7 @@ import MoveableTetromino from "../tetris/moveable-tetromino";
 import { TetrisBoard } from "../tetris/tetris-board";
 import { TetrominoType } from "../tetris/tetromino-type";
 
+
 export interface PuzzleDefinition {
     board: TetrisBoard;
     currentType: TetrominoType;
@@ -25,7 +26,6 @@ export interface PuzzleSolution {
     score: number; // StackRabbit evaluation
     firstPiece: MoveableTetromino; // placement of first piece
     secondPiece: MoveableTetromino; // placement of second piece
-    comment: string; // commentary for if user picks this solution
 }
 
 export interface PuzzleSubmission {

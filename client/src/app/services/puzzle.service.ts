@@ -60,6 +60,7 @@ export class PuzzleService {
         } else {
           color = ColorType.EMPTY;
         }
+        board.setAt(x, y, color);
       }
     }
 
@@ -71,7 +72,6 @@ export class PuzzleService {
       score: 3.24,
       firstPiece: MoveableTetromino.fromSpawnPose(currentType),
       secondPiece: MoveableTetromino.fromSpawnPose(nextType),
-      comment: "[Comment on correct answer here]"
     }
 
     return {
@@ -120,5 +120,5 @@ export class PuzzleService {
 
     return result;
   }
-
 }
+
