@@ -4,8 +4,8 @@ import { OnlineUser } from "./online-user";
 import { getUserByUsername, updateUser } from "../database/user/user-service";
 import { contains } from "../../misc/array-functions";
 import { FriendInfo, FriendStatus } from "../../network-protocol/models/friends";
-import { makePostRequestToPuzzleMicroservice } from "server/puzzles/puzzle-microservice-api";
-import { IActivePuzzleSchema, IPuzzleSolutionSchema } from "server/puzzles/puzzle-microservice-models";
+import { makePostRequestToPuzzleMicroservice } from "../puzzles/puzzle-microservice-api";
+import { IActivePuzzleSchema, IPuzzleSolutionSchema } from "../puzzles/puzzle-microservice-models";
 
 /*
 Handles messages from the client sent by OnlineUser
