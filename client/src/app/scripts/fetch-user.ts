@@ -1,4 +1,4 @@
-import { IUserSchema } from "server/database/user/user-schema";
+import { IUserSchema } from "server/database-old/user/user-schema";
 import { Method, fetchServer } from "./fetch-server";
 import { FriendInfo } from "network-protocol/models/friends";
 

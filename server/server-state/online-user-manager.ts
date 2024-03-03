@@ -1,4 +1,4 @@
-import { createUser, getUserByUsername } from "../database/user/user-service";
+import { createUser, getUserByUsername } from "../database-old/user/user-service";
 import { OnlineUser, SocketCloseCode } from "./online-user";
 import { ConnectionSuccessfulMessage, ErrorHandshakeIncompleteMessage, ErrorMessage, FriendOnlineStatusChange as FriendOnlineMessage, JsonMessage, JsonMessageType, OnConnectMessage } from "../../network-protocol/json-message";
 import { MessageType, decodeMessage } from "../../network-protocol/ws-message";

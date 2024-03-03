@@ -1,7 +1,7 @@
 import { AcceptFriendRequestMessage, DeclineFriendRequestMessage, ErrorMessage, FetchPuzzleRequestMessage, FetchPuzzleResponseMessage, JsonMessage, JsonMessageType, OnFriendRequestAcceptedMessage, OnFriendRequestDeclinedMessage, OnSendFriendRequestMessage, PingMessage, PongMessage, SendFriendRequestMessage } from "../../network-protocol/json-message";
 import { ServerState } from "./server-state";
 import { OnlineUser } from "./online-user";
-import { getUserByUsername, updateUser } from "../database/user/user-service";
+import { getUserByUsername, updateUser } from "../database-old/user/user-service";
 import { contains } from "../../misc/array-functions";
 import { FriendInfo, FriendStatus } from "../../network-protocol/models/friends";
 import { makePostRequestToPuzzleMicroservice } from "../puzzles/puzzle-microservice-api";
