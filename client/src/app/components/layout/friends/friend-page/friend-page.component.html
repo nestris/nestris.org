@@ -4,8 +4,10 @@
     (click)="toggleFriendModal($event)" />
 
 <app-add-friend-modal
-    [visibility$]="friendModalVisibility$" />
+    [visibility$]="friendModalVisibility$" 
+    [friendsInfo]="(friendsInfo$ | async) ?? undefined"
+    />
 
-<div class="friends-list" *ngIf="friendService.onFriendsInfoUpdate() | async as friendsInfo">
+<div class="friends-list" *ngIf="friendsInfo$ | async as friendsInfo">
     <app-friend-element *ngFor="let friendInfo of sort(friendsInfo)" [friendInfo]="friendInfo" />
 </div>

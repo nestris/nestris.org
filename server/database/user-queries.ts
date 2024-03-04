@@ -1,3 +1,4 @@
+import { FriendStatus } from "../../network-protocol/models/friends";
 import { queryDB } from ".";
 
 // MAKE SURE THIS IS 1:1 WITH THE DATABASE TABLE
@@ -7,12 +8,6 @@ export interface DBUser {
   trophies: number;
   xp: number;
   puzzleElo: number;
-}
-
-export enum FriendStatus {
-  FRIENDS = "friends",
-  INCOMING = "incoming",
-  OUTGOING = "outgoing",
 }
 
 // MAKE SURE EACH ATTRIBUTE CORRESPONDS TO A COLUMN IN THE DATABASE
@@ -29,11 +24,15 @@ export async function queryUserTableForAllUsers(attributes: DBUserAttribute[] = 
 }
 
 // find a user by matching username and return the user
-export async function queryUserTableForUser(username: string): Promise<DBUser> {
+export async function queryUserTableForUser(username: string): Promise<DBUser | undefined> {
 
   // make a SQL query to get the user with the specified username
   const query = `SELECT * FROM users WHERE username = $1`;
   const result = await queryDB(query, [username]);
+
+  if (result.rows.length === 0) {
+    return undefined;
+  }
 
   return result.rows[0];
 }
@@ -41,7 +40,7 @@ export async function queryUserTableForUser(username: string): Promise<DBUser> {
 // get the list of friends, pending friends, and incoming friend requests for a user
 // user-relationship table has schema (username1, username2, type = "friends" | "1_send_to_2" | "2_send_to_1")
 // join to get the trophies and xp for each friend
-export async function queryFriendsForUser(username: string): Promise<{
+export async function queryFriendsAndFriendRequestsForUser(username: string): Promise<{
   username: string;
   trophies: number;
   xp: number;
@@ -86,4 +85,31 @@ export async function queryFriendsForUser(username: string): Promise<{
 
   const result = await queryDB(query, [username]);
   return result.rows;
+}
+
+// returns a list of full friends for a user as a list of strings
+export async function queryFriendUsernamesForUser(username: string): Promise<string[]> {
+  const query = `
+    SELECT username2 as username
+    FROM user_relationships
+    WHERE username1 = $1 AND type = 'friends'
+    UNION
+    SELECT username1 as username
+    FROM user_relationships
+    WHERE username2 = $1 AND type = 'friends'
+  `;
+  const result = await queryDB(query, [username]);
+  return result.rows;
+}
+
+// returns a list of all usernames in the database that match the pattern, sort alphabetically
+export async function queryAllUsernamesMatchingPattern(pattern: string = "%"): Promise<string[]> {
+  const query = `SELECT username FROM users WHERE username LIKE $1 ORDER BY username`;
+  const result = await queryDB(query, [pattern]);
+  return result.rows.map((row) => row.username);
+}
+
+export async function createUser(username: string): Promise<void> {
+  const query = `INSERT INTO users (username) VALUES ($1)`;
+  await queryDB(query, [username]);
 }

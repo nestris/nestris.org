@@ -1,5 +1,6 @@
 import { IActivePuzzleSchema } from "server/puzzles/puzzle-microservice-models"
 import { FriendInfo, OnlineUserStatus } from "./models/friends"
+import { NotificationType } from "./models/notifications"
 
 /*
 Data sent over websocket as JSON. type is the only required field and specifies
@@ -14,13 +15,7 @@ export enum JsonMessageType {
     PING = 'ping',
     PONG = 'pong',
     FRIEND_ONLINE_STATUS_CHANGE = 'friend_online_status_change',
-    BROADCAST_ANNOUNCEMENT = 'broadcast_announcement',
-    SEND_FRIEND_REQUEST = 'send_friend_request',
-    ON_SEND_FRIEND_REQUEST ='on_send_friend_request',
-    ACCEPT_FRIEND_REQUEST = 'accept_friend_request',
-    DECLINE_FRIEND_REQUEST = 'decline_friend_request',
-    ON_FRIEND_REQUEST_ACCEPTED = 'on_friend_request_accepted',
-    ON_FRIEND_REQUEST_DECLINED = 'on_friend_request_declined',
+    SEND_PUSH_NOTIFICATION = 'send_push_notification',
     FETCH_PUZZLE_REQUEST = 'fetch_puzzle_request',
     FETCH_PUZZLE_RESPONSE = 'fetch_puzzle_response'
 }
@@ -46,7 +41,6 @@ export class ErrorMessage extends JsonMessage {
 export class OnConnectMessage extends JsonMessage {
     constructor(
         public readonly username: string,
-        public readonly gmail: string,
     ) {
         super(JsonMessageType.ON_CONNECT)
     }
@@ -81,77 +75,14 @@ export class PongMessage extends JsonMessage {
     }
 }
 
-// sent when a friend comes online or goes offline
-export class FriendOnlineStatusChange extends JsonMessage {
-    constructor(
-        public readonly friendUsername: string, // the user who's status changed
-        public readonly status: OnlineUserStatus, // the new status
-    ) {
-        super(JsonMessageType.FRIEND_ONLINE_STATUS_CHANGE)
-    }
-}
 
-// sent when an announcement is broadcasted to all online users
-export class BroadcastAnnouncementMessage extends JsonMessage {
+// sent from server to client to send push notification
+export class SendPushNotificationMessage extends JsonMessage {
     constructor(
-        public readonly announcement: string,
+        public readonly notificationType: NotificationType,
+        public readonly message: string
     ) {
-        super(JsonMessageType.BROADCAST_ANNOUNCEMENT)
-    }
-}
-
-// sent from client to server when a user sends a friend request
-// also sent from server to client when a user receives a friend request
-export class SendFriendRequestMessage extends JsonMessage {
-    constructor(
-        public readonly potentialFriend: string,
-    ) {
-        super(JsonMessageType.SEND_FRIEND_REQUEST)
-    }
-}
-
-// sent from server to client to confirm that the user sent a friend request
-export class OnSendFriendRequestMessage extends JsonMessage {
-    constructor(
-        public readonly friendInfo: FriendInfo,
-    ) {
-        super(JsonMessageType.ON_SEND_FRIEND_REQUEST)
-    }
-}
-
-// sent from client to server to accept friend request sent by another user
-export class AcceptFriendRequestMessage extends JsonMessage {
-    constructor(
-        public readonly requesterUsername: string
-    ) {
-        super(JsonMessageType.ACCEPT_FRIEND_REQUEST)
-    }
-}
-
-// sent from client to server to decline friend request sent by another user
-export class DeclineFriendRequestMessage extends JsonMessage {
-    constructor(
-        public readonly requesterUsername: string
-    ) {
-        super(JsonMessageType.DECLINE_FRIEND_REQUEST)
-    }
-}
-
-// sent from server to client when client gets a friend request accepted
-export class OnFriendRequestAcceptedMessage extends JsonMessage {
-    constructor(
-        public readonly newFriend: string,
-    ) {
-        super(JsonMessageType.ON_FRIEND_REQUEST_ACCEPTED)
-    }
-}
-
-// sent from server to client when client gets a friend request declined
-export class OnFriendRequestDeclinedMessage extends JsonMessage {
-    constructor(
-        public readonly newFriend: string,
-    ) {
-        super(JsonMessageType.ON_FRIEND_REQUEST_DECLINED)
+        super(JsonMessageType.SEND_PUSH_NOTIFICATION)
     }
 }
 

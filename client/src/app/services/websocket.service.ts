@@ -3,7 +3,8 @@ import { BinaryDecoder } from 'network-protocol/binary-codec';
 import { JsonMessage, JsonMessageType, OnConnectMessage } from 'network-protocol/json-message';
 import { MessageType, decodeMessage } from 'network-protocol/ws-message';
 import { BehaviorSubject, Observable, Subject, filter, map } from 'rxjs';
-import { NotificationService, NotificationType } from './notification.service';
+import { NotificationService } from './notification.service';
+import { NotificationType } from 'network-protocol/models/notifications';
 
 /*
 The central event bus for dealing with websocket messages to/from the server.
@@ -120,7 +121,7 @@ export class WebsocketService {
 
   // called to connect to server
   // if the connection is successful, a ws connection is established and the user is signed in
-  connect(username: string, gmail: string) {
+  connect(username: string) {
 
     // if already signed in, do nothing
     if (this.isSignedIn()) {
@@ -136,7 +137,7 @@ export class WebsocketService {
     // when the websocket connects, send the OnConnectMessage to initiate the handshake
     this.ws.onopen = () => {
       console.log('Connected to the WebSocket server');
-      this.sendJsonMessage(new OnConnectMessage(username, gmail));
+      this.sendJsonMessage(new OnConnectMessage(username));
     };
     
     // pipe messages to onEvent observables

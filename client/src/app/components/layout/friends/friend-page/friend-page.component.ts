@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
-import { FriendService } from 'client/src/app/services/friend.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { ButtonColor } from '../../../ui/solid-button/solid-button.component';
 import { RoutingService } from 'client/src/app/services/routing.service';
-import { TabID } from 'client/src/app/models/tabs';
 import { FriendInfo, FriendStatus, OnlineUserStatus } from 'network-protocol/models/friends';
+import { Method, fetchServer } from 'client/src/app/scripts/fetch-server';
+import { WebsocketService } from 'client/src/app/services/websocket.service';
 
 @Component({
   selector: 'app-friend-page',
@@ -18,19 +18,23 @@ export class FriendPageComponent implements OnDestroy {
 
   public friendModalVisibility$ = new BehaviorSubject<boolean>(false);
 
-  private tabSubscription!: Subscription;
+  public friendsInfo$ = new BehaviorSubject<FriendInfo[]>([]);
 
   constructor(
-    public friendService: FriendService,
-    public tabService: RoutingService
-  ) {
+    private websocketService: WebsocketService,
+  ) {}
 
-    // resync friends data (specifically, xp and trophies) when switching to friends tab
-    // stuff like online status should already be updated through events
-    this.tabSubscription = tabService.onSwitchToTab(TabID.FRIENDS).subscribe(() => {
-      this.friendService.syncWithServer();
-    });
+  async ngOnInit() {
+    this.syncWithServer();
+  }
 
+  async syncWithServer() {
+
+    const username = this.websocketService.getUsername();
+    if (!username) return; // if not logged in, do nothing
+
+    const {status, content} = await fetchServer(Method.GET, `/api/v2/friends/${username}`);
+    if (status === 200) this.friendsInfo$.next(content as FriendInfo[]);
   }
 
   // opens the friend modal when the user clicks on the friend button
@@ -58,19 +62,17 @@ export class FriendPageComponent implements OnDestroy {
     const friendPriority = (status: FriendStatus) => {
       switch (status) {
         case FriendStatus.INCOMING: return 0;
-        case FriendStatus.PENDING: return 1;
+        case FriendStatus.OUTGOING: return 1;
         default: return 2;
       }
     }
     friendsInfo.sort((a,b) => friendPriority(a.friendStatus) - friendPriority(b.friendStatus));
-
 
     return friendsInfo;
 
   }
 
   ngOnDestroy(): void {
-    this.tabSubscription.unsubscribe();
   }
 
 }

@@ -30,7 +30,7 @@ export class OnlineUser {
     constructor(
         public readonly username: string, // unique identifier for the user
         public readonly socket: WebSocket, // live websocket connection
-        public readonly friends: string[], // set of usernames of friends
+        //public readonly friends: string[], // set of usernames of friends
     ) {}
 
     // using the live websocket connection, send a JsonMessage to the client

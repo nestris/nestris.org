@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NotifierService } from 'angular-notifier';
+import { NotificationAutohide, NotificationType } from 'network-protocol/models/notifications';
 import { Observable, Subject } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -10,18 +11,6 @@ A wrapper to angular-notifier library to support the following:
 - wrap notification type into an enum
 */
 
-export enum NotificationType {
-  INFO = 'info',
-  SUCCESS = 'success',
-  WARNING = 'warning',
-  ERROR = 'error',
-}
-
-export enum NotificationAutohide {
-  DISABLED = 'disabled',
-  SHORT = 'short',
-  LONG = 'long',
-}
 
 @Injectable({
   providedIn: 'root'

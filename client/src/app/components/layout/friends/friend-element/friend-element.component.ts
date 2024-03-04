@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { FriendInfo, FriendStatus } from 'network-protocol/models/friends';
 import { ButtonColor } from '../../../ui/solid-button/solid-button.component';
 import { WebsocketService } from 'client/src/app/services/websocket.service';
-import { AcceptFriendRequestMessage, DeclineFriendRequestMessage } from 'network-protocol/json-message';
+import { endFriendship, sendFriendRequest } from '../friend-util';
 
 @Component({
   selector: 'app-friend-element',
@@ -25,19 +25,19 @@ export class FriendElementComponent {
     switch (this.friendInfo.friendStatus) {
       case FriendStatus.FRIENDS: return "status-friend";
       case FriendStatus.INCOMING: return "status-incoming";
-      case FriendStatus.PENDING: return "status-pending"
+      case FriendStatus.OUTGOING: return "status-pending"
       case FriendStatus.NOT_FRIENDS: return "status-not-friends";
     }
   }
 
   // send a message to server to accept friend request
-  acceptFriendRequest() {
-    this.websocketService.sendJsonMessage(new AcceptFriendRequestMessage(this.friendInfo.username));
+  async acceptFriendRequest() {
+    await sendFriendRequest(this.websocketService.getUsername()!, this.friendInfo.username);
   }
 
   // send a message to server to declne friend request
-  declineFriendRequest() {
-    this.websocketService.sendJsonMessage(new DeclineFriendRequestMessage(this.friendInfo.username));
+  async declineFriendRequest() {
+    await endFriendship(this.websocketService.getUsername()!, this.friendInfo.username);
   }
 
 }

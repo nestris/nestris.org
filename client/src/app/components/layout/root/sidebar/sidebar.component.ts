@@ -1,6 +1,5 @@
-import { Component, ChangeDetectionStrategy, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, OnInit } from '@angular/core';
 import { TabID } from 'client/src/app/models/tabs';
-import { FriendService } from 'client/src/app/services/friend.service';
 import { WebsocketService } from 'client/src/app/services/websocket.service';
 import { OnlineUserStatus } from 'network-protocol/models/friends';
 
@@ -10,14 +9,21 @@ import { OnlineUserStatus } from 'network-protocol/models/friends';
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss']
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
   @Input() isSignedIn!: boolean;
 
   readonly TabID = TabID;
   readonly OnlineUserStatus = OnlineUserStatus;
 
+  public numOnlineFriends = 0;
+
   constructor(
-    public friendService: FriendService
   ) {}
+
+  async ngOnInit() {
+
+    //const response = await fetch(`/api/v2/num-online-friends/${this.username}`);
+    
+  }
 
 }

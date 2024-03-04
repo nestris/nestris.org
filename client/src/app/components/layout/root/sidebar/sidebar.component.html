@@ -8,8 +8,8 @@
 
         <app-profile-tab *ngIf="isSignedIn" class="profile-tab"/>
         <app-sidebar-tab *ngIf="isSignedIn" [tab]="TabID.FRIENDS">
-            <p class="online-users">{{friendService.onNumOnlineFriendsUpdate() | async}}</p>
-            <app-online-indicator [status]="(friendService.onNumOnlineFriendsUpdate() | async) === 0 ? OnlineUserStatus.OFFLINE : OnlineUserStatus.IDLE" />
+            <p class="online-users">{{0}}</p>
+            <app-online-indicator [status]="(0 === 0) ? OnlineUserStatus.OFFLINE : OnlineUserStatus.IDLE" />
         </app-sidebar-tab>
         <app-sidebar-tab *ngIf="isSignedIn" [tab]="TabID.ALERTS" />
 

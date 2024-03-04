@@ -1,10 +1,9 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Method, fetchServer } from 'client/src/app/scripts/fetch-server';
-import { FriendService } from 'client/src/app/services/friend.service';
 import { WebsocketService } from 'client/src/app/services/websocket.service';
-import { SendFriendRequestMessage } from 'network-protocol/json-message';
-import { FriendStatus } from 'network-protocol/models/friends';
+import { FriendInfo, FriendStatus } from 'network-protocol/models/friends';
 import { BehaviorSubject, Subscription, firstValueFrom } from 'rxjs';
+import { sendFriendRequest } from '../friend-util';
 
 export interface PotentialFriend {
   username: string;
@@ -17,53 +16,37 @@ export interface PotentialFriend {
   styleUrls: ['./add-friend-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AddFriendModalComponent implements OnInit, OnDestroy {
+export class AddFriendModalComponent implements OnInit, OnChanges, OnDestroy {
   @Input() visibility$!: BehaviorSubject<boolean>;
+  @Input() friendsInfo?: FriendInfo[];
   
   public typedUsername: string = "";
   public potentialFriends?: PotentialFriend[];
 
-  private allUsernamesCache: string[] = [];
+  private allUsernames: string[] = [];
 
   private visibilitySubscription!: Subscription;
-  private friendInfoSubscription!: Subscription;
 
   constructor(
     private websocketService: WebsocketService,
-    private friendService: FriendService,
     private cdr: ChangeDetectorRef
     ) {
 
-  }
+    }
 
-  ngOnInit(): void {
+  async ngOnInit() {
 
-    // when modal is opened, sync usernames from server then update potential friends
-    this.visibilitySubscription = this.visibility$.subscribe(async (visible) => {
-      if (visible) {
-        await this.updateAllUsernamesCache();
-        await this.updatePotentialFriends();
-      }
+    this.visibilitySubscription = this.visibility$.subscribe((visibility) => {
+      if (visibility) this.ngOnChanges();
     });
-
-    // when user info is updated and modal is open, update potential friends
-    this.friendInfoSubscription = this.friendService.onFriendsInfoUpdate().subscribe((friendsInfo) => {
-      if (this.visibility$.getValue()) {
-        this.updatePotentialFriends();
-      }
-    });
-
-  }
-
-  // update the list of all usernames from the server. should be called only on opening the modal
-  async updateAllUsernamesCache() {
-     
-     const {status, content} = await fetchServer(Method.GET, '/api/all-usernames');
+    
+    // fetch list of all usernames from server
+    const {status, content} = await fetchServer(Method.GET, '/api/v2/all-usernames');
      if (status !== 200) {
        console.error("Could not get list of usernames");
        return;
      }
-     this.allUsernamesCache = content.usernames;
+     this.allUsernames = content as string[];
   }
 
   /*
@@ -75,21 +58,19 @@ export class AddFriendModalComponent implements OnInit, OnDestroy {
     user has typed in a letter or two to user search, then only return the subset
     of usernames beginning with those letters
   */
-  async updatePotentialFriends() {
+  async ngOnChanges() {
 
-    console.log("updating potential friends...");
-
-    // block until friends info has been loaded
-    const friendsInfo = await firstValueFrom(this.friendService.onFriendsInfoUpdate());
-
-    console.log("friends info loaded");
+    // only update potential friends if friends info has been loaded
+    if (this.friendsInfo === undefined) return;
+    const friendsInfo = this.friendsInfo;
     
     // compare the list of usernames with the user's friends list
+    const myUsername = this.websocketService.getUsername();
     this.potentialFriends = [];
-    this.allUsernamesCache.forEach((username: string) => {
+    this.allUsernames.forEach((username: string) => {
 
       // do not show myself in list
-      if (username === this.websocketService.getUsername()) return;
+      if (username === myUsername) return;
 
       let status = FriendStatus.NOT_FRIENDS;
       const friend = friendsInfo.find((friendInfo) => friendInfo.username === username); // find matching username on friends list, if any
@@ -101,35 +82,38 @@ export class AddFriendModalComponent implements OnInit, OnDestroy {
       });
     });
 
+    console.log("Friends info:", this.friendsInfo);
+    console.log("Potential Friends:", this.potentialFriends);
+
     // trigger manual change detection to reflect the change in potential friends
     this.cdr.detectChanges();
   }
 
   // called when user clicks on a potential friend "add friend" icon
   sendFriendRequest(potentialFriend: PotentialFriend) {
+    
+    const username = this.websocketService.getUsername();
+    if (username === undefined) return;
 
     // only send friend request if user isn't already friends or hasn't already sent a friend request
     if (potentialFriend.status !== FriendStatus.NOT_FRIENDS && potentialFriend.status !== FriendStatus.INCOMING) return;
 
-    // send friend request to server
-    this.websocketService.sendJsonMessage(
-      new SendFriendRequestMessage(potentialFriend.username)
-    );
-
     // update the potential friend's status to pending
-    potentialFriend.status = FriendStatus.PENDING;
+    potentialFriend.status = FriendStatus.OUTGOING;
 
     // trigger manual change detection to reflect the change in friend status
     this.cdr.detectChanges();
 
+    // send friend request to server
+    sendFriendRequest(username, potentialFriend.username).then((result) => {
+      if (result === "outgoing") potentialFriend.status = FriendStatus.OUTGOING;
+      else if (result === "friends") potentialFriend.status = FriendStatus.FRIENDS;
+      this.cdr.detectChanges();
+    });
   }
 
-  ngOnDestroy(): void {
-    this.visibility$.complete();
+  ngOnDestroy() {
     this.visibilitySubscription.unsubscribe();
-    this.friendInfoSubscription.unsubscribe();
   }
-
-
 
 }
