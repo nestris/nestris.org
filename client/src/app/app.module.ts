@@ -8,7 +8,6 @@ import { HomePageComponent } from './components/layout/home/home-page/home-page.
 import { SidebarComponent } from './components/layout/root/sidebar/sidebar.component';
 import { PlayPageComponent } from './components/layout/play/play-page/play-page.component';
 import { SidebarTabComponent } from './components/layout/root/sidebar-tab/sidebar-tab.component';
-import { LayoutComponent } from './components/layout/root/layout/layout.component';
 import { SignOutComponent } from './components/layout/root/sign-out/sign-out.component';
 import { ProfileTabComponent } from './components/layout/root/profile-tab/profile-tab.component';
 import { PingIconComponent } from './components/layout/root/ping-icon/ping-icon.component';
@@ -45,6 +44,12 @@ import { EloRatingComponent } from './components/layout/play-puzzle/elo-rating/e
 import { LeaderboardComponent } from './components/layout/play-puzzle/leaderboard/leaderboard.component';
 import { LoadingAnimationComponent } from './components/ui/loading-animation/loading-animation.component';
 import { EloGraphComponent } from './components/layout/play-puzzle/elo-graph/elo-graph.component';
+import { AppRoutingModule } from './app-routing.module';
+import { FullscreenLayoutComponent } from './components/layout/root/fullscreen-layout/fullscreen-layout.component';
+import { MainLayoutComponent } from './components/layout/root/main-layout/main-layout.component';
+import { RouterModule } from '@angular/router';
+import { ProfilePageComponent } from './components/layout/profile/profile-page/profile-page.component';
+import { ReviewPageComponent } from './components/layout/review/review-page/review-page.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -90,7 +95,6 @@ const customNotifierOptions: NotifierOptions = {
 @NgModule({
   declarations: [
     AppComponent,
-    LayoutComponent,
     SidebarComponent,
     SidebarTabComponent,
     HomePageComponent,
@@ -131,12 +135,18 @@ const customNotifierOptions: NotifierOptions = {
     LeaderboardComponent,
     LoadingAnimationComponent,
     EloGraphComponent,
+    FullscreenLayoutComponent,
+    MainLayoutComponent,
+    ProfilePageComponent,
+    ReviewPageComponent,
   ],
   imports: [
     BrowserModule,
+    AppRoutingModule,
     FormsModule,
     NotifierModule.withConfig(customNotifierOptions),
-    HttpClientModule
+    HttpClientModule,
+    RouterModule
   ],
   providers: [],
   bootstrap: [AppComponent]

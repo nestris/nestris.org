@@ -74,7 +74,7 @@
     opacity: 0.7;
 }
 
-.tab.selected .tab-left {
+.selected .tab .tab-left {
     opacity: 1;
 }
 
@@ -112,7 +112,7 @@
         opacity: 0.5;
     }
 
-    .tab.selected {
+    .selected .tab {
         opacity: 1;
     }
 }

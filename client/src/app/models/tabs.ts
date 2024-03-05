@@ -1,5 +1,5 @@
 export enum TabID {
-    MY_PROFILE = 'my-profile',
+    MY_PROFILE = 'profile',
     FRIENDS = 'friends',
     ALERTS = 'alerts',
     HOME = 'home',
@@ -12,7 +12,7 @@ export enum TabID {
     // fullscreen tabs
     SOLO = 'solo',
     MULTIPLAYER = 'multiplayer',
-    PLAY_PUZZLE = 'play-puzzle',
+    PLAY_PUZZLE = 'puzzle',
 }
 
 const IS_TAB_FULLSCREEN: {[key in TabID]: boolean} = {

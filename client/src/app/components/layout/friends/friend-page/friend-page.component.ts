@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { ButtonColor } from '../../../ui/solid-button/solid-button.component';
-import { RoutingService } from 'client/src/app/services/routing.service';
 import { FriendInfo, FriendStatus, OnlineUserStatus } from 'network-protocol/models/friends';
 import { Method, fetchServer } from 'client/src/app/scripts/fetch-server';
 import { WebsocketService } from 'client/src/app/services/websocket.service';

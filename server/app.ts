@@ -6,7 +6,7 @@ import * as morgan from 'morgan'; // Import Morgan
 //import * as connectLivereload from 'connect-livereload';
 
 
-import { Express, Request, Response } from 'express';
+import { Express, NextFunction, Request, Response } from 'express';
 import { ServerState } from './server-state/server-state';
 import { broadcastAnnouncementRoute } from './routes/broadcast-route';
 import { get } from 'mongoose';
@@ -21,7 +21,6 @@ export default async function createApp(): Promise<{
 }> {
     const app = express();
     const clientDir = path.join(__dirname, '../../public/');
-
 
     // all global state is stored in ServerState
     const state = new ServerState();

@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { PuzzleDefinition, PuzzleSubmission } from 'client/src/app/models/puzzles/puzzle';
 import { TabID } from 'client/src/app/models/tabs';
 import { PuzzleService as PuzzleService } from 'client/src/app/services/puzzle.service';
-import { RoutingService } from 'client/src/app/services/routing.service';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { EloMode } from '../elo-rating/elo-rating.component';
 import { ButtonColor } from '../../../ui/solid-button/solid-button.component';
@@ -38,7 +37,6 @@ export class PlayPuzzlePageComponent implements OnInit {
   readonly ButtonColor = ButtonColor;
 
   constructor(
-    private routingService: RoutingService,
     public puzzleService: PuzzleService,
   ) {
   }
@@ -48,12 +46,6 @@ export class PlayPuzzlePageComponent implements OnInit {
     this.startNewPuzzle(puzzle);
   }
 
-  exitFullscreen() {
-    // go back to previous tab. if no previous tab, go to home
-    const lastTab = this.routingService.getLastTab() ?? TabID.HOME;
-    console.log("exitFullscreen", lastTab);
-    this.routingService.setSelectedTab({tab: lastTab, params: undefined});
-  }
 
   async startNextPuzzle() {
 

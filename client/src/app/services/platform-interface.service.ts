@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { RoutingService } from './routing.service';
 import { TabID } from '../models/tabs';
 import { TetrisBoard } from '../models/tetris/tetris-board';
 import { TetrominoType } from '../models/tetris/tetromino-type';
@@ -59,14 +58,9 @@ export class PlatformInterfaceService {
   private pollingLoop: any;
 
   constructor(
-    private routingService: RoutingService,
     private emulatorService: EmulatorService,
   ) {
 
-    // on play solo, start solo game
-    this.routingService.onSwitchToTab(TabID.SOLO).subscribe(() => {
-      this.startPolling();
-    });
   }
 
   onPlatformChange(): Observable<Platform> {

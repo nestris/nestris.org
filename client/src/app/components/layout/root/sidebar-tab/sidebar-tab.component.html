@@ -1,14 +1,14 @@
-<div class="tab"
-[ngClass]="(sidebarTabService.getSelectedTab() | async)!.tab === tab ? 'selected' : ''"
-(click)="onTabClick()">
+<a [routerLink]="'/' + tab" routerLinkActive="selected">
+    <div class="tab">
 
-    <div class="tab-left">
-        <img class="icon" [src]="tabIcon" width="20px">
-        <h1 class="label">{{ tabName }}</h1>
+        <div class="tab-left">
+            <img class="icon" [src]="tabIcon" width="20px">
+            <h1 class="label">{{ tabName }}</h1>
+        </div>
+
+        <div class="tab-right">
+            <ng-content></ng-content>
+        </div>
+
     </div>
-
-    <div class="tab-right">
-        <ng-content></ng-content>
-    </div>
-
-</div>
+</a>

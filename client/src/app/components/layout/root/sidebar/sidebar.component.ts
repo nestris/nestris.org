@@ -10,7 +10,6 @@ import { OnlineUserStatus } from 'network-protocol/models/friends';
   styleUrls: ['./sidebar.component.scss']
 })
 export class SidebarComponent implements OnInit {
-  @Input() isSignedIn!: boolean;
 
   readonly TabID = TabID;
   readonly OnlineUserStatus = OnlineUserStatus;
