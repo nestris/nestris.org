@@ -50,6 +50,10 @@ import { MainLayoutComponent } from './components/layout/root/main-layout/main-l
 import { RouterModule } from '@angular/router';
 import { ProfilePageComponent } from './components/layout/profile/profile-page/profile-page.component';
 import { ReviewPageComponent } from './components/layout/review/review-page/review-page.component';
+import { TabSelectorComponent } from './components/ui/tab-selector/tab-selector.component';
+import { RankedPuzzlesComponent } from './components/layout/puzzles/ranked-puzzles/ranked-puzzles.component';
+import { YourPuzzlesComponent } from './components/layout/puzzles/your-puzzles/your-puzzles.component';
+import { AttemptHistoryComponent } from './components/layout/puzzles/attempt-history/attempt-history.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -139,6 +143,10 @@ const customNotifierOptions: NotifierOptions = {
     MainLayoutComponent,
     ProfilePageComponent,
     ReviewPageComponent,
+    TabSelectorComponent,
+    RankedPuzzlesComponent,
+    YourPuzzlesComponent,
+    AttemptHistoryComponent,
   ],
   imports: [
     BrowserModule,

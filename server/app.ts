@@ -25,7 +25,7 @@ export default async function createApp(): Promise<{
     const clientDir = path.join(__dirname, '../../public/');
 
     // block until connect to db
-    await connectToDB();
+    //await connectToDB();
 
     // all global state is stored in ServerState
     const state = new ServerState();

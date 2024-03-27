@@ -1,0 +1,28 @@
+@import "../../../../../styles.scss";
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.panels {
+  display: flex;
+  flex-direction: row;
+
+  width: 100%;
+  gap: 10px;
+}
+
+.panel {
+  background-color: $section-color;
+  border-radius: 10px;
+  padding: 10px;
+  flex-grow: 1;
+}
+
+.folder-panel {
+  max-width: 300px;
+}

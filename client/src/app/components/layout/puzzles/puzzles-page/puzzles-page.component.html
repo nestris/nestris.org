@@ -1,1 +1,5 @@
-<a routerLink="/online/puzzle"><button>Start</button></a>
+<app-tab-selector [tabs]="tabs" [(selectedTab)]="selectedTab"></app-tab-selector>
+
+<app-ranked-puzzles *ngIf="selectedTab === PuzzleTab.RANKED_PUZZLES" />
+<app-your-puzzles *ngIf="selectedTab === PuzzleTab.YOUR_PUZZLES" />
+<app-attempt-history *ngIf="selectedTab === PuzzleTab.ATTEMPT_HISTORY" />

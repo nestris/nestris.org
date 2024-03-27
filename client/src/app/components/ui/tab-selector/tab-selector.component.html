@@ -1,0 +1,5 @@
+<div class="tab-selector">
+  <div *ngFor="let tab of tabs" class="tab" [ngClass]="(selectedTab === tab) ? 'selected' : ''" (click)="selectTab(tab)">
+      <p class="tab-label">{{tab}}</p>
+  </div>
+</div>
