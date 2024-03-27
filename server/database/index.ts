@@ -3,6 +3,18 @@ import { Pool, QueryResult, PoolClient } from 'pg';
 
 const pool = new Pool();
 
+// Function to wait for the initial connection
+export const connectToDB = async (): Promise<void> => {
+  try {
+    const client = await pool.connect();
+    console.log('Successfully connected to the database.');
+    client.release();
+  } catch (error) {
+    console.error('Failed to connect to the database:', error);
+    throw error; // Re-throw the error to handle it further up the call stack
+  }
+};
+
 export const queryDB = async (text: string, params?: any[]): Promise<QueryResult> => {
   const start = Date.now();
   const res = await pool.query(text, params);

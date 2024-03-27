@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, HostListener, OnDestroy } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { TabID } from 'client/src/app/models/tabs';
 import { ColorType, TetrisBoard } from 'client/src/app/models/tetris/tetris-board';
 import { TetrominoType } from 'client/src/app/models/tetris/tetromino-type';
@@ -12,7 +12,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./solo-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SoloPageComponent {
+export class SoloPageComponent implements OnInit, OnDestroy {
 
   readonly TetrominoType = TetrominoType;
 
@@ -21,6 +21,16 @@ export class SoloPageComponent {
     public platform: PlatformInterfaceService,
   ) {
 
+  }
+
+  ngOnInit() {
+    this.emulatorService.startGame(18);
+    this.platform.startPolling();
+  }
+
+  ngOnDestroy(): void {
+      this.emulatorService.stopGame();
+      this.platform.stopPolling();
   }
 
   @HostListener('window:keydown', ['$event'])

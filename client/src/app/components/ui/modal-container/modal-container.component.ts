@@ -9,7 +9,6 @@ import { BehaviorSubject } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ModalContainerComponent {
-  @Input() modalType!: ModalType;
   
   public visibility$ = new BehaviorSubject<boolean>(false);
 

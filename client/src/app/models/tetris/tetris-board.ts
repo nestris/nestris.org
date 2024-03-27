@@ -24,22 +24,6 @@ export class TetrisBoard {
         }
     }
 
-    // given a string of 400 bits, return a ColorGrid
-    static fromBinaryString(binaryString: string): TetrisBoard {
-
-        const grid = new TetrisBoard();
-
-        let index = 0;
-        for (let y = 0; y < 20; y++) {
-            for (let x = 0; x < 10; x++) {
-                const colorType = parseInt(binaryString[index++]) as ColorType;
-                grid.setAt(x, y, colorType);
-            }
-        }
-
-        return grid;
-    }
-
     // set the color of a cell at a given row and column
     setAt(x: number, y: number, color: ColorType): void {
         this.grid[y][x] = color;
@@ -102,19 +86,6 @@ export class TetrisBoard {
         }
 
         return grid;
-    }
-
-    // return a string of 400 bits
-    toBinaryString(): string {
-        let binaryString = '';
-
-        for (let y = 0; y < 20; y++) {
-            for (let x = 0; x < 10; x++) {
-                binaryString += this.getAt(x,y);
-            }
-        }
-
-        return binaryString;
     }
 
     // print 20x10 grid with the color numbers

@@ -44,3 +44,14 @@ body {
     -ms-user-select: none; /* IE 10 and IE 11 */
     user-select: none; /* Standard syntax */
   }
+
+a {
+color: inherit; /* Resets the link color to the parent element's color */
+text-decoration: none; /* Removes underline from links */
+font-size: inherit; /* Inherits font-size from parent element */
+font-weight: inherit; /* Inherits font-weight from parent element */
+background-color: transparent; /* Resets any background color */
+border: none; /* Removes any borders */
+padding: 0; /* Resets padding */
+margin: 0; /* Resets margin */
+}

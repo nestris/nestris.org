@@ -1,4 +1,3 @@
-import { IActivePuzzleSchema } from "server/puzzles/puzzle-microservice-models"
 import { FriendInfo, OnlineUserStatus } from "./models/friends"
 import { NotificationType } from "./models/notifications"
 
@@ -14,10 +13,7 @@ export enum JsonMessageType {
     ERROR_HANDSHAKE_INCOMPLETE = 'error_handshake_incomplete',
     PING = 'ping',
     PONG = 'pong',
-    FRIEND_ONLINE_STATUS_CHANGE = 'friend_online_status_change',
     SEND_PUSH_NOTIFICATION = 'send_push_notification',
-    FETCH_PUZZLE_REQUEST = 'fetch_puzzle_request',
-    FETCH_PUZZLE_RESPONSE = 'fetch_puzzle_response'
 }
 
 export abstract class JsonMessage {
@@ -83,22 +79,5 @@ export class SendPushNotificationMessage extends JsonMessage {
         public readonly message: string
     ) {
         super(JsonMessageType.SEND_PUSH_NOTIFICATION)
-    }
-}
-
-// sent by client to server to request for a puzzle
-export class FetchPuzzleRequestMessage extends JsonMessage {
-    constructor() {
-        super(JsonMessageType.FETCH_PUZZLE_REQUEST)
-    }
-}
-
-// response by server to client with requested puzzle
-export class FetchPuzzleResponseMessage extends JsonMessage {
-    constructor(
-        public readonly puzzle?: IActivePuzzleSchema,
-        public readonly error?: string
-    ) {
-        super(JsonMessageType.FETCH_PUZZLE_RESPONSE)
     }
 }

@@ -11,6 +11,8 @@ import { ServerState } from './server-state/server-state';
 import { broadcastAnnouncementRoute } from './routes/broadcast-route';
 import { get } from 'mongoose';
 import { endFriendshipRoute, getAllUsernamesMatchingPatternRoute, getFriendsInfoRoute, getUserByUsernameRoute, setFriendRequestRoute } from './routes/user-route';
+import { connectToDB } from './database';
+import { cTest } from './puzzles/stackrabbit';
 
 
 require('dotenv').config();
@@ -21,6 +23,9 @@ export default async function createApp(): Promise<{
 }> {
     const app = express();
     const clientDir = path.join(__dirname, '../../public/');
+
+    // block until connect to db
+    await connectToDB();
 
     // all global state is stored in ServerState
     const state = new ServerState();
@@ -50,7 +55,7 @@ export default async function createApp(): Promise<{
     // announce message to all online users. useful for maintenance announcements and the like
     app.post('/api/v2/broadcast-announcement', async (req: Request, res: Response) => broadcastAnnouncementRoute(req, res, state));
     
-
+    app.get('/api/v2/puzzle', (req, res) => { res.status(200).send(cTest()); });
 
     // catch all invalid api routes
     app.get('/api/*', (req, res) => {
