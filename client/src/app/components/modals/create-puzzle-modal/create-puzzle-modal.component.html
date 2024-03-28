@@ -1,0 +1,42 @@
+<div class="modal">
+  <div class="header">
+    <h1>Create your own puzzle!</h1>
+    <p>In a puzzle, players guess the best current and next piece placements for a given board</p>
+  </div>
+  <div class="content">
+
+    <div class="board-panel">
+      <h2>Click or drag to place minos</h2>
+      <app-nes-board [scale]="2.5" [board]="board$ | async" />
+    </div>
+    
+    <div class="panels">
+
+      <div>
+        <h2 class="prevent-select">Edit current piece</h2>
+        <div class="piece-container" (click)="toggleType($event, currentType$)">
+          <app-nes-piece [scale]="2" [piece]="(currentType$ | async) ?? TetrominoType.ERROR_TYPE" />
+        </div>
+      </div>
+
+      <div>
+        <h2 class="prevent-select">Edit next piece</h2>
+        <div class="piece-container" (click)="toggleType($event, nextType$)">
+          <app-nes-piece [scale]="2" [piece]="(nextType$ | async) ?? TetrominoType.ERROR_TYPE" />
+        </div>
+      </div>
+
+      <div class="engine-div">
+        <h2 class="prevent-select">Engine Evaluation</h2>
+        <div class="engine-container"></div>
+      </div>
+
+      <div class="buttons">
+        <app-solid-button label="Reset" [color]="ButtonColor.GREY" />
+        <app-solid-button label="Generate" [color]="ButtonColor.BLUE" />
+      </div>
+
+    </div>
+  </div>
+  
+</div>

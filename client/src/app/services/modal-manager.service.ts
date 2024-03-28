@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable, filter, map } from 'rxjs';
 
 export enum ModalType {
   CALIBRATE_OCR = "CALIBRATE_OCR",
+  CREATE_PUZZLE = "CREATE_PUZZLE",
 }
 
 /*

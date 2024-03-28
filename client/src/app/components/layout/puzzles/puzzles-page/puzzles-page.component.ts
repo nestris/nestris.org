@@ -3,7 +3,8 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 enum PuzzleTab {
   RANKED_PUZZLES = 'Ranked Puzzles',
   YOUR_PUZZLES = 'Your Puzzles',
-  ATTEMPT_HISTORY = 'Attempt History'
+  ATTEMPT_HISTORY = 'Attempt History',
+  PUZZLE_DATABASE = 'Puzzle Database'
 }
 
 @Component({
