@@ -7,7 +7,8 @@
 
     <div class="board-panel">
       <h2>Click or drag to place minos</h2>
-      <app-nes-board [scale]="2.5" [board]="board$ | async" />
+      <app-nes-board [scale]="2.5" [board]="board$ | async"
+        (hoveringBlock)="hoveredBlock = $event" (mousedown)="onMouseDown()" (mousemove)="onMouseMove()"/>
     </div>
     
     <div class="panels">
