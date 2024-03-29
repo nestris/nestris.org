@@ -1,4 +1,4 @@
-import MoveableTetromino from "../../models/tetris/moveable-tetromino";
+import MoveableTetromino from "../../../../../network-protocol/tetris/moveable-tetromino";
 
 // return the number of delay frames after a piece has locked
 // it is dependent on the y position of the piece

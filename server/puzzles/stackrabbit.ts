@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { TetrominoType } from "client/src/app/models/tetris/tetromino-type";
+import { TetrominoType } from "network-protocol/tetris/tetromino-type";
 import { INPUT_SPEED_TO_TIMELINE, InputSpeed } from "../../network-protocol/models/input-speed";
 
 const cModule = require("../../../../binaries/cRabbit");
@@ -37,8 +37,6 @@ export function getTopMovesHybrid(
   console.log("Query: ", query);
   const result = cModule.getTopMovesHybrid(query);
 
-  console.log("Time taken: ", Date.now() - startTime);
-  console.log(result);
 
   return result;
 }
@@ -49,8 +47,8 @@ export function getTopMovesHybridRoute(req: Request, res: Response) {
   const boardString = req.query['boardString'] as string;
   const level = parseInt(req.query['level'] as string);
   const lines = parseInt(req.query['lines'] as string);
-  const currentPiece = parseInt(req.query['currentPiece'] as string);
-  const nextPiece = parseInt(req.query['nextPiece'] as string);
+  const currentPiece = parseInt(req.query['currentPiece'] as string) as TetrominoType;
+  const nextPiece = parseInt(req.query['nextPiece'] as string) as TetrominoType;
   
   const inputSpeed = parseInt(req.query['inputSpeed'] as string) as InputSpeed || InputSpeed.HZ_30;
   const playoutCount = parseInt(req.query['playoutCount'] as string) || 343;

@@ -1,10 +1,10 @@
 import { Observable, Subject } from "rxjs";
 import { RNG } from "../../models/piece-sequence-generation/rng";
 import { SmartGameStatus } from "../../models/scoring/smart-game-status";
-import { getGravity } from "../../models/tetris/gravity";
-import MoveableTetromino from "../../models/tetris/moveable-tetromino";
-import { TetrisBoard } from "../../models/tetris/tetris-board";
-import { TetrominoType } from "../../models/tetris/tetromino-type";
+import { getGravity } from "../../../../../network-protocol/tetris/gravity";
+import MoveableTetromino from "../../../../../network-protocol/tetris/moveable-tetromino";
+import { TetrisBoard } from "../../../../../network-protocol/tetris/tetris-board";
+import { TetrominoType } from "../../../../../network-protocol/tetris/tetromino-type";
 import { CurrentlyPressedKeys } from "./currently-pressed-keys";
 import { Keybind } from "./keybinds";
 import {  getLockDelay } from "./spawn-delay";

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { TetrisBoard } from '../models/tetris/tetris-board';
-import { TetrominoType } from '../models/tetris/tetromino-type';
+import { TetrisBoard } from '../../../../network-protocol/tetris/tetris-board';
+import { TetrominoType } from '../../../../network-protocol/tetris/tetromino-type';
 
 @Injectable({
   providedIn: 'root'

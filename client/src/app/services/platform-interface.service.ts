@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { TabID } from '../models/tabs';
-import { TetrisBoard } from '../models/tetris/tetris-board';
-import { TetrominoType } from '../models/tetris/tetromino-type';
+import { TetrisBoard } from '../../../../network-protocol/tetris/tetris-board';
+import { TetrominoType } from '../../../../network-protocol/tetris/tetromino-type';
 import { EmulatorService } from './emulator/emulator.service';
 
 export enum Platform {

@@ -4,10 +4,10 @@ import { Pixels } from '../../models/ocr/pixels';
 import { FloodFill } from '../../models/ocr/floodfill';
 import { RGBColor, rgbToHsv } from '../../scripts/color';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { ColorType, TetrisBoard } from '../../models/tetris/tetris-board';
-import { classifyColor } from '../../models/tetris/tetromino-colors';
+import { ColorType, TetrisBoard } from '../../../../../network-protocol/tetris/tetris-board';
+import { classifyColor } from '../../../../../network-protocol/tetris/tetromino-colors';
 import { NextBoxOCR } from './next-box-ocr';
-import { TetrominoType } from '../../models/tetris/tetromino-type';
+import { TetrominoType } from '../../../../../network-protocol/tetris/tetromino-type';
 import { Point } from '../../models/point';
 
 /*

@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import MoveableTetromino from 'client/src/app/models/tetris/moveable-tetromino';
-import { ColorType } from 'client/src/app/models/tetris/tetris-board';
-import { getColorTypeForTetromino } from 'client/src/app/models/tetris/tetromino-colors';
-import { TetrominoType } from 'client/src/app/models/tetris/tetromino-type';
-import { Tetromino } from 'client/src/app/models/tetris/tetrominos';
+import MoveableTetromino from 'network-protocol/tetris/moveable-tetromino';
+import { ColorType } from 'network-protocol/tetris/tetris-board';
+import { getColorTypeForTetromino } from 'network-protocol/tetris/tetromino-colors';
+import { TetrominoType } from 'network-protocol/tetris/tetromino-type';
+import { Tetromino } from 'network-protocol/tetris/tetrominos';
 import { BehaviorSubject } from 'rxjs';
 
 @Component({

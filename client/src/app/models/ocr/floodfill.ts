@@ -1,5 +1,5 @@
 import { Point } from "../point";
-import { RGBColor } from "../tetris/tetromino-colors";
+import { RGBColor } from "../../../../../network-protocol/tetris/tetromino-colors";
 import { Rectangle } from "./ocr-box";
 import { Pixels } from "./pixels";
 

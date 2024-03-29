@@ -5,7 +5,7 @@ import { Pixels } from '../../models/ocr/pixels';
 import { OCRBox, Rectangle } from '../../models/ocr/ocr-box';
 import { OCRType, OcrService } from './ocr.service';
 import { Point } from '../../models/point';
-import { TetrisBoard } from '../../models/tetris/tetris-board';
+import { TetrisBoard } from '../../../../../network-protocol/tetris/tetris-board';
 
 
 @Injectable({

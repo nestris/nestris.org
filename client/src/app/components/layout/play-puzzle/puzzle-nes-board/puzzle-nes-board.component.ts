@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { Point } from 'client/src/app/models/point';
 import { PuzzleDefinition, PuzzleSubmission } from 'client/src/app/models/puzzles/puzzle';
-import MoveableTetromino from 'client/src/app/models/tetris/moveable-tetromino';
-import { TetrisBoard } from 'client/src/app/models/tetris/tetris-board';
-import { TetrominoType } from 'client/src/app/models/tetris/tetromino-type';
+import MoveableTetromino from 'network-protocol/tetris/moveable-tetromino';
+import { TetrisBoard } from 'network-protocol/tetris/tetris-board';
+import { TetrominoType } from 'network-protocol/tetris/tetromino-type';
 import { BehaviorSubject, Subject } from 'rxjs';
 
 

@@ -4,10 +4,10 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 DROP TABLE IF EXISTS "public"."users" CASCADE;
 CREATE TABLE "public"."users" (
     "username" text NOT NULL,
-    "lastOnline" timestamp NOT NULL DEFAULT now(),
+    "last_online" timestamp NOT NULL DEFAULT now(),
     "trophies" int2 NOT NULL DEFAULT 1000,
     "xp" int2 NOT NULL DEFAULT 0,
-    "puzzleElo" int2 NOT NULL DEFAULT 1000,
+    "puzzle_elo" int2 NOT NULL DEFAULT 1000,
     PRIMARY KEY ("username")
 );
 
@@ -27,8 +27,8 @@ CREATE TABLE "public"."puzzles" (
     "creator" text REFERENCES "public"."users"("username"), -- if NULL, then it is a system-generated puzzle
 
     "board" bytea NOT NULL,
-    "currentPiece" char(1) NOT NULL,
-    "nextPiece" char(1) NOT NULL,
+    "current_piece" char(1) NOT NULL,
+    "next_piece" char(1) NOT NULL,
     
     "r1" int2 NOT NULL,
     "x1" int2 NOT NULL,
@@ -38,9 +38,9 @@ CREATE TABLE "public"."puzzles" (
     "y2" int2 NOT NULL,
 
     "elo" int2 NOT NULL,
-    "numReports" int2 NOT NULL DEFAULT 0,
-    "numAttemptsCached" int2 NOT NULL DEFAULT 0, -- should be updated by trigger on PuzzleAttempt
-    "numSolvesCached" int2 NOT NULL DEFAULT 0, -- should be updated by trigger on PuzzleAttempt
+    "num_reports" int2 NOT NULL DEFAULT 0,
+    "num_attempts_cached" int2 NOT NULL DEFAULT 0, -- should be updated by trigger on PuzzleAttempt
+    "num_solves_cached" int2 NOT NULL DEFAULT 0, -- should be updated by trigger on PuzzleAttempt
 
     PRIMARY KEY ("id")
 );
@@ -49,13 +49,13 @@ CREATE TABLE "public"."puzzles" (
 DROP TABLE IF EXISTS "public"."puzzle_attempts" CASCADE;
 CREATE TABLE "public"."puzzle_attempts" (
     "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-    "puzzleID" uuid NOT NULL REFERENCES "public"."puzzles"("id"),
+    "puzzle_id" uuid NOT NULL REFERENCES "public"."puzzles"("id"),
     "username" text NOT NULL REFERENCES "public"."users"("username"),
     "timestamp" timestamp NOT NULL DEFAULT now(),
 
-    "isCorrect" boolean NOT NULL,
-    "eloChange" int2, -- if NULL, then it was an unranked puzzle
-    "solveTime" int2 NOT NULL,
+    "is_correct" boolean NOT NULL,
+    "elo_change" int2, -- if NULL, then it was an unranked puzzle
+    "solve_time" int2 NOT NULL,
 
     "r1" int2 NOT NULL,
     "x1" int2 NOT NULL,
@@ -99,9 +99,9 @@ CREATE TABLE "public"."folders" (
 -- FOLDER_ITEM TABLE
 DROP TABLE IF EXISTS "public"."folder_items" CASCADE;
 CREATE TABLE "public"."folder_items" (
-    "folderID" uuid NOT NULL REFERENCES "public"."folders"("id"),
-    "puzzleID" uuid NOT NULL REFERENCES "public"."puzzles"("id"),
-    PRIMARY KEY ("folderID", "puzzleID")
+    "folder_id" uuid NOT NULL REFERENCES "public"."folders"("id"),
+    "puzzle_id" uuid NOT NULL REFERENCES "public"."puzzles"("id"),
+    PRIMARY KEY ("folder_id", "puzzle_id")
 );
 
 

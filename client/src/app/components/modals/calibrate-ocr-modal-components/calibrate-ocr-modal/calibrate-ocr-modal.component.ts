@@ -4,7 +4,7 @@ import { VideoCaptureService } from 'client/src/app/services/ocr/video-capture.s
 import { ModalManagerService } from 'client/src/app/services/modal-manager.service';
 import { Subscription } from 'rxjs';
 import { OcrService } from 'client/src/app/services/ocr/ocr.service';
-import { TetrominoType } from 'client/src/app/models/tetris/tetromino-type';
+import { TetrominoType } from 'network-protocol/tetris/tetromino-type';
 
 export enum CalibrationStep {
   SELECT_VIDEO_SOURCE = "Select video source",

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input } from '@angular/core';
-import { ColorType } from 'client/src/app/models/tetris/tetris-board';
-import { getColorForLevel } from 'client/src/app/models/tetris/tetromino-colors';
+import { ColorType } from 'network-protocol/tetris/tetris-board';
+import { getColorForLevel } from 'network-protocol/tetris/tetromino-colors';
 import { BehaviorSubject } from 'rxjs';
 
 @Component({

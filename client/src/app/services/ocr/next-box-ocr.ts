@@ -1,6 +1,6 @@
 import BinaryGrid, { BlockType } from "../../models/binary-grid";
 import { RGBGrid } from "../../models/ocr/rgb-grid";
-import { TetrominoType } from "../../models/tetris/tetromino-type";
+import { TetrominoType } from "../../../../../network-protocol/tetris/tetromino-type";
 import { rgbToHsv } from "../../scripts/color";
 
 export class NextBoxOCR {

@@ -1,4 +1,4 @@
-import { Point } from "../point";
+import { Point } from "../../client/src/app/models/point";
 import { BlockSet } from "./block-set";
 import { ColorType, TetrisBoard } from "./tetris-board";
 import { getColorTypeForTetromino } from "./tetromino-colors";

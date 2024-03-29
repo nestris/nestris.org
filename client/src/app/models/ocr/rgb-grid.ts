@@ -1,5 +1,5 @@
 import { HSVColor, rgbToHsv } from "../../scripts/color";
-import { RGBColor } from "../tetris/tetromino-colors";
+import { RGBColor } from "../../../../../network-protocol/tetris/tetromino-colors";
 
 
 export class RGBGrid {

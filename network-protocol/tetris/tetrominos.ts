@@ -15,6 +15,17 @@ export const TETROMINO_CHAR: {[key in TetrominoType]: string} = {
     [TetrominoType.ERROR_TYPE] : "E",
 }
 
+export const TETROMINO_CHAR_TO_TYPE: {[key: string]: TetrominoType} = {
+    "I": TetrominoType.I_TYPE,
+    "O": TetrominoType.O_TYPE,
+    "L": TetrominoType.L_TYPE,
+    "J": TetrominoType.J_TYPE,
+    "T": TetrominoType.T_TYPE,
+    "S": TetrominoType.S_TYPE,
+    "Z": TetrominoType.Z_TYPE,
+    "E": TetrominoType.ERROR_TYPE,
+}
+
 
 // the four block sets for each rotation of the tetromino.
 // 0 = no rotation, 1 = 90 degrees clockwise, 2 = 180 degrees clockwise, 3 = 270 degrees clockwise

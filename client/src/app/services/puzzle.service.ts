@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { PuzzleDefinition, PuzzleResult, PuzzleSolution, PuzzleSubmission } from '../models/puzzles/puzzle';
-import { ColorType, TetrisBoard } from '../models/tetris/tetris-board';
-import { TetrominoType, getRandomTetrominoType } from '../models/tetris/tetromino-type';
-import MoveableTetromino from '../models/tetris/moveable-tetromino';
+import { ColorType, TetrisBoard } from '../../../../network-protocol/tetris/tetris-board';
+import { TetrominoType, getRandomTetrominoType } from '../../../../network-protocol/tetris/tetromino-type';
+import MoveableTetromino from '../../../../network-protocol/tetris/moveable-tetromino';
 import { evaluatePuzzleSubmission } from '../models/puzzles/evaluate-puzzle-submission';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 

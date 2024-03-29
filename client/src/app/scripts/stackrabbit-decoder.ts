@@ -1,9 +1,9 @@
 import { InputSpeed } from "network-protocol/models/input-speed";
-import { TetrisBoard } from "../models/tetris/tetris-board";
-import { BinaryTranscoder } from "../models/tetris/tetris-board-transcoding/binary-transcoder";
+import { TetrisBoard } from "../../../../network-protocol/tetris/tetris-board";
+import { BinaryTranscoder } from "../../../../network-protocol/tetris-board-transcoding/binary-transcoder";
 import { Method, fetchServer } from "./fetch-server";
-import MoveableTetromino from "../models/tetris/moveable-tetromino";
-import { TetrominoType } from "../models/tetris/tetromino-type";
+import MoveableTetromino from "../../../../network-protocol/tetris/moveable-tetromino";
+import { TetrominoType } from "../../../../network-protocol/tetris/tetromino-type";
 
 export interface TopMovesHybridResponse {
   nextBox: {

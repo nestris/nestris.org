@@ -13,6 +13,8 @@ import { get } from 'mongoose';
 import { endFriendshipRoute, getAllUsernamesMatchingPatternRoute, getFriendsInfoRoute, getUserByUsernameRoute, setFriendRequestRoute } from './routes/user-route';
 import { connectToDB } from './database';
 import { cTest, getTopMovesHybridRoute } from './puzzles/stackrabbit';
+import { addPuzzleRoute } from './puzzles/add-puzzle';
+import { getPuzzlesByUserRoute } from './puzzles/get-puzzles-by-user';
 
 
 require('dotenv').config();
@@ -56,6 +58,11 @@ export default async function createApp(): Promise<{
     app.post('/api/v2/broadcast-announcement', async (req: Request, res: Response) => broadcastAnnouncementRoute(req, res, state));
     
     app.get('/api/v2/stackrabbit/get-top-moves-hybrid', getTopMovesHybridRoute);
+
+    app.post('/api/v2/puzzle', addPuzzleRoute);
+
+    app.get('/api/v2/puzzles-by-user/:username', getPuzzlesByUserRoute);
+
 
     // catch all invalid api routes
     app.get('/api/*', (req, res) => {

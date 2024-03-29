@@ -1,4 +1,4 @@
-import { TetrisBoard } from "client/src/app/models/tetris/tetris-board";
+import { TetrisBoard } from "network-protocol/tetris/tetris-board";
 import { BinaryDecoder, BinaryEncoder } from "./binary-codec";
 
 // each code has its own binary schema

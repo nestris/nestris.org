@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { Point } from 'client/src/app/models/point';
-import MoveableTetromino from 'client/src/app/models/tetris/moveable-tetromino';
-import { ColorType, TetrisBoard } from 'client/src/app/models/tetris/tetris-board';
-import { TetrominoType } from 'client/src/app/models/tetris/tetromino-type';
+import MoveableTetromino from 'network-protocol/tetris/moveable-tetromino';
+import { ColorType, TetrisBoard } from 'network-protocol/tetris/tetris-board';
+import { TetrominoType } from 'network-protocol/tetris/tetromino-type';
 
 @Component({
   selector: 'app-nes-board',

@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { TabID } from 'client/src/app/models/tabs';
-import { ColorType, TetrisBoard } from 'client/src/app/models/tetris/tetris-board';
-import { TetrominoType } from 'client/src/app/models/tetris/tetromino-type';
+import { ColorType, TetrisBoard } from 'network-protocol/tetris/tetris-board';
+import { TetrominoType } from 'network-protocol/tetris/tetromino-type';
 import { EmulatorService } from 'client/src/app/services/emulator/emulator.service';
 import { PlatformInterfaceService } from 'client/src/app/services/platform-interface.service';
 import { Subscription } from 'rxjs';

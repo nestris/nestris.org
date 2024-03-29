@@ -1,6 +1,6 @@
-import MoveableTetromino from "../tetris/moveable-tetromino";
-import { TetrisBoard } from "../tetris/tetris-board";
-import { TetrominoType } from "../tetris/tetromino-type";
+import MoveableTetromino from "../../../../../network-protocol/tetris/moveable-tetromino";
+import { TetrisBoard } from "../../../../../network-protocol/tetris/tetris-board";
+import { TetrominoType } from "../../../../../network-protocol/tetris/tetromino-type";
 
 
 export interface PuzzleDefinition {

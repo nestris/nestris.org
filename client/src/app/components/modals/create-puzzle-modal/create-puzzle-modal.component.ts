@@ -1,18 +1,19 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { ButtonColor } from '../../ui/solid-button/solid-button.component';
-import { TetrominoType } from 'client/src/app/models/tetris/tetromino-type';
+import { TetrominoType } from 'network-protocol/tetris/tetromino-type';
 import { BehaviorSubject } from 'rxjs';
-import { ColorType, TetrisBoard } from 'client/src/app/models/tetris/tetris-board';
+import { ColorType, TetrisBoard } from 'network-protocol/tetris/tetris-board';
 import { Point } from 'client/src/app/models/point';
 import { BlockType } from 'client/src/app/models/binary-grid';
-import { BufferTranscoder } from 'client/src/app/models/tetris/tetris-board-transcoding/buffer-transcoder';
+import { BufferTranscoder } from 'network-protocol/tetris-board-transcoding/buffer-transcoder';
 import { BinaryEncoder } from 'network-protocol/binary-codec';
-import { BinaryTranscoder } from 'client/src/app/models/tetris/tetris-board-transcoding/binary-transcoder';
+import { BinaryTranscoder } from 'network-protocol/tetris-board-transcoding/binary-transcoder';
 import { Method, fetchServer } from 'client/src/app/scripts/fetch-server';
 import { getTopMovesHybrid } from 'client/src/app/scripts/stackrabbit-decoder';
-import MoveableTetromino from 'client/src/app/models/tetris/moveable-tetromino';
+import MoveableTetromino from 'network-protocol/tetris/moveable-tetromino';
 import { InputSpeed } from 'network-protocol/models/input-speed';
 import { CreatePuzzleRestoreService } from 'client/src/app/services/create-puzzle-restore.service';
+import { WebsocketService } from 'client/src/app/services/websocket.service';
 
 interface Move {
   firstPlacement: MoveableTetromino;
@@ -45,7 +46,10 @@ export class CreatePuzzleModalComponent implements OnInit, OnDestroy {
   public hoveredMove$ = new BehaviorSubject<Move | undefined>(undefined);
 
 
-  constructor(private restore: CreatePuzzleRestoreService) {
+  constructor(
+    private websocketService: WebsocketService,
+    private restore: CreatePuzzleRestoreService
+  ) {
     this.boundMouseUp = this.onMouseUp.bind(this);
 
     const [board, current, next] = this.restore.restore();
@@ -123,11 +127,46 @@ export class CreatePuzzleModalComponent implements OnInit, OnDestroy {
 
     console.log("Analyzing puzzle");
 
+    this.moveRecommendations$.next([]);
+
     const response = await getTopMovesHybrid(this.board$.getValue(), 18, 0, this.currentType$.getValue(), this.nextType$.getValue(), InputSpeed.HZ_30);
     this.moveRecommendations$.next(response.nextBox);
 
     const fast = await getTopMovesHybrid(this.board$.getValue(), 18, 0, this.currentType$.getValue(), this.nextType$.getValue(), InputSpeed.HZ_30, 0, 0);
     console.log(fast);
+  }
+
+  async generatePuzzle() {
+
+    // only generate if there are move recommendations
+    if (this.moveRecommendations$.getValue().length === 0) {
+      console.error("Cannot generate puzzle: no move recommendations");
+      return;
+    }
+
+    if (!this.websocketService.isSignedIn()) {
+      console.error("Cannot generate puzzle: not signed in");
+      return;
+    }
+
+    const username = this.websocketService.getUsername();
+    const move = this.moveRecommendations$.getValue()[0];
+
+    const response = await fetchServer(Method.POST, 'api/v2/puzzle', {
+      username: username,
+      board: BinaryTranscoder.encode(this.board$.getValue()),
+      currentPiece: this.currentType$.getValue(),
+      nextPiece: this.nextType$.getValue(),
+      r1: move.firstPlacement.getRotation(),
+      x1: move.firstPlacement.getTranslateX(),
+      y1: move.firstPlacement.getTranslateY(),
+      r2: move.secondPlacement.getRotation(),
+      x2: move.secondPlacement.getTranslateX(),
+      y2: move.secondPlacement.getTranslateY(),
+      elo: 1000
+    });
+
+    console.log(response);
   }
 
 }

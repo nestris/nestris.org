@@ -3,7 +3,7 @@ Stores the Uint8ClampedArray for a single frame of video capture.
 Exposes a method to get individual pixels from the frame.
 */
 
-import { RGBColor } from "../tetris/tetromino-colors";
+import { RGBColor } from "../../../../../network-protocol/tetris/tetromino-colors";
 
 export class Pixels {
 

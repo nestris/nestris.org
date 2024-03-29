@@ -52,7 +52,8 @@
 
       <div class="buttons">
         <app-solid-button label="Reset" [color]="ButtonColor.GREY" (click)="resetBoard()" />
-        <app-solid-button label="Generate" [color]="ButtonColor.BLUE" />
+        <app-solid-button label="Generate" [color]="ButtonColor.BLUE"
+          [disabled]="!((moveRecommendations$ | async)?.length)" (click)="generatePuzzle()" />
       </div>
 
     </div>

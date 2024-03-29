@@ -1,4 +1,4 @@
-import { ColorType, TetrisBoard } from "../tetris-board";
+import { ColorType, TetrisBoard } from "../tetris/tetris-board";
 
 // Encodes and decodes tetris board retaining full color information compactly into a byte array
 
