@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { ButtonColor } from '../../ui/solid-button/solid-button.component';
 import { TetrominoType } from 'client/src/app/models/tetris/tetromino-type';
 import { BehaviorSubject } from 'rxjs';
@@ -11,6 +11,8 @@ import { BinaryTranscoder } from 'client/src/app/models/tetris/tetris-board-tran
 import { Method, fetchServer } from 'client/src/app/scripts/fetch-server';
 import { getTopMovesHybrid } from 'client/src/app/scripts/stackrabbit-decoder';
 import MoveableTetromino from 'client/src/app/models/tetris/moveable-tetromino';
+import { InputSpeed } from 'network-protocol/models/input-speed';
+import { CreatePuzzleRestoreService } from 'client/src/app/services/create-puzzle-restore.service';
 
 interface Move {
   firstPlacement: MoveableTetromino;
@@ -24,14 +26,14 @@ interface Move {
   styleUrls: ['./create-puzzle-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CreatePuzzleModalComponent implements OnInit {
+export class CreatePuzzleModalComponent implements OnInit, OnDestroy {
 
   readonly ButtonColor = ButtonColor;
   readonly TetrominoType = TetrominoType;
 
-  public currentType$: BehaviorSubject<TetrominoType> = new BehaviorSubject<TetrominoType>(TetrominoType.J_TYPE);
-  public nextType$: BehaviorSubject<TetrominoType> = new BehaviorSubject<TetrominoType>(TetrominoType.J_TYPE);
-  public board$: BehaviorSubject<TetrisBoard> = new BehaviorSubject<TetrisBoard>(new TetrisBoard());
+  public currentType$: BehaviorSubject<TetrominoType>;
+  public nextType$: BehaviorSubject<TetrominoType>;
+  public board$: BehaviorSubject<TetrisBoard>;
 
   public hoveredBlock?: Point;
   private dragBlockIsFilled = false;
@@ -43,8 +45,17 @@ export class CreatePuzzleModalComponent implements OnInit {
   public hoveredMove$ = new BehaviorSubject<Move | undefined>(undefined);
 
 
-  constructor() {
+  constructor(private restore: CreatePuzzleRestoreService) {
     this.boundMouseUp = this.onMouseUp.bind(this);
+
+    const [board, current, next] = this.restore.restore();
+    this.board$ = new BehaviorSubject<TetrisBoard>(board);
+    this.currentType$ = new BehaviorSubject<TetrominoType>(current);
+    this.nextType$ = new BehaviorSubject<TetrominoType>(next);
+  }
+
+  ngOnDestroy(): void {
+    this.restore.save(this.board$.getValue(), this.currentType$.getValue(), this.nextType$.getValue());
   }
 
   ngOnInit(): void {
@@ -112,9 +123,11 @@ export class CreatePuzzleModalComponent implements OnInit {
 
     console.log("Analyzing puzzle");
 
-    const response = await getTopMovesHybrid(this.board$.getValue(), 18, 0, this.currentType$.getValue(), this.nextType$.getValue());
+    const response = await getTopMovesHybrid(this.board$.getValue(), 18, 0, this.currentType$.getValue(), this.nextType$.getValue(), InputSpeed.HZ_30);
     this.moveRecommendations$.next(response.nextBox);
 
+    const fast = await getTopMovesHybrid(this.board$.getValue(), 18, 0, this.currentType$.getValue(), this.nextType$.getValue(), InputSpeed.HZ_30, 0, 0);
+    console.log(fast);
   }
 
 }
