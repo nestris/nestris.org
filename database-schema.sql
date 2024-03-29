@@ -1,5 +1,7 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 -- USER TABLE
-DROP TABLE IF EXISTS "public"."users";
+DROP TABLE IF EXISTS "public"."users" CASCADE;
 CREATE TABLE "public"."users" (
     "username" text NOT NULL,
     "lastOnline" timestamp NOT NULL DEFAULT now(),
@@ -10,7 +12,7 @@ CREATE TABLE "public"."users" (
 );
 
 -- USER_RELATIONSHIPS table
-DROP TABLE IF EXISTS "public"."user_relationships";
+DROP TABLE IF EXISTS "public"."user_relationships" CASCADE;
 CREATE TABLE "public"."user_relationships" (
     "username1" text NOT NULL REFERENCES "public"."users"("username"),
     "username2" text NOT NULL REFERENCES "public"."users"("username"),
@@ -19,7 +21,7 @@ CREATE TABLE "public"."user_relationships" (
 );
 
 -- PUZZLE TABLE
-DROP TABLE IF EXISTS "public"."puzzles";
+DROP TABLE IF EXISTS "public"."puzzles" CASCADE;
 CREATE TABLE "public"."puzzles" (
     "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
     "creator" text REFERENCES "public"."users"("username"), -- if NULL, then it is a system-generated puzzle
@@ -44,7 +46,7 @@ CREATE TABLE "public"."puzzles" (
 );
 
 -- PUZZLE_ATTEMPT TABLE
-DROP TABLE IF EXISTS "public"."puzzle_attempts";
+DROP TABLE IF EXISTS "public"."puzzle_attempts" CASCADE;
 CREATE TABLE "public"."puzzle_attempts" (
     "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
     "puzzleID" uuid NOT NULL REFERENCES "public"."puzzles"("id"),
@@ -77,6 +79,7 @@ BEGIN
     WHERE id = NEW.puzzleID;
     RETURN NEW;
 END;
+$$ LANGUAGE plpgsql;
 
 -- trigger to update the number of attempts and solves for a puzzle
 DROP TRIGGER IF EXISTS update_puzzle_cached_data_trigger ON puzzle_attempts;
@@ -85,7 +88,7 @@ AFTER INSERT OR UPDATE OR DELETE ON puzzle_attempts
 FOR EACH ROW EXECUTE FUNCTION update_puzzle_cached_data();
 
 -- FOLDER TABLE
-DROP TABLE IF EXISTS "public"."folders";
+DROP TABLE IF EXISTS "public"."folders" CASCADE;
 CREATE TABLE "public"."folders" (
     "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
     "username" text NOT NULL REFERENCES "public"."users"("username"),
@@ -94,7 +97,7 @@ CREATE TABLE "public"."folders" (
 );
 
 -- FOLDER_ITEM TABLE
-DROP TABLE IF EXISTS "public"."folder_items";
+DROP TABLE IF EXISTS "public"."folder_items" CASCADE;
 CREATE TABLE "public"."folder_items" (
     "folderID" uuid NOT NULL REFERENCES "public"."folders"("id"),
     "puzzleID" uuid NOT NULL REFERENCES "public"."puzzles"("id"),
@@ -102,16 +105,4 @@ CREATE TABLE "public"."folder_items" (
 );
 
 
--- populate the database with some test data
-INSERT INTO "public"."user_relationships" ("username1", "username2", "type") VALUES
-('a', 'b', 'friends'),
-('a', 'c', 'friends'),
-('a', 'd', 'friends');
-
-INSERT INTO "public"."users" ("username", "lastOnline", "trophies", "xp", "puzzleElo") VALUES
-('a', '2024-03-03 23:32:23.269187', 1234, 12345, 1000),
-('b', '2024-03-03 23:32:23.269187', 2345, 23456, 1000),
-('c', '2024-03-04 00:13:02.575837', 3456, 0, 1000),
-('d', '2024-03-04 00:13:09.44237', 4567, 0, 1000),
-('test', '2024-03-22 02:25:14.417473', 1000, 0, 1000);
 
