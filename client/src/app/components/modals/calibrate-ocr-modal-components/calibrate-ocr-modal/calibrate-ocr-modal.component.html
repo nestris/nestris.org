@@ -19,7 +19,7 @@
             </div>
             <div class="col">
                 <app-nes-board [hide]="!(ocr.getBoard$() | async)"
-                [nextPiece]="(ocr.getNextPiece$() | async) ?? undefined"
+                [nextType]="(ocr.getNextPiece$() | async) ?? undefined"
                 [scale]="1.65" [board]="ocr.getBoard$() | async">
                     <h2 class="no-board-text">Click on an empty part of the tetris board!</h2>
                 </app-nes-board>

@@ -5,8 +5,8 @@
         [style.height]="(scale*boardHeightPixels) + 'px'"
     ><ng-content></ng-content></div>
 
-    <app-nes-piece class="next-piece" *ngIf="nextPiece !== undefined"
-        [piece]="nextPiece"
+    <app-nes-piece class="next-piece" *ngIf="nextType !== undefined"
+        [piece]="nextType"
         [level]="level"
         [ngStyle]="{padding: (5 * scale * 0.5) + 'px'}"
         [scale]="scale * 0.5" />

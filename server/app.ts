@@ -12,7 +12,7 @@ import { broadcastAnnouncementRoute } from './routes/broadcast-route';
 import { get } from 'mongoose';
 import { endFriendshipRoute, getAllUsernamesMatchingPatternRoute, getFriendsInfoRoute, getUserByUsernameRoute, setFriendRequestRoute } from './routes/user-route';
 import { connectToDB } from './database';
-import { cTest } from './puzzles/stackrabbit';
+import { cTest, getTopMovesHybridRoute } from './puzzles/stackrabbit';
 
 
 require('dotenv').config();
@@ -55,7 +55,7 @@ export default async function createApp(): Promise<{
     // announce message to all online users. useful for maintenance announcements and the like
     app.post('/api/v2/broadcast-announcement', async (req: Request, res: Response) => broadcastAnnouncementRoute(req, res, state));
     
-    app.get('/api/v2/puzzle', (req, res) => { res.status(200).send(cTest()); });
+    app.get('/api/v2/stackrabbit/get-top-moves-hybrid', getTopMovesHybridRoute);
 
     // catch all invalid api routes
     app.get('/api/*', (req, res) => {

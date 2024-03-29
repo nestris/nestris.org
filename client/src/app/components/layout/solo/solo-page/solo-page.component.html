@@ -2,7 +2,7 @@
 
 <app-layout-one class="game" *ngIf="(platform.getPolledGameData() | async) as data"
     [board]="data.board" [level]="data.level"
-    [nextPiece]="data.nextPiece"
+    [nextType]="data.nextPiece"
     [trt]="data.trt"
     [level]="data.level"
     [lines]="data.lines"

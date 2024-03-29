@@ -16,7 +16,7 @@ and build an HTML template using <app-nes-panel> and <app-nes-board> from @Input
 })
 export abstract class AbstractNesLayoutComponent {
   @Input() board: TetrisBoard = new TetrisBoard();
-  @Input() nextPiece: TetrominoType = TetrominoType.ERROR_TYPE;
+  @Input() nextType: TetrominoType = TetrominoType.ERROR_TYPE;
   @Input() level: number = 0;
   @Input() lines: number = 0;
   @Input() score: number = 0;

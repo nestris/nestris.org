@@ -24,10 +24,13 @@ export class NesBoardComponent {
   @Input() activePiece?: MoveableTetromino;
   @Input() activePieceOpacity: number = 1;
 
+  @Input() nextPiece?: MoveableTetromino;
+  @Input() nextPieceOpacity: number = 1;
+
   // if hidden, <ng-content> will be displayed instead of board
   @Input() hide: boolean = false;
 
-  @Input() nextPiece?: TetrominoType; // if defined, will be shown at top right corner
+  @Input() nextType?: TetrominoType; // if defined, will be shown at top right corner
 
   @Output() hoveringBlock = new EventEmitter<Point | undefined>();
 
@@ -53,6 +56,7 @@ export class NesBoardComponent {
   getBlockAt(x: number, y: number): ColorType {
 
     if (this.activePiece && this.activePiece.contains(x,y)) return this.activePiece.color;
+    if (this.nextPiece && this.nextPiece.contains(x,y)) return this.nextPiece.color;
     return this.board?.getAt(x,y) ?? ColorType.EMPTY;
   }
 
@@ -60,6 +64,7 @@ export class NesBoardComponent {
   getOpacityAt(x: number, y: number): number {
 
     if (this.activePiece && this.activePiece.contains(x,y)) return this.activePieceOpacity;
+    if (this.nextPiece && this.nextPiece.contains(x,y)) return this.nextPieceOpacity;
     return 1;
   }
 

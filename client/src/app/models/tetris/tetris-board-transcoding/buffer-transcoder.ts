@@ -1,13 +1,13 @@
 import { ColorType, TetrisBoard } from "../tetris-board";
 
-// encodes and decodes tetris board retaining full color information compactly into a buffer
+// Encodes and decodes tetris board retaining full color information compactly into a byte array
 
 export class BufferTranscoder {
 
-  // return a string of 400 bits
-  static encode(board: TetrisBoard): Buffer {
+  // Return a Uint8Array of 50 bytes
+  static encode(board: TetrisBoard): Uint8Array {
 
-    const bytes = Buffer.alloc(50); // 50 bytes to store 200 cells
+    const bytes = new Uint8Array(50); // 50 bytes to store 200 cells
     let byteIndex = 0;
     let bitIndex = 0;
     let value = 0;
@@ -27,9 +27,9 @@ export class BufferTranscoder {
     }
 
     return bytes;
-}
+  }
 
-  static decode(encoded: Buffer): TetrisBoard {
+  static decode(encoded: Uint8Array): TetrisBoard {
 
     const board = new TetrisBoard();
     let byteIndex = 0;

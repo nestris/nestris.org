@@ -1,10 +1,22 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { ButtonColor } from '../../ui/solid-button/solid-button.component';
 import { TetrominoType } from 'client/src/app/models/tetris/tetromino-type';
 import { BehaviorSubject } from 'rxjs';
 import { ColorType, TetrisBoard } from 'client/src/app/models/tetris/tetris-board';
 import { Point } from 'client/src/app/models/point';
 import { BlockType } from 'client/src/app/models/binary-grid';
+import { BufferTranscoder } from 'client/src/app/models/tetris/tetris-board-transcoding/buffer-transcoder';
+import { BinaryEncoder } from 'network-protocol/binary-codec';
+import { BinaryTranscoder } from 'client/src/app/models/tetris/tetris-board-transcoding/binary-transcoder';
+import { Method, fetchServer } from 'client/src/app/scripts/fetch-server';
+import { getTopMovesHybrid } from 'client/src/app/scripts/stackrabbit-decoder';
+import MoveableTetromino from 'client/src/app/models/tetris/moveable-tetromino';
+
+interface Move {
+  firstPlacement: MoveableTetromino;
+  secondPlacement: MoveableTetromino;
+  score: number;
+}
 
 @Component({
   selector: 'app-create-puzzle-modal',
@@ -12,7 +24,7 @@ import { BlockType } from 'client/src/app/models/binary-grid';
   styleUrls: ['./create-puzzle-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CreatePuzzleModalComponent {
+export class CreatePuzzleModalComponent implements OnInit {
 
   readonly ButtonColor = ButtonColor;
   readonly TetrominoType = TetrominoType;
@@ -25,6 +37,20 @@ export class CreatePuzzleModalComponent {
   private dragBlockIsFilled = false;
   private dragging = false;
 
+  private boundMouseUp: (event: MouseEvent) => void;
+
+  public moveRecommendations$ = new BehaviorSubject<Move[]>([]);
+  public hoveredMove$ = new BehaviorSubject<Move | undefined>(undefined);
+
+
+  constructor() {
+    this.boundMouseUp = this.onMouseUp.bind(this);
+  }
+
+  ngOnInit(): void {
+    this.analyzePuzzle();
+  }
+
 
   // cycle through the seven tetromino types
   toggleType(event: MouseEvent, type: BehaviorSubject<TetrominoType>) {
@@ -33,6 +59,13 @@ export class CreatePuzzleModalComponent {
     type.next(nextType);
 
     event.stopPropagation(); // capture the click event so it doesn't bubble up to the parent
+
+    this.analyzePuzzle();
+  }
+
+  resetBoard() {
+    this.board$.next(new TetrisBoard());
+    this.analyzePuzzle();
   }
 
   
@@ -47,7 +80,7 @@ export class CreatePuzzleModalComponent {
     this.board$.getValue().setAt(this.hoveredBlock.x, this.hoveredBlock.y, this.dragBlockIsFilled ? ColorType.WHITE : ColorType.EMPTY);
     this.board$.next(this.board$.getValue());
 
-    window.addEventListener('mouseup', this.onMouseUp.bind(this));
+    window.addEventListener('mouseup', this.boundMouseUp);
 
   }
 
@@ -64,7 +97,24 @@ export class CreatePuzzleModalComponent {
     this.dragging = false;
 
     // Remove the mouseup event listener after it has been triggered
-    window.removeEventListener('mouseup', this.onMouseUp.bind(this));
+    window.removeEventListener('mouseup', this.boundMouseUp);
+
+    event.stopPropagation(); // capture the click event so it doesn't bubble up to the parent
+
+    this.analyzePuzzle();
+  }
+
+  hoverEngineMove(move?: Move) {
+    this.hoveredMove$.next(move);
+  }
+
+  async analyzePuzzle() {
+
+    console.log("Analyzing puzzle");
+
+    const response = await getTopMovesHybrid(this.board$.getValue(), 18, 0, this.currentType$.getValue(), this.nextType$.getValue());
+    this.moveRecommendations$.next(response.nextBox);
+
   }
 
 }

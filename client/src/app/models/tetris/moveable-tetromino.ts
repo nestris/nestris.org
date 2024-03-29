@@ -3,7 +3,7 @@ import { BlockSet } from "./block-set";
 import { ColorType, TetrisBoard } from "./tetris-board";
 import { getColorTypeForTetromino } from "./tetromino-colors";
 import { TetrominoType } from "./tetromino-type";
-import { Tetromino } from "./tetrominos";
+import { TETROMINO_CHAR, Tetromino } from "./tetrominos";
 
 /*
 A tetromino set to some absolute position and rotation on the board. Mutable, so can be translated around.
@@ -24,6 +24,14 @@ export default class MoveableTetromino {
         const y = (tetrominoType === TetrominoType.I_TYPE) ? -2 : -1;
 
         return new MoveableTetromino(tetrominoType, 0, 3, y);
+    }
+
+    static fromStackRabbitPose(tetrominoType: TetrominoType, r: number, x: number, y: number) {
+
+        // special case: I piece needs to be one higher
+        const dy = (tetrominoType === TetrominoType.I_TYPE) ? -2 : -1;
+
+        return new MoveableTetromino(tetrominoType, r, x + 3, y + dy);
     }
 
     constructor(public readonly tetrominoType: TetrominoType, private rotation: number, private translateX: number, private translateY: number) {
@@ -233,7 +241,7 @@ export default class MoveableTetromino {
     // return in tetris notation
     public getTetrisNotation(): string {
 
-        let string = "" + this.tetrominoType + "-";
+        let string = "" + TETROMINO_CHAR[this.tetrominoType] + "-";
 
         // find all the columns that have blocks
         const columns: number[] = [];
