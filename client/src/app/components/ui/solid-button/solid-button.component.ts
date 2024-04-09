@@ -19,6 +19,8 @@ export class SolidButtonComponent {
   @Input() color!: string | ButtonColor;
   @Input() disabled: boolean = false;
   @Input() stretch: boolean = false; // stretch to fit parent width
+  @Input() fontSize: number = 16;
+  @Input() fontWeight: number = 600;
 
   @HostBinding('class.stretchHost') get stretchHost() { return this.stretch; }
 }

@@ -45,7 +45,13 @@
     align-self: center;
 }
 
-.profile-tab {
+.login-container {
+    margin-inline: 10px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.profile-tab, .login-container {
     margin-top: 20px;
 }
 
@@ -69,6 +75,10 @@
     margin-right: -4px;
 }
 
+.login-button.small {
+    display: none;
+}
+
 @media only screen and (max-width: 1000px) {
     .sidebar {
        width: 60px;
@@ -85,5 +95,13 @@
 
     .profile-tab {
         margin-top: 10px;
+    }
+
+    .login-button.small {
+        display: block;
+    }
+
+    .login-button.big {
+        display: none;
     }
 }

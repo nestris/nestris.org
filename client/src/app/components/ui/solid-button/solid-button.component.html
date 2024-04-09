@@ -6,5 +6,5 @@
     }"
 >
     <img class="icon" *ngIf="icon" [src]="icon" height="18px">
-    <h1 class="label">{{ label }}</h1>
+    <h1 class="label" [ngStyle]="{fontSize: fontSize + 'px', fontWeight: fontWeight}">{{ label }}</h1>
 </div>

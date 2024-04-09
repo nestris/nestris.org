@@ -2,5 +2,6 @@
     <app-modal [visibility$]="visibility$">
         <app-calibrate-ocr-modal *ngIf="modal === ModalType.CALIBRATE_OCR" />
         <app-create-puzzle-modal *ngIf="modal === ModalType.CREATE_PUZZLE" />
+        <app-auth-modal *ngIf="modal === ModalType.AUTH" />
     </app-modal>
 </div>

@@ -4,12 +4,22 @@
         <img class="logo-small" src="./assets/img/branding/tetrisfish_logo.svg" width="50px" />
         <!-- <h1 class="brand-name">nestris.org</h1> -->
 
-        <app-profile-tab  class="profile-tab"/>
-        <app-sidebar-tab [tab]="TabID.FRIENDS">
-            <p class="online-users">{{0}}</p>
-            <app-online-indicator [status]="(0 === 0) ? OnlineUserStatus.OFFLINE : OnlineUserStatus.IDLE" />
-        </app-sidebar-tab>
-        <app-sidebar-tab [tab]="TabID.ALERTS" />
+        <ng-container *ngIf="websocketService.isSignedIn()">
+            <app-profile-tab  class="profile-tab"/>
+            <app-sidebar-tab [tab]="TabID.FRIENDS">
+                <p class="online-users">{{0}}</p>
+                <app-online-indicator [status]="(0 === 0) ? OnlineUserStatus.OFFLINE : OnlineUserStatus.IDLE" />
+            </app-sidebar-tab>
+            <app-sidebar-tab [tab]="TabID.ALERTS" />
+        </ng-container>
+        <div class="login-container">
+            <app-solid-button class="login-button big" *ngIf="!websocketService.isSignedIn()"
+            [stretch]="true"
+            [color]="ButtonColor.BLUE" label="Login" (click)="openAuthModal()" />
+            <app-solid-button class="login-button small" *ngIf="!websocketService.isSignedIn()"
+            [stretch]="true" [fontSize]="12"
+            [color]="ButtonColor.BLUE" label="Login" (click)="openAuthModal()" />
+        </div>
 
         <app-sidebar-tab class="home-tab" [tab]="TabID.HOME"/>
         <app-sidebar-tab [tab]="TabID.PLAY" />
@@ -19,7 +29,7 @@
         <app-sidebar-tab [tab]="TabID.MORE" />
     </div>
     <div class="sidebar-bottom">
-        <app-sign-out/>
+        <app-sign-out *ngIf="websocketService.isSignedIn()" />
     </div>
     
     
