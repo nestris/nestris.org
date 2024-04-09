@@ -1,5 +1,3 @@
-<app-tab-selector [tabs]="tabs" [(selectedTab)]="selectedTab"></app-tab-selector>
+<app-tab-selector [linkedToRouter]="true" [tabs]="tabs" [tabToURL]="TAB_URLS" ></app-tab-selector>
 
-<app-ranked-puzzles *ngIf="selectedTab === PuzzleTab.RANKED_PUZZLES" />
-<app-your-puzzles *ngIf="selectedTab === PuzzleTab.YOUR_PUZZLES" />
-<app-attempt-history *ngIf="selectedTab === PuzzleTab.ATTEMPT_HISTORY" />
+<router-outlet />

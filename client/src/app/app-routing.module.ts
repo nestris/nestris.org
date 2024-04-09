@@ -13,6 +13,10 @@ import { ProfileTabComponent } from './components/layout/root/profile-tab/profil
 import { ProfilePageComponent } from './components/layout/profile/profile-page/profile-page.component';
 import { FriendPageComponent } from './components/layout/friends/friend-page/friend-page.component';
 import { ReviewPageComponent } from './components/layout/review/review-page/review-page.component';
+import { RankedPuzzlesComponent } from './components/layout/puzzles/ranked-puzzles/ranked-puzzles.component';
+import { YourPuzzlesComponent } from './components/layout/puzzles/your-puzzles/your-puzzles.component';
+import { AttemptHistoryComponent } from './components/layout/puzzles/attempt-history/attempt-history.component';
+import { PuzzleDatabaseComponent } from './components/layout/puzzles/puzzle-database/puzzle-database.component';
 
 const routes: Routes = [
   {
@@ -38,7 +42,16 @@ const routes: Routes = [
       { path: "home", component: HomePageComponent, },
       { path: "play", component: PlayPageComponent, },
       { path: "review", component: ReviewPageComponent },
-      { path: "puzzles", component: PuzzlesPageComponent, },
+      { path: "puzzles", component: PuzzlesPageComponent,
+        children: [
+          { path: "ranked", component: RankedPuzzlesComponent },
+          { path: "user", component: YourPuzzlesComponent },
+          { path: "history", component: AttemptHistoryComponent },
+          { path: "database", component: PuzzleDatabaseComponent },
+          { path: "", redirectTo: "ranked", pathMatch: "full", },
+          { path: "**", redirectTo: "ranked", pathMatch: "full", }
+        ]
+      },
       { path: "", redirectTo: "home", pathMatch: "full", },
       { path: "**", redirectTo: "home", pathMatch: "full", }
     ],

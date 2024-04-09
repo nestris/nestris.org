@@ -56,6 +56,7 @@ import { YourPuzzlesComponent } from './components/layout/puzzles/your-puzzles/y
 import { AttemptHistoryComponent } from './components/layout/puzzles/attempt-history/attempt-history.component';
 import { CreatePuzzleModalComponent } from './components/modals/create-puzzle-modal/create-puzzle-modal.component';
 import { AuthModalComponent } from './components/modals/auth-modal/auth-modal.component';
+import { PuzzleDatabaseComponent } from './components/layout/puzzles/puzzle-database/puzzle-database.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -151,6 +152,7 @@ const customNotifierOptions: NotifierOptions = {
     AttemptHistoryComponent,
     CreatePuzzleModalComponent,
     AuthModalComponent,
+    PuzzleDatabaseComponent,
   ],
   imports: [
     BrowserModule,

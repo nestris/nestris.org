@@ -8,8 +8,11 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
 })
 export class TabSelectorComponent {
   @Input() tabs!: string[];
-  @Input() selectedTab!: string;
-  @Output() selectedTabChange = new EventEmitter<string>(); 
+  @Input() selectedTab!: string; // obsolete if linkedToRouter
+  @Output() selectedTabChange = new EventEmitter<string>(); // obsolete if linkedToRouter
+
+  @Input() linkedToRouter: boolean = false;
+  @Input() tabToURL: {[key in string]: string} = {}; // if linkedToRouter, must be same length as tabs
 
   constructor() {}
 
