@@ -9,7 +9,7 @@ export class CreatePuzzleRestoreService {
 
   private board: TetrisBoard = new TetrisBoard();
   private current: TetrominoType = TetrominoType.J_TYPE;
-  private next: TetrominoType = TetrominoType.J_TYPE;
+  private next: TetrominoType = TetrominoType.L_TYPE;
 
   constructor() { }
 

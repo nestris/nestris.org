@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, filter, map } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, filter, map } from 'rxjs';
 
 export enum ModalType {
   CALIBRATE_OCR = "CALIBRATE_OCR",
@@ -20,6 +20,7 @@ create the component when the modal is shown, and destroy it when the modal is h
 export class ModalManagerService {
 
   private activeModal$ = new BehaviorSubject<ModalType | null>(null);
+  private lastShownModal$ = new Subject<ModalType>();
 
   constructor() { }
 
@@ -42,7 +43,17 @@ export class ModalManagerService {
   }
 
   hideModal() {
+    const lastModal = this.activeModal$.getValue();
+    if (lastModal !== null) {
+      this.lastShownModal$.next(lastModal);
+    }
     this.activeModal$.next(null);
   }
+
+  onHideModal$(): Observable<ModalType> {
+    return this.lastShownModal$.asObservable();
+  }
+
+  
 
 }

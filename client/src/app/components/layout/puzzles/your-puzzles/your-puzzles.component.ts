@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Method, fetchServer } from 'client/src/app/scripts/fetch-server';
 import { WebsocketService } from 'client/src/app/services/websocket.service';
 import { SerializedPuzzle } from 'server/puzzles/decode-puzzle';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-your-puzzles',
@@ -22,22 +23,36 @@ export class YourPuzzlesComponent implements OnInit {
     public websocketService: WebsocketService
   ) {}
 
-  public allUserFolders: string[] = []; // all folders made by the user
-  public openedFolderName: string | undefined = undefined; // the name of the folder that is currently opened
-  public puzzlesInCurrentFolder: string[] = []; // all puzzles in the current folder
+  public allUserFolders$ = new BehaviorSubject<string[]>([]); // all folders made by the user
+  public openedFolderName$ = new BehaviorSubject<string | undefined>(undefined); // the name of the folder that is currently opened
+  public puzzlesInCurrentFolder$ = new BehaviorSubject<SerializedPuzzle[]>([]); // all puzzles in the current folder
 
   // if allUserFolders does not contain openedFolder, means that the folder is not made by the user,
   // and should show option to import the folder to user
 
-  async ngOnInit() {
-    
+  ngOnInit() {
+
+    // refresh the page when a puzzle is created
+    this.modalManager.onHideModal$().subscribe((modal) => {
+      if (modal === ModalType.CREATE_PUZZLE) {
+        console.log("Puzzle created. Refreshing the page...");
+        this.syncWithServer();
+      }
+    });
 
     // if not signed in, do not fetch any data
     if (!this.websocketService.isSignedIn()) {
       this.websocketService.onSignIn().subscribe(() => {
-        this.ngOnInit();
+        this.syncWithServer();
       });
+
+    } else { // if signed in, fetch the data
+      this.syncWithServer();
     }
+
+  }
+
+  syncWithServer() {
 
     const username = this.websocketService.getUsername();
 
@@ -47,19 +62,16 @@ export class YourPuzzlesComponent implements OnInit {
 
       // if folder is undefined, then it should show all puzzles made by the user
       if (folderID === undefined) { // fetch all puzzles by the user
-        this.openedFolderName = undefined; // no folder is opened
+        this.openedFolderName$.next(undefined); // no folder is opened
         console.log("No folder is opened. Fetching all puzzles by the user...");
 
         const {content, status} = await fetchServer(Method.GET, `/api/v2/puzzles-by-user/${username}`);
-        const userPuzzles = content as SerializedPuzzle[];
-
-        console.log("User puzzles:", userPuzzles);
-        
+        console.log("Fetched all puzzles by the user:", content);      
+        this.puzzlesInCurrentFolder$.next(content as SerializedPuzzle[]); 
         
       } else { // fetch all puzzles in the folder
         console.log("Fetching all puzzles in the folder with ID:", folderID);
       }
-
 
     });
 

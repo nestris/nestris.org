@@ -1,0 +1,10 @@
+@import "../../../../../styles.scss";
+
+.puzzle {
+  background-color: $subsection-color;
+  border-radius: 10px;
+
+  width: 100%;
+  box-sizing: border-box;
+  padding: 5px;
+}

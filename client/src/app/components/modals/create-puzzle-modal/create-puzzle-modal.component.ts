@@ -15,6 +15,7 @@ import { InputSpeed } from 'network-protocol/models/input-speed';
 import { CreatePuzzleRestoreService } from 'client/src/app/services/create-puzzle-restore.service';
 import { WebsocketService } from 'client/src/app/services/websocket.service';
 import { ModalManagerService } from 'client/src/app/services/modal-manager.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 interface Move {
   firstPlacement: MoveableTetromino;
@@ -33,9 +34,9 @@ export class CreatePuzzleModalComponent implements OnInit, OnDestroy {
   readonly ButtonColor = ButtonColor;
   readonly TetrominoType = TetrominoType;
 
-  public currentType$: BehaviorSubject<TetrominoType>;
-  public nextType$: BehaviorSubject<TetrominoType>;
-  public board$: BehaviorSubject<TetrisBoard>;
+  public currentType$ = new BehaviorSubject<TetrominoType>(TetrominoType.J_TYPE);
+  public nextType$ = new BehaviorSubject<TetrominoType>(TetrominoType.L_TYPE);
+  public board$ = new BehaviorSubject<TetrisBoard>(new TetrisBoard());
 
   public hoveredBlock?: Point;
   private dragBlockIsFilled = false;
@@ -52,21 +53,27 @@ export class CreatePuzzleModalComponent implements OnInit, OnDestroy {
   constructor(
     public websocketService: WebsocketService,
     private modalService: ModalManagerService,
-    private restore: CreatePuzzleRestoreService
+    private restore: CreatePuzzleRestoreService,
+    private route: Router
   ) {
     this.boundMouseUp = this.onMouseUp.bind(this);
-
-    const [board, current, next] = this.restore.restore();
-    this.board$ = new BehaviorSubject<TetrisBoard>(board);
-    this.currentType$ = new BehaviorSubject<TetrominoType>(current);
-    this.nextType$ = new BehaviorSubject<TetrominoType>(next);
   }
 
+  // save the current board state when modal is closed
   ngOnDestroy(): void {
+    console.log("Saving board state");
     this.restore.save(this.board$.getValue(), this.currentType$.getValue(), this.nextType$.getValue());
   }
 
+  // restore the previous board state when modal is opened
   ngOnInit(): void {
+
+    console.log("Restoring board state");
+    const [board, current, next] = this.restore.restore();
+    this.board$.next(board);
+    this.currentType$.next(current);
+    this.nextType$.next(next);
+
     this.analyzePuzzle();
   }
 
@@ -158,6 +165,7 @@ export class CreatePuzzleModalComponent implements OnInit, OnDestroy {
 
     this.submittingPuzzle$.next(true);
 
+    // submit POST for puzzle to server
     const response = await fetchServer(Method.POST, 'api/v2/puzzle', {
       username: username,
       board: BinaryTranscoder.encode(this.board$.getValue()),
@@ -172,7 +180,13 @@ export class CreatePuzzleModalComponent implements OnInit, OnDestroy {
       elo: 1000
     });
 
+    // stop the loading spinner
     this.submittingPuzzle$.next(false);
+
+    // on submitting puzzle, reset board to empty while keeping the current and next tetromino types
+    this.board$.next(new TetrisBoard());
+
+    // hide the modal
     this.modalService.hideModal();
 
     console.log(response);
