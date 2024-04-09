@@ -2,7 +2,12 @@
   <app-solid-button label="Create Puzzle" [color]="ButtonColor.GREEN" (click)="openCreatePuzzleModal()" />
 </div>
 
-<div class="panels">
+<div *ngIf="!(websocketService.onSignInUpdate() | async)" class="sign-in-panel">
+  <p class="sign-in">Sign in to view your puzzle sets!</p>
+</div>
+
+<div class="panels" *ngIf="(websocketService.onSignInUpdate() | async)">
   <div class="panel folder-panel">1</div>
   <div class="panel puzzle-panel">2</div>
 </div>
+

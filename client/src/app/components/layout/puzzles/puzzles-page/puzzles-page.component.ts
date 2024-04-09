@@ -9,7 +9,7 @@ enum PuzzleTab {
 
 export const TAB_URLS: {[key in PuzzleTab] : string } = {
   [PuzzleTab.RANKED_PUZZLES]: '/puzzles/ranked',
-  [PuzzleTab.YOUR_PUZZLES]: '/puzzles/user',
+  [PuzzleTab.YOUR_PUZZLES]: '/puzzles/view',
   [PuzzleTab.ATTEMPT_HISTORY]: '/puzzles/history',
   [PuzzleTab.PUZZLE_DATABASE]: '/puzzles/database'
 };

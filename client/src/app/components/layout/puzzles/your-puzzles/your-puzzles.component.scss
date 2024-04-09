@@ -24,6 +24,20 @@
   flex-grow: 1;
 }
 
+.sign-in-panel {
+  background-color: $section-color;
+  border-radius: 10px;
+  margin-block: 10px;
+  padding: 5px 15px;
+  flex-grow: 1;
+}
+
+.sign-in {
+  font-family: $main-font;
+  font-size: 16px;
+  font-weight: 500;
+}
+
 .folder-panel {
   max-width: 300px;
 }

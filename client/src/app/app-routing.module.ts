@@ -45,7 +45,7 @@ const routes: Routes = [
       { path: "puzzles", component: PuzzlesPageComponent,
         children: [
           { path: "ranked", component: RankedPuzzlesComponent },
-          { path: "user", component: YourPuzzlesComponent },
+          { path: "view", component: YourPuzzlesComponent },
           { path: "history", component: AttemptHistoryComponent },
           { path: "database", component: PuzzleDatabaseComponent },
           { path: "", redirectTo: "ranked", pathMatch: "full", },
