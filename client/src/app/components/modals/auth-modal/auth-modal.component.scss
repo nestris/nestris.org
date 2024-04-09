@@ -7,6 +7,7 @@
   justify-content: center;
   gap: 15px;
 
+  height: 350px;
   width: 50vw;
 }
 
@@ -19,15 +20,13 @@ input {
   width: 150px;
 }
 
-.username {
-  font-weight: 600;
-}
 
 .switch-mode {
   font-family: Montserrat;
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
+  text-align: center;
   hover: {
     color: #ffffff95;
   }
