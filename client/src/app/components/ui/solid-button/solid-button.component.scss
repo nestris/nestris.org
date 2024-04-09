@@ -1,5 +1,9 @@
 @import "../../../../styles.scss";
 
+:host {
+    position: relative;
+}
+
 :host.stretchHost {
     width: 100%;
     box-sizing: border-box;
@@ -49,4 +53,12 @@
     // font-weight: 600;
     line-height: normal;
     margin-block: 6px;
+}
+
+// center the loading animation in the button
+.loading-animation {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 }

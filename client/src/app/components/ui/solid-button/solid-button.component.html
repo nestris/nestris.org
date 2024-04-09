@@ -1,10 +1,13 @@
 <div class="button prevent-select"
     [ngStyle]="{backgroundColor: color}"
     [ngClass]="{
-        'disabled': disabled,
+        'disabled': disabled || loading,
+        'loading' : loading,
         'stretch': stretch,
     }"
 >
     <img class="icon" *ngIf="icon" [src]="icon" height="18px">
     <h1 class="label" [ngStyle]="{fontSize: fontSize + 'px', fontWeight: fontWeight}">{{ label }}</h1>
 </div>
+
+<app-loading-animation *ngIf="loading" class="loading-animation" [size]="30" />

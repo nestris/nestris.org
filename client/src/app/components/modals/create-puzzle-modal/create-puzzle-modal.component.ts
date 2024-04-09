@@ -14,6 +14,7 @@ import MoveableTetromino from 'network-protocol/tetris/moveable-tetromino';
 import { InputSpeed } from 'network-protocol/models/input-speed';
 import { CreatePuzzleRestoreService } from 'client/src/app/services/create-puzzle-restore.service';
 import { WebsocketService } from 'client/src/app/services/websocket.service';
+import { ModalManagerService } from 'client/src/app/services/modal-manager.service';
 
 interface Move {
   firstPlacement: MoveableTetromino;
@@ -45,9 +46,12 @@ export class CreatePuzzleModalComponent implements OnInit, OnDestroy {
   public moveRecommendations$ = new BehaviorSubject<Move[]>([]);
   public hoveredMove$ = new BehaviorSubject<Move | undefined>(undefined);
 
+  public submittingPuzzle$ = new BehaviorSubject<boolean>(false);
+
 
   constructor(
-    private websocketService: WebsocketService,
+    public websocketService: WebsocketService,
+    private modalService: ModalManagerService,
     private restore: CreatePuzzleRestoreService
   ) {
     this.boundMouseUp = this.onMouseUp.bind(this);
@@ -152,6 +156,8 @@ export class CreatePuzzleModalComponent implements OnInit, OnDestroy {
     const username = this.websocketService.getUsername();
     const move = this.moveRecommendations$.getValue()[0];
 
+    this.submittingPuzzle$.next(true);
+
     const response = await fetchServer(Method.POST, 'api/v2/puzzle', {
       username: username,
       board: BinaryTranscoder.encode(this.board$.getValue()),
@@ -165,6 +171,9 @@ export class CreatePuzzleModalComponent implements OnInit, OnDestroy {
       y2: move.secondPlacement.getTranslateY(),
       elo: 1000
     });
+
+    this.submittingPuzzle$.next(false);
+    this.modalService.hideModal();
 
     console.log(response);
   }
