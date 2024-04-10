@@ -58,6 +58,7 @@ import { CreatePuzzleModalComponent } from './components/modals/create-puzzle-mo
 import { AuthModalComponent } from './components/modals/auth-modal/auth-modal.component';
 import { PuzzleDatabaseComponent } from './components/layout/puzzles/puzzle-database/puzzle-database.component';
 import { YourPuzzleItemComponent } from './components/layout/puzzles/your-puzzle-item/your-puzzle-item.component';
+import { FullscreenExitButtonComponent } from './components/ui/fullscreen-exit-button/fullscreen-exit-button.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -155,6 +156,7 @@ const customNotifierOptions: NotifierOptions = {
     AuthModalComponent,
     PuzzleDatabaseComponent,
     YourPuzzleItemComponent,
+    FullscreenExitButtonComponent,
   ],
   imports: [
     BrowserModule,

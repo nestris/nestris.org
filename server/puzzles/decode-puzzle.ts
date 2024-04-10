@@ -3,6 +3,13 @@ import { BufferTranscoder } from "../../network-protocol/tetris-board-transcodin
 import { TetrominoType } from "../../network-protocol/tetris/tetromino-type";
 import { TETROMINO_CHAR, TETROMINO_CHAR_TO_TYPE } from "../../network-protocol/tetris/tetrominos";
 
+export interface PuzzleFolder {
+  id: string;
+  name: string;
+  creator: string;
+  puzzles: SerializedPuzzle[];
+}
+
 export interface SerializedPuzzle {
   id: string;
   creator: string;

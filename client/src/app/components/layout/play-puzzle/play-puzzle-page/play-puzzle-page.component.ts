@@ -1,11 +1,23 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { PuzzleDefinition, PuzzleSubmission } from 'client/src/app/models/puzzles/puzzle';
-import { TabID } from 'client/src/app/models/tabs';
-import { PuzzleService as PuzzleService } from 'client/src/app/services/puzzle.service';
+import { PuzzleSubmission } from 'client/src/app/models/puzzles/puzzle';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { EloMode } from '../elo-rating/elo-rating.component';
 import { ButtonColor } from '../../../ui/solid-button/solid-button.component';
+import { ActivatedRoute, Router } from '@angular/router';
+import { SerializedPuzzle } from 'server/puzzles/decode-puzzle';
+import { EloChange, PuzzleState } from './puzzle-states/puzzle-state';
+import { SinglePuzzleState } from './puzzle-states/single-puzzle-state';
+import { FolderPuzzleState } from './puzzle-states/folder-puzzle-state';
+import { RatedPuzzleState } from './puzzle-states/rated-puzzle-state';
+import MoveableTetromino from 'network-protocol/tetris/moveable-tetromino';
+import { TetrisBoard } from 'network-protocol/tetris/tetris-board';
+import { BinaryTranscoder } from 'network-protocol/tetris-board-transcoding/binary-transcoder';
 
+export enum PuzzleMode {
+  RATED = "rated",
+  FOLDER = "folder",
+  SINGLE = "single"
+}
 @Component({
   selector: 'app-play-puzzle-page',
   templateUrl: './play-puzzle-page.component.html',
@@ -16,7 +28,10 @@ export class PlayPuzzlePageComponent implements OnInit {
 
   readonly PUZZLE_TIME_LIMIT = 30;
 
-  puzzle$ = new BehaviorSubject<PuzzleDefinition | undefined>(undefined);
+  puzzleState!: PuzzleState;
+
+  puzzle$ = new BehaviorSubject<SerializedPuzzle | undefined>(undefined);
+  eloChange$ = new BehaviorSubject<EloChange | undefined>(undefined);
 
   canUndo$ = new BehaviorSubject<boolean>(false);
   clickUndo$ = new Subject<void>();
@@ -26,8 +41,6 @@ export class PlayPuzzlePageComponent implements OnInit {
   puzzleIsCorrect = false;
   puzzleSolutionExplanation: string = "";
 
-  nextPuzzleLoaded$ = new BehaviorSubject<boolean>(false);
-  nextPuzzle: PuzzleDefinition | undefined;
 
   public currentPuzzleTime$ = new BehaviorSubject<number>(0);
   private startPuzzleTime?: number;
@@ -37,35 +50,80 @@ export class PlayPuzzlePageComponent implements OnInit {
   readonly ButtonColor = ButtonColor;
 
   constructor(
-    public puzzleService: PuzzleService,
+    private route: ActivatedRoute,
+    private router: Router,
   ) {
   }
 
+  // for when URL is invalid, redirect to default puzzle URL (rated puzzle)
+  redirectToDefaultURL() {
+    this.router.navigate(['/online/puzzle'], {
+      queryParams: {
+        mode: "rated", 
+        exit: this.route.snapshot.queryParamMap.get('exit')
+      },
+    });
+  }
+
   async ngOnInit() {
-    const puzzle = await this.puzzleService.fetchPuzzle();
-    this.startNewPuzzle(puzzle);
+
+    /* get query parameters
+
+    mode:
+    - "rated" - fetch a random rated puzzle from server 
+    - "folder" - unrated puzzles from a specific folder id
+    - "single" - unrated puzzle with specific id
+
+    id:
+    - id of folder or puzzle
+    */
+    const mode = this.route.snapshot.queryParamMap.get('mode') as PuzzleMode;
+    const id = this.route.snapshot.queryParamMap.get('id');
+
+    // if mode is not valid, redirect to default puzzle URL
+    if (!Object.values(PuzzleMode).includes(mode)) {
+      this.redirectToDefaultURL();
+      return;
+    }
+
+    // if mode is folder or single, but id is not provided, redirect to default puzzle URL
+    if ((mode === PuzzleMode.FOLDER || mode === PuzzleMode.SINGLE) && !id) {
+      this.redirectToDefaultURL();
+      return;
+    }
+
+    switch (mode) {
+      case PuzzleMode.RATED:
+        this.puzzleState = new RatedPuzzleState();
+        break;
+      case PuzzleMode.FOLDER:
+        this.puzzleState = new FolderPuzzleState(id!);
+        break;
+      case PuzzleMode.SINGLE:
+        this.puzzleState = new SinglePuzzleState(id!);
+        break;
+    }
+
+    await this.puzzleState.init();
+
+    await this.startPuzzle();
   }
 
-
-  async startNextPuzzle() {
-
-    // if next puzzle is not loaded, cannot start next puzzle
-    if (!this.nextPuzzleLoaded$.getValue()) return;
-
-    if (!this.nextPuzzle) throw new Error("next puzzle is undefined");
-
-    // start next puzzle
-    await this.startNewPuzzle(this.nextPuzzle!);
-
-  }
 
   // fetch a new puzzle from the server, start puzzle, and start timer
-  startNewPuzzle(puzzle: PuzzleDefinition) {
+  async startPuzzle() {
+
+
+    const puzzle = await this.puzzleState.fetchNextPuzzle();
+
     this.puzzle$.next(puzzle);
-    this.startTimer();
+    this.eloChange$.next(this.puzzleState.getEloChange());
+    
+    if (this.puzzleState.isTimed()) {
+      this.startTimer();
+    }
+
     this.solvingPuzzle$.next(true);
-    this.nextPuzzle = undefined;
-    this.nextPuzzleLoaded$.next(false);
   }
 
   private startTimer() {
@@ -100,19 +158,34 @@ export class PlayPuzzlePageComponent implements OnInit {
     clearInterval(this.timerInterval);
 
     // submit puzzle to server
-    const result = await this.puzzleService.submitPuzzle(this.puzzle$.getValue()!, submission);
+    const result = await this.puzzleState.submitPuzzle(submission);
     this.puzzleIsCorrect = result.isCorrect;
     this.puzzleSolutionExplanation = result.explanation;
 
     // go to puzzle solution page
     this.solvingPuzzle$.next(false);
 
-    // start loading next puzzle
-    this.puzzleService.fetchPuzzle().then((puzzle) => {
-      this.nextPuzzle = puzzle;
-      this.nextPuzzleLoaded$.next(true);
-    });
+  }
+  
 
+  getBoard(): TetrisBoard {
+    const puzzle = this.puzzle$.getValue()!;
+    return BinaryTranscoder.decode(puzzle.board);
+  }
+
+  getCurrentMT(): MoveableTetromino {
+    const puzzle = this.puzzle$.getValue()!;
+    return new MoveableTetromino(puzzle.currentPiece, puzzle.r1, puzzle.x1, puzzle.y1);
+  }
+
+  getNextMT(): MoveableTetromino {
+    const puzzle = this.puzzle$.getValue()!;
+    return new MoveableTetromino(puzzle.nextPiece, puzzle.r2, puzzle.x2, puzzle.y2);
+  }
+
+  getRatedPuzzleState(): RatedPuzzleState | undefined {
+    if (this.puzzleState instanceof RatedPuzzleState) return this.puzzleState;
+    return undefined;
   }
 
 }

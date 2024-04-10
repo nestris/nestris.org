@@ -1,3 +1,4 @@
+import { SerializedPuzzle } from "server/puzzles/decode-puzzle";
 import { PuzzleDefinition, PuzzleResult, PuzzleSolution, PuzzleSubmission } from "./puzzle";
 
 export function isSubmissionComplete(submission: PuzzleSubmission): boolean {
@@ -6,21 +7,21 @@ export function isSubmissionComplete(submission: PuzzleSubmission): boolean {
 
 // whether the user submission is equal to the puzzle solution
 // precondition: submission is complete
-export function equalToSolution(submission: PuzzleSubmission, solution: PuzzleSolution): boolean {
+export function equalToSolution(puzzle: SerializedPuzzle, submission: PuzzleSubmission): boolean {
 
     if (!isSubmissionComplete(submission)) {
         throw new Error("Submission is not complete");
     }
 
-    // if first piece is not in the correct position, return false
-    if (!submission.firstPiece!.equals(solution.firstPiece)) {
-      return false;
-    }
-  
-    // if second piece is not in the correct position, return false
-    if (!submission.secondPiece!.equals(solution.secondPiece)) {
-      return false;
-    }
+    // if the first piece is not in the correct position, return false
+    if (submission.firstPiece!.getRotation() != puzzle.r1) return false;
+    if (submission.firstPiece!.getTranslateX() != puzzle.x1) return false;
+    if (submission.firstPiece!.getTranslateY() != puzzle.y1) return false;
+
+    // if the second piece is not in the correct position, return false
+    if (submission.secondPiece!.getRotation() != puzzle.r2) return false;
+    if (submission.secondPiece!.getTranslateX() != puzzle.x2) return false;
+    if (submission.secondPiece!.getTranslateY() != puzzle.y2) return false;
   
     // if both pieces are in the correct position, return true
     return true;
@@ -50,7 +51,7 @@ const WRONG_ANSWER_STREAK_COMEMNTS = [
 // check whether a puzzle submission is correct
 // returns a boolean for correctness, and a string for an explanation
 // TODO: more descriptive explanation
-export function evaluatePuzzleSubmission(puzzle: PuzzleDefinition, submission: PuzzleSubmission): PuzzleResult {
+export function evaluatePuzzleSubmission(puzzle: SerializedPuzzle, submission: PuzzleSubmission): PuzzleResult {
 
     // if submission is incomplete, return false
     if (!isSubmissionComplete(submission)) {
@@ -61,7 +62,7 @@ export function evaluatePuzzleSubmission(puzzle: PuzzleDefinition, submission: P
         }
 
     // if equal to solution, return true
-    if (equalToSolution(submission, puzzle.correctSolution)) {
+    if (equalToSolution(puzzle, submission)) {
         return {
             isCorrect: true,
             explanation: RIGHT_ANSWER_COMMENTS[Math.floor(Math.random() * RIGHT_ANSWER_COMMENTS.length)]
@@ -69,18 +70,8 @@ export function evaluatePuzzleSubmission(puzzle: PuzzleDefinition, submission: P
     }
 
     // At this point, we know the user submitted an invalid solution.
-
-    // We see if user's incorrect solution matched the incorrect solution list to get a better explanation of why it's wrong
-    const incorrectSolution = puzzle.incorrectSolutions.find(solution => equalToSolution(submission, solution));
-    if (incorrectSolution) {
-        return {
-            isCorrect: false,
-            explanation: WRONG_ANSWER_COMMENTS[Math.floor(Math.random() * WRONG_ANSWER_COMMENTS.length)]
-        }
-    } else { // if not, we give a generic wrong answer comment
-        return {
-            isCorrect: false,
-            explanation: WRONG_ANSWER_COMMENTS[Math.floor(Math.random() * WRONG_ANSWER_COMMENTS.length)]
-        }
+    return {
+        isCorrect: false,
+        explanation: WRONG_ANSWER_COMMENTS[Math.floor(Math.random() * WRONG_ANSWER_COMMENTS.length)]
     }
 }

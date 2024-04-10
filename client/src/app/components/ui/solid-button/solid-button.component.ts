@@ -15,7 +15,7 @@ export enum ButtonColor {
 })
 export class SolidButtonComponent {
   @Input() icon?: string;
-  @Input() label!: string;
+  @Input() label?: string;
   @Input() color!: string | ButtonColor;
   @Input() disabled: boolean = false;
   @Input() stretch: boolean = false; // stretch to fit parent width

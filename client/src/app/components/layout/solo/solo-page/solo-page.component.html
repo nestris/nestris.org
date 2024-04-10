@@ -1,4 +1,4 @@
-<a routerLink="/play"><app-outline-button class="leave-fullscreen-button" label="Exit"/></a>
+<app-fullscreen-exit-button />
 
 <app-layout-one class="game" *ngIf="(platform.getPolledGameData() | async) as data"
     [board]="data.board" [level]="data.level"

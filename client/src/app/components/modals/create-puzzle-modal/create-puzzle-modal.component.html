@@ -52,8 +52,8 @@
 
       <div class="buttons">
         <app-solid-button label="Reset" [color]="ButtonColor.GREY" (click)="resetBoard()" />
-        <app-solid-button label="Generate" [color]="ButtonColor.BLUE" (click)="generatePuzzle()"
-          [tooltip]="!(websocketService.onSignInUpdate() | async) ? 'Sign in to create puzzles' : (!((moveRecommendations$ | async)?.length) ? 'Waiting for engine...' : '')"
+        <app-solid-button label="Save" [color]="ButtonColor.BLUE" (click)="generatePuzzle()"
+          [tooltip]="!(websocketService.onSignInUpdate() | async) ? 'Login to save and share this puzzle.' : (!((moveRecommendations$ | async)?.length) ? 'Waiting for engine...' : '')"
           [loading]="!!(submittingPuzzle$ | async)"
           [disabled]="!((moveRecommendations$ | async)?.length) || !(websocketService.onSignInUpdate() | async)"  />
       </div>

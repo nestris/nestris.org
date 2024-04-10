@@ -4,21 +4,21 @@
     'incorrect': !(solvingPuzzle$ | async) && !puzzleIsCorrect
 }">
 
+    <app-fullscreen-exit-button />
 
-    <a routerLink="/puzzles"><app-outline-button class="leave-fullscreen-button" label="Exit"/></a>
     <div class="content">
 
         <header>
             <h1 class="title">PUZZLES</h1>
-            <div class="subtitle-container">
+            <!-- <div class="subtitle-container">
                 <hr>
-                <h2 class="subtitle">SOLO MODE</h2>
+                <h2 class="subtitle">RANKED MODE</h2>
                 <hr>
-            </div>
+            </div> -->
         </header>
 
         <p class="instructions" *ngIf="solvingPuzzle$ | async">
-            Find the best place to put the given two pieces. There’s only one right answer!
+            Find the best place to put the given two pieces. There's only one right answer!
         </p>
 
         <p class="instructions" *ngIf="!(solvingPuzzle$ | async)">
@@ -26,18 +26,6 @@
         </p>
 
         <div class="main-row">
-
-            <div class="left-col">
-
-                <!-- show instructions if in puzzle solving mode -->
-                <p class="instructions narrow" *ngIf="solvingPuzzle$ | async">
-                    Hover your mouse on the board to move the piece, or use the arrow keys! Rotate with Z and X.
-                </p>
-
-                <!-- show leaderboard if not in puzzle solving mode -->
-                <app-leaderboard *ngIf="!(solvingPuzzle$ | async)" class="leaderboard" />
-
-            </div>
 
             <!-- show undo button if in puzzle solving mode and can undo -->
             <app-outline-button class="undo-button" label="Undo"
@@ -58,8 +46,9 @@
             <!-- show puzzle solution if it's not in puzzle solving mode -->
             <app-nes-board *ngIf="!(solvingPuzzle$ | async) && (puzzle$ | async)"
                 class="board" [scale]="3"
-                [board]="(puzzle$ | async)!.board" [level]="18"
-                [activePiece]="(puzzle$ | async)!.correctSolution.firstPiece"
+                [board]="getBoard()" [level]="18"
+                [activePiece]="getCurrentMT()"
+                [nextPiece]="getNextMT()"
             />
 
             <div class="puzzle-details">
@@ -74,38 +63,42 @@
                         <h1 [ngClass]="{
                             'correct': !(solvingPuzzle$ | async) && puzzleIsCorrect,
                             'incorrect': !(solvingPuzzle$ | async) && !puzzleIsCorrect
-                        }">{{(solvingPuzzle$ | async) ? "Rated Puzzle" : (puzzleIsCorrect ? "Correct" : "Incorrect")}}</h1>
+                        }">{{(solvingPuzzle$ | async) ? puzzleState.getPuzzleName() : (puzzleIsCorrect ? "Correct" : "Incorrect")}}</h1>
                     </div>
                     
 
-                    <app-elo-rating class="elo-container" *ngIf="(puzzle$ | async) as puzzle"
-                        [rating]="(puzzleService.getCurrentElo$() | async) ?? 1000"
-                        [increase]="puzzle.eloGain" [decrease]="puzzle.eloLoss"
+                    <app-elo-rating class="elo-container" *ngIf="(eloChange$ | async) as eloChange"
+                        [rating]="getRatedPuzzleState()!.getElo()"
+                        [increase]="eloChange.eloGain" [decrease]="eloChange.eloLoss"
                         [mode]="(solvingPuzzle$ | async) ? EloMode.NEUTRAL : (puzzleIsCorrect ? EloMode.WIN : EloMode.LOSS)"
                     />
 
                     <div class="next-box-container" *ngIf="(solvingPuzzle$ | async) && (puzzle$ | async)">
                         <app-nes-piece  [scale]="3"
-                            [piece]="(canUndo$ | async) ? undefined: (puzzle$ | async)!.nextType" [level]="18"
+                            [piece]="(canUndo$ | async) ? undefined: (puzzle$ | async)!.nextPiece" [level]="18"
                         />
                     </div>
 
                     <!-- all the elements in puzzle solution mode -->
                     <ng-container *ngIf="!(solvingPuzzle$ | async)">
 
-                        <app-elo-graph [eloHistory]="(puzzleService.getEloHistory$() | async) ?? [1000]"/>
+                        <app-elo-graph *ngIf="getRatedPuzzleState() as ratedState" [eloHistory]="ratedState.getEloHistory()"/>
 
                     </ng-container>
 
                 </div>
                 <div class="puzzle-details-bottom">
+
+                    <p class="instructions narrow" *ngIf="solvingPuzzle$ | async">
+                        Hover your mouse on the board to move the piece, or use the arrow keys! Rotate with Z and X.
+                    </p>
+
                     <app-solid-button *ngIf="!(solvingPuzzle$ | async)"
                         class="new-puzzle-button"
                         icon="./assets/img/button-icons/new-puzzle.svg"
                         label="New Puzzle" [color]="ButtonColor.BLUE"
                         [stretch]="true"
-                        [disabled]="!(nextPuzzleLoaded$ | async)"
-                        (click)="startNextPuzzle()"
+                        (click)="startPuzzle()"
                     />
                 </div>
 
@@ -115,7 +108,7 @@
 
         <!-- show timer if in puzzle solving mode -->
         <app-timer class="timer"
-            [ngStyle]="{visibility: (solvingPuzzle$ | async) ? 'visible' : 'hidden'}"
+            [ngStyle]="{visibility: ((solvingPuzzle$ | async) && puzzleState.isTimed()) ? 'visible' : 'hidden'}"
             [currentTime]="(currentPuzzleTime$ | async) ?? 0"
             [maxTime]="PUZZLE_TIME_LIMIT"
         />

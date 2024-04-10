@@ -1,3 +1,40 @@
 <div class="puzzle">
+
+  <img class="draggable" src="./assets/img/ui-icons/draggable.svg" height="20px">
   <app-nes-board [scale]="0.7" [board]="board" />
+
+  <div class="vertical-div">
+    <div class="header">
+      <div class="creator-div">
+        <img class="creator-icon" src="./assets/img/tab-icons/profile.svg" height="15px">
+        <p class="creator prevent-select">{{puzzle.creator}}</p>
+      </div>
+    </div>
+    <div class="body">
+      <div class="stat">
+        <p>Current</p>
+        <app-nes-piece [piece]="puzzle.currentPiece" />
+      </div>
+      <div class="stat">
+        <p>Next</p>
+        <app-nes-piece [piece]="puzzle.nextPiece" />
+      </div>
+      <div class="stat">
+        <p>Accuracy</p>
+        <h1>{{puzzle.numAttempts === 0 ? '-' : ((puzzle.numSolves / puzzle.numAttempts * 100).toFixed(0) + '%')}}</h1>
+      </div>
+      <div class="stat">
+        <p>Attempts</p>
+        <h1>{{puzzle.numAttempts}}</h1>
+      </div>
+    </div>
+    <div class="footer">
+      <app-solid-button icon="./assets/img/puzzle-button-icons/delete.svg" [color]="ButtonColor.GREY" />
+      <app-solid-button icon="./assets/img/puzzle-button-icons/link.svg" [color]="ButtonColor.GREY" />
+      <app-solid-button icon="./assets/img/puzzle-button-icons/add.svg" [color]="ButtonColor.GREY" />
+      <app-solid-button icon="./assets/img/puzzle-button-icons/edit.svg" [color]="ButtonColor.GREY" />
+      <app-solid-button icon="./assets/img/puzzle-button-icons/analyze.svg" [color]="ButtonColor.GREY" />
+      <app-solid-button icon="./assets/img/puzzle-button-icons/play.svg" [color]="ButtonColor.BLUE" (click)="play()" />
+    </div>
+  </div>
 </div>

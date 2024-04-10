@@ -39,11 +39,12 @@
 }
 
 .folder-panel {
-  max-width: 300px;
+  max-width: 400px;
 }
 
 .puzzle-panel {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  flex-wrap: wrap;
 }
