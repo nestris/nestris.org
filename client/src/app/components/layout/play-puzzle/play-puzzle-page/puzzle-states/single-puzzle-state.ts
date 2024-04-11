@@ -30,7 +30,7 @@ export class SinglePuzzleState extends PuzzleState {
       return false;
   }
 
-  override hasNextPuzzle(): boolean {
-      return false;
+  override nextButtonText(): string | undefined {
+      return undefined;
   }
 }

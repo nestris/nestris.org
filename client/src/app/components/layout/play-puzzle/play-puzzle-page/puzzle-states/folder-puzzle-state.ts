@@ -33,7 +33,12 @@ export class FolderPuzzleState extends PuzzleState {
       return false;
   }
 
-  override hasNextPuzzle(): boolean {
-      return true;
+  override nextButtonText(): string | undefined {
+
+    // if no puzzles left, return undefined
+    if (this.currentPuzzleIndex + 1 === this.folder.puzzles.length) return undefined;
+
+    // return i.e. "Next Puzzle (2/5)"
+    return `Next Puzzle (${this.currentPuzzleIndex + 2}/${this.folder.puzzles.length})`;
   }
 }

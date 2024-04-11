@@ -219,4 +219,8 @@ export class PlayPuzzlePageComponent implements OnInit {
     return undefined;
   }
 
+  exitUnratedPuzzle() {
+    this.router.navigate(["/puzzles/view"]);
+  }
+
 }

@@ -42,8 +42,8 @@ export class RatedPuzzleState extends PuzzleState {
       return true;
   }
 
-  override hasNextPuzzle(): boolean {
-      return true;
+  override nextButtonText(): string | undefined {
+      return "New Puzzle";
   }
 
   getElo() {

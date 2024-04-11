@@ -26,7 +26,7 @@ export abstract class PuzzleState {
   abstract getPuzzleName(): string;
   abstract getEloChange(): EloChange | undefined;
   abstract isTimed(): boolean;
-  abstract hasNextPuzzle(): boolean;
+  abstract nextButtonText(): string | undefined; // string for button to go to next puzzle, or undefined if no button
 
   protected onSubmitPuzzle(isCorrect: boolean): void {}
 

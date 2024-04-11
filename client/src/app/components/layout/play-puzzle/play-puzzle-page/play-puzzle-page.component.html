@@ -129,11 +129,20 @@
                         (click)="submitPuzzleEarly()"
                     />
 
-                    <!-- show "New Puzzle" button if in puzzle solution mode -->
-                    <app-solid-button *ngIf="!(solvingPuzzle$ | async)"
+                    <!-- If in puzzle solution mode and no next puzzle, show "Exit" button -->
+                    <app-solid-button *ngIf="!(solvingPuzzle$ | async) && !puzzleState.nextButtonText()"
                         class="new-puzzle-button"
                         icon="./assets/img/button-icons/new-puzzle.svg"
-                        label="New Puzzle" [color]="ButtonColor.BLUE"
+                        label="Back to Puzzles" [color]="ButtonColor.BLUE"
+                        [stretch]="true"
+                        (click)="exitUnratedPuzzle()"
+                    />
+
+                    <!-- If in puzzle solution mode and has next puzzle, show "Next Puzzle" button -->
+                    <app-solid-button *ngIf="!(solvingPuzzle$ | async) && puzzleState.nextButtonText()"
+                        class="new-puzzle-button"
+                        icon="./assets/img/button-icons/new-puzzle.svg"
+                        [label]="puzzleState.nextButtonText()" [color]="ButtonColor.GREEN"
                         [stretch]="true"
                         (click)="startPuzzle()"
                     />
