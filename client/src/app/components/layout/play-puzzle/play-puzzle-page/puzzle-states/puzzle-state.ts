@@ -29,16 +29,16 @@ export abstract class PuzzleState {
   abstract isTimed(): boolean;
   abstract nextButtonText(): string | undefined; // string for button to go to next puzzle, or undefined if no button
 
-  protected onSubmitPuzzle(isCorrect: boolean): void {}
+  protected onSubmitPuzzle(isCorrect: boolean, isRetry: boolean): void {}
 
-  async submitPuzzle(submission: PuzzleSubmission, gaveUp: boolean): Promise<PuzzleResult> {
+  async submitPuzzle(submission: PuzzleSubmission, gaveUp: boolean, isRetry: boolean): Promise<PuzzleResult> {
 
     this.submission = submission;
     
     const result = evaluatePuzzleSubmission(this.currentPuzzle!, submission, gaveUp);
     console.log("submitPuzzle", result);
 
-    this.onSubmitPuzzle(result.isCorrect);
+    this.onSubmitPuzzle(result.isCorrect, isRetry);
 
     // TODO: submit puzzle to server to update attempts / solves
     

@@ -13,9 +13,13 @@ export class RatedPuzzleState extends PuzzleState {
     this.eloHistory.push(1000);
   }
 
-  protected override onSubmitPuzzle(isCorrect: boolean): void {
-      const newElo = this.getElo() + (isCorrect ? this.eloChange.eloGain : -this.eloChange.eloLoss);
-      this.eloHistory.push(newElo);
+  protected override onSubmitPuzzle(isCorrect: boolean, isRetry: boolean): void {
+
+    // do not update elo on retry
+    if (isRetry) return;
+
+    const newElo = this.getElo() + (isCorrect ? this.eloChange.eloGain : -this.eloChange.eloLoss);
+    this.eloHistory.push(newElo);
   }
 
   override async _fetchNextPuzzle(): Promise<SerializedPuzzle> {

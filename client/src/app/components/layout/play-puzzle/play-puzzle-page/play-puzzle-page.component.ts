@@ -53,6 +53,8 @@ export class PlayPuzzlePageComponent implements OnInit {
   private startPuzzleTime?: number;
   private timerInterval: any;
 
+  private isRetry = false;
+
   readonly EloMode = EloMode;
   readonly ButtonColor = ButtonColor;
 
@@ -188,11 +190,13 @@ export class PlayPuzzlePageComponent implements OnInit {
   // submit puzzle and go to puzzle solution page
   async submitPuzzle(submission: PuzzleSubmission, gaveUp: boolean = false) {
 
+    this.isRetry = false;
+
     // stop timer
     clearInterval(this.timerInterval);
 
     // submit puzzle to server
-    const result = await this.puzzleState.submitPuzzle(submission, gaveUp);
+    const result = await this.puzzleState.submitPuzzle(submission, gaveUp, this.isRetry);
     this.puzzleIsCorrect = result.isCorrect;
     this.puzzleSolutionExplanation = result.explanation;
 
@@ -231,6 +235,14 @@ export class PlayPuzzlePageComponent implements OnInit {
   }
 
   retryPuzzle() {
+
+    this.isRetry = true;
+
+    if (this.puzzleState.isTimed()) {
+      this.startTimer();
+    }
+
+    this.solvingPuzzle$.next(true);
 
   }
 
