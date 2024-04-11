@@ -25,6 +25,7 @@ DROP TABLE IF EXISTS "public"."puzzles" CASCADE;
 CREATE TABLE "public"."puzzles" (
     "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
     "creator" text REFERENCES "public"."users"("username"), -- if NULL, then it is a system-generated puzzle
+    "created_at" timestamp NOT NULL DEFAULT now(),
 
     "board" bytea NOT NULL,
     "current_piece" char(1) NOT NULL,

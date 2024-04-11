@@ -81,4 +81,9 @@ export class YourPuzzlesComponent implements OnInit {
     this.modalManager.showModal(ModalType.CREATE_PUZZLE);
   }
 
+  // remove the puzzle from the list (front-end only)
+  deletePuzzle(puzzle: SerializedPuzzle) {
+    this.puzzlesInCurrentFolder$.next(this.puzzlesInCurrentFolder$.value.filter(p => p.id !== puzzle.id));
+  }
+
 }

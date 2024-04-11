@@ -6,6 +6,8 @@ export function getBaseURL(): string {
 export enum Method {
     POST = 'POST',
     GET = 'GET',
+    DELETE = 'DELETE',
+    PUT = 'PUT',
 }
 
 // DEPRECATED: Use fetchServer2 instead

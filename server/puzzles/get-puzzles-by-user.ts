@@ -14,7 +14,8 @@ export async function getPuzzlesByUserRoute(req: Request, res: Response) {
 
 export async function getPuzzlesByUser(username: string): Promise<SerializedPuzzle[]> {
 
-  const result = await queryDB("SELECT * FROM puzzles WHERE creator = $1", [username]);
+  // sort by creation date
+  const result = await queryDB("SELECT * FROM puzzles WHERE creator = $1 ORDER BY created_at DESC", [username]);
 
   return result.rows.map((puzzle) => decodePuzzleFromDB(puzzle));
 }
