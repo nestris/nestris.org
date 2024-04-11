@@ -1,5 +1,7 @@
 import { SerializedPuzzle } from "server/puzzles/decode-puzzle";
 import { EloChange, PuzzleState } from "./puzzle-state";
+import { Method, fetchServer2 } from "client/src/app/scripts/fetch-server";
+import { DBUser } from "server/database/user-queries";
 
 
 export class RatedPuzzleState extends PuzzleState {
@@ -8,9 +10,20 @@ export class RatedPuzzleState extends PuzzleState {
   private eloChange!: EloChange;
   private eloHistory: number[] = [];
 
+  constructor(
+    private readonly username: string,
+  ) {
+    super();
+  }
+
   override async init(): Promise<void> {
+
+    const user = await fetchServer2<DBUser>(Method.GET, `/api/v2/user${this.username}`);
+    console.log("User", user);
+
     // TODO: fetch the user's current puzzle elo from the server
-    this.eloHistory.push(1000);
+    this.eloHistory.push(user.puzzleElo);
+    console.log("Starting elo", user.puzzleElo);
   }
 
   protected override onSubmitPuzzle(isCorrect: boolean, isRetry: boolean): void {

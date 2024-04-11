@@ -17,6 +17,7 @@ import { getTopMovesHybrid } from 'client/src/app/scripts/stackrabbit-decoder';
 import { InputSpeed } from 'network-protocol/models/input-speed';
 import { NotificationService } from 'client/src/app/services/notification.service';
 import { copyPuzzleLink } from 'misc/copy-url';
+import { WebsocketService } from 'client/src/app/services/websocket.service';
 
 export enum PuzzleMode {
   RATED = "rated",
@@ -61,12 +62,20 @@ export class PlayPuzzlePageComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private notifier: NotificationService
+    private notifier: NotificationService,
+    private websocketService: WebsocketService
   ) {
   }
 
   // for when URL is invalid, redirect to default puzzle URL (rated puzzle)
   redirectToDefaultURL() {
+
+    // if not logged in, redirect back to puzzles page
+    if (!this.websocketService.isSignedIn()) {
+      this.router.navigate(['/puzzles/']);
+      return;
+    }
+
     this.router.navigate(['/online/puzzle'], {
       queryParams: {
         mode: "rated", 
@@ -102,9 +111,16 @@ export class PlayPuzzlePageComponent implements OnInit {
       return;
     }
 
+    // if mode is rated and not logged in, redirect back to puzzles page
+    if (mode === PuzzleMode.RATED && !this.websocketService.isSignedIn()) {
+      this.router.navigate(['/puzzles/']);
+      return;
+    }
+
     switch (mode) {
       case PuzzleMode.RATED:
-        this.puzzleState = new RatedPuzzleState();
+        // guaranteed to be logged in
+        this.puzzleState = new RatedPuzzleState(this.websocketService.getUsername()!);
         break;
       case PuzzleMode.FOLDER:
         this.puzzleState = new FolderPuzzleState(id!);
@@ -114,7 +130,14 @@ export class PlayPuzzlePageComponent implements OnInit {
         break;
     }
 
-    await this.puzzleState.init();
+    try {
+      await this.puzzleState.init();
+    } catch (e) {
+      console.log("Error initializing puzzle state:", e);
+      this.redirectToDefaultURL();
+      return;
+    }
+    
 
     await this.startPuzzle();
   }

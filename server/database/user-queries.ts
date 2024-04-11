@@ -34,7 +34,14 @@ export async function queryUserTableForUser(username: string): Promise<DBUser | 
     return undefined;
   }
 
-  return result.rows[0];
+  const rawUser = result.rows[0];
+  return {
+    username: rawUser.username,
+    lastOnline: rawUser.last_online,
+    trophies: rawUser.trophies,
+    xp: rawUser.xp,
+    puzzleElo: rawUser.puzzle_elo
+  };
 }
 
 // get the list of friends, pending friends, and incoming friend requests for a user

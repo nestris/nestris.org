@@ -7,6 +7,12 @@ export async function getPuzzleRoute(req: Request, res: Response) {
   const id = req.params['puzzle'];
   try {
     const puzzle = await getPuzzleFromDatabase(id);
+
+    if (!puzzle) {
+      res.status(404).send("Puzzle not found");
+      return;
+    }
+
     res.status(200).send(puzzle);
   }
   catch (error) {
@@ -14,8 +20,12 @@ export async function getPuzzleRoute(req: Request, res: Response) {
   }
 }
 
-export async function getPuzzleFromDatabase(id: string): Promise<SerializedPuzzle> {
+export async function getPuzzleFromDatabase(id: string): Promise<SerializedPuzzle | undefined> {
   
-  const result = await queryDB("SELECT * FROM puzzles WHERE id = $1", [id]);
-  return decodePuzzleFromDB(result.rows[0]);
+  try {
+    const result = await queryDB("SELECT * FROM puzzles WHERE id = $1", [id]);
+    return decodePuzzleFromDB(result.rows[0]);
+  } catch (error) {
+    return undefined;
+  }
 }
