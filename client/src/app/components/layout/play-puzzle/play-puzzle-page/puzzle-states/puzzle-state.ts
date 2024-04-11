@@ -30,9 +30,9 @@ export abstract class PuzzleState {
 
   protected onSubmitPuzzle(isCorrect: boolean): void {}
 
-  async submitPuzzle(submission: PuzzleSubmission): Promise<PuzzleResult> {
+  async submitPuzzle(submission: PuzzleSubmission, gaveUp: boolean): Promise<PuzzleResult> {
     
-    const result = evaluatePuzzleSubmission(this.currentPuzzle!, submission);
+    const result = evaluatePuzzleSubmission(this.currentPuzzle!, submission, gaveUp);
     console.log("submitPuzzle", result);
 
     this.onSubmitPuzzle(result.isCorrect);

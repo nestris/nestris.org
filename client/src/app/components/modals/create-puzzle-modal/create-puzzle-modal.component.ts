@@ -17,7 +17,7 @@ import { WebsocketService } from 'client/src/app/services/websocket.service';
 import { ModalManagerService } from 'client/src/app/services/modal-manager.service';
 import { ActivatedRoute, Router } from '@angular/router';
 
-interface Move {
+export interface Move {
   firstPlacement: MoveableTetromino;
   secondPlacement: MoveableTetromino;
   score: number;
@@ -142,9 +142,6 @@ export class CreatePuzzleModalComponent implements OnInit, OnDestroy {
 
     const response = await getTopMovesHybrid(this.board$.getValue(), 18, 0, this.currentType$.getValue(), this.nextType$.getValue(), InputSpeed.HZ_30);
     this.moveRecommendations$.next(response.nextBox);
-
-    const fast = await getTopMovesHybrid(this.board$.getValue(), 18, 0, this.currentType$.getValue(), this.nextType$.getValue(), InputSpeed.HZ_30, 0, 0);
-    console.log(fast);
   }
 
   async generatePuzzle() {

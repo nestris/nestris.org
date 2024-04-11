@@ -12,6 +12,9 @@ import { RatedPuzzleState } from './puzzle-states/rated-puzzle-state';
 import MoveableTetromino from 'network-protocol/tetris/moveable-tetromino';
 import { TetrisBoard } from 'network-protocol/tetris/tetris-board';
 import { BinaryTranscoder } from 'network-protocol/tetris-board-transcoding/binary-transcoder';
+import { Move } from '../../../modals/create-puzzle-modal/create-puzzle-modal.component';
+import { getTopMovesHybrid } from 'client/src/app/scripts/stackrabbit-decoder';
+import { InputSpeed } from 'network-protocol/models/input-speed';
 
 export enum PuzzleMode {
   RATED = "rated",
@@ -41,6 +44,8 @@ export class PlayPuzzlePageComponent implements OnInit {
   puzzleIsCorrect = false;
   puzzleSolutionExplanation: string = "";
 
+  moveRecommendations$ = new BehaviorSubject<Move[]>([]);
+  public hoveredMove$ = new BehaviorSubject<Move | undefined>(undefined);
 
   public currentPuzzleTime$ = new BehaviorSubject<number>(0);
   private startPuzzleTime?: number;
@@ -109,12 +114,30 @@ export class PlayPuzzlePageComponent implements OnInit {
     await this.startPuzzle();
   }
 
+  async generateMoveRecommendations(puzzle: SerializedPuzzle) {
+
+    console.log("Generating move recommendations");
+
+    const board = BinaryTranscoder.decode(puzzle.board);
+    const response = await getTopMovesHybrid(board, 18, 0, puzzle.currentPiece, puzzle.nextPiece, InputSpeed.HZ_30);
+    
+    console.log("GEnerated");
+    this.moveRecommendations$.next(response.nextBox);
+  }
+
+  hoverEngineMove(move: Move | undefined) {
+    this.hoveredMove$.next(move);
+  }
+
 
   // fetch a new puzzle from the server, start puzzle, and start timer
   async startPuzzle() {
 
 
     const puzzle = await this.puzzleState.fetchNextPuzzle();
+
+    // start fetching move generations. no need to wait for this to finish
+    this.generateMoveRecommendations(puzzle);
 
     this.puzzle$.next(puzzle);
     this.eloChange$.next(this.puzzleState.getEloChange());
@@ -151,14 +174,22 @@ export class PlayPuzzlePageComponent implements OnInit {
     this.clickUndo$.next();
   }
 
+  async submitPuzzleEarly() {
+    const submission: PuzzleSubmission = {
+      firstPiece: undefined,
+      secondPiece: undefined
+    };
+    await this.submitPuzzle(submission, true);
+  }
+
   // submit puzzle and go to puzzle solution page
-  async submitPuzzle(submission: PuzzleSubmission) {
+  async submitPuzzle(submission: PuzzleSubmission, gaveUp: boolean = false) {
 
     // stop timer
     clearInterval(this.timerInterval);
 
     // submit puzzle to server
-    const result = await this.puzzleState.submitPuzzle(submission);
+    const result = await this.puzzleState.submitPuzzle(submission, gaveUp);
     this.puzzleIsCorrect = result.isCorrect;
     this.puzzleSolutionExplanation = result.explanation;
 

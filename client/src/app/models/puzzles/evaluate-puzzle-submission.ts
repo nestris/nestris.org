@@ -44,14 +44,22 @@ const WRONG_ANSWER_COMMENTS = [
 
 const WRONG_ANSWER_STREAK_COMEMNTS = [
     "Is your GPS off today?",
-    "Your accuracy’s on vacation.",
+    "Your accuracy's on vacation.",
     "I guess perfection's too mainstream for you.",
 ]
   
 // check whether a puzzle submission is correct
 // returns a boolean for correctness, and a string for an explanation
 // TODO: more descriptive explanation
-export function evaluatePuzzleSubmission(puzzle: SerializedPuzzle, submission: PuzzleSubmission): PuzzleResult {
+export function evaluatePuzzleSubmission(puzzle: SerializedPuzzle, submission: PuzzleSubmission, gaveUp: boolean): PuzzleResult {
+
+    if (gaveUp) {
+        return {
+            isCorrect: false,
+            explanation: "You didn't finish the puzzle!"
+        }
+    }
+            
 
     // if submission is incomplete, return false
     if (!isSubmissionComplete(submission)) {

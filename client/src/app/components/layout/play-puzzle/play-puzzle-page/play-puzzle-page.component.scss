@@ -92,7 +92,9 @@ header {
     justify-content: flex-start;
     align-items: center;
     width: 100%;
-    box-sizing: border-box
+    box-sizing: border-box;
+    
+    gap: 20px;
 };
 
 .puzzle-details-bottom {
@@ -196,3 +198,80 @@ header {
 .elo-container {
     margin-bottom: 20px;
 }
+
+
+.engine-div {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+
+    width: 80%;
+  }
+
+.engine-div h2 {
+    font-family: $main-font;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    margin: 5px;
+}
+  
+  .engine-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .table-rows {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr 1fr 1fr;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .labels p {
+    font-family: Montserrat;
+    font-size: 9px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    text-align: center;
+    text-wrap: nowrap;
+    opacity: 0.7;
+    margin: 2px;
+  }
+  
+  .engine-move {
+    background-color: rgb(255, 255, 255, 0.2);
+    border-radius: 10px;
+    margin-bottom: 4px;
+  
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+  }
+  
+  .engine-move.first-move {
+    background-color: #156241;
+  }
+
+  .engine-move:hover {
+    opacity: 0.8;
+  }
+  
+  .engine-move p {
+    font-family: Montserrat;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    text-align: center;
+    text-wrap: nowrap;
+    margin: 3px;
+  }
+  
+  .left {
+    text-align: left !important;
+    margin-left: 10px !important;
+  }
+  
