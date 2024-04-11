@@ -12,6 +12,7 @@ export interface EloChange {
 export abstract class PuzzleState {
 
   protected currentPuzzle?: SerializedPuzzle;
+  private submission?: PuzzleSubmission;
 
   // should throw an error if not initialized properly
   abstract init(): Promise<void>;
@@ -31,6 +32,8 @@ export abstract class PuzzleState {
   protected onSubmitPuzzle(isCorrect: boolean): void {}
 
   async submitPuzzle(submission: PuzzleSubmission, gaveUp: boolean): Promise<PuzzleResult> {
+
+    this.submission = submission;
     
     const result = evaluatePuzzleSubmission(this.currentPuzzle!, submission, gaveUp);
     console.log("submitPuzzle", result);
@@ -40,5 +43,9 @@ export abstract class PuzzleState {
     // TODO: submit puzzle to server to update attempts / solves
     
     return result;
+  }
+
+  getSubmission(): PuzzleSubmission | undefined {
+    return this.submission;
   }
 }

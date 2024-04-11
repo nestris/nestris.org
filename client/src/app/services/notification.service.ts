@@ -34,7 +34,7 @@ export class NotificationService {
       this.notifier.notify(type, message, id);
     }, 0);
 
-    console.log("show:", message, id);
+    // console.log("show:", message, id);
 
     let durationSeconds;
     switch (autohide) {
@@ -47,7 +47,7 @@ export class NotificationService {
     if (durationSeconds !== null) {
       setTimeout(() => {
         this.notifier.hide(id!);
-        console.log("hide:", message, id);
+        // console.log("hide:", message, id);
       }, durationSeconds * 1000);
     }
     

@@ -11,6 +11,7 @@ import { Method, fetchServer2 } from 'client/src/app/scripts/fetch-server';
 import { reloadCurrentRoute } from 'misc/angular-functions';
 import { NotificationService } from 'client/src/app/services/notification.service';
 import { NotificationType } from 'network-protocol/models/notifications';
+import { copyPuzzleLink } from 'misc/copy-url';
 
 @Component({
   selector: 'app-your-puzzle-item',
@@ -55,19 +56,7 @@ export class YourPuzzleItemComponent implements OnInit {
 
   // copy url of the puzzle to clipboard
   copyPuzzleLink() {
-
-    // generate the url of the puzzle
-    const currentURL = new URL(window.location.href); // need to extract base url
-    const puzzleURL = new URL(currentURL.origin + "/online/puzzle");
-    puzzleURL.searchParams.set('mode', PuzzleMode.SINGLE);
-    puzzleURL.searchParams.set('id', this.puzzle.id);
-
-    // copy the url to clipboard
-    navigator.clipboard.writeText(puzzleURL.toString());
-    console.log("Copied puzzle link to clipboard", puzzleURL.toString());
-
-    // notify the user that the link has been copied
-    this.notifier.notify(NotificationType.SUCCESS, "Puzzle link copied to clipboard");
+    copyPuzzleLink(this.notifier, this.puzzle.id);
   }
 
   async deletePuzzle() {

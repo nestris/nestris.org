@@ -15,6 +15,8 @@ import { BinaryTranscoder } from 'network-protocol/tetris-board-transcoding/bina
 import { Move } from '../../../modals/create-puzzle-modal/create-puzzle-modal.component';
 import { getTopMovesHybrid } from 'client/src/app/scripts/stackrabbit-decoder';
 import { InputSpeed } from 'network-protocol/models/input-speed';
+import { NotificationService } from 'client/src/app/services/notification.service';
+import { copyPuzzleLink } from 'misc/copy-url';
 
 export enum PuzzleMode {
   RATED = "rated",
@@ -57,6 +59,7 @@ export class PlayPuzzlePageComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private notifier: NotificationService
   ) {
   }
 
@@ -204,14 +207,14 @@ export class PlayPuzzlePageComponent implements OnInit {
     return BinaryTranscoder.decode(puzzle.board);
   }
 
-  getCurrentMT(): MoveableTetromino {
-    const puzzle = this.puzzle$.getValue()!;
-    return new MoveableTetromino(puzzle.currentPiece, puzzle.r1, puzzle.x1, puzzle.y1);
+  // get the submitted first piece
+  getCurrentMT(): MoveableTetromino | undefined {
+    return this.puzzleState.getSubmission()?.firstPiece;
   }
 
-  getNextMT(): MoveableTetromino {
-    const puzzle = this.puzzle$.getValue()!;
-    return new MoveableTetromino(puzzle.nextPiece, puzzle.r2, puzzle.x2, puzzle.y2);
+  // get the submitted second piece
+  getNextMT(): MoveableTetromino | undefined {
+    return this.puzzleState.getSubmission()?.secondPiece;
   }
 
   getRatedPuzzleState(): RatedPuzzleState | undefined {
@@ -221,6 +224,14 @@ export class PlayPuzzlePageComponent implements OnInit {
 
   exitUnratedPuzzle() {
     this.router.navigate(["/puzzles/view"]);
+  }
+
+  sharePuzzle() {
+    copyPuzzleLink(this.notifier, this.puzzle$.getValue()!.id);
+  }
+
+  retryPuzzle() {
+
   }
 
 }

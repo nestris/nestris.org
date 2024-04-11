@@ -129,6 +129,22 @@
                         (click)="submitPuzzleEarly()"
                     />
 
+                    <!-- Show "share" and "retry" buttons if in puzzle solution mode -->
+                    <div *ngIf="!(solvingPuzzle$ | async)" class="two-button-container">
+                        <app-solid-button class="new-puzzle-button"
+                            icon="./assets/img/puzzle-button-icons/link.svg"
+                            label="Share" [color]="ButtonColor.GREY"
+                            [stretch]="true"
+                            (click)="sharePuzzle()"
+                        />
+                        <app-solid-button class="new-puzzle-button"
+                            icon="./assets/img/button-icons/retry.svg"
+                            label="Retry" [color]="ButtonColor.GREY"
+                            [stretch]="true"
+                            (click)="retryPuzzle()"
+                        />
+                    </div>
+
                     <!-- If in puzzle solution mode and no next puzzle, show "Exit" button -->
                     <app-solid-button *ngIf="!(solvingPuzzle$ | async) && !puzzleState.nextButtonText()"
                         class="new-puzzle-button"
