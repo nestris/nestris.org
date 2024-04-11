@@ -65,12 +65,12 @@
                         <h1 [ngClass]="{
                             'correct': !(solvingPuzzle$ | async) && puzzleIsCorrect,
                             'incorrect': !(solvingPuzzle$ | async) && !puzzleIsCorrect
-                        }">{{(solvingPuzzle$ | async) ? puzzleState.getPuzzleName() : (puzzleIsCorrect ? "Correct" : "Incorrect")}}</h1>
+                        }">{{(solvingPuzzle$ | async) ? (puzzleState$ | async)?.getPuzzleName() : (puzzleIsCorrect ? "Correct" : "Incorrect")}}</h1>
                     </div>
                     
 
                     <app-elo-rating class="elo-container" *ngIf="(eloChange$ | async) as eloChange"
-                        [rating]="getRatedPuzzleState()!.getElo()"
+                        [rating]="(getRatedPuzzleState$() | async)?.getElo() ?? 1000"
                         [increase]="eloChange.eloGain" [decrease]="eloChange.eloLoss"
                         [mode]="(solvingPuzzle$ | async) ? EloMode.NEUTRAL : (puzzleIsCorrect ? EloMode.WIN : EloMode.LOSS)"
                     />
@@ -88,7 +88,7 @@
                     <!-- all the elements in puzzle solution mode -->
                     <ng-container *ngIf="!(solvingPuzzle$ | async)">
 
-                        <app-elo-graph *ngIf="getRatedPuzzleState() as ratedState" [eloHistory]="ratedState.getEloHistory()"/>
+                        <app-elo-graph *ngIf="(getRatedPuzzleState$() | async) as ratedState" [eloHistory]="ratedState.getEloHistory()"/>
 
                         <!-- Engine recommendations -->
                         <div class="engine-div">
@@ -146,7 +146,7 @@
                     </div>
 
                     <!-- If in puzzle solution mode and no next puzzle, show "Exit" button -->
-                    <app-solid-button *ngIf="!(solvingPuzzle$ | async) && !puzzleState.nextButtonText()"
+                    <app-solid-button *ngIf="!(solvingPuzzle$ | async) && !(puzzleState$ | async)?.nextButtonText()"
                         class="new-puzzle-button"
                         icon="./assets/img/button-icons/new-puzzle.svg"
                         label="Back to Puzzles" [color]="ButtonColor.BLUE"
@@ -155,10 +155,10 @@
                     />
 
                     <!-- If in puzzle solution mode and has next puzzle, show "Next Puzzle" button -->
-                    <app-solid-button *ngIf="!(solvingPuzzle$ | async) && puzzleState.nextButtonText()"
+                    <app-solid-button *ngIf="!(solvingPuzzle$ | async) && (puzzleState$ | async)?.nextButtonText()"
                         class="new-puzzle-button"
                         icon="./assets/img/button-icons/new-puzzle.svg"
-                        [label]="puzzleState.nextButtonText()" [color]="ButtonColor.GREEN"
+                        [label]="(puzzleState$ | async)?.nextButtonText()" [color]="ButtonColor.GREEN"
                         [stretch]="true"
                         (click)="startPuzzle()"
                     />
@@ -170,7 +170,7 @@
 
         <!-- show timer if in puzzle solving mode -->
         <app-timer class="timer"
-            [ngStyle]="{visibility: ((solvingPuzzle$ | async) && puzzleState.isTimed()) ? 'visible' : 'hidden'}"
+            [ngStyle]="{visibility: ((solvingPuzzle$ | async) && (puzzleState$ | async)?.isTimed()) ? 'visible' : 'hidden'}"
             [currentTime]="(currentPuzzleTime$ | async) ?? 0"
             [maxTime]="PUZZLE_TIME_LIMIT"
         />

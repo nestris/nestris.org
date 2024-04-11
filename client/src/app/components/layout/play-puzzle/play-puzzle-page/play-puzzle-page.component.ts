@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { PuzzleSubmission } from 'client/src/app/models/puzzles/puzzle';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, map } from 'rxjs';
 import { EloMode } from '../elo-rating/elo-rating.component';
 import { ButtonColor } from '../../../ui/solid-button/solid-button.component';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -34,7 +34,7 @@ export class PlayPuzzlePageComponent implements OnInit {
 
   readonly PUZZLE_TIME_LIMIT = 30;
 
-  puzzleState!: PuzzleState;
+  puzzleState$ = new BehaviorSubject<PuzzleState | undefined>(undefined);
 
   puzzle$ = new BehaviorSubject<SerializedPuzzle | undefined>(undefined);
   eloChange$ = new BehaviorSubject<EloChange | undefined>(undefined);
@@ -96,50 +96,68 @@ export class PlayPuzzlePageComponent implements OnInit {
     id:
     - id of folder or puzzle
     */
-    const mode = this.route.snapshot.queryParamMap.get('mode') as PuzzleMode;
-    const id = this.route.snapshot.queryParamMap.get('id');
 
-    // if mode is not valid, redirect to default puzzle URL
-    if (!Object.values(PuzzleMode).includes(mode)) {
-      this.redirectToDefaultURL();
-      return;
-    }
+    this.route.queryParamMap.subscribe(async (param) => {
+      const mode = param.get('mode') as PuzzleMode;
+      const id = param.get('id'); 
 
-    // if mode is folder or single, but id is not provided, redirect to default puzzle URL
-    if ((mode === PuzzleMode.FOLDER || mode === PuzzleMode.SINGLE) && !id) {
-      this.redirectToDefaultURL();
-      return;
-    }
+      console.log("Mode:", mode);
+      console.log("ID:", id);
 
-    // if mode is rated and not logged in, redirect back to puzzles page
-    if (mode === PuzzleMode.RATED && !this.websocketService.isSignedIn()) {
-      this.router.navigate(['/puzzles/']);
-      return;
-    }
+      // if mode is not valid, redirect to default puzzle URL
+      if (!Object.values(PuzzleMode).includes(mode)) {
+        console.log("Invalid mode");
+        this.redirectToDefaultURL();
+        return;
+      }
 
-    switch (mode) {
-      case PuzzleMode.RATED:
-        // guaranteed to be logged in
-        this.puzzleState = new RatedPuzzleState(this.websocketService.getUsername()!);
-        break;
-      case PuzzleMode.FOLDER:
-        this.puzzleState = new FolderPuzzleState(id!);
-        break;
-      case PuzzleMode.SINGLE:
-        this.puzzleState = new SinglePuzzleState(id!);
-        break;
-    }
+      // if mode is folder or single, but id is not provided, redirect to default puzzle URL
+      if ((mode === PuzzleMode.FOLDER || mode === PuzzleMode.SINGLE) && !id) {
+        console.log("ID not provided");
+        this.redirectToDefaultURL();
+        return;
+      }
 
-    try {
-      await this.puzzleState.init();
-    } catch (e) {
-      console.log("Error initializing puzzle state:", e);
-      this.redirectToDefaultURL();
-      return;
-    }
-    
+      // if mode is rated and not logged in, redirect back to puzzles page
+      if (mode === PuzzleMode.RATED && !this.websocketService.isSignedIn()) {
+        console.log("Not logged in");
+        this.router.navigate(['/puzzles/']);
+        return;
+      }
 
-    await this.startPuzzle();
+      console.log("Creating puzzle state");
+      let puzzleState: PuzzleState;
+
+      switch (mode) {
+        case PuzzleMode.RATED:
+          // guaranteed to be logged in
+          puzzleState = new RatedPuzzleState(this.websocketService.getUsername()!);
+          console.log("Rated puzzle state created");
+          break;
+        case PuzzleMode.FOLDER:
+          puzzleState = new FolderPuzzleState(id!);
+          console.log("Folder puzzle state created");
+          break;
+        case PuzzleMode.SINGLE:
+          puzzleState = new SinglePuzzleState(id!);
+          console.log("Single puzzle state created");
+          break;
+      }
+
+      console.log("Puzzle state created");
+
+      try {
+        await puzzleState.init();
+        this.puzzleState$.next(puzzleState);
+        console.log("Puzzle state initialized");
+      } catch (e) {
+        console.log("Error initializing puzzle state:", e);
+        this.redirectToDefaultURL();
+        return;
+      }
+
+      await this.startPuzzle();
+    });
   }
 
   async generateMoveRecommendations(puzzle: SerializedPuzzle) {
@@ -162,15 +180,15 @@ export class PlayPuzzlePageComponent implements OnInit {
   async startPuzzle() {
 
 
-    const puzzle = await this.puzzleState.fetchNextPuzzle();
+    const puzzle = await this.puzzleState$.getValue()!.fetchNextPuzzle();
 
     // start fetching move generations. no need to wait for this to finish
     this.generateMoveRecommendations(puzzle);
 
     this.puzzle$.next(puzzle);
-    this.eloChange$.next(this.puzzleState.getEloChange());
+    this.eloChange$.next(this.puzzleState$.getValue()!.getEloChange());
     
-    if (this.puzzleState.isTimed()) {
+    if (this.puzzleState$.getValue()!.isTimed()) {
       this.startTimer();
     }
 
@@ -219,7 +237,7 @@ export class PlayPuzzlePageComponent implements OnInit {
     clearInterval(this.timerInterval);
 
     // submit puzzle to server
-    const result = await this.puzzleState.submitPuzzle(submission, gaveUp, this.isRetry);
+    const result = await this.puzzleState$.getValue()!.submitPuzzle(submission, gaveUp, this.isRetry);
     this.puzzleIsCorrect = result.isCorrect;
     this.puzzleSolutionExplanation = result.explanation;
 
@@ -236,17 +254,21 @@ export class PlayPuzzlePageComponent implements OnInit {
 
   // get the submitted first piece
   getCurrentMT(): MoveableTetromino | undefined {
-    return this.puzzleState.getSubmission()?.firstPiece;
+    return this.puzzleState$.getValue()!.getSubmission()?.firstPiece;
   }
 
   // get the submitted second piece
   getNextMT(): MoveableTetromino | undefined {
-    return this.puzzleState.getSubmission()?.secondPiece;
+    return this.puzzleState$.getValue()!.getSubmission()?.secondPiece;
   }
 
-  getRatedPuzzleState(): RatedPuzzleState | undefined {
-    if (this.puzzleState instanceof RatedPuzzleState) return this.puzzleState;
-    return undefined;
+  getRatedPuzzleState$(): Observable<RatedPuzzleState | undefined> {
+    return this.puzzleState$.pipe(map(state => {
+      if (state instanceof RatedPuzzleState) {
+        return state;
+      }
+      return undefined;
+    }));
   }
 
   exitUnratedPuzzle() {
@@ -261,7 +283,7 @@ export class PlayPuzzlePageComponent implements OnInit {
 
     this.isRetry = true;
 
-    if (this.puzzleState.isTimed()) {
+    if (this.puzzleState$.getValue()!.isTimed()) {
       this.startTimer();
     }
 
