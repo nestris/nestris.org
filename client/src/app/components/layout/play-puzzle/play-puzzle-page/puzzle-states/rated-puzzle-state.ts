@@ -18,7 +18,7 @@ export class RatedPuzzleState extends PuzzleState {
 
   override async init(): Promise<void> {
 
-    const user = await fetchServer2<DBUser>(Method.GET, `/api/v2/user${this.username}`);
+    const user = await fetchServer2<DBUser>(Method.GET, `/api/v2/user/${this.username}`);
     console.log("User", user);
 
     // TODO: fetch the user's current puzzle elo from the server

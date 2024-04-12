@@ -4,6 +4,7 @@ import { BinaryTranscoder } from "../../../../network-protocol/tetris-board-tran
 import { Method, fetchServer } from "./fetch-server";
 import MoveableTetromino from "../../../../network-protocol/tetris/moveable-tetromino";
 import { TetrominoType } from "../../../../network-protocol/tetris/tetromino-type";
+import { decodeStackrabbitResponse } from "network-protocol/stackrabbit-decoder";
 
 export interface TopMovesHybridResponse {
   nextBox: {
@@ -43,17 +44,7 @@ export async function getTopMovesHybrid(
     throw new Error("Error getting top moves hybrid");
   }
 
-  return {
-    nextBox: (response.content['nextBox'] as any[]).map((move: any) => { return {
-      firstPlacement: MoveableTetromino.fromStackRabbitPose(currentPiece, move['firstPlacement'][0] as number, move['firstPlacement'][1] as number, move['firstPlacement'][2] as number),
-      secondPlacement: MoveableTetromino.fromStackRabbitPose(nextPiece, move['secondPlacement'][0] as number, move['secondPlacement'][1] as number, move['secondPlacement'][2] as number),
-      score: move['playoutScore'] as number
-    }}),
-    noNextBox : (response.content['noNextBox'] as any[]).map((move: any) => { return {
-      firstPlacement: MoveableTetromino.fromStackRabbitPose(currentPiece, move['firstPlacement'][0], move['firstPlacement'][1], move['firstPlacement'][2]),
-      score: move['playoutScore'] as number
-    }})
-  }
+  return decodeStackrabbitResponse(response.content, currentPiece, nextPiece);
 
 }
 

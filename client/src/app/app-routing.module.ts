@@ -17,6 +17,7 @@ import { RankedPuzzlesComponent } from './components/layout/puzzles/ranked-puzzl
 import { YourPuzzlesComponent } from './components/layout/puzzles/your-puzzles/your-puzzles.component';
 import { AttemptHistoryComponent } from './components/layout/puzzles/attempt-history/attempt-history.component';
 import { PuzzleDatabaseComponent } from './components/layout/puzzles/puzzle-database/puzzle-database.component';
+import { MorePageComponent } from './components/layout/more/more-page/more-page.component';
 
 const routes: Routes = [
   {
@@ -52,6 +53,7 @@ const routes: Routes = [
           { path: "**", redirectTo: "ranked", pathMatch: "full", }
         ]
       },
+      { path: "more", component: MorePageComponent },
       { path: "", redirectTo: "home", pathMatch: "full", },
       { path: "**", redirectTo: "home", pathMatch: "full", }
     ],

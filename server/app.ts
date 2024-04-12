@@ -18,6 +18,7 @@ import { getPuzzlesByUserRoute } from './puzzles/get-puzzles-by-user';
 import { getPuzzleRoute } from './puzzles/get-puzzle';
 import { getFolderRoute } from './puzzles/get-folder';
 import { deletePuzzleRoute } from './puzzles/delete-puzzle';
+import { simulateGameRoute } from './puzzle-generation/simulate-game';
 
 
 require('dotenv').config();
@@ -69,6 +70,8 @@ export default async function createApp(): Promise<{
     app.get('/api/v2/folder/:folder', getFolderRoute);
 
     app.get('/api/v2/puzzles-by-user/:username', getPuzzlesByUserRoute);
+
+    app.post('/api/v2/simulate-game', simulateGameRoute);
 
 
     // catch all invalid api routes
