@@ -23,7 +23,7 @@ export interface SerializedGamePlacement {
   y: number;
 }
 
-export function simulateGame(numPlacements: number): SerializedGame {
+export async function simulateGame(numPlacements: number): Promise<SerializedGame> {
 
   let placements: SerializedGamePlacement[] = [];
 
@@ -41,7 +41,7 @@ export function simulateGame(numPlacements: number): SerializedGame {
   // simulate game
   for (let i = 0; i < numPlacements; i++) {
     const boardString = BinaryTranscoder.encode(board);
-    const result = getTopMovesHybrid(boardString, 18, 0, current, next, InputSpeed.HZ_30, 343, 3);
+    const result = await getTopMovesHybrid(boardString, 18, 0, current, next, InputSpeed.HZ_30, 343, 3);
     const parsed = decodeStackrabbitResponse(result, current, next);
 
     if (parsed.nextBox.length < 2) {
@@ -86,7 +86,7 @@ export async function simulateGameRoute(req: Request, res: Response) {
   const count = parseInt(req.body['count'] as string);
   console.log("Simulating game with ", count, " placements");
 
-  const game = simulateGame(count);
+  const game = await simulateGame(count);
 
   res.send(game);
 

@@ -1,8 +1,9 @@
 import { Request, Response } from 'express';
-import { TetrominoType } from "network-protocol/tetris/tetromino-type";
+import { TetrominoType } from "../../network-protocol/tetris/tetromino-type";
 import { INPUT_SPEED_TO_TIMELINE, InputSpeed } from "../../network-protocol/models/input-speed";
+import { TETROMINO_CHAR } from '../../network-protocol/tetris/tetrominos';
 
-const cModule = require("../../../../binaries/cRabbit");
+// const cModule = require("../../../../binaries/cRabbit");
 
 export function cTest() {
   console.time("C++");
@@ -16,7 +17,7 @@ export function cTest() {
   return result;
 }
 
-export function getTopMovesHybrid(
+export async function getTopMovesHybrid(
   boardString: string,
   level: number,
   lines: number,
@@ -33,16 +34,32 @@ export function getTopMovesHybrid(
   const startTime = Date.now();
 
   const inputTimeline = INPUT_SPEED_TO_TIMELINE[inputSpeed];
-  const query = `${boardString}|${level}|${lines}|${currentPiece}|${nextPiece}|${inputTimeline}|${playoutCount}|${depth}`;
-  console.log("Query: ", query);
-  const result = cModule.getTopMovesHybrid(query);
+  // const query = `${boardString}|${level}|${lines}|${currentPiece}|${nextPiece}|${inputTimeline}|${playoutCount}|${depth}`;
+  // console.log("Query: ", query);
+  // const result = cModule.getTopMovesHybrid(query);
 
+  const url = new URL("https://stackrabbit.net/engine-movelist-cpp-hybrid");
+  url.searchParams.append("board", boardString);
+  url.searchParams.append("level", level.toString());
+  url.searchParams.append("lines", lines.toString());
+  url.searchParams.append("currentPiece", TETROMINO_CHAR[currentPiece]);
+  url.searchParams.append("nextPiece", TETROMINO_CHAR[nextPiece]);
+  url.searchParams.append("inputFrameTimeline", inputTimeline);
+  url.searchParams.append("playoutCount", playoutCount.toString());
+  url.searchParams.append("playoutDepth", depth.toString());
 
-  return result;
+  console.log("URL: ", url.toString());
+  const result = await fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+  return result.json();
 }
 
 // GET request
-export function getTopMovesHybridRoute(req: Request, res: Response) {
+export async function getTopMovesHybridRoute(req: Request, res: Response) {
   // query parameters
   const boardString = req.query['boardString'] as string;
   const level = parseInt(req.query['level'] as string);
@@ -54,7 +71,7 @@ export function getTopMovesHybridRoute(req: Request, res: Response) {
   const playoutCount = parseInt(req.query['playoutCount'] as string) || 343;
   const depth = parseInt(req.query['depth'] as string) || 3;
 
-  const result = getTopMovesHybrid(boardString, level, lines, currentPiece, nextPiece, inputSpeed, playoutCount, depth);
+  const result = await getTopMovesHybrid(boardString, level, lines, currentPiece, nextPiece, inputSpeed, playoutCount, depth);
 
   res.send(result);
 }
