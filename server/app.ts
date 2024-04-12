@@ -12,7 +12,7 @@ import { broadcastAnnouncementRoute } from './routes/broadcast-route';
 import { get } from 'mongoose';
 import { endFriendshipRoute, getAllUsernamesMatchingPatternRoute, getFriendsInfoRoute, getUserByUsernameRoute, setFriendRequestRoute } from './routes/user-route';
 import { connectToDB } from './database';
-import { cTest, getTopMovesHybridRoute } from './puzzles/stackrabbit';
+import { getTopMovesHybridRoute } from './puzzles/stackrabbit';
 import { addPuzzleRoute } from './puzzles/add-puzzle';
 import { getPuzzlesByUserRoute } from './puzzles/get-puzzles-by-user';
 import { getPuzzleRoute } from './puzzles/get-puzzle';
