@@ -1,0 +1,88 @@
+/*
+Get successive boards by playing through games with AI moves.
+*/
+
+import { InputSpeed } from "../../network-protocol/models/input-speed";
+import { decodeStackrabbitResponse } from "../../network-protocol/stackrabbit-decoder";
+import { BinaryTranscoder } from "../../network-protocol/tetris-board-transcoding/binary-transcoder";
+import { TetrisBoard } from "../../network-protocol/tetris/tetris-board";
+import { TetrominoType, getRandomTetrominoType } from "../../network-protocol/tetris/tetromino-type";
+import { getTopMovesHybrid } from "../puzzles/stackrabbit";
+
+export enum GeneratorMode {
+  NB = "NB", // NB mode tends to generate more dependent boards (easier to solve)
+  NNB = "NNB" // NNB mode tends to generate less dependent boards (harder to solve)
+}
+
+export class SequentialBoardGenerator {
+
+  board!: TetrisBoard;
+  current!: TetrominoType;
+  next!: TetrominoType;
+
+  constructor(private readonly mode: GeneratorMode) {
+    this.getResetBoardState();
+  }
+
+  getResetBoardState(): { board: TetrisBoard, current: TetrominoType, next: TetrominoType} {
+    this.board = new TetrisBoard();
+    this.current = getRandomTetrominoType();
+    this.next = getRandomTetrominoType();
+
+    // randomize bottom row
+    for (let i = 0; i < 9; i++) {
+      if (Math.random() < 0.5) {
+        this.board.setAt(i, 19, 1);
+      }
+    }
+
+    return { board: this.board, current: this.current, next: this.next };
+  }
+
+  async getNextBoardState(): Promise<{ board: TetrisBoard, current: TetrominoType, next: TetrominoType}> {
+    
+    const boardString = BinaryTranscoder.encode(this.board);
+    
+    let result;
+    try {
+      result = await getTopMovesHybrid(boardString, 18, 0, this.current, this.next, InputSpeed.HZ_30, 343, 3);
+    } catch (e) { // no legal moves, reset
+      return this.getResetBoardState();
+    }
+    
+    const parsed = decodeStackrabbitResponse(result, this.current, this.next);
+
+    if (parsed.nextBox.length < 3) {
+      return this.getResetBoardState();
+    }
+
+    const state = { board: this.board.copy(), current: this.current, next: this.next };
+
+    // blit to board and process line clears
+    const placement = this.mode === GeneratorMode.NB ? parsed.nextBox[0] : parsed.noNextBox[0];
+    
+    try {
+      placement.firstPlacement.blitToBoard(this.board);
+      this.board.processLineClears();
+    } catch (e) { // if topout, reset
+      return this.getResetBoardState();
+    }
+    
+
+    // go to next piece
+    this.current = this.next;
+
+    // artificially inflate S and Z pieces to make more interesting puzzles
+    const rand = Math.random();
+    if (rand < 0.25) {
+      this.next = TetrominoType.Z_TYPE;
+    } else if (rand < 0.5) {
+      this.next = TetrominoType.S_TYPE;
+    } else {
+      this.next = getRandomTetrominoType();
+    }
+
+    return state;
+  }
+
+}

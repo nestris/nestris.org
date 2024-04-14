@@ -5,19 +5,12 @@ import MoveableTetromino from 'network-protocol/tetris/moveable-tetromino';
 import { TetrisBoard } from 'network-protocol/tetris/tetris-board';
 import { TetrominoType } from 'network-protocol/tetris/tetromino-type';
 import { BehaviorSubject } from 'rxjs';
-import { SerializedGame } from 'server/puzzle-generation/simulate-game';
 import { Move } from '../../../modals/create-puzzle-modal/create-puzzle-modal.component';
 import { getTopMovesHybrid } from 'client/src/app/scripts/stackrabbit-decoder';
 import { InputSpeed } from 'network-protocol/models/input-speed';
-
-export interface PuzzleEvaluation {
-  best: number;
-  diff: number;
-  bestAdjusted: number;
-  diffAdjusted: number;
-  nnbRank: number;
-  total: number;
-}
+import { TopMovesHybridResponse } from 'network-protocol/stackrabbit-decoder';
+import { PuzzleRating, PuzzleRatingDetails, ratePuzzle } from 'network-protocol/puzzles/puzzle-rating';
+import { Puzzle } from 'server/puzzle-generation/generate-puzzles';
 
 export interface NNBMove {
   firstPlacement: MoveableTetromino;
@@ -33,20 +26,26 @@ export interface NNBMove {
 })
 export class MorePageComponent implements OnInit {
 
-  public game!: SerializedGame;
+  public puzzles!: Puzzle[];
 
   public index$ = new BehaviorSubject<number>(0);
 
   public moveRecommendations$ = new BehaviorSubject<Move[]>([]);
   public moveRecommendationsNNB$ = new BehaviorSubject<NNBMove[]>([]);
   public hoveredMove$ = new BehaviorSubject<Move | NNBMove | undefined>(undefined);
-  public evaluation$ = new BehaviorSubject<PuzzleEvaluation | undefined>(undefined);
+
+  public ratings: any = {};
 
   async ngOnInit() {
 
-    this.game = await fetchServer2<SerializedGame>(Method.POST, "/api/v2/simulate-game", {
-      count: 50
-    });    
+    this.puzzles = await fetchServer2<Puzzle[]>(Method.POST, "/api/v2/generate-puzzles", {
+      count: 100
+    });
+
+    // count number of puzzles for each rating
+    for (let rating of Object.values(PuzzleRating)) {
+      this.ratings[rating as string] = this.puzzles.filter(puzzle => puzzle.rating === rating).length;
+    }
     
     this.updateMoveRecommendations();
   }
@@ -62,7 +61,7 @@ export class MorePageComponent implements OnInit {
   }
 
   next() {
-    this.index$.next(Math.min(this.index$.getValue() + 1, this.game.placements.length - 1));
+    this.index$.next(Math.min(this.index$.getValue() + 1, this.puzzles.length - 1));
     this.updateMoveRecommendations();
   }
 
@@ -71,11 +70,11 @@ export class MorePageComponent implements OnInit {
     this.updateMoveRecommendations();
   }
 
+
   async updateMoveRecommendations() {
     this.moveRecommendations$.next([]);
     this.moveRecommendationsNNB$.next([]);
     this.hoveredMove$.next(undefined);
-    this.evaluation$.next(undefined);
 
     const board = this.getBoard(this.index$.getValue());
     const currentPiece = this.getCurrentPiece(this.index$.getValue());
@@ -83,43 +82,22 @@ export class MorePageComponent implements OnInit {
     const response = await getTopMovesHybrid(board, 18, 0, currentPiece, nextPiece, InputSpeed.HZ_30);
     this.moveRecommendations$.next(response.nextBox);
     this.moveRecommendationsNNB$.next(response.noNextBox);
-
-    let best = response.nextBox[0].score;
-
-    let diff: number;
-    if (response.nextBox.length >= 2) diff = response.nextBox[0].score - response.nextBox[1].score;
-    else diff = -1;
-
-    let nnbRank = response.noNextBox.findIndex(move => move.firstPlacement.equals(response.nextBox[0].firstPlacement));
-    if (nnbRank === -1) nnbRank = response.noNextBox.length;
-
-    // 75 / 1.1^x
-    const diffAdjusted = 75 / Math.pow(1.1, diff);
-
-    // -20*tanh(x/50)
-    const bestAdjusted =  -20 * Math.tanh(best / 50);
-
-    const total = bestAdjusted + diffAdjusted;
-
-    this.evaluation$.next({ best, diff, bestAdjusted, diffAdjusted, nnbRank, total});
-
   }
 
   getBoard(index: number): TetrisBoard {
-    return BinaryTranscoder.decode(this.game.placements[index].boardString);
+    return BinaryTranscoder.decode(this.puzzles[index].boardString);
   }
 
   getCurrentPiece(index: number): TetrominoType {
-    return this.game.placements[index].current;
+    return this.puzzles[index].current;
   }
 
   getNextPiece(index: number): TetrominoType {
-    return this.game.placements[index].next;
+    return this.puzzles[index].next;
   }
 
-  getMT(index: number): MoveableTetromino {
-    const placement = this.game.placements[index];
-    return new MoveableTetromino(placement.current, placement.r, placement.x, placement.y);
+  getRating(index: number): PuzzleRating {
+    return this.puzzles[index].rating;
   }
 
   hoverEngineMove(move?: Move | NNBMove) {

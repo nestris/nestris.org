@@ -3,7 +3,10 @@ import { TetrominoType } from "../../network-protocol/tetris/tetromino-type";
 import { INPUT_SPEED_TO_TIMELINE, InputSpeed } from "../../network-protocol/models/input-speed";
 import { TETROMINO_CHAR } from '../../network-protocol/tetris/tetrominos';
 
-// const cModule = require("../../../../binaries/cRabbit");
+const USE_BINARY = true;
+
+let cModule: any;
+if (USE_BINARY) cModule = require("../../../../binaries/cRabbit");
 
 
 export async function getTopMovesHybrid(
@@ -23,9 +26,12 @@ export async function getTopMovesHybrid(
   const startTime = Date.now();
 
   const inputTimeline = INPUT_SPEED_TO_TIMELINE[inputSpeed];
-  // const query = `${boardString}|${level}|${lines}|${currentPiece}|${nextPiece}|${inputTimeline}|${playoutCount}|${depth}`;
-  // console.log("Query: ", query);
-  // const result = cModule.getTopMovesHybrid(query);
+
+  if (USE_BINARY) {
+    const query = `${boardString}|${level}|${lines}|${currentPiece}|${nextPiece}|${inputTimeline}|${playoutCount}|${depth}`;
+    console.log("Query: ", query);
+    return cModule.getTopMovesHybrid(query);
+  }
 
   const url = new URL("https://stackrabbit.net/engine-movelist-cpp-hybrid");
   url.searchParams.append("board", boardString);

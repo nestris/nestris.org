@@ -18,8 +18,10 @@
     <app-nes-piece [piece]="getNextPiece((index$ | async) ?? 0)" [scale]="2.5" />
   </div>
 
-  <div *ngIf="(evaluation$ | async) as evaluation">
-    <p *ngFor="let item of evaluation | keyvalue">{{item.key}}: {{item.value}}</p>
+  <p>Rating: {{getRating((index$ | async) ?? 0)}}</p>
+
+  <div>
+    <p *ngFor="let item of ratings | keyvalue">{{item.key}}: {{item.value}}</p>
   </div>
 
 </div>
