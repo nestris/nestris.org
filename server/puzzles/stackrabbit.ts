@@ -3,7 +3,7 @@ import { TetrominoType } from "../../network-protocol/tetris/tetromino-type";
 import { INPUT_SPEED_TO_TIMELINE, InputSpeed } from "../../network-protocol/models/input-speed";
 import { TETROMINO_CHAR } from '../../network-protocol/tetris/tetrominos';
 
-const USE_BINARY = true;
+const USE_BINARY = process.env['USE_BINARY'] === "true";
 
 let cModule: any;
 if (USE_BINARY) cModule = require("../../../../binaries/cRabbit");
