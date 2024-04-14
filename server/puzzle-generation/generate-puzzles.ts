@@ -19,12 +19,14 @@ export interface Puzzle {
 
 export async function generatePuzzles(count: number): Promise<Puzzle[]> {
 
+  // generator generates realistic board states
   const generator = new SequentialBoardGenerator(GeneratorMode.NB);
   const puzzles: Puzzle[] = [];
 
   for (let i = 0; i < count; i++) {
     const state = await generator.getNextBoardState();
 
+    // randomize current and next pieces for more interesting puzzles
     const current = getRandomTetrominoType();
     const next = getRandomTetrominoType();
     
@@ -33,10 +35,17 @@ export async function generatePuzzles(count: number): Promise<Puzzle[]> {
     const decoded = decodeStackrabbitResponse(stackrabbit, current, next);
     const {rating, details} = ratePuzzle(decoded);
 
-    // // discard bad puzzles
-    // if (rating === PuzzleRating.BAD_PUZZLE) {
-    //   continue;
-    // }
+    // discard bad puzzles
+    if (rating === PuzzleRating.BAD_PUZZLE) {
+      i--;
+      continue;
+    }
+
+    // discard a fraction of 3 star puzzles due to overabundance
+    if (rating === PuzzleRating.THREE_STAR && Math.random() < 0.8) {
+      i--;
+      continue;
+    }
 
     puzzles.push({
       boardString: board,
@@ -44,9 +53,6 @@ export async function generatePuzzles(count: number): Promise<Puzzle[]> {
       next: next,
       rating: rating
     });
-
-
-    
   }
 
   return puzzles;

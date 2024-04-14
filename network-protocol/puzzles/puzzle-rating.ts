@@ -1,6 +1,7 @@
 import { TopMovesHybridResponse } from "network-protocol/stackrabbit-decoder";
 import { TetrisBoard } from "network-protocol/tetris/tetris-board";
 import { TetrominoType } from "network-protocol/tetris/tetromino-type";
+import { unescape } from "querystring";
 
 export enum PuzzleRating {
   BAD_PUZZLE = -1,
@@ -33,6 +34,13 @@ export function ratePuzzle(stackrabbit: TopMovesHybridResponse): {rating: Puzzle
   let diff: number;
   if (stackrabbit.nextBox.length >= 2) diff = stackrabbit.nextBox[0].score - stackrabbit.nextBox[1].score;
   else diff = -1;
+
+  let diffNNB: number | undefined;
+  if (stackrabbit.noNextBox.length >= 2) diffNNB = stackrabbit.noNextBox[0].score - stackrabbit.noNextBox[1].score;
+  else diffNNB = undefined;
+
+  // whether the first move is also best NNB move by far
+  const obviousFirstMove = (bestMoveNNBIndex === 0 && diffNNB !== undefined && diffNNB >= 0.5);
 
   const details: PuzzleRatingDetails = {bestNB, diff, isAdjustment, rating: PuzzleRating.UNRATED};
 
@@ -69,7 +77,7 @@ export function ratePuzzle(stackrabbit: TopMovesHybridResponse): {rating: Puzzle
   let rating: PuzzleRating;
   if (diff >= 30 && !isAdjustment) rating = PuzzleRating.ONE_STAR;
   else if ((diff >= 30) || (diff >= 10 && diff <= 30 && !isAdjustment && bestNB > 20)) rating = PuzzleRating.TWO_STAR;
-  else if ((diff >= 10 && diff <= 30) || (diff >= 1 && diff <= 10 && !isAdjustment)) rating = PuzzleRating.THREE_STAR;
+  else if ((diff >= 10 && diff <= 30) || (diff >= 3 && diff <= 10 && !isAdjustment) || obviousFirstMove) rating = PuzzleRating.THREE_STAR;
   else if ((diff >= 3 && diff <= 10) || (bestNB > 10) || !isAdjustment) rating = PuzzleRating.FOUR_STAR;
   else rating = PuzzleRating.FIVE_STAR;
 
