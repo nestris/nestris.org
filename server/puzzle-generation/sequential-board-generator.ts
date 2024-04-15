@@ -5,7 +5,7 @@ Get successive boards by playing through games with AI moves.
 import { InputSpeed } from "../../network-protocol/models/input-speed";
 import { decodeStackrabbitResponse } from "../../network-protocol/stackrabbit-decoder";
 import { BinaryTranscoder } from "../../network-protocol/tetris-board-transcoding/binary-transcoder";
-import { TetrisBoard } from "../../network-protocol/tetris/tetris-board";
+import { TetrisBoard, getRandomColorType } from "../../network-protocol/tetris/tetris-board";
 import { TetrominoType, getRandomTetrominoType } from "../../network-protocol/tetris/tetromino-type";
 import { getTopMovesHybrid } from "../puzzles/stackrabbit";
 
@@ -30,9 +30,22 @@ export class SequentialBoardGenerator {
     this.next = getRandomTetrominoType();
 
     // randomize bottom row
+    let numMinos = 0;
     for (let i = 0; i < 9; i++) {
       if (Math.random() < 0.5) {
-        this.board.setAt(i, 19, 1);
+        this.board.setAt(i, 19, getRandomColorType());
+        numMinos++;
+      }
+    }
+
+    // if numMinos is odd, add one more on second row to make it even
+    // since only even number of minos are possible at any point
+    if (numMinos % 2 === 1) {
+      for (let i = 0; i < 9; i++) {
+        if (this.board.getAt(i, 19) === 1) {
+          this.board.setAt(i, 18, getRandomColorType());
+          break;
+        }
       }
     }
 

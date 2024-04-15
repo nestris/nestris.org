@@ -9,6 +9,10 @@ export enum ColorType {
     WHITE = 3
 }
 
+export function getRandomColorType(): ColorType {
+    return Math.floor(Math.random() * 3) + 1;
+}
+
 export class TetrisBoard {
 
     // 20 rows, 10 columns

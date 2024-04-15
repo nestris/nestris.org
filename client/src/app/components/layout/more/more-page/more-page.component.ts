@@ -40,7 +40,7 @@ export class MorePageComponent implements OnInit {
   async ngOnInit() {
 
     this.puzzles = await fetchServer2<Puzzle[]>(Method.POST, "/api/v2/generate-puzzles", {
-      count: 50
+      count: 3
     });
 
     // count number of puzzles for each rating
