@@ -46,6 +46,26 @@
   </div>
 </div>
 
+<div class="engine-div">
+  <h2 class="prevent-select">Engine Shallow</h2>
+  <div class="engine-container">
+    <div class="labels table-rows">
+      <p class="left-label">Score</p>
+      <p>Current</p>
+      <p>Next</p>
+    </div>
+
+    <div class="engine-move table-rows" *ngFor="let move of (moveRecommendationsShallow$ | async)"
+      (mouseenter)="hoverEngineMove(move)" (mouseleave)="hoverEngineMove(undefined)"
+    >
+      <p class="left">{{ (move.score > 0 ? ('+' + move.score) : move.score) }}</p>
+      <p>{{ move.firstPlacement.getTetrisNotation() }}</p>
+      <p>{{ move.secondPlacement.getTetrisNotation() }}</p>
+    </div>
+
+  </div>
+</div>
+
 
 <div class="engine-div">
   <h2 class="prevent-select">Engine NNB</h2>

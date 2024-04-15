@@ -9,8 +9,8 @@ import { Move } from '../../../modals/create-puzzle-modal/create-puzzle-modal.co
 import { getTopMovesHybrid } from 'client/src/app/scripts/stackrabbit-decoder';
 import { InputSpeed } from 'network-protocol/models/input-speed';
 import { TopMovesHybridResponse } from 'network-protocol/stackrabbit-decoder';
-import { PuzzleRating, PuzzleRatingDetails, ratePuzzle } from 'network-protocol/puzzles/puzzle-rating';
-import { Puzzle } from 'server/puzzle-generation/generate-puzzles';
+import { PuzzleRating } from 'network-protocol/puzzles/puzzle-rating';
+import { Puzzle } from 'network-protocol/puzzles/puzzle';
 
 export interface NNBMove {
   firstPlacement: MoveableTetromino;
@@ -32,6 +32,7 @@ export class MorePageComponent implements OnInit {
 
   public moveRecommendations$ = new BehaviorSubject<Move[]>([]);
   public moveRecommendationsNNB$ = new BehaviorSubject<NNBMove[]>([]);
+  public moveRecommendationsShallow$ = new BehaviorSubject<Move[]>([]);
   public hoveredMove$ = new BehaviorSubject<Move | NNBMove | undefined>(undefined);
 
   public ratings: any = {};
@@ -39,7 +40,7 @@ export class MorePageComponent implements OnInit {
   async ngOnInit() {
 
     this.puzzles = await fetchServer2<Puzzle[]>(Method.POST, "/api/v2/generate-puzzles", {
-      count: 100
+      count: 50
     });
 
     // count number of puzzles for each rating
@@ -80,8 +81,10 @@ export class MorePageComponent implements OnInit {
     const currentPiece = this.getCurrentPiece(this.index$.getValue());
     const nextPiece = this.getNextPiece(this.index$.getValue());
     const response = await getTopMovesHybrid(board, 18, 0, currentPiece, nextPiece, InputSpeed.HZ_30);
+    const responseShallow = await getTopMovesHybrid(board, 18, 0, currentPiece, nextPiece, InputSpeed.HZ_30, 7, 1);
     this.moveRecommendations$.next(response.nextBox);
     this.moveRecommendationsNNB$.next(response.noNextBox);
+    this.moveRecommendationsShallow$.next(responseShallow.nextBox);
   }
 
   getBoard(index: number): TetrisBoard {
