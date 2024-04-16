@@ -54,9 +54,9 @@ export async function submitPuzzleAttempt(submission: SerializedPuzzleSubmission
 
   // insert new record to puzzle_attempts
   await queryDB(
-    `INSERT INTO puzzle_attempts (username, puzzle_id, is_correct, elo_change, solve_time, x1, y1, r1, x2, y2, r2)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
-    [submission.username, submission.puzzleID, puzzleResult.isCorrect, eloChange, timeTakenSeconds, submission.x1, submission.y1, submission.r1, submission.x2, submission.y2, submission.r2]
+    `INSERT INTO puzzle_attempts (username, puzzle_id, is_correct, elo_before, elo_change, solve_time, x1, y1, r1, x2, y2, r2)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+    [submission.username, submission.puzzleID, puzzleResult.isCorrect, eloBefore, eloChange, timeTakenSeconds, submission.x1, submission.y1, submission.r1, submission.x2, submission.y2, submission.r2]
   );
 
   // update user's puzzle elo

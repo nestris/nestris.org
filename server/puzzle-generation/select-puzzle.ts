@@ -122,6 +122,7 @@ export async function selectRandomPuzzleForUserRoute(req: Request, res: Response
         puzzleID: currentActivePuzzle.puzzleID,
       };
       await submitPuzzleAttempt(submission);
+      console.log("finished timing out puzzle");
     }
 
     const puzzle = await selectRandomPuzzleForUser(username);

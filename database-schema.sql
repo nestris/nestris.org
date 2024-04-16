@@ -101,12 +101,12 @@ CREATE TABLE "public"."puzzle_attempts" (
 
     "user_rating" int2 NOT NULL DEFAULT 0 CHECK (user_rating >= -1 AND user_rating <= 5),
 
-    "r1" int2 NOT NULL,
-    "x1" int2 NOT NULL,
-    "y1" int2 NOT NULL,
-    "r2" int2 NOT NULL,
-    "x2" int2 NOT NULL,
-    "y2" int2 NOT NULL,
+    "r1" int2,
+    "x1" int2,
+    "y1" int2,
+    "r2" int2,
+    "x2" int2,
+    "y2" int2,
 
     PRIMARY KEY ("id")
 );
@@ -118,9 +118,9 @@ CREATE OR REPLACE FUNCTION update_puzzle_cached_data()
 RETURNS TRIGGER AS $$
 BEGIN
     UPDATE rated_puzzles
-    SET numAttemptsCached = (SELECT COUNT(*) FROM puzzle_attempts WHERE puzzleID = NEW.puzzleID),
-        numSolvesCached = (SELECT COUNT(*) FROM puzzle_attempts WHERE puzzleID = NEW.puzzleID AND isCorrect = TRUE)
-    WHERE id = NEW.puzzleID;
+    SET num_attempts_cached = (SELECT COUNT(*) FROM puzzle_attempts WHERE puzzle_id = NEW.puzzle_id),
+        num_solves_cached = (SELECT COUNT(*) FROM puzzle_attempts WHERE puzzleID = NEW.puzzle_id AND is_correct = TRUE)
+    WHERE id = NEW.puzzle_id;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
