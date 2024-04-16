@@ -100,7 +100,7 @@
                         <div class="puzzle-stats" *ngIf="(getRatedPuzzleState$() | async) as puzzle">
                             <div class="stat">
                                 <h1>Puzzle Rating</h1>
-                                <p>{{puzzle.getPuzzle().rating}}</p>
+                                <app-rating-stars [rating]="puzzle.getPuzzle().rating" [width]="75" />
                             </div>
                             <div class="stat">
                                 <h1>Success Rate</h1>
