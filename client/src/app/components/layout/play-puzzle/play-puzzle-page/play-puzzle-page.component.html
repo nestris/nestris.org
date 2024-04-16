@@ -33,19 +33,19 @@
 
             <!-- show nes board if it's in puzzle solving mode but no puzzle is loaded yet -->
             <app-nes-board *ngIf="(solvingPuzzle$ | async) && (puzzle$ | async) === undefined"
-                class="board" [scale]="3"
+                class="board" [scale]="3.3"
             />
 
             <!-- show puzzle board if it's in puzzle solving mode and a puzzle is loaded -->
             <app-puzzle-nes-board *ngIf="(solvingPuzzle$ | async) && (puzzle$ | async)"
-                class="board" [scale]="3" 
+                class="board" [scale]="3.3" 
                 [puzzle]="(puzzle$ | async)!" (submitPuzzle)="submitPuzzle($event)"
                 [undo$]="clickUndo$" (canUndo)="canUndo$.next($event)"
             />
 
             <!-- show puzzle solution if it's not in puzzle solving mode -->
             <app-nes-board *ngIf="!(solvingPuzzle$ | async) && (puzzle$ | async)"
-                class="board" [scale]="3"
+                class="board" [scale]="3.3"
                 [board]="getBoard()" [level]="18"
                 [activePiece]="(hoveredMove$ | async)?.firstPlacement ?? getCurrentMT()"
                 [nextPiece]="(hoveredMove$ | async)?.secondPlacement ?? getNextMT()"
@@ -95,6 +95,26 @@
                     <ng-container *ngIf="!(solvingPuzzle$ | async)">
 
                         <app-elo-graph *ngIf="(getRatedPuzzleState$() | async) as ratedState" [eloHistory]="ratedState.getEloHistory()"/>
+
+                        <!-- Statisticas for the puzzle -->
+                        <div class="puzzle-stats" *ngIf="(getRatedPuzzleState$() | async) as puzzle">
+                            <div class="stat">
+                                <h1>Puzzle Rating</h1>
+                                <p>{{puzzle.getPuzzle().rating}}</p>
+                            </div>
+                            <div class="stat">
+                                <h1>Success Rate</h1>
+                                <p>{{puzzle.getSuccessRate()}}</p>
+                            </div>
+                            <div class="stat">
+                                <h1>Attempts</h1>
+                                <p>{{puzzle.getPuzzle().numAttempts}}</p>
+                            </div>
+                            <div class="stat">
+                                <h1>Theme</h1>
+                                <p>{{puzzle.getPuzzle().theme}}</p>
+                            </div>
+                        </div>
 
                         <!-- Engine recommendations -->
                         <div class="engine-div">

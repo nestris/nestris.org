@@ -75,4 +75,14 @@ export class RatedPuzzleState extends PuzzleState {
   getEloHistory(): number[] {
     return this.eloHistory;
   }
+
+  getPuzzle(): RatedPuzzle {
+    return this.currentPuzzle! as RatedPuzzle;
+  }
+
+  getSuccessRate(): string {
+    if (this.getPuzzle().numAttempts === 0) return "-";
+    return `${(this.getPuzzle().numSolves / this.getPuzzle().numAttempts * 100).toFixed(0)}%`;
+  }
+
 }
