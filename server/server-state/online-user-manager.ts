@@ -6,7 +6,7 @@ import { handleJsonMessage } from "./message-handler";
 import { OnlineUserStatus } from "../../network-protocol/models/friends";
 import { contains } from "misc/array-functions";
 import { concat } from "rxjs";
-import { createUser, queryFriendUsernamesForUser, queryUserTableForUser } from "../database/user-queries";
+import { createUser, queryFriendUsernamesForUser, queryUserByUsername } from "../database/user-queries";
 import { NotificationType } from "../../network-protocol/models/notifications";
 
 /*
@@ -82,7 +82,7 @@ export class OnlineUserManager {
         }
 
         // get the user's friends from the database
-        let user = (await queryUserTableForUser(username));
+        let user = (await queryUserByUsername(username));
 
         // if user does not exist, add user to database
         if (!user) {

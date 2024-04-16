@@ -1,0 +1,77 @@
+import { queryUserByUsername } from "../database/user-queries";
+import { PuzzleRating } from "../../network-protocol/puzzles/puzzle-rating";
+import { queryDB } from "../database";
+import { RatedPuzzle } from "../../network-protocol/puzzles/rated-puzzle";
+import { decodeRatedPuzzleFromDB } from "./decode-rated-puzzle";
+import { Request, Response } from 'express';
+
+// given a weight for each of the five possible ratings, return a random rating
+// weights must be integers
+function getRandomDistribution(one: number, two: number, three: number, four: number, five: number): PuzzleRating[] {
+  // make a list with each rating repeated the number of times its weight
+  const list: PuzzleRating[] = [];
+  for (let i = 0; i < one; i++) list.push(PuzzleRating.ONE_STAR);
+  for (let i = 0; i < two; i++) list.push(PuzzleRating.TWO_STAR);
+  for (let i = 0; i < three; i++) list.push(PuzzleRating.THREE_STAR);
+  for (let i = 0; i < four; i++) list.push(PuzzleRating.FOUR_STAR);
+  for (let i = 0; i < five; i++) list.push(PuzzleRating.FIVE_STAR);
+
+  return list;
+}
+
+const ELO_0_499 = getRandomDistribution(40, 40, 20, 0, 0); // absolute beginner, mostly solving 1-2 star puzzles
+const ELO_500_999 = getRandomDistribution(30, 30, 30, 10, 0); // start getting more 3 star puzzles
+const ELO_1000_1499 = getRandomDistribution(20, 30, 40, 20, 0); // mostly solving 3 star puzzles with some 4 star
+const ELO_1500_1999 = getRandomDistribution(10, 20, 40, 30, 0); // mostly solving 3-4 star puzzles
+const ELO_2000_2499 = getRandomDistribution(10, 10, 30, 30, 20); // mostly solving 3-4 star puzzles with some 5 star
+const ELO_2500_2999 = getRandomDistribution(2, 4, 24, 50, 20); // mostly solving 4 star puzzles with some 5 star
+const ELO_3000_PLUS = getRandomDistribution(2, 2, 30, 36, 30); // mostly solving 4-5 star puzzles
+
+// Given a user's elo, probablistically select the rating of the puzzle the user will play next.
+export function getRandomPuzzleRatingForPlayerElo(elo: number): PuzzleRating {
+
+  let distribution: PuzzleRating[];
+  if (elo < 500) distribution = ELO_0_499;
+  else if (elo < 1000) distribution = ELO_500_999;
+  else if (elo < 1500) distribution = ELO_1000_1499;
+  else if (elo < 2000) distribution = ELO_1500_1999;
+  else if (elo < 2500) distribution = ELO_2000_2499;
+  else if (elo < 3000) distribution = ELO_2500_2999;
+  else distribution = ELO_3000_PLUS;
+
+  // pick a random rating from the distribution
+  return distribution[Math.floor(Math.random() * distribution.length)];
+}
+
+// given a user, select a random puzzle for the user to solve
+// The puzzle is not guaranteed to be unsolved by user before, but hopefully puzzle database is large enough that this is unlikely
+export async function selectRandomPuzzleForUser(username: string): Promise<RatedPuzzle> {
+  
+  // first, fetch the user's current puzzle elo from database
+  const user = await queryUserByUsername(username);
+  if (!user) throw new Error("User not found");
+
+  // get a random puzzle rating based on the user's elo
+  const elo = user.puzzleElo;
+  const rating = getRandomPuzzleRatingForPlayerElo(elo);
+  console.log(`Selecting random puzzle rating ${rating} for user ${username} with elo ${elo}`);
+
+  // query the database for a random puzzle with the selected rating
+  const result = await queryDB(`SELECT * FROM rated_puzzles WHERE rating = $1 ORDER BY RANDOM() LIMIT 1`, [rating]);
+  if (result.rows.length === 0) throw new Error("No puzzles found");
+
+  return decodeRatedPuzzleFromDB(result.rows[0]);
+}
+
+// returns a random RatedPuzzle for the user based on their elo
+export async function selectRandomPuzzleForUserRoute(req: Request, res: Response) {
+  const username = req.params['username'] as string;
+  console.log("Selecting random puzzle for user", username);
+
+  try {
+    const puzzle = await selectRandomPuzzleForUser(username);
+    res.status(200).send(puzzle);
+  } catch (error) {
+    res.status(404).send(error);
+  }
+}

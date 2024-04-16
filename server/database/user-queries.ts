@@ -10,21 +10,9 @@ export interface DBUser {
   puzzleElo: number;
 }
 
-// MAKE SURE EACH ATTRIBUTE CORRESPONDS TO A COLUMN IN THE DATABASE
-export type DBUserAttribute = "username" | "lastOnline" | "trophies" | "xp" | "puzzleElo";
-
-// return all the users in the database, with the specified attributes
-export async function queryUserTableForAllUsers(attributes: DBUserAttribute[] = []): Promise<Partial<DBUser>[]> {
-
-  // make a SQL query to get all usernames, as well as any additional attributes
-  const query = `SELECT ${attributes.length === 0 ? "*" : attributes.join(", ")} FROM users`;
-  const result = await queryDB(query);
-
-  return result.rows;
-}
 
 // find a user by matching username and return the user
-export async function queryUserTableForUser(username: string): Promise<DBUser | undefined> {
+export async function queryUserByUsername(username: string): Promise<DBUser | undefined> {
 
   // make a SQL query to get the user with the specified username
   const query = `SELECT * FROM users WHERE username = $1`;

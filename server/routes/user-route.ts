@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { queryAllUsernamesMatchingPattern, queryFriendsAndFriendRequestsForUser, queryUserTableForUser } from '../database/user-queries';
+import { queryAllUsernamesMatchingPattern, queryFriendsAndFriendRequestsForUser, queryUserByUsername } from '../database/user-queries';
 import { endFriendship, sendFriendRequest } from '../database/friendship-updates';
 import { FriendInfo, OnlineUserStatus } from '../../network-protocol/models/friends';
 import { ServerState } from '../server-state/server-state';
@@ -15,7 +15,7 @@ export async function getAllUsernamesMatchingPatternRoute(req: Request, res: Res
 export async function getUserByUsernameRoute(req: Request, res: Response) {
   const username = req.params['username'];
 
-  const response = await queryUserTableForUser(username);
+  const response = await queryUserByUsername(username);
 
   res.status(200).send(response);
 }
