@@ -3,7 +3,6 @@ import { BinaryDecoder } from 'network-protocol/binary-codec';
 import { BinaryTranscoder } from 'network-protocol/tetris-board-transcoding/binary-transcoder';
 import { TetrisBoard } from 'network-protocol/tetris/tetris-board';
 import { BehaviorSubject } from 'rxjs';
-import { SerializedPuzzle } from 'server/puzzles/decode-puzzle';
 import { ButtonColor } from '../../../ui/solid-button/solid-button.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PuzzleMode } from '../../play-puzzle/play-puzzle-page/play-puzzle-page.component';
@@ -12,6 +11,7 @@ import { reloadCurrentRoute } from 'misc/angular-functions';
 import { NotificationService } from 'client/src/app/services/notification.service';
 import { NotificationType } from 'network-protocol/models/notifications';
 import { copyPuzzleLink } from 'misc/copy-url';
+import { PlayerPuzzle } from 'network-protocol/puzzles/player-puzzle';
 
 @Component({
   selector: 'app-your-puzzle-item',
@@ -21,7 +21,7 @@ import { copyPuzzleLink } from 'misc/copy-url';
 })
 export class YourPuzzleItemComponent implements OnInit {
 
-  @Input() puzzle!: SerializedPuzzle;
+  @Input() puzzle!: PlayerPuzzle;
   @Output() delete = new EventEmitter<void>();
 
   public board!: TetrisBoard;
@@ -38,7 +38,7 @@ export class YourPuzzleItemComponent implements OnInit {
   ngOnInit(): void {
 
     // convert the board from binary representatino to TetrisBoard object
-    this.board = BinaryTranscoder.decode(this.puzzle.board);
+    this.board = BinaryTranscoder.decode(this.puzzle.boardString);
   }
 
   // navigate to a single-puzzle puzzle with the id of this puzzle item

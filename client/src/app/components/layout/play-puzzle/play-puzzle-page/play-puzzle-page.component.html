@@ -77,7 +77,7 @@
 
                     <div class="next-box-container" *ngIf="(solvingPuzzle$ | async) && (puzzle$ | async)">
                         <app-nes-piece  [scale]="3"
-                            [piece]="(canUndo$ | async) ? undefined: (puzzle$ | async)!.nextPiece" [level]="18"
+                            [piece]="(canUndo$ | async) ? undefined: (puzzle$ | async)!.next" [level]="18"
                         />
                     </div>
 

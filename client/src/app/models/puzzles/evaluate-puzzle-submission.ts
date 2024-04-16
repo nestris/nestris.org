@@ -1,5 +1,6 @@
-import { SerializedPuzzle } from "server/puzzles/decode-puzzle";
+import { PlayerPuzzle } from "network-protocol/puzzles/player-puzzle";
 import { PuzzleDefinition, PuzzleResult, PuzzleSolution, PuzzleSubmission } from "./puzzle";
+import { GenericPuzzle } from "network-protocol/puzzles/generic-puzzle";
 
 export function isSubmissionComplete(submission: PuzzleSubmission): boolean {
     return submission.firstPiece !== undefined && submission.secondPiece !== undefined;
@@ -7,7 +8,7 @@ export function isSubmissionComplete(submission: PuzzleSubmission): boolean {
 
 // whether the user submission is equal to the puzzle solution
 // precondition: submission is complete
-export function equalToSolution(puzzle: SerializedPuzzle, submission: PuzzleSubmission): boolean {
+export function equalToSolution(puzzle: GenericPuzzle, submission: PuzzleSubmission): boolean {
 
     if (!isSubmissionComplete(submission)) {
         throw new Error("Submission is not complete");
@@ -51,7 +52,7 @@ const WRONG_ANSWER_STREAK_COMEMNTS = [
 // check whether a puzzle submission is correct
 // returns a boolean for correctness, and a string for an explanation
 // TODO: more descriptive explanation
-export function evaluatePuzzleSubmission(puzzle: SerializedPuzzle, submission: PuzzleSubmission, gaveUp: boolean): PuzzleResult {
+export function evaluatePuzzleSubmission(puzzle: GenericPuzzle, submission: PuzzleSubmission, gaveUp: boolean): PuzzleResult {
 
     if (gaveUp) {
         return {

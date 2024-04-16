@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { queryDB } from '../database';
-import { PuzzleFolder, SerializedPuzzle, decodePuzzleFromDB } from './decode-puzzle';
+import { decodePlayerPuzzleFromDB } from './decode-player-puzzle';
+import { PuzzleFolder } from '../../network-protocol/puzzles/player-puzzle';
 
 export async function getFolderRoute(req: Request, res: Response) {
 

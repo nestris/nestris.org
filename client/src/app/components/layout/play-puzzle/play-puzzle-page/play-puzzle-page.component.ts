@@ -4,7 +4,6 @@ import { BehaviorSubject, Observable, Subject, map } from 'rxjs';
 import { EloMode } from '../elo-rating/elo-rating.component';
 import { ButtonColor } from '../../../ui/solid-button/solid-button.component';
 import { ActivatedRoute, Router } from '@angular/router';
-import { SerializedPuzzle } from 'server/puzzles/decode-puzzle';
 import { EloChange, PuzzleState } from './puzzle-states/puzzle-state';
 import { SinglePuzzleState } from './puzzle-states/single-puzzle-state';
 import { FolderPuzzleState } from './puzzle-states/folder-puzzle-state';
@@ -18,6 +17,8 @@ import { InputSpeed } from 'network-protocol/models/input-speed';
 import { NotificationService } from 'client/src/app/services/notification.service';
 import { copyPuzzleLink } from 'misc/copy-url';
 import { WebsocketService } from 'client/src/app/services/websocket.service';
+import { PlayerPuzzle } from 'network-protocol/puzzles/player-puzzle';
+import { GenericPuzzle } from 'network-protocol/puzzles/generic-puzzle';
 
 export enum PuzzleMode {
   RATED = "rated",
@@ -36,7 +37,7 @@ export class PlayPuzzlePageComponent implements OnInit {
 
   puzzleState$ = new BehaviorSubject<PuzzleState | undefined>(undefined);
 
-  puzzle$ = new BehaviorSubject<SerializedPuzzle | undefined>(undefined);
+  puzzle$ = new BehaviorSubject<GenericPuzzle | undefined>(undefined);
   eloChange$ = new BehaviorSubject<EloChange | undefined>(undefined);
 
   canUndo$ = new BehaviorSubject<boolean>(false);
@@ -160,12 +161,12 @@ export class PlayPuzzlePageComponent implements OnInit {
     });
   }
 
-  async generateMoveRecommendations(puzzle: SerializedPuzzle) {
+  async generateMoveRecommendations(puzzle: GenericPuzzle) {
 
     console.log("Generating move recommendations");
 
-    const board = BinaryTranscoder.decode(puzzle.board);
-    const response = await getTopMovesHybrid(board, 18, 0, puzzle.currentPiece, puzzle.nextPiece, InputSpeed.HZ_30);
+    const board = BinaryTranscoder.decode(puzzle.boardString);
+    const response = await getTopMovesHybrid(board, 18, 0, puzzle.current, puzzle.next, InputSpeed.HZ_30);
     
     console.log("GEnerated");
     this.moveRecommendations$.next(response.nextBox);
@@ -249,7 +250,7 @@ export class PlayPuzzlePageComponent implements OnInit {
 
   getBoard(): TetrisBoard {
     const puzzle = this.puzzle$.getValue()!;
-    return BinaryTranscoder.decode(puzzle.board);
+    return BinaryTranscoder.decode(puzzle.boardString);
   }
 
   // get the submitted first piece

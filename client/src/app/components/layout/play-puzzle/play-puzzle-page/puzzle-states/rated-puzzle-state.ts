@@ -1,8 +1,8 @@
-import { SerializedPuzzle } from "server/puzzles/decode-puzzle";
 import { EloChange, PuzzleState } from "./puzzle-state";
 import { Method, fetchServer2 } from "client/src/app/scripts/fetch-server";
+import { GenericPuzzle } from "network-protocol/puzzles/generic-puzzle";
+import { RatedPuzzle } from "network-protocol/puzzles/rated-puzzle";
 import { DBUser } from "server/database/user-queries";
-
 
 export class RatedPuzzleState extends PuzzleState {
   
@@ -35,7 +35,7 @@ export class RatedPuzzleState extends PuzzleState {
     this.eloHistory.push(newElo);
   }
 
-  override async _fetchNextPuzzle(): Promise<SerializedPuzzle> {
+  override async _fetchNextPuzzle(): Promise<GenericPuzzle> {
     // TODO: fetch a rated puzzle from the server
 
     // TODO
@@ -44,7 +44,7 @@ export class RatedPuzzleState extends PuzzleState {
       eloLoss: 5
     }
 
-    return {} as SerializedPuzzle;
+    return {} as RatedPuzzle;
   }
 
   override getPuzzleName(): string {

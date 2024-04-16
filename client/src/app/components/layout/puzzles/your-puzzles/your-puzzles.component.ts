@@ -4,8 +4,8 @@ import { ModalManagerService, ModalType } from 'client/src/app/services/modal-ma
 import { ActivatedRoute } from '@angular/router';
 import { Method, fetchServer } from 'client/src/app/scripts/fetch-server';
 import { WebsocketService } from 'client/src/app/services/websocket.service';
-import { SerializedPuzzle } from 'server/puzzles/decode-puzzle';
 import { BehaviorSubject } from 'rxjs';
+import { PlayerPuzzle } from 'network-protocol/puzzles/player-puzzle';
 
 @Component({
   selector: 'app-your-puzzles',
@@ -25,7 +25,7 @@ export class YourPuzzlesComponent implements OnInit {
 
   public allUserFolders$ = new BehaviorSubject<string[]>([]); // all folders made by the user
   public openedFolderName$ = new BehaviorSubject<string | undefined>(undefined); // the name of the folder that is currently opened
-  public puzzlesInCurrentFolder$ = new BehaviorSubject<SerializedPuzzle[]>([]); // all puzzles in the current folder
+  public puzzlesInCurrentFolder$ = new BehaviorSubject<PlayerPuzzle[]>([]); // all puzzles in the current folder
 
   // if allUserFolders does not contain openedFolder, means that the folder is not made by the user,
   // and should show option to import the folder to user
@@ -67,7 +67,7 @@ export class YourPuzzlesComponent implements OnInit {
 
         const {content, status} = await fetchServer(Method.GET, `/api/v2/puzzles-by-user/${username}`);
         console.log("Fetched all puzzles by the user:", content);      
-        this.puzzlesInCurrentFolder$.next(content as SerializedPuzzle[]); 
+        this.puzzlesInCurrentFolder$.next(content as PlayerPuzzle[]); 
         
       } else { // fetch all puzzles in the folder
         console.log("Fetching all puzzles in the folder with ID:", folderID);
@@ -82,7 +82,7 @@ export class YourPuzzlesComponent implements OnInit {
   }
 
   // remove the puzzle from the list (front-end only)
-  deletePuzzle(puzzle: SerializedPuzzle) {
+  deletePuzzle(puzzle: PlayerPuzzle) {
     this.puzzlesInCurrentFolder$.next(this.puzzlesInCurrentFolder$.value.filter(p => p.id !== puzzle.id));
   }
 

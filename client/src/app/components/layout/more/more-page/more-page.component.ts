@@ -10,7 +10,7 @@ import { getTopMovesHybrid } from 'client/src/app/scripts/stackrabbit-decoder';
 import { InputSpeed } from 'network-protocol/models/input-speed';
 import { TopMovesHybridResponse } from 'network-protocol/stackrabbit-decoder';
 import { PuzzleRating } from 'network-protocol/puzzles/puzzle-rating';
-import { Puzzle } from 'network-protocol/puzzles/puzzle';
+import { RatedPuzzle } from 'network-protocol/puzzles/rated-puzzle';
 
 export interface NNBMove {
   firstPlacement: MoveableTetromino;
@@ -26,7 +26,7 @@ export interface NNBMove {
 })
 export class MorePageComponent implements OnInit {
 
-  public puzzles!: Puzzle[];
+  public puzzles!: RatedPuzzle[];
 
   public index$ = new BehaviorSubject<number>(0);
 
@@ -39,8 +39,8 @@ export class MorePageComponent implements OnInit {
 
   async ngOnInit() {
 
-    this.puzzles = await fetchServer2<Puzzle[]>(Method.POST, "/api/v2/generate-puzzles", {
-      count: 3
+    this.puzzles = await fetchServer2<RatedPuzzle[]>(Method.POST, "/api/v2/generate-puzzles", {
+      count: 10
     });
 
     // count number of puzzles for each rating

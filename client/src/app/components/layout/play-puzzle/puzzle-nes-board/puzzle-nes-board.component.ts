@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { Point } from 'client/src/app/models/point';
 import { PuzzleDefinition, PuzzleSubmission } from 'client/src/app/models/puzzles/puzzle';
+import { GenericPuzzle } from 'network-protocol/puzzles/generic-puzzle';
+import { PlayerPuzzle } from 'network-protocol/puzzles/player-puzzle';
 import { BinaryTranscoder } from 'network-protocol/tetris-board-transcoding/binary-transcoder';
 import MoveableTetromino from 'network-protocol/tetris/moveable-tetromino';
 import { TetrisBoard } from 'network-protocol/tetris/tetris-board';
 import { TetrominoType } from 'network-protocol/tetris/tetromino-type';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { SerializedPuzzle } from 'server/puzzles/decode-puzzle';
 
 
 /*
@@ -26,7 +27,7 @@ export class PuzzleNesBoardComponent implements OnInit {
 
   @Input() scale: number = 1;
 
-  @Input() puzzle!: SerializedPuzzle;
+  @Input() puzzle!: GenericPuzzle;
   @Output() submitPuzzle = new EventEmitter<PuzzleSubmission>();
 
   @Input() undo$?: Subject<void>;
@@ -46,7 +47,7 @@ export class PuzzleNesBoardComponent implements OnInit {
 
     // initialize board
     
-    this.currentBoard$.next(BinaryTranscoder.decode(this.puzzle.board));
+    this.currentBoard$.next(BinaryTranscoder.decode(this.puzzle.boardString));
 
     // when undo$ emits, undo the first piece placement
     if (this.undo$ !== undefined) {
@@ -115,8 +116,8 @@ export class PuzzleNesBoardComponent implements OnInit {
   }
   
   getActivePieceType(): TetrominoType | undefined {
-    if (this.placedFirstPiece$.getValue() === undefined) return this.puzzle.currentPiece;
-    if (this.placedSecondPiece$.getValue() === undefined) return this.puzzle.nextPiece;
+    if (this.placedFirstPiece$.getValue() === undefined) return this.puzzle.current;
+    if (this.placedSecondPiece$.getValue() === undefined) return this.puzzle.next;
     return undefined;
   }
 
@@ -177,7 +178,7 @@ export class PuzzleNesBoardComponent implements OnInit {
     if (!(this.placedFirstPiece$.getValue() !== undefined) && (this.placedSecondPiece$.getValue() === undefined)) return;
 
     this.placedFirstPiece$.next(undefined); // reset first piece placement
-    this.currentBoard$.next(BinaryTranscoder.decode(this.puzzle.board)); // reset board
+    this.currentBoard$.next(BinaryTranscoder.decode(this.puzzle.boardString)); // reset board
     this.rotation = 0; // reset rotation
     this.computeHoveredPiece(); // update hovered piece
 

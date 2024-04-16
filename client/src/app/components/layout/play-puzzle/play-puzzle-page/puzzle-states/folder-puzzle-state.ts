@@ -1,4 +1,4 @@
-import { PuzzleFolder, SerializedPuzzle } from "server/puzzles/decode-puzzle";
+import { PlayerPuzzle, PuzzleFolder } from "network-protocol/puzzles/player-puzzle";
 import { EloChange, PuzzleState } from "./puzzle-state";
 import { Method, fetchServer2 } from "client/src/app/scripts/fetch-server";
 
@@ -15,7 +15,7 @@ export class FolderPuzzleState extends PuzzleState {
     this.folder = await fetchServer2<PuzzleFolder>(Method.GET, `/api/v2/folder/${this.folderID}`);
   }
 
-  override async _fetchNextPuzzle(): Promise<SerializedPuzzle> {
+  override async _fetchNextPuzzle(): Promise<PlayerPuzzle> {
 
     this.currentPuzzleIndex++;
     return this.folder.puzzles[this.currentPuzzleIndex];

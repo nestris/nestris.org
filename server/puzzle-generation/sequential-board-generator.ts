@@ -7,7 +7,7 @@ import { decodeStackrabbitResponse } from "../../network-protocol/stackrabbit-de
 import { BinaryTranscoder } from "../../network-protocol/tetris-board-transcoding/binary-transcoder";
 import { TetrisBoard, getRandomColorType } from "../../network-protocol/tetris/tetris-board";
 import { TetrominoType, getRandomTetrominoType } from "../../network-protocol/tetris/tetromino-type";
-import { getTopMovesHybrid } from "../puzzles/stackrabbit";
+import { getTopMovesHybrid } from "../stackrabbit/stackrabbit";
 
 export enum GeneratorMode {
   NB = "NB", // NB mode tends to generate more dependent boards (easier to solve)

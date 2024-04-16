@@ -1,7 +1,7 @@
 import { evaluatePuzzleSubmission } from "client/src/app/models/puzzles/evaluate-puzzle-submission";
 import { PuzzleDefinition, PuzzleResult, PuzzleSubmission } from "client/src/app/models/puzzles/puzzle";
-import { BehaviorSubject } from "rxjs";
-import { SerializedPuzzle } from "server/puzzles/decode-puzzle";
+import { GenericPuzzle } from "network-protocol/puzzles/generic-puzzle";
+import { PlayerPuzzle } from "network-protocol/puzzles/player-puzzle";
 
 export interface EloChange {
   eloGain: number;
@@ -11,18 +11,18 @@ export interface EloChange {
 
 export abstract class PuzzleState {
 
-  protected currentPuzzle?: SerializedPuzzle;
+  protected currentPuzzle?: GenericPuzzle;
   private submission?: PuzzleSubmission;
 
   // should throw an error if not initialized properly
   abstract init(): Promise<void>;
 
-  async fetchNextPuzzle(): Promise<SerializedPuzzle> {
+  async fetchNextPuzzle(): Promise<GenericPuzzle> {
     this.currentPuzzle = await this._fetchNextPuzzle();
     return this.currentPuzzle;
   }
 
-  protected abstract _fetchNextPuzzle(): Promise<SerializedPuzzle>;
+  protected abstract _fetchNextPuzzle(): Promise<GenericPuzzle>;
 
   abstract getPuzzleName(): string;
   abstract getEloChange(): EloChange | undefined;

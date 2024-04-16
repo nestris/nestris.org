@@ -20,11 +20,11 @@ CREATE TABLE "public"."user_relationships" (
     PRIMARY KEY ("username1","username2")
 );
 
--- PUZZLE TABLE
-DROP TABLE IF EXISTS "public"."puzzles" CASCADE;
-CREATE TABLE "public"."puzzles" (
+-- PLAYER-CREATED PUZZLE TABLE
+DROP TABLE IF EXISTS "public"."player_puzzles" CASCADE;
+CREATE TABLE "public"."player_puzzles" (
     "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-    "creator" text REFERENCES "public"."users"("username"), -- if NULL, then it is a system-generated puzzle
+    "creator" text NOT NULL REFERENCES "public"."users"("username"), -- if NULL, then it is a system-generated puzzle
     "created_at" timestamp NOT NULL DEFAULT now(),
 
     "board" bytea NOT NULL,
@@ -38,19 +38,40 @@ CREATE TABLE "public"."puzzles" (
     "x2" int2 NOT NULL,
     "y2" int2 NOT NULL,
 
-    "elo" int2 NOT NULL,
-    "num_reports" int2 NOT NULL DEFAULT 0,
+    PRIMARY KEY ("id")
+);
+
+-- GENERATED RATED PUZZLE TABLE
+-- rating is between 1 and 5
+DROP TABLE IF EXISTS "public"."rated_puzzles" CASCADE;
+CREATE TABLE "public"."rated_puzzles" (
+    "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+    "created_at" timestamp NOT NULL DEFAULT now(),
+
+    "board" bytea NOT NULL,
+    "current_piece" char(1) NOT NULL,
+    "next_piece" char(1) NOT NULL,
+    
+    "r1" int2 NOT NULL,
+    "x1" int2 NOT NULL,
+    "y1" int2 NOT NULL,
+    "r2" int2 NOT NULL,
+    "x2" int2 NOT NULL,
+    "y2" int2 NOT NULL,
+
+    "rating" int2 NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    "theme" text NOT NULL,
     "num_attempts_cached" int2 NOT NULL DEFAULT 0, -- should be updated by trigger on PuzzleAttempt
     "num_solves_cached" int2 NOT NULL DEFAULT 0, -- should be updated by trigger on PuzzleAttempt
 
     PRIMARY KEY ("id")
 );
 
--- PUZZLE_ATTEMPT TABLE
+-- PUZZLE_ATTEMPT TABLE (for rated puzzles only)
 DROP TABLE IF EXISTS "public"."puzzle_attempts" CASCADE;
 CREATE TABLE "public"."puzzle_attempts" (
     "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-    "puzzle_id" uuid NOT NULL REFERENCES "public"."puzzles"("id"),
+    "puzzle_id" uuid NOT NULL REFERENCES "public"."rated_puzzles"("id"),
     "username" text NOT NULL REFERENCES "public"."users"("username"),
     "timestamp" timestamp NOT NULL DEFAULT now(),
 
@@ -68,13 +89,24 @@ CREATE TABLE "public"."puzzle_attempts" (
     PRIMARY KEY ("id")
 );
 
+-- PUZZLE_USER_RATING TABLE
+-- a single user can rate a puzzle only once
+ -- a rating of 0 means the usser reported the puzzle
+DROP TABLE IF EXISTS "public"."puzzle_user_rating" CASCADE;
+CREATE TABLE "public"."puzzle_user_rating" (
+    "puzzle_id" uuid NOT NULL REFERENCES "public"."rated_puzzles"("id"),
+    "username" text NOT NULL REFERENCES "public"."users"("username"),
+    "rating" int2 NOT NULL CHECK (rating >= 0 AND rating <= 5),
+    PRIMARY KEY ("puzzle_id", "username")
+);
+
 
 -- calculate the number of attempts and solves for a puzzle
 -- do not solve dynamically
 CREATE OR REPLACE FUNCTION update_puzzle_cached_data()
 RETURNS TRIGGER AS $$
 BEGIN
-    UPDATE puzzles
+    UPDATE rated_puzzles
     SET numAttemptsCached = (SELECT COUNT(*) FROM puzzle_attempts WHERE puzzleID = NEW.puzzleID),
         numSolvesCached = (SELECT COUNT(*) FROM puzzle_attempts WHERE puzzleID = NEW.puzzleID AND isCorrect = TRUE)
     WHERE id = NEW.puzzleID;
@@ -101,7 +133,7 @@ CREATE TABLE "public"."folders" (
 DROP TABLE IF EXISTS "public"."folder_items" CASCADE;
 CREATE TABLE "public"."folder_items" (
     "folder_id" uuid NOT NULL REFERENCES "public"."folders"("id"),
-    "puzzle_id" uuid NOT NULL REFERENCES "public"."puzzles"("id"),
+    "puzzle_id" uuid NOT NULL REFERENCES "public"."player_puzzles"("id"),
     PRIMARY KEY ("folder_id", "puzzle_id")
 );
 

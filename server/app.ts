@@ -12,12 +12,12 @@ import { broadcastAnnouncementRoute } from './routes/broadcast-route';
 import { get } from 'mongoose';
 import { endFriendshipRoute, getAllUsernamesMatchingPatternRoute, getFriendsInfoRoute, getUserByUsernameRoute, setFriendRequestRoute } from './routes/user-route';
 import { connectToDB } from './database';
-import { getTopMovesHybridRoute } from './puzzles/stackrabbit';
-import { addPuzzleRoute } from './puzzles/add-puzzle';
-import { getPuzzlesByUserRoute } from './puzzles/get-puzzles-by-user';
-import { getPuzzleRoute } from './puzzles/get-puzzle';
-import { getFolderRoute } from './puzzles/get-folder';
-import { deletePuzzleRoute } from './puzzles/delete-puzzle';
+import { getTopMovesHybridRoute } from './stackrabbit/stackrabbit';
+import { addPlayerPuzzleRoute } from './player-puzzles/add-player-puzzle';
+import { getPlayerPuzzlesByUserRoute } from './player-puzzles/get-puzzles-by-user';
+import { getPlayerPuzzleRoute } from './player-puzzles/get-player-puzzle';
+import { getFolderRoute } from './player-puzzles/get-folder';
+import { deletePlayerPuzzleRoute } from './player-puzzles/delete-player-puzzle';
 import { generatePuzzlesRoute } from './puzzle-generation/generate-puzzles';
 
 
@@ -63,13 +63,13 @@ export default async function createApp(): Promise<{
     
     app.get('/api/v2/stackrabbit/get-top-moves-hybrid', getTopMovesHybridRoute);
 
-    app.post('/api/v2/puzzle', addPuzzleRoute);
-    app.get('/api/v2/puzzle/:puzzle', getPuzzleRoute);
-    app.delete('/api/v2/puzzle/:puzzle', deletePuzzleRoute);
+    app.post('/api/v2/puzzle', addPlayerPuzzleRoute);
+    app.get('/api/v2/puzzle/:puzzle', getPlayerPuzzleRoute);
+    app.delete('/api/v2/puzzle/:puzzle', deletePlayerPuzzleRoute);
 
     app.get('/api/v2/folder/:folder', getFolderRoute);
 
-    app.get('/api/v2/puzzles-by-user/:username', getPuzzlesByUserRoute);
+    app.get('/api/v2/puzzles-by-user/:username', getPlayerPuzzlesByUserRoute);
 
     app.post('/api/v2/generate-puzzles', generatePuzzlesRoute);
 

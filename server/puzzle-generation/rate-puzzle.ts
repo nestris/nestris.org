@@ -2,12 +2,18 @@ import { TetrominoType } from "../../network-protocol/tetris/tetromino-type";
 import { PuzzleRating, PuzzleRatingDetails } from "../../network-protocol/puzzles/puzzle-rating";
 import { TetrisBoard } from "../../network-protocol/tetris/tetris-board";
 import { BinaryTranscoder } from "../../network-protocol/tetris-board-transcoding/binary-transcoder";
-import { getTopMovesHybrid } from "../puzzles/stackrabbit";
+import { getTopMovesHybrid } from "../stackrabbit/stackrabbit";
 import { TopMovesHybridResponse, decodeStackrabbitResponse } from "../../network-protocol/stackrabbit-decoder";
 import { InputSpeed } from "../../network-protocol/models/input-speed";
+import MoveableTetromino from "network-protocol/tetris/moveable-tetromino";
 
 export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, next: TetrominoType):
-    Promise<{rating: PuzzleRating, details: PuzzleRatingDetails}>
+    Promise<{
+      rating: PuzzleRating,
+      details: PuzzleRatingDetails,
+      currentSolution?: MoveableTetromino,
+      nextSolution?: MoveableTetromino
+    }>
   {
 
   const boardString = BinaryTranscoder.encode(board);
@@ -73,8 +79,8 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
   1 star: diff 30+ and not adjustment
   2 star: (diff 30+) or (diff 10-30 and not adjustment and bestNB > 20)
   3 star: (diff 10-30) or (diff 1-10 and not adjustment and bestNB > 10)
-  4 star: (diff 3-10) or (bestNB > 0) or not adjustment
-  5 star: otherwise
+  4 star: baby rabbit gets the puzzle correct
+  5 star: baby rabbit gets the puzzle wrong
   else: BAD_PUZZLE
   */
 
@@ -114,6 +120,11 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
     }
   }
 
+  // the puzzle solution
+  const currentSolution = stackrabbit.nextBox[0].firstPlacement;
+  const nextSolution = stackrabbit.nextBox[0].secondPlacement;
+
+  // return the rating with details and solution
   details.rating = rating;
-  return {rating, details};
+  return {rating, details, currentSolution, nextSolution};
 }

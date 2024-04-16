@@ -13,19 +13,11 @@
     <div class="body">
       <div class="stat">
         <p>Current</p>
-        <app-nes-piece [piece]="puzzle.currentPiece" />
+        <app-nes-piece [piece]="puzzle.current" />
       </div>
       <div class="stat">
         <p>Next</p>
-        <app-nes-piece [piece]="puzzle.nextPiece" />
-      </div>
-      <div class="stat">
-        <p>Accuracy</p>
-        <h1>{{puzzle.numAttempts === 0 ? '-' : ((puzzle.numSolves / puzzle.numAttempts * 100).toFixed(0) + '%')}}</h1>
-      </div>
-      <div class="stat">
-        <p>Attempts</p>
-        <h1>{{puzzle.numAttempts}}</h1>
+        <app-nes-piece [piece]="puzzle.next" />
       </div>
     </div>
     <div class="footer">
