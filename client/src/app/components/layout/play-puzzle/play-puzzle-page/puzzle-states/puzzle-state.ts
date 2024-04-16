@@ -1,7 +1,7 @@
-import { evaluatePuzzleSubmission } from "client/src/app/models/puzzles/evaluate-puzzle-submission";
-import { PuzzleDefinition, PuzzleResult, PuzzleSubmission } from "client/src/app/models/puzzles/puzzle";
+import { PuzzleSubmission } from "client/src/app/models/puzzles/puzzle";
 import { GenericPuzzle } from "network-protocol/puzzles/generic-puzzle";
 import { PlayerPuzzle } from "network-protocol/puzzles/player-puzzle";
+import { PuzzleResult, SerializedPuzzleSubmission, evaluatePuzzleSubmission } from "network-protocol/puzzles/serialized-puzzle-submission";
 
 export interface EloChange {
   eloGain: number;
@@ -24,23 +24,31 @@ export abstract class PuzzleState {
 
   protected abstract _fetchNextPuzzle(): Promise<GenericPuzzle>;
 
-  abstract getPuzzleName(): string;
+  abstract getPuzzleName(isRetry: boolean): string;
   abstract getEloChange(): EloChange | undefined;
   abstract isTimed(): boolean;
   abstract nextButtonText(): string | undefined; // string for button to go to next puzzle, or undefined if no button
 
-  protected onSubmitPuzzle(isCorrect: boolean, isRetry: boolean): void {}
+  // by default, evaluates the puzzle submission client-side. However, this can be overridden to evaluate server-side in ranked puzzles
+  async evaluatePuzzleSubmission(puzzle: GenericPuzzle, submission: SerializedPuzzleSubmission, isRetry: boolean): Promise<PuzzleResult> {
+    return evaluatePuzzleSubmission(puzzle, submission);
+  }
 
-  async submitPuzzle(submission: PuzzleSubmission, gaveUp: boolean, isRetry: boolean): Promise<PuzzleResult> {
-
+  async submitPuzzle(submission: PuzzleSubmission, isRetry: boolean): Promise<PuzzleResult> {
     this.submission = submission;
+
+    const rawSubmission: SerializedPuzzleSubmission = {
+      puzzleID: this.currentPuzzle!.id,
+      username: "",
+      x1: submission.firstPiece?.getTranslateX() ?? undefined,
+      y1: submission.firstPiece?.getTranslateY() ?? undefined,
+      r1: submission.firstPiece?.getRotation() ?? undefined,
+      x2: submission.secondPiece?.getTranslateX() ?? undefined,
+      y2: submission.secondPiece?.getTranslateY() ?? undefined,
+      r2: submission.secondPiece?.getRotation() ?? undefined,
+    }
     
-    const result = evaluatePuzzleSubmission(this.currentPuzzle!, submission, gaveUp);
-    console.log("submitPuzzle", result);
-
-    this.onSubmitPuzzle(result.isCorrect, isRetry);
-
-    // TODO: submit puzzle to server to update attempts / solves
+    const result = await this.evaluatePuzzleSubmission(this.currentPuzzle!, rawSubmission, isRetry);
     
     return result;
   }

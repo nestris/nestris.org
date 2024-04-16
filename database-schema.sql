@@ -67,6 +67,21 @@ CREATE TABLE "public"."rated_puzzles" (
     PRIMARY KEY ("id")
 );
 
+-- ACTIVE_PUZZLE TABLE
+-- puzzle that was fetched by user, but not yet submitted
+-- unique username, so that only one active puzzle per user
+-- table to ensure that user can only have one active puzzle at a time, and to keep track of when the puzzle was started
+DROP TABLE IF EXISTS "public"."active_puzzles" CASCADE;
+CREATE TABLE "public"."active_puzzles" (
+    "username" text NOT NULL REFERENCES "public"."users"("username"),
+    "puzzle_id" uuid NOT NULL REFERENCES "public"."rated_puzzles"("id"),
+    "elo_gain" int2 NOT NULL,
+    "elo_loss" int2 NOT NULL,
+    "started_at" timestamp NOT NULL DEFAULT now(),
+    PRIMARY KEY ("username")
+);
+
+
 -- PUZZLE_ATTEMPT TABLE (for rated puzzles only)
 -- user_rating is between -1 and 5
 -- -1 means the user reported the puzzle (thought the puzzle was bad)
@@ -80,10 +95,11 @@ CREATE TABLE "public"."puzzle_attempts" (
     "timestamp" timestamp NOT NULL DEFAULT now(),
 
     "is_correct" boolean NOT NULL,
+    "elo_before" int2 NOT NULL,
     "elo_change" int2, -- if NULL, then it was an unranked puzzle
     "solve_time" int2 NOT NULL,
 
-    "user_rating" int2 NOT NULL CHECK (user_rating >= -1 AND user_rating <= 5),
+    "user_rating" int2 NOT NULL DEFAULT 0 CHECK (user_rating >= -1 AND user_rating <= 5),
 
     "r1" int2 NOT NULL,
     "x1" int2 NOT NULL,

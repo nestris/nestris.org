@@ -18,7 +18,7 @@ export class SinglePuzzleState extends PuzzleState {
     return this.fetchedPuzzle;
   }
 
-  override getPuzzleName(): string {
+  override getPuzzleName(isRetry: boolean): string {
     return `${(this.currentPuzzle! as PlayerPuzzle).creator}'s Puzzle`;
   }
 

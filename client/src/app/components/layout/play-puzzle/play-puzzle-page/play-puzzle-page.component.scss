@@ -97,6 +97,12 @@ header {
     gap: 20px;
 };
 
+.puzzle-header-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 .puzzle-details-bottom {
     display: flex;
     flex-direction: column;
@@ -196,9 +202,9 @@ header {
     margin-bottom: 20px;
 }
 
-.elo-container {
-    margin-bottom: 20px;
-}
+// .elo-container {
+//     margin-bottom: 20px;
+// }
 
 
 .engine-div {

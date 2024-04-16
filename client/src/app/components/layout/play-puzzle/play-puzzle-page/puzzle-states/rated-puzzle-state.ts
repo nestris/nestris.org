@@ -2,6 +2,7 @@ import { EloChange, PuzzleState } from "./puzzle-state";
 import { Method, fetchServer2 } from "client/src/app/scripts/fetch-server";
 import { GenericPuzzle } from "network-protocol/puzzles/generic-puzzle";
 import { RatedPuzzle } from "network-protocol/puzzles/rated-puzzle";
+import { PuzzleResult, SerializedPuzzleSubmission, evaluatePuzzleSubmission } from "network-protocol/puzzles/serialized-puzzle-submission";
 import { DBUser } from "server/database/user-queries";
 
 export class RatedPuzzleState extends PuzzleState {
@@ -26,13 +27,16 @@ export class RatedPuzzleState extends PuzzleState {
     console.log("Starting elo", user.puzzleElo);
   }
 
-  protected override onSubmitPuzzle(isCorrect: boolean, isRetry: boolean): void {
 
-    // do not update elo on retry
-    if (isRetry) return;
+  override async evaluatePuzzleSubmission(puzzle: GenericPuzzle, submission: SerializedPuzzleSubmission, isRetry: boolean): Promise<PuzzleResult> {
+    // if retrying, just evaluate the submission client-side
+    if (isRetry) return evaluatePuzzleSubmission(puzzle, submission);
 
-    const newElo = this.getElo() + (isCorrect ? this.eloChange.eloGain : -this.eloChange.eloLoss);
-    this.eloHistory.push(newElo);
+    submission.username = this.username;
+    const puzzleResult = await fetchServer2<PuzzleResult>(Method.POST, `/api/v2/submit-puzzle-attempt`, submission);
+
+    this.eloHistory.push(puzzleResult.resultingElo!);
+    return puzzleResult;
   }
 
   override async _fetchNextPuzzle(): Promise<GenericPuzzle> {
@@ -48,8 +52,8 @@ export class RatedPuzzleState extends PuzzleState {
     return puzzle;
   }
 
-  override getPuzzleName(): string {
-    return "Rated Puzzle"
+  override getPuzzleName(isRetry: boolean): string {
+    return isRetry ? "Retry Puzzle" : "Rated Puzzle"
   }
 
   override getEloChange(): EloChange | undefined {

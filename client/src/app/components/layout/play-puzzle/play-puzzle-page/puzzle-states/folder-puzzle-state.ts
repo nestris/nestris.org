@@ -21,7 +21,7 @@ export class FolderPuzzleState extends PuzzleState {
     return this.folder.puzzles[this.currentPuzzleIndex];
   }
 
-  override getPuzzleName(): string {
+  override getPuzzleName(isRetry: boolean): string {
     return `${this.folder.name} (${this.currentPuzzleIndex + 1}/${this.folder.puzzles.length})`;
   }
 

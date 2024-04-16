@@ -4,6 +4,9 @@ import { queryDB } from "../database";
 import { RatedPuzzle } from "../../network-protocol/puzzles/rated-puzzle";
 import { decodeRatedPuzzleFromDB } from "./decode-rated-puzzle";
 import { Request, Response } from 'express';
+import { clearActivePuzzle, getActivePuzzle, setActivePuzzle } from "./active-puzzle";
+import { submitPuzzleAttempt } from "./submit-puzzle-attempt";
+import { SerializedPuzzleSubmission } from "network-protocol/puzzles/serialized-puzzle-submission";
 
 // given a weight for each of the five possible ratings, return a random rating
 // weights must be integers
@@ -105,7 +108,27 @@ export async function selectRandomPuzzleForUserRoute(req: Request, res: Response
   console.log("Selecting random puzzle for user", username);
 
   try {
+
+    const currentActivePuzzle = await getActivePuzzle(username);
+
+    // if there's already a different puzzle active, first deactivate it by submitting it as a timeout
+    if (currentActivePuzzle) {
+
+      // submit the current active puzzle as a timed out attempt
+      console.log("TIMING OUT PUZZLE", currentActivePuzzle);
+
+      const submission: SerializedPuzzleSubmission = { // submission with no placements, so it's a timeout
+        username: username,
+        puzzleID: currentActivePuzzle.puzzleID,
+      };
+      await submitPuzzleAttempt(submission);
+    }
+
     const puzzle = await selectRandomPuzzleForUser(username);
+
+    // set as active puzzle
+    await setActivePuzzle(username, puzzle.id, puzzle.eloGain!, puzzle.eloLoss!);
+
     res.status(200).send(puzzle);
   } catch (error) {
     res.status(404).send(error);

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { Point } from 'client/src/app/models/point';
-import { PuzzleDefinition, PuzzleSubmission } from 'client/src/app/models/puzzles/puzzle';
+import { PuzzleSubmission } from 'client/src/app/models/puzzles/puzzle';
 import { GenericPuzzle } from 'network-protocol/puzzles/generic-puzzle';
 import { PlayerPuzzle } from 'network-protocol/puzzles/player-puzzle';
 import { BinaryTranscoder } from 'network-protocol/tetris-board-transcoding/binary-transcoder';

@@ -19,6 +19,7 @@ import { copyPuzzleLink } from 'misc/copy-url';
 import { WebsocketService } from 'client/src/app/services/websocket.service';
 import { PlayerPuzzle } from 'network-protocol/puzzles/player-puzzle';
 import { GenericPuzzle } from 'network-protocol/puzzles/generic-puzzle';
+import { SerializedPuzzleSubmission } from 'network-protocol/puzzles/serialized-puzzle-submission';
 
 export enum PuzzleMode {
   RATED = "rated",
@@ -55,7 +56,7 @@ export class PlayPuzzlePageComponent implements OnInit {
   private startPuzzleTime?: number;
   private timerInterval: any;
 
-  private isRetry = false;
+  public isRetry$ = new BehaviorSubject<boolean>(false);
 
   readonly EloMode = EloMode;
   readonly ButtonColor = ButtonColor;
@@ -193,6 +194,7 @@ export class PlayPuzzlePageComponent implements OnInit {
       this.startTimer();
     }
 
+    this.isRetry$.next(false);
     this.solvingPuzzle$.next(true);
   }
 
@@ -226,19 +228,18 @@ export class PlayPuzzlePageComponent implements OnInit {
       firstPiece: undefined,
       secondPiece: undefined
     };
-    await this.submitPuzzle(submission, true);
+    await this.submitPuzzle(submission);
   }
 
   // submit puzzle and go to puzzle solution page
-  async submitPuzzle(submission: PuzzleSubmission, gaveUp: boolean = false) {
+  async submitPuzzle(submission: PuzzleSubmission) {
 
-    this.isRetry = false;
 
     // stop timer
     clearInterval(this.timerInterval);
 
     // submit puzzle to server
-    const result = await this.puzzleState$.getValue()!.submitPuzzle(submission, gaveUp, this.isRetry);
+    const result = await this.puzzleState$.getValue()!.submitPuzzle(submission, this.isRetry$.getValue());
     this.puzzleIsCorrect = result.isCorrect;
     this.puzzleSolutionExplanation = result.explanation;
 
@@ -282,7 +283,7 @@ export class PlayPuzzlePageComponent implements OnInit {
 
   retryPuzzle() {
 
-    this.isRetry = true;
+    this.isRetry$.next(true);
 
     if (this.puzzleState$.getValue()!.isTimed()) {
       this.startTimer();
