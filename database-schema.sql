@@ -119,7 +119,7 @@ RETURNS TRIGGER AS $$
 BEGIN
     UPDATE rated_puzzles
     SET num_attempts_cached = (SELECT COUNT(*) FROM puzzle_attempts WHERE puzzle_id = NEW.puzzle_id),
-        num_solves_cached = (SELECT COUNT(*) FROM puzzle_attempts WHERE puzzleID = NEW.puzzle_id AND is_correct = TRUE)
+        num_solves_cached = (SELECT COUNT(*) FROM puzzle_attempts WHERE puzzle_id = NEW.puzzle_id AND is_correct = TRUE)
     WHERE id = NEW.puzzle_id;
     RETURN NEW;
 END;

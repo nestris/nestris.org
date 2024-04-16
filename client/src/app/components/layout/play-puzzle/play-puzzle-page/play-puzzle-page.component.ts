@@ -181,6 +181,12 @@ export class PlayPuzzlePageComponent implements OnInit {
   // fetch a new puzzle from the server, start puzzle, and start timer
   async startPuzzle() {
 
+    // if not signed in, redirect back to puzzles page
+    if (this.puzzleState$.getValue() instanceof RatedPuzzleState && !this.websocketService.isSignedIn()) {
+      this.router.navigate(['/puzzles/']);
+      return;
+    }
+
 
     const puzzle = await this.puzzleState$.getValue()!.fetchNextPuzzle();
 
@@ -237,6 +243,12 @@ export class PlayPuzzlePageComponent implements OnInit {
 
     // stop timer
     clearInterval(this.timerInterval);
+
+    // if not signed in, redirect back to puzzles page
+    if (this.puzzleState$.getValue() instanceof RatedPuzzleState && !this.websocketService.isSignedIn()) {
+      this.router.navigate(['/puzzles/']);
+      return;
+    }
 
     // submit puzzle to server
     const result = await this.puzzleState$.getValue()!.submitPuzzle(submission, this.isRetry$.getValue());

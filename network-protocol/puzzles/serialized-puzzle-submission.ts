@@ -66,6 +66,8 @@ export interface PuzzleResult {
 // TODO: more descriptive explanation
 export function evaluatePuzzleSubmission(puzzle: FirstSecondPlacements, submission: SerializedPuzzleSubmission): PuzzleResult {
 
+  console.log("Evaluating submission", puzzle, submission);
+
   // if submission is incomplete, return false
   if (!isSubmissionComplete(submission)) {
       return {

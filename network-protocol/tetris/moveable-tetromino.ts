@@ -35,6 +35,7 @@ export default class MoveableTetromino {
     }
 
     constructor(public readonly tetrominoType: TetrominoType, private rotation: number, private translateX: number, private translateY: number) {
+        this.rotation = rotation % Tetromino.getPieceByType(tetrominoType).numPossibleRotations();
         this.color = getColorTypeForTetromino(tetrominoType);
         this.updateCurrentBlockSet()
     }
