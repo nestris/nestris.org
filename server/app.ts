@@ -19,7 +19,7 @@ import { getPlayerPuzzleRoute } from './player-puzzles/get-player-puzzle';
 import { getFolderRoute } from './player-puzzles/get-folder';
 import { deletePlayerPuzzleRoute } from './player-puzzles/delete-player-puzzle';
 import { generatePuzzlesRoute, getRatedPuzzlesListRoute } from './puzzle-generation/generate-puzzles';
-import { getRandomPuzzleRatingForPlayerElo, selectRandomPuzzleForUserRoute } from './puzzle-generation/select-puzzle';
+import { calculateEloChangeForPuzzle, getRandomPuzzleRatingForPlayerElo, selectRandomPuzzleForUserRoute } from './puzzle-generation/select-puzzle';
 
 
 require('dotenv').config();
@@ -81,6 +81,13 @@ export default async function createApp(): Promise<{
     });
 
     app.post('/api/v2/random-rated-puzzle/:username', selectRandomPuzzleForUserRoute);
+
+    app.get('/api/v2/elo-change', async (req: Request, res: Response) => {
+        const elo = parseInt(req.query['elo'] as string);
+        const attempts = parseInt(req.query['attempts'] as string);
+        const rating = parseInt(req.query['rating'] as string);
+        res.status(200).send({change: calculateEloChangeForPuzzle(elo, attempts, rating)});
+    });
 
 
     // catch all invalid api routes

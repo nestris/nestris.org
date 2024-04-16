@@ -43,6 +43,24 @@ export function getRandomPuzzleRatingForPlayerElo(elo: number): PuzzleRating {
   return distribution[Math.floor(Math.random() * distribution.length)];
 }
 
+// given the user's elo, the number of total puzzle attempts, and the rating of the puzzle, calculate the elo change for the user
+export function calculateEloChangeForPuzzle(userElo: number, numAttempts: number, rating: PuzzleRating): { eloGain: number, eloLoss: number } {
+
+  if (rating < PuzzleRating.ONE_STAR) throw new Error("Invalid puzzle rating");
+
+  // based on https://www.desmos.com/calculator/xve7eslecl
+  let eloGain = 100 / Math.pow(1.0005, userElo + 3000 - 500*rating);
+  let eloLoss = 100 / Math.pow(1.0005, 3000 + 500*rating - userElo);
+
+  // for attempts 0-19, there's a multiplier. At attempt 0, 4x multiplier, at attempt 20+, 1x multiplier
+  // https://www.desmos.com/calculator/ys9xtkhdng
+  const attemptMultiplier = 1 + 3 * (20 - Math.min(numAttempts, 20)) / 20;
+  eloGain *= attemptMultiplier;
+  eloLoss *= attemptMultiplier;
+
+  return { eloGain, eloLoss };
+}
+
 // given a user, select a random puzzle for the user to solve
 // The puzzle is not guaranteed to be unsolved by user before, but hopefully puzzle database is large enough that this is unlikely
 export async function selectRandomPuzzleForUser(username: string): Promise<RatedPuzzle> {
@@ -51,16 +69,27 @@ export async function selectRandomPuzzleForUser(username: string): Promise<Rated
   const user = await queryUserByUsername(username);
   if (!user) throw new Error("User not found");
 
-  // get a random puzzle rating based on the user's elo
+  // second, query how many puzzles the user has attempted by counting the number of puzzle_attempts with matching username
+  const puzzleAttempts = await queryDB(`SELECT COUNT(*) FROM puzzle_attempts WHERE username = $1`, [username]);
+  const puzzleAttemptsCount = parseInt(puzzleAttempts.rows[0].count);
+
+  // query the database for the user's puzzle elo, as well as the number of puzzles they have attempted
+  // counting number of puzzle_attempts with matching username)
   const elo = user.puzzleElo;
   const rating = getRandomPuzzleRatingForPlayerElo(elo);
-  console.log(`Selecting random puzzle rating ${rating} for user ${username} with elo ${elo}`);
+  console.log(`Selecting random puzzle rating ${rating} for user ${username} with elo ${elo} and ${puzzleAttemptsCount} attempts`);
 
   // query the database for a random puzzle with the selected rating
   const result = await queryDB(`SELECT * FROM rated_puzzles WHERE rating = $1 ORDER BY RANDOM() LIMIT 1`, [rating]);
   if (result.rows.length === 0) throw new Error("No puzzles found");
+  const puzzle = decodeRatedPuzzleFromDB(result.rows[0]);
 
-  return decodeRatedPuzzleFromDB(result.rows[0]);
+  // calculate the elo gain and loss for the puzzle
+  const { eloGain, eloLoss } = calculateEloChangeForPuzzle(elo, puzzleAttemptsCount, rating);
+  puzzle.eloGain = eloGain;
+  puzzle.eloLoss = eloLoss;
+
+  return puzzle;
 }
 
 // returns a random RatedPuzzle for the user based on their elo

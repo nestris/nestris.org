@@ -10,4 +10,6 @@ export interface RatedPuzzle extends GenericPuzzle {
   numSolves: number;
   numReports: number;
   averageUserRating: number;
+  eloGain?: number;
+  eloLoss?: number;
 }
