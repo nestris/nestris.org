@@ -18,7 +18,7 @@ import { getPlayerPuzzlesByUserRoute } from './player-puzzles/get-puzzles-by-use
 import { getPlayerPuzzleRoute } from './player-puzzles/get-player-puzzle';
 import { getFolderRoute } from './player-puzzles/get-folder';
 import { deletePlayerPuzzleRoute } from './player-puzzles/delete-player-puzzle';
-import { generatePuzzlesRoute } from './puzzle-generation/generate-puzzles';
+import { generatePuzzlesRoute, getRatedPuzzlesListRoute } from './puzzle-generation/generate-puzzles';
 
 
 require('dotenv').config();
@@ -72,6 +72,7 @@ export default async function createApp(): Promise<{
     app.get('/api/v2/puzzles-by-user/:username', getPlayerPuzzlesByUserRoute);
 
     app.post('/api/v2/generate-puzzles', generatePuzzlesRoute);
+    app.get('/api/v2/rated-puzzles-list', getRatedPuzzlesListRoute);
 
 
     // catch all invalid api routes

@@ -12,7 +12,4 @@ export interface PuzzleFolder {
 export interface PlayerPuzzle extends GenericPuzzle {
   id: string;
   creator: string;
-  rating: PuzzleRating;
-  numAttempts: number;
-  numSolves: number;
 }

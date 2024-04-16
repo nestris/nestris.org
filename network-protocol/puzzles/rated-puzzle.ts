@@ -8,4 +8,6 @@ export interface RatedPuzzle extends GenericPuzzle {
   theme: PuzzleTheme | undefined;
   numAttempts: number;
   numSolves: number;
+  numReports: number;
+  averageUserRating: number;
 }

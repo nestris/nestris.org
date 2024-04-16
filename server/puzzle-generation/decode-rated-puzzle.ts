@@ -3,10 +3,10 @@ import { BinaryTranscoder } from "../../network-protocol/tetris-board-transcodin
 import { BufferTranscoder } from "../../network-protocol/tetris-board-transcoding/buffer-transcoder";
 import { TetrominoType } from "../../network-protocol/tetris/tetromino-type";
 import { TETROMINO_CHAR, TETROMINO_CHAR_TO_TYPE } from "../../network-protocol/tetris/tetrominos";
-import { PlayerPuzzle } from "../../network-protocol/puzzles/player-puzzle";
+import { RatedPuzzle } from "network-protocol/puzzles/rated-puzzle";
 
 
-export function decodePlayerPuzzleFromDB(puzzle: any): PlayerPuzzle {
+export function decodeRatedPuzzleFromDB(puzzle: any): RatedPuzzle {
 
   const board = BinaryTranscoder.encode(BufferTranscoder.decode(puzzle.board));
   const currentPiece = TETROMINO_CHAR_TO_TYPE[puzzle.current_piece];
@@ -14,7 +14,6 @@ export function decodePlayerPuzzleFromDB(puzzle: any): PlayerPuzzle {
 
   return {
     id: puzzle.id,
-    creator: puzzle.creator,
     boardString: board,
     current: currentPiece,
     next: nextPiece,
@@ -24,6 +23,12 @@ export function decodePlayerPuzzleFromDB(puzzle: any): PlayerPuzzle {
     r2: puzzle.r2,
     x2: puzzle.x2,
     y2: puzzle.y2,
+    rating: puzzle.rating,
+    theme: puzzle.theme,
+    numAttempts: puzzle.num_attempts_cached,
+    numSolves: puzzle.num_solves_cached,
+    numReports: puzzle.report_count,
+    averageUserRating: puzzle.avg_user_rating
   }
 
 }

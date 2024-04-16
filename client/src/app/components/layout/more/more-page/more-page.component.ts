@@ -11,6 +11,7 @@ import { InputSpeed } from 'network-protocol/models/input-speed';
 import { TopMovesHybridResponse } from 'network-protocol/stackrabbit-decoder';
 import { PuzzleRating } from 'network-protocol/puzzles/puzzle-rating';
 import { RatedPuzzle } from 'network-protocol/puzzles/rated-puzzle';
+import { PartialRatedPuzzle } from 'server/puzzle-generation/generate-puzzles';
 
 export interface NNBMove {
   firstPlacement: MoveableTetromino;
@@ -26,7 +27,7 @@ export interface NNBMove {
 })
 export class MorePageComponent implements OnInit {
 
-  public puzzles!: RatedPuzzle[];
+  public puzzles!: PartialRatedPuzzle[];
 
   public index$ = new BehaviorSubject<number>(0);
 
@@ -39,7 +40,7 @@ export class MorePageComponent implements OnInit {
 
   async ngOnInit() {
 
-    this.puzzles = await fetchServer2<RatedPuzzle[]>(Method.POST, "/api/v2/generate-puzzles", {
+    this.puzzles = await fetchServer2<PartialRatedPuzzle[]>(Method.POST, "/api/v2/generate-puzzles", {
       count: 10
     });
 
