@@ -58,6 +58,13 @@ export function calculateEloChangeForPuzzle(userElo: number, numAttempts: number
   eloGain *= attemptMultiplier;
   eloLoss *= attemptMultiplier;
 
+  // round to nearest integer
+  eloGain = Math.round(eloGain);
+  eloLoss = Math.round(eloLoss);
+
+  // prevent eloLoss from being higher than userElo, so that userElo doesn't go negative
+  eloLoss = Math.min(eloLoss, userElo);
+
   return { eloGain, eloLoss };
 }
 

@@ -7,7 +7,7 @@ CREATE TABLE "public"."users" (
     "last_online" timestamp NOT NULL DEFAULT now(),
     "trophies" int2 NOT NULL DEFAULT 1000,
     "xp" int2 NOT NULL DEFAULT 0,
-    "puzzle_elo" int2 NOT NULL DEFAULT 1000,
+    "puzzle_elo" int2 NOT NULL DEFAULT 0,
     PRIMARY KEY ("username")
 );
 
