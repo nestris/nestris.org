@@ -60,6 +60,7 @@ import { YourPuzzleItemComponent } from './components/layout/puzzles/your-puzzle
 import { FullscreenExitButtonComponent } from './components/ui/fullscreen-exit-button/fullscreen-exit-button.component';
 import { MorePageComponent } from './components/layout/more/more-page/more-page.component';
 import { RatingStarsComponent } from './components/ui/rating-stars/rating-stars.component';
+import { FeedbackThumbsComponent } from './components/ui/feedback-thumbs/feedback-thumbs.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -159,6 +160,7 @@ const customNotifierOptions: NotifierOptions = {
     FullscreenExitButtonComponent,
     MorePageComponent,
     RatingStarsComponent,
+    FeedbackThumbsComponent,
   ],
   imports: [
     BrowserModule,

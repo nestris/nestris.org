@@ -140,6 +140,13 @@
                             </div>
                         </div>
 
+                        <!-- show puzzle feedback if it is rated -->
+                        <div class="feedback-container" *ngIf="(getRatedPuzzleState$() | async) as rated">
+                            <h2 class="prevent-select">Did you like this puzzle?</h2>
+                            <app-feedback-thumbs [puzzleID]="rated.getPuzzleID()" />
+                        </div>
+                        
+
                     </ng-container>
 
                 </div>

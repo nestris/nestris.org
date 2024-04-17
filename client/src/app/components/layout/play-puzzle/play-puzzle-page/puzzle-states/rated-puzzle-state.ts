@@ -80,6 +80,10 @@ export class RatedPuzzleState extends PuzzleState {
     return this.currentPuzzle! as RatedPuzzle;
   }
 
+  getPuzzleID(): string {
+    return this.getPuzzle().id;
+  }
+
   getSuccessRate(): string {
     if (this.getPuzzle().numAttempts === 0) return "-";
     return `${(this.getPuzzle().numSolves / this.getPuzzle().numAttempts * 100).toFixed(0)}%`;

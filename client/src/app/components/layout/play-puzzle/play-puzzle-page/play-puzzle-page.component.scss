@@ -215,7 +215,7 @@ header {
     width: 80%;
   }
 
-.engine-div h2 {
+.engine-div h2, .feedback-container h2 {
     font-family: $main-font;
     text-align: center;
     font-size: 14px;
@@ -321,4 +321,12 @@ header {
     font-weight: 700;
     line-height: normal;
     margin-block: 2px;
+  }
+
+  .feedback-container {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
   }

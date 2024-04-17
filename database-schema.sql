@@ -92,12 +92,12 @@ CREATE TABLE "public"."rated_puzzles" (
 CREATE INDEX rating_index ON rated_puzzles (rating DESC); -- for fetching puzzles to rate
 
 -- whether user liked/disliked a puzzle
+--feedback text can only be "liked", "disliked", or "none"
 DROP TABLE IF EXISTS "public"."puzzle_feedback" CASCADE;
 CREATE TABLE "public"."puzzle_feedback" (
     "puzzle_id" uuid NOT NULL REFERENCES "public"."rated_puzzles"("id"),
     "username" text NOT NULL REFERENCES "public"."users"("username"),
-    "liked" boolean NOT NULL DEFAULT FALSE,
-    "disliked" boolean NOT NULL DEFAULT FALSE,
+    "feedback" text NOT NULL CHECK (feedback = ANY (ARRAY['liked'::text, 'disliked'::text, 'none'::text])) DEFAULT 'none'::text,
     PRIMARY KEY ("puzzle_id", "username")
 );
 
@@ -107,8 +107,8 @@ CREATE OR REPLACE FUNCTION update_puzzle_feedback_cached_data()
 RETURNS TRIGGER AS $$
 BEGIN
     UPDATE rated_puzzles
-    SET num_likes_cached = (SELECT COUNT(*) FROM puzzle_feedback WHERE puzzle_id = NEW.puzzle_id AND liked = TRUE),
-        num_dislikes_cached = (SELECT COUNT(*) FROM puzzle_feedback WHERE puzzle_id = NEW.puzzle_id AND disliked = TRUE)
+    SET num_likes_cached = (SELECT COUNT(*) FROM puzzle_feedback WHERE puzzle_id = NEW.puzzle_id AND feedback = 'liked'::text),
+        num_dislikes_cached = (SELECT COUNT(*) FROM puzzle_feedback WHERE puzzle_id = NEW.puzzle_id AND feedback = 'disliked'::text)
     WHERE id = NEW.puzzle_id;
     RETURN NEW;
 END;

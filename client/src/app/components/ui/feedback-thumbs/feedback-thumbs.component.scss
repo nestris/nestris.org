@@ -1,0 +1,15 @@
+.icon-disabled {
+  opacity: 0.4;
+}
+
+.icon-disabled:hover {
+  opacity: 0.6;
+}
+
+.thumbs {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
