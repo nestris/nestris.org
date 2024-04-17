@@ -16,8 +16,8 @@ interface RatedPuzzleInfo {
   next: TetrominoType,
   accuracy: string,
   attempts: number,
-  reports: number,
-  averageUserRating: string,
+  likes: number,
+  dislikes: number,
 }
 
 @Component({
@@ -44,8 +44,8 @@ export class PuzzleDatabaseComponent implements OnInit {
         next: puzzle.next,
         accuracy: this.getPuzzleAccuracy(puzzle),
         attempts: puzzle.numAttempts + puzzle.numSolves,
-        reports: puzzle.numReports,
-        averageUserRating: puzzle.averageUserRating?.toFixed(1) ?? "-",
+        likes: puzzle.likes,
+        dislikes: puzzle.dislikes,
       };
     });
 

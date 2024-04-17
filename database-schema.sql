@@ -19,9 +19,7 @@ CREATE OR REPLACE FUNCTION update_highest_puzzle_elo()
 RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.puzzle_elo > NEW.highest_puzzle_elo THEN
-        UPDATE users
-        SET highest_puzzle_elo = NEW.puzzle_elo
-        WHERE username = NEW.username;
+        NEW.highest_puzzle_elo = NEW.puzzle_elo;
     END IF;
     RETURN NEW;
 END;
@@ -86,10 +84,42 @@ CREATE TABLE "public"."rated_puzzles" (
     "theme" text NOT NULL,
     "num_attempts_cached" int2 NOT NULL DEFAULT 0, -- should be updated by trigger on PuzzleAttempt
     "num_solves_cached" int2 NOT NULL DEFAULT 0, -- should be updated by trigger on PuzzleAttempt
+    "num_likes_cached" int2 NOT NULL DEFAULT 0,
+    "num_dislikes_cached" int2 NOT NULL DEFAULT 0,
 
     PRIMARY KEY ("id")
 );
 CREATE INDEX rating_index ON rated_puzzles (rating DESC); -- for fetching puzzles to rate
+
+-- whether user liked/disliked a puzzle
+DROP TABLE IF EXISTS "public"."puzzle_feedback" CASCADE;
+CREATE TABLE "public"."puzzle_feedback" (
+    "puzzle_id" uuid NOT NULL REFERENCES "public"."rated_puzzles"("id"),
+    "username" text NOT NULL REFERENCES "public"."users"("username"),
+    "liked" boolean NOT NULL DEFAULT FALSE,
+    "disliked" boolean NOT NULL DEFAULT FALSE,
+    PRIMARY KEY ("puzzle_id", "username")
+);
+
+-- calculate the number of likes and dislikes for a puzzle
+-- do not solve dynamically
+CREATE OR REPLACE FUNCTION update_puzzle_feedback_cached_data()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE rated_puzzles
+    SET num_likes_cached = (SELECT COUNT(*) FROM puzzle_feedback WHERE puzzle_id = NEW.puzzle_id AND liked = TRUE),
+        num_dislikes_cached = (SELECT COUNT(*) FROM puzzle_feedback WHERE puzzle_id = NEW.puzzle_id AND disliked = TRUE)
+    WHERE id = NEW.puzzle_id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- trigger to update the number of likes and dislikes for a puzzle
+DROP TRIGGER IF EXISTS update_puzzle_feedback_cached_data_trigger ON puzzle_feedback;
+CREATE TRIGGER update_puzzle_feedback_cached_data_trigger
+AFTER INSERT OR UPDATE OR DELETE ON puzzle_feedback
+FOR EACH ROW EXECUTE FUNCTION update_puzzle_feedback_cached_data();
+
 
 -- ACTIVE_PUZZLE TABLE
 -- puzzle that was fetched by user, but not yet submitted

@@ -23,6 +23,7 @@ import { calculateEloChangeForPuzzle, getRandomPuzzleRatingForPlayerElo, selectR
 import { submitPuzzleAttemptRoute } from './puzzle-generation/submit-puzzle-attempt';
 import { getDailyStreakRoute } from './puzzle-dashboard/puzzle-streak';
 import { getRelativePuzzleRankRoute } from './puzzle-dashboard/relative-puzzle-rank';
+import { setFeedbackRoute } from './puzzle-generation/set-feedback';
 
 
 require('dotenv').config();
@@ -96,6 +97,8 @@ export default async function createApp(): Promise<{
 
     app.get('/api/v2/daily-streak/:username', getDailyStreakRoute);
     app.get('/api/v2/puzzle-rank/:username', getRelativePuzzleRankRoute);
+
+    app.post('/api/v2/set-feedback', setFeedbackRoute);
 
 
     // catch all invalid api routes

@@ -136,12 +136,14 @@ export async function getRatedPuzzlesListRoute(req: Request, res: Response) {
   // report_count, which is the count for puzzle_attempts with the same puzzle_id where user_rating is -1
   // average_user_rating, which is the average of user_rating for puzzle_attempts with the same puzzle_id ignoring user_ratings below 1
   // write the query across multiple lines for readability
+  // order by rating
   const result = await queryDB(
-    "SELECT rated_puzzles.*, " +
-    "(SELECT COUNT(*) FROM puzzle_attempts WHERE puzzle_id = rated_puzzles.id AND user_rating = -1) AS report_count, " +
-    "(SELECT AVG(user_rating) FROM puzzle_attempts WHERE puzzle_id = rated_puzzles.id AND user_rating > 0) AS avg_user_rating " +
-    "FROM rated_puzzles"
+    "SELECT * " +
+    "FROM rated_puzzles " + 
+    "ORDER BY rating ASC " + 
+    "LIMIT 100"
   );
+
 
   const puzzles: RatedPuzzle[] = result.rows.map((row: any) => decodeRatedPuzzleFromDB(row));
   res.send(puzzles);

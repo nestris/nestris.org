@@ -53,7 +53,6 @@ import { ReviewPageComponent } from './components/layout/review/review-page/revi
 import { TabSelectorComponent } from './components/ui/tab-selector/tab-selector.component';
 import { RankedPuzzlesComponent } from './components/layout/puzzles/ranked-puzzles/ranked-puzzles.component';
 import { YourPuzzlesComponent } from './components/layout/puzzles/your-puzzles/your-puzzles.component';
-import { AttemptHistoryComponent } from './components/layout/puzzles/attempt-history/attempt-history.component';
 import { CreatePuzzleModalComponent } from './components/modals/create-puzzle-modal/create-puzzle-modal.component';
 import { AuthModalComponent } from './components/modals/auth-modal/auth-modal.component';
 import { PuzzleDatabaseComponent } from './components/layout/puzzles/puzzle-database/puzzle-database.component';
@@ -153,7 +152,6 @@ const customNotifierOptions: NotifierOptions = {
     TabSelectorComponent,
     RankedPuzzlesComponent,
     YourPuzzlesComponent,
-    AttemptHistoryComponent,
     CreatePuzzleModalComponent,
     AuthModalComponent,
     PuzzleDatabaseComponent,

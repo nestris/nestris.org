@@ -15,7 +15,6 @@ import { FriendPageComponent } from './components/layout/friends/friend-page/fri
 import { ReviewPageComponent } from './components/layout/review/review-page/review-page.component';
 import { RankedPuzzlesComponent } from './components/layout/puzzles/ranked-puzzles/ranked-puzzles.component';
 import { YourPuzzlesComponent } from './components/layout/puzzles/your-puzzles/your-puzzles.component';
-import { AttemptHistoryComponent } from './components/layout/puzzles/attempt-history/attempt-history.component';
 import { PuzzleDatabaseComponent } from './components/layout/puzzles/puzzle-database/puzzle-database.component';
 import { MorePageComponent } from './components/layout/more/more-page/more-page.component';
 
@@ -47,7 +46,6 @@ const routes: Routes = [
         children: [
           { path: "ranked", component: RankedPuzzlesComponent },
           { path: "view", component: YourPuzzlesComponent },
-          { path: "history", component: AttemptHistoryComponent },
           { path: "database", component: PuzzleDatabaseComponent },
           { path: "", redirectTo: "ranked", pathMatch: "full", },
           { path: "**", redirectTo: "ranked", pathMatch: "full", }

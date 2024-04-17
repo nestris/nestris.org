@@ -21,7 +21,7 @@ export async function getRelativePuzzleRank(username: string): Promise<PuzzleRan
   `;
   const result = await queryDB(query, []);
 
-  console.log(result.rows);
+  // console.log(result.rows);
 
   // find the player's global puzzle elo ranking
   let playerRank = 0;
@@ -32,7 +32,7 @@ export async function getRelativePuzzleRank(username: string): Promise<PuzzleRan
     }
   }
 
-  console.log("Player rank: ", playerRank);
+  // console.log("Player rank: ", playerRank);
 
   // get the 5 players surrounding the player in the global puzzle elo leaderboard
   // if there is not a player in the leaderboard at a certain position, set to undefined
@@ -49,7 +49,7 @@ export async function getRelativePuzzleRank(username: string): Promise<PuzzleRan
     }
   };
 
-  console.log("Leaderboard: ", leaderboard);
+  // console.log("Leaderboard: ", leaderboard);
 
   return {
     rank: playerRank,

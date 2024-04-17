@@ -27,8 +27,8 @@ export function decodeRatedPuzzleFromDB(puzzle: any): RatedPuzzle {
     theme: puzzle.theme,
     numAttempts: puzzle.num_attempts_cached,
     numSolves: puzzle.num_solves_cached,
-    numReports: puzzle.report_count,
-    averageUserRating: puzzle.avg_user_rating
+    likes: puzzle.likes,
+    dislikes: puzzle.dislikes,
   }
 
 }
