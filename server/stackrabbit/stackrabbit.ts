@@ -3,6 +3,7 @@ import { TetrominoType } from "../../network-protocol/tetris/tetromino-type";
 import { INPUT_SPEED_TO_TIMELINE, InputSpeed } from "../../network-protocol/models/input-speed";
 import { TETROMINO_CHAR } from '../../network-protocol/tetris/tetrominos';
 
+require('dotenv').config();
 const USE_BINARY = process.env['USE_BINARY'] === "true";
 
 let cModule: any;
@@ -66,7 +67,10 @@ export async function getTopMovesHybridRoute(req: Request, res: Response) {
   const playoutCount = parseInt(req.query['playoutCount'] as string) || 343;
   const depth = parseInt(req.query['depth'] as string) || 3;
 
-  const result = await getTopMovesHybrid(boardString, level, lines, currentPiece, nextPiece, inputSpeed, playoutCount, depth);
-
-  res.send(result);
+  try {
+    const result = await getTopMovesHybrid(boardString, level, lines, currentPiece, nextPiece, inputSpeed, playoutCount, depth);
+    res.send(result);
+  } catch (error: any) {
+    res.status(500).send(error.message);
+  }
 }

@@ -8,8 +8,31 @@ CREATE TABLE "public"."users" (
     "trophies" int2 NOT NULL DEFAULT 1000,
     "xp" int2 NOT NULL DEFAULT 0,
     "puzzle_elo" int2 NOT NULL DEFAULT 0,
+    "highest_puzzle_elo" int2 NOT NULL DEFAULT 0,
     PRIMARY KEY ("username")
 );
+
+CREATE INDEX puzzle_elo_index ON users (puzzle_elo DESC); -- for leaderboard
+
+-- maintain the highest puzzle elo
+CREATE OR REPLACE FUNCTION update_highest_puzzle_elo()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.puzzle_elo > NEW.highest_puzzle_elo THEN
+        UPDATE users
+        SET highest_puzzle_elo = NEW.puzzle_elo
+        WHERE username = NEW.username;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- trigger to update the highest puzzle elo when the puzzle elo is updated for a user
+DROP TRIGGER IF EXISTS update_highest_puzzle_elo_trigger ON users;
+CREATE TRIGGER update_highest_puzzle_elo_trigger
+BEFORE UPDATE ON users
+FOR EACH ROW EXECUTE FUNCTION update_highest_puzzle_elo();
+
 
 -- USER_RELATIONSHIPS table
 DROP TABLE IF EXISTS "public"."user_relationships" CASCADE;
@@ -66,6 +89,7 @@ CREATE TABLE "public"."rated_puzzles" (
 
     PRIMARY KEY ("id")
 );
+CREATE INDEX rating_index ON rated_puzzles (rating DESC); -- for fetching puzzles to rate
 
 -- ACTIVE_PUZZLE TABLE
 -- puzzle that was fetched by user, but not yet submitted
@@ -110,6 +134,7 @@ CREATE TABLE "public"."puzzle_attempts" (
 
     PRIMARY KEY ("id")
 );
+CREATE INDEX timestamp_index ON puzzle_attempts (timestamp DESC); -- for fetching recent puzzle attempts
 
 
 -- calculate the number of attempts and solves for a puzzle

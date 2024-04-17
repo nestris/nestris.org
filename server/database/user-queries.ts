@@ -8,6 +8,7 @@ export interface DBUser {
   trophies: number;
   xp: number;
   puzzleElo: number;
+  highestPuzzleElo: number;
 }
 
 
@@ -28,7 +29,8 @@ export async function queryUserByUsername(username: string): Promise<DBUser | un
     lastOnline: rawUser.last_online,
     trophies: rawUser.trophies,
     xp: rawUser.xp,
-    puzzleElo: rawUser.puzzle_elo
+    puzzleElo: rawUser.puzzle_elo,
+    highestPuzzleElo: rawUser.highest_puzzle_elo
   };
 }
 

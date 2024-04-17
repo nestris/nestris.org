@@ -21,6 +21,8 @@ import { deletePlayerPuzzleRoute } from './player-puzzles/delete-player-puzzle';
 import { generatePuzzlesRoute, getRatedPuzzlesListRoute } from './puzzle-generation/generate-puzzles';
 import { calculateEloChangeForPuzzle, getRandomPuzzleRatingForPlayerElo, selectRandomPuzzleForUserRoute } from './puzzle-generation/select-puzzle';
 import { submitPuzzleAttemptRoute } from './puzzle-generation/submit-puzzle-attempt';
+import { getDailyStreakRoute } from './puzzle-dashboard/puzzle-streak';
+import { getRelativePuzzleRankRoute } from './puzzle-dashboard/relative-puzzle-rank';
 
 
 require('dotenv').config();
@@ -91,6 +93,9 @@ export default async function createApp(): Promise<{
     });
 
     app.post('/api/v2/submit-puzzle-attempt', submitPuzzleAttemptRoute);
+
+    app.get('/api/v2/daily-streak/:username', getDailyStreakRoute);
+    app.get('/api/v2/puzzle-rank/:username', getRelativePuzzleRankRoute);
 
 
     // catch all invalid api routes

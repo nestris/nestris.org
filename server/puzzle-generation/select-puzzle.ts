@@ -22,13 +22,13 @@ function getRandomDistribution(one: number, two: number, three: number, four: nu
   return list;
 }
 
-const ELO_0_499 = getRandomDistribution(40, 40, 20, 0, 0); // absolute beginner, mostly solving 1-2 star puzzles
-const ELO_500_999 = getRandomDistribution(30, 30, 30, 10, 0); // start getting more 3 star puzzles
-const ELO_1000_1499 = getRandomDistribution(20, 30, 40, 20, 0); // mostly solving 3 star puzzles with some 4 star
-const ELO_1500_1999 = getRandomDistribution(10, 20, 40, 30, 0); // mostly solving 3-4 star puzzles
-const ELO_2000_2499 = getRandomDistribution(10, 10, 30, 30, 20); // mostly solving 3-4 star puzzles with some 5 star
-const ELO_2500_2999 = getRandomDistribution(2, 4, 24, 50, 20); // mostly solving 4 star puzzles with some 5 star
-const ELO_3000_PLUS = getRandomDistribution(2, 2, 30, 36, 30); // mostly solving 4-5 star puzzles
+const ELO_0_499 = getRandomDistribution(80, 20, 0, 0, 0); // mostly solving 1 star puzzles
+const ELO_500_999 = getRandomDistribution(40, 60, 0, 0, 0); // mostly solving 1-2 star puzzles
+const ELO_1000_1499 = getRandomDistribution(30, 40, 30, 0, 0); // mostly solving 2-3 star puzzles
+const ELO_1500_1999 = getRandomDistribution(10, 30, 40, 20, 0); // mostly solving 2-4 star puzzles
+const ELO_2000_2499 = getRandomDistribution(5, 10, 35, 30, 20); // mostly solving 2-5 star puzzles
+const ELO_2500_2999 = getRandomDistribution(2, 4, 30, 44, 20); // mostly solving 3-5 star puzzles with lower chance of 5 star
+const ELO_3000_PLUS = getRandomDistribution(2, 2, 32, 32, 32); // mostly solving 3-5 star puzzles
 
 // Given a user's elo, probablistically select the rating of the puzzle the user will play next.
 export function getRandomPuzzleRatingForPlayerElo(elo: number): PuzzleRating {
@@ -55,9 +55,9 @@ export function calculateEloChangeForPuzzle(userElo: number, numAttempts: number
   let eloGain = 100 / Math.pow(1.0005, userElo + 3000 - 500*rating);
   let eloLoss = 100 / Math.pow(1.0005, 3000 + 500*rating - userElo);
 
-  // for attempts 0-19, there's a multiplier. At attempt 0, 4x multiplier, at attempt 20+, 1x multiplier
+  // for attempts 0-19, there's a multiplier. At attempt 0, 3x multiplier, at attempt 20+, 1x multiplier
   // https://www.desmos.com/calculator/ys9xtkhdng
-  const attemptMultiplier = 1 + 3 * (20 - Math.min(numAttempts, 20)) / 20;
+  const attemptMultiplier = 1 + 2 * (20 - Math.min(numAttempts, 20)) / 20;
   eloGain *= attemptMultiplier;
   eloLoss *= attemptMultiplier;
 

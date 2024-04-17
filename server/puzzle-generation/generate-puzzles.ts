@@ -45,10 +45,13 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
     if (badPuzzlesInARow > MAX_BAD_PUZZLES_IN_A_ROW) {
       // board is in too messy of a state. Reset.
       state = generator.getResetBoardState();
+      console.log("Resetting board");
       badPuzzlesInARow = 0;
     } else {
       state = await generator.getNextBoardState();
     }
+    
+    console.log("Generating new puzzle");
 
     // randomize current and next pieces for more interesting puzzles
     const current = getRandomTetrominoType();
@@ -59,6 +62,7 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
     // discard bad puzzles
     if (rating === PuzzleRating.BAD_PUZZLE) {
       i--;
+      console.log("Bad puzzle, retrying");
       badPuzzlesInARow++;
       continue;
     }
@@ -66,9 +70,10 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
     // reset bad puzzle counter
     badPuzzlesInARow = 0;
 
-    // discard a fraction of 3 star puzzles due to overabundance
-    if (rating === PuzzleRating.THREE_STAR && Math.random() < 0.8) {
+    // discard a fraction of 3 and 4 star puzzles due to overabundance
+    if ((rating === PuzzleRating.THREE_STAR && Math.random() < 0.6) || (rating === PuzzleRating.FOUR_STAR && Math.random() < 0.3)) {
       i--;
+      console.log(`Discarding ${rating} star puzzle`);
       continue;
     }
 

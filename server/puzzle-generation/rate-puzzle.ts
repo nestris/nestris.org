@@ -23,6 +23,7 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
     const stackrabbitRaw = await getTopMovesHybrid(boardString, 18, 0, current, next);
     stackrabbit = decodeStackrabbitResponse(stackrabbitRaw, current, next);
   } catch (e) {
+    console.log("Error in ratePuzzle: " + e);
     return {rating: PuzzleRating.BAD_PUZZLE, details: {
       bestNB: -1,
       diff: -1,
@@ -85,9 +86,9 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
   */
 
   let rating: PuzzleRating;
-  if (diff >= 30 && !isAdjustment && bestNB > 20) rating = PuzzleRating.ONE_STAR;
-  else if ((diff >= 30) || (diff >= 10 && diff <= 30 && !isAdjustment && bestNB > 20)) rating = PuzzleRating.TWO_STAR;
-  else if ((diff >= 10) || (diff >= 3 && diff <= 10 && !isAdjustment) || obviousFirstMove) rating = PuzzleRating.THREE_STAR;
+  if (diff >= 20 && !isAdjustment && bestNB > 20) rating = PuzzleRating.ONE_STAR;
+  else if ((diff >= 20) || (diff >= 10 && !isAdjustment && bestNB > 20)) rating = PuzzleRating.TWO_STAR;
+  else if ((diff >= 10) || (diff >= 3 && !isAdjustment)) rating = PuzzleRating.THREE_STAR;
   else {
     // at this point, the puzzle is either 4 or 5 star
     // use a nerfed version of SR to determine if the puzzle is 4 or 5 star

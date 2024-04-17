@@ -41,7 +41,7 @@ export class MorePageComponent implements OnInit {
   async ngOnInit() {
 
     this.puzzles = await fetchServer2<PartialRatedPuzzle[]>(Method.POST, "/api/v2/generate-puzzles", {
-      count: 10
+      count: 100
     });
 
     // count number of puzzles for each rating
@@ -78,14 +78,19 @@ export class MorePageComponent implements OnInit {
     this.moveRecommendationsNNB$.next([]);
     this.hoveredMove$.next(undefined);
 
-    const board = this.getBoard(this.index$.getValue());
-    const currentPiece = this.getCurrentPiece(this.index$.getValue());
-    const nextPiece = this.getNextPiece(this.index$.getValue());
-    const response = await getTopMovesHybrid(board, 18, 0, currentPiece, nextPiece, InputSpeed.HZ_30);
-    const responseShallow = await getTopMovesHybrid(board, 18, 0, currentPiece, nextPiece, InputSpeed.HZ_30, 7, 1);
-    this.moveRecommendations$.next(response.nextBox);
-    this.moveRecommendationsNNB$.next(response.noNextBox);
-    this.moveRecommendationsShallow$.next(responseShallow.nextBox);
+    try {
+      const board = this.getBoard(this.index$.getValue());
+      const currentPiece = this.getCurrentPiece(this.index$.getValue());
+      const nextPiece = this.getNextPiece(this.index$.getValue());
+      const response = await getTopMovesHybrid(board, 18, 0, currentPiece, nextPiece, InputSpeed.HZ_30);
+      const responseShallow = await getTopMovesHybrid(board, 18, 0, currentPiece, nextPiece, InputSpeed.HZ_30, 7, 1);
+      this.moveRecommendations$.next(response.nextBox);
+      this.moveRecommendationsNNB$.next(response.noNextBox);
+      this.moveRecommendationsShallow$.next(responseShallow.nextBox);
+    } catch (e) {
+      console.error("Error getting top moves hybrid", e);
+    }
+    
   }
 
   getBoard(index: number): TetrisBoard {
