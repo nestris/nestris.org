@@ -1,44 +1,42 @@
 
-// returns the number of solved puzzles for a user for each of the last 5 days
+// returns the number of solved puzzles for a user for each of the last 7 days
 // use local timezone parameter to determine the start and end of each day
 // ordered from least recent to most recent
 
+import { DailyStreak } from "network-protocol/puzzles/daily-streak";
 import { queryDB } from "../database";
 import { Request, Response } from "express";
 
+
 // do this in a single query
-export async function getDailyStreak(username: string, timezone: string): Promise<
-  {
-    count: number;
-    weekday: string;
-  }[]> 
+export async function getDailyStreak(username: string, timezone: string): Promise<DailyStreak> 
   {
 
-  // query that gets the number of solved puzzles for a user for each of the last 5 days
+  // query that gets the number of solved puzzles for a user for each of the last 7 days
   // it also returns the number of days from the current day for each row
   const query = `
     SELECT COUNT(*) as count, DATE_TRUNC('day', NOW() AT TIME ZONE $2) - DATE_TRUNC('day', timestamp AT TIME ZONE $2) as days_ago
     FROM puzzle_attempts
     WHERE username = $1
     AND is_correct = TRUE
-    AND timestamp >= NOW() - INTERVAL '6 days'
+    AND timestamp >= NOW() - INTERVAL '8 days'
     AND timestamp < NOW()
     GROUP BY DATE_TRUNC('day', timestamp AT TIME ZONE $2)
     ORDER BY DATE_TRUNC('day', timestamp AT TIME ZONE $2) DESC
-    LIMIT 5
+    LIMIT 7
   `;
 
   const result = await queryDB(query, [username, timezone]);
   const correctPuzzleCountRaw: number[] = result.rows.map((row: any) => row.count);
   const daysAgo: number[] = result.rows.map((row: any) => row.days_ago["days"] + 1);
 
-  // fill in the correct puzzle count for each of the last 5 days
-  const correctPuzzleCount = [0, 0, 0, 0, 0];
+  // fill in the correct puzzle count for each of the last 7 days
+  const correctPuzzleCount = [0, 0, 0, 0, 0, 0, 0];
   daysAgo.forEach((daysAgo, index) => {
     correctPuzzleCount[daysAgo] = correctPuzzleCountRaw[index];
   });
 
-  // get the names of the weekdays for the last 5 days using the timezone
+  // get the names of the weekdays for the last 7 days using the timezone
   const weekdays = correctPuzzleCount.map((_, index) => {
     const day = new Date();
     day.setDate(day.getDate() - index);

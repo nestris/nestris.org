@@ -1,0 +1,57 @@
+@import "../../../../../../../styles.scss";
+
+:host {
+  flex-grow: 0.9;
+}
+
+.global-rank-container {
+  background-color: $section-color;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: row;
+
+
+  height: 100%;
+  box-sizing: border-box;
+
+  width: 100%;
+  box-sizing: border-box;
+  padding-inline: 15px;
+}
+
+.global-rank-container h2 {
+  font-family: $main-font;
+  font-weight: 700;
+  font-size: 18px;
+  color: rgb(255, 255 ,255 ,0.8);
+  text-wrap: nowrap;
+  margin: 0;
+}
+
+.global-rank-container h1 {
+  font-family: $main-font;
+  font-weight: 700;
+  font-size: 35px;
+  color: rgb(255, 255 ,255 ,0.8);
+  text-wrap: nowrap;
+  margin: 0;
+}
+
+
+.left-col {
+  flex-grow: 1;
+  height: 100%;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+}
+
+.right-col {
+  width: 200px;
+  height: 100%;
+  box-sizing: border-box;
+}

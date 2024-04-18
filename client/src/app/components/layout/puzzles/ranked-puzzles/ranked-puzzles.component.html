@@ -1,2 +1,16 @@
-<p>ranked-puzzles works!</p>
-<a routerLink="/online/puzzle"><button>Start</button></a>
+<div class="main-container">
+  <div class="main">
+
+    <a routerLink="/online/puzzle"><div class="begin-button">
+      <img src="./assets/img/puzzle-button-icons/play.svg" alt="Play" />
+      <p>Begin</p>
+    </div></a>
+
+    <div class="stat-row">
+      <app-elo />
+      <app-daily-streak />
+      <app-global-rank />
+    </div>
+
+  </div>
+</div>

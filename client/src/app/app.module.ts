@@ -61,6 +61,9 @@ import { FullscreenExitButtonComponent } from './components/ui/fullscreen-exit-b
 import { MorePageComponent } from './components/layout/more/more-page/more-page.component';
 import { RatingStarsComponent } from './components/ui/rating-stars/rating-stars.component';
 import { FeedbackThumbsComponent } from './components/ui/feedback-thumbs/feedback-thumbs.component';
+import { EloComponent } from './components/layout/puzzles/ranked-puzzles/components/elo/elo.component';
+import { DailyStreakComponent } from './components/layout/puzzles/ranked-puzzles/components/daily-streak/daily-streak.component';
+import { GlobalRankComponent } from './components/layout/puzzles/ranked-puzzles/components/global-rank/global-rank.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -161,6 +164,9 @@ const customNotifierOptions: NotifierOptions = {
     MorePageComponent,
     RatingStarsComponent,
     FeedbackThumbsComponent,
+    EloComponent,
+    DailyStreakComponent,
+    GlobalRankComponent,
   ],
   imports: [
     BrowserModule,
