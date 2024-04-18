@@ -1,13 +1,15 @@
 import { queryDB } from "../database";
 import { Request, Response } from "express";
 
+type Leaderboard = ({
+  rank: number; // player's global puzzle elo ranking, 1-indexed
+  username: string; // player's username
+  elo: number; // player's global puzzle elo
+} | null)[];
+
 export interface PuzzleRank {
   rank: number; // player's global puzzle elo ranking, 1-indexed
-  leaderboard: ({
-    rank: number; // player's global puzzle elo ranking, 1-indexed
-    username: string; // player's username
-    elo: number; // player's global puzzle elo
-  } | null)[]; // the 5 players surrounding the player in the global puzzle elo leaderboard, where the player is in the middle
+  leaderboard: Leaderboard; // the 5 players surrounding the player in the global puzzle elo leaderboard, where the player is in the middle
 }
 
 // get the player's global puzzle elo ranking and the 5 players surrounding the player in the global puzzle elo leaderboard
@@ -36,7 +38,7 @@ export async function getRelativePuzzleRank(username: string): Promise<PuzzleRan
 
   // get the 5 players surrounding the player in the global puzzle elo leaderboard
   // if there is not a player in the leaderboard at a certain position, set to undefined
-  const leaderboard = [];
+  const leaderboard: Leaderboard = [];
   for (let i = playerRank - 2; i <= playerRank + 2; i++) {
     if (i >= 1 && i <= result.rows.length) {
       leaderboard.push({

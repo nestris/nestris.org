@@ -38,6 +38,11 @@
   opacity: 0.8;
 }
 
+.begin-button.not-logged-in {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .begin-button p {
   font-family: $main-font;
   margin: 0;
@@ -52,5 +57,5 @@
   gap: 15px;
   width: 100%;
   box-sizing: border-box;
-  height: 200px;
+  height: 190px;
 }

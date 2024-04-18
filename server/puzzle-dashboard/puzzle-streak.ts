@@ -19,16 +19,19 @@ export async function getDailyStreak(username: string, timezone: string): Promis
     FROM puzzle_attempts
     WHERE username = $1
     AND is_correct = TRUE
-    AND timestamp >= NOW() - INTERVAL '8 days'
-    AND timestamp < NOW()
+    AND timestamp >= (DATE_TRUNC('day', NOW() AT TIME ZONE $2) - INTERVAL '7 days')
     GROUP BY DATE_TRUNC('day', timestamp AT TIME ZONE $2)
     ORDER BY DATE_TRUNC('day', timestamp AT TIME ZONE $2) DESC
     LIMIT 7
   `;
 
   const result = await queryDB(query, [username, timezone]);
+  console.log(result.rows);
   const correctPuzzleCountRaw: number[] = result.rows.map((row: any) => row.count);
-  const daysAgo: number[] = result.rows.map((row: any) => row.days_ago["days"] + 1);
+  const daysAgo: number[] = result.rows.map((row: any) => (row.days_ago["days"] ?? 0) + 1);
+
+  console.log("Correct puzzle count raw: ", correctPuzzleCountRaw);
+  console.log("Days ago: ", daysAgo);
 
   // fill in the correct puzzle count for each of the last 7 days
   const correctPuzzleCount = [0, 0, 0, 0, 0, 0, 0];
