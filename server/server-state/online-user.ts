@@ -26,21 +26,38 @@ export class OnlineUser {
     public connectTime: number = Date.now();
     public status: OnlineUserStatus = OnlineUserStatus.IDLE; // status should not be offline as long as object exists
 
+    public sockets: WebSocket[] = [];
+
 
     constructor(
         public readonly username: string, // unique identifier for the user
-        public readonly socket: WebSocket, // live websocket connection
+        socket: WebSocket, // live websocket connection
         //public readonly friends: string[], // set of usernames of friends
-    ) {}
+    ) {
+        this.sockets.push(socket);
+    }
 
     // using the live websocket connection, send a JsonMessage to the client
     sendJsonMessage(message: JsonMessage) {
-        this.socket.send(JSON.stringify(message));
+        this.sockets.forEach(socket => {
+            socket.send(JSON.stringify(message));
+        });
     }
 
-    // close the websocket connection with the specified close code. Must remove user from OnlineUserManager after calling this.
-    closeSocket(closeCode: SocketCloseCode) {
-        this.socket.close(closeCode, SocketCloseExplanation.get(closeCode));
+    sendJsonMessageToSocket(message: JsonMessage, socket: WebSocket) {
+        socket.send(JSON.stringify(message));
+    }
+
+    // close the websocket connection with the specified close code.
+    // returns true if there are no more open sockets
+    closeSocket(socket: WebSocket, closeCode: SocketCloseCode): boolean {
+        socket.close(closeCode, SocketCloseExplanation.get(closeCode));
+        this.sockets = this.sockets.filter(s => s !== socket);
+        return this.sockets.length === 0;
+    }
+
+    hasSocket(socket: WebSocket): boolean {
+        return this.sockets.includes(socket);
     }
 
 }

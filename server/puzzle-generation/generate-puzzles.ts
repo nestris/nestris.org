@@ -57,7 +57,14 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
     const current = getRandomTetrominoType();
     const next = getRandomTetrominoType();
 
-    const {rating, details, currentSolution, nextSolution} = await ratePuzzle(state.board, current, next);
+    let rating, details, currentSolution, nextSolution;
+    try {
+      ({rating, details, currentSolution, nextSolution} = await ratePuzzle(state.board, current, next));
+    } catch (e) { // if something goes wrong, with ratePuzzle, skip this puzzle
+      badPuzzlesInARow++;
+      continue;
+    }
+    
 
     // discard bad puzzles
     if (rating === PuzzleRating.BAD_PUZZLE) {

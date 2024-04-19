@@ -49,7 +49,7 @@ export class OnlineUserManager {
     }
 
     public getOnlineUserBySocket(socket: WebSocket): OnlineUser | undefined {
-        return Array.from(this.onlineUsers.values()).find(onlineUser => onlineUser.socket === socket);
+        return Array.from(this.onlineUsers.values()).find(onlineUser => onlineUser.hasSocket(socket));
     }
 
     public isOnline(username: string): boolean {
@@ -74,10 +74,14 @@ export class OnlineUserManager {
 
         console.log(`User ${username} attempting to connect.`);
 
-        // if user is already online, refuse connection
-        if (this.isOnline(username)) {
-            console.log(`User ${username} is already online, refusing connection.`);
-            (new OnlineUser(username, socket)).closeSocket(SocketCloseCode.ALREADY_LOGGED_IN);
+        // if user is already online, add the socket to the user's sockets
+        const alreadyOnlineUser = this.getOnlineUserByUsername(username);
+        if (alreadyOnlineUser) {
+            alreadyOnlineUser.sockets.push(socket);
+            console.log(`User ${username} is already online, adding socket.`);
+
+            // finish handshake by sending the user a message that they are connected
+            alreadyOnlineUser.sendJsonMessageToSocket(new ConnectionSuccessfulMessage(), socket);
             return;
         }
 
@@ -91,7 +95,7 @@ export class OnlineUserManager {
                 await createUser(username);
             } catch (error) {
                 console.error(error);
-                (new OnlineUser(username, socket)).closeSocket(SocketCloseCode.NEW_USER_DUPLICATE_INFO);
+                (new OnlineUser(username, socket)).closeSocket(socket, SocketCloseCode.NEW_USER_DUPLICATE_INFO);
                 return;
             }
         }
@@ -120,13 +124,12 @@ export class OnlineUserManager {
 
         // finish handshake by sending the user a message that they are connected
         console.log(`User ${username} connected.`);
-        onlineUser.sendJsonMessage(new ConnectionSuccessfulMessage());
+        onlineUser.sendJsonMessageToSocket(new ConnectionSuccessfulMessage(), socket);
 
     }
 
     // on user disconnect, remove from online pool, and update friends' online friends
     public async onUserDisconnect(username: string) {
-        const onlineUser = this.onlineUsers.get(username)!;
 
         // update the online friends of the user's friends
         const friends = await queryFriendUsernamesForUser(username);
@@ -143,8 +146,6 @@ export class OnlineUserManager {
             }
         }
 
-        // close the socket connection
-        onlineUser.closeSocket(SocketCloseCode.NORMAL);
 
         // remove the user from the online pool
         this.onlineUsers.delete(username);
@@ -189,8 +190,14 @@ export class OnlineUserManager {
 
         const onlineUser = this.getOnlineUserBySocket(ws);
         if (onlineUser) {
-            await this.onUserDisconnect(onlineUser.username);
-            console.log(`So, user ${onlineUser.username} disconnected.`)
+            const isCompletelyOffline = onlineUser.closeSocket(ws, SocketCloseCode.NORMAL); // whether the user is completely offline, or still has other sockets open
+            
+            if (isCompletelyOffline) {
+                await this.onUserDisconnect(onlineUser.username);
+                console.log(`So, user ${onlineUser.username} completely disconnected.`);
+            } else {
+                console.log(`User ${onlineUser.username} disconnected from one socket, but still has other sockets open.`);
+            }            
         }
 
         this.printOnlineUsers();
