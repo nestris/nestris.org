@@ -109,9 +109,11 @@ export class OnlineUserManager {
 
         // update the online friends of the user's friends
         const friends = await queryFriendUsernamesForUser(username);
+        console.log(`User ${username} has friends: ${friends.join(", ")}`);
         for (const friend of friends) {
             
             if (this.isOnline(friend)) { // if user's friend is online
+                console.log(`User ${friend} is online.`);
 
                 // send the friend a message that the user is online
                 const friendOnlineUser = this.getOnlineUserByUsername(friend)!;

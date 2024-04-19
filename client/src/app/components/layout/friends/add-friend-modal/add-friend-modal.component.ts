@@ -106,8 +106,8 @@ export class AddFriendModalComponent implements OnInit, OnChanges, OnDestroy {
 
     // send friend request to server
     sendFriendRequest(username, potentialFriend.username).then((result) => {
-      if (result === "outgoing") potentialFriend.status = FriendStatus.OUTGOING;
-      else if (result === "friends") potentialFriend.status = FriendStatus.FRIENDS;
+      if (result.status === FriendStatus.OUTGOING) potentialFriend.status = FriendStatus.OUTGOING;
+      else if (result.status === FriendStatus.FRIENDS) potentialFriend.status = FriendStatus.FRIENDS;
       this.cdr.detectChanges();
     });
   }

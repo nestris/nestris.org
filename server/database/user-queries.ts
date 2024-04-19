@@ -96,7 +96,7 @@ export async function queryFriendUsernamesForUser(username: string): Promise<str
     WHERE username2 = $1 AND type = 'friends'
   `;
   const result = await queryDB(query, [username]);
-  return result.rows;
+  return result.rows.map((row) => row.username);
 }
 
 // returns a list of all usernames in the database that match the pattern, sort alphabetically

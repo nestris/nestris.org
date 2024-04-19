@@ -18,10 +18,12 @@ export class PushNotificationService {
     private notificationService: NotificationService,
   ) {
 
+    console.log("PushNotificationService constructor called");
+
     this.websocketService.onEvent(JsonMessageType.SEND_PUSH_NOTIFICATION).subscribe((message) => {
       const pushNotification = (message as SendPushNotificationMessage);
       console.log('Received push notification:', pushNotification.notificationType, pushNotification.message);
-      this.notificationService.notify(pushNotification.notificationType, pushNotification.message, NotificationAutohide.DISABLED);
+      this.notificationService.notify(pushNotification.notificationType, pushNotification.message, NotificationAutohide.SHORT);
     });
 
   }

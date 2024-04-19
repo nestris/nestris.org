@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { queryAllUsernamesMatchingPattern, queryFriendsAndFriendRequestsForUser, queryUserByUsername } from '../database/user-queries';
 import { endFriendship, sendFriendRequest } from '../database/friendship-updates';
-import { FriendInfo, OnlineUserStatus } from '../../network-protocol/models/friends';
+import { FriendInfo, FriendStatus, FriendStatusResult, OnlineUserStatus } from '../../network-protocol/models/friends';
 import { ServerState } from '../server-state/server-state';
 
 export async function getAllUsernamesMatchingPatternRoute(req: Request, res: Response) {
@@ -55,7 +55,8 @@ export async function setFriendRequestRoute(req: Request, res: Response) {
 
   try {
     const result = await sendFriendRequest(from, to);
-    res.status(200).send(result);
+    const response: FriendStatusResult = { status: result };
+    res.status(200).send(response);
   }
   catch (error) {
     res.status(500).send(error);
@@ -77,7 +78,8 @@ export async function endFriendshipRoute(req: Request, res: Response) {
 
   try {
     await endFriendship(from, to);
-    res.status(200).send("success");
+    const response: FriendStatusResult = { status: undefined}
+    res.status(200).send(response);
   }
   catch (error) {
     res.status(500).send(error);

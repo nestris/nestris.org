@@ -40,11 +40,13 @@ export class OnlineUser {
     // using the live websocket connection, send a JsonMessage to the client
     sendJsonMessage(message: JsonMessage) {
         this.sockets.forEach(socket => {
+            console.log(`Sending message to ${this.username}: ${JSON.stringify(message)}`);
             socket.send(JSON.stringify(message));
         });
     }
 
     sendJsonMessageToSocket(message: JsonMessage, socket: WebSocket) {
+        console.log(`Sending message to ${this.username} @socket: ${JSON.stringify(message)}`);
         socket.send(JSON.stringify(message));
     }
 

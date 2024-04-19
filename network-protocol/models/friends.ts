@@ -6,6 +6,10 @@ OUTGOING = "outgoing",
 NOT_FRIENDS = "none"
 }
 
+export interface FriendStatusResult {
+    status: FriendStatus | undefined;
+}
+
 // stored by the server. keeps track of whether user is online, and what the user is doing if so
 export enum OnlineUserStatus {
     IDLE = "IDLE",

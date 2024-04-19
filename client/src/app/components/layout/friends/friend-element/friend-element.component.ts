@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { FriendInfo, FriendStatus } from 'network-protocol/models/friends';
 import { ButtonColor } from '../../../ui/solid-button/solid-button.component';
 import { WebsocketService } from 'client/src/app/services/websocket.service';
@@ -12,6 +12,7 @@ import { endFriendship, sendFriendRequest } from '../friend-util';
 })
 export class FriendElementComponent {
   @Input() friendInfo!: FriendInfo;
+  @Output() onFriendUpdate = new EventEmitter<void>();
 
   readonly FriendStatus = FriendStatus;
   readonly ButtonColor = ButtonColor;
@@ -33,11 +34,13 @@ export class FriendElementComponent {
   // send a message to server to accept friend request
   async acceptFriendRequest() {
     await sendFriendRequest(this.websocketService.getUsername()!, this.friendInfo.username);
+    this.onFriendUpdate.emit();
   }
 
   // send a message to server to declne friend request
   async declineFriendRequest() {
     await endFriendship(this.websocketService.getUsername()!, this.friendInfo.username);
+    this.onFriendUpdate.emit();
   }
 
 }
