@@ -19,6 +19,7 @@
   </div>
 
   <p>Rating: {{getRating((index$ | async) ?? 0)}}</p>
+  <p>Theme: {{getTheme((index$ | async) ?? 0)}}</p>
 
   <div>
     <p *ngFor="let item of ratings | keyvalue">{{item.key}}: {{item.value}}</p>

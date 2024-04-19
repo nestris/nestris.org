@@ -91,11 +91,13 @@ export async function selectRandomPuzzleForUser(username: string): Promise<Rated
   console.log(`Selecting random puzzle rating ${rating} for user ${username} with elo ${elo} and ${puzzleAttemptsCount} attempts`);
 
   // query the database for a random puzzle with the selected rating where the puzzle has not been attempted by the user
+  // by ordering by num_attempts_cached and selecting the first puzzle, we prioritize exploration over exploitation
+  // ORDER by num_attempts_cached, then randomly
   let result = await queryDB(
-    `SELECT * FROM rated_puzzles WHERE rating = $1 AND id NOT IN (SELECT puzzle_id FROM puzzle_attempts WHERE username = $2) ORDER BY RANDOM() LIMIT 1`,
+    `SELECT * FROM rated_puzzles WHERE rating = $1 AND id NOT IN (SELECT puzzle_id FROM puzzle_attempts WHERE username = $2) ORDER BY num_attempts_cached ASC LIMIT 1`,
     [rating, username]
   );
-  
+    
   // if there are no puzzles with the selected rating that the user has not attempted, just select a random puzzle with the rating (that the user has alreaddy attempted)
   if (!result.rows[0]) {
     await logDatabase(username, `No unattempted puzzles with rating ${rating} found, selecting repeated puzzle`);

@@ -109,6 +109,10 @@ export class MorePageComponent implements OnInit {
     return this.puzzles[index].rating;
   }
 
+  getTheme(index: number): string {
+    return this.puzzles[index].theme;
+  }
+
   hoverEngineMove(move?: Move | NNBMove) {
     this.hoveredMove$.next(move);
   }
