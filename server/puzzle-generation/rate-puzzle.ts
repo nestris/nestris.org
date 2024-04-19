@@ -5,7 +5,20 @@ import { BinaryTranscoder } from "../../network-protocol/tetris-board-transcodin
 import { getTopMovesHybrid } from "../stackrabbit/stackrabbit";
 import { TopMovesHybridResponse, decodeStackrabbitResponse } from "../../network-protocol/stackrabbit-decoder";
 import { InputSpeed } from "../../network-protocol/models/input-speed";
-import MoveableTetromino from "network-protocol/tetris/moveable-tetromino";
+import MoveableTetromino from "../../network-protocol/tetris/moveable-tetromino";
+
+// checks if placing the piece would clear lines and result in a burn
+function hasBurn(board: TetrisBoard, placement: MoveableTetromino): boolean {
+  const boardCopy = board.copy();
+  placement.blitToBoard(boardCopy);
+  return boardCopy.processLineClears() > 0;
+}
+
+// checks if moving the piece up one row would intersect with the board, which means it's a tuck or spin
+function hasTuckOrSpin(board: TetrisBoard, placement: MoveableTetromino): boolean {
+  const oneHigherPlacement = new MoveableTetromino(placement.tetrominoType, placement.getRotation(), placement.getTranslateX(), placement.getTranslateY() - 1);
+  return oneHigherPlacement.intersectsBoard(board);
+}
 
 export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, next: TetrominoType):
     Promise<{
@@ -28,10 +41,19 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
       bestNB: -1,
       diff: -1,
       isAdjustment: false,
-      rating: PuzzleRating.UNRATED
+      rating: PuzzleRating.UNRATED,
+      hasBurn: false,
+      hasTuckOrSpin: false
     }};
   }
   
+  // get the board after the first move
+  const boardAfterFirst = board.copy();
+  stackrabbit.nextBox[0].firstPlacement.blitToBoard(boardAfterFirst);
+  boardAfterFirst.processLineClears();
+
+  const hasAnyBurn = hasBurn(board, stackrabbit.nextBox[0].firstPlacement) || hasBurn(boardAfterFirst, stackrabbit.nextBox[0].secondPlacement);
+  const hasAnyTuckOrSpin = hasTuckOrSpin(board, stackrabbit.nextBox[0].firstPlacement) || hasTuckOrSpin(boardAfterFirst, stackrabbit.nextBox[0].secondPlacement);
 
   const bestNB = stackrabbit.nextBox[0].score;
   const bestNNB = stackrabbit.noNextBox[0].score;
@@ -53,7 +75,11 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
   // whether the first move is also best NNB move by far
   const obviousFirstMove = (bestMoveNNBIndex === 0 && diffNNB !== undefined && diffNNB >= 0.5);
 
-  const details: PuzzleRatingDetails = {bestNB, diff, isAdjustment, rating: PuzzleRating.UNRATED};
+  const details: PuzzleRatingDetails = {bestNB, diff, isAdjustment,
+     rating: PuzzleRating.UNRATED,
+     hasBurn: hasAnyBurn,
+      hasTuckOrSpin: hasAnyTuckOrSpin
+  };
 
   // if diff is too small, zero, or negative, return BAD_PUZZLE
   if (diff <= 0.5) return {rating: PuzzleRating.BAD_PUZZLE, details};
@@ -86,8 +112,8 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
   */
 
   let rating: PuzzleRating;
-  if (diff >= 20 && !isAdjustment && bestNB > 20) rating = PuzzleRating.ONE_STAR;
-  else if ((diff >= 20) || (diff >= 10 && !isAdjustment && bestNB > 20)) rating = PuzzleRating.TWO_STAR;
+  if (diff >= 20 && !isAdjustment && bestNB > 20 && !hasAnyBurn && !hasAnyTuckOrSpin) rating = PuzzleRating.ONE_STAR;
+  else if ((diff >= 20) || (diff >= 10 && !isAdjustment && bestNB > 20 && !hasAnyBurn && !hasAnyTuckOrSpin)) rating = PuzzleRating.TWO_STAR;
   else if ((diff >= 10) || (diff >= 3 && !isAdjustment)) rating = PuzzleRating.THREE_STAR;
   else {
     // at this point, the puzzle is either 4 or 5 star

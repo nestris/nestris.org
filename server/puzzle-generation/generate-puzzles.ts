@@ -77,7 +77,7 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
       continue;
     }
 
-    const theme = classifyPuzzleTheme(state.board, currentSolution!, nextSolution!);
+    const theme = classifyPuzzleTheme(state.board, currentSolution!, nextSolution!, details);
 
     const puzzle: PartialRatedPuzzle = {
       boardString: BinaryTranscoder.encode(state.board),

@@ -7,6 +7,7 @@ import { Request, Response } from 'express';
 import { clearActivePuzzle, getActivePuzzle, setActivePuzzle } from "./active-puzzle";
 import { submitPuzzleAttempt } from "./submit-puzzle-attempt";
 import { SerializedPuzzleSubmission } from "network-protocol/puzzles/serialized-puzzle-submission";
+import { logDatabase } from "../database/log";
 
 // given a weight for each of the five possible ratings, return a random rating
 // weights must be integers
@@ -89,9 +90,19 @@ export async function selectRandomPuzzleForUser(username: string): Promise<Rated
   const rating = getRandomPuzzleRatingForPlayerElo(elo);
   console.log(`Selecting random puzzle rating ${rating} for user ${username} with elo ${elo} and ${puzzleAttemptsCount} attempts`);
 
-  // query the database for a random puzzle with the selected rating
-  const result = await queryDB(`SELECT * FROM rated_puzzles WHERE rating = $1 ORDER BY RANDOM() LIMIT 1`, [rating]);
-  if (result.rows.length === 0) throw new Error("No puzzles found");
+  // query the database for a random puzzle with the selected rating where the puzzle has not been attempted by the user
+  let result = await queryDB(
+    `SELECT * FROM rated_puzzles WHERE rating = $1 AND id NOT IN (SELECT puzzle_id FROM puzzle_attempts WHERE username = $2) ORDER BY RANDOM() LIMIT 1`,
+    [rating, username]
+  );
+  
+  // if there are no puzzles with the selected rating that the user has not attempted, just select a random puzzle with the rating (that the user has alreaddy attempted)
+  if (!result.rows[0]) {
+    await logDatabase(username, `No unattempted puzzles with rating ${rating} found, selecting repeated puzzle`);
+    console.log(`No unattempted puzzles with rating ${rating} found for user ${username}, selecting repeated puzzle`);
+    result = await queryDB(`SELECT * FROM rated_puzzles WHERE rating = $1 ORDER BY RANDOM() LIMIT 1`, [rating]);
+  }
+
   const puzzle = decodeRatedPuzzleFromDB(result.rows[0]);
 
   // calculate the elo gain and loss for the puzzle
@@ -132,6 +143,7 @@ export async function selectRandomPuzzleForUserRoute(req: Request, res: Response
 
     res.status(200).send(puzzle);
   } catch (error) {
+    console.error("Failed to select random puzzle for user", username, error);
     res.status(404).send(error);
   }
 }

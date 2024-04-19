@@ -13,4 +13,6 @@ export interface PuzzleRatingDetails {
   diff: number;
   isAdjustment: boolean;
   rating: PuzzleRating;
+  hasBurn: boolean;
+  hasTuckOrSpin: boolean;
 }

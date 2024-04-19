@@ -203,5 +203,11 @@ CREATE TABLE "public"."folder_items" (
     PRIMARY KEY ("folder_id", "puzzle_id")
 );
 
-
+-- LOG table that logs message with timestamp
+DROP TABLE IF EXISTS "public"."logs" CASCADE;
+CREATE TABLE "public"."logs" (
+    "timestamp" timestamp NOT NULL DEFAULT now(),
+    "username" text REFERENCES "public"."users"("username"),
+    "message" text NOT NULL
+);
 
