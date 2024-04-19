@@ -1,6 +1,7 @@
 import { EloChange, PuzzleState } from "./puzzle-state";
 import { Method, fetchServer2 } from "client/src/app/scripts/fetch-server";
 import { GenericPuzzle } from "network-protocol/puzzles/generic-puzzle";
+import { PUZZLE_THEME_TEXT } from "network-protocol/puzzles/puzzle-theme";
 import { RatedPuzzle } from "network-protocol/puzzles/rated-puzzle";
 import { PuzzleResult, SerializedPuzzleSubmission, evaluatePuzzleSubmission } from "network-protocol/puzzles/serialized-puzzle-submission";
 import { DBUser } from "server/database/user-queries";
@@ -82,6 +83,12 @@ export class RatedPuzzleState extends PuzzleState {
 
   getPuzzleID(): string {
     return this.getPuzzle().id;
+  }
+
+  getThemeString(): string {
+    const theme = this.getPuzzle().theme;
+    if (theme === undefined) return "Unknown";
+    return PUZZLE_THEME_TEXT[theme];
   }
 
   getSuccessRate(): string {
