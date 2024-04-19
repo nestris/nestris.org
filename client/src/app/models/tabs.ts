@@ -1,3 +1,5 @@
+import { get } from "mongoose";
+
 export enum TabID {
     MY_PROFILE = 'profile',
     FRIENDS = 'friends',
@@ -64,4 +66,13 @@ const TAB_ICONS: {[key in TabID]?: string} = {
     [TabID.LEADERBOARD]: 'leaderboard.svg',
     [TabID.MORE]: 'more.svg',
 };
+
+const TAB_BADGE_ICONS: {[key in TabID]?: string} = {
+    [TabID.FRIENDS]: 'friends-badge.svg',
+    [TabID.ALERTS]: 'alerts-badge.svg',
+}
+
 export const getTabIcon = (tab: TabID): string => "./assets/img/tab-icons/" + TAB_ICONS[tab];
+
+// if there is a badge version of the icon, use that, otherwise use the regular icon
+export const getTabBadgeIcon = (tab: TabID): string => (TAB_BADGE_ICONS[tab] ? "./assets/img/tab-icons/" + TAB_BADGE_ICONS[tab] : getTabIcon(tab));

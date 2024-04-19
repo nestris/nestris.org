@@ -60,8 +60,8 @@ export default async function createApp(): Promise<{
     app.get('/api/v2/user/:username', getUserByUsernameRoute);
     app.get('/api/v2/friends/:username',  async (req: Request, res: Response) => getFriendsInfoRoute(req, res, state));
 
-    app.post('/api/v2/friend-request/:from/:to', setFriendRequestRoute);
-    app.post('/api/v2/end-friendship/:from/:to', endFriendshipRoute);
+    app.post('/api/v2/friend-request/:from/:to', async (req: Request, res: Response) => setFriendRequestRoute(req, res, state)); 
+    app.post('/api/v2/end-friendship/:from/:to', async (req: Request, res: Response) => endFriendshipRoute(req, res, state));
 
     // announce message to all online users. useful for maintenance announcements and the like
     app.post('/api/v2/broadcast-announcement', async (req: Request, res: Response) => broadcastAnnouncementRoute(req, res, state));

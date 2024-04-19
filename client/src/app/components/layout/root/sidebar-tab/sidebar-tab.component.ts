@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input, OnChanges } from '@angular/core';
-import { TabID, getTabDisplayName, getTabIcon } from 'client/src/app/models/tabs';
+import { TabID, getTabBadgeIcon, getTabDisplayName, getTabIcon } from 'client/src/app/models/tabs';
+import { BadgeService } from 'client/src/app/services/badge.service';
 
 /*
 A dumb component that takes in a Tab enum, an optional <ng-content> element for icons
@@ -12,19 +13,21 @@ on the right of the tab, and when tab is clicked it sets the tab in the sidebar 
   styleUrls: ['./sidebar-tab.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SidebarTabComponent implements OnChanges {
+export class SidebarTabComponent {
   @Input() tab!: TabID;
 
-  public tabName!: string;
-  public tabIcon!: string;
 
-  constructor() { 
-  }
+  constructor(public badgeService: BadgeService) {}
 
-  ngOnChanges(): void {
-    this.tabName = getTabDisplayName(this.tab);
-    this.tabIcon = getTabIcon(this.tab);
-    console.log("SidebarTabComponent ngOnChanges", this.tabName, this.tabIcon);
+  public getDisplayName = getTabDisplayName;
+  public getIcon = getTabIcon;
+  public getBadgeIcon = getTabBadgeIcon;
+
+  onTabClick(): void {
+    
+    // clear any badge when tab is clicked
+    this.badgeService.setBadgeInactive(this.tab);
+
   }
 
 

@@ -3,6 +3,7 @@ import { queryAllUsernamesMatchingPattern, queryFriendsAndFriendRequestsForUser,
 import { endFriendship, sendFriendRequest } from '../database/friendship-updates';
 import { FriendInfo, FriendStatus, FriendStatusResult, OnlineUserStatus } from '../../network-protocol/models/friends';
 import { ServerState } from '../server-state/server-state';
+import { Server } from 'http';
 
 export async function getAllUsernamesMatchingPatternRoute(req: Request, res: Response) {
 
@@ -41,7 +42,7 @@ export async function getFriendsInfoRoute(req: Request, res: Response, state: Se
 }
 
 // POST request api/v2/friend-request/:from/:to
-export async function setFriendRequestRoute(req: Request, res: Response) {
+export async function setFriendRequestRoute(req: Request, res: Response, state: ServerState) {
   const from = req.params['from'];
   const to = req.params['to'];
 
@@ -54,7 +55,7 @@ export async function setFriendRequestRoute(req: Request, res: Response) {
   }
 
   try {
-    const result = await sendFriendRequest(from, to);
+    const result = await sendFriendRequest(from, to, state);
     const response: FriendStatusResult = { status: result };
     res.status(200).send(response);
   }
@@ -64,7 +65,7 @@ export async function setFriendRequestRoute(req: Request, res: Response) {
 };
 
 // POST request api/v2/end-friendship/:from/:to
-export async function endFriendshipRoute(req: Request, res: Response) {
+export async function endFriendshipRoute(req: Request, res: Response, state: ServerState) {
   const from = req.params['from'];
   const to = req.params['to'];
 
@@ -77,7 +78,7 @@ export async function endFriendshipRoute(req: Request, res: Response) {
   }
 
   try {
-    await endFriendship(from, to);
+    await endFriendship(from, to, state);
     const response: FriendStatusResult = { status: undefined}
     res.status(200).send(response);
   }
