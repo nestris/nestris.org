@@ -137,9 +137,6 @@ CREATE TABLE "public"."active_puzzles" (
 
 
 -- PUZZLE_ATTEMPT TABLE (for rated puzzles only)
--- user_rating is between -1 and 5
--- -1 means the user reported the puzzle (thought the puzzle was bad)
--- 0 means the user did not rate the puzzle
 
 DROP TABLE IF EXISTS "public"."puzzle_attempts" CASCADE;
 CREATE TABLE "public"."puzzle_attempts" (
@@ -152,8 +149,6 @@ CREATE TABLE "public"."puzzle_attempts" (
     "elo_before" int2 NOT NULL,
     "elo_change" int2, -- if NULL, then it was an unranked puzzle
     "solve_time" int2 NOT NULL,
-
-    "user_rating" int2 NOT NULL DEFAULT 0 CHECK (user_rating >= -1 AND user_rating <= 5),
 
     "r1" int2,
     "x1" int2,

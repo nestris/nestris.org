@@ -24,6 +24,7 @@ import { submitPuzzleAttemptRoute } from './puzzle-generation/submit-puzzle-atte
 import { getDailyStreakRoute } from './puzzle-dashboard/puzzle-streak';
 import { getRelativePuzzleRankRoute } from './puzzle-dashboard/relative-puzzle-rank';
 import { setFeedbackRoute } from './puzzle-generation/set-feedback';
+import { getAttemptStatsRoute } from './puzzle-generation/get-attempt-stats';
 
 
 require('dotenv').config();
@@ -99,6 +100,8 @@ export default async function createApp(): Promise<{
     app.get('/api/v2/puzzle-rank/:username', getRelativePuzzleRankRoute);
 
     app.post('/api/v2/set-feedback', setFeedbackRoute);
+
+    app.get('/api/v2/puzzle-attempt-stats/:username', getAttemptStatsRoute);
 
 
     // catch all invalid api routes
