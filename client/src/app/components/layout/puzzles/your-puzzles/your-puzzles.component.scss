@@ -1,12 +1,28 @@
 @import "../../../../../styles.scss";
 
+.main-container {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.main {
+  width: 100%;
+  max-width: 900px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 15px;
+}
+
 .buttons {
   display: flex;
   flex-direction: row;
-
   gap: 10px;
-  margin-top: 10px;
-  margin-bottom: 10px;
 }
 
 .panels {
@@ -14,7 +30,7 @@
   flex-direction: row;
 
   width: 100%;
-  gap: 10px;
+  gap: 15px;
 }
 
 .panel {
@@ -27,7 +43,6 @@
 .sign-in-panel {
   background-color: $section-color;
   border-radius: 10px;
-  margin-block: 10px;
   padding: 5px 15px;
   flex-grow: 1;
 }
@@ -44,7 +59,7 @@
 
 .puzzle-panel {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 10px;
   flex-wrap: wrap;
 }

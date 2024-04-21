@@ -5,31 +5,16 @@
   background-color: $subsection-color;
   border-radius: 10px;
 
-  width: 100%;
-  box-sizing: border-box;
-  padding: 5px;
+  padding: 10px;
 
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 30px;
-
-  
-}
-
-// @media screen and (min-width: 1000px) {
-//   :host {
-//     flex-grow: 1;
-//     width: calc(100% * (1/2))
-//   }
-// }
-
-.vertical-div {
-  flex-grow: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  gap: 0;  
+}
+
+.body {
+  display: flex;
+  flex-direction: row;
   gap: 10px;
 }
 
@@ -55,20 +40,12 @@
   margin: 0;
 }
 
-.footer {
+.stats {
   display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  gap: 8px;
-
-  padding: 2px;
-}
-
-.body {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
+  gap: 20px;
 }
 
 .stat {
@@ -92,4 +69,11 @@
   font-weight: 700;
   text-wrap: nowrap;
   margin: 0;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  justify-content: flex-end;
 }

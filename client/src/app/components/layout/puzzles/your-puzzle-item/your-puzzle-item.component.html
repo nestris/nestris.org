@@ -1,16 +1,17 @@
 <div class="puzzle">
 
-  <img class="draggable" src="./assets/img/ui-icons/draggable.svg" height="20px">
-  <app-nes-board [scale]="0.7" [board]="board" />
-
-  <div class="vertical-div">
-    <div class="header">
-      <div class="creator-div">
-        <img class="creator-icon" src="./assets/img/tab-icons/profile.svg" height="15px">
-        <p class="creator prevent-select">{{puzzle.creator}}</p>
-      </div>
+  <div class="header">
+    <div class="creator-div">
+      <img class="creator-icon" src="./assets/img/tab-icons/profile.svg" height="15px">
+      <p class="creator prevent-select">{{puzzle.creator}}</p>
     </div>
-    <div class="body">
+  </div>
+
+  <div class="body">
+
+    <app-nes-board [scale]="1" [board]="board" />
+
+    <div class="stats">
       <div class="stat">
         <p>Current</p>
         <app-nes-piece [piece]="puzzle.current" />
@@ -20,7 +21,8 @@
         <app-nes-piece [piece]="puzzle.next" />
       </div>
     </div>
-    <div class="footer">
+
+    <div class="buttons">
       <app-solid-button icon="./assets/img/puzzle-button-icons/delete.svg" [color]="ButtonColor.GREY" (click)="deletePuzzle()" tooltip="Delete puzzle" />
       <app-solid-button icon="./assets/img/puzzle-button-icons/link.svg" [color]="ButtonColor.GREY" (click)="copyPuzzleLink()" tooltip="Copy puzzle link" />
       <app-solid-button icon="./assets/img/puzzle-button-icons/add.svg" [color]="ButtonColor.GREY" tooltip="Add to folder" />
@@ -28,5 +30,7 @@
       <!-- <app-solid-button icon="./assets/img/puzzle-button-icons/analyze.svg" [color]="ButtonColor.GREY" tooltip="" /> -->
       <app-solid-button icon="./assets/img/puzzle-button-icons/play.svg" [color]="ButtonColor.BLUE" (click)="play()" tooltip="Play puzzle" />
     </div>
+
   </div>
+
 </div>
