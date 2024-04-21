@@ -7,16 +7,19 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TabSelectorComponent {
-  @Input() tabs!: string[];
-  @Input() selectedTab!: string; // obsolete if linkedToRouter
-  @Output() selectedTabChange = new EventEmitter<string>(); // obsolete if linkedToRouter
+  @Input() tabs!: any[];
+  @Input() selectedTab!: any; // obsolete if linkedToRouter
+  @Output() selectedTabChange = new EventEmitter<any>(); // obsolete if linkedToRouter
+
+  @Input() tabStrings?: {[key in any]: string};
+  @Input() small: boolean = false;
 
   @Input() linkedToRouter: boolean = false;
   @Input() tabToURL: {[key in string]: string} = {}; // if linkedToRouter, must be same length as tabs
 
   constructor() {}
 
-  public selectTab(tab: string): void {
+  public selectTab(tab: any): void {
 
     if (this.selectedTab === tab) {
       return;

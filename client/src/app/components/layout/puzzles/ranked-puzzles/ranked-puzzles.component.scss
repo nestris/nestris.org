@@ -11,7 +11,7 @@
 
 .main {
   width: 100%;
-  max-width: 1000px;
+  max-width: 950px;
 
   display: flex;
   flex-direction: column;
@@ -58,4 +58,49 @@
   width: 100%;
   box-sizing: border-box;
   height: 190px;
+}
+
+.summary-row {
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  width: 100%;
+  box-sizing: border-box;
+  height: 260px;
+}
+
+.summary-row .column {
+  display: flex;
+  flex-direction: column;
+}
+
+.column .header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-items: flex-start;
+  height: 35px;
+  margin-bottom: 10px;
+  gap: 20px;
+}
+
+.summary {
+  min-width: 400px;
+}
+
+.insights {
+  flex-grow: 1;
+}
+
+.buttons {
+  width: 150px;
+}
+
+h1 {
+  font-family: $main-font;
+  font-size: 20px;
+  font-weight: 700;
+  color: rgb(255, 255, 255, 0.8);
+  margin: 0;
+  text-wrap: nowrap;
 }

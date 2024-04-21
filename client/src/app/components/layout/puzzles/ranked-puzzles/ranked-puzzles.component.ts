@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { WebsocketService } from 'client/src/app/services/websocket.service';
+import { TimePeriod } from 'network-protocol/puzzles/attempt-stats';
+
 
 @Component({
   selector: 'app-ranked-puzzles',
@@ -9,8 +11,19 @@ import { WebsocketService } from 'client/src/app/services/websocket.service';
 })
 export class RankedPuzzlesComponent {
 
+  readonly SUMMARY_TAB_LIST = Object.values(TimePeriod);
+
+  readonly SUMMARY_TAB_STRING: { [key in TimePeriod]: string } = {
+    [TimePeriod.LIFETIME]: "Lifetime",
+    [TimePeriod.TODAY]: "Today",
+    [TimePeriod.THIS_WEEK]: "This Week",
+  };
+
+  public selectedSummaryTab: TimePeriod = TimePeriod.THIS_WEEK;
+
   constructor(
     public websocket: WebsocketService
   ) {}
+
 
 }

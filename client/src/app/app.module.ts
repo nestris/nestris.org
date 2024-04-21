@@ -64,6 +64,9 @@ import { FeedbackThumbsComponent } from './components/ui/feedback-thumbs/feedbac
 import { EloComponent } from './components/layout/puzzles/ranked-puzzles/components/elo/elo.component';
 import { DailyStreakComponent } from './components/layout/puzzles/ranked-puzzles/components/daily-streak/daily-streak.component';
 import { GlobalRankComponent } from './components/layout/puzzles/ranked-puzzles/components/global-rank/global-rank.component';
+import { SummaryComponent } from './components/layout/puzzles/ranked-puzzles/components/summary/summary.component';
+import { InsightsComponent } from './components/layout/puzzles/ranked-puzzles/components/insights/insights.component';
+import { ButtonsComponent } from './components/layout/puzzles/ranked-puzzles/components/buttons/buttons.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -167,6 +170,9 @@ const customNotifierOptions: NotifierOptions = {
     EloComponent,
     DailyStreakComponent,
     GlobalRankComponent,
+    SummaryComponent,
+    InsightsComponent,
+    ButtonsComponent,
   ],
   imports: [
     BrowserModule,
