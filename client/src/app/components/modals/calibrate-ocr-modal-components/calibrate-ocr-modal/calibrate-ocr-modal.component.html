@@ -28,11 +28,23 @@
 
         <div class="verify-ocr" *ngIf="currentStep === CalibrationStep.VERIFY_OCR">
 
-            <app-textbox-canvas *ngIf="(ocr.getLevel$() | async) as level" [size]="40" 
-            [textbox]="level" [pixels]="(videoCapture.getPixels$() | async)" />
+            <div class="item">
+                <h1>Level</h1>
+                <app-textbox-canvas *ngIf="(ocr.getLevel$() | async) as level" [size]="40" 
+                    [textbox]="level" [pixels]="(videoCapture.getPixels$() | async)" />
+            </div>
+            
+            <div class="item">
+                <h1>Lines</h1>
+                <app-textbox-canvas *ngIf="(ocr.getLines$() | async) as lines" [size]="40" 
+                    [textbox]="lines" [pixels]="(videoCapture.getPixels$() | async)" />
+            </div>
 
-            <app-textbox-canvas *ngIf="(ocr.getScore$() | async) as score" [size]="40"
-            [textbox]="score" [pixels]="(videoCapture.getPixels$() | async)" />
+            <div class="item">
+                <h1>Score</h1>
+                <app-textbox-canvas *ngIf="(ocr.getScore$() | async) as score" [size]="40" 
+                    [textbox]="score" [pixels]="(videoCapture.getPixels$() | async)" />
+            </div>
             
         </div>
 
