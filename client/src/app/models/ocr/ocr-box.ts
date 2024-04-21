@@ -101,6 +101,12 @@ export class OCRBox {
         return {x, y};
     }
 
+    public getVectorFromRelative(vector: Point): Point {
+        const x = Math.floor(this.WIDTH * vector.x);
+        const y = Math.floor(this.HEIGHT * vector.y);
+        return {x, y};
+    }
+
     // given an image, return the HSV values of the OCR matrix
     public evaluate(pixels: Pixels): RGBGrid {
 

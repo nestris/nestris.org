@@ -9,6 +9,7 @@ import { classifyColor } from '../../../../../network-protocol/tetris/tetromino-
 import { NextBoxOCR } from './next-box-ocr';
 import { TetrominoType } from '../../../../../network-protocol/tetris/tetromino-type';
 import { Point } from '../../models/point';
+import { Textbox, levelFromBoardBox } from '../../models/ocr/text-box';
 
 /*
 Service to poll current video capture frame for different OCR results
@@ -37,6 +38,8 @@ export class OcrService {
   private board$ = new BehaviorSubject<TetrisBoard | undefined>(undefined);
   private nextBox$ = new BehaviorSubject<NextBoxOCR | undefined>(undefined);
   private nextType$ = new BehaviorSubject<TetrominoType | undefined>(undefined);
+
+  private level$ = new BehaviorSubject<Textbox | undefined>(undefined);
 
 
   // if each varies by less than 30, then they are similar
@@ -95,6 +98,9 @@ export class OcrService {
       ];
       this.calibrateOCRRelativeToBoard(image, OCRType.NEXT, NEXTBOX_LOCATIONS, NEXT_OCR_POSITION);
 
+      // calibrate text boxes
+      this.level$.next(levelFromBoardBox(this.getOCRBox(OCRType.BOARD)!));
+
 
 
       return true;
@@ -131,6 +137,10 @@ export class OcrService {
 
   getNextPiece(): TetrominoType | undefined {
     return this.nextType$.getValue();
+  }
+
+  getLevel$(): Observable<Textbox | undefined> {
+    return this.level$.asObservable();
   }
 
   private getColorForMino(level: number, rgbShine: RGBColor, rgbColor: RGBColor): ColorType {

@@ -24,10 +24,9 @@
 
     <div class="buttons">
       <app-solid-button icon="./assets/img/puzzle-button-icons/delete.svg" [color]="ButtonColor.GREY" (click)="deletePuzzle()" tooltip="Delete puzzle" />
+      <app-solid-button icon="./assets/img/puzzle-button-icons/edit.svg" [color]="ButtonColor.GREY" [disabled]="true" tooltip="Edit puzzle not implemented yet" />
+      <app-solid-button icon="./assets/img/puzzle-button-icons/add.svg" [color]="ButtonColor.GREY" [disabled]="true" tooltip="Add to folder not implemented yet" />
       <app-solid-button icon="./assets/img/puzzle-button-icons/link.svg" [color]="ButtonColor.GREY" (click)="copyPuzzleLink()" tooltip="Copy puzzle link" />
-      <app-solid-button icon="./assets/img/puzzle-button-icons/add.svg" [color]="ButtonColor.GREY" tooltip="Add to folder" />
-      <app-solid-button icon="./assets/img/puzzle-button-icons/edit.svg" [color]="ButtonColor.GREY" tooltip="Edit puzzle" />
-      <!-- <app-solid-button icon="./assets/img/puzzle-button-icons/analyze.svg" [color]="ButtonColor.GREY" tooltip="" /> -->
       <app-solid-button icon="./assets/img/puzzle-button-icons/play.svg" [color]="ButtonColor.BLUE" (click)="play()" tooltip="Play puzzle" />
     </div>
 

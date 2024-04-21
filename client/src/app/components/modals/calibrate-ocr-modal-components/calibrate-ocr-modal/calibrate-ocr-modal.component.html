@@ -26,6 +26,11 @@
             </div>
         </div>
 
+        <div class="verify-ocr" *ngIf="currentStep === CalibrationStep.VERIFY_OCR">
+            <app-textbox-canvas *ngIf="(ocr.getLevel$() | async) as level" [size]="40" 
+            [textbox]="level" [pixels]="(videoCapture.getPixels$() | async)" />
+        </div>
+
     </div>
     <div class="buttons">
         <app-solid-button [color]="ButtonColor.GREY" label="Back"

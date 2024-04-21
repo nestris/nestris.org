@@ -8,7 +8,7 @@ import { RGBColor } from "../../../../../network-protocol/tetris/tetromino-color
 export class Pixels {
 
     constructor(
-        private readonly pixels: Uint8ClampedArray,
+        public readonly pixels: Uint8ClampedArray,
         public readonly width: number,
         public readonly height: number,
     ) {}

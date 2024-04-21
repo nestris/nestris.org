@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, Input, OnInit } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 @Component({
@@ -11,6 +11,14 @@ export class ModalComponent {
   @Input() visibility$!: BehaviorSubject<boolean>;
 
   constructor() {
+  }
+
+  // if escape key is pressed, close the modal
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+      this.visibility$.next(false);
+    }
   }
 
 }
