@@ -5,6 +5,7 @@ import { ModalManagerService } from 'client/src/app/services/modal-manager.servi
 import { Subscription } from 'rxjs';
 import { OcrService } from 'client/src/app/services/ocr/ocr.service';
 import { TetrominoType } from 'network-protocol/tetris/tetromino-type';
+import { Textbox } from 'client/src/app/models/ocr/text-box';
 
 export enum CalibrationStep {
   SELECT_VIDEO_SOURCE = "Select video source",
@@ -134,10 +135,10 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
 
   async screenCapture() {
 
-    // get screen capture, requesting with 800px width
+    // get screen capture, requesting with 1000px width
     const mediaStream = await navigator.mediaDevices.getDisplayMedia({
       video: {
-        width: 800,
+        width: 1000,
       }
     });
 
@@ -148,6 +149,38 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
   ngOnDestroy() {
     this.clickCanvasSubscription.unsubscribe();
     this.videoCapture.stopCapture(); // don't capture when not necessary to save processing time
+  }
+
+  calibrateLevel() {
+
+    const originalBox = this.ocr.getLevel()!;
+    const result = this.ocr.executeLevelOCR(this.videoCapture.getPixels()!);
+
+    let bestConfidence = result!.confidence;
+    let bestBox = originalBox;
+
+    console.log(`Original ${originalBox.x}, ${originalBox.y}: ${result!.confidence} ${result!.value}`);
+
+    for (let x = -8; x <= 8; x+=2) {
+      for (let y = -8; y <= 8; y+=2) {
+        const newBox = new Textbox(originalBox.count, originalBox.x + x, originalBox.y + y, originalBox.width, originalBox.height);
+        const confidence = this.ocr.executeLevelOCR(this.videoCapture.getPixels()!, newBox)!.confidence;
+
+        console.log(`New ${newBox.x}, ${newBox.y}: ${confidence} ${result!.value}`);
+
+        if (confidence > bestConfidence) {
+          bestConfidence = confidence;
+          bestBox = newBox;
+        }
+      }
+    }
+
+    if (originalBox !== bestBox) this.ocr.setLevel(bestBox);
+
+    const result2 = this.ocr.executeLevelOCR(this.videoCapture.getPixels()!);
+
+    console.log(`Best ${bestBox.x}, ${bestBox.y}: ${result2!.confidence} ${result2!.value}`);
+
   }
 
 }

@@ -32,6 +32,7 @@
                 <h1>Level</h1>
                 <app-textbox-canvas *ngIf="(ocr.getLevel$() | async) as level" [size]="40" 
                     [textbox]="level" [pixels]="(videoCapture.getPixels$() | async)" />
+                <button class="button" (click)="calibrateLevel()">Calibrate</button>
             </div>
             
             <div class="item">

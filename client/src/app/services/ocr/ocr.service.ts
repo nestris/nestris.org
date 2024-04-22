@@ -150,12 +150,28 @@ export class OcrService {
     return this.levelBox$.asObservable();
   }
 
+  getLevel(): Textbox | undefined {
+    return this.levelBox$.getValue();
+  }
+
+  setLevel(textbox: Textbox) {
+    this.levelBox$.next(textbox);
+  }
+
   getLines$(): Observable<Textbox | undefined> {
     return this.linesBox$.asObservable();
   }
 
+  getLines(): Textbox | undefined {
+    return this.linesBox$.getValue();
+  }
+
   getScore$(): Observable<Textbox | undefined> {
     return this.scoreBox$.asObservable();
+  }
+
+  getScore(): Textbox | undefined {
+    return this.scoreBox$.getValue();
   }
 
   private getColorForMino(level: number, rgbShine: RGBColor, rgbColor: RGBColor): ColorType {
@@ -203,10 +219,31 @@ export class OcrService {
     this.nextType$.next(nextBox.getMostSimilarPieceType());
   }
 
+  executeLevelOCR(image: Pixels, levelBox?: Textbox): TextboxResult | undefined {
+    if (!levelBox) levelBox = this.levelBox$.getValue();
+    const result = levelBox?.evaluateNumber(image);
+    this.levelResult$.next(result);
+    return result;
+  }
+
+  executeLinesOCR(image: Pixels, linesBox?: Textbox): TextboxResult | undefined {
+    if (!linesBox) linesBox = this.linesBox$.getValue();
+    const result = linesBox?.evaluateNumber(image);
+    this.linesResult$.next(result);
+    return result;
+  }
+
+  executeScoreOCR(image: Pixels, scoreBox?: Textbox): TextboxResult | undefined {
+    if (!scoreBox) scoreBox = this.scoreBox$.getValue();
+    const result = scoreBox?.evaluateNumber(image);
+    this.scoreResult$.next(result);
+    return result;
+  }
+
   executeTextboxOCR(image: Pixels) {
-    this.levelResult$.next(this.levelBox$.getValue()?.evaluateNumber(image));
-    this.linesResult$.next(this.linesBox$.getValue()?.evaluateNumber(image));
-    this.scoreResult$.next(this.scoreBox$.getValue()?.evaluateNumber(image));
+    this.executeLevelOCR(image);
+    this.executeLinesOCR(image);
+    this.executeScoreOCR(image);
   }
 
   // for a frame, extract all the OCR data from the frame

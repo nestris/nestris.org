@@ -1,24 +1,27 @@
+import { RGBColor } from "network-protocol/tetris/tetromino-colors";
+import { Point } from "../point";
 import { OCRBox } from "./ocr-box";
 import { Pixels } from "./pixels";
+import { classifyDigit } from "./text-box-digits";
 
 // digit dimensions relative to main board box
 const DIGIT_WIDTH = 0.108;
-const DIGIT_HEIGHT = 0.049;
+const DIGIT_HEIGHT = 0.051;
 
 export function levelFromBoardBox(box: OCRBox): Textbox {
-  const {x, y} = box.getCanvasPositionFromRelative({x: 1.49, y: 0.769});
+  const {x, y} = box.getCanvasPositionFromRelative({x: 1.49, y: 0.765});
   const {x: width, y: height} = box.getVectorFromRelative({x: DIGIT_WIDTH * 2, y: DIGIT_HEIGHT});
   return new Textbox(2, x, y, width, height);
 }
 
 export function linesFromBoardBox(box: OCRBox): Textbox {
-  const {x, y} = box.getCanvasPositionFromRelative({x: 0.72, y: -0.182});
+  const {x, y} = box.getCanvasPositionFromRelative({x: 0.72, y: -0.187});
   const {x: width, y: height} = box.getVectorFromRelative({x: DIGIT_WIDTH * 3, y: DIGIT_HEIGHT});
   return new Textbox(3, x, y, width, height);
 }
 
 export function scoreFromBoardBox(box: OCRBox): Textbox {
-  const {x, y} = box.getCanvasPositionFromRelative({x: 1.27, y: 0.08});
+  const {x, y} = box.getCanvasPositionFromRelative({x: 1.27, y: 0.077});
   const {x: width, y: height} = box.getVectorFromRelative({x: DIGIT_WIDTH * 6, y: DIGIT_HEIGHT});
   return new Textbox(6, x, y, width, height);
 }
@@ -31,6 +34,7 @@ export interface TextboxResult {
 
 export class Textbox {
 
+  readonly RESOLUTION = 7;
 
   constructor(
     public readonly count: number, // number of digits
@@ -55,19 +59,58 @@ export class Textbox {
     };
   }
 
-  private evaluteDigit(image: Pixels, digit: number): TextboxResult {
-    const rect = this.getDigitRect(digit);
-    return {
-      value: 0,
-      confidence: 0,
+  private evaluateDigit(image: Pixels, index: number): TextboxResult {
+    const rect = this.getDigitRect(index);
+    
+    // generate a 16x16 array of coordinates for the digit
+    let coordinates: boolean[][] = [];
+    for (let y = 0; y < this.RESOLUTION; y++) {
+      coordinates.push([]);
+      for (let x = 0; x < this.RESOLUTION; x++) {
+
+        const startX = Math.floor(rect.x + x * rect.width / this.RESOLUTION);
+        const endX = Math.floor(rect.x + (x + 1) * rect.width / this.RESOLUTION);
+
+        const startY = Math.floor(rect.y + y * rect.height / this.RESOLUTION);
+        const endY = Math.floor(rect.y + (y + 1) * rect.height / this.RESOLUTION);
+
+        // get the average color of the region
+        let r = 0;
+        let g = 0;
+        let b = 0;
+        let count = 0;
+        for (let y = startY; y < endY; y++) {
+          for (let x = startX; x < endX; x++) {
+            const pixel = image.getPixelAt(x, y);
+            if (pixel) {
+              r += pixel.r;
+              g += pixel.g;
+              b += pixel.b;
+              count++;
+            }
+          }
+        }
+        const average = count > 0 ? {r: r / count, g: g / count, b: b / count} : {r: 0, g: 0, b: 0};
+        const isWhite = (average.r + average.g + average.b) / 3 > 128;
+        coordinates[coordinates.length - 1].push(isWhite);
+        
+      }
     }
+
+    // conert to multiline string, where 1 is X and 0 is space
+    const text = coordinates.map((row) => row.map((value) => value ? "X" : " ").join("")).join("\n");
+    // console.log(text);
+    
+    const result = classifyDigit(coordinates);
+    // console.log("Classified", result);
+    return result;
   
   }
 
   evaluateNumber(image: Pixels): TextboxResult {
 
     // evaluate each digit
-    const result = Array.from({length: this.count}, (_, i) => this.evaluteDigit(image, i));
+    const result = Array.from({length: this.count}, (_, i) => this.evaluateDigit(image, i));
 
     // calculate number from digits
     const number = result.reduce((acc, {value}, i) => acc + value * Math.pow(10, this.count - i - 1), 0);
@@ -80,6 +123,4 @@ export class Textbox {
       confidence,
     };
   }
-  
-
 }
