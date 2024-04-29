@@ -25,6 +25,7 @@ import { getDailyStreakRoute } from './puzzle-dashboard/puzzle-streak';
 import { getRelativePuzzleRankRoute } from './puzzle-dashboard/relative-puzzle-rank';
 import { setFeedbackRoute } from './puzzle-generation/set-feedback';
 import { getAttemptStatsRoute } from './puzzle-generation/get-attempt-stats';
+import { getOCRDigits, initOCRDigits } from './ocr/digit-reader';
 
 
 require('dotenv').config();
@@ -41,6 +42,9 @@ export default async function createApp(): Promise<{
 
     // all global state is stored in ServerState
     const state = new ServerState();
+
+    // initialize OCR digits
+    await initOCRDigits();
 
     app.use(morgan('dev'));
 
@@ -103,6 +107,9 @@ export default async function createApp(): Promise<{
 
     app.get('/api/v2/puzzle-attempt-stats/:username', getAttemptStatsRoute);
 
+    app.get('/api/v2/ocr-digits', (req: Request, res: Response) => {
+        res.status(200).send(getOCRDigits());
+    });
 
     // catch all invalid api routes
     app.get('/api/*', (req, res) => {

@@ -11,6 +11,7 @@ import { TetrominoType } from '../../../../../network-protocol/tetris/tetromino-
 import { Point } from '../../models/point';
 import { Textbox, TextboxResult, levelFromBoardBox, linesFromBoardBox, scoreFromBoardBox } from '../../models/ocr/text-box';
 import GameStatus from '../../models/scoring/game-status';
+import { OcrDigitService } from './ocr-digit.service';
 
 /*
 Service to poll current video capture frame for different OCR results
@@ -22,6 +23,14 @@ export enum OCRType {
   BOARD_SHINE = "BOARD_SHINE",
   NEXT = "NEXT",
 }
+
+export enum TextboxType {
+  LEVEL = "Level",
+  LINES = "Lines",
+  SCORE = "Score",
+}
+
+export const ALL_TEXTBOX_TYPES = Object.values(TextboxType);
 
 @Injectable({
   providedIn: 'root'
@@ -40,13 +49,21 @@ export class OcrService {
   private nextBox$ = new BehaviorSubject<NextBoxOCR | undefined>(undefined);
   private nextType$ = new BehaviorSubject<TetrominoType | undefined>(undefined);
 
-  private levelBox$ = new BehaviorSubject<Textbox | undefined>(undefined);
-  private linesBox$ = new BehaviorSubject<Textbox | undefined>(undefined);
-  private scoreBox$ = new BehaviorSubject<Textbox | undefined>(undefined);
+  private textBoxes$ = {
+    [TextboxType.LEVEL]: new BehaviorSubject<Textbox | undefined>(undefined),
+    [TextboxType.LINES]: new BehaviorSubject<Textbox | undefined>(undefined),
+    [TextboxType.SCORE]: new BehaviorSubject<Textbox | undefined>(undefined),
+  }
 
-  private levelResult$ = new BehaviorSubject<TextboxResult | undefined>(undefined);
-  private linesResult$ = new BehaviorSubject<TextboxResult | undefined>(undefined);
-  private scoreResult$ = new BehaviorSubject<TextboxResult | undefined>(undefined);
+  private textBoxResults$ = {
+    [TextboxType.LEVEL]: new BehaviorSubject<TextboxResult | undefined>(undefined),
+    [TextboxType.LINES]: new BehaviorSubject<TextboxResult | undefined>(undefined),
+    [TextboxType.SCORE]: new BehaviorSubject<TextboxResult | undefined>(undefined),
+  }
+
+  constructor(
+    private ocrDigitService: OcrDigitService
+  ) {}
 
 
   // if each varies by less than 30, then they are similar
@@ -106,9 +123,9 @@ export class OcrService {
       this.calibrateOCRRelativeToBoard(image, OCRType.NEXT, NEXTBOX_LOCATIONS, NEXT_OCR_POSITION);
 
       // calibrate text boxes
-      this.levelBox$.next(levelFromBoardBox(this.getOCRBox(OCRType.BOARD)!));
-      this.linesBox$.next(linesFromBoardBox(this.getOCRBox(OCRType.BOARD)!));
-      this.scoreBox$.next(scoreFromBoardBox(this.getOCRBox(OCRType.BOARD)!));
+      this.textBoxes$[TextboxType.LEVEL].next(levelFromBoardBox(this.getOCRBox(OCRType.BOARD)!));
+      this.textBoxes$[TextboxType.LINES].next(linesFromBoardBox(this.getOCRBox(OCRType.BOARD)!));
+      this.textBoxes$[TextboxType.SCORE].next(scoreFromBoardBox(this.getOCRBox(OCRType.BOARD)!));
 
       return true;
 
@@ -146,33 +163,22 @@ export class OcrService {
     return this.nextType$.getValue();
   }
 
-  getLevel$(): Observable<Textbox | undefined> {
-    return this.levelBox$.asObservable();
+  getTextbox$(type: TextboxType): Observable<Textbox | undefined> {
+    return this.textBoxes$[type].asObservable();
   }
 
-  getLevel(): Textbox | undefined {
-    return this.levelBox$.getValue();
+  getTextbox(type: TextboxType): Textbox | undefined {
+    return this.textBoxes$[type].getValue();
   }
 
-  setLevel(textbox: Textbox) {
-    this.levelBox$.next(textbox);
+  setTextbox(type: TextboxType, textbox: Textbox) {
+    this.textBoxes$[type].next(textbox);
   }
 
-  getLines$(): Observable<Textbox | undefined> {
-    return this.linesBox$.asObservable();
+  getTextboxResult$(type: TextboxType): Observable<TextboxResult | undefined> {
+    return this.textBoxResults$[type].asObservable();
   }
 
-  getLines(): Textbox | undefined {
-    return this.linesBox$.getValue();
-  }
-
-  getScore$(): Observable<Textbox | undefined> {
-    return this.scoreBox$.asObservable();
-  }
-
-  getScore(): Textbox | undefined {
-    return this.scoreBox$.getValue();
-  }
 
   private getColorForMino(level: number, rgbShine: RGBColor, rgbColor: RGBColor): ColorType {
     const hsvShine = rgbToHsv(rgbShine);
@@ -219,38 +225,23 @@ export class OcrService {
     this.nextType$.next(nextBox.getMostSimilarPieceType());
   }
 
-  executeLevelOCR(image: Pixels, levelBox?: Textbox): TextboxResult | undefined {
-    if (!levelBox) levelBox = this.levelBox$.getValue();
-    const result = levelBox?.evaluateNumber(image);
-    this.levelResult$.next(result);
-    return result;
-  }
+  executeTextboxOCR(image: Pixels, type: TextboxType, textbox?: Textbox): TextboxResult | undefined {
+    if (!textbox) textbox = this.getTextbox(type);
+    if (!textbox) return;
 
-  executeLinesOCR(image: Pixels, linesBox?: Textbox): TextboxResult | undefined {
-    if (!linesBox) linesBox = this.linesBox$.getValue();
-    const result = linesBox?.evaluateNumber(image);
-    this.linesResult$.next(result);
+    const digitMatrices = textbox.getDigitMatrices(image);
+    const result = this.ocrDigitService.ocrDigits(digitMatrices);
+    this.textBoxResults$[type].next(result);
     return result;
-  }
-
-  executeScoreOCR(image: Pixels, scoreBox?: Textbox): TextboxResult | undefined {
-    if (!scoreBox) scoreBox = this.scoreBox$.getValue();
-    const result = scoreBox?.evaluateNumber(image);
-    this.scoreResult$.next(result);
-    return result;
-  }
-
-  executeTextboxOCR(image: Pixels) {
-    this.executeLevelOCR(image);
-    this.executeLinesOCR(image);
-    this.executeScoreOCR(image);
   }
 
   // for a frame, extract all the OCR data from the frame
   executeOCR(image: Pixels) {
     this.executeBoardOCR(image);
     this.executeNextOCR(image);
-    this.executeTextboxOCR(image);
+    ALL_TEXTBOX_TYPES.forEach((type) => {
+      this.executeTextboxOCR(image, type);
+    });
 
   }
 

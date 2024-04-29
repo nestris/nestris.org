@@ -3,9 +3,9 @@ import { ButtonColor } from '../../../ui/solid-button/solid-button.component';
 import { VideoCaptureService } from 'client/src/app/services/ocr/video-capture.service';
 import { ModalManagerService } from 'client/src/app/services/modal-manager.service';
 import { Subscription } from 'rxjs';
-import { OcrService } from 'client/src/app/services/ocr/ocr.service';
+import { ALL_TEXTBOX_TYPES, OcrService, TextboxType } from 'client/src/app/services/ocr/ocr.service';
 import { TetrominoType } from 'network-protocol/tetris/tetromino-type';
-import { Textbox } from 'client/src/app/models/ocr/text-box';
+import { Textbox, TextboxResult } from 'client/src/app/models/ocr/text-box';
 
 export enum CalibrationStep {
   SELECT_VIDEO_SOURCE = "Select video source",
@@ -26,6 +26,7 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
 
   readonly CalibrationStep = CalibrationStep;
   readonly ALL_CALIBRATION_STEPS = Object.values(CalibrationStep);
+  readonly ALL_TEXTBOX_TYPES = ALL_TEXTBOX_TYPES;
 
   public stepIndex: number = 0;
 
@@ -151,20 +152,20 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
     this.videoCapture.stopCapture(); // don't capture when not necessary to save processing time
   }
 
-  calibrateLevel() {
+  calibrate(type: TextboxType) {
 
-    const originalBox = this.ocr.getLevel()!;
-    const result = this.ocr.executeLevelOCR(this.videoCapture.getPixels()!);
+    const originalBox = this.ocr.getTextbox(type)!;
+    const result = this.ocr.executeTextboxOCR(this.videoCapture.getPixels()!, type);
 
     let bestConfidence = result!.confidence;
     let bestBox = originalBox;
 
     console.log(`Original ${originalBox.x}, ${originalBox.y}: ${result!.confidence} ${result!.value}`);
 
-    for (let x = -8; x <= 8; x+=2) {
-      for (let y = -8; y <= 8; y+=2) {
+    for (let x = -4; x <= 4; x+=1) { // try out different x
+      for (let y = -4; y <= 4; y+=1) { // try out different y
         const newBox = new Textbox(originalBox.count, originalBox.x + x, originalBox.y + y, originalBox.width, originalBox.height);
-        const confidence = this.ocr.executeLevelOCR(this.videoCapture.getPixels()!, newBox)!.confidence;
+        const confidence = this.ocr.executeTextboxOCR(this.videoCapture.getPixels()!, type, newBox)!.confidence;
 
         console.log(`New ${newBox.x}, ${newBox.y}: ${confidence} ${result!.value}`);
 
@@ -175,12 +176,19 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
       }
     }
 
-    if (originalBox !== bestBox) this.ocr.setLevel(bestBox);
+    if (originalBox !== bestBox) this.ocr.setTextbox(type, bestBox);
 
-    const result2 = this.ocr.executeLevelOCR(this.videoCapture.getPixels()!);
+    const result2 = this.ocr.executeTextboxOCR(this.videoCapture.getPixels()!, type);
 
     console.log(`Best ${bestBox.x}, ${bestBox.y}: ${result2!.confidence} ${result2!.value}`);
 
   }
+
+  prettyTextboxResult(result: TextboxResult | null | undefined) {
+    if (!result) return "";
+    const confidenceString = (result.confidence * 100).toFixed(0);
+    return `${result.value} (${confidenceString}%)`;
+  }
+
 
 }

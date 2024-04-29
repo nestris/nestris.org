@@ -28,23 +28,12 @@
 
         <div class="verify-ocr" *ngIf="currentStep === CalibrationStep.VERIFY_OCR">
 
-            <div class="item">
-                <h1>Level</h1>
-                <app-textbox-canvas *ngIf="(ocr.getLevel$() | async) as level" [size]="40" 
-                    [textbox]="level" [pixels]="(videoCapture.getPixels$() | async)" />
-                <button class="button" (click)="calibrateLevel()">Calibrate</button>
-            </div>
-            
-            <div class="item">
-                <h1>Lines</h1>
-                <app-textbox-canvas *ngIf="(ocr.getLines$() | async) as lines" [size]="40" 
-                    [textbox]="lines" [pixels]="(videoCapture.getPixels$() | async)" />
-            </div>
-
-            <div class="item">
-                <h1>Score</h1>
-                <app-textbox-canvas *ngIf="(ocr.getScore$() | async) as score" [size]="40" 
-                    [textbox]="score" [pixels]="(videoCapture.getPixels$() | async)" />
+            <div class="item" *ngFor="let type of ALL_TEXTBOX_TYPES">
+                <h1>{{type}}</h1>
+                <app-textbox-canvas *ngIf="(ocr.getTextbox$(type) | async) as textbox" [size]="40" 
+                    [textbox]="textbox" [pixels]="(videoCapture.getPixels$() | async)" />
+                <button class="button" (click)="calibrate(type)">Calibrate</button>
+                <p>{{prettyTextboxResult(ocr.getTextboxResult$(type) | async)}}</p>
             </div>
             
         </div>

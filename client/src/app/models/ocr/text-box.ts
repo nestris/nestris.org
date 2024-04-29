@@ -2,7 +2,6 @@ import { RGBColor } from "network-protocol/tetris/tetromino-colors";
 import { Point } from "../point";
 import { OCRBox } from "./ocr-box";
 import { Pixels } from "./pixels";
-import { classifyDigit } from "./text-box-digits";
 
 // digit dimensions relative to main board box
 const DIGIT_WIDTH = 0.108;
@@ -34,7 +33,7 @@ export interface TextboxResult {
 
 export class Textbox {
 
-  readonly RESOLUTION = 7;
+  readonly RESOLUTION = 16;
 
   constructor(
     public readonly count: number, // number of digits
@@ -59,7 +58,7 @@ export class Textbox {
     };
   }
 
-  private evaluateDigit(image: Pixels, index: number): TextboxResult {
+  private getDigitMatrixForDigit(image: Pixels, index: number): boolean[][] {
     const rect = this.getDigitRect(index);
     
     // generate a 16x16 array of coordinates for the digit
@@ -97,30 +96,11 @@ export class Textbox {
       }
     }
 
-    // conert to multiline string, where 1 is X and 0 is space
-    const text = coordinates.map((row) => row.map((value) => value ? "X" : " ").join("")).join("\n");
-    // console.log(text);
-    
-    const result = classifyDigit(coordinates);
-    // console.log("Classified", result);
-    return result;
-  
+    return coordinates;
   }
 
-  evaluateNumber(image: Pixels): TextboxResult {
-
-    // evaluate each digit
-    const result = Array.from({length: this.count}, (_, i) => this.evaluateDigit(image, i));
-
-    // calculate number from digits
-    const number = result.reduce((acc, {value}, i) => acc + value * Math.pow(10, this.count - i - 1), 0);
-
-    // average confidence
-    const confidence = result.reduce((acc, {confidence}) => acc + confidence, 0) / this.count;
-
-    return {
-      value: number,
-      confidence,
-    };
+  getDigitMatrices(image: Pixels): boolean[][][] {
+    return Array.from({length: this.count}, (_, i) => this.getDigitMatrixForDigit(image, i));
   }
+
 }
