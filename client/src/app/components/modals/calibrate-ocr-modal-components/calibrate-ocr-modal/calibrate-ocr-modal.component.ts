@@ -6,6 +6,7 @@ import { Subject, Subscription } from 'rxjs';
 import { ALL_TEXTBOX_TYPES, OcrService, TextboxType } from 'client/src/app/services/ocr/ocr.service';
 import { TetrominoType } from 'network-protocol/tetris/tetromino-type';
 import { Textbox, TextboxResult } from 'client/src/app/models/ocr/text-box';
+import { GameStateService } from 'client/src/app/services/ocr/game-state.service';
 
 export enum CalibrationStep {
   SELECT_VIDEO_SOURCE = "Select video source",
@@ -40,7 +41,8 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
   constructor(
     public videoCapture: VideoCaptureService,
     public ocr: OcrService,
-    private modalManager: ModalManagerService
+    private modalManager: ModalManagerService,
+    private gameState: GameStateService
   ) {
 
     // if on "locate tetris board step", clicking canvas initiates floodfill
@@ -62,7 +64,7 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
 
     // if there is already a video source, start capturing immediately
     if (this.videoCapture.hasCaptureSource()) {
-      this.videoCapture.startCapture();
+      this.gameState.startCapture();
     }
   }
 
@@ -149,7 +151,7 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
     });
 
     this.videoCapture.setCaptureSource(mediaStream);
-    this.videoCapture.startCapture();
+    this.gameState.startCapture();
   }
 
   async setVideoCapture() {
@@ -160,6 +162,7 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
     // if no device selected, stop capture
     if (!selectedDevice) {
       this.videoCapture.setCaptureSource(null);
+      this.gameState.stopCapture();
       return;
     }
 
@@ -172,12 +175,12 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
     });
 
     this.videoCapture.setCaptureSource(mediaStream);
-    this.videoCapture.startCapture();
+    this.gameState.startCapture();
   }
 
   ngOnDestroy() {
     this.clickCanvasSubscription.unsubscribe();
-    this.videoCapture.stopCapture(); // don't capture when not necessary to save processing time
+    this.gameState.stopCapture(); // don't capture when not necessary to save processing time
   }
 
 

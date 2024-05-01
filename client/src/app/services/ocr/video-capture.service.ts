@@ -1,6 +1,6 @@
 import { ElementRef, Injectable, Renderer2, RendererFactory2 } from '@angular/core';
 import { FpsTracker } from 'misc/fps-tracker';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { Pixels } from '../../models/ocr/pixels';
 import { OCRBox, Rectangle } from '../../models/ocr/ocr-box';
 import { OCRType, OcrService } from './ocr.service';
@@ -29,18 +29,11 @@ export class VideoCaptureService {
   private hidden: boolean = true;
   private showBoundingBoxes: boolean = false;
 
-  // whether capture source is being polled for pixels every frame
-  // this is an expensive task
-  private capturing: boolean = false;
-
   // the error for why video source failed
   private permissionError$ = new BehaviorSubject<string | null>(null);
 
   // observable for pixels of video capture source. updated every frame
   private pixels$ = new BehaviorSubject<Pixels | null>(null);
-
-  // track fps for polling video
-  private fpsTracker!: FpsTracker;
 
   // subject for location of mouse when clicking on canvas
   private mouseClick$ = new BehaviorSubject<{ x: number, y: number } | null>(null);
@@ -131,7 +124,6 @@ export class VideoCaptureService {
     if (mediaStream === null) {
       this.videoElement.srcObject = null;
       this.permissionError$.next(null);
-      this.stopCapture();
       return;
     }
 
@@ -158,35 +150,6 @@ export class VideoCaptureService {
     return captureSource !== null && captureSource !== undefined;
   }
 
-  // start capturing pixels from capture source as fast as possible
-  startCapture() {
-
-    // make sure capture source is set
-    if (!this.hasCaptureSource()) {
-      throw new Error("capture source not set");
-    }
-
-    if (this.capturing) return;
-
-    this.capturing = true;
-    this.fpsTracker = new FpsTracker();
-
-    // start capturing
-    console.log("starting capture");
-    this.captureFrame();
-  }
-
-  // stop capturing pixels from capture source.
-  // sets the capturing flag to false, which will terminate the captureFrame() loop on the start of the next frame
-  stopCapture() {
-    console.log("stopping capture");
-    this.capturing = false;
-  }
-
-  // get fps of video capture polling loop. undefined if not capturing
-  getFPS(): number | undefined {
-    return this.fpsTracker?.getFPS();
-  }
 
   // subscribe to permission error
   getPermissionError$(): Observable<string | null> {
@@ -209,11 +172,10 @@ export class VideoCaptureService {
 
   // polls the video capture source for pixels and emits them.
   // calls itself recursively
-  private captureFrame() {
-    if (!this.capturing) return; // stop capturing if we're not supposed to be capturing
-
-    // calculate fps
-    this.fpsTracker.tick();
+  pollPixels(): {
+    ctx: CanvasRenderingContext2D | null,
+    pixels: Pixels | null
+  } {
 
     const canvas = this.canvasElement;
     const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
@@ -223,21 +185,18 @@ export class VideoCaptureService {
 
     // Get the pixel data from the canvas and emit it
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    this.pixels$.next(new Pixels(imageData.data, canvas.width, canvas.height));
+    const pixels = new Pixels(imageData.data, canvas.width, canvas.height);
+    this.pixels$.next(pixels);
 
-    // perform ocr for board and other elements
-    this.ocrService.executeOCR(this.getPixels()!);
-
-    // draw bounding boxes if enabled
-    if (!this.hidden && this.showBoundingBoxes) {
-      this.drawBoundingBoxes(ctx);
-    }
-
-    requestAnimationFrame(() => this.captureFrame());
+    return { ctx, pixels };
   }
 
+
   // draw bounding boxes on canvas
-  private drawBoundingBoxes(ctx: CanvasRenderingContext2D) {
+  drawBoundingBoxes(ctx: CanvasRenderingContext2D) {
+
+    // don't draw bounding boxes if hidden
+    if (this.hidden || !this.showBoundingBoxes) return;
 
     // draw board bounding box with both block shine and center of board
     const boardExists = (x: number, y: number) => {

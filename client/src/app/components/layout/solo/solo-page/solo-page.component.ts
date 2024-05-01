@@ -24,13 +24,11 @@ export class SoloPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.emulatorService.startGame(18);
     this.platform.startPolling();
   }
 
   ngOnDestroy(): void {
-      this.emulatorService.stopGame();
-      this.platform.stopPolling();
+    this.platform.stopPolling();
   }
 
   @HostListener('window:keydown', ['$event'])

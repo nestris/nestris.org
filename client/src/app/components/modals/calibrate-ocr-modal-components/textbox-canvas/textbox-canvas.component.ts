@@ -10,7 +10,7 @@ import { VideoCaptureService } from 'client/src/app/services/ocr/video-capture.s
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TextboxCanvasComponent implements OnChanges {
-  @ViewChild('textboxCanvasElement') canvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('textboxCanvasElement') canvas?: ElementRef<HTMLCanvasElement>;
 
   @Input() textbox!: Textbox;
   @Input() size: number = 8;
@@ -24,7 +24,7 @@ export class TextboxCanvasComponent implements OnChanges {
   // on change of pixels, print hello
   ngOnChanges(): void {
 
-    if (!this.pixels) {
+    if (!this.pixels || !this.canvas) {
       return;
     }
 
@@ -32,6 +32,8 @@ export class TextboxCanvasComponent implements OnChanges {
     if (!canvasContext) {
       return;
     }
+
+    // console.log('hello');
 
     // Set the main canvas size to the target WIDTH and HEIGHT
     this.canvas.nativeElement.width = this.size * this.textbox.count;

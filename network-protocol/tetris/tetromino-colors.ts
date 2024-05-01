@@ -51,6 +51,7 @@ export const COLOR_SECOND_COLORS_RGB: {[key: number]: RGBColor } = {
 }
 
 export function getColorForLevel(colorType: ColorType, level: number = 0): string {
+    if (level < 0) level = 0;
     level = level % 10;
     
     // TODO: map level to color

@@ -184,6 +184,10 @@ export class OcrService {
     return this.textBoxResults$[type].asObservable();
   }
 
+  getTextboxResult(type: TextboxType): TextboxResult | undefined {
+    return this.textBoxResults$[type].getValue();
+  }
+
 
   private getColorForMino(level: number, rgbShine: RGBColor, rgbColor: RGBColor): ColorType {
     const hsvShine = rgbToHsv(rgbShine);
@@ -200,7 +204,7 @@ export class OcrService {
     return color;
   }
 
-  private executeBoardOCR(image: Pixels, level: number = 18) {
+  executeBoardOCR(image: Pixels, level: number = 18) {
     const boardOCRBox = this.getOCRBox(OCRType.BOARD);
     const boardShineOCRBox = this.getOCRBox(OCRType.BOARD_SHINE);
     if (!boardOCRBox || !boardShineOCRBox) return;
@@ -219,7 +223,7 @@ export class OcrService {
     this.board$.next(board);
   }
 
-  private executeNextOCR(image: Pixels) {
+  executeNextOCR(image: Pixels) {
     const nextOCRBox = this.getOCRBox(OCRType.NEXT);
     if (!nextOCRBox) return;
 
@@ -240,11 +244,11 @@ export class OcrService {
     return result;
   }
 
-  // for a frame, extract all the OCR data from the frame
+  // for a frame, poll all the OCR data from the frame
   executeOCR(image: Pixels) {
-    this.executeBoardOCR(image);
-    this.executeNextOCR(image);
-    ALL_TEXTBOX_TYPES.forEach((type) => {
+    this.executeBoardOCR(image); // poll board
+    this.executeNextOCR(image); // poll next piece
+    ALL_TEXTBOX_TYPES.forEach((type) => { // poll score, level, lines
       this.executeTextboxOCR(image, type);
     });
 
@@ -268,7 +272,7 @@ export class OcrService {
             const newBox = new Textbox(originalBox.count, originalBox.x + x, originalBox.y + y, originalBox.width + w, originalBox.height + h);
             const confidence = this.executeTextboxOCR(pixels, type, newBox)!.confidence;
 
-            console.log(`New ${newBox.x}, ${newBox.y}: ${confidence} ${result!.value}`);
+            // console.log(`New ${newBox.x}, ${newBox.y}: ${confidence} ${result!.value}`);
 
             if (confidence > bestConfidence) {
               bestConfidence = confidence;

@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { TabID } from '../models/tabs';
 import { TetrisBoard } from '../../../../network-protocol/tetris/tetris-board';
 import { TetrominoType } from '../../../../network-protocol/tetris/tetromino-type';
 import { EmulatorService } from './emulator/emulator.service';
+import { GameStateService } from './ocr/game-state.service';
 
 export enum Platform {
   ONLINE = "ONLINE",
@@ -58,7 +58,8 @@ export class PlatformInterfaceService {
   private pollingLoop: any;
 
   constructor(
-    private emulatorService: EmulatorService,
+    private emulatorService: EmulatorService, // for when platform is set to ONLINE
+    private gameStateService: GameStateService, // for when platform is set to OCR
   ) {
 
   }
@@ -84,12 +85,33 @@ export class PlatformInterfaceService {
         this.pollOCR();
       }
     }, 1000 / 60); // poll at 60 fps
+
+    this.platform$.getValue() === Platform.ONLINE ? this.startEmulator() : this.startOCR();
   }
 
   stopPolling() {
     if (this.pollingLoop !== undefined) {
       clearInterval(this.pollingLoop);
+
+      this.platform$.getValue() === Platform.ONLINE ? this.stopEmulator() : this.stopOCR();
+
     }
+  }
+
+  startEmulator() {
+    this.emulatorService.startGame(18);
+  }
+
+  stopEmulator() {
+    this.emulatorService.stopGame();
+  }
+
+  startOCR() {
+    this.gameStateService.startCapture();
+  }
+
+  stopOCR() {
+    this.gameStateService.stopCapture();
   }
 
   // poll game data from integrated emulator and emit it
@@ -114,6 +136,22 @@ export class PlatformInterfaceService {
 
   // poll game data from OCR and emit it
   pollOCR() {
+
+    const board = this.gameStateService.getBoard();
+    const nextPiece = this.gameStateService.getNextPiece();
+    const level = this.gameStateService.getLevel();
+    const lines = this.gameStateService.getLines();
+    const score = this.gameStateService.getScore();
+    const trt = this.gameStateService.getTrt();
+
+    this.polledGameData$.next(new PolledGameData(
+      board,
+      nextPiece,
+      level,
+      lines,
+      score,
+      trt
+    ));
 
   }
 
