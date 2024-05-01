@@ -127,6 +127,11 @@ export class OcrService {
       this.textBoxes$[TextboxType.LINES].next(linesFromBoardBox(this.getOCRBox(OCRType.BOARD)!));
       this.textBoxes$[TextboxType.SCORE].next(scoreFromBoardBox(this.getOCRBox(OCRType.BOARD)!));
 
+      // fine tune textboxes
+      ALL_TEXTBOX_TYPES.forEach((type) => {
+        this.fineTuneTextbox(type, image);
+      });
+
       return true;
 
     } catch (e: any) {
@@ -242,6 +247,43 @@ export class OcrService {
     ALL_TEXTBOX_TYPES.forEach((type) => {
       this.executeTextboxOCR(image, type);
     });
+
+  }
+
+  // fine tune the textbox by moving it around a bit and seeing if OCR confidence improves
+  fineTuneTextbox(type: TextboxType, pixels: Pixels) {
+
+    const originalBox = this.getTextbox(type)!;
+    const result = this.executeTextboxOCR(pixels, type);
+
+    let bestConfidence = result!.confidence;
+    let bestBox = originalBox;
+
+    console.log(`Original ${originalBox.x}, ${originalBox.y}: ${result!.confidence} ${result!.value}`);
+
+    for (let x = -4; x <= 4; x+=1) { // try out different x
+      for (let y = -4; y <= 4; y+=1) { // try out different y
+        for (let w = -1; w <= 1; w+=1) { // try out different width
+          for (let h = -1; h <= 1; h+=1) { // try out different height
+            const newBox = new Textbox(originalBox.count, originalBox.x + x, originalBox.y + y, originalBox.width + w, originalBox.height + h);
+            const confidence = this.executeTextboxOCR(pixels, type, newBox)!.confidence;
+
+            console.log(`New ${newBox.x}, ${newBox.y}: ${confidence} ${result!.value}`);
+
+            if (confidence > bestConfidence) {
+              bestConfidence = confidence;
+              bestBox = newBox;
+            }
+          }
+        }
+      }
+    }
+
+    if (originalBox !== bestBox) this.setTextbox(type, bestBox);
+
+    const result2 = this.executeTextboxOCR(pixels, type);
+
+    console.log(`Best ${bestBox.x}, ${bestBox.y}: ${result2!.confidence} ${result2!.value}`);
 
   }
 

@@ -15,6 +15,10 @@ export class VideoCaptureService {
 
   private renderer: Renderer2;
 
+  videoDevices$ = new BehaviorSubject<(MediaDeviceInfo | null)[]>([]);
+  selectedDevice: MediaDeviceInfo | null = null;
+  permissionError: string | null = null;
+
   // we hold a reference to hidden global video and canvas elements from VideoCaptureComponent
   private videoElement!: HTMLVideoElement;
   private canvasElement!: HTMLCanvasElement;
@@ -48,6 +52,26 @@ export class VideoCaptureService {
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
     this.canvasElement = this.renderer.createElement('canvas');
+  }
+
+  public initVideoDevices() {
+    this.generateVideoDevicesList();
+    navigator.mediaDevices.addEventListener('devicechange', this.generateVideoDevicesList.bind(this));
+  }
+
+  generateVideoDevicesList(): void {
+    // this.captureFrameService.resetFrame();
+    navigator.mediaDevices.enumerateDevices().then(devices => {
+      const videoDevices: (MediaDeviceInfo | null)[] = devices.filter(device => device.kind === 'videoinput');
+      videoDevices.unshift(null); // Add a null option to the beginning of the list
+
+      this.videoDevices$.next(videoDevices);
+      console.log("Video devices:", videoDevices);
+    });
+  }
+
+  getVideoDevices$(): Observable<(MediaDeviceInfo | null)[]> {
+    return this.videoDevices$.asObservable();
   }
 
   private moveCanvasToDOM(parentElement: HTMLElement, hidden: boolean) {
@@ -97,11 +121,18 @@ export class VideoCaptureService {
 
   // set the video capture source, whether from screen capture or video source
   // recommended to set media stream with width bounded to 800px to reduce processing time
-  async setCaptureSource(mediaStream: MediaStream) {
+  async setCaptureSource(mediaStream: MediaStream | null) {
 
 
     if (this.videoElement === undefined) {
       throw new Error("video element not set");
+    }
+
+    if (mediaStream === null) {
+      this.videoElement.srcObject = null;
+      this.permissionError$.next(null);
+      this.stopCapture();
+      return;
     }
 
     try {
