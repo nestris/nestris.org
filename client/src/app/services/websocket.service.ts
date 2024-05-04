@@ -117,7 +117,12 @@ export class WebsocketService {
   sendJsonMessage(message: JsonMessage) {
     if (message.type !== JsonMessageType.PING) console.log('Sending JSON message:', message);
     this.ws?.send(JSON.stringify(message));
-  } 
+  }
+
+  sendBinaryMessage(message: Uint8Array) {
+    console.log('Sending BINARY message:', message);
+    this.ws?.send(message);
+  }
 
   // called to connect to server
   // if the connection is successful, a ws connection is established and the user is signed in

@@ -4,6 +4,8 @@ import { TetrisBoard } from '../../../../network-protocol/tetris/tetris-board';
 import { TetrominoType } from '../../../../network-protocol/tetris/tetromino-type';
 import { EmulatorService } from './emulator/emulator.service';
 import { GameStateService } from './ocr/game-state.service';
+import { NonGameBoardStateChangePacket } from 'network-protocol/stream-packets/packet';
+import { PacketAssembler } from 'network-protocol/stream-packets/packet-assembler';
 
 export enum Platform {
   ONLINE = "ONLINE",
@@ -79,11 +81,7 @@ export class PlatformInterfaceService {
 
     // start polling
     this.pollingLoop = setInterval(() => {
-      if (this.platform$.getValue() === Platform.ONLINE) {
-        this.pollEmulator();
-      } else {
-        this.pollOCR();
-      }
+      this.poll();
     }, 1000 / 60); // poll at 60 fps
 
     this.platform$.getValue() === Platform.ONLINE ? this.startEmulator() : this.startOCR();
@@ -114,28 +112,55 @@ export class PlatformInterfaceService {
     this.gameStateService.stopCapture();
   }
 
-  // poll game data from integrated emulator and emit it
-  pollEmulator() {
-    const gameState = this.emulatorService.getGameState();
-    if (gameState) {
+  // one poll iteration
+  poll() {
 
-      const status = gameState.getStatus();
-
-      this.polledGameData$.next(new PolledGameData(
-        gameState.getDisplayBoard(),
-        gameState.getNextPieceType(),
-        status.level,
-        status.lines,
-        status.score,
-        gameState.getTrt(),
-        gameState.getDrought(),
-        gameState.getCurrentDAS(),
-      ));
+    // poll from the appropriate platform
+    let data: PolledGameData | undefined;
+    if (this.platform$.getValue() === Platform.ONLINE) {
+      data = this.pollEmulator();
+    } else {
+      data = this.pollOCR();
     }
+
+    // if data was polled, send it to the server
+    if (data) {
+      // TODO: send data to server
+
+      // log packets for now
+      const assembler = new PacketAssembler();
+      const packet = new NonGameBoardStateChangePacket();
+      const packetData = packet.toBinaryEncoder({deltaMs: 0, board: data.board});
+      assembler.addPacketContent(packetData);
+      assembler.printBits();
+    }
+
+  }
+
+  // poll game data from integrated emulator and emit it
+  pollEmulator(): PolledGameData | undefined {
+    const gameState = this.emulatorService.getGameState();
+    if (!gameState) return;
+
+    const status = gameState.getStatus();
+
+    const data = new PolledGameData(
+      gameState.getDisplayBoard(),
+      gameState.getNextPieceType(),
+      status.level,
+      status.lines,
+      status.score,
+      gameState.getTrt(),
+      gameState.getDrought(),
+      gameState.getCurrentDAS(),
+    );
+
+    this.polledGameData$.next(data);
+    return data;
   }
 
   // poll game data from OCR and emit it
-  pollOCR() {
+  pollOCR(): PolledGameData | undefined {
 
     const board = this.gameStateService.getBoard();
     const nextPiece = this.gameStateService.getNextPiece();
@@ -144,15 +169,17 @@ export class PlatformInterfaceService {
     const score = this.gameStateService.getScore();
     const trt = this.gameStateService.getTrt();
 
-    this.polledGameData$.next(new PolledGameData(
+    const data = new PolledGameData(
       board,
       nextPiece,
       level,
       lines,
       score,
       trt
-    ));
+    );
 
+    this.polledGameData$.next(data);
+    return data;
   }
 
 

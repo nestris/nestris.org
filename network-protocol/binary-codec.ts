@@ -1,4 +1,6 @@
 import { TetrominoType } from "network-protocol/tetris/tetromino-type";
+import { TetrisBoard } from "./tetris/tetris-board";
+import { BinaryTranscoder } from "./tetris-board-transcoding/binary-transcoder";
 
 /*
 Builder for compact binary encoding. Allows you to add different types of data
@@ -45,6 +47,21 @@ export class BinaryEncoder {
 
     getBitString(): string {
         return this.bits;
+    }
+
+    addBinaryEncoder(encoder: BinaryEncoder): void {
+        this.addBinaryString(encoder.getBitString());
+    }
+
+    addTetrisBoard(board: TetrisBoard): void {
+        // base4 has 200 chars of 0-3
+        const base4 = BinaryTranscoder.encode(board);
+
+        // encode to binary by converting each base4 digit to 2 bits
+        for (let i = 0; i < base4.length; i++) {
+            const value = parseInt(base4[i]);
+            this.addUnsignedInteger(value, 2);
+        }
     }
 
     convertToUInt8Array(): Uint8Array {
@@ -122,6 +139,20 @@ export class BinaryDecoder {
 
     nextTetrominoType(): TetrominoType {
         return this.nextUnsignedInteger(3);
+    }
+
+    nextTetrisBoard(): TetrisBoard {
+        const binaryString = this.nextBinaryString(400);
+
+        // convert to base4 by converting each 2 bits to a base4 digit
+        let base4 = '';
+        for (let i = 0; i < binaryString.length; i += 2) {
+            const value = this.nextUnsignedInteger(2);
+            base4 += value.toString();
+        }
+
+        return BinaryTranscoder.decode(base4);
+
     }
 
     hasMore(): boolean {
