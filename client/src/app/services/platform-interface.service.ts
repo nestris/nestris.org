@@ -4,8 +4,9 @@ import { TetrisBoard } from '../../../../network-protocol/tetris/tetris-board';
 import { TetrominoType } from '../../../../network-protocol/tetris/tetromino-type';
 import { EmulatorService } from './emulator/emulator.service';
 import { GameStateService } from './ocr/game-state.service';
-import { NonGameBoardStateChangePacket } from 'network-protocol/stream-packets/packet';
+import { NonGameBoardStateChangePacket, NonGameBoardStateChangeSchema } from 'network-protocol/stream-packets/packet';
 import { PacketAssembler } from 'network-protocol/stream-packets/packet-assembler';
+import { PacketDisassembler } from 'network-protocol/stream-packets/packet-disassembler';
 
 export enum Platform {
   ONLINE = "ONLINE",
@@ -32,11 +33,16 @@ export class PolledGameData {
     public readonly level: number,
     public readonly lines: number,
     public readonly score: number,
-    public readonly trt: number,
-    public readonly drought?: number,
-    public readonly das?: number,
   ) {}
-} 
+}
+
+export const DEFAULT_POLLED_GAME_DATA = new PolledGameData(
+  new TetrisBoard(), // empty board
+  TetrominoType.ERROR_TYPE, // next piece
+  18, // level
+  0, // lines
+  0, // score
+);
 
 /*
 Routinely polls from either the online platform or the OCR platform, depending on which platform is selected.
@@ -48,14 +54,7 @@ Routinely polls from either the online platform or the OCR platform, depending o
 export class PlatformInterfaceService {
 
   private platform$ = new BehaviorSubject<Platform>(Platform.ONLINE);
-  private polledGameData$ = new BehaviorSubject<PolledGameData>(new PolledGameData(
-    new TetrisBoard(), // empty board
-    TetrominoType.ERROR_TYPE, // next piece
-    18, // level
-    0, // lines
-    0, // score
-    0, // trt
-  ));
+  private polledGameData$ = new BehaviorSubject<PolledGameData>(DEFAULT_POLLED_GAME_DATA);
 
   private pollingLoop: any;
 
@@ -64,6 +63,14 @@ export class PlatformInterfaceService {
     private gameStateService: GameStateService, // for when platform is set to OCR
   ) {
 
+  }
+
+  getPolledGameData(): PolledGameData {
+    return this.polledGameData$.getValue();
+  }
+
+  getPolledGameData$(): Observable<PolledGameData> {
+    return this.polledGameData$.asObservable();
   }
 
   onPlatformChange(): Observable<Platform> {
@@ -116,25 +123,11 @@ export class PlatformInterfaceService {
   poll() {
 
     // poll from the appropriate platform
-    let data: PolledGameData | undefined;
     if (this.platform$.getValue() === Platform.ONLINE) {
-      data = this.pollEmulator();
+      this.pollEmulator();
     } else {
-      data = this.pollOCR();
+      this.pollOCR();
     }
-
-    // if data was polled, send it to the server
-    if (data) {
-      // TODO: send data to server
-
-      // log packets for now
-      const assembler = new PacketAssembler();
-      const packet = new NonGameBoardStateChangePacket();
-      const packetData = packet.toBinaryEncoder({deltaMs: 0, board: data.board});
-      assembler.addPacketContent(packetData);
-      assembler.printBits();
-    }
-
   }
 
   // poll game data from integrated emulator and emit it
@@ -150,9 +143,6 @@ export class PlatformInterfaceService {
       status.level,
       status.lines,
       status.score,
-      gameState.getTrt(),
-      gameState.getDrought(),
-      gameState.getCurrentDAS(),
     );
 
     this.polledGameData$.next(data);
@@ -175,17 +165,10 @@ export class PlatformInterfaceService {
       level,
       lines,
       score,
-      trt
     );
 
     this.polledGameData$.next(data);
     return data;
-  }
-
-
-
-  getPolledGameData(): Observable<PolledGameData> {
-    return this.polledGameData$.asObservable();
   }
 
 }

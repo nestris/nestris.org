@@ -2,12 +2,13 @@ import { OnlineUser, SocketCloseCode } from "./online-user";
 import { ConnectionSuccessfulMessage, ErrorHandshakeIncompleteMessage, ErrorMessage, JsonMessage, JsonMessageType, OnConnectMessage, SendPushNotificationMessage } from "../../network-protocol/json-message";
 import { MessageType, decodeMessage } from "../../network-protocol/ws-message";
 import { ServerState } from "./server-state";
-import { handleJsonMessage } from "./message-handler";
+import { handleBinaryMessage, handleJsonMessage } from "./message-handler";
 import { OnlineUserStatus } from "../../network-protocol/models/friends";
 import { contains } from "misc/array-functions";
 import { concat } from "rxjs";
 import { createUser, queryFriendUsernamesForUser, queryUserByUsername } from "../database/user-queries";
 import { NotificationType } from "../../network-protocol/models/notifications";
+import { PacketDisassembler } from "network-protocol/stream-packets/packet-disassembler";
 
 /*
 Manages the users that are online right now and thus are connected to socket with websocket
@@ -176,7 +177,12 @@ export class OnlineUserManager {
         } else {
             // recieved message from socket recognized as online user
             try {
-                await handleJsonMessage(this.state, onlineUser, data as JsonMessage);
+                if (type === MessageType.JSON) {
+                    await handleJsonMessage(this.state, onlineUser, data as JsonMessage);
+                } else {
+                    await handleBinaryMessage(this.state, onlineUser, data as PacketDisassembler);
+
+                }
             } catch (error: any) {
                 console.error(error);
                 onlineUser.sendJsonMessage(new ErrorMessage(error.toString()));

@@ -92,6 +92,17 @@ export class TetrisBoard {
         return grid;
     }
 
+    equals(other: TetrisBoard): boolean {
+        for (let y = 0; y < 20; y++) {
+            for (let x = 0; x < 10; x++) {
+                if (this.getAt(x, y) !== other.getAt(x, y)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     // print 20x10 grid with the color numbers
     print() {
         let str = "";

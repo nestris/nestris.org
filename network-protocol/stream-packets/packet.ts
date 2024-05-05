@@ -1,11 +1,12 @@
-import { BinaryDecoder, BinaryEncoder } from "network-protocol/binary-codec";
-import { TetrisBoard } from "network-protocol/tetris/tetris-board";
-import { TetrominoType } from "network-protocol/tetris/tetromino-type";
+import { BinaryDecoder, BinaryEncoder } from "../binary-codec";
+import { TetrisBoard } from "../tetris/tetris-board";
+import { TetrominoType } from "../tetris/tetromino-type";
 
 export enum PacketOpcode {
   NON_GAME_BOARD_STATE_CHANGE = 0,
   // NON_GAME_NEXT_PIECE_CHANGE = 1,
   // NON_GAME_COUNTER_CHANGE = 2, // score/level/lines change
+  LAST_PACKET_OPCODE = 1, // sent at the end of the PacketAssembler
 }
 
 // each packet file should add its own (opcode, content length) pair to this map
@@ -65,3 +66,16 @@ export class NonGameBoardStateChangePacket extends Packet<NonGameBoardStateChang
   }
 }
 PACKET_MAP[PacketOpcode.NON_GAME_BOARD_STATE_CHANGE] = new NonGameBoardStateChangePacket();
+
+PACKET_CONTENT_LENGTH[PacketOpcode.LAST_PACKET_OPCODE] = 0;
+export interface LastPacketSchema {}
+export class LastPacket extends Packet<LastPacketSchema> {
+  constructor() { super(PacketOpcode.LAST_PACKET_OPCODE); }
+  protected override _decodePacketContent(content: BinaryDecoder): LastPacketSchema {
+    return {};
+  }
+  protected override _toBinaryEncoderWithoutOpcode(content: LastPacketSchema): BinaryEncoder {
+    return new BinaryEncoder();
+  }
+}
+PACKET_MAP[PacketOpcode.LAST_PACKET_OPCODE] = new LastPacket();

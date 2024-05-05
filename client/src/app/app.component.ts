@@ -4,6 +4,7 @@ import { NotificationService } from './services/notification.service';
 import { PushNotificationService } from './services/push-notification.service';
 import { ModalManagerService } from './services/modal-manager.service';
 import { OcrDigitService } from './services/ocr/ocr-digit.service';
+import { PacketSendingService } from './services/packet-sending.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
@@ -15,6 +16,7 @@ export class AppComponent implements OnInit {
     private notificationService: NotificationService,
     public modalManagerService: ModalManagerService,
     private ocrDigitService: OcrDigitService,
+    private packetSendingService: PacketSendingService,
   ) {
     console.log("AppComponent constructor called");
   }

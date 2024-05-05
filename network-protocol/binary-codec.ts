@@ -12,6 +12,16 @@ export class BinaryEncoder {
 
     constructor() { }
 
+    copy(): BinaryEncoder {
+        const copy = new BinaryEncoder();
+        copy.addBinaryString(this.bits);
+        return copy;
+    }
+
+    get bitcount(): number {
+        return this.bitCount;
+    }
+
     addBoolean(value: boolean): void {
         this.bits += value ? '1' : '0';
         this.bitCount++;
@@ -97,6 +107,10 @@ export class BinaryDecoder {
         this.bitCount = bits.length;
     }
 
+    numBitsLeft(): number {
+        return this.bitCount - this.currentBitIndex;
+    }
+
     static fromUInt8Array(bytes: Uint8Array): BinaryDecoder {
         let bits = '';
 
@@ -108,7 +122,7 @@ export class BinaryDecoder {
     }
 
     // returns a string of 0s and 1s
-    nextBinaryString(bitCount: number): string {
+    nextBinaryString(bitCount: number, shift: boolean = true): string {
         if (bitCount < 1) {
             throw new Error("Bit count must be at least 1");
         }
@@ -118,7 +132,7 @@ export class BinaryDecoder {
         }
 
         const value = this.bits.substring(this.currentBitIndex, this.currentBitIndex + bitCount);
-        this.currentBitIndex += bitCount;
+        if (shift) this.currentBitIndex += bitCount;
         return value;
     }
 
@@ -129,8 +143,8 @@ export class BinaryDecoder {
     }
 
 
-    nextUnsignedInteger(bitCount: number): number {
-        return parseInt(this.nextBinaryString(bitCount), 2);
+    nextUnsignedInteger(bitCount: number, shift: boolean = true): number {
+        return parseInt(this.nextBinaryString(bitCount, shift), 2);
     }
 
     nextBoolean(): boolean {
@@ -144,11 +158,11 @@ export class BinaryDecoder {
     nextTetrisBoard(): TetrisBoard {
         const binaryString = this.nextBinaryString(400);
 
-        // convert to base4 by converting each 2 bits to a base4 digit
+        // convert to base4 by converting each 2 bits to a base4 digit, so that we have 200 base4 digits
         let base4 = '';
         for (let i = 0; i < binaryString.length; i += 2) {
-            const value = this.nextUnsignedInteger(2);
-            base4 += value.toString();
+            const value = parseInt(binaryString.substring(i, i + 2), 2);
+            base4 += value.toString(4);
         }
 
         return BinaryTranscoder.decode(base4);

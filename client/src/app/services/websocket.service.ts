@@ -107,8 +107,7 @@ export class WebsocketService {
       if ((data as JsonMessage).type !== JsonMessageType.PONG) console.log('Received JSON message:', data);
       this.jsonEventSubject$.next(data as JsonMessage);
     } else {
-      console.log('Received BINARY message:', (data as BinaryDecoder).bits);
-      this.binaryEventSubject$.next(data as BinaryDecoder);
+      // TODO: handle binary messages
     }
   }
 

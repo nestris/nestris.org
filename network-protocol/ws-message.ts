@@ -1,5 +1,6 @@
 import { BinaryDecoder } from "./binary-codec";
 import { JsonMessage } from "./json-message";
+import { PacketDisassembler } from "./stream-packets/packet-disassembler";
 
 /*
 A websocket message is sent in one of two formats:
@@ -17,7 +18,7 @@ export enum MessageType {
     BINARY = "BINARY",
 }
 
-export function decodeMessage(message: any): {type: MessageType, data: JsonMessage | BinaryDecoder} {
+export function decodeMessage(message: any): {type: MessageType, data: JsonMessage | PacketDisassembler} {
     if (typeof message === 'string') {
         const jsonMessage = JSON.parse(message);
         return {
@@ -43,6 +44,6 @@ export function decodeMessage(message: any): {type: MessageType, data: JsonMessa
     
     return {
         type: MessageType.BINARY,
-        data: BinaryDecoder.fromUInt8Array(message)
+        data: new PacketDisassembler(new Uint8Array(message))
     };
 }

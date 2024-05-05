@@ -1,13 +1,10 @@
 <app-fullscreen-exit-button />
 
-<app-layout-one class="game" *ngIf="(platform.getPolledGameData() | async) as data"
+<app-layout-one class="game" *ngIf="(platform.getPolledGameData$() | async) as data"
     [board]="data.board" [level]="data.level"
     [nextType]="data.nextPiece"
-    [trt]="data.trt"
     [level]="data.level"
     [lines]="data.lines"
     [score]="data.score"
-    [drought]="data.drought"
-    [das]="data.das"
     [keybinds]="['Rotate (Z & X) / Shift (, & .)', 'Quit (Q) / Restart (R)']"
     />

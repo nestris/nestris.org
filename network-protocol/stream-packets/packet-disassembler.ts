@@ -1,4 +1,4 @@
-import { BinaryDecoder } from "network-protocol/binary-codec";
+import { BinaryDecoder } from "../binary-codec";
 import { OPCODE_BIT_LENGTH, PACKET_MAP, PacketOpcode } from "./packet";
 
 export class PacketDisassembler {
@@ -8,8 +8,8 @@ export class PacketDisassembler {
   constructor(stream: Uint8Array) {
 
     // convert stream to string of 0s and 1s
-    const binaryString = stream.reduce((acc, byte) => acc + byte.toString(2), '');
-    this.decoder = new BinaryDecoder(binaryString);
+    this.decoder = BinaryDecoder.fromUInt8Array(stream);
+    console.log("Bits decoded", this.decoder.numBitsLeft());
 
   }
 
@@ -18,7 +18,7 @@ export class PacketDisassembler {
   }
 
   hasMorePackets(): boolean {
-    return this.decoder.hasMore();
+    return this.decoder.hasMore() && this.decoder.nextUnsignedInteger(OPCODE_BIT_LENGTH, false) !== PacketOpcode.LAST_PACKET_OPCODE;
   }
 
   nextPacket(): {
@@ -28,9 +28,13 @@ export class PacketDisassembler {
 
     // read the opcode
     const opcode = this.decoder.nextUnsignedInteger(OPCODE_BIT_LENGTH) as PacketOpcode;
+    console.log("Opcode", opcode);
 
     // get the packet class from the opcode
     const packet = PACKET_MAP[opcode];
+    console.log("Packet name", typeof packet);
+
+    console.log("Bits left", this.decoder.numBitsLeft());
 
     if (!packet) throw new Error(`Unknown opcode ${opcode}`);
     
