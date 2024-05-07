@@ -14,8 +14,7 @@ This also works for singleplayer - there are no other players or spectators so n
 but the room still tracks the game state and saves it to the database when the game ends.
 */
 
-import { PacketAssembler } from "network-protocol/stream-packets/packet-assembler";
-import { PacketDisassembler } from "network-protocol/stream-packets/packet-disassembler";
+import { PacketDisassembler } from "../../network-protocol/stream-packets/packet-disassembler";
 
 export enum Role {
   PLAYER_1 = "PLAYER_1", // for solo, or player 1 in multiplayer. streams inputs to server
@@ -49,7 +48,15 @@ export class Room {
       throw new Error(`User ${username} is already in this room`);
     }
 
+    console.log(`User ${username} joined room ${this}`);
+
     this.players.push(new RoomUser(this, username, role, socket));
+  }
+
+  // remove a user from the room. returns true if the room is now empty and should be deleted
+  removeUser(user: RoomUser): boolean {
+    this.players = this.players.filter(player => player !== user);
+    return this.players.length === 0;
   }
 
   getUserBySocket(socket: WebSocket): RoomUser | undefined {

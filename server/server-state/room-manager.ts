@@ -1,4 +1,4 @@
-import { PacketDisassembler } from "network-protocol/stream-packets/packet-disassembler";
+import { PacketDisassembler } from "../../network-protocol/stream-packets/packet-disassembler";
 import { Role, Room, RoomUser } from "./room";
 import { ServerState } from "./server-state";
 
@@ -47,6 +47,18 @@ export class RoomManager {
     }
 
     user.room.onBinaryMessage(user, packets);
+  }
+
+  onSocketClose(socket: WebSocket) {
+    const user = this.getUserBySocket(socket);
+    if (!user) return;
+
+    const isEmpty = user.room.removeUser(user); // remove user from room
+    console.log(`User ${user.username} left room ${user.room}`);
+    if (isEmpty) {
+      this.rooms = this.rooms.filter(room => room !== user.room); // remove room if now empty
+      console.log(`Room deleted: ${user.room}`);
+    }
   }
 
 

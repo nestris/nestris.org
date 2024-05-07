@@ -28,6 +28,6 @@ export class PacketAssembler {
     // we can't rely on just checking if there are bits left, because the bits are padded to the nearest byte
     encoder.addBinaryEncoder(new LastPacket().toBinaryEncoder({}));
 
-    return this.encoder.convertToUInt8Array();
+    return encoder.convertToUInt8Array();
   }
 }

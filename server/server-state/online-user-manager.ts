@@ -178,7 +178,7 @@ export class OnlineUserManager {
             // recieved message from socket recognized as online user
             try {
                 if (type === MessageType.JSON) {
-                    await handleJsonMessage(this.state, onlineUser, data as JsonMessage);
+                    await handleJsonMessage(this.state, onlineUser, ws, data as JsonMessage);
                 } else {
                     await this.state.roomManager.onBinaryMessage(ws, data as PacketDisassembler);
 
@@ -195,6 +195,8 @@ export class OnlineUserManager {
     public async onSocketClose(ws: WebSocket, code: number, reason: string) {
 
         console.log(`Socket closed with code ${code} and reason ${reason}`);
+
+        this.state.roomManager.onSocketClose(ws); // close any rooms associated with the socket
 
         const onlineUser = this.getOnlineUserBySocket(ws);
         if (onlineUser) {

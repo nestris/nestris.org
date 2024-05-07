@@ -15,6 +15,7 @@ export enum JsonMessageType {
     PONG = 'pong',
     SEND_PUSH_NOTIFICATION = 'send_push_notification',
     UPDATE_FRIENDS = 'update_friends',
+    START_SOLO_ROOM = 'start_solo_room',
 }
 
 export abstract class JsonMessage {
@@ -86,5 +87,14 @@ export class SendPushNotificationMessage extends JsonMessage {
 export class UpdateFriendsMessage extends JsonMessage {
     constructor() {
         super(JsonMessageType.UPDATE_FRIENDS)
+    }
+}
+
+export class StartSoloRoomMessage extends JsonMessage {
+    constructor(
+        public readonly id: string,
+        public readonly success: boolean = true
+    ) {
+        super(JsonMessageType.START_SOLO_ROOM)
     }
 }
