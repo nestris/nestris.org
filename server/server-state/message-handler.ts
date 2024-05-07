@@ -27,6 +27,11 @@ export async function handlePingMessage(state: ServerState, socket: WebSocket, m
 // returns sucess if user not already in a room, and so creates a room
 export async function handleStartSoloRoomMessage(state: ServerState, user: OnlineUser, socket: WebSocket, message: StartSoloRoomMessage) {
 
+    if (!message.success) { // this means user is trying to leave a room instead
+        state.roomManager.removeSocket(socket);
+        return;
+    }
+
     try {
         // try to create a room for the user
         state.roomManager.createSingleplayerRoom(user.username, socket);

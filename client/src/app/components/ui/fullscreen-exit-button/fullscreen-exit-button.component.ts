@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
@@ -9,12 +9,16 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class FullscreenExitButtonComponent {
 
+  @Input() onExit: () => Promise<void> = async () => {};
+
   constructor(
     private route: ActivatedRoute,
     private router: Router
   ) {}
 
-  exit() {
+  async exit() {
+
+    await this.onExit();
 
     const exitRoute = this.route.snapshot.queryParamMap.get('exit');
 

@@ -49,7 +49,7 @@ export class RoomManager {
     user.room.onBinaryMessage(user, packets);
   }
 
-  onSocketClose(socket: WebSocket) {
+  removeSocket(socket: WebSocket) {
     const user = this.getUserBySocket(socket);
     if (!user) return;
 

@@ -196,7 +196,7 @@ export class OnlineUserManager {
 
         console.log(`Socket closed with code ${code} and reason ${reason}`);
 
-        this.state.roomManager.onSocketClose(ws); // close any rooms associated with the socket
+        this.state.roomManager.removeSocket(ws); // close any rooms associated with the socket
 
         const onlineUser = this.getOnlineUserBySocket(ws);
         if (onlineUser) {

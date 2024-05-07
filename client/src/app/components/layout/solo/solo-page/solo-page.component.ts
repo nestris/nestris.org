@@ -5,6 +5,8 @@ import { TetrominoType } from 'network-protocol/tetris/tetromino-type';
 import { EmulatorService } from 'client/src/app/services/emulator/emulator.service';
 import { PlatformInterfaceService } from 'client/src/app/services/platform-interface.service';
 import { Subscription } from 'rxjs';
+import { WebsocketService } from 'client/src/app/services/websocket.service';
+import { StartSoloRoomMessage } from 'network-protocol/json-message';
 
 @Component({
   selector: 'app-solo-page',
@@ -19,6 +21,7 @@ export class SoloPageComponent implements OnInit, OnDestroy {
   constructor(
     private emulatorService: EmulatorService,
     public platform: PlatformInterfaceService,
+    private websocket: WebsocketService
   ) {
 
   }
@@ -39,6 +42,11 @@ export class SoloPageComponent implements OnInit, OnDestroy {
   @HostListener('window:keyup', ['$event'])
   handleKeyup(event: KeyboardEvent) {
     this.emulatorService.handleKeyup(event);
+  }
+
+  async onExit() {
+    // send a message to the server to leave the room
+    this.websocket.sendJsonMessage(new StartSoloRoomMessage("", false));
   }
 
 }
