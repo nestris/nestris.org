@@ -20,14 +20,3 @@ export async function handleJsonMessage(state: ServerState, author: OnlineUser, 
 export async function handlePingMessage(state: ServerState, author: OnlineUser, message: PingMessage) {
     author.sendJsonMessage(new PongMessage());
 }
-
-export async function handleBinaryMessage(state: ServerState, author: OnlineUser, packets: PacketDisassembler) {
-
-    console.log("Received binary message", packets.printBits());
-    while (packets.hasMorePackets()) {
-        const {opcode, content} = packets.nextPacket();
-        console.log("Opcode", opcode);
-        console.log("Content", content);
-    }
-
-}

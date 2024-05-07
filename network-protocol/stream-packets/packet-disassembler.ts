@@ -4,12 +4,15 @@ import { OPCODE_BIT_LENGTH, PACKET_MAP, PacketOpcode } from "./packet";
 export class PacketDisassembler {
 
   private decoder: BinaryDecoder;
+  public readonly bitcount;
 
-  constructor(stream: Uint8Array) {
+  constructor(public readonly stream: Uint8Array) {
 
     // convert stream to string of 0s and 1s
     this.decoder = BinaryDecoder.fromUInt8Array(stream);
     console.log("Bits decoded", this.decoder.numBitsLeft());
+
+    this.bitcount = this.decoder.numBitsLeft();
 
   }
 
@@ -17,7 +20,9 @@ export class PacketDisassembler {
     console.log(this.decoder.bits);
   }
 
+
   hasMorePackets(): boolean {
+    // the last packet of the stream is a special packet with opcode LAST_PACKET_OPCODE
     return this.decoder.hasMore() && this.decoder.nextUnsignedInteger(OPCODE_BIT_LENGTH, false) !== PacketOpcode.LAST_PACKET_OPCODE;
   }
 

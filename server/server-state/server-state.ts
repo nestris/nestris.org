@@ -1,4 +1,5 @@
 import { OnlineUserManager } from "./online-user-manager";
+import { RoomManager } from "./room-manager";
 
 /*
  An aggregation of all the global server state. Server restart will reset this state,
@@ -7,5 +8,6 @@ import { OnlineUserManager } from "./online-user-manager";
 export class ServerState {
 
     public readonly onlineUserManager = new OnlineUserManager(this);
+    public readonly roomManager = new RoomManager(this);
 
 }

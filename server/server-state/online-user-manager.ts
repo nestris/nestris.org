@@ -2,7 +2,7 @@ import { OnlineUser, SocketCloseCode } from "./online-user";
 import { ConnectionSuccessfulMessage, ErrorHandshakeIncompleteMessage, ErrorMessage, JsonMessage, JsonMessageType, OnConnectMessage, SendPushNotificationMessage } from "../../network-protocol/json-message";
 import { MessageType, decodeMessage } from "../../network-protocol/ws-message";
 import { ServerState } from "./server-state";
-import { handleBinaryMessage, handleJsonMessage } from "./message-handler";
+import { handleJsonMessage } from "./message-handler";
 import { OnlineUserStatus } from "../../network-protocol/models/friends";
 import { contains } from "misc/array-functions";
 import { concat } from "rxjs";
@@ -180,7 +180,7 @@ export class OnlineUserManager {
                 if (type === MessageType.JSON) {
                     await handleJsonMessage(this.state, onlineUser, data as JsonMessage);
                 } else {
-                    await handleBinaryMessage(this.state, onlineUser, data as PacketDisassembler);
+                    await this.state.roomManager.onBinaryMessage(ws, data as PacketDisassembler);
 
                 }
             } catch (error: any) {

@@ -25,6 +25,7 @@ export class PacketAssembler {
     const encoder = this.encoder.copy();
 
     // add last packet to the encoder to signal the end of the stream
+    // we can't rely on just checking if there are bits left, because the bits are padded to the nearest byte
     encoder.addBinaryEncoder(new LastPacket().toBinaryEncoder({}));
 
     return this.encoder.convertToUInt8Array();
