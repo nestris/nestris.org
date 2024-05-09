@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { TetrisBoard } from 'network-protocol/tetris/tetris-board';
 import { TetrominoType } from 'network-protocol/tetris/tetromino-type';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { VideoCaptureService } from './video-capture.service';
 import { ALL_TEXTBOX_TYPES, OcrService, TextboxType } from './ocr.service';
 import { Pixels } from '../../models/ocr/pixels';
@@ -29,6 +29,8 @@ export class GameStateService {
   private score$ = new BehaviorSubject<number>(0);
   private trt$ = new BehaviorSubject<number>(0);
 
+  private onUpdate$ = new Subject<void>();
+
   // whether capture source is being polled for pixels every frame
   private capturing$ = new BehaviorSubject<boolean>(false);
 
@@ -43,44 +45,58 @@ export class GameStateService {
   // if not in game, poll everything
   private onNonGameFrameCapture(pixels: Pixels) {
 
+    let updated = false;
+
     this.ocr.executeOCR(pixels); // polls board, next piece, level, lines, score
       
     // update board, next piece, level, lines, score
     const board = this.ocr.getBoard();
     if (board) {
       this.board$.next(board);
+      updated = true;
       console.log("updated board");
     }
 
     const nextPiece = this.ocr.getNextPiece();
     if (nextPiece) {
       this.nextPiece$.next(nextPiece);
+      updated = true;
       console.log("updated next piece");
     }
 
     const level = this.ocr.getTextboxResult(TextboxType.LEVEL);
     if (level) {
       this.level$.next(level.value);
+      updated = true;
       console.log("updated level");
     }
 
     const lines = this.ocr.getTextboxResult(TextboxType.LINES);
     if (lines) {
       this.lines$.next(lines.value);
+      updated = true;
       console.log("updated lines");
     }
 
     const score = this.ocr.getTextboxResult(TextboxType.SCORE);
     if (score) {
       this.score$.next(score.value);
+      updated = true;
       console.log("updated score");
     }
+
+    // if any of the textboxes were updated, emit an update
+    if (updated) this.onUpdate$.next();
   }
 
   // if in game, use careful combination of OCR and derived game state to only poll what is necessary
   // normally, OCR and derived game state should be the same, but need to handle desync cases
   private onGameFrameCapture(pixels: Pixels) {
 
+  }
+
+  getOnUpdate$(): Observable<void> {
+    return this.onUpdate$.asObservable();
   }
 
   getBoard$(): Observable<TetrisBoard> {

@@ -4,6 +4,7 @@ import { Keybinds } from './keybinds';
 import { EmulatorGameState } from './emulator-game-state';
 import { RandomRNG } from '../../models/piece-sequence-generation/random-rng';
 import { FpsTracker } from 'misc/fps-tracker';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
 /*
 Emulates a NES game as a 60fps state machine with keyboard input
@@ -18,7 +19,7 @@ export class EmulatorService {
   private keyManager = new KeyManager();
 
   private previousState?: EmulatorGameState; // for runahead
-  private currentState?: EmulatorGameState; // if not undefined, then game is currently going on
+  private currentState$ = new BehaviorSubject<EmulatorGameState | undefined>(undefined);
 
   private isPaused = false;
 
@@ -29,6 +30,7 @@ export class EmulatorService {
   private epoch: number = performance.now();
 
 
+
   constructor() {
 
     this.loop();
@@ -36,7 +38,7 @@ export class EmulatorService {
 
   loop() {
 
-      if (this.currentState === undefined) {
+      if (this.currentState$.getValue() === undefined) {
         setTimeout(() => this.loop(), 100);
         return;
       }
@@ -80,7 +82,8 @@ export class EmulatorService {
     this.framesDone = 0;
 
     // generate initial game state
-    this.currentState = new EmulatorGameState(level, new RandomRNG());
+    this.currentState$.next(new EmulatorGameState(level, new RandomRNG()));
+
 }
 
   // run emulator for one tick
@@ -90,47 +93,36 @@ export class EmulatorService {
 
     // tick fps tracker
     this.fpsTracker?.tick();
-    // console.log("FPS:", this.fpsTracker!.getFPS());
     
     const pressedKeys = this.keyManager.generate();
 
+    const oldState = this.currentState$.getValue();
+    const currentState = oldState?.copy();
 
-    // if a key was just pressed or released, initiate rollback by
-    // applying 
-    if (false && pressedKeys.hasChanged() && this.previousState !== undefined) {
+    if (!currentState) return;
 
-      console.log("rollback");
-
-      // // rollback to previous state and execute previous state with current keys
-      // this.previousState.executeFrame(pressedKeys);
-      // this.currentState = this.previousState;
-
-      // // update previous state
-      // this.previousState = this.currentState?.copy();
-
-      // // re-execute current state after rollback
-      // this.currentState.executeFrame(pressedKeys.generateNext());  
-    } else {
-
-      // update previous state
-      this.previousState = this.currentState?.copy();
-
-      // no rollback, just execute current state
-      this.currentState?.executeFrame(pressedKeys);
-    }
+    currentState.executeFrame(pressedKeys);
+    
+    if (currentState.isToppedOut()) this.stopGame();
+    else this.currentState$.next(currentState);
 
   }
 
   stopGame() {
     this.fpsTracker = undefined;
-    this.currentState = undefined;
+    this.currentState$.next(undefined);
     console.log("game stopped");
   }
 
 
   // returns the current game state, if there is one
   getGameState(): EmulatorGameState | undefined {
-    return this.currentState;
+    return this.currentState$.getValue();
+  }
+
+  // returns an observable of the current game state
+  getGameState$(): Observable<EmulatorGameState | undefined> {
+    return this.currentState$.asObservable();
   }
 
   // if matching keybind, update currently pressed keys on keydown
@@ -141,7 +133,7 @@ export class EmulatorService {
       this.keyManager.onPress(keybind);
       event.stopPropagation();
       event.preventDefault();
-    } else if (event.key === "Enter" && this.currentState !== undefined) {
+    } else if (event.key === "Enter" && this.currentState$.getValue() === undefined) { // toggle pause
       this.isPaused = !this.isPaused;
     } else if (event.key === "r") { // restart game
       this.stopGame();

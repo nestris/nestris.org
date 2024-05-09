@@ -1,5 +1,5 @@
 import { BinaryDecoder } from "../binary-codec";
-import { OPCODE_BIT_LENGTH, PACKET_MAP, PacketOpcode } from "./packet";
+import { OPCODE_BIT_LENGTH, PACKET_MAP, PacketContent, PacketOpcode } from "./packet";
 
 export class PacketDisassembler {
 
@@ -26,20 +26,16 @@ export class PacketDisassembler {
     return this.decoder.hasMore() && this.decoder.nextUnsignedInteger(OPCODE_BIT_LENGTH, false) !== PacketOpcode.LAST_PACKET_OPCODE;
   }
 
-  nextPacket(): {
-    opcode: PacketOpcode;
-    content: any; // defined by generic of Packet subclass
-  } {
+  nextPacket(): PacketContent {
 
     // read the opcode
     const opcode = this.decoder.nextUnsignedInteger(OPCODE_BIT_LENGTH) as PacketOpcode;
-    console.log("Opcode", opcode);
+    //console.log("Opcode", opcode);
 
     // get the packet class from the opcode
     const packet = PACKET_MAP[opcode];
-    console.log("Packet name", typeof packet);
 
-    console.log("Bits left", this.decoder.numBitsLeft());
+    //console.log("Bits left", this.decoder.numBitsLeft());
 
     if (!packet) throw new Error(`Unknown opcode ${opcode}`);
     

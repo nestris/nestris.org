@@ -1,12 +1,26 @@
 import { BinaryDecoder, BinaryEncoder } from "../binary-codec";
 import { TetrisBoard } from "../tetris/tetris-board";
-import { TetrominoType } from "../tetris/tetromino-type";
 
 export enum PacketOpcode {
   NON_GAME_BOARD_STATE_CHANGE = 0,
-  // NON_GAME_NEXT_PIECE_CHANGE = 1,
-  // NON_GAME_COUNTER_CHANGE = 2, // score/level/lines change
-  LAST_PACKET_OPCODE = 1, // sent at the end of the PacketAssembler
+  GAME_START = 1,
+  GAME_END = 2,
+  LAST_PACKET_OPCODE = 3, // sent at the end of the PacketAssembler
+}
+
+export const PACKET_NAME: {[key in PacketOpcode]: string} = {
+  [PacketOpcode.NON_GAME_BOARD_STATE_CHANGE]: "NON_GAME_BOARD_STATE_CHANGE",
+  [PacketOpcode.GAME_START]: "GAME_START",
+  [PacketOpcode.GAME_END]: "GAME_END",
+  [PacketOpcode.LAST_PACKET_OPCODE]: "LAST_PACKET_OPCODE",
+};
+
+
+export interface PacketSchema {}
+
+export interface PacketContent {
+  opcode: PacketOpcode;
+  content: PacketSchema;
 }
 
 // each packet file should add its own (opcode, content length) pair to this map
@@ -45,8 +59,9 @@ export abstract class Packet<Schema> {
 
 export const PACKET_MAP: {[key in PacketOpcode]?: Packet<any>} = {};
 
+// ================================ NON_GAME_BOARD_STATE_CHANGE =================================
 PACKET_CONTENT_LENGTH[PacketOpcode.NON_GAME_BOARD_STATE_CHANGE] = 412;
-export interface NonGameBoardStateChangeSchema {
+export interface NonGameBoardStateChangeSchema extends PacketSchema {
   deltaMs: number; // 12 bits delta in ms. Calculated by subtracting previous frame from time delta since game start
   board: TetrisBoard; // 400 bits board state, 2 bits per mino
 }
@@ -67,8 +82,43 @@ export class NonGameBoardStateChangePacket extends Packet<NonGameBoardStateChang
 }
 PACKET_MAP[PacketOpcode.NON_GAME_BOARD_STATE_CHANGE] = new NonGameBoardStateChangePacket();
 
+// ================================ GAME_START =================================
+PACKET_CONTENT_LENGTH[PacketOpcode.GAME_START] = 8;
+export interface GameStartSchema extends PacketSchema {
+  level: number; // 8 bits level
+}
+export class GameStartPacket extends Packet<GameStartSchema> {
+  constructor() { super(PacketOpcode.GAME_START); }
+  protected override _decodePacketContent(content: BinaryDecoder): GameStartSchema {
+    return {
+      level: content.nextUnsignedInteger(8),
+    };
+  }
+  protected override _toBinaryEncoderWithoutOpcode(content: GameStartSchema): BinaryEncoder {
+    const encoder = new BinaryEncoder();
+    encoder.addUnsignedInteger(content.level, 8);
+    return encoder;
+  }
+}
+PACKET_MAP[PacketOpcode.GAME_START] = new GameStartPacket();
+
+// ================================ GAME_END =================================
+PACKET_CONTENT_LENGTH[PacketOpcode.GAME_END] = 0;
+export interface GameEndSchema extends PacketSchema {}
+export class GameEndPacket extends Packet<GameEndSchema> {
+  constructor() { super(PacketOpcode.GAME_END); }
+  protected override _decodePacketContent(content: BinaryDecoder): GameEndSchema {
+    return {};
+  }
+  protected override _toBinaryEncoderWithoutOpcode(content: GameEndSchema): BinaryEncoder {
+    return new BinaryEncoder();
+  }
+}
+PACKET_MAP[PacketOpcode.GAME_END] = new GameEndPacket();
+
+// ================================ LAST_PACKET_OPCODE =================================
 PACKET_CONTENT_LENGTH[PacketOpcode.LAST_PACKET_OPCODE] = 0;
-export interface LastPacketSchema {}
+export interface LastPacketSchema extends PacketSchema {}
 export class LastPacket extends Packet<LastPacketSchema> {
   constructor() { super(PacketOpcode.LAST_PACKET_OPCODE); }
   protected override _decodePacketContent(content: BinaryDecoder): LastPacketSchema {

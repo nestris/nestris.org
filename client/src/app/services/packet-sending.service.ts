@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { WebsocketService } from './websocket.service';
-import { DEFAULT_POLLED_GAME_DATA, PlatformInterfaceService, PolledGameData } from './platform-interface.service';
+import { PlatformInterfaceService, PolledGameData } from './platform-interface.service';
 import { PacketAssembler } from 'network-protocol/stream-packets/packet-assembler';
-import { NonGameBoardStateChangePacket } from 'network-protocol/stream-packets/packet';
+import { GameEndPacket, GameStartPacket, NonGameBoardStateChangePacket } from 'network-protocol/stream-packets/packet';
 
 /*
 Sends tetris packets from PlatformInterfaceService to the server using websockets.
@@ -14,7 +14,8 @@ Sends tetris packets from PlatformInterfaceService to the server using websocket
 export class PacketSendingService {
 
   // store the previous data to compare with the new data
-  private previousData = DEFAULT_POLLED_GAME_DATA;
+  // if undefined, not in game
+  private previousData: PolledGameData | undefined = undefined;
 
   private assembler = new PacketAssembler();
 
@@ -33,6 +34,9 @@ export class PacketSendingService {
     this.platform.getPolledGameData$().subscribe((data) => {
       this.onData(data);
     });
+
+    
+
   }
 
   // called every second to send all accumulated data to the server
@@ -57,12 +61,29 @@ export class PacketSendingService {
 
   // runs after each iteration of poll() in PlatformInterfaceService
   // If there is changed data, send it to the server
-  private onData(data: PolledGameData) {
+  private onData(data: PolledGameData | undefined) {
 
-    // console.log("onData()", data);
+    // if there is no data this frame, no game is going on. check if the previous frame had data, and if so, send a game end packet
+    if (!data) {
+      
+      if (this.previousData) {
+        // if the game has ended, send a game end packet
+        this.assembler.addPacketContent(new GameEndPacket().toBinaryEncoder({}));
+        this.previousData = undefined;
+      }
+      return;
+    }
 
+    // if there is no previous data, the game has started. send a game start packet
+    // don't exit and continue to send the board
+    if (!this.previousData) {
+      // if the game has started, send the board
+      this.assembler.addPacketContent(new GameStartPacket().toBinaryEncoder({level: data.level}));
+    }
+
+    
     // for now, just check if the board is different, and if so, push it to the assembler
-    if (!data.board.equals(this.previousData.board)) {
+    if (!this.previousData || !data.board.equals(this.previousData.board)) {
       this.assembler.addPacketContent(new NonGameBoardStateChangePacket().toBinaryEncoder({
         deltaMs: 0, // TODO
         board: data.board,

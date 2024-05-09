@@ -7,6 +7,7 @@ import { GameStateService } from './ocr/game-state.service';
 import { NonGameBoardStateChangePacket, NonGameBoardStateChangeSchema } from 'network-protocol/stream-packets/packet';
 import { PacketAssembler } from 'network-protocol/stream-packets/packet-assembler';
 import { PacketDisassembler } from 'network-protocol/stream-packets/packet-disassembler';
+import { EmulatorGameState } from './emulator/emulator-game-state';
 
 export enum Platform {
   ONLINE = "ONLINE",
@@ -36,13 +37,6 @@ export class PolledGameData {
   ) {}
 }
 
-export const DEFAULT_POLLED_GAME_DATA = new PolledGameData(
-  new TetrisBoard(), // empty board
-  TetrominoType.ERROR_TYPE, // next piece
-  18, // level
-  0, // lines
-  0, // score
-);
 
 /*
 Routinely polls from either the online platform or the OCR platform, depending on which platform is selected.
@@ -54,9 +48,12 @@ Routinely polls from either the online platform or the OCR platform, depending o
 export class PlatformInterfaceService {
 
   private platform$ = new BehaviorSubject<Platform>(Platform.ONLINE);
-  private polledGameData$ = new BehaviorSubject<PolledGameData>(DEFAULT_POLLED_GAME_DATA);
+  private polledGameData$ = new BehaviorSubject<PolledGameData | undefined>(undefined);
 
   private pollingLoop: any;
+
+  private emulatorSubscription: any;
+  private ocrSubscription: any;
 
   constructor(
     private emulatorService: EmulatorService, // for when platform is set to ONLINE
@@ -65,13 +62,14 @@ export class PlatformInterfaceService {
 
   }
 
-  getPolledGameData(): PolledGameData {
+  getPolledGameData(): PolledGameData | undefined {
     return this.polledGameData$.getValue();
   }
 
-  getPolledGameData$(): Observable<PolledGameData> {
+  getPolledGameData$(): Observable<PolledGameData | undefined> {
     return this.polledGameData$.asObservable();
   }
+
 
   onPlatformChange(): Observable<Platform> {
     return this.platform$.asObservable();
@@ -82,58 +80,46 @@ export class PlatformInterfaceService {
   }
 
   startPolling() {
+    
+    if (this.emulatorSubscription) this.emulatorSubscription.unsubscribe();
+    if (this.ocrSubscription) this.ocrSubscription.unsubscribe();
 
-    // stop any existing polling
-    this.stopPolling();
+    if (this.platform$.getValue() === Platform.ONLINE) {
+      this.emulatorSubscription = this.emulatorService.getGameState$().subscribe((gameState) => {
+        this.pollEmulator(gameState);
+      });
 
-    // start polling
-    this.pollingLoop = setInterval(() => {
-      this.poll();
-    }, 1000 / 60); // poll at 60 fps
+      this.emulatorService.startGame(18);
+    } else {
+      this.ocrSubscription = this.gameStateService.getOnUpdate$().subscribe(() => {
+        this.pollOCR();
+      });
 
-    this.platform$.getValue() === Platform.ONLINE ? this.startEmulator() : this.startOCR();
+      this.gameStateService.startCapture();
+    }
   }
 
   stopPolling() {
-    if (this.pollingLoop !== undefined) {
-      clearInterval(this.pollingLoop);
+    if (this.emulatorSubscription) this.emulatorSubscription.unsubscribe();
+    if (this.ocrSubscription) this.ocrSubscription.unsubscribe();
 
-      this.platform$.getValue() === Platform.ONLINE ? this.stopEmulator() : this.stopOCR();
-
-    }
-  }
-
-  startEmulator() {
-    this.emulatorService.startGame(18);
-  }
-
-  stopEmulator() {
-    this.emulatorService.stopGame();
-  }
-
-  startOCR() {
-    this.gameStateService.startCapture();
-  }
-
-  stopOCR() {
-    this.gameStateService.stopCapture();
-  }
-
-  // one poll iteration
-  poll() {
-
-    // poll from the appropriate platform
     if (this.platform$.getValue() === Platform.ONLINE) {
-      this.pollEmulator();
+      this.emulatorService.stopGame();
     } else {
-      this.pollOCR();
+      this.gameStateService.stopCapture();
     }
   }
+
 
   // poll game data from integrated emulator and emit it
-  pollEmulator(): PolledGameData | undefined {
-    const gameState = this.emulatorService.getGameState();
-    if (!gameState) return;
+  pollEmulator(gameState: EmulatorGameState | undefined): PolledGameData | undefined {
+
+    if (!gameState) {
+      this.polledGameData$.next(undefined);
+      return undefined;
+    }
+
+    console.log("polling emulator");
 
     const status = gameState.getStatus();
 
@@ -151,6 +137,8 @@ export class PlatformInterfaceService {
 
   // poll game data from OCR and emit it
   pollOCR(): PolledGameData | undefined {
+
+    console.log("polling ocr");
 
     const board = this.gameStateService.getBoard();
     const nextPiece = this.gameStateService.getNextPiece();

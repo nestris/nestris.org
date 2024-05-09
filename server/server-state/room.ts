@@ -14,6 +14,7 @@ This also works for singleplayer - there are no other players or spectators so n
 but the room still tracks the game state and saves it to the database when the game ends.
 */
 
+import { PACKET_NAME, PacketContent, PacketOpcode } from "../../network-protocol/stream-packets/packet";
 import { PacketDisassembler } from "../../network-protocol/stream-packets/packet-disassembler";
 
 export enum Role {
@@ -25,6 +26,10 @@ export enum Role {
 export const isPlayer = (role: Role) => role === Role.PLAYER_1 || role === Role.PLAYER_2;
 
 export class RoomUser {
+
+  // only used for players. stores the game state packets that the user has sent for the current game
+  private gamePacketCache: PacketContent[] = [];
+
   constructor(
     public readonly room: Room,
     public readonly username: string,
@@ -36,6 +41,23 @@ export class RoomUser {
   sendBinaryMessage(stream: Uint8Array) {
     this.socket.send(stream);
   }
+
+  // add a packet to the game state cache
+  addGamePacket(packet: PacketContent) {
+    this.gamePacketCache.push(packet);
+  }
+
+  // clear the cache, and return the packets of the finished game
+  popCachedGamePackets(): PacketContent[] {
+    const packets = this.gamePacketCache;
+    this.gamePacketCache = [];
+    return packets;
+  }
+
+  isInGame(): boolean {
+    return this.gamePacketCache.length > 0;
+  }
+
 }
 
 export class Room {
@@ -67,24 +89,48 @@ export class Room {
     return this.players.find(player => player.username === username);
   }
 
-  onBinaryMessage(user: RoomUser, packets: PacketDisassembler) {
+  async onBinaryMessage(user: RoomUser, packets: PacketDisassembler) {
 
     if (isPlayer(user.role)) {
-      this.onPlayerBroadcastPackets(user, packets);
+      await this.onPlayerBroadcastPackets(user, packets);
     }
   }
 
-  onPlayerBroadcastPackets(user: RoomUser, packets: PacketDisassembler) {
+  // called when packets are recieved from a player client.
+  // Broadcast the packets to all other players, and cache game state packets if in game
+  async onPlayerBroadcastPackets(user: RoomUser, packets: PacketDisassembler) {
+    //console.log("Received binary message", packets.bitcount);
 
     // resend the binary message to all players in the room, except the user
     this.sendBinaryMessageToAllPlayersExcept(user, packets.stream);
-
-    console.log("Received binary message", packets.bitcount);
+    
+    // go through each packet in the stream and cache packets that are within a game
     while (packets.hasMorePackets()) {
-      const {opcode, content} = packets.nextPacket();
-      // TODO: handle packets
-    }
+      const packetContent = packets.nextPacket();
 
+      if (packetContent.opcode !== PacketOpcode.NON_GAME_BOARD_STATE_CHANGE) {
+        console.log("Received packet", PACKET_NAME[packetContent.opcode]);
+      }
+
+      // if the user is in a game, or if the current packet just started game, cache the game state packets
+      if (user.isInGame() || packetContent.opcode === PacketOpcode.GAME_START) {
+        user.addGamePacket(packetContent);
+      }
+
+      // if this packet ends the game, save the game state to the database and clear the cache
+      // we don't need to add the game end packet to the packet list
+      if (packetContent.opcode === PacketOpcode.GAME_END) {
+        const gamePackets = user.popCachedGamePackets();
+        console.log("Ended game with", gamePackets.length, "packets");
+        
+        await this.saveGameToDatabase(user, gamePackets);
+      }
+    }
+  }
+
+  // given all the packets of a game for a user, save the game state to the database
+  async saveGameToDatabase(user: RoomUser, gamePackets: PacketContent[]) {
+    // TODO: save game state to database
   }
 
   // send a binary message to all players in the room, except the specified user

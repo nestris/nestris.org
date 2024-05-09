@@ -46,7 +46,7 @@ export class RoomManager {
       return;
     }
 
-    user.room.onBinaryMessage(user, packets);
+    await user.room.onBinaryMessage(user, packets);
   }
 
   removeSocket(socket: WebSocket) {
