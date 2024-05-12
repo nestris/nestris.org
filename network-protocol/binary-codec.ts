@@ -123,8 +123,8 @@ export class BinaryDecoder {
 
     // returns a string of 0s and 1s
     nextBinaryString(bitCount: number, shift: boolean = true): string {
-        if (bitCount < 1) {
-            throw new Error("Bit count must be at least 1");
+        if (bitCount < 0) {
+            throw new Error("Bit count must be at least 0");
         }
 
         if (this.currentBitIndex + bitCount > this.bitCount) {

@@ -63,6 +63,7 @@ export class EmulatorGameState {
         toppedOut: boolean = false,
         currentDAS: number = 0,
         placementFrameCount: number = 0,
+        gravityCounter: number = 1,
     ) {
         this.isolatedBoard = isolatedBoard;
         this.status = status;
@@ -72,6 +73,7 @@ export class EmulatorGameState {
         this.toppedOut = toppedOut;
         this.currentDAS = currentDAS;
         this.placementFrameCount = placementFrameCount;
+        this.gravityCounter = gravityCounter;
     }
 
     // generate a deep copy of full game state
@@ -86,6 +88,7 @@ export class EmulatorGameState {
             this.toppedOut,
             this.currentDAS,
             this.placementFrameCount,
+            this.gravityCounter
         );
         return copy;
     }
