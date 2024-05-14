@@ -1,6 +1,6 @@
 <app-fullscreen-exit-button [onExit]="onExit.bind(this)" />
 
-<app-layout-one class="game" *ngIf="(platform.getPolledGameData$() | async) as data"
+<app-layout-one class="game" *ngIf="(platform.getGameData$() | async) as data"
     [board]="data.board" [level]="data.level"
     [nextType]="data.nextPiece"
     [level]="data.level"

@@ -5,6 +5,10 @@ import { EmulatorGameState } from './emulator-game-state';
 import { RandomRNG } from '../../models/piece-sequence-generation/random-rng';
 import { FpsTracker } from 'misc/fps-tracker';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BinaryEncoder } from 'network-protocol/binary-codec';
+import { PlatformInterfaceService, PolledGameData } from '../platform-interface.service';
+import { set } from 'mongoose';
+import { GameEndPacket, GameStartPacket } from 'network-protocol/stream-packets/packet';
 
 /*
 Emulates a NES game as a 60fps state machine with keyboard input
@@ -18,8 +22,7 @@ export class EmulatorService {
   private keybinds = new Keybinds(); // probably should inject this instead
   private keyManager = new KeyManager();
 
-  private previousState?: EmulatorGameState; // for runahead
-  private currentState$ = new BehaviorSubject<EmulatorGameState | undefined>(undefined);
+  private currentState: EmulatorGameState | undefined = undefined;
 
   private isPaused = false;
 
@@ -29,36 +32,44 @@ export class EmulatorService {
   private framesDone: number = 0;
   private epoch: number = performance.now();
 
+  private loop: any;
 
 
-  constructor() {
+  constructor(private platform: PlatformInterfaceService) {
 
-    this.loop();
+    platform.getPollingEmulator$().subscribe((polling) => {
+
+      if (polling) { // start emulator loop
+        if (!this.loop) {
+          this.startGame(18);
+          this.loop = setInterval(() => this.tick(), 0);
+        }
+      } else { // stop emulator loop
+        if (this.loop) {
+          clearInterval(this.loop);
+          this.loop = undefined;
+          this.stopGame();
+        }
+      }
+
+    });
   }
 
-  loop() {
+  tick() {
 
-      if (this.currentState$.getValue() === undefined) {
-        setTimeout(() => this.loop(), 100);
-        return;
-      }
+    if (this.currentState === undefined) return;
+    
+    // calculate how many frames to advance based on time elapsed to maintain 60fps
+    const diff = performance.now() - this.epoch;
+    const frames = diff / 1000 * this.fps | 0;
+    const frameAmount = frames - this.framesDone;
 
-      
+    for (let i = 0; i < frameAmount; i++) {
+      if (!this.isPaused) this.advanceEmulatorState();
+    }
 
-      // requestAnimationFrame(loop);
-  
-      // calculate how many frames to advance based on time elapsed to maintain 60fps
-      const diff = performance.now() - this.epoch;
-      const frames = diff / 1000 * this.fps | 0;
-      const frameAmount = frames - this.framesDone;
-  
-      for (let i = 0; i < frameAmount; i++) {
-        if (!this.isPaused) this.advanceEmulatorState();
-      }
+    this.framesDone = frames;
 
-      this.framesDone = frames;
-
-      setTimeout(() => this.loop(), 0);
   }
 
   // starting game will create a game object and execute game frames at 60fps
@@ -82,7 +93,10 @@ export class EmulatorService {
     this.framesDone = 0;
 
     // generate initial game state
-    this.currentState$.next(new EmulatorGameState(level, new RandomRNG()));
+    this.currentState = new EmulatorGameState(level, new RandomRNG());
+
+    // send game start packet
+    this.platform.sendPacket(new GameStartPacket().toBinaryEncoder({level}));
 
 }
 
@@ -96,34 +110,43 @@ export class EmulatorService {
     
     const pressedKeys = this.keyManager.generate();
 
-    const oldState = this.currentState$.getValue();
-    const currentState = oldState?.copy();
+    if (!this.currentState) return;
 
-    if (!currentState) return;
+    // execute frame
+    this.currentState.executeFrame(pressedKeys);
 
-    currentState.executeFrame(pressedKeys);
-    
-    if (currentState.isToppedOut()) this.stopGame();
-    else this.currentState$.next(currentState);
+    // update game data
+    const data: PolledGameData = {
+      board: this.currentState.getDisplayBoard(),
+      level: this.currentState.getStatus().level,
+      score: this.currentState.getStatus().score,
+      lines: this.currentState.getStatus().lines,
+      nextPiece: this.currentState.getNextPieceType(),
+    };
+    this.platform.updateGameData(data);
+
+    // send packet
+    // TODO
+
+    // if topped out, stop game
+    if (this.currentState.isToppedOut()) this.stopGame();
 
   }
 
   stopGame() {
+
+    // if game is already stopped, do nothing
+    if (this.currentState === undefined) return;
+
     this.fpsTracker = undefined;
-    this.currentState$.next(undefined);
+    this.currentState = undefined;
     console.log("game stopped");
+
+    // send game end packet
+    this.platform.sendPacket(new GameEndPacket().toBinaryEncoder({}));
   }
 
 
-  // returns the current game state, if there is one
-  getGameState(): EmulatorGameState | undefined {
-    return this.currentState$.getValue();
-  }
-
-  // returns an observable of the current game state
-  getGameState$(): Observable<EmulatorGameState | undefined> {
-    return this.currentState$.asObservable();
-  }
 
   // if matching keybind, update currently pressed keys on keydown
   handleKeydown(event: KeyboardEvent) {
@@ -133,7 +156,7 @@ export class EmulatorService {
       this.keyManager.onPress(keybind);
       event.stopPropagation();
       event.preventDefault();
-    } else if (event.key === "Enter" && this.currentState$.getValue() === undefined) { // toggle pause
+    } else if (event.key === "Enter" && this.currentState) { // toggle pause
       this.isPaused = !this.isPaused;
     } else if (event.key === "r") { // restart game
       this.stopGame();

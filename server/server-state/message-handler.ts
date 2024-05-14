@@ -28,7 +28,7 @@ export async function handlePingMessage(state: ServerState, socket: WebSocket, m
 export async function handleStartSoloRoomMessage(state: ServerState, user: OnlineUser, socket: WebSocket, message: StartSoloRoomMessage) {
 
     if (!message.success) { // this means user is trying to leave a room instead
-        state.roomManager.removeSocket(socket);
+        await state.roomManager.removeSocket(socket);
         return;
     }
 

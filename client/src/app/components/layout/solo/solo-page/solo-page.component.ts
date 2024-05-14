@@ -45,6 +45,11 @@ export class SoloPageComponent implements OnInit, OnDestroy {
   }
 
   async onExit() {
+
+
+    // first, send any remaining game data to the server
+    this.platform.sendBatchedPackets();
+
     // send a message to the server to leave the room
     this.websocket.sendJsonMessage(new StartSoloRoomMessage("", false));
   }

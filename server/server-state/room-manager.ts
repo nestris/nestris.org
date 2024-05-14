@@ -42,18 +42,19 @@ export class RoomManager {
     const user = this.getUserBySocket(socket);
     
     if (!user) {
-      console.log("User not found for socket", socket);
+      const username = this.state.onlineUserManager.getOnlineUserBySocket(socket)?.username;
+      console.log("Packet(s) discarded: recieved from socket not in room with username", username);
       return;
     }
 
     await user.room.onBinaryMessage(user, packets);
   }
 
-  removeSocket(socket: WebSocket) {
+  async removeSocket(socket: WebSocket) {
     const user = this.getUserBySocket(socket);
     if (!user) return;
 
-    const isEmpty = user.room.removeUser(user); // remove user from room
+    const isEmpty = await user.room.removeUser(user); // remove user from room
     console.log(`User ${user.username} left room ${user.room}`);
     if (isEmpty) {
       this.rooms = this.rooms.filter(room => room !== user.room); // remove room if now empty

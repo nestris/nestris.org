@@ -6,6 +6,9 @@ import { VideoCaptureService } from './video-capture.service';
 import { ALL_TEXTBOX_TYPES, OcrService, TextboxType } from './ocr.service';
 import { Pixels } from '../../models/ocr/pixels';
 import { FpsTracker } from 'misc/fps-tracker';
+import { BinaryEncoder } from 'network-protocol/binary-codec';
+import { PlatformInterfaceService, PolledGameData } from '../platform-interface.service';
+import { NonGameBoardStateChangePacket } from 'network-protocol/stream-packets/packet';
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +32,6 @@ export class GameStateService {
   private score$ = new BehaviorSubject<number>(0);
   private trt$ = new BehaviorSubject<number>(0);
 
-  private onUpdate$ = new Subject<void>();
 
   // whether capture source is being polled for pixels every frame
   private capturing$ = new BehaviorSubject<boolean>(false);
@@ -40,53 +42,77 @@ export class GameStateService {
   constructor(
     private videoCapture: VideoCaptureService,
     private ocr: OcrService,
+    private platform: PlatformInterfaceService
   ) {}
 
   // if not in game, poll everything
   private onNonGameFrameCapture(pixels: Pixels) {
 
-    let updated = false;
+    let updatedBoard = false;
+    let updatedNextPiece = false;
+    let updatedStatus = false;
 
-    this.ocr.executeOCR(pixels); // polls board, next piece, level, lines, score
+    // polls board, next piece, level, lines, score
+    // this is an expensive operation
+    this.ocr.executeOCR(pixels); 
       
     // update board, next piece, level, lines, score
     const board = this.ocr.getBoard();
-    if (board) {
+    if (board && !this.board$.getValue().equals(board)) {
       this.board$.next(board);
-      updated = true;
-      console.log("updated board");
+      updatedBoard = true;
     }
 
     const nextPiece = this.ocr.getNextPiece();
-    if (nextPiece) {
+    if (nextPiece && this.nextPiece$.getValue() !== nextPiece) {
       this.nextPiece$.next(nextPiece);
-      updated = true;
-      console.log("updated next piece");
+      updatedNextPiece = true;
     }
 
     const level = this.ocr.getTextboxResult(TextboxType.LEVEL);
-    if (level) {
+    if (level && this.level$.getValue() !== level.value) {
       this.level$.next(level.value);
-      updated = true;
-      console.log("updated level");
+      updatedStatus = true;
     }
 
     const lines = this.ocr.getTextboxResult(TextboxType.LINES);
-    if (lines) {
+    if (lines && this.lines$.getValue() !== lines.value) {
       this.lines$.next(lines.value);
-      updated = true;
-      console.log("updated lines");
+      updatedStatus = true;
     }
 
     const score = this.ocr.getTextboxResult(TextboxType.SCORE);
-    if (score) {
+    if (score && this.score$.getValue() !== score.value) {
       this.score$.next(score.value);
-      updated = true;
-      console.log("updated score");
+      updatedStatus = true;
     }
 
-    // if any of the textboxes were updated, emit an update
-    if (updated) this.onUpdate$.next();
+    // if any of the textboxes were updated, send updated game data to platform service
+    if (updatedBoard || updatedNextPiece || updatedStatus) {
+      const data: PolledGameData = {
+        board: this.board$.getValue(),
+        nextPiece: this.nextPiece$.getValue(),
+        level: this.level$.getValue(),
+        lines: this.lines$.getValue(),
+        score: this.score$.getValue()
+      };
+      this.platform.updateGameData(data);
+    }
+
+    // if updated board, send NonGameFrameCapturePacket
+    if (updatedBoard) {
+      this.platform.sendPacket(new NonGameBoardStateChangePacket().toBinaryEncoder({
+        board: this.board$.getValue(),
+        deltaMs: 0
+      }))
+    }
+
+    // if updated status, send NonGameStatusChangePacket
+    // TODO
+
+    // if updated next piece, send NonGameNextPieceChangePacket
+    // TODO
+
   }
 
   // if in game, use careful combination of OCR and derived game state to only poll what is necessary
@@ -95,9 +121,6 @@ export class GameStateService {
 
   }
 
-  getOnUpdate$(): Observable<void> {
-    return this.onUpdate$.asObservable();
-  }
 
   getBoard$(): Observable<TetrisBoard> {
     return this.board$.asObservable();

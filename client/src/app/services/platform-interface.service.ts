@@ -8,6 +8,8 @@ import { NonGameBoardStateChangePacket, NonGameBoardStateChangeSchema } from 'ne
 import { PacketAssembler } from 'network-protocol/stream-packets/packet-assembler';
 import { PacketDisassembler } from 'network-protocol/stream-packets/packet-disassembler';
 import { EmulatorGameState } from './emulator/emulator-game-state';
+import { BinaryEncoder } from 'network-protocol/binary-codec';
+import { WebsocketService } from './websocket.service';
 
 export enum Platform {
   ONLINE = "ONLINE",
@@ -37,6 +39,14 @@ export class PolledGameData {
   ) {}
 }
 
+const DEFAULT_POLLED_GAME_DATA = new PolledGameData(
+  new TetrisBoard(),
+  TetrominoType.ERROR_TYPE,
+  18,
+  0,
+  0
+);
+
 
 /*
 Routinely polls from either the online platform or the OCR platform, depending on which platform is selected.
@@ -48,25 +58,34 @@ Routinely polls from either the online platform or the OCR platform, depending o
 export class PlatformInterfaceService {
 
   private platform$ = new BehaviorSubject<Platform>(Platform.ONLINE);
-  private polledGameData$ = new BehaviorSubject<PolledGameData | undefined>(undefined);
+  private polledGameData$ = new BehaviorSubject<PolledGameData>(DEFAULT_POLLED_GAME_DATA);
 
-  private pollingLoop: any;
+  private pollingEmulator$ = new BehaviorSubject<boolean>(false);
+  private pollingOCR$ = new BehaviorSubject<boolean>(false);
 
-  private emulatorSubscription: any;
-  private ocrSubscription: any;
+  private assembler = new PacketAssembler();
 
   constructor(
-    private emulatorService: EmulatorService, // for when platform is set to ONLINE
-    private gameStateService: GameStateService, // for when platform is set to OCR
+    private websocket: WebsocketService,
   ) {
+
+    // every second, send all accumulated data to the server
+    // batching packets reduces the number of websocket messages sent
+    setInterval(() => {
+      this.sendBatchedPackets();
+    }, 1000);
 
   }
 
-  getPolledGameData(): PolledGameData | undefined {
+  getGameData(): PolledGameData | undefined {
     return this.polledGameData$.getValue();
   }
 
-  getPolledGameData$(): Observable<PolledGameData | undefined> {
+  getGameData$(): Observable<PolledGameData> {
+    return this.polledGameData$.asObservable();
+  }
+
+  getGameEvent$(): Observable<PolledGameData | undefined> {
     return this.polledGameData$.asObservable();
   }
 
@@ -80,83 +99,57 @@ export class PlatformInterfaceService {
   }
 
   startPolling() {
-    
-    if (this.emulatorSubscription) this.emulatorSubscription.unsubscribe();
-    if (this.ocrSubscription) this.ocrSubscription.unsubscribe();
-
     if (this.platform$.getValue() === Platform.ONLINE) {
-      this.emulatorSubscription = this.emulatorService.getGameState$().subscribe((gameState) => {
-        this.pollEmulator(gameState);
-      });
-
-      this.emulatorService.startGame(18);
+      this.pollingEmulator$.next(true);
+      this.pollingOCR$.next(false);
     } else {
-      this.ocrSubscription = this.gameStateService.getOnUpdate$().subscribe(() => {
-        this.pollOCR();
-      });
-
-      this.gameStateService.startCapture();
+      this.pollingOCR$.next(true);
+      this.pollingEmulator$.next(false);
     }
+  }
+
+  getPollingEmulator$(): Observable<boolean> {
+    return this.pollingEmulator$.asObservable();
+  }
+
+  getPollingOCR$(): Observable<boolean> {
+    return this.pollingOCR$.asObservable();
   }
 
   stopPolling() {
-    if (this.emulatorSubscription) this.emulatorSubscription.unsubscribe();
-    if (this.ocrSubscription) this.ocrSubscription.unsubscribe();
-
-    if (this.platform$.getValue() === Platform.ONLINE) {
-      this.emulatorService.stopGame();
-    } else {
-      this.gameStateService.stopCapture();
-    }
+    this.pollingEmulator$.next(false);
+    this.pollingOCR$.next(false);
   }
 
-
-  // poll game data from integrated emulator and emit it
-  pollEmulator(gameState: EmulatorGameState | undefined): PolledGameData | undefined {
-
-    if (!gameState) {
-      this.polledGameData$.next(undefined);
-      return undefined;
-    }
-
-    console.log("polling emulator");
-
-    const status = gameState.getStatus();
-
-    const data = new PolledGameData(
-      gameState.getDisplayBoard(),
-      gameState.getNextPieceType(),
-      status.level,
-      status.lines,
-      status.score,
-    );
-
+  // called by emulator/game-state service to update the game data
+  updateGameData(data: PolledGameData) {
     this.polledGameData$.next(data);
-    return data;
   }
 
-  // poll game data from OCR and emit it
-  pollOCR(): PolledGameData | undefined {
+  // called by emulator/game-state service to send a packet encoded as a BinaryEncoder
+  // is not sent immediately, but is batched and sent by sendBatchedPackets() every second
+  sendPacket(packet: BinaryEncoder) {
+    this.assembler.addPacketContent(packet);
+  }
 
-    console.log("polling ocr");
+  // called every second internally to send all accumulated data to the server
+  sendBatchedPackets() {
 
-    const board = this.gameStateService.getBoard();
-    const nextPiece = this.gameStateService.getNextPiece();
-    const level = this.gameStateService.getLevel();
-    const lines = this.gameStateService.getLines();
-    const score = this.gameStateService.getScore();
-    const trt = this.gameStateService.getTrt();
+    // console.log("sendData()");
 
-    const data = new PolledGameData(
-      board,
-      nextPiece,
-      level,
-      lines,
-      score,
-    );
+    // if there are no packets to send, don't do anything
+    if (!this.assembler.hasPackets()) {
+      // console.log("No packets to send");
+      return;
+    }
 
-    this.polledGameData$.next(data);
-    return data;
+    // encode the packets into Uint8Array, and send it to the server
+    const binaryData = this.assembler.encode();
+    this.websocket.sendBinaryMessage(binaryData);
+
+    // clear the assembler for the next batch of packets
+    this.assembler = new PacketAssembler();
+
   }
 
 }

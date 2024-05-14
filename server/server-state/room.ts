@@ -76,7 +76,15 @@ export class Room {
   }
 
   // remove a user from the room. returns true if the room is now empty and should be deleted
-  removeUser(user: RoomUser): boolean {
+  async removeUser(user: RoomUser): Promise<boolean> {
+
+    // if user was in game and the game ended, save the game state to the database
+    if (user.isInGame()) {
+      const gamePackets = user.popCachedGamePackets();
+      console.log("User left, so ended game forcibly with", gamePackets.length, "packets");
+      await this.saveGameToDatabase(user, gamePackets);
+    }
+
     this.players = this.players.filter(player => player !== user);
     return this.players.length === 0;
   }
