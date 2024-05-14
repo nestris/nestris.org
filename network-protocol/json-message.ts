@@ -14,7 +14,8 @@ export enum JsonMessageType {
     PING = 'ping',
     PONG = 'pong',
     SEND_PUSH_NOTIFICATION = 'send_push_notification',
-    UPDATE_FRIENDS = 'update_friends',
+    UPDATE_FRIENDS_BADGE = 'update_friends', // sent when a user's friends list changes
+    UPDATE_ONLINE_FRIENDS = 'update_online_friends', // sent when user's friend goes online or offline
     START_SOLO_ROOM = 'start_solo_room',
 }
 
@@ -86,7 +87,13 @@ export class SendPushNotificationMessage extends JsonMessage {
 
 export class UpdateFriendsMessage extends JsonMessage {
     constructor() {
-        super(JsonMessageType.UPDATE_FRIENDS)
+        super(JsonMessageType.UPDATE_FRIENDS_BADGE)
+    }
+}
+
+export class UpdateOnlineFriendsMessage extends JsonMessage {
+    constructor() {
+        super(JsonMessageType.UPDATE_ONLINE_FRIENDS)
     }
 }
 

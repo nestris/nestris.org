@@ -38,9 +38,11 @@ export class FriendElementComponent {
   }
 
   // send a message to server to declne friend request
-  async declineFriendRequest() {
+  async endFriendship() {
     await endFriendship(this.websocketService.getUsername()!, this.friendInfo.username);
     this.onFriendUpdate.emit();
   }
+
+
 
 }

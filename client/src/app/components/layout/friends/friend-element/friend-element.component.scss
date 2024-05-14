@@ -34,6 +34,8 @@
 .container-right {
     justify-content: flex-end;
     margin-right: 10px;
+    gap: 5px;
+    align-items: center;
 }
 
 .online-indicator {
@@ -60,11 +62,4 @@
 
 .status-description.pending, .status-description.incoming {
     font-style: italic;
-}
-
-.accept-decline {
-    display: flex;
-    flex-direction: flex-end;
-    align-items: center;
-    gap: 5px;
 }

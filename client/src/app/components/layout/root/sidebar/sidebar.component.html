@@ -7,8 +7,8 @@
         <ng-container *ngIf="(websocketService.onSignInUpdate() | async)">
             <app-profile-tab  class="profile-tab"/>
             <app-sidebar-tab [tab]="TabID.FRIENDS">
-                <p class="online-users">{{0}}</p>
-                <app-online-indicator [status]="(0 === 0) ? OnlineUserStatus.OFFLINE : OnlineUserStatus.IDLE" />
+                <p class="online-users">{{(numOnlineFriends$ | async)}}</p>
+                <app-online-indicator [status]="!(numOnlineFriends$ | async) ? OnlineUserStatus.OFFLINE : OnlineUserStatus.IDLE" />
             </app-sidebar-tab>
             <app-sidebar-tab [tab]="TabID.ALERTS" />
         </ng-container>

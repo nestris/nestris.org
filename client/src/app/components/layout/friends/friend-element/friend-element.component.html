@@ -6,14 +6,18 @@
         <p class="status-description incoming" *ngIf="friendInfo.friendStatus === FriendStatus.INCOMING">sent you a friend request</p>
     </div>
     <div class="container-right">
-        <div class="accept-decline" *ngIf="friendInfo.friendStatus === FriendStatus.INCOMING">
+        <ng-container *ngIf="friendInfo.friendStatus === FriendStatus.INCOMING">
             <app-solid-button class="accept-friend-button"
                 label="Accept" [color]="ButtonColor.GREEN"
                 (click)="acceptFriendRequest()" />
             <app-solid-button class="decline-friend-button"
                 label="Decline" [color]="ButtonColor.RED"
-                (click)="declineFriendRequest()" />
-        </div>
+                (click)="endFriendship()" />
+        </ng-container>
+
+        <ng-container *ngIf="friendInfo.friendStatus === FriendStatus.FRIENDS">
+            <app-solid-button icon="./assets/img/puzzle-button-icons/delete.svg" [color]="ButtonColor.GREY" (click)="endFriendship()" tooltip="Remove friend" />
+        </ng-container>
         
         
     </div>

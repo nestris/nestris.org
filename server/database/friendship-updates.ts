@@ -1,7 +1,7 @@
 import { FriendStatus } from "../../network-protocol/models/friends";
 import { queryDB } from ".";
 import { ServerState } from "../server-state/server-state";
-import { SendPushNotificationMessage, UpdateFriendsMessage } from "../../network-protocol/json-message";
+import { SendPushNotificationMessage, UpdateFriendsMessage as UpdateFriendsBadgeMessage, UpdateOnlineFriendsMessage } from "../../network-protocol/json-message";
 import { NotificationType } from "../../network-protocol/models/notifications";
 
 
@@ -50,7 +50,7 @@ export async function sendFriendRequest(fromUsername: string, toUsername: string
     const user = state.onlineUserManager.getOnlineUserByUsername(toUsername);
     const message = new SendPushNotificationMessage(NotificationType.SUCCESS, `${fromUsername} sent you a friend request!`);
     user?.sendJsonMessage(message);
-    user?.sendJsonMessage(new UpdateFriendsMessage());
+    user?.sendJsonMessage(new UpdateFriendsBadgeMessage());
 
     return FriendStatus.OUTGOING;
 
@@ -66,6 +66,11 @@ export async function sendFriendRequest(fromUsername: string, toUsername: string
     const user = state.onlineUserManager.getOnlineUserByUsername(toUsername);
     const message = new SendPushNotificationMessage(NotificationType.SUCCESS, `${fromUsername} accepted your friend request!`);
     user?.sendJsonMessage(message);
+
+    // update online count for both users, if they are online
+    user?.sendJsonMessage(new UpdateOnlineFriendsMessage());
+    const fromUser = state.onlineUserManager.getOnlineUserByUsername(fromUsername);
+    fromUser?.sendJsonMessage(new UpdateOnlineFriendsMessage());
 
     return FriendStatus.FRIENDS;
 

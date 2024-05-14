@@ -25,7 +25,7 @@ export class BadgeService {
     });
 
     // if FriendUpdate message is received, set the badge to active
-    this.websocketService.onEvent(JsonMessageType.UPDATE_FRIENDS).subscribe(() => {
+    this.websocketService.onEvent(JsonMessageType.UPDATE_FRIENDS_BADGE).subscribe(() => {
       this.setBadgeActive(TabID.FRIENDS);
     });
 

@@ -4,6 +4,7 @@ import { ButtonColor } from '../../../ui/solid-button/solid-button.component';
 import { FriendInfo, FriendStatus, OnlineUserStatus } from 'network-protocol/models/friends';
 import { Method, fetchServer } from 'client/src/app/scripts/fetch-server';
 import { WebsocketService } from 'client/src/app/services/websocket.service';
+import { JsonMessageType } from 'network-protocol/json-message';
 
 @Component({
   selector: 'app-friend-page',
@@ -19,9 +20,15 @@ export class FriendPageComponent implements OnDestroy {
 
   public friendsInfo$ = new BehaviorSubject<FriendInfo[]>([]);
 
+  private updateOnlineFriendsSubscription: any;
+
   constructor(
     private websocketService: WebsocketService,
-  ) {}
+  ) {
+    this.updateOnlineFriendsSubscription = this.websocketService.onEvent(JsonMessageType.UPDATE_ONLINE_FRIENDS).subscribe(() => {
+      this.syncWithServer();
+    });
+  }
 
   async ngOnInit() {
     this.syncWithServer();
@@ -72,6 +79,7 @@ export class FriendPageComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.updateOnlineFriendsSubscription.unsubscribe();
   }
 
 }

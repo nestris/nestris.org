@@ -1,5 +1,5 @@
 import { OnlineUser, SocketCloseCode } from "./online-user";
-import { ConnectionSuccessfulMessage, ErrorHandshakeIncompleteMessage, ErrorMessage, JsonMessage, JsonMessageType, OnConnectMessage, SendPushNotificationMessage } from "../../network-protocol/json-message";
+import { ConnectionSuccessfulMessage, ErrorHandshakeIncompleteMessage, ErrorMessage, JsonMessage, JsonMessageType, OnConnectMessage, SendPushNotificationMessage, UpdateFriendsMessage, UpdateOnlineFriendsMessage } from "../../network-protocol/json-message";
 import { MessageType, decodeMessage } from "../../network-protocol/ws-message";
 import { ServerState } from "./server-state";
 import { handleJsonMessage } from "./message-handler";
@@ -122,6 +122,7 @@ export class OnlineUserManager {
                     NotificationType.SUCCESS,
                     `${username} is now online!`
                 ));
+                friendOnlineUser.sendJsonMessage(new UpdateOnlineFriendsMessage());
             }
         }
 
@@ -146,6 +147,7 @@ export class OnlineUserManager {
                     NotificationType.ERROR,
                     `${username} went offline.`
                 ));
+                friendOnlineUser.sendJsonMessage(new UpdateOnlineFriendsMessage());
             }
         }
 
