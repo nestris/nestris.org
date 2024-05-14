@@ -34,8 +34,8 @@ export async function handleStartSoloRoomMessage(state: ServerState, user: Onlin
 
     try {
         // try to create a room for the user
-        state.roomManager.createSingleplayerRoom(user.username, socket);
-        socket.send(JSON.stringify(new StartSoloRoomMessage(message.id, true))); // send success message
+        const roomID = state.roomManager.createSingleplayerRoom(user.username, socket);
+        socket.send(JSON.stringify(new StartSoloRoomMessage(message.id, true, roomID))); // send success message with room id
     } catch (error) {
         // if user is already in a room, send an error message
         socket.send(JSON.stringify(new StartSoloRoomMessage(message.id, false)));

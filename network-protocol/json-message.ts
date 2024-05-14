@@ -93,7 +93,8 @@ export class UpdateFriendsMessage extends JsonMessage {
 export class StartSoloRoomMessage extends JsonMessage {
     constructor(
         public readonly id: string,
-        public readonly success: boolean = true
+        public readonly success: boolean = true,
+        public readonly roomID?: string
     ) {
         super(JsonMessageType.START_SOLO_ROOM)
     }

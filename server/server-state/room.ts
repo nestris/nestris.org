@@ -16,6 +16,7 @@ but the room still tracks the game state and saves it to the database when the g
 
 import { PACKET_NAME, PacketContent, PacketOpcode } from "../../network-protocol/stream-packets/packet";
 import { PacketDisassembler } from "../../network-protocol/stream-packets/packet-disassembler";
+import { v4 as uuid } from "uuid";
 
 export enum Role {
   PLAYER_1 = "PLAYER_1", // for solo, or player 1 in multiplayer. streams inputs to server
@@ -63,6 +64,11 @@ export class RoomUser {
 export class Room {
 
   private players: RoomUser[] = [];
+  public readonly roomID: string;
+
+  constructor() {
+    this.roomID = uuid();
+  }
 
   addUser(username: string, role: Role, socket: WebSocket) {
 
@@ -78,14 +84,17 @@ export class Room {
   // remove a user from the room. returns true if the room is now empty and should be deleted
   async removeUser(user: RoomUser): Promise<boolean> {
 
-    // if user was in game and the game ended, save the game state to the database
+    // if user had a game in progress, save the game state to the database
     if (user.isInGame()) {
       const gamePackets = user.popCachedGamePackets();
       console.log("User left, so ended game forcibly with", gamePackets.length, "packets");
       await this.saveGameToDatabase(user, gamePackets);
     }
 
+    // remove the user from the room
     this.players = this.players.filter(player => player !== user);
+
+    // return true if the room is now empty
     return this.players.length === 0;
   }
 
@@ -139,6 +148,7 @@ export class Room {
   // given all the packets of a game for a user, save the game state to the database
   async saveGameToDatabase(user: RoomUser, gamePackets: PacketContent[]) {
     // TODO: save game state to database
+    console.log("Saving game state to database for user", user.username, "with", gamePackets.length, "packets");
   }
 
   // send a binary message to all players in the room, except the specified user

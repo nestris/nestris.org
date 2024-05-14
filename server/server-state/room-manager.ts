@@ -24,7 +24,8 @@ export class RoomManager {
     return undefined;
   }
 
-  createSingleplayerRoom(username: string, socket: WebSocket) {
+  // create a room for a single player, return the room id
+  createSingleplayerRoom(username: string, socket: WebSocket): string {
 
     // assert user is not already in a room
     if (this.getUserByUsername(username)) {
@@ -35,6 +36,7 @@ export class RoomManager {
     room.addUser(username, Role.PLAYER_1, socket);
 
     this.rooms.push(room);
+    return room.roomID;
   }
 
   // forward binary message to the correct room

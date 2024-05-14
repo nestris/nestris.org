@@ -54,10 +54,14 @@ export class PlayPageComponent {
 
         subscription.unsubscribe();
 
-        if (message.success) {
+        if (message.success && message.roomID) {
+
           // go to solo play
           this.notifier.notify(NotificationType.SUCCESS, "Room created successfully.");
-          this.router.navigate(['/online/solo'], { queryParams: { exit: encodeURIComponent("/play") } });
+          this.router.navigate(['/online/solo'], { queryParams: {
+            id: message.roomID,
+            exit: encodeURIComponent("/play")
+          } });
         } else {
           // show error message
           this.notifier.notify(NotificationType.ERROR, "You are already on a game on a different device. Please close the game on the other device first.")
