@@ -15,7 +15,13 @@
                 (click)="endFriendship()" />
         </ng-container>
 
+        <ng-container *ngIf="friendInfo.friendStatus === FriendStatus.OUTGOING">
+            <app-solid-button icon="./assets/img/puzzle-button-icons/delete.svg" [color]="ButtonColor.GREY" (click)="endFriendship()" tooltip="Cancel friend request" />
+        </ng-container>
+        
+
         <ng-container *ngIf="friendInfo.friendStatus === FriendStatus.FRIENDS">
+            <app-solid-button icon="./assets/img/button-icons/challenge.svg" [color]="ButtonColor.GREY" (click)="sendChallenge()" tooltip="Challenge to a 1v1 match" />
             <app-solid-button icon="./assets/img/puzzle-button-icons/delete.svg" [color]="ButtonColor.GREY" (click)="endFriendship()" tooltip="Remove friend" />
         </ng-container>
         

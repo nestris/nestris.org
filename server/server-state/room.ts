@@ -14,7 +14,8 @@ This also works for singleplayer - there are no other players or spectators so n
 but the room still tracks the game state and saves it to the database when the game ends.
 */
 
-import { PACKET_NAME, PacketContent, PacketOpcode } from "../../network-protocol/stream-packets/packet";
+import { PacketAssembler } from "../../network-protocol/stream-packets/packet-assembler";
+import { PACKET_NAME, PacketContent, PacketOpcode, isDatabasePacket } from "../../network-protocol/stream-packets/packet";
 import { PacketDisassembler } from "../../network-protocol/stream-packets/packet-disassembler";
 import { v4 as uuid } from "uuid";
 
@@ -29,7 +30,7 @@ export const isPlayer = (role: Role) => role === Role.PLAYER_1 || role === Role.
 export class RoomUser {
 
   // only used for players. stores the game state packets that the user has sent for the current game
-  private gamePacketCache: PacketContent[] = [];
+  private gameBinaryData: PacketAssembler = new PacketAssembler();
 
   constructor(
     public readonly room: Room,
@@ -45,18 +46,18 @@ export class RoomUser {
 
   // add a packet to the game state cache
   addGamePacket(packet: PacketContent) {
-    this.gamePacketCache.push(packet);
+    this.gameBinaryData.addPacketContent(packet.binary);
   }
 
   // clear the cache, and return the packets of the finished game
-  popCachedGamePackets(): PacketContent[] {
-    const packets = this.gamePacketCache;
-    this.gamePacketCache = [];
-    return packets;
+  popCachedGameBinaryData(): Uint8Array {
+    const data =this.gameBinaryData.encode();
+    this.gameBinaryData = new PacketAssembler();
+    return data;
   }
 
   isInGame(): boolean {
-    return this.gamePacketCache.length > 0;
+    return this.gameBinaryData.hasPackets();
   }
 
 }
@@ -86,7 +87,7 @@ export class Room {
 
     // if user had a game in progress, save the game state to the database
     if (user.isInGame()) {
-      const gamePackets = user.popCachedGamePackets();
+      const gamePackets = user.popCachedGameBinaryData();
       console.log("User left, so ended game forcibly with", gamePackets.length, "packets");
       await this.saveGameToDatabase(user, gamePackets);
     }
@@ -126,18 +127,24 @@ export class Room {
       const packetContent = packets.nextPacket();
 
       if (packetContent.opcode !== PacketOpcode.NON_GAME_BOARD_STATE_CHANGE) {
-        console.log("Received packet", PACKET_NAME[packetContent.opcode]);
+        // console.log("Received packet", PACKET_NAME[packetContent.opcode]);
       }
 
       // if the user is in a game, or if the current packet just started game, cache the game state packets
       if (user.isInGame() || packetContent.opcode === PacketOpcode.GAME_START) {
-        user.addGamePacket(packetContent);
+
+        // we only store packets in database that belong there
+        if (isDatabasePacket(packetContent.opcode)) {
+          user.addGamePacket(packetContent);
+          console.log("Caching packet", PACKET_NAME[packetContent.opcode]);
+        }
+
       }
 
       // if this packet ends the game, save the game state to the database and clear the cache
       // we don't need to add the game end packet to the packet list
       if (packetContent.opcode === PacketOpcode.GAME_END) {
-        const gamePackets = user.popCachedGamePackets();
+        const gamePackets = user.popCachedGameBinaryData();
         console.log("Ended game with", gamePackets.length, "packets");
         
         await this.saveGameToDatabase(user, gamePackets);
@@ -146,9 +153,9 @@ export class Room {
   }
 
   // given all the packets of a game for a user, save the game state to the database
-  async saveGameToDatabase(user: RoomUser, gamePackets: PacketContent[]) {
+  async saveGameToDatabase(user: RoomUser, gameBinaryData: Uint8Array) {
     // TODO: save game state to database
-    console.log("Saving game state to database for user", user.username, "with", gamePackets.length, "packets");
+    console.log("Saving game state to database for user", user.username, gameBinaryData);
   }
 
   // send a binary message to all players in the room, except the specified user

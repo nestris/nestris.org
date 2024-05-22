@@ -43,6 +43,10 @@ export class FriendElementComponent {
     this.onFriendUpdate.emit();
   }
 
+  async sendChallenge() {
+    
+  }
+
 
 
 }

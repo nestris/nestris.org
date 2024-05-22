@@ -32,10 +32,12 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
 
+    // on recieved UPDATE_ONLINE_FRIENDS message, sync number of online friends with server
     this.subscriptionA = this.websocketService.onEvent(JsonMessageType.UPDATE_ONLINE_FRIENDS).subscribe(() => {
       this.syncOnlineFriends();
     });
 
+    // on sign in, sync number of online friends with server
     this.subscriptionB = this.websocketService.onSignIn().subscribe(() => {
       this.syncOnlineFriends();
     });

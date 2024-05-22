@@ -1,5 +1,5 @@
-import { BinaryDecoder } from "../binary-codec";
-import { OPCODE_BIT_LENGTH, PACKET_MAP, PacketContent, PacketOpcode } from "./packet";
+import { BinaryDecoder, BinaryEncoder } from "../binary-codec";
+import { OPCODE_BIT_LENGTH, PACKET_CONTENT_LENGTH, PACKET_MAP, PacketContent, PacketOpcode } from "./packet";
 
 export class PacketDisassembler {
 
@@ -28,6 +28,8 @@ export class PacketDisassembler {
 
   nextPacket(): PacketContent {
 
+    const decoderCopy = this.decoder.copy();
+
     // read the opcode
     const opcode = this.decoder.nextUnsignedInteger(OPCODE_BIT_LENGTH) as PacketOpcode;
     //console.log("Opcode", opcode);
@@ -41,7 +43,14 @@ export class PacketDisassembler {
     
     // decode the packet content
     const content = packet.decodePacket(this.decoder);
-    return { opcode, content };
+
+    // recover the binary
+    const packetLength = OPCODE_BIT_LENGTH + PACKET_CONTENT_LENGTH[opcode]!; // the length of opcode+content
+    const binaryBits = decoderCopy.nextBinaryString(packetLength);
+    const binary = new BinaryEncoder();
+    binary.addBinaryString(binaryBits);
+
+    return { opcode, content, binary };
   }
 
 }

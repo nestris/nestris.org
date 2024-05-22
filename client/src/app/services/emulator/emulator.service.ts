@@ -8,7 +8,7 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { BinaryEncoder } from 'network-protocol/binary-codec';
 import { PlatformInterfaceService, PolledGameData } from '../platform-interface.service';
 import { set } from 'mongoose';
-import { GameEndPacket, GameStartPacket } from 'network-protocol/stream-packets/packet';
+import { GameEndPacket, GameFullBoardPacket, GamePlacementPacket, GameStartPacket } from 'network-protocol/stream-packets/packet';
 
 /*
 Emulates a NES game as a 60fps state machine with keyboard input
@@ -96,7 +96,9 @@ export class EmulatorService {
     this.currentState = new EmulatorGameState(level, new RandomRNG());
 
     // send game start packet
-    this.platform.sendPacket(new GameStartPacket().toBinaryEncoder({level}));
+    const current = this.currentState.getCurrentPieceType();
+    const next = this.currentState.getNextPieceType();
+    this.platform.sendPacket(new GameStartPacket().toBinaryEncoder({level, current, next}));
 
 }
 
@@ -112,12 +114,15 @@ export class EmulatorService {
 
     if (!this.currentState) return;
 
+    const oldBoard = this.currentState.getDisplayBoard();
+
     // execute frame
-    this.currentState.executeFrame(pressedKeys);
+    const result = this.currentState.executeFrame(pressedKeys);
+    const newBoard = this.currentState.getDisplayBoard();
 
     // update game data
     const data: PolledGameData = {
-      board: this.currentState.getDisplayBoard(),
+      board: newBoard,
       level: this.currentState.getStatus().level,
       score: this.currentState.getStatus().score,
       lines: this.currentState.getStatus().lines,
@@ -125,9 +130,25 @@ export class EmulatorService {
     };
     this.platform.updateGameData(data);
 
-    // send packet
-    // TODO
+    // send placement packet if piece has been placed
+    if (result.newPieceSpawned) {
+      this.platform.sendPacket(new GamePlacementPacket().toBinaryEncoder({
+        nextNextType: this.currentState.getNextPieceType(),
+        rotation: result.lockedPiece!.getRotation(),
+        x: result.lockedPiece!.getTranslateX(),
+        y: result.lockedPiece!.getTranslateY(),
+        pushdown: 0 // TODO: calculate pushdown
+      }));
+    }
 
+    // send packet with board info if board has changed
+    if (!oldBoard.equals(newBoard)) {
+      this.platform.sendPacket(new GameFullBoardPacket().toBinaryEncoder({
+        delta: 0, // TODO: calculate delta
+        board: newBoard,
+      }));
+    }
+    
     // if topped out, stop game
     if (this.currentState.isToppedOut()) this.stopGame();
 

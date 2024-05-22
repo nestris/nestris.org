@@ -6,6 +6,7 @@
 <app-add-friend-modal
     [visibility$]="friendModalVisibility$" 
     [friendsInfo]="(friendsInfo$ | async) ?? undefined"
+    (onEvent)="syncWithServer()"
     />
 
 <div class="friends-list" *ngIf="friendsInfo$ | async as friendsInfo">

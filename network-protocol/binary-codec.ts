@@ -100,11 +100,16 @@ specifying the type and length of the data to read.
 */
 export class BinaryDecoder {
 
-    private bitCount: number = 0;
-    private currentBitIndex: number = 0;
+    private bitCount: number;
+    private currentBitIndex: number;
 
-    constructor(public readonly bits: string) {
+    constructor(public readonly bits: string, startBitIndex: number = 0) {
         this.bitCount = bits.length;
+        this.currentBitIndex = startBitIndex;
+    }
+
+    copy(): BinaryDecoder {
+        return new BinaryDecoder(this.bits, this.currentBitIndex);
     }
 
     numBitsLeft(): number {

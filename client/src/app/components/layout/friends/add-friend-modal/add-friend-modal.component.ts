@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { Method, fetchServer } from 'client/src/app/scripts/fetch-server';
 import { WebsocketService } from 'client/src/app/services/websocket.service';
 import { FriendInfo, FriendStatus } from 'network-protocol/models/friends';
@@ -19,6 +19,7 @@ export interface PotentialFriend {
 export class AddFriendModalComponent implements OnInit, OnChanges, OnDestroy {
   @Input() visibility$!: BehaviorSubject<boolean>;
   @Input() friendsInfo?: FriendInfo[];
+  @Output() onEvent = new EventEmitter();
   
   public typedUsername: string = "";
   public potentialFriends?: PotentialFriend[];
@@ -109,6 +110,7 @@ export class AddFriendModalComponent implements OnInit, OnChanges, OnDestroy {
       if (result.status === FriendStatus.OUTGOING) potentialFriend.status = FriendStatus.OUTGOING;
       else if (result.status === FriendStatus.FRIENDS) potentialFriend.status = FriendStatus.FRIENDS;
       this.cdr.detectChanges();
+      this.onEvent.emit();
     });
   }
 

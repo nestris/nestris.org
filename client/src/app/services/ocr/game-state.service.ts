@@ -103,7 +103,7 @@ export class GameStateService {
     if (updatedBoard) {
       this.platform.sendPacket(new NonGameBoardStateChangePacket().toBinaryEncoder({
         board: this.board$.getValue(),
-        deltaMs: 0
+        delta: 0
       }))
     }
 

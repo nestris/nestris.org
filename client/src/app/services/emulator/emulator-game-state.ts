@@ -10,6 +10,12 @@ import { Keybind } from "./keybinds";
 import {  getLockDelay } from "./spawn-delay";
 import { IGameStatus } from "../../models/scoring/game-status";
 
+export interface EmulatorFrameInfo {
+    toppedOut: boolean;
+    newPieceSpawned: boolean;
+    lockedPiece?: MoveableTetromino;
+}
+
 export class EmulatorGameState {
     
     // board without active piece
@@ -18,11 +24,13 @@ export class EmulatorGameState {
     // current lines/level/score
     private status: SmartGameStatus;
 
+
     // piece shown in next box
     private nextPieceType!: TetrominoType;
 
     // the pose of the moveable active piece
-    private activePiece?: MoveableTetromino;
+    private activePiece: MoveableTetromino;
+    private pieceLocked: boolean = false;
 
     // number of frames to wait before gravity kicks in for the very first piece
     private initialSpawnDelay = 10;
@@ -48,9 +56,13 @@ export class EmulatorGameState {
         private readonly rng: RNG,
     ) {
         this.status = new SmartGameStatus(startLevel);
-        this.nextPieceType = this.rng.getNextPiece();
-
         this.gravity = getGravity(this.status.level);
+
+        // generate current piece
+        this.activePiece = MoveableTetromino.fromSpawnPose(this.rng.getNextPiece());
+
+        // generate new next piece
+        this.nextPieceType = this.rng.getNextPiece();
     }
 
     // used only for copy() operation. should not be used otherwise
@@ -58,12 +70,13 @@ export class EmulatorGameState {
         isolatedBoard: TetrisBoard,
         status: SmartGameStatus,
         nextPieceType: TetrominoType,
-        activePiece?: MoveableTetromino,
+        activePiece: MoveableTetromino,
         initialSpawnDelay: number = 10,
         toppedOut: boolean = false,
         currentDAS: number = 0,
         placementFrameCount: number = 0,
         gravityCounter: number = 1,
+        pieceLocked: boolean = false,
     ) {
         this.isolatedBoard = isolatedBoard;
         this.status = status;
@@ -74,6 +87,7 @@ export class EmulatorGameState {
         this.currentDAS = currentDAS;
         this.placementFrameCount = placementFrameCount;
         this.gravityCounter = gravityCounter;
+        this.pieceLocked = pieceLocked;
     }
 
     // generate a deep copy of full game state
@@ -88,19 +102,25 @@ export class EmulatorGameState {
             this.toppedOut,
             this.currentDAS,
             this.placementFrameCount,
-            this.gravityCounter
+            this.gravityCounter,
+            this.pieceLocked,
         );
         return copy;
     }
 
 
     getDisplayBoard(): TetrisBoard {
-        if (this.activePiece === undefined) return this.isolatedBoard;
+        if (this.pieceLocked) return this.isolatedBoard;
         
         const displayBoard = this.isolatedBoard.copy();
         this.activePiece.blitToBoard(displayBoard);
         return displayBoard;
     }
+
+    getCurrentPieceType(): TetrominoType {
+        return this.activePiece.tetrominoType;
+    }
+    
 
     getNextPieceType(): TetrominoType {
         return this.nextPieceType;
@@ -133,6 +153,7 @@ export class EmulatorGameState {
 
         // set active piece to spawn location of next piece
         this.activePiece = MoveableTetromino.fromSpawnPose(this.nextPieceType);
+        this.pieceLocked = false;
 
         // generate new next piece
         this.nextPieceType = this.rng.getNextPiece();
@@ -143,13 +164,12 @@ export class EmulatorGameState {
             this.activePiece.blitToBoard(this.isolatedBoard);
             console.log("topped out");
             this.isolatedBoard.print();
-            this.activePiece = undefined;
         }
     }
 
     // whether piece can move left/right. don't actually move piece
     private canMoveDirection(dt: number): boolean {
-        if (this.activePiece === undefined) return false; // do nothing if no active piece
+        if (this.pieceLocked) return false; // do nothing if no active piece
         
         // test move
         this.activePiece.moveBy(0, dt, 0);
@@ -171,7 +191,7 @@ export class EmulatorGameState {
     // attempts to move the active piece by dr, dt
     // return true if successful, false if illegal
     private attemptMove(dr: number, dt: number): boolean {
-        if (this.activePiece === undefined) return false; // do nothing if no active piece
+        if (this.pieceLocked) return false; // do nothing if no piece is locked
         
         this.activePiece.moveBy(dr, dt, 0);
 
@@ -225,7 +245,7 @@ export class EmulatorGameState {
 
     private handlePieceDrop() {
 
-        if (this.activePiece === undefined) return; // do nothing if no active piece
+        if (this.pieceLocked) return; // do nothing if no active piece
 
         // attempt moving piece downwards
         this.activePiece.moveBy(0, 0, 1);
@@ -241,7 +261,7 @@ export class EmulatorGameState {
             // reset placement frame counter, adding a lock delay before next piece spawns at placementFrameCount == 0
             this.placementFrameCount = 0 - getLockDelay(this.activePiece);
 
-            this.activePiece = undefined; // clear active piece
+            this.pieceLocked = true; // clear active piece
 
             // FOR NOW: instant lineclears
             const linesCleared = this.isolatedBoard.processLineClears();
@@ -259,23 +279,31 @@ export class EmulatorGameState {
     }
 
     // given the current state and a set of pressed keys, progress the state
-    executeFrame(pressedKeys: CurrentlyPressedKeys) {
+    executeFrame(pressedKeys: CurrentlyPressedKeys): EmulatorFrameInfo {
 
         // do nothing on topout
-        if (this.toppedOut) return;
+        if (this.toppedOut) return {
+            toppedOut: true,
+            newPieceSpawned: false,
+        }
 
-        // console.log("frame", this.placementFrameCount, pressedKeys.toString(), "DAS:", this.currentDAS);
+        let newPieceSpawned = false;
+        const oldActivePiece = this.activePiece;
 
         // on first frame, spawn piece
-        if (this.placementFrameCount === 0 && this.activePiece === undefined) {
+        if (this.placementFrameCount === 0 && this.pieceLocked) {
             this.spawnNewPiece();
-            if (this.toppedOut) return; // if piece spawn causes topout, exit
+            newPieceSpawned = true;
+            if (this.toppedOut) return {
+                toppedOut: true,
+                newPieceSpawned: true,
+            }; // if piece spawn causes topout, exit
         }
 
         // only update DAS/translation/rotation if piece is active (not during lock)
         if (this.placementFrameCount >= 0) {
-            this.handleTranslate(pressedKeys)
-            this.handleRotate(pressedKeys)
+            this.handleTranslate(pressedKeys);
+            this.handleRotate(pressedKeys);
         }
         
         
@@ -297,6 +325,12 @@ export class EmulatorGameState {
             if (pressedKeys.isPressed(Keybind.PUSHDOWN)) gravity = Math.min(2, gravity);
             this.gravityCounter = (this.gravityCounter + 1) % gravity;
     
+        }
+
+        return {
+            toppedOut: false,
+            newPieceSpawned: newPieceSpawned,
+            lockedPiece: newPieceSpawned ? oldActivePiece : undefined,
         }
         
     }
