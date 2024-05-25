@@ -14,7 +14,11 @@ export class SmartGameStatus implements IGameStatus {
     private gameStatus: GameStatus;
     private transitionLines: number;
 
-    constructor(public readonly startLevel: number, initialLines: number = 0, initialScore: number = 0, initialLevel?: number) {
+    constructor(public readonly startLevel: number,
+        initialLines: number = 0,
+        initialScore: number = 0,
+        initialLevel?: number
+    ) {
         this.gameStatus = new GameStatus(initialLevel ? initialLevel : startLevel, initialLines, initialScore);
 
         // calculate transition lines
@@ -60,6 +64,11 @@ export class SmartGameStatus implements IGameStatus {
 
         // calculate score
         this.gameStatus.score += SCORE_RATIO[numLines] * (this.gameStatus.level + 1);
+    }
+
+    // increment score by the given number of pushdown points
+    public onPushdown(pushdown: number) {
+        this.gameStatus.score += pushdown;
     }
 
 }
