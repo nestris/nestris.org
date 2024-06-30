@@ -4,6 +4,7 @@ import { WebsocketService } from 'client/src/app/services/websocket.service';
 import { FriendInfo, FriendStatus } from 'network-protocol/models/friends';
 import { BehaviorSubject, Subscription, firstValueFrom } from 'rxjs';
 import { sendFriendRequest } from '../friend-util';
+import { FriendsService } from 'client/src/app/services/friends.service';
 
 export interface PotentialFriend {
   username: string;
@@ -18,8 +19,7 @@ export interface PotentialFriend {
 })
 export class AddFriendModalComponent implements OnInit, OnChanges, OnDestroy {
   @Input() visibility$!: BehaviorSubject<boolean>;
-  @Input() friendsInfo?: FriendInfo[];
-  @Output() onEvent = new EventEmitter();
+  @Input() friendsInfo!: FriendInfo[];
   
   public typedUsername: string = "";
   public potentialFriends?: PotentialFriend[];
@@ -30,6 +30,7 @@ export class AddFriendModalComponent implements OnInit, OnChanges, OnDestroy {
 
   constructor(
     private websocketService: WebsocketService,
+    private friendsService: FriendsService,
     private cdr: ChangeDetectorRef
     ) {
 
@@ -110,7 +111,7 @@ export class AddFriendModalComponent implements OnInit, OnChanges, OnDestroy {
       if (result.status === FriendStatus.OUTGOING) potentialFriend.status = FriendStatus.OUTGOING;
       else if (result.status === FriendStatus.FRIENDS) potentialFriend.status = FriendStatus.FRIENDS;
       this.cdr.detectChanges();
-      this.onEvent.emit();
+      this.friendsService.syncWithServer();
     });
   }
 

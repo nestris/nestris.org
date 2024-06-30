@@ -5,6 +5,7 @@ import { Challenge } from 'network-protocol/models/challenge';
 import { WebsocketService } from 'client/src/app/services/websocket.service';
 import { BehaviorSubject } from 'rxjs';
 import { ModalManagerService } from 'client/src/app/services/modal-manager.service';
+import { FriendsService } from 'client/src/app/services/friends.service';
 
 export interface ChallengeModalConfig {
   opponent: string; // username
@@ -25,7 +26,8 @@ export class ChallengeModalComponent {
 
   constructor(
     private websocketService: WebsocketService,
-    private modalService: ModalManagerService
+    private modalService: ModalManagerService,
+    private friendsService: FriendsService
   ) {}
 
   async challenge() {
@@ -47,6 +49,7 @@ export class ChallengeModalComponent {
     }>(Method.POST, '/api/v2/send-challenge', { challenge });
 
     if (success) {
+      this.friendsService.syncWithServer();
       this.modalService.hideModal();
     } else {
       this.error$.next(error ?? "Unknown error occured. Please try again later.");

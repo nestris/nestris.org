@@ -1,5 +1,5 @@
 import { OnlineUser, SocketCloseCode, UserEvent } from "./online-user";
-import { ConnectionSuccessfulMessage, ErrorHandshakeIncompleteMessage, ErrorMessage, JsonMessage, JsonMessageType, OnConnectMessage, SendPushNotificationMessage, UpdateFriendsMessage, UpdateOnlineFriendsMessage } from "../../network-protocol/json-message";
+import { ConnectionSuccessfulMessage, ErrorHandshakeIncompleteMessage, ErrorMessage, JsonMessage, JsonMessageType, OnConnectMessage, SendPushNotificationMessage, UpdateFriendsBadgeMessage, UpdateOnlineFriendsMessage } from "../../network-protocol/json-message";
 import { MessageType, decodeMessage } from "../../network-protocol/ws-message";
 import { ServerState } from "./server-state";
 import { handleJsonMessage } from "./message-handler";

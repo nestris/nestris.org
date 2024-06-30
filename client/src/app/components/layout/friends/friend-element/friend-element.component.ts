@@ -5,6 +5,7 @@ import { WebsocketService } from 'client/src/app/services/websocket.service';
 import { endFriendship, sendFriendRequest } from '../friend-util';
 import { ModalManagerService, ModalType } from 'client/src/app/services/modal-manager.service';
 import { ChallengeModalConfig } from '../../../modals/challenge-modal/challenge-modal.component';
+import { FriendsService } from 'client/src/app/services/friends.service';
 
 @Component({
   selector: 'app-friend-element',
@@ -14,7 +15,6 @@ import { ChallengeModalConfig } from '../../../modals/challenge-modal/challenge-
 })
 export class FriendElementComponent {
   @Input() friendInfo!: FriendInfo;
-  @Output() onFriendUpdate = new EventEmitter<void>();
 
   readonly FriendStatus = FriendStatus;
   readonly ButtonColor = ButtonColor;
@@ -22,6 +22,7 @@ export class FriendElementComponent {
   constructor(
     private websocketService: WebsocketService,
     private modalService: ModalManagerService,
+    private friendsService: FriendsService
   ) {}
 
   // get css class for friend status
@@ -37,13 +38,13 @@ export class FriendElementComponent {
   // send a message to server to accept friend request
   async acceptFriendRequest() {
     await sendFriendRequest(this.websocketService.getUsername()!, this.friendInfo.username);
-    this.onFriendUpdate.emit();
+    this.friendsService.syncWithServer();
   }
 
   // send a message to server to declne friend request
   async endFriendship() {
     await endFriendship(this.websocketService.getUsername()!, this.friendInfo.username);
-    this.onFriendUpdate.emit();
+    this.friendsService.syncWithServer();
   }
 
   async sendChallenge() {

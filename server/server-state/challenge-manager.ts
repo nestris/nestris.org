@@ -1,4 +1,4 @@
-import { SendPushNotificationMessage, UpdateFriendsMessage } from "../../network-protocol/json-message";
+import { SendPushNotificationMessage, UpdateFriendsBadgeMessage, UpdateOnlineFriendsMessage } from "../../network-protocol/json-message";
 import { Challenge } from "../../network-protocol/models/challenge";
 import { OnlineUser, UserEvent } from "./online-user";
 import { ServerState } from "./server-state";
@@ -45,7 +45,8 @@ export class ChallengeManager {
     // send notification to receiver
     const text = `${challenge.sender} challenged you to a ${challenge.rated ? 'rated' : 'friendly'} game!`;
     receiver?.sendJsonMessage(new SendPushNotificationMessage(NotificationType.SUCCESS, text));
-    receiver?.sendJsonMessage(new UpdateFriendsMessage());
+    receiver?.sendJsonMessage(new UpdateFriendsBadgeMessage()); // update friends badge
+    receiver?.sendJsonMessage(new UpdateOnlineFriendsMessage()); // refresh online friends list
 
     // if either player goes offline, remove the challenge
     [sender, receiver].forEach((player) => player!.subscribe(UserEvent.ON_USER_OFFLINE, () => {

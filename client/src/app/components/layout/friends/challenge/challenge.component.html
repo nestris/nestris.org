@@ -1,0 +1,14 @@
+<div class="container">
+  <div class="container-left">
+    <p *ngIf="isSender">You challenged {{challenge.receiver}} to a match</p>
+    <p *ngIf="!isSender">{{challenge.sender}} challenged you to a game!</p>
+</div>
+  <div class="container-right">
+    <app-solid-button *ngIf="!isSender"
+      icon="./assets/img/ui-icons/checkmark.svg" [color]="ButtonColor.GREY"
+      (click)="acceptChallenge()" tooltip="Accept Challenge" />
+    <app-solid-button
+      icon="./assets/img/ui-icons/x.svg" [color]="ButtonColor.GREY"
+      (click)="rejectChallenge()" [tooltip]="isSender ? 'Cancel Challenge' : 'Reject Challenge'" />
+  </div>
+</div>
