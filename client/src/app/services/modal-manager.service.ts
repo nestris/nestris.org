@@ -5,6 +5,7 @@ export enum ModalType {
   CALIBRATE_OCR = "CALIBRATE_OCR",
   CREATE_PUZZLE = "CREATE_PUZZLE",
   AUTH = "AUTH",
+  CHALLENGE_PLAYER = "CHALLENGE_PLAYER"
 }
 
 /*
@@ -22,6 +23,8 @@ export class ModalManagerService {
   private activeModal$ = new BehaviorSubject<ModalType | null>(null);
   private lastShownModal$ = new Subject<ModalType>();
 
+  private modalConfig: any = undefined;
+
   constructor() { }
 
   getModal$(): Observable<ModalType | null> {
@@ -34,10 +37,15 @@ export class ModalManagerService {
     );
   }
 
-  showModal(modalType: ModalType) {
+  getModalConfig(): any {
+    return this.modalConfig;
+  }
+
+  showModal(modalType: ModalType, modalConfig: any = undefined) {
 
     // delay to next cycle to prevent immediate close
     setTimeout(() => {
+      this.modalConfig = modalConfig;
       this.activeModal$.next(modalType);
     }, 0);
   }

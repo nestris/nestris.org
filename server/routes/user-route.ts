@@ -34,7 +34,8 @@ export async function getFriendsInfoRoute(req: Request, res: Response, state: Se
       friendStatus: friend.type,
       onlineStatus: state.onlineUserManager.getOnlineStatus(friend.username),
       xp: friend.xp,
-      trophies: friend.trophies
+      trophies: friend.trophies,
+      challenge: state.challengeManager.getChallenge(username, friend.username)
     }
   });
 

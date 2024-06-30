@@ -5,6 +5,7 @@ import { MessageType, decodeMessage } from 'network-protocol/ws-message';
 import { BehaviorSubject, Observable, Subject, filter, map } from 'rxjs';
 import { NotificationService } from './notification.service';
 import { NotificationType } from 'network-protocol/models/notifications';
+import { Router } from '@angular/router';
 
 /*
 The central event bus for dealing with websocket messages to/from the server.
@@ -31,7 +32,8 @@ export class WebsocketService {
   private hasSignedInBefore = false;
 
   constructor(
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private router: Router
   ) {
 
     /*
@@ -54,7 +56,12 @@ export class WebsocketService {
     });
 
     this.onSignOut().subscribe(() => {
-      if (this.hasSignedInBefore) this.notificationService.notify(NotificationType.ERROR, "You are now signed out");
+      if (this.hasSignedInBefore) {
+        // redirect to home page
+        this.router.navigate(['/']);
+
+        this.notificationService.notify(NotificationType.ERROR, "You are now signed out");
+      }
   });
 
   }

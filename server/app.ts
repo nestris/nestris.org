@@ -26,6 +26,8 @@ import { getRelativePuzzleRankRoute } from './puzzle-dashboard/relative-puzzle-r
 import { setFeedbackRoute } from './puzzle-generation/set-feedback';
 import { getAttemptStatsRoute } from './puzzle-generation/get-attempt-stats';
 import { getOCRDigits, initOCRDigits } from './ocr/digit-reader';
+import { send } from 'process';
+import { sendChallengeRoute } from './routes/challenge-route';
 
 
 require('dotenv').config();
@@ -71,6 +73,9 @@ export default async function createApp(): Promise<{
     // announce message to all online users. useful for maintenance announcements and the like
     app.post('/api/v2/broadcast-announcement', async (req: Request, res: Response) => broadcastAnnouncementRoute(req, res, state));
     
+
+    app.post('/api/v2/send-challenge', async (req: Request, res: Response) => sendChallengeRoute(req, res, state));
+
     app.get('/api/v2/stackrabbit/get-top-moves-hybrid', getTopMovesHybridRoute);
 
     app.post('/api/v2/puzzle', addPlayerPuzzleRoute);

@@ -1,0 +1,30 @@
+@import "../../../../styles.scss";
+
+.modal {
+  width: 500px;
+}
+
+
+h1 {
+  font-family: Montserrat;
+  font-size: 30px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  text-align: center;
+  text-wrap: nowrap;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.error {
+  font-family: Montserrat;
+  color: red;
+  font-size: 12px;
+  text-wrap: nowrap;
+}

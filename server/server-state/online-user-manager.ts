@@ -1,4 +1,4 @@
-import { OnlineUser, SocketCloseCode } from "./online-user";
+import { OnlineUser, SocketCloseCode, UserEvent } from "./online-user";
 import { ConnectionSuccessfulMessage, ErrorHandshakeIncompleteMessage, ErrorMessage, JsonMessage, JsonMessageType, OnConnectMessage, SendPushNotificationMessage, UpdateFriendsMessage, UpdateOnlineFriendsMessage } from "../../network-protocol/json-message";
 import { MessageType, decodeMessage } from "../../network-protocol/ws-message";
 import { ServerState } from "./server-state";
@@ -9,6 +9,8 @@ import { concat } from "rxjs";
 import { createUser, queryFriendUsernamesForUser, queryUserByUsername } from "../database/user-queries";
 import { NotificationType } from "../../network-protocol/models/notifications";
 import { PacketDisassembler } from "network-protocol/stream-packets/packet-disassembler";
+
+// TODO: probably should refactor this completely to use new event-based OnlineUser observables
 
 /*
 Manages the users that are online right now and thus are connected to socket with websocket
@@ -81,6 +83,8 @@ export class OnlineUserManager {
             alreadyOnlineUser.sockets.push(socket);
             console.log(`User ${username} is already online, adding socket.`);
 
+            alreadyOnlineUser.notify(UserEvent.ON_SOCKET_CONNECT);
+
             // finish handshake by sending the user a message that they are connected
             alreadyOnlineUser.sendJsonMessageToSocket(new ConnectionSuccessfulMessage(), socket);
             return;
@@ -151,6 +155,8 @@ export class OnlineUserManager {
             }
         }
 
+        const onlineUser = this.getOnlineUserByUsername(username);
+        onlineUser?.notify(UserEvent.ON_USER_OFFLINE);
 
         // remove the user from the online pool
         this.onlineUsers.delete(username);
@@ -200,9 +206,11 @@ export class OnlineUserManager {
 
         await this.state.roomManager.removeSocket(ws); // close any rooms associated with the socket
 
+
         const onlineUser = this.getOnlineUserBySocket(ws);
         if (onlineUser) {
             const isCompletelyOffline = onlineUser.closeSocket(ws, SocketCloseCode.NORMAL); // whether the user is completely offline, or still has other sockets open
+            onlineUser.notify(UserEvent.ON_SOCKET_CLOSE);
             
             if (isCompletelyOffline) {
                 await this.onUserDisconnect(onlineUser.username);

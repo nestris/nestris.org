@@ -68,6 +68,7 @@ import { SummaryComponent } from './components/layout/puzzles/ranked-puzzles/com
 import { InsightsComponent } from './components/layout/puzzles/ranked-puzzles/components/insights/insights.component';
 import { ButtonsComponent } from './components/layout/puzzles/ranked-puzzles/components/buttons/buttons.component';
 import { TextboxCanvasComponent } from './components/modals/calibrate-ocr-modal-components/textbox-canvas/textbox-canvas.component';
+import { ChallengeModalComponent } from './components/modals/challenge-modal/challenge-modal.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -175,6 +176,7 @@ const customNotifierOptions: NotifierOptions = {
     InsightsComponent,
     ButtonsComponent,
     TextboxCanvasComponent,
+    ChallengeModalComponent,
   ],
   imports: [
     BrowserModule,

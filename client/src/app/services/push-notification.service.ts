@@ -23,7 +23,7 @@ export class PushNotificationService {
     this.websocketService.onEvent(JsonMessageType.SEND_PUSH_NOTIFICATION).subscribe((message) => {
       const pushNotification = (message as SendPushNotificationMessage);
       console.log('Received push notification:', pushNotification.notificationType, pushNotification.message);
-      this.notificationService.notify(pushNotification.notificationType, pushNotification.message, NotificationAutohide.SHORT);
+      this.notificationService.notify(pushNotification.notificationType, pushNotification.message, NotificationAutohide.LONG);
     });
 
   }

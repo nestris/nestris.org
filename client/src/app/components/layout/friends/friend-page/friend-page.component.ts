@@ -74,6 +74,9 @@ export class FriendPageComponent implements OnDestroy {
     }
     friendsInfo.sort((a,b) => friendPriority(a.friendStatus) - friendPriority(b.friendStatus));
 
+    // sort whether challenge. Challenge at the top, non-challenge at the bottom
+    friendsInfo.sort((a,b) => a.challenge ? 0 : 1);
+
     return friendsInfo;
 
   }

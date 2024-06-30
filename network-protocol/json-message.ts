@@ -79,12 +79,13 @@ export class PongMessage extends JsonMessage {
 export class SendPushNotificationMessage extends JsonMessage {
     constructor(
         public readonly notificationType: NotificationType,
-        public readonly message: string
+        public readonly message: string,
     ) {
         super(JsonMessageType.SEND_PUSH_NOTIFICATION)
     }
 }
 
+// message to client that adds the red badge to the friends icon
 export class UpdateFriendsMessage extends JsonMessage {
     constructor() {
         super(JsonMessageType.UPDATE_FRIENDS_BADGE)

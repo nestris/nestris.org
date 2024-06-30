@@ -17,6 +17,14 @@ const SocketCloseExplanation: Map<SocketCloseCode, string> = new Map<SocketClose
     [SocketCloseCode.EMAIL_MISMATCH, "User tried to log in with an incorrect email address."],
 ]);
 
+// events that OnlineUsers emit to subscribers
+export enum UserEvent {
+    ON_SOCKET_CONNECT = "SOCKET_CONNECT", // when a new socket connects
+    ON_SOCKET_CLOSE = "SOCKET_CLOSE", // when a socket closes.
+    ON_ENTER_GAME = "ENTER_GAME", // when a user enters a game
+    ON_LEAVE_GAME = "LEAVE_GAME", // when a user leaves a game
+    ON_USER_OFFLINE = "USER_OFFLINE", // when a user goes offline. OnlineUser is deleted after this event.
+}
 
 /*
 Represents a singular online user connected through socket. Track user status and socket connection.
@@ -28,6 +36,7 @@ export class OnlineUser {
 
     public sockets: WebSocket[] = [];
 
+    private eventSubscribers: Map<UserEvent, Set<Function>> = new Map();
 
     constructor(
         public readonly username: string, // unique identifier for the user
@@ -35,6 +44,11 @@ export class OnlineUser {
         //public readonly friends: string[], // set of usernames of friends
     ) {
         this.sockets.push(socket);
+
+        // subscribe to each event and log it
+        for (const event of Object.values(UserEvent)) {
+            this.subscribe(event, () => console.log(`User ${this.username} emitted event ${event}`));
+        }
     }
 
     // using the live websocket connection, send a JsonMessage to the client
@@ -61,5 +75,19 @@ export class OnlineUser {
     hasSocket(socket: WebSocket): boolean {
         return this.sockets.includes(socket);
     }
+
+    // subscribe to an event
+    subscribe(event: UserEvent, callback: Function) {
+        if (!this.eventSubscribers.has(event)) {
+            this.eventSubscribers.set(event, new Set());
+        }
+        this.eventSubscribers.get(event)?.add(callback);
+    }
+
+    // notify all subscribers of an event
+    notify(event: UserEvent) {
+        this.eventSubscribers.get(event)?.forEach(callback => callback());
+    }
+
 
 }

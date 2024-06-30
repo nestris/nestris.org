@@ -1,10 +1,6 @@
 import { ErrorMessage, JsonMessage, JsonMessageType, PingMessage, PongMessage, StartSoloRoomMessage } from "../../network-protocol/json-message";
 import { ServerState } from "./server-state";
 import { OnlineUser } from "./online-user";
-import { contains } from "../../misc/array-functions";
-import { FriendInfo, FriendStatus } from "../../network-protocol/models/friends";
-import { PacketDisassembler } from "network-protocol/stream-packets/packet-disassembler";
-import { Socket } from "dgram";
 
 /*
 Handles messages from the client sent by OnlineUser

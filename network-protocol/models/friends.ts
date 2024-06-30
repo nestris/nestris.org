@@ -1,3 +1,5 @@
+import { Challenge } from "./challenge";
+
 // the relationship status between one user and another user
 export enum FriendStatus {
 FRIENDS = "friends",
@@ -24,4 +26,5 @@ export interface FriendInfo {
     onlineStatus: OnlineUserStatus;
     xp: number;
     trophies: number;
+    challenge?: Challenge; // if there is a challenge between user and this friend, then it is a Challenge object
 }
