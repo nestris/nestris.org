@@ -9,12 +9,12 @@ import { WebsocketService } from 'client/src/app/services/websocket.service';
 import { StartSoloRoomMessage } from 'network-protocol/json-message';
 
 @Component({
-  selector: 'app-solo-page',
-  templateUrl: './solo-page.component.html',
-  styleUrls: ['./solo-page.component.scss'],
+  selector: 'app-room-page',
+  templateUrl: './room-page.component.html',
+  styleUrls: ['./room-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SoloPageComponent implements OnInit, OnDestroy {
+export class RoomPageComponent implements OnInit, OnDestroy {
 
   readonly TetrominoType = TetrominoType;
 
@@ -26,7 +26,11 @@ export class SoloPageComponent implements OnInit, OnDestroy {
 
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+
+
+    // fetch room
+
     this.platform.startPolling();
   }
 

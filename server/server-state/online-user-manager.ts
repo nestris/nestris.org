@@ -1,11 +1,9 @@
-import { OnlineUser, SocketCloseCode, UserEvent } from "./online-user";
+import { OnlineUser, SocketCloseCode, UserEvent, UserSession } from "./online-user";
 import { ConnectionSuccessfulMessage, ErrorHandshakeIncompleteMessage, ErrorMessage, JsonMessage, JsonMessageType, OnConnectMessage, SendPushNotificationMessage, UpdateFriendsBadgeMessage, UpdateOnlineFriendsMessage } from "../../network-protocol/json-message";
 import { MessageType, decodeMessage } from "../../network-protocol/ws-message";
 import { ServerState } from "./server-state";
 import { handleJsonMessage } from "./message-handler";
 import { OnlineUserStatus } from "../../network-protocol/models/friends";
-import { contains } from "misc/array-functions";
-import { concat } from "rxjs";
 import { createUser, queryFriendUsernamesForUser, queryUserByUsername } from "../database/user-queries";
 import { NotificationType } from "../../network-protocol/models/notifications";
 import { PacketDisassembler } from "network-protocol/stream-packets/packet-disassembler";
@@ -55,6 +53,11 @@ export class OnlineUserManager {
         return Array.from(this.onlineUsers.values()).find(onlineUser => onlineUser.hasSocket(socket));
     }
 
+    public getSessionBySocket(socket: WebSocket): UserSession | undefined {
+        const onlineUser = this.getOnlineUserBySocket(socket);
+        return onlineUser?.getSessionBySocket(socket);
+    }
+
     public isOnline(username: string): boolean {
         return this.onlineUsers.has(username);
     }
@@ -72,15 +75,15 @@ export class OnlineUserManager {
 
     // on user connect, add to online pool, and update friends' online friends
     // if user does not exist, add user to database
-    // if user is already online, refuse connection
-    public async onUserConnect(username: string, socket: WebSocket) {
+    // if user is already online, add the socket to the user's sockets
+    public async onUserConnect(username: string, socket: WebSocket, sessionID: string) {
 
         console.log(`User ${username} attempting to connect.`);
 
         // if user is already online, add the socket to the user's sockets
         const alreadyOnlineUser = this.getOnlineUserByUsername(username);
         if (alreadyOnlineUser) {
-            alreadyOnlineUser.sockets.push(socket);
+            alreadyOnlineUser.addSession(socket, sessionID);
             console.log(`User ${username} is already online, adding socket.`);
 
             alreadyOnlineUser.notify(UserEvent.ON_SOCKET_CONNECT);
@@ -100,14 +103,14 @@ export class OnlineUserManager {
                 await createUser(username);
             } catch (error) {
                 console.error(error);
-                (new OnlineUser(username, socket)).closeSocket(socket, SocketCloseCode.NEW_USER_DUPLICATE_INFO);
+                (new OnlineUser(username, socket, "")).closeSocket(socket, SocketCloseCode.NEW_USER_DUPLICATE_INFO);
                 return;
             }
         }
 
 
         // create a new OnlineUser
-        const onlineUser = new OnlineUser(username, socket);
+        const onlineUser = new OnlineUser(username, socket, sessionID);
 
         // add the user to the online pool
         this.onlineUsers.set(username, onlineUser);
@@ -133,7 +136,20 @@ export class OnlineUserManager {
         // finish handshake by sending the user a message that they are connected
         console.log(`User ${username} connected.`);
         onlineUser.sendJsonMessageToSocket(new ConnectionSuccessfulMessage(), socket);
+    }
 
+    // when user changes status, update friends' online friends
+    public async updateFriendsOnUserStatusChange(username: string) {
+        const friends = await queryFriendUsernamesForUser(username);
+        for (const friend of friends) {
+            
+            if (this.isOnline(friend)) { // if user's friend is online
+
+                // send the friend a message that the user is online
+                const friendOnlineUser = this.getOnlineUserByUsername(friend)!;
+                friendOnlineUser.sendJsonMessage(new UpdateOnlineFriendsMessage());
+            }
+        }
     }
 
     // on user disconnect, remove from online pool, and update friends' online friends
@@ -177,16 +193,21 @@ export class OnlineUserManager {
                 // ON_CONNECT is the only message that can be received from an unrecognized socket
                 // we convert the socket to an OnlineUser and add it to the online pool
                 const userInfo = (data as OnConnectMessage);
-                await this.onUserConnect(userInfo.username, ws);
+                await this.onUserConnect(userInfo.username, ws, userInfo.sessionID);
             }
             else { // if the message is not ON_CONNECT, then client is not allowed to send messages until handshake is complete
                 ws.send(JSON.stringify(new ErrorHandshakeIncompleteMessage()));
             }
         } else {
+
+            const session = onlineUser.getSessionBySocket(ws);
+
+            if (!session) console.error(`Session not found for user ${onlineUser.username} and socket ${ws}`);
+
             // recieved message from socket recognized as online user
             try {
                 if (type === MessageType.JSON) {
-                    await handleJsonMessage(this.state, onlineUser, ws, data as JsonMessage);
+                    await handleJsonMessage(this.state, session!, data as JsonMessage);
                 } else {
                     await this.state.roomManager.onBinaryMessage(ws, data as PacketDisassembler);
 

@@ -58,6 +58,11 @@ export default async function createApp(): Promise<{
         res.status(200).send(state.onlineUserManager.getOnlineUsersJSON());
     });
 
+    app.get('/api/v2/online-user/:username', (req, res) => {
+        const username = req.params['username'];
+        res.status(200).send(state.onlineUserManager.getOnlineUserByUsername(username)?.getJsonInfo() ?? {error : "User not found"});
+    });
+
     app.get('/api/v2/num-online-friends/:username', async (req, res) => {
         const numOnlineFriends = await state.onlineUserManager.numOnlineFriends(req.params['username']);
         res.status(200).send({count: numOnlineFriends});
@@ -72,7 +77,16 @@ export default async function createApp(): Promise<{
 
     // announce message to all online users. useful for maintenance announcements and the like
     app.post('/api/v2/broadcast-announcement', async (req: Request, res: Response) => broadcastAnnouncementRoute(req, res, state));
-    
+
+    app.get('/api/v2/room/:roomID', (req, res) => {
+        const roomID = req.params['roomID'];
+        const room = state.roomManager.getRoomByID(roomID);
+        if (!room) {
+            res.status(404).send({error: "Room not found"});
+            return;
+        }
+        res.status(200).send(room.getRoomInfo());
+    });
 
     app.post('/api/v2/send-challenge', async (req: Request, res: Response) => sendChallengeRoute(req, res, state));
 

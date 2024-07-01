@@ -1,5 +1,7 @@
 import { OnlineUserStatus } from "../../network-protocol/models/friends";
 import { JsonMessage } from "../../network-protocol/json-message";
+import { ServerState } from "./server-state";
+import * as session from "express-session";
 
 // the reason for closing the socket connection for one specific user. will be sent as an error code in close frame
 export enum SocketCloseCode {
@@ -26,6 +28,15 @@ export enum UserEvent {
     ON_USER_OFFLINE = "USER_OFFLINE", // when a user goes offline. OnlineUser is deleted after this event.
 }
 
+export class UserSession {
+    constructor(
+        public readonly user: OnlineUser,
+        public readonly sessionID: string,
+        public readonly socket: WebSocket,
+    ) { }
+
+}
+
 /*
 Represents a singular online user connected through socket. Track user status and socket connection.
 */
@@ -34,16 +45,17 @@ export class OnlineUser {
     public connectTime: number = Date.now();
     public status: OnlineUserStatus = OnlineUserStatus.IDLE; // status should not be offline as long as object exists
 
-    public sockets: WebSocket[] = [];
+    private sessions: UserSession[] = [];
 
     private eventSubscribers: Map<UserEvent, Set<Function>> = new Map();
 
     constructor(
         public readonly username: string, // unique identifier for the user
         socket: WebSocket, // live websocket connection
+        public readonly sessionID: string, // unique identifier for the session
         //public readonly friends: string[], // set of usernames of friends
     ) {
-        this.sockets.push(socket);
+        this.sessions.push(new UserSession(this, sessionID, socket));
 
         // subscribe to each event and log it
         for (const event of Object.values(UserEvent)) {
@@ -51,11 +63,20 @@ export class OnlineUser {
         }
     }
 
+    // add a new session to the user
+    addSession(socket: WebSocket, sessionID: string) {
+        this.sessions.push(new UserSession(this, sessionID, socket));
+    }
+
+    getSessionBySocket(socket: WebSocket): UserSession | undefined {
+        return this.sessions.find(session => session.socket === socket);
+    }
+
     // using the live websocket connection, send a JsonMessage to the client
     sendJsonMessage(message: JsonMessage) {
-        this.sockets.forEach(socket => {
+        this.sessions.forEach(session => {
             console.log(`Sending message to ${this.username}: ${JSON.stringify(message)}`);
-            socket.send(JSON.stringify(message));
+            session.socket.send(JSON.stringify(message));
         });
     }
 
@@ -68,12 +89,30 @@ export class OnlineUser {
     // returns true if there are no more open sockets
     closeSocket(socket: WebSocket, closeCode: SocketCloseCode): boolean {
         socket.close(closeCode, SocketCloseExplanation.get(closeCode));
-        this.sockets = this.sockets.filter(s => s !== socket);
-        return this.sockets.length === 0;
+        this.sessions = this.sessions.filter(session => session.socket !== socket);
+        return this.sessions.length === 0;
+    }
+
+    // when user starts playing game, update status, and friends should be notified about status change
+    onEnterGame(state: ServerState) {
+        this.status = OnlineUserStatus.PLAYING;
+        this.notify(UserEvent.ON_ENTER_GAME);
+        state.onlineUserManager.updateFriendsOnUserStatusChange(this.username);
+    }
+
+    // when user stops playing game, update status, and friends should be notified about status change
+    onLeaveGame(state: ServerState) {
+        this.status = OnlineUserStatus.IDLE;
+        this.notify(UserEvent.ON_LEAVE_GAME);
+        state.onlineUserManager.updateFriendsOnUserStatusChange(this.username);
+    }
+
+    getStatus(): OnlineUserStatus {
+        return this.status;
     }
 
     hasSocket(socket: WebSocket): boolean {
-        return this.sockets.includes(socket);
+        return this.sessions.some(session => session.socket === socket);
     }
 
     // subscribe to an event
@@ -87,6 +126,15 @@ export class OnlineUser {
     // notify all subscribers of an event
     notify(event: UserEvent) {
         this.eventSubscribers.get(event)?.forEach(callback => callback());
+    }
+
+    getJsonInfo(): any {
+        return {
+            username: this.username,
+            status: this.status,
+            connectTime: this.connectTime,
+            sessions: this.sessions.map(session => session.sessionID),
+        }
     }
 
 

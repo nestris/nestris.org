@@ -6,6 +6,7 @@ import { BehaviorSubject, Observable, Subject, filter, map } from 'rxjs';
 import { NotificationService } from './notification.service';
 import { NotificationType } from 'network-protocol/models/notifications';
 import { Router } from '@angular/router';
+import { v4 as uuid } from 'uuid';
 
 /*
 The central event bus for dealing with websocket messages to/from the server.
@@ -23,6 +24,7 @@ export class WebsocketService {
 
   private ws?: WebSocket;
   private username?: string;
+  private sessionID?: string;
 
   private jsonEventSubject$ = new Subject<JsonMessage>();
   private binaryEventSubject$ = new Subject<BinaryDecoder>();
@@ -106,6 +108,10 @@ export class WebsocketService {
     return this.username;
   }
 
+  getSessionID(): string | undefined {
+    return this.sessionID;
+  }
+
   // called when server sends a binary or json message to the client
   private onMessage(message: MessageEvent) {
 
@@ -141,6 +147,7 @@ export class WebsocketService {
     }
 
     this.username = username;
+    this.sessionID = uuid();
 
     const host = location.origin.replace(/^http/, 'ws');
     this.ws = new WebSocket(host);
@@ -148,7 +155,7 @@ export class WebsocketService {
     // when the websocket connects, send the OnConnectMessage to initiate the handshake
     this.ws.onopen = () => {
       console.log('Connected to the WebSocket server');
-      this.sendJsonMessage(new OnConnectMessage(username));
+      this.sendJsonMessage(new OnConnectMessage(username, this.sessionID!));
     };
     
     // pipe messages to onEvent observables
@@ -174,6 +181,9 @@ export class WebsocketService {
   // and thus sign out the user
   disconnect() {
     this.ws?.close();
+    this.ws = undefined;
+    this.username = undefined;
+    this.sessionID = undefined;
   }
 
 }

@@ -16,7 +16,8 @@ export class OnlineIndicatorComponent {
   getStatusClass(): string {
     if (this.status === OnlineUserStatus.OFFLINE) return 'offline';
     else if (this.status === OnlineUserStatus.IDLE) return 'idle';
-    else return 'busy';
+    else if (this.status === OnlineUserStatus.PLAYING) return 'playing';
+    return '';
   }
 
 }

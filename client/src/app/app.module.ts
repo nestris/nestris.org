@@ -25,8 +25,7 @@ import { NesPanelComponent } from './components/nes-layout/nes-panel/nes-panel.c
 import { NesBoardComponent } from './components/nes-layout/nes-board/nes-board.component';
 import { NesBlockComponent } from './components/nes-layout/nes-block/nes-block.component';
 import { PuzzlesPageComponent } from './components/layout/puzzles/puzzles-page/puzzles-page.component';
-import { SoloPageComponent } from './components/layout/solo/solo-page/solo-page.component';
-import { MultiplayerPageComponent } from './components/layout/multiplayer/multiplayer-page/multiplayer-page.component';
+import { RoomPageComponent } from './components/layout/room/room-page/room-page.component';
 import { OutlineButtonComponent } from './components/ui/outline-button/outline-button.component';
 import { LayoutOneComponent } from './components/nes-layout/layouts/layout-one/layout-one.component';
 import { NesPieceComponent } from './components/nes-layout/nes-piece/nes-piece.component';
@@ -136,8 +135,7 @@ const customNotifierOptions: NotifierOptions = {
     NesBoardComponent,
     NesBlockComponent,
     PuzzlesPageComponent,
-    SoloPageComponent,
-    MultiplayerPageComponent,
+    RoomPageComponent,
     OutlineButtonComponent,
     LayoutOneComponent,
     NesPieceComponent,

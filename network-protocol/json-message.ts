@@ -40,6 +40,7 @@ export class ErrorMessage extends JsonMessage {
 export class OnConnectMessage extends JsonMessage {
     constructor(
         public readonly username: string,
+        public readonly sessionID: string,
     ) {
         super(JsonMessageType.ON_CONNECT)
     }

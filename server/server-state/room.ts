@@ -18,14 +18,9 @@ import { PacketAssembler } from "../../network-protocol/stream-packets/packet-as
 import { PACKET_NAME, PacketContent, PacketOpcode, isDatabasePacket } from "../../network-protocol/stream-packets/packet";
 import { PacketDisassembler } from "../../network-protocol/stream-packets/packet-disassembler";
 import { v4 as uuid } from "uuid";
+import { OnlineUser, UserSession } from "./online-user";
+import { Role, RoomInfo, isPlayer } from "../../network-protocol/models/room-info";
 
-export enum Role {
-  PLAYER_1 = "PLAYER_1", // for solo, or player 1 in multiplayer. streams inputs to server
-  PLAYER_2 = "PLAYER_2", // player 2 in multiplayer. streams inputs to server
-  SPECTATOR = "SPECTATOR", // only receives game state updates
-  REFEREE = "REFEREE", // recieves game state updates, and can also update match state
-}
-export const isPlayer = (role: Role) => role === Role.PLAYER_1 || role === Role.PLAYER_2;
 
 export class RoomUser {
 
@@ -34,14 +29,13 @@ export class RoomUser {
 
   constructor(
     public readonly room: Room,
-    public readonly username: string,
+    public readonly session: UserSession,
     public readonly role: Role,
-    public readonly socket: WebSocket,
   ) {}
 
   // send a binary message to the user
   sendBinaryMessage(stream: Uint8Array) {
-    this.socket.send(stream);
+    this.session.socket.send(stream);
   }
 
   // add a packet to the game state cache
@@ -71,56 +65,56 @@ export class Room {
     this.roomID = uuid();
   }
 
-  addUser(username: string, role: Role, socket: WebSocket) {
+  addUser(session: UserSession, role: Role) {
 
-    if (this.players.find(player => player.username === username)) {
-      throw new Error(`User ${username} is already in this room`);
+    if (this.players.find(player => player.session.user.username === session.user.username)) {
+      throw new Error(`User ${session.user.username} is already in this room`);
     }
 
-    console.log(`User ${username} joined room ${this}`);
+    console.log(`User ${session.user.username} joined room ${this}`);
 
-    this.players.push(new RoomUser(this, username, role, socket));
+    this.players.push(new RoomUser(this, session, role));
   }
 
   // remove a user from the room. returns true if the room is now empty and should be deleted
-  async removeUser(user: RoomUser): Promise<boolean> {
+  async removeUser(roomUser: RoomUser): Promise<boolean> {
 
     // if user had a game in progress, save the game state to the database
-    if (user.isInGame()) {
-      const gamePackets = user.popCachedGameBinaryData();
+    if (roomUser.isInGame()) {
+      const gamePackets = roomUser.popCachedGameBinaryData();
       console.log("User left, so ended game forcibly with", gamePackets.length, "packets");
-      await this.saveGameToDatabase(user, gamePackets);
+      await this.saveGameToDatabase(roomUser, gamePackets);
     }
 
     // remove the user from the room
-    this.players = this.players.filter(player => player !== user);
+    this.players = this.players.filter(player => player !== roomUser);
 
     // return true if the room is now empty
     return this.players.length === 0;
   }
 
   getUserBySocket(socket: WebSocket): RoomUser | undefined {
-    return this.players.find(player => player.socket === socket);
+    return this.players.find(player => player.session.socket === socket);
   }
 
   getUserByUsername(username: string): RoomUser | undefined {
-    return this.players.find(player => player.username === username);
+    return this.players.find(player => player.session.user.username === username);
   }
 
-  async onBinaryMessage(user: RoomUser, packets: PacketDisassembler) {
+  async onBinaryMessage(roomUser: RoomUser, packets: PacketDisassembler) {
 
-    if (isPlayer(user.role)) {
-      await this.onPlayerBroadcastPackets(user, packets);
+    if (isPlayer(roomUser.role)) {
+      await this.onPlayerBroadcastPackets(roomUser, packets);
     }
   }
 
   // called when packets are recieved from a player client.
   // Broadcast the packets to all other players, and cache game state packets if in game
-  async onPlayerBroadcastPackets(user: RoomUser, packets: PacketDisassembler) {
+  async onPlayerBroadcastPackets(roomUser: RoomUser, packets: PacketDisassembler) {
     //console.log("Received binary message", packets.bitcount);
 
     // resend the binary message to all players in the room, except the user
-    this.sendBinaryMessageToAllPlayersExcept(user, packets.stream);
+    this.sendBinaryMessageToAllPlayersExcept(roomUser, packets.stream);
     
     // go through each packet in the stream and cache packets that are within a game
     while (packets.hasMorePackets()) {
@@ -131,11 +125,11 @@ export class Room {
       }
 
       // if the user is in a game, or if the current packet just started game, cache the game state packets
-      if (user.isInGame() || packetContent.opcode === PacketOpcode.GAME_START) {
+      if (roomUser.isInGame() || packetContent.opcode === PacketOpcode.GAME_START) {
 
         // we only store packets in database that belong there
         if (isDatabasePacket(packetContent.opcode)) {
-          user.addGamePacket(packetContent);
+          roomUser.addGamePacket(packetContent);
           console.log("Caching packet", PACKET_NAME[packetContent.opcode]);
         }
 
@@ -144,24 +138,36 @@ export class Room {
       // if this packet ends the game, save the game state to the database and clear the cache
       // we don't need to add the game end packet to the packet list
       if (packetContent.opcode === PacketOpcode.GAME_END) {
-        const gamePackets = user.popCachedGameBinaryData();
+        const gamePackets = roomUser.popCachedGameBinaryData();
         console.log("Ended game with", gamePackets.length, "packets");
         
-        await this.saveGameToDatabase(user, gamePackets);
+        await this.saveGameToDatabase(roomUser, gamePackets);
       }
     }
   }
 
   // given all the packets of a game for a user, save the game state to the database
-  async saveGameToDatabase(user: RoomUser, gameBinaryData: Uint8Array) {
+  async saveGameToDatabase(roomUser: RoomUser, gameBinaryData: Uint8Array) {
     // TODO: save game state to database
-    console.log("Saving game state to database for user", user.username, gameBinaryData);
+    console.log("Saving game state to database for user", roomUser.session.user.username, gameBinaryData);
   }
 
   // send a binary message to all players in the room, except the specified user
   // useful for broadcasting game state updates
-  sendBinaryMessageToAllPlayersExcept(user: RoomUser, stream: Uint8Array) {
-    this.players.filter(player => player !== user).forEach(player => player.sendBinaryMessage(stream));
+  sendBinaryMessageToAllPlayersExcept(roomUser: RoomUser, stream: Uint8Array) {
+    this.players.filter(player => player !== roomUser).forEach(player => player.sendBinaryMessage(stream));
+  }
+
+  // get a serialized dict of the room info for sending to clients
+  getRoomInfo(): RoomInfo {
+    return {
+      roomID: this.roomID,
+      players: this.players.map(player => ({
+        username: player.session.user.username,
+        sessionID: player.session.user.sessionID,
+        role: player.role,
+      }))
+    };
   }
 
 }

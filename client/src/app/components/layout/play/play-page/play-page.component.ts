@@ -58,7 +58,7 @@ export class PlayPageComponent {
 
           // go to solo play
           this.notifier.notify(NotificationType.SUCCESS, "Room created successfully.");
-          this.router.navigate(['/online/solo'], { queryParams: {
+          this.router.navigate(['/online/room'], { queryParams: {
             id: message.roomID,
             exit: encodeURIComponent("/play")
           } });
@@ -73,7 +73,7 @@ export class PlayPageComponent {
     } else {
       // if not signed in, go to solo play without creating a room
       // TODO: warning that progress will not be saved
-      this.router.navigate(['/online/solo'], { queryParams: { exit: encodeURIComponent("/play") } });
+      this.router.navigate(['/online/room'], { queryParams: { exit: encodeURIComponent("/play") } });
     }
 
     
