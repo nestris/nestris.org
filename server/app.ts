@@ -60,7 +60,7 @@ export default async function createApp(): Promise<{
 
     app.get('/api/v2/online-user/:username', (req, res) => {
         const username = req.params['username'];
-        res.status(200).send(state.onlineUserManager.getOnlineUserByUsername(username)?.getJsonInfo() ?? {error : "User not found"});
+        res.status(200).send(state.onlineUserManager.getOnlineUserByUsername(username)?.getOnlineUserInfo(state) ?? {error : "User not found"});
     });
 
     app.get('/api/v2/num-online-friends/:username', async (req, res) => {

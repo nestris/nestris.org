@@ -1,4 +1,4 @@
-import { ErrorMessage, JsonMessage, JsonMessageType, PingMessage, PongMessage, StartSoloRoomMessage } from "../../network-protocol/json-message";
+import { ErrorMessage, JsonMessage, JsonMessageType, PingMessage, PongMessage, StartSoloRoomMessage, StartSpectateRoomMessage } from "../../network-protocol/json-message";
 import { ServerState } from "./server-state";
 import { OnlineUser, UserSession } from "./online-user";
 
@@ -10,6 +10,7 @@ export async function handleJsonMessage(state: ServerState, session: UserSession
     switch (message.type) {
         case JsonMessageType.PING: return await handlePingMessage(state, session, message as PingMessage);
         case JsonMessageType.START_SOLO_ROOM: return await handleStartSoloRoomMessage(state, session, message as StartSoloRoomMessage);
+        case JsonMessageType.START_SPECTATE_ROOM: return await handleStartSpectateRoomMessage(state, session, message as StartSpectateRoomMessage);
         default: console.log(`Unknown message type: ${message.type}`);
     }
 }
@@ -38,3 +39,7 @@ export async function handleStartSoloRoomMessage(state: ServerState, session: Us
     }
 }
 
+// when user wants to start spectating a room, add user to the room
+export async function handleStartSpectateRoomMessage(state: ServerState, session: UserSession, message: StartSpectateRoomMessage) {
+    state.roomManager.addSpectatorToRoom(message.roomID, session);
+}

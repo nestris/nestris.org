@@ -14,12 +14,14 @@ This also works for singleplayer - there are no other players or spectators so n
 but the room still tracks the game state and saves it to the database when the game ends.
 */
 
-import { PacketAssembler } from "../../network-protocol/stream-packets/packet-assembler";
+import { MAX_PLAYERS_IN_ROOM, MAX_PLAYER_BITCOUNT, PacketAssembler } from "../../network-protocol/stream-packets/packet-assembler";
 import { PACKET_NAME, PacketContent, PacketOpcode, isDatabasePacket } from "../../network-protocol/stream-packets/packet";
 import { PacketDisassembler } from "../../network-protocol/stream-packets/packet-disassembler";
 import { v4 as uuid } from "uuid";
 import { OnlineUser, UserSession } from "./online-user";
-import { Role, RoomInfo, isPlayer } from "../../network-protocol/models/room-info";
+import { Role, RoomInfo, RoomMode, isPlayer } from "../../network-protocol/models/room-info";
+import { BinaryDecoder, BinaryEncoder } from "../../network-protocol/binary-codec";
+import { JsonMessage, RequestRecoveryPacketMessage } from "../../network-protocol/json-message";
 
 
 export class RoomUser {
@@ -33,9 +35,16 @@ export class RoomUser {
     public readonly role: Role,
   ) {}
 
-  // send a binary message to the user
+  // send a binary message to the user (only the session in the room)
   sendBinaryMessage(stream: Uint8Array) {
+    console.log("Sending binary message to user", this.session.user.username, stream.length);
     this.session.socket.send(stream);
+  }
+
+  // send a json message to the user (only the session in the room)
+  sendJsonMessage(message: JsonMessage) {
+    console.log("Sending json message to user", this.session.user.username, message);
+    this.session.socket.send(JSON.stringify(message));
   }
 
   // add a packet to the game state cache
@@ -45,7 +54,7 @@ export class RoomUser {
 
   // clear the cache, and return the packets of the finished game
   popCachedGameBinaryData(): Uint8Array {
-    const data =this.gameBinaryData.encode();
+    const data = this.gameBinaryData.encode();
     this.gameBinaryData = new PacketAssembler();
     return data;
   }
@@ -60,9 +69,11 @@ export class Room {
 
   private players: RoomUser[] = [];
   public readonly roomID: string;
+  public readonly mode: RoomMode;
 
-  constructor() {
+  constructor(mode: RoomMode) {
     this.roomID = uuid();
+    this.mode = mode;
   }
 
   addUser(session: UserSession, role: Role) {
@@ -71,9 +82,17 @@ export class Room {
       throw new Error(`User ${session.user.username} is already in this room`);
     }
 
-    console.log(`User ${session.user.username} joined room ${this}`);
+    if (isPlayer(role) && this.players.length >= MAX_PLAYERS_IN_ROOM) {
+      throw new Error(`Room exeeds max players of ${MAX_PLAYERS_IN_ROOM}`);
+    }
 
-    this.players.push(new RoomUser(this, session, role));
+    console.log(`User ${session.user.username} joined room ${this.roomID}`);
+
+    const newUser = new RoomUser(this, session, role)
+    this.players.push(newUser);
+
+    // request all other players to send FullRecovery packet to initialize new player
+    this.sendJsonMessageToAllPlayersExcept(newUser, new RequestRecoveryPacketMessage());
   }
 
   // remove a user from the room. returns true if the room is now empty and should be deleted
@@ -113,8 +132,15 @@ export class Room {
   async onPlayerBroadcastPackets(roomUser: RoomUser, packets: PacketDisassembler) {
     //console.log("Received binary message", packets.bitcount);
 
+    // prefix the stream with the RoomUser's index
+    const encoder = new BinaryEncoder();
+    const playerIndex = this.players.indexOf(roomUser);
+    encoder.addUnsignedInteger(playerIndex, MAX_PLAYER_BITCOUNT);
+
     // resend the binary message to all players in the room, except the user
-    this.sendBinaryMessageToAllPlayersExcept(roomUser, packets.stream);
+    encoder.addBinaryDecoder(BinaryDecoder.fromUInt8Array(packets.stream));
+    console.log(`sending ${encoder.bitcount} bits to all players from player ${playerIndex}`);
+    this.sendBinaryMessageToAllPlayersExcept(roomUser, encoder);
     
     // go through each packet in the stream and cache packets that are within a game
     while (packets.hasMorePackets()) {
@@ -154,14 +180,19 @@ export class Room {
 
   // send a binary message to all players in the room, except the specified user
   // useful for broadcasting game state updates
-  sendBinaryMessageToAllPlayersExcept(roomUser: RoomUser, stream: Uint8Array) {
-    this.players.filter(player => player !== roomUser).forEach(player => player.sendBinaryMessage(stream));
+  sendBinaryMessageToAllPlayersExcept(roomUser: RoomUser, encoder: BinaryEncoder) {
+    this.players.filter(player => player !== roomUser).forEach(player => player.sendBinaryMessage(encoder.convertToUInt8Array()));
+  }
+
+  sendJsonMessageToAllPlayersExcept(roomUser: RoomUser, message: JsonMessage) {
+    this.players.filter(player => player !== roomUser).forEach(player => player.sendJsonMessage(message));
   }
 
   // get a serialized dict of the room info for sending to clients
   getRoomInfo(): RoomInfo {
     return {
       roomID: this.roomID,
+      mode: this.mode,
       players: this.players.map(player => ({
         username: player.session.user.username,
         sessionID: player.session.user.sessionID,

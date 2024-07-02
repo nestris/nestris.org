@@ -117,6 +117,10 @@ export class EmulatorGameState {
         return displayBoard;
     }
 
+    getIsolatedBoard(): TetrisBoard {
+        return this.isolatedBoard;
+    }
+
     getCurrentPieceType(): TetrominoType {
         return this.activePiece.tetrominoType;
     }

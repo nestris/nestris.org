@@ -17,6 +17,8 @@ export enum JsonMessageType {
     UPDATE_FRIENDS_BADGE = 'update_friends', // adds the red badge to the friends icon
     UPDATE_ONLINE_FRIENDS = 'update_online_friends', // refreshes friends page
     START_SOLO_ROOM = 'start_solo_room',
+    START_SPECTATE_ROOM = 'start_spectate_room',
+    REQUEST_RECOVERY_PACKET = 'request_recovery_packet', // sent from server to client to request FullRecovery packet
 }
 
 export abstract class JsonMessage {
@@ -106,5 +108,22 @@ export class StartSoloRoomMessage extends JsonMessage {
         public readonly roomID?: string
     ) {
         super(JsonMessageType.START_SOLO_ROOM)
+    }
+}
+
+// Sent by a client who wants to spectate the room. specify the room id to spectate
+// the socket that sends this message will be added to the room as a spectator
+export class StartSpectateRoomMessage extends JsonMessage {
+    constructor(
+        public readonly roomID: string
+    ) {
+        super(JsonMessageType.START_SPECTATE_ROOM)
+    }
+}
+
+// sent from server to client to request a FullRecovery packet
+export class RequestRecoveryPacketMessage extends JsonMessage {
+    constructor() {
+        super(JsonMessageType.REQUEST_RECOVERY_PACKET)
     }
 }

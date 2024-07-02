@@ -63,6 +63,10 @@ export class BinaryEncoder {
         this.addBinaryString(encoder.getBitString());
     }
 
+    addBinaryDecoder(decoder: BinaryDecoder): void {
+        this.addBinaryString(decoder.bits);
+    }
+
     addTetrisBoard(board: TetrisBoard): void {
         // base4 has 200 chars of 0-3
         const base4 = BinaryTranscoder.encode(board);

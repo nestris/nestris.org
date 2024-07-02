@@ -2,6 +2,7 @@ import { OnlineUserStatus } from "../../network-protocol/models/friends";
 import { JsonMessage } from "../../network-protocol/json-message";
 import { ServerState } from "./server-state";
 import * as session from "express-session";
+import { OnlineUserInfo } from "../../network-protocol/models/online-user-info";
 
 // the reason for closing the socket connection for one specific user. will be sent as an error code in close frame
 export enum SocketCloseCode {
@@ -72,7 +73,7 @@ export class OnlineUser {
         return this.sessions.find(session => session.socket === socket);
     }
 
-    // using the live websocket connection, send a JsonMessage to the client
+    // using the live websocket connection, send a JsonMessage to all the sessions of the client
     sendJsonMessage(message: JsonMessage) {
         this.sessions.forEach(session => {
             console.log(`Sending message to ${this.username}: ${JSON.stringify(message)}`);
@@ -128,12 +129,13 @@ export class OnlineUser {
         this.eventSubscribers.get(event)?.forEach(callback => callback());
     }
 
-    getJsonInfo(): any {
+    getOnlineUserInfo(state: ServerState): OnlineUserInfo {
         return {
             username: this.username,
             status: this.status,
             connectTime: this.connectTime,
             sessions: this.sessions.map(session => session.sessionID),
+            roomID: state.roomManager.getUserByUsername(this.username)?.room.roomID
         }
     }
 

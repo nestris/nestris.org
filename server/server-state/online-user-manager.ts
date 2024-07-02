@@ -184,7 +184,7 @@ export class OnlineUserManager {
 
         // console.log(`Received message from ${this.getOnlineUserBySocket(ws)?.username}: ${message}`);
 
-        const { type, data } = decodeMessage(message);
+        const { type, data } = await decodeMessage(message, false);
         const onlineUser = this.getOnlineUserBySocket(ws);
 
         if (!onlineUser) { // recieved message from socket not yet recognized as online user

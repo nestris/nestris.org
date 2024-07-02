@@ -18,7 +18,7 @@ export enum MessageType {
     BINARY = "BINARY",
 }
 
-export function decodeMessage(message: any): {type: MessageType, data: JsonMessage | PacketDisassembler} {
+export async function decodeMessage(message: any, containsPlayerIndexPrefix: boolean): Promise<{type: MessageType, data: JsonMessage | PacketDisassembler}> {
     if (typeof message === 'string') {
         const jsonMessage = JSON.parse(message);
         return {
@@ -41,9 +41,14 @@ export function decodeMessage(message: any): {type: MessageType, data: JsonMessa
             // do nothing
         }
     }
+
+    if (message instanceof Blob) {
+        // convert blob to arraybuffer
+        message = await message.arrayBuffer();
+    }
     
     return {
         type: MessageType.BINARY,
-        data: new PacketDisassembler(new Uint8Array(message))
+        data: new PacketDisassembler(new Uint8Array(message), containsPlayerIndexPrefix)
     };
 }

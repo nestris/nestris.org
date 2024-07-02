@@ -7,6 +7,8 @@ import { NotificationService } from './notification.service';
 import { NotificationType } from 'network-protocol/models/notifications';
 import { Router } from '@angular/router';
 import { v4 as uuid } from 'uuid';
+import { PacketDisassembler } from 'network-protocol/stream-packets/packet-disassembler';
+import { PacketContent, PacketGroup } from 'network-protocol/stream-packets/packet';
 
 /*
 The central event bus for dealing with websocket messages to/from the server.
@@ -26,8 +28,8 @@ export class WebsocketService {
   private username?: string;
   private sessionID?: string;
 
-  private jsonEventSubject$ = new Subject<JsonMessage>();
-  private binaryEventSubject$ = new Subject<BinaryDecoder>();
+  private jsonEvent$ = new Subject<JsonMessage>();
+  private packetGroup$ = new Subject<PacketGroup>();
 
   private signedInSubject$ = new BehaviorSubject<boolean>(false);
 
@@ -97,9 +99,13 @@ export class WebsocketService {
 
   // subscribe to this observable when a message is sent from server to client with matching type
   onEvent(event: JsonMessageType): Observable<JsonMessage> {
-    return this.jsonEventSubject$.asObservable().pipe(
+    return this.jsonEvent$.asObservable().pipe(
       filter((message) => message.type === event)
     );
+  }
+
+  onPacketGroup(): Observable<PacketGroup> {
+    return this.packetGroup$.asObservable();
   }
 
   // get the username of the signed in user, or undefined if not signed in
@@ -113,14 +119,29 @@ export class WebsocketService {
   }
 
   // called when server sends a binary or json message to the client
-  private onMessage(message: MessageEvent) {
+  private async onMessage(message: MessageEvent) {
 
-    const { type, data } = decodeMessage(message.data);
+    const { type, data } = await decodeMessage(message.data, true);
     if (type === MessageType.JSON) {
+
       if ((data as JsonMessage).type !== JsonMessageType.PONG) console.log('Received JSON message:', data);
-      this.jsonEventSubject$.next(data as JsonMessage);
+      this.jsonEvent$.next(data as JsonMessage);
+
     } else {
-      // TODO: handle binary messages
+
+      // decode stream into packets from a player index
+      const packets = data as PacketDisassembler;
+      const playerIndex = packets.getPlayerIndex()!;
+
+      const packetList: PacketContent[] = [];    
+      while (packets.hasMorePackets()) {
+        packetList.push(packets.nextPacket());
+        
+      }
+      const packetGroup: PacketGroup = { playerIndex, packets: packetList };
+      console.log(`Received ${packetGroup.packets.length} packets from player ${playerIndex}`);
+
+      this.packetGroup$.next(packetGroup);
     }
   }
 

@@ -51,6 +51,7 @@ export async function sendFriendRequest(fromUsername: string, toUsername: string
     const message = new SendPushNotificationMessage(NotificationType.SUCCESS, `${fromUsername} sent you a friend request!`);
     user?.sendJsonMessage(message);
     user?.sendJsonMessage(new UpdateFriendsBadgeMessage());
+    user?.sendJsonMessage(new UpdateOnlineFriendsMessage());
 
     return FriendStatus.OUTGOING;
 

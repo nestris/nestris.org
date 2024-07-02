@@ -1,4 +1,5 @@
 import { SmartGameStatus } from "client/src/app/models/scoring/smart-game-status";
+import { FullRecoverySchema } from "network-protocol/stream-packets/packet";
 import MoveableTetromino from "network-protocol/tetris/moveable-tetromino";
 import { TetrisBoard } from "network-protocol/tetris/tetris-board";
 import { TetrominoType } from "network-protocol/tetris/tetromino-type";
@@ -11,21 +12,22 @@ export class GameState {
   private isolatedBoard: TetrisBoard; // current tetris board without the active piece
   private current: TetrominoType;
   private next: TetrominoType;
-  private numTetrises: number = 0;
 
-  // state that changes after each frame 
-  private currentBoard: TetrisBoard; // full board for current frame including active piece
+  // full board for current frame including active piece
+  // updated on fullBoardUpdate and abbreviatedBoardUpdate
+  private currentBoard: TetrisBoard; 
   
 
   constructor(startLevel: number, current: TetrominoType, next: TetrominoType) {
     this.status = new SmartGameStatus(startLevel);
-    this.isolatedBoard = new TetrisBoard();
+    this.isolatedBoard = new TetrisBoard(); // the board without the active piece. updated every placement
     this.current = current;
     this.next = next;
 
     this.currentBoard = new TetrisBoard();
   }
 
+  
   getStatus(): SmartGameStatus {
     return this.status;
   }
@@ -41,6 +43,13 @@ export class GameState {
   // get current board INCLUDING active piece
   getCurrentBoard(): TetrisBoard {
     return this.currentBoard;
+  }
+
+  onRecovery(recovery: FullRecoverySchema) {
+    this.status = new SmartGameStatus(recovery.startLevel, recovery.lines, recovery.score, recovery.level);
+    this.isolatedBoard = recovery.board;
+    this.current = recovery.current;
+    this.next = recovery.next;
   }
 
   // when a packet for the full board recieved. updates current board
@@ -76,9 +85,6 @@ export class GameState {
     const linesCleared = this.isolatedBoard.processLineClears();
     this.status.onLineClear(linesCleared);
 
-    // increment tetris count if four lines cleared
-    if (linesCleared === 4) this.numTetrises++;
-
     // shift current and next pieces
     this.current = this.next;
     this.next = nextNextPiece;
@@ -86,16 +92,4 @@ export class GameState {
     // increment pushdown into score, if any
     this.status.onPushdown(pushdown);
   }
-
-  // get the number of tetrises that have been scored in the game
-  getNumTetrises(): number {
-    return this.numTetrises;
-  }
-
-  // get the percent of line clears that were from tetrises
-  getTetrisRate(): number {
-    if (this.status.lines === 0) return 0;
-    return (this.numTetrises * 4) / this.status.lines;
-  }
-
 }

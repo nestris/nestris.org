@@ -1,10 +1,30 @@
 <app-fullscreen-exit-button [onExit]="onExit.bind(this)" />
 
-<app-layout-one class="game" *ngIf="(platform.getGameData$() | async) as data"
-    [board]="data.board" [level]="data.level"
-    [nextType]="data.nextPiece"
-    [level]="data.level"
-    [lines]="data.lines"
-    [score]="data.score"
-    [keybinds]="['Rotate (Z & X) / Shift (, & .)', 'Quit (Q) / Restart (R)']"
-    />
+<ng-container *ngIf="(client$ | async) as client">
+
+    <ng-container *ngIf="client.room.mode === RoomMode.SOLO">
+    
+        <ng-container *ngIf="client.role === Role.PLAYER_1">
+            <app-layout-one class="game" *ngIf="(platform.getGameData$() | async) as data"
+                [board]="data.board" [level]="data.level"
+                [nextType]="data.nextPiece"
+                [level]="data.level"
+                [lines]="data.lines"
+                [score]="data.score"
+                [keybinds]="['Rotate (Z & X) / Shift (, & .)', 'Quit (Q) / Restart (R)']"
+            />
+        </ng-container>
+
+        <ng-container *ngIf="client.role === Role.SPECTATOR">
+            <app-layout-one class="game" *ngIf="roomState?.player(0) as player"
+                [board]="player.getBoard()"
+                [nextType]="player.getNext()"
+                [level]="player.getStatus().level"
+                [lines]="player.getStatus().lines"
+                [score]="player.getStatus().score"
+            />
+        </ng-container>
+        
+    </ng-container>
+
+</ng-container>

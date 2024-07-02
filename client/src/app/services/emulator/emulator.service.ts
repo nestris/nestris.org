@@ -6,9 +6,14 @@ import { RandomRNG } from '../../models/piece-sequence-generation/random-rng';
 import { FpsTracker } from 'misc/fps-tracker';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { BinaryEncoder } from 'network-protocol/binary-codec';
-import { PlatformInterfaceService, PolledGameData } from '../platform-interface.service';
+import { Platform, PlatformInterfaceService, PolledGameData } from '../platform-interface.service';
 import { set } from 'mongoose';
-import { GameEndPacket, GameFullBoardPacket, GamePlacementPacket, GameStartPacket } from 'network-protocol/stream-packets/packet';
+import { FullRecoveryPacket, GameEndPacket, GameFullBoardPacket, GamePlacementPacket, GameStartPacket } from 'network-protocol/stream-packets/packet';
+import { WebsocketService } from '../websocket.service';
+import { JsonMessageType } from 'network-protocol/json-message';
+import { TetrominoType } from 'network-protocol/tetris/tetromino-type';
+import { TetrisBoard } from 'network-protocol/tetris/tetris-board';
+import GameStatus from '../../models/scoring/game-status';
 
 /*
 Emulates a NES game as a 60fps state machine with keyboard input
@@ -35,7 +40,10 @@ export class EmulatorService {
   private loop: any;
 
 
-  constructor(private platform: PlatformInterfaceService) {
+  constructor(
+    private platform: PlatformInterfaceService,
+    private websocket: WebsocketService
+) {
 
     platform.getPollingEmulator$().subscribe((polling) => {
 
@@ -51,8 +59,29 @@ export class EmulatorService {
           this.stopGame();
         }
       }
-
     });
+
+    // when server requests a recovery packet, generate one and queue it
+    websocket.onEvent(JsonMessageType.REQUEST_RECOVERY_PACKET).subscribe((event) => {
+
+      // ignore if emulator is not the selected platform
+      if (this.platform.getPlatform() !== Platform.ONLINE) return;
+
+      // get a snapshot of current game state and send as FullRecoveryPacket
+      console.log("Server requested recovery packet. Generating from emulator");
+      const status = this.currentState?.getStatus() ?? new GameStatus();
+      this.platform.sendPacket(new FullRecoveryPacket().toBinaryEncoder({
+        inGame: this.currentState !== undefined,
+        startLevel: this.currentState?.startLevel ?? 0,
+        current: this.currentState?.getCurrentPieceType() ?? TetrominoType.ERROR_TYPE,
+        next: this.currentState?.getNextPieceType() ?? TetrominoType.ERROR_TYPE,
+        board: this.currentState?.getIsolatedBoard() ?? new TetrisBoard(),
+        score: status.score,
+        lines: status.lines,
+        level: status.level
+      }))
+    });
+
   }
 
   tick() {
@@ -131,7 +160,7 @@ export class EmulatorService {
     this.platform.updateGameData(data);
 
     // send placement packet if piece has been placed
-    if (result.newPieceSpawned) {
+    if (result.newPieceSpawned && !result.toppedOut) {
       this.platform.sendPacket(new GamePlacementPacket().toBinaryEncoder({
         nextNextType: this.currentState.getNextPieceType(),
         rotation: result.lockedPiece!.getRotation(),

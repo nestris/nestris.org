@@ -66,6 +66,7 @@ export class FriendsService {
     const onlinePriority = (status: OnlineUserStatus) => {
       switch (status) {
         case OnlineUserStatus.IDLE: return 0;
+        case OnlineUserStatus.PLAYING: return 0;
         default: return 1;
       }
     }

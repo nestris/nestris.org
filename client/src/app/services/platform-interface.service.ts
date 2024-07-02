@@ -2,12 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { TetrisBoard } from '../../../../network-protocol/tetris/tetris-board';
 import { TetrominoType } from '../../../../network-protocol/tetris/tetromino-type';
-import { EmulatorService } from './emulator/emulator.service';
-import { GameStateService } from './ocr/game-state.service';
-import { NonGameBoardStateChangePacket, NonGameBoardStateChangeSchema } from 'network-protocol/stream-packets/packet';
 import { PacketAssembler } from 'network-protocol/stream-packets/packet-assembler';
-import { PacketDisassembler } from 'network-protocol/stream-packets/packet-disassembler';
-import { EmulatorGameState } from './emulator/emulator-game-state';
 import { BinaryEncoder } from 'network-protocol/binary-codec';
 import { WebsocketService } from './websocket.service';
 
@@ -96,6 +91,10 @@ export class PlatformInterfaceService {
 
   setPlatform(platform: Platform) {
     this.platform$.next(platform);
+  }
+
+  getPlatform(): Platform {
+    return this.platform$.getValue();
   }
 
   startPolling() {

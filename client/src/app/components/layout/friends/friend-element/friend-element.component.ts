@@ -1,11 +1,16 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
-import { FriendInfo, FriendStatus } from 'network-protocol/models/friends';
+import { FriendInfo, FriendStatus, OnlineUserStatus } from 'network-protocol/models/friends';
 import { ButtonColor } from '../../../ui/solid-button/solid-button.component';
 import { WebsocketService } from 'client/src/app/services/websocket.service';
 import { endFriendship, sendFriendRequest } from '../friend-util';
 import { ModalManagerService, ModalType } from 'client/src/app/services/modal-manager.service';
 import { ChallengeModalConfig } from '../../../modals/challenge-modal/challenge-modal.component';
 import { FriendsService } from 'client/src/app/services/friends.service';
+import { Method, fetchServer2 } from 'client/src/app/scripts/fetch-server';
+import { OnlineUserInfo } from 'network-protocol/models/online-user-info';
+import { Router } from '@angular/router';
+import { NotificationService } from 'client/src/app/services/notification.service';
+import { NotificationAutohide, NotificationType } from 'network-protocol/models/notifications';
 
 @Component({
   selector: 'app-friend-element',
@@ -17,12 +22,15 @@ export class FriendElementComponent {
   @Input() friendInfo!: FriendInfo;
 
   readonly FriendStatus = FriendStatus;
+  readonly OnlineUserStatus = OnlineUserStatus;
   readonly ButtonColor = ButtonColor;
 
   constructor(
     private websocketService: WebsocketService,
     private modalService: ModalManagerService,
-    private friendsService: FriendsService
+    private friendsService: FriendsService,
+    private router: Router,
+    private notifier: NotificationService
   ) {}
 
   // get css class for friend status
@@ -54,6 +62,16 @@ export class FriendElementComponent {
     this.modalService.showModal(ModalType.CHALLENGE_PLAYER, config);
   }
 
-
-
+  // get the current room the friend is in and spectate it
+  async spectate() {
+    
+    // get the room id of the friend
+    try {
+      const friend = await fetchServer2<OnlineUserInfo>(Method.GET, `/api/v2/online-user/${this.friendInfo.username}`);
+      if (!friend.roomID) throw new Error();
+      this.router.navigate(['/online/room'], { queryParams: { id: friend.roomID } });
+    } catch (e) {
+      this.notifier.notify(NotificationType.ERROR, "Unable to spectate this room at this time.", NotificationAutohide.SHORT);
+    }
+  }
 }

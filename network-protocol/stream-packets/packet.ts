@@ -3,12 +3,13 @@ import { BinaryDecoder, BinaryEncoder } from "../binary-codec";
 import { TetrisBoard } from "../tetris/tetris-board";
 
 export enum PacketOpcode {
-  NON_GAME_BOARD_STATE_CHANGE = 0,
-  GAME_START = 1,
-  GAME_END = 2,
-  LAST_PACKET_OPCODE = 3, // sent at the end of the PacketAssembler
+  LAST_PACKET_OPCODE = 0, // sent at the end of the PacketAssembler
+  NON_GAME_BOARD_STATE_CHANGE = 1,
+  GAME_START = 2,
+  GAME_END = 3,
   GAME_PLACEMENT = 4,
   GAME_FULL_BOARD = 5, // for full board state changes where active piece cannot be inferred 
+  FULL_RECOVERY = 6, // encapsulates all state for a full recovery
 }
 
 // map of opcode to packet name
@@ -19,6 +20,7 @@ export const PACKET_NAME: {[key in PacketOpcode]: string} = {
   [PacketOpcode.LAST_PACKET_OPCODE]: "LAST_PACKET_OPCODE",
   [PacketOpcode.GAME_PLACEMENT]: "GAME_PLACEMENT",
   [PacketOpcode.GAME_FULL_BOARD]: "GAME_FULL_BOARD",
+  [PacketOpcode.FULL_RECOVERY]: "FULL_RECOVERY",
 };
 
 // packets that are only sent during a game
@@ -46,10 +48,17 @@ export function isDatabasePacket(opcode: PacketOpcode): boolean {
 
 export interface PacketSchema {}
 
+// decoded info for one packet from stream
 export interface PacketContent {
   opcode: PacketOpcode;
   content: PacketSchema;
   binary: BinaryEncoder;
+}
+
+// group of packets sent from another player through server, decoded from stream into useful list of packets
+export interface PacketGroup {
+  playerIndex: number;
+  packets: PacketContent[];
 }
 
 // each packet file should add its own (opcode, content length) pair to this map
@@ -219,3 +228,44 @@ export class GameFullBoardPacket extends Packet<GameFullBoardSchema> {
   }
 }
 PACKET_MAP[PacketOpcode.GAME_FULL_BOARD] = new GameFullBoardPacket();
+
+// ================================ FULL_RECOVERY =================================
+PACKET_CONTENT_LENGTH[PacketOpcode.FULL_RECOVERY] = 465;
+export interface FullRecoverySchema extends PacketSchema {
+  inGame: boolean; // 1 bit, 1 if post-recovery in game, or initial packet from server ingame. 0 if initial packet sent from server to client and not in game
+  startLevel: number; // 8 bits start level of game. If not in game, value does not matter
+  current: TetrominoType; // 3 bits current piece type
+  next: TetrominoType; // 3 bits next piece type
+  board: TetrisBoard; // 400 bits board state, 2 bits per mino. Isolated board if in-game, full board if not in-game
+  score: number; // 26 bits score, cap at 67,108,863
+  level: number; // 8 bits level, cap at 255
+  lines: number; // 16 bits lines, cap at 65,535
+}
+export class FullRecoveryPacket extends Packet<FullRecoverySchema> {
+  constructor() { super(PacketOpcode.FULL_RECOVERY); }
+  protected override _decodePacketContent(content: BinaryDecoder): FullRecoverySchema {
+    return {
+      inGame: content.nextBoolean(),
+      startLevel: content.nextUnsignedInteger(8),
+      current: content.nextTetrominoType(),
+      next: content.nextTetrominoType(),
+      board: content.nextTetrisBoard(),
+      score: content.nextUnsignedInteger(26),
+      level: content.nextUnsignedInteger(8),
+      lines: content.nextUnsignedInteger(16),
+    };
+  }
+  protected override _toBinaryEncoderWithoutOpcode(content: FullRecoverySchema): BinaryEncoder {
+    const encoder = new BinaryEncoder();
+    encoder.addBoolean(content.inGame);
+    encoder.addUnsignedInteger(content.startLevel, 8);
+    encoder.addTetrominoType(content.current);
+    encoder.addTetrominoType(content.next);
+    encoder.addTetrisBoard(content.board);
+    encoder.addUnsignedInteger(content.score, 26);
+    encoder.addUnsignedInteger(content.level, 8);
+    encoder.addUnsignedInteger(content.lines, 16);
+    return encoder;
+  }
+}
+PACKET_MAP[PacketOpcode.FULL_RECOVERY] = new FullRecoveryPacket();

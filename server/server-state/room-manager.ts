@@ -1,4 +1,4 @@
-import { Role } from "../../network-protocol/models/room-info";
+import { Role, RoomMode } from "../../network-protocol/models/room-info";
 import { OnlineUserStatus } from "../../network-protocol/models/friends";
 import { PacketDisassembler } from "../../network-protocol/stream-packets/packet-disassembler";
 import { OnlineUser, UserSession } from "./online-user";
@@ -49,7 +49,7 @@ export class RoomManager {
 
     session.user.onEnterGame(this.state);
 
-    const room = new Room();
+    const room = new Room(RoomMode.SOLO);
     this.rooms.push(room);
 
     room.addUser(session, Role.PLAYER_1);

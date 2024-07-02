@@ -1,23 +1,36 @@
 import { BinaryDecoder, BinaryEncoder } from "../binary-codec";
 import { OPCODE_BIT_LENGTH, PACKET_CONTENT_LENGTH, PACKET_MAP, PacketContent, PacketOpcode } from "./packet";
+import { MAX_PLAYERS_IN_ROOM, MAX_PLAYER_BITCOUNT } from "./packet-assembler";
 
+// Decode a stream of packets encoded by PacketAssembler
+// Note that the player index is only specified if the stream is prefixed by the player index
 export class PacketDisassembler {
 
   private decoder: BinaryDecoder;
-  public readonly bitcount;
+  private playerIndex?: number = undefined;
+  public readonly bitcount: number;
 
-  constructor(public readonly stream: Uint8Array) {
+  constructor(public readonly stream: Uint8Array, containsPlayerIndexPrefix: boolean) {
 
     // convert stream to string of 0s and 1s
     this.decoder = BinaryDecoder.fromUInt8Array(stream);
-    console.log("Bits decoded", this.decoder.numBitsLeft());
 
     this.bitcount = this.decoder.numBitsLeft();
+
+    // read the player index
+    if (containsPlayerIndexPrefix) {
+      this.playerIndex = this.decoder.nextUnsignedInteger(MAX_PLAYER_BITCOUNT);
+    }
 
   }
 
   printBits() {
     console.log(this.decoder.bits);
+  }
+
+  // only specified if containsPlayerIndexPrefix is true
+  getPlayerIndex(): number | undefined {
+    return this.playerIndex;
   }
 
 

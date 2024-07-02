@@ -6,9 +6,15 @@ export enum Role {
 }
 export const isPlayer = (role: Role) => role === Role.PLAYER_1 || role === Role.PLAYER_2;
 
+export enum RoomMode {
+  SOLO = "SOLO",
+  MULTIPLAYER = "MULTIPLAYER",
+}
+
 // serialized information about the room
 export interface RoomInfo {
   roomID: string;
+  mode: RoomMode;
   players: {
     username: string;
     sessionID: string;
