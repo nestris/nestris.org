@@ -2,6 +2,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server as WebSocketServer } from 'ws';
 import { Pool } from 'pg';
+// import { sayHello } from '@shared/test';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -47,4 +48,5 @@ app.get('/api', async (req, res) => {
 
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
+  // sayHello();
 });
