@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-// import { sayHello } from '@shared/test';
+import { getHello } from './shared/test';
+import { isDevMode } from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -10,7 +11,10 @@ export class AppComponent implements OnInit {
   title = 'client-app';
 
   ngOnInit() {
-    // sayHello();
+  }
+
+  get() {
+    return `Is dev mode: ${isDevMode()}`;
   }
 
 }

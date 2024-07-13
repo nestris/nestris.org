@@ -21,6 +21,10 @@ POSTGRES_DB=mydatabase
 
 ## Run Docker
 
+
+# Every time you modify /shared, copy shared folder to client and server directories through
+`./update-shared.sh`
+
 ### Run docker containers
 `docker compose up --build`
 

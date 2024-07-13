@@ -6,7 +6,6 @@ services:
       target: ${BUILD_STAGE}  # Use the target based on the environment variable
     volumes:
       - ./client:/app:cached  # Mount the client directory for live reload
-      - ./shared:/shared:cached  # Mount the shared directory
     environment:
       - NODE_ENV=${NODE_ENV}
     ports:
@@ -29,7 +28,6 @@ services:
       dockerfile: Dockerfile.server
     volumes:
       - ./server:/app:cached  # Mount the server directory for live reload
-      - ./shared:/shared:cached  # Mount the shared directory
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
