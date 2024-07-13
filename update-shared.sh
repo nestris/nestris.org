@@ -9,6 +9,10 @@ DEST_DIR2="server/shared"
 chmod -R u+w "$DEST_DIR1" 2>/dev/null
 chmod -R u+w "$DEST_DIR2" 2>/dev/null
 
+# Delete the destination directories if they exist
+rm -rf "$DEST_DIR1"
+rm -rf "$DEST_DIR2"
+
 # Copy source directory to first destination
 cp -rf "$SRC_DIR" "$DEST_DIR1"
 

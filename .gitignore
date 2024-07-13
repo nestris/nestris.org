@@ -3,6 +3,10 @@
 # Client
 client/.angular
 client/.vscode
+client/node_modules
+
+# Server
+server/node_modules
 
 # Environment variables
 .env

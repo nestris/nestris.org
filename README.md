@@ -19,11 +19,18 @@ POSTGRES_DB=mydatabase
 ```
 
 
-## Run Docker
+## Development
 
-
-# Every time you modify /shared, copy shared folder to client and server directories through
+## Every time you modify /shared, run this command
 `./update-shared.sh`
+
+## To run client (Angular) unit tests
+`cd client; npm test; cd ..`
+
+## To run server (Jest) unit tests
+`cd server; npm test; cd ..`
+
+## Running the Application
 
 ### Run docker containers
 `docker compose up --build`

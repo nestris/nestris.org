@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { getHello } from './shared/test';
 import { isDevMode } from '@angular/core';
 
 @Component({
@@ -15,6 +14,10 @@ export class AppComponent implements OnInit {
 
   get() {
     return `Is dev mode: ${isDevMode()}`;
+  }
+
+  add(a: number, b: number) {
+    return a + b;
   }
 
 }
