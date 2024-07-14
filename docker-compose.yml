@@ -1,5 +1,6 @@
 services:
   client:
+    image: nestris/client:${NODE_ENV}
     build:
       context: .
       dockerfile: Dockerfile.client
@@ -23,6 +24,7 @@ services:
       "
 
   server:
+    image: nestris/server:${NODE_ENV}
     build:
       context: .
       dockerfile: Dockerfile.server
@@ -35,9 +37,11 @@ services:
       - NODE_ENV=${NODE_ENV}
     ports:
       - "3000:3000"
+    depends_on:
+      - postgres
 
   postgres:
-    image: postgres:alpine
+    image: nestris/postgres:${NODE_ENV}
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}

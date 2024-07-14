@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - dev
 
 jobs:
   build:
@@ -36,9 +37,9 @@ jobs:
         run: |
           echo "NODE_ENV=development" >> $GITHUB_ENV
           echo "BUILD_STAGE=dev" >> $GITHUB_ENV
-          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER_PROD }}" >> $GITHUB_ENV
-          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD_PROD }}" >> $GITHUB_ENV
-          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB_PROD }}" >> $GITHUB_ENV
+          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER_DEV }}" >> $GITHUB_ENV
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD_DEV }}" >> $GITHUB_ENV
+          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB_DEV }}" >> $GITHUB_ENV
 
       - name: Build and push Docker images
         run: |
