@@ -1,25 +1,17 @@
 # nestris.org
 
-## Set up environment
+# Set up development environment
+If you're interested in developing, testing, or running nestris.org locally, this is the right place.
 
-### Define .env.production
+### Install npm and Docker
+
+### Define .env file for development
 ```
 NODE_ENV=production
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=password
 POSTGRES_DB=mydatabase
 ```
-
-### Define .env.development
-```
-NODE_ENV=development
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=password
-POSTGRES_DB=mydatabase
-```
-
-
-## Development
 
 ## Every time you modify /shared, run this command
 `./update-shared.sh`
@@ -33,13 +25,18 @@ POSTGRES_DB=mydatabase
 ## Running the Application
 
 ### Run docker containers
-`docker compose up --build`
+`docker compose -f docker-compose.dev.yml up --build`
 
 ### Clean docker containers
 `docker compose down`
 
-### To switch to production mode
-`cp .env.production .env`
 
-### To switch to development mode
-`cp .env.development .env`
+## Set up production environment for CI/CD
+The current set up uses Github Actions and DigitalOcean. This section should be irrelevant to you unless you are interested in hosting your own production deployment server.
+
+### Define secrets for Github Actions in repository
+```
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=password
+POSTGRES_DB=mydatabase
+```
