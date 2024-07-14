@@ -8,6 +8,12 @@ RUN npm install
 
 COPY client ./
 
+
+# Test stage
+FROM base AS test
+# Runs tests
+RUN npm test
+
 # Development stage
 FROM base AS dev
 

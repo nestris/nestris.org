@@ -1,4 +1,5 @@
-FROM node:21.7.3
+# Base stage
+FROM node:21.7.3 AS base
 
 WORKDIR /app
 
@@ -7,6 +8,17 @@ RUN npm install
 
 COPY server ./
 
+# Test stage
+FROM base AS test
+
+# Run tests
+RUN npm test
+
+# Final stage
+FROM base AS final
+
+# Expose the application port
 EXPOSE 3000
 
+# Start the application
 CMD ["npx", "ts-node", "index.ts"]

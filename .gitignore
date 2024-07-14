@@ -4,9 +4,11 @@
 client/.angular
 client/.vscode
 client/node_modules
+client/coverage
 
 # Server
 server/node_modules
+server/coverage
 
 # Environment variables
 .env
