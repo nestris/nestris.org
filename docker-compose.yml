@@ -29,7 +29,7 @@ services:
       - postgres
 
   postgres:
-    image: anselchang1/nestris.org:postgres-${NODE_ENV}
+    image: postgres:13
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
