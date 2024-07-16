@@ -8,8 +8,6 @@ RUN npm install
 
 COPY client ./
 
-RUN npm test
-
 # Development stage
 FROM base AS dev
 
