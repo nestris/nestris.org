@@ -2,12 +2,11 @@
 Given a stream of packets, maintain the most recent version of game state
 Used on both server and client on recieving packets
 */
-
-import GameStatus from "client/src/app/models/scoring/game-status";
-import { GameRecoverySchema, GameFullBoardSchema, GamePlacementSchema, GameStartSchema, NonGameBoardStateChangeSchema, PacketContent, PacketOpcode, isRecoveryPacket, NonGameRecoverySchema, GameAbbrBoardSchema, GameCountdownSchema } from "network-protocol/stream-packets/packet";
-import MoveableTetromino from "network-protocol/tetris/moveable-tetromino";
-import { TetrisBoard } from "network-protocol/tetris/tetris-board";
-import { TetrominoType } from "network-protocol/tetris/tetromino-type";
+import { PacketContent, isRecoveryPacket, PacketOpcode, GameRecoverySchema, NonGameRecoverySchema, GameStartSchema, NonGameBoardStateChangeSchema, GameFullBoardSchema, GameAbbrBoardSchema, GamePlacementSchema, GameCountdownSchema } from "../network/stream-packets/packet";
+import GameStatus from "../tetris/game-status";
+import MoveableTetromino from "../tetris/moveable-tetromino";
+import { TetrisBoard } from "../tetris/tetris-board";
+import { TetrominoType } from "../tetris/tetromino-type";
 import { GameState } from "./game-state";
 
 

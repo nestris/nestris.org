@@ -4,13 +4,13 @@ import { FloodFill } from 'src/app/models/ocr/floodfill';
 import { OCRBox, BOARD_OCR_POSITION, BOARD_SHINE_OCR_POSITION, OCRPosition, NEXT_OCR_POSITION } from 'src/app/models/ocr/ocr-box';
 import { Pixels } from 'src/app/models/ocr/pixels';
 import { Textbox, TextboxResult, levelFromBoardBox, linesFromBoardBox, scoreFromBoardBox } from 'src/app/models/ocr/text-box';
-import { Point } from 'src/app/models/point';
 import { RGBColor, rgbToHsv } from 'src/app/scripts/color';
 import { TetrisBoard, ColorType } from 'src/app/shared/tetris/tetris-board';
 import { classifyColor } from 'src/app/shared/tetris/tetromino-colors';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 import { NextBoxOCR } from './next-box-ocr';
 import { OcrDigitService } from './ocr-digit.service';
+import { Point } from 'src/app/shared/tetris/point';
 
 
 /*

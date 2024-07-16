@@ -2,8 +2,8 @@ import { ElementRef, Injectable, Renderer2, RendererFactory2 } from '@angular/co
 import { BehaviorSubject, Observable } from 'rxjs';
 import { OCRBox, Rectangle } from 'src/app/models/ocr/ocr-box';
 import { Pixels } from 'src/app/models/ocr/pixels';
-import { Point } from 'src/app/models/point';
 import { OcrService, OCRType } from './ocr.service';
+import { Point } from 'src/app/shared/tetris/point';
 
 
 

@@ -5,6 +5,7 @@ client/.angular
 client/.vscode
 client/node_modules
 client/coverage
+client/dist
 
 # Server
 server/node_modules

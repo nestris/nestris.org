@@ -17,7 +17,7 @@ import { FolderPuzzleState } from './puzzle-states/folder-puzzle-state';
 import { PuzzleState, EloChange } from './puzzle-states/puzzle-state';
 import { RatedPuzzleState } from './puzzle-states/rated-puzzle-state';
 import { SinglePuzzleState } from './puzzle-states/single-puzzle-state';
-import { copyPuzzleLink } from 'src/app/shared/scripts/copy-url';
+import { copyPuzzleLink } from 'src/app/util/copy-url';
 
 export enum PuzzleMode {
   RATED = "rated",

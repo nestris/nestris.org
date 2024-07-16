@@ -6,7 +6,7 @@ I'm grateful for every contribution to my passion project! Generally, the best w
 # For Developers
 https://www.nestris.org is a full-stack application written in Angular, NodeJS, and Postgres. It is containerized through Docker and uses Github Actions to deploy production and staging servers to a DigitalOcean Droplet.
 
-## Set up your development environment
+# Set up your development environment
 If you're interested in developing, testing, or running nestris.org locally, follow the instructions below.
 
 ### Clone repository
@@ -14,16 +14,6 @@ If you're interested in developing, testing, or running nestris.org locally, fol
 git clone https://github.com/AnselChang/docker-angular-ts-node-postgres-websocket-template.git
 cd docker-angular-ts-node-postgres-websocket-template
 ```
-
-### Install Docker
-```
-apt update
-apt install docker.io
-```
-
-### Install `docker-compose`
-https://docs.docker.com/compose/install/linux/#install-using-the-repository
-
 
 ### Install npm packages
 ```
@@ -39,6 +29,29 @@ POSTGRES_USER=postgres
 POSTGRES_PASSWORD=password
 POSTGRES_DB=mydatabase
 ```
+
+### Building without docker
+If you would like to do some lightweight testing without Docker, you may run server, client, and postgres individually without docker. Otherwise, if you want to build with Docker, ignore this step and proceed to the next one.
+
+You will need to install Postgres locally somehow.
+
+To build client with live reload: `cd client; npm start`
+
+(In a different terminal)
+To build server: `cd server; npm start`
+
+
+### Install Docker
+```
+apt update
+apt install docker.io
+```
+
+### Install `docker-compose`
+https://docs.docker.com/compose/install/linux/#install-using-the-repository
+
+
+
 
 ### Every time you modify /shared, run this command
 `./update-shared.sh`

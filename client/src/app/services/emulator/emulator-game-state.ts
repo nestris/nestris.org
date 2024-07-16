@@ -1,6 +1,4 @@
 import { RNG } from "src/app/models/piece-sequence-generation/rng";
-import { IGameStatus } from "src/app/models/scoring/game-status";
-import { SmartGameStatus } from "src/app/models/scoring/smart-game-status";
 import { getGravity } from "src/app/shared/tetris/gravity";
 import MoveableTetromino from "src/app/shared/tetris/moveable-tetromino";
 import { TetrisBoard } from "src/app/shared/tetris/tetris-board";
@@ -8,6 +6,8 @@ import { TetrominoType } from "src/app/shared/tetris/tetromino-type";
 import { CurrentlyPressedKeys } from "./currently-pressed-keys";
 import { Keybind } from "./keybinds";
 import { getLockDelay } from "./spawn-delay";
+import { SmartGameStatus } from "src/app/shared/tetris/smart-game-status";
+import { IGameStatus } from "src/app/shared/tetris/game-status";
 
 
 export const EMULATOR_FPS = 60;

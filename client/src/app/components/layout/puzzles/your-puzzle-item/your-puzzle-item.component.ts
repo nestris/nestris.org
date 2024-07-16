@@ -6,9 +6,9 @@ import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
 import { NotificationService } from 'src/app/services/notification.service';
 import { BinaryTranscoder } from 'src/app/shared/network/tetris-board-transcoding/binary-transcoder';
 import { PlayerPuzzle } from 'src/app/shared/puzzles/player-puzzle';
-import { copyPuzzleLink } from 'src/app/shared/scripts/copy-url';
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { PuzzleMode } from '../../play-puzzle/play-puzzle-page/play-puzzle-page.component';
+import { copyPuzzleLink } from 'src/app/util/copy-url';
 
 
 @Component({

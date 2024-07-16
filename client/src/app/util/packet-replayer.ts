@@ -1,6 +1,5 @@
-import { get } from "http";
-import { BinaryEncoder } from "network-protocol/binary-codec";
-import { PacketContent, getPacketDelay } from "network-protocol/stream-packets/packet";
+import { BinaryEncoder } from "../shared/network/binary-codec";
+import { PacketContent, getPacketDelay } from "../shared/network/stream-packets/packet";
 
 /*
 Given a stream of PacketSchema, some of them TimedPacketSchema, process these packets respecting 

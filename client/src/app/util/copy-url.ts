@@ -1,6 +1,7 @@
-import { PuzzleMode } from "client/src/app/components/layout/play-puzzle/play-puzzle-page/play-puzzle-page.component";
-import { NotificationService } from "client/src/app/services/notification.service";
-import { NotificationType } from "network-protocol/models/notifications";
+import { PuzzleMode } from "../components/layout/play-puzzle/play-puzzle-page/play-puzzle-page.component";
+import { NotificationService } from "../services/notification.service";
+import { NotificationType } from "../shared/models/notifications";
+
 
 export function copyPuzzleLink(notifier: NotificationService, puzzleID: string) {
 

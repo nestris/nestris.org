@@ -1,5 +1,5 @@
 import { TetrisBoard } from "../tetris/tetris-board";
-import { BinaryTranscoder } from "../tetris-board-transcoding/binary-transcoder";
+import { BinaryTranscoder } from "./tetris-board-transcoding/binary-transcoder";
 import { MTPose } from "../tetris/moveable-tetromino";
 import { TetrominoType } from "../tetris/tetromino-type";
 

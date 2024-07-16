@@ -3,9 +3,9 @@ Stores a rectangle dimensions, and the specifications of the matrix within the r
 to OCR
 */
 
-import { Point } from "../point";
 import { RGBGrid } from "./rgb-grid";
 import { Pixels } from "./pixels";
+import { Point } from "src/app/shared/tetris/point";
 
 export type Rectangle = {
     top: number;

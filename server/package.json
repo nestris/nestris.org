@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "npx ts-node index.ts",
     "test": "jest"
   },
   "keywords": [],

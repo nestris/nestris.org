@@ -1,6 +1,5 @@
-import { BinaryDecoder } from "./binary-codec";
 import { JsonMessage } from "./json-message";
-import { PacketDisassembler } from "../stream-packets/packet-disassembler";
+import { PacketDisassembler } from "./stream-packets/packet-disassembler";
 
 /*
 A websocket message is sent in one of two formats:

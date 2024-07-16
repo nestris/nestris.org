@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
-import { Point } from 'src/app/models/point';
 import MoveableTetromino from 'src/app/shared/tetris/moveable-tetromino';
+import { Point } from 'src/app/shared/tetris/point';
 import { TetrisBoard, ColorType } from 'src/app/shared/tetris/tetris-board';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 

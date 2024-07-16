@@ -1,8 +1,8 @@
-import { SmartGameStatus } from "client/src/app/models/scoring/smart-game-status";
-import { GameRecoverySchema } from "network-protocol/stream-packets/packet";
-import MoveableTetromino, { MTPose } from "network-protocol/tetris/moveable-tetromino";
-import { TetrisBoard } from "network-protocol/tetris/tetris-board";
-import { TetrominoType } from "network-protocol/tetris/tetromino-type";
+import { GameRecoverySchema } from "../network/stream-packets/packet";
+import MoveableTetromino, { MTPose } from "../tetris/moveable-tetromino";
+import { TetrisBoard } from "../tetris/tetris-board";
+import { TetrominoType } from "../tetris/tetromino-type";
+import { SmartGameStatus } from "../tetris/smart-game-status";
 
 // Keeps track of state within a legal game
 export class GameState {

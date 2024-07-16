@@ -1,7 +1,7 @@
 import { RGBColor } from "src/app/shared/tetris/tetromino-colors";
-import { Point } from "../point";
 import { Rectangle } from "./ocr-box";
 import { Pixels } from "./pixels";
+import { Point } from "src/app/shared/tetris/point";
 
 export class FloodFill {
     private width: number;

@@ -1,5 +1,4 @@
-import { FriendInfo, OnlineUserStatus } from "./models/friends"
-import { NotificationType } from "./models/notifications"
+import { NotificationType } from "../models/notifications"
 
 /*
 Data sent over websocket as JSON. type is the only required field and specifies

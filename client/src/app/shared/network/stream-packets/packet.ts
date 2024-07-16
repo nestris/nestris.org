@@ -1,7 +1,8 @@
-import { TetrominoType } from "network-protocol/tetris/tetromino-type";
-import { BinaryDecoder, BinaryEncoder } from "../binary-codec";
-import { TetrisBoard } from "../tetris/tetris-board";
-import { MTPose } from "network-protocol/tetris/moveable-tetromino";
+import { MTPose } from "../../tetris/moveable-tetromino";
+import { TetrisBoard } from "../../tetris/tetris-board";
+import { TetrominoType } from "../../tetris/tetromino-type";
+import { BinaryEncoder, BinaryDecoder } from "../binary-codec";
+
 
 export enum PacketOpcode {
   LAST_PACKET_OPCODE = 0, // sent at the end of the PacketAssembler

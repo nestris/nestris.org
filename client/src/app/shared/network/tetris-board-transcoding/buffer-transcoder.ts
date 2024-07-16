@@ -1,7 +1,7 @@
-import { ColorType, TetrisBoard } from "../tetris/tetris-board";
+import { TetrisBoard } from "../../tetris/tetris-board";
+
 
 // Encodes and decodes tetris board retaining full color information compactly into a byte array
-
 export class BufferTranscoder {
 
   // Return a Uint8Array of 50 bytes

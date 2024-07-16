@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { ButtonColor } from '../../ui/solid-button/solid-button.component';
-import { Point } from 'src/app/models/point';
 import { fetchServer, Method } from 'src/app/scripts/fetch-server';
 import { getTopMovesHybrid } from 'src/app/scripts/stackrabbit-decoder';
 import { CreatePuzzleRestoreService } from 'src/app/services/create-puzzle-restore.service';
@@ -13,6 +12,7 @@ import { BinaryTranscoder } from 'src/app/shared/network/tetris-board-transcodin
 import MoveableTetromino from 'src/app/shared/tetris/moveable-tetromino';
 import { TetrisBoard, ColorType } from 'src/app/shared/tetris/tetris-board';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
+import { Point } from 'src/app/shared/tetris/point';
 
 export interface Move {
   firstPlacement: MoveableTetromino;

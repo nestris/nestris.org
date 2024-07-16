@@ -1,4 +1,4 @@
-import { ColorType, TetrisBoard } from "../tetris/tetris-board";
+import { TetrisBoard, ColorType } from "../../tetris/tetris-board";
 
 // given a string of 200 0s and 1s (and 2s and 3s if color), return a TetrisBoard
 export class BinaryTranscoder {
