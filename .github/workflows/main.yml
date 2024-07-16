@@ -61,5 +61,5 @@ jobs:
             export POSTGRES_USER=${POSTGRES_USER}
             export POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
             export POSTGRES_DB=${POSTGRES_DB}
-            docker-compose pull
-            docker-compose up -d --build
+            docker compose pull
+            docker compose up -d --build
