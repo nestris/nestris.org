@@ -170,8 +170,8 @@ export class WebsocketService {
     this.username = username;
     this.sessionID = uuid();
 
-    const host = location.origin.replace(/^http/, 'ws');
-    console.log("Connecting", location.origin, host);
+    const host = `ws://${location.host}/ws`;
+    console.log("Connecting:", host);
     this.ws = new WebSocket(host);
 
     // when the websocket connects, send the OnConnectMessage to initiate the handshake
