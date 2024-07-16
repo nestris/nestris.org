@@ -44,3 +44,22 @@ jobs:
           docker compose -f docker-compose.yml build
           docker compose -f docker-compose.yml push
           
+      - name: Deploy to DigitalOcean
+        env:
+          DO_SSH_KEY: ${{ secrets.DO_SSH_KEY }}
+          DO_HOST: ${{ vars.DO_HOST }}
+          NODE_ENV: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
+          POSTGRES_USER: ${{ github.ref == 'refs/heads/main' && secrets.POSTGRES_USER_PROD || secrets.POSTGRES_USER_DEV }}
+          POSTGRES_PASSWORD: ${{ github.ref == 'refs/heads/main' && secrets.POSTGRES_PASSWORD_PROD || secrets.POSTGRES_PASSWORD_DEV }}
+          POSTGRES_DB: ${{ github.ref == 'refs/heads/main' && secrets.POSTGRES_DB_PROD || secrets.POSTGRES_DB_DEV }}
+        run: |
+          echo "${DO_SSH_KEY}" > key.pem
+          chmod 600 key.pem
+          ssh -o StrictHostKeyChecking=no -i key.pem root@${DO_HOST} << 'EOF'
+            cd docker-angular-ts-node-postgres-websocket-template
+            export NODE_ENV=${NODE_ENV}
+            export POSTGRES_USER=${POSTGRES_USER}
+            export POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+            export POSTGRES_DB=${POSTGRES_DB}
+            docker-compose pull
+            docker-compose up -d --build

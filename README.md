@@ -39,4 +39,10 @@ The current set up uses Github Actions and DigitalOcean. This section should be 
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=password
 POSTGRES_DB=mydatabase
+DO_SSH_KEY=[private key]
+```
+
+### Define variables in Github Actions in repository
+```
+DO_HOST=DO droplet IP address
 ```
