@@ -102,10 +102,18 @@ For staging server: `docker compose -f docker-compose.staging.yml logs`
 
 ## Helpful Droplet commands
 
+### Show logs for a container
+`docker logs [container-id] [--follow]`
+
 ### This opens up an interactive PostgreSQL session in the prod/staging database
 `docker exec -it [container-id] psql -U postgres -d mydatabase`
 
-List all tables with `\dt`
+### List all tables in database
+`\dt`
+
+### Wipe database and reset###
+Initializes the database. DO NOT RUN THIS unless you want to wipe all data.
+`docker exec -i [container-id] psql -U postgres -d mydatabase -f /docker-entrypoint-initdb.d/init.sql`
 
 
 ## Setting up production environment for CI/CD
