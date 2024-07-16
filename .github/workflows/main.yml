@@ -40,8 +40,8 @@ jobs:
       - name: Build and push Docker images for main
         if: github.ref == 'refs/heads/main'
         run: |
-          docker compose -f docker-compose.prod.yml build
-          docker compose -f docker-compose.prod.yml push
+          docker compose -f docker-compose.production.yml build
+          docker compose -f docker-compose.production.yml push
 
       - name: Build and push Docker images for dev
         if: github.ref == 'refs/heads/dev'

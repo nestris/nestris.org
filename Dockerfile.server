@@ -8,10 +8,6 @@ RUN npm install
 
 COPY server ./
 
-# Test stage
-FROM base AS test
-
-# Run tests
 RUN npm test
 
 # Final stage

@@ -8,9 +8,6 @@ RUN npm install
 
 COPY client ./
 
-# Test stage
-FROM base AS test
-# Runs tests
 RUN npm test
 
 # Production stage
