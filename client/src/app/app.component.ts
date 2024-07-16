@@ -1,23 +1,27 @@
-import { Component, OnInit } from '@angular/core';
-import { isDevMode } from '@angular/core';
-
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { NotificationService } from './services/notification.service';
+import { PushNotificationService } from './services/push-notification.service';
+import { ModalManagerService } from './services/modal-manager.service';
+import { OcrDigitService } from './services/ocr/ocr-digit.service';
+import { MiscMessageHandlerService } from './services/misc-message-handler.service';
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit {
-  title = 'client-app';
 
-  ngOnInit() {
+  constructor(
+    private pushNotificationService: PushNotificationService,
+    private notificationService: NotificationService,
+    public modalManagerService: ModalManagerService,
+    private ocrDigitService: OcrDigitService,
+    private miscMessageHandlerService: MiscMessageHandlerService,
+  ) {
   }
 
-  get() {
-    return `Is dev mode: ${isDevMode()}`;
-  }
-
-  add(a: number, b: number) {
-    return a + b;
+  async ngOnInit() {
+    this.ocrDigitService.init();
   }
 
 }

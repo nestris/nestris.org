@@ -1,0 +1,47 @@
+<div class="columns">
+    <div class="board-column">
+        <app-nes-board [scale]="3" [board]="board" [level]="level" [countdown]="countdown" />
+        <div class="keybinds-container">
+            <p class="keybinds" *ngFor="let text of keybinds">{{text}}</p>
+        </div>
+    </div>
+    
+    
+
+    <div class="panels">
+
+        <app-nes-panel class="score-panel">
+            <p>Score</p>
+            <h1>{{score}}</h1>
+        </app-nes-panel>
+
+        <div class="level-lines">
+            <app-nes-panel class="level-panel">
+                <p>Level</p>
+                <h1>{{level}}</h1>
+            </app-nes-panel>
+            <app-nes-panel class="lines-panel">
+                <p>Lines</p>
+                <h1>{{lines}}</h1>
+            </app-nes-panel>
+        </div>
+
+        <app-nes-panel class="next-box-panel">
+            <app-nes-piece [scale]="3" [piece]="nextType" [level]="level" />
+        </app-nes-panel>
+
+        <app-nes-panel class="trt-panel">
+            <p>TRT</p>
+            <h2>{{(trt*100).toFixed(0)}}%</h2>
+        </app-nes-panel>
+
+        <app-nes-panel class="das-panel" *ngIf="das !== undefined">
+            <p>DAS</p>
+            <h2>{{das}}</h2>
+        </app-nes-panel>
+
+
+
+
+    </div>
+</div>

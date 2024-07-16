@@ -1,0 +1,22 @@
+<div class="main-container">
+  <div class="main">
+
+    <div class="buttons">
+      <app-solid-button label="Create Puzzle" [color]="ButtonColor.GREEN" (click)="openCreatePuzzleModal()" />
+    </div>
+    
+    <div *ngIf="!(websocketService.onSignInUpdate() | async)" class="sign-in-panel">
+      <p class="sign-in">Sign in to view your puzzle sets!</p>
+    </div>
+    
+    <div class="panels" *ngIf="(websocketService.onSignInUpdate() | async)">
+      <div class="panel folder-panel">1</div>
+      <div class="panel puzzle-panel">
+        <app-your-puzzle-item *ngFor="let puzzle of puzzlesInCurrentFolder$ | async"
+        [puzzle]="puzzle" (delete)="deletePuzzle(puzzle)" />
+      </div>
+    </div>    
+
+  </div>
+</div>
+

@@ -1,0 +1,12 @@
+
+<div *ngIf="!linkedToRouter" class="tab-selector" [class.small]="small">
+  <div *ngFor="let tab of tabs" class="tab" [class.small]="small" [ngClass]="(selectedTab === tab) ? 'selected' : ''" (click)="selectTab(tab)">
+      <p class="tab-label" [class.small]="small">{{tabStrings ? tabStrings[tab] : tab}}</p>
+  </div>
+</div>
+
+<div *ngIf="linkedToRouter" class="tab-selector" [class.small]="small">
+  <a *ngFor="let tab of tabs" [class.small]="small" [routerLink]="tabToURL[tab]" class="tab" routerLinkActive="selected">
+      <p class="tab-label" [class.small]="small">{{tabStrings ? tabStrings[tab] : tab}}</p>
+  </a>
+</div>

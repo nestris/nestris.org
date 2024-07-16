@@ -1,0 +1,15 @@
+<app-modal class="modal" [visibility$]="visibility$">
+   <div class="container">
+      <h1 class="header">Search for players</h1>
+      <input type="text" id="username" placeholder="Type a username..."
+      [(ngModel)]="typedUsername" autocomplete="off" autofocus>
+
+      <h2 class="loading" *ngIf="potentialFriends === undefined" >Loading...</h2>
+      <div class="usernames" *ngIf="potentialFriends !== undefined">
+         <div class="username" *ngFor="let potentialFriend of potentialFriends">
+            <p class="username-text">{{potentialFriend.username}}</p>
+            <app-friend-icon [status]="potentialFriend.status" (click)="sendFriendRequest(potentialFriend)" />
+         </div>
+      </div>
+   </div>   
+  </app-modal>

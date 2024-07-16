@@ -1,0 +1,95 @@
+:host {
+    width: fit-content;
+    position: fixed;
+    transform: translateY(40px);
+}
+
+.container {
+
+    width: 250px;
+
+}
+
+.header {
+    font-family: Montserrat;
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    margin-top: 0px;
+}
+
+.modal ::ng-deep .modal {
+    border-radius: 10px;
+}
+
+/* Resetting input styles */
+#username {
+    all: unset;
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+/* Applying custom styles */
+#username {
+    border-radius: 5px; /* Set border radius */
+    background-color: rgba(255, 255, 255, 0.07); /* Set background color */
+    padding: 5px; /* Add some padding inside the input */
+    box-sizing: border-box;
+    width: 100%; /* Set a specific width */
+    font-size: 16px; /* Set font size */
+
+    margin-bottom: 10px;
+}
+
+/* Placeholder styles */
+#username, #username::placeholder {
+    color: rgba(255, 255, 255, 0.5); /* Set placeholder text color */
+    font-family: Montserrat;
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+#username::placeholder {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.loading {
+    font-family: Montserrat;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.usernames {
+    display: flex;
+    flex-direction: column;
+}
+
+.username {
+    box-sizing: border-box;
+    width: 100%;
+    border-radius: 5px;
+    padding-inline: 5px;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.username:hover {
+    background-color: rgba(255, 255, 255, 0.02);
+
+}
+
+.username-text {
+    font-family: Alegreya;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    margin: 4px;
+}

@@ -1,0 +1,332 @@
+@import "../../../../../styles.scss";
+
+.root {
+    display: block;
+    background: linear-gradient(7deg,rgba(126, 4, 182, 0.5) 0%,rgba(0,0,0,1) 70%);
+    position: relative;
+
+    transition: background-color 1s ease-in-out;
+
+    width: 100%;
+    height: 100%;
+}
+
+header {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.root.correct {
+    background: linear-gradient(7deg,rgba(4,182,32,.5) 0%,rgba(0,0,0,1) 70%);
+}
+
+.root.incorrect {
+    background: linear-gradient(7deg,rgba(182, 4, 4, 0.5) 0%,rgba(0,0,0,1) 70%);
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.title, .subtitle {
+    font-family: 'NES';
+    color: white;
+    text-wrap: nowrap;
+}
+
+.title {
+    font-size: 55px;
+    margin-top: 10px;
+    margin-bottom: 0px;
+}
+
+.subtitle {
+    font-size: 25px;
+    margin: 0px;
+}
+
+.subtitle-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 75%;
+    gap: 30px;
+}
+
+.subtitle-container hr {
+    width: 100%;
+    margin: 0;
+    border: solid 1.5px;
+}
+
+.main-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.puzzle-details {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+    align-items: center;
+
+    width: 320px;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.10);;
+}
+
+.puzzle-details-top {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    
+    gap: 10px;
+};
+
+.puzzle-header-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.puzzle-details-bottom {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    gap: 7px;
+}
+
+.puzzle-header {
+    display: flex;
+    flex-direction: row;
+    gap: 7px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.puzzle-header-icon {
+    transform: translateY(1px);
+}
+
+.puzzle-header h1 {
+    color: #FFF;
+    text-align: center;
+    font-family: Montserrat;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 800;
+    line-height: normal;
+    margin: 0;
+}
+
+.puzzle-details-top h1.correct {
+    color: $ui-green-color;
+}
+
+.puzzle-details-top h1.incorrect {
+    color: $ui-red-color;
+}
+
+.next-box-text {
+    font-family: 'NES';
+    color: white;
+    font-size: 20px;
+    margin: 0;
+}
+
+.board {
+    margin-right: 40px;
+}
+
+.next-box-container {
+    width: 100%;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+
+.left-col {
+    width: 400px;
+    margin-left: 20px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+.instructions {
+    color: #FFF;
+    text-align: center;
+    font-family: Neucha;
+    font-size: 25px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    margin: 0;
+}
+
+.instructions.narrow {
+    font-size: 18px;
+    width: 80%;
+}
+
+.undo-button {
+    align-self: flex-end;
+    margin-right: 5px;
+}
+
+.timer {
+    width: 90%;
+    margin-bottom: 20px;
+}
+
+// .elo-container {
+//     margin-bottom: 20px;
+// }
+
+
+.engine-div {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+
+    width: 80%;
+  }
+
+.engine-div h2, .feedback-container h2 {
+    font-family: $main-font;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    margin: 5px;
+}
+  
+  .engine-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .table-rows {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr 1fr 1fr;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .labels p {
+    font-family: Montserrat;
+    font-size: 9px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    text-align: center;
+    text-wrap: nowrap;
+    opacity: 0.7;
+    margin: 2px;
+  }
+  
+  .engine-move {
+    background-color: rgb(255, 255, 255, 0.2);
+    border-radius: 10px;
+    margin-bottom: 4px;
+  
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+  }
+  
+  .engine-move.first-move {
+    background-color: #156241;
+  }
+
+  .engine-move:hover {
+    opacity: 0.8;
+  }
+  
+  .engine-move p {
+    font-family: Montserrat;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    text-align: center;
+    text-wrap: nowrap;
+    margin: 3px;
+  }
+  
+  .left {
+    text-align: left !important;
+    margin-left: 10px !important;
+  }
+  
+  .two-button-container {
+    width: 100%;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 6px;
+  }
+
+  .puzzle-stats {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column; 
+    padding-inline: 16px;
+  }
+
+  .puzzle-stats .stat {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .puzzle-stats .stat h1 {
+    font-family: $main-font;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    margin-block: 2px;
+  }
+
+  .puzzle-stats .stat p {
+    font-family: $main-font;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    margin-block: 2px;
+  }
+
+  .feedback-container {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+  }

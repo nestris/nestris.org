@@ -1,0 +1,155 @@
+@import "../../../../styles.scss";
+
+.modal {
+
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h1 {
+  font-family: Montserrat;
+  font-size: 30px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  text-align: center;
+  text-wrap: nowrap;
+  margin-bottom: 0;
+}
+
+p {
+  font-family: Montserrat;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  text-align: center;
+  text-wrap: pretty;
+  max-width: 300px;
+  margin-top: 5px;
+  margin-bottom: 25px;
+}
+
+h2 {
+  font-family: Montserrat;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  text-align: center;
+  text-wrap: nowrap;
+  margin: 0;
+  margin-bottom: 5px;
+}
+
+.board-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.content {
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+}
+
+.panels {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 200px;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.piece-container {
+  background-color: $section-color;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  height: 35px;
+  cursor: pointer;
+}
+
+.piece-container:hover {
+  opacity: 0.8;
+}
+
+.engine-div {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.engine-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.table-rows {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.labels p {
+  font-family: Montserrat;
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  text-align: center;
+  text-wrap: nowrap;
+  opacity: 0.7;
+  margin: 2px;
+}
+
+.engine-move {
+  background-color: $section-color;
+  border-radius: 10px;
+  margin-bottom: 4px;
+
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+}
+
+.engine-move:hover {
+  opacity: 0.8;
+}
+
+.engine-move p {
+  font-family: Montserrat;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  text-align: center;
+  text-wrap: nowrap;
+  margin: 3px;
+}
+
+.left {
+  text-align: left !important;
+  margin-left: 10px !important;
+}
+
+.left-label {
+  text-align: left !important;
+  margin-left: 17px !important;
+}

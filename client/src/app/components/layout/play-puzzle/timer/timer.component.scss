@@ -1,0 +1,55 @@
+@import "../../../../../styles.scss";
+
+.border {
+    height: 30px;
+    width: 100%;
+
+    border: solid white 2px;
+    border-radius: 5px;
+    position: relative;
+}
+
+.fill {
+    background-color: white;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.border {
+    transition: border-color 1s ease-in-out;
+}
+
+.border .fill {
+    transition: background-color 1s ease-in-out;
+}
+
+.border.red {
+    border-color: $ui-red-color;
+}
+
+.border.red .fill {
+    background-color: $ui-red-color;
+}
+
+.label {
+    color: #FFF;
+    text-align: center;
+    font-family: Montserrat;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    margin: 0;
+
+    position: absolute;
+    right: 7px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    transition: color 1s ease-in-out;
+}
+
+.border.red .label {
+    color: $ui-red-color;
+}
+

@@ -1,0 +1,64 @@
+<div class="modal">
+  <div class="header">
+    <h1>Create your own puzzle!</h1>
+    <p>In a puzzle, players guess the best current and next piece placements for a given board</p>
+  </div>
+  <div class="content">
+
+    <div class="board-panel">
+      <h2>Click or drag to place minos</h2>
+      <app-nes-board [scale]="2.5" [board]="board$ | async"
+        [activePiece]="(hoveredMove$ | async)?.firstPlacement"
+        [nextPiece]="(hoveredMove$ | async)?.secondPlacement"
+        [activePieceOpacity]="0.8" [nextPieceOpacity]="0.5"
+        (hoveringBlock)="hoveredBlock = $event" (mousedown)="onMouseDown()" (mousemove)="onMouseMove()"/>
+    </div>
+    
+    <div class="panels">
+
+      <div>
+        <h2 class="prevent-select">Edit current piece</h2>
+        <div class="piece-container" (click)="toggleType($event, currentType$)">
+          <app-nes-piece [scale]="2" [piece]="(currentType$ | async) ?? TetrominoType.ERROR_TYPE" />
+        </div>
+      </div>
+
+      <div>
+        <h2 class="prevent-select">Edit next piece</h2>
+        <div class="piece-container" (click)="toggleType($event, nextType$)">
+          <app-nes-piece [scale]="2" [piece]="(nextType$ | async) ?? TetrominoType.ERROR_TYPE" />
+        </div>
+      </div>
+
+      <div class="engine-div">
+        <h2 class="prevent-select">Engine Evaluation</h2>
+        <div class="engine-container">
+          <div class="labels table-rows">
+            <p class="left-label">Score</p>
+            <p>Current</p>
+            <p>Next</p>
+          </div>
+
+          <div class="engine-move table-rows" *ngFor="let move of (moveRecommendations$ | async)"
+            (mouseenter)="hoverEngineMove(move)" (mouseleave)="hoverEngineMove(undefined)"
+          >
+            <p class="left">{{ (move.score > 0 ? ('+' + move.score) : move.score) }}</p>
+            <p>{{ move.firstPlacement.getTetrisNotation() }}</p>
+            <p>{{ move.secondPlacement.getTetrisNotation() }}</p>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="buttons">
+        <app-solid-button label="Reset" [color]="ButtonColor.GREY" (click)="resetBoard()" />
+        <app-solid-button label="Save" [color]="ButtonColor.BLUE" (click)="generatePuzzle()"
+          [tooltip]="!(websocketService.onSignInUpdate() | async) ? 'Login to save and share this puzzle.' : (!((moveRecommendations$ | async)?.length) ? 'Waiting for engine...' : '')"
+          [loading]="!!(submittingPuzzle$ | async)"
+          [disabled]="!((moveRecommendations$ | async)?.length) || !(websocketService.onSignInUpdate() | async)"  />
+      </div>
+
+    </div>
+  </div>
+  
+</div>

@@ -1,0 +1,10 @@
+<app-nes-board
+    class="board" [scale]="scale" [interactable]="true"
+    [board]="currentBoard$ | async"
+    [level]="18"
+    [nextType]="((hoveredPiece$ | async) === undefined) ? getActivePieceType() : undefined"
+    [activePiece]="(hoveredPiece$ | async) ?? undefined"
+    [activePieceOpacity]="(hoveredPiece$ | async)?.isValidPlacement(currentBoard$.getValue()!) ? 0.7 : 0.35"
+    (hoveringBlock)="onHoveringBlock($event)"
+    (click)="onClickBoard()"
+/>

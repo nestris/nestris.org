@@ -1,0 +1,8 @@
+<div class="modal-container" *ngIf="(modalManager.getModal$() | async) as modal">
+    <app-modal [visibility$]="visibility$">
+        <app-calibrate-ocr-modal *ngIf="modal === ModalType.CALIBRATE_OCR" />
+        <app-create-puzzle-modal *ngIf="modal === ModalType.CREATE_PUZZLE" />
+        <app-auth-modal *ngIf="modal === ModalType.AUTH" />
+        <app-challenge-modal *ngIf="modal === ModalType.CHALLENGE_PLAYER" [config]="modalManager.getModalConfig()" />
+    </app-modal>
+</div>

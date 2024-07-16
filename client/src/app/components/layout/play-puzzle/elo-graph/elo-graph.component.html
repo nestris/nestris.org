@@ -1,0 +1,36 @@
+<div class="root">
+    <div class="labels">
+        <p class="label" *ngFor="let label of eloLines.slice().reverse()">{{label}}</p>
+    </div>
+    
+    <!-- useable viewbox from x=0 to x=14, and y=eloLines[0] to y=eloLines[3]. rest is padding -->
+    <svg class="graph" preserveAspectRatio="none"
+        [attr.viewBox]="'-0.5 ' + (eloLines[0]-10) + ' 15 ' + (eloLines[3]-eloLines[0]+20)">
+        
+        <!-- draw the graph lines -->
+        <line *ngFor="let elo of eloLines" x1="-0.2" x2="14.2"
+            stroke-width="0.5"
+            [attr.y1]="elo" [attr.y2]="elo" stroke="white" stroke-opacity="0.5" vector-effect="non-scaling-stroke"></line>
+
+        <!-- draw the lines connecting the elo circles -->
+        <line *ngFor="let pair of invertedEloPairs; let i = index"
+            [attr.x1]="i" [attr.x2]="i+1"
+            [attr.y1]="pair[0]" [attr.y2]="pair[1]"
+            stroke-width="0.75" stroke="#E4E4E4" vector-effect="non-scaling-stroke"/>
+
+        <!-- draw the elo circles. To prevent distortion, use hack from https://stackoverflow.com/questions/74887254/draw-a-circle-in-svg-with-preserveaspectratio-none -->
+        <!-- (actual displayed circle) -->
+            <line *ngFor="let invertedElo of invertedEloHistory; let i = index"
+            [attr.x1]="i" [attr.x2]="i"
+            [attr.y1]="invertedElo" [attr.y2]="invertedElo+0.1"
+            stroke-width="6" stroke-linecap="round" vector-effect="non-scaling-stroke"
+            [attr.stroke]="(i === invertedEloHistory.length-1) ? (lastResult ? '#58D774' : '#F15757') : '#E4E4E4'" />
+        <!-- (tooltip hitbox) -->
+        <line *ngFor="let invertedElo of invertedEloHistory; let i = index"
+            [tooltip]="invertElo(invertedElo).toFixed(0)"
+            [attr.x1]="i" [attr.x2]="i"
+            [attr.y1]="invertedElo" [attr.y2]="invertedElo+0.1"
+            stroke="white" stroke-width="15" stroke-opacity="0" stroke-linecap="round" vector-effect="non-scaling-stroke" />
+
+    </svg>
+</div>

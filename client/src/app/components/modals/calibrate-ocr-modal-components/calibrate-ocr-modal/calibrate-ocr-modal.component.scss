@@ -1,0 +1,81 @@
+@import "../../../../../styles.scss";
+
+.modal {
+    width: 750px;
+    height: 400px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.stepper {
+    
+}
+
+.content {
+    flex-grow: 1;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+
+    gap: 10px;
+}
+
+.col {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.select-video-source .col.left {
+    gap: 15px;
+}
+
+.select-video-source, .locate-tetris-board {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+}
+
+.no-board-text {
+    font-family: Montserrat;
+    font-size: 11px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    text-align: center;
+    width: 90%;
+}
+
+.verify-ocr {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 20px;
+}
+
+.verify-ocr .item {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+}
+
+.verify-ocr .item h1 {
+    font-family: $main-font;
+    font-size: 16px;
+    font-weight: 600;
+}

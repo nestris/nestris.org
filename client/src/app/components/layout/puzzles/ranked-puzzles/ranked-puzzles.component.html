@@ -1,0 +1,37 @@
+<div class="main-container">
+  <div class="main">
+
+    <a routerLink="/online/puzzle"><div class="begin-button" [class.not-logged-in]="!(websocket.onSignInUpdate() | async)">
+      <img src="./assets/img/puzzle-button-icons/play.svg" alt="Play" />
+      <p>{{(websocket.onSignInUpdate() | async) ? 'Begin' : 'Sign in to start playing!'}}</p>
+    </div></a>
+
+    <div class="stat-row">
+      <app-elo />
+      <app-daily-streak />
+      <app-global-rank />
+    </div>
+
+    <div class="summary-row">
+      <div class="summary column">
+        <div class="header">
+          <h1>Summary</h1>
+          <app-tab-selector [tabs]="SUMMARY_TAB_LIST" [tabStrings]="SUMMARY_TAB_STRING"
+          [small]="true" [(selectedTab)]="selectedSummaryTab" />
+        </div>
+        <app-summary [period]="selectedSummaryTab" />
+      </div>
+      <div class="insights column">
+        <div class="header">
+          <h1>Insights</h1>
+        </div>
+        <app-insights />
+      </div>
+      <div class="buttons column">
+        <div class="header"></div>
+        <app-buttons />
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,50 @@
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.main {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(7deg,rgba(255,215,0,0.46) 0%,rgba(0,0,0,1) 70%);
+    position: relative;
+}
+
+.main.player-solo {
+    background: linear-gradient(7deg,rgba(4,43,182,.5) 0%,rgba(0,0,0,1) 70%);
+}
+
+.main.player-multiplayer {
+    background: black;
+}
+
+
+
+.emulator-menu {
+    position: absolute;
+    top: 450px;
+    left: calc(30% + 290px);
+}
+
+.game {
+    position: absolute;
+    top: 100px;   
+}
+
+.game.solo {
+    left: 30%;
+}
+
+.game.left {
+    left: 150px;
+}
+
+.game.right {
+    right: 150px;
+}
+
+.emulator-menu.multiplayer {
+    left: 450px;
+}

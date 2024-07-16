@@ -1,0 +1,20 @@
+<app-nes-panel>
+  <p>Menu</p>
+
+  <div class="level-buttons">
+    <div class="menu-button" *ngFor="let level of LEVELS"
+      (click)="selectedLevelChange.emit(level)" [class.selected]="selectedLevel === level">
+      <p>{{level}}</p>
+    </div>
+  </div>
+
+  <div class="menu-buttons">
+    <div class="menu-button pause" [class.paused]="isPaused" (click)="togglePause.emit()">
+      <p>{{isPaused ? 'Start' : 'Pause'}}</p>
+    </div>
+    <div class="menu-button reset" (click)="reset.emit()">
+      <p>RESET</p>
+    </div>
+  </div>
+
+</app-nes-panel>

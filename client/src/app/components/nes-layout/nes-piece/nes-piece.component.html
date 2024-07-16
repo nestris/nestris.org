@@ -1,0 +1,20 @@
+<svg class="next-box-svg"
+        [attr.width]="(scale*boardWidthPixels) + 'px'"
+        [attr.height]="(scale*boardHeightPixels) + 'px'"
+        [attr.viewBox]="'0 0 ' + boardWidthPixels + ' ' + boardHeightPixels">
+
+        <g>
+            <g *ngFor="let y of ROWS">
+                <g *ngFor="let x of COLS">
+                    <g app-nes-block
+                        [color]="nextBox ? nextBox[y][x] : ColorType.EMPTY"
+                        [level]="level"
+                        [interactable]="false"
+                        [offsetX]="9*x"
+                        [offsetY]="9*y"
+                    />
+                </g>
+            </g>
+        </g>
+
+    </svg>

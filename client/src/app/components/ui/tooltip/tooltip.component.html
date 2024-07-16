@@ -1,0 +1,5 @@
+<div *ngIf="(tooltip.getTooltipInfo$() | async) as info" class="tooltip"
+    [ngStyle]="{'top': (info.position.y+5) + 'px', 'left': (info.position.x+11) + 'px'}"
+>
+    <p>{{ info.text }}</p>
+  </div>

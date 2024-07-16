@@ -1,0 +1,6 @@
+<div class="thumbs">
+  <img *ngIf="(feedback$ | async) === PuzzleFeedback.LIKE" src="./assets/img/feedback-icons/like-enabled.svg" alt="Like" (click)="setFeedback(PuzzleFeedback.NONE)" />
+  <img *ngIf="(feedback$ | async) === PuzzleFeedback.NONE || (feedback$ | async) === PuzzleFeedback.DISLIKE" class="icon-disabled" src="./assets/img/feedback-icons/like-disabled.svg" alt="Like" (click)="setFeedback(PuzzleFeedback.LIKE)" />
+  <img *ngIf="(feedback$ | async) === PuzzleFeedback.DISLIKE" src="./assets/img/feedback-icons/dislike-enabled.svg" alt="Dislike" (click)="setFeedback(PuzzleFeedback.NONE)" />
+  <img *ngIf="(feedback$ | async) === PuzzleFeedback.NONE || (feedback$ | async) === PuzzleFeedback.LIKE" class="icon-disabled" src="./assets/img/feedback-icons/dislike-disabled.svg" alt="Dislike" (click)="setFeedback(PuzzleFeedback.DISLIKE)" />
+</div>

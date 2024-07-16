@@ -1,0 +1,14 @@
+<a [routerLink]="'/' + tab" routerLinkActive="selected" (click)="onTabClick()">
+    <div class="tab" [class.badge]="(badgeService.isBadgeActive$(tab) | async)">
+
+        <div class="tab-left">
+            <img class="icon" [src]="(badgeService.isBadgeActive$(tab) | async) ? getBadgeIcon(tab) : getIcon(tab)" width="20px">
+            <h1 class="label">{{ getDisplayName(tab) }}</h1>
+        </div>
+
+        <div class="tab-right">
+            <ng-content></ng-content>
+        </div>
+
+    </div>
+</a>

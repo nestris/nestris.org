@@ -1,0 +1,17 @@
+@import "../../../../../../../styles.scss";
+
+:host {
+  flex-grow: 1;
+}
+
+.insights-container {
+  background-color: $button-disabled-color;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}

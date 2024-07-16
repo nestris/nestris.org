@@ -1,0 +1,27 @@
+:host {
+    position: absolute;
+    pointer-events: none;
+}
+
+// to be overlaid on top of the parent component, parent component
+// must have position: relative
+:host, .modal-container {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 10;
+}
+
+.modal-container {
+    pointer-events: all;
+
+    // background blur
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(20px) brightness(1.5);
+
+    // position of modal
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

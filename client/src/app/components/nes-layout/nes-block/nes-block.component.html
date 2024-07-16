@@ -1,0 +1,52 @@
+
+<svg:g class="block">
+
+    <!-- draw bounding box. show if hovering over no block -->
+    <svg:rect
+        [attr.x]="offsetX" [attr.y]="offsetY"
+        [attr.width]="9"
+        [attr.height]="9"
+        opacity="0"
+    />
+
+    <!-- Draw hovering square if hovering over no block -->
+    <svg:rect *ngIf="color === Color.EMPTY"
+        [attr.x]="offsetX" [attr.y]="offsetY"
+        [attr.width]="8"
+        [attr.height]="8"
+        [attr.opacity]="isHovering ? 1 : 0"
+        fill="rgb(50,50,50)" />
+
+    <!-- Draw the block background -->
+    <svg:rect *ngIf="color !== Color.EMPTY"
+        [attr.x]="offsetX" [attr.y]="offsetY"
+        [attr.width]="8"
+        [attr.height]="8"
+        [attr.opacity]="isHovering ? 0.8 : 1"
+        [attr.fill]="getBackgroundColor()" />
+
+    <!-- draw a white pxiel at the top left corner -->
+    <svg:rect *ngIf="color !== Color.EMPTY"
+        [attr.x]="offsetX" [attr.y]="offsetY"
+        [attr.width]="1"
+        [attr.height]="1"
+        fill="rgb(255,255,255)" />
+
+    <!-- if a white tetromino, draw a a white square over the non-white color excluding 1 pixel of border-->
+    <svg:rect *ngIf="color === Color.WHITE"
+        [attr.x]="offsetX+1" [attr.y]="offsetY+1"
+        [attr.width]="6"
+        [attr.height]="6"
+        fill="rgb(255,255,255)" />
+
+    <!-- if color is primary/secondary, draw a white dot at (0,0), (1,1), (1,2), (2,1)-->
+    <svg:g *ngIf="color === Color.PRIMARY || color === Color.SECONDARY">
+        <svg:rect *ngFor="let pos of getWhiteLocations()"
+            [attr.x]="offsetX+pos.x"
+            [attr.y]="offsetY+pos.y"
+            [attr.width]="1"
+            [attr.height]="1"
+            fill="rgb(255,255,255)" />
+    </svg:g>
+
+</svg:g>

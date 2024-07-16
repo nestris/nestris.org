@@ -1,0 +1,16 @@
+<div class="visual">
+    <ng-container *ngFor="let step of steps; let i = index">
+        <div class="line" *ngIf="i !== 0">
+            <hr class="line-hr" [ngClass]="(i <= activeStep) ? 'enabled' : 'disabled'">
+        </div>
+        <div class="circle" [ngClass]="(i <= activeStep) ? 'enabled' : 'disabled'">
+            {{i+1}}</div>
+    </ng-container>
+</div>
+
+<div class="text">
+    <div class="element" *ngFor="let step of steps; let i = index"
+        [ngClass]="(i <= activeStep) ? 'enabled' : 'disabled'">
+        <div class="label">{{step}}</div>
+    </div>
+</div>

@@ -1,0 +1,149 @@
+@import "../../../../../styles.scss";
+
+:host {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.header {
+    font-family: Montserrat;
+    font-size: 25px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.platform-section {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 10px;
+}
+
+.platform {
+    background-color: $section-color;
+    border-radius: 5px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 400px;
+    // height: 100%;
+
+    transition: background-color 0.3s ease;
+    box-shadow: 0 0.4vh 1.5vh 0.05vh rgb(0,0,0,0.2);
+
+    border: rgb(0,0,0,0) solid 2px;
+}
+
+.platform:hover {
+    opacity: 0.8;
+    background-color: lighten($section-color, 10%);
+    box-shadow: 0 0.4vh 1.5vh 0.05vh rgb(0,0,0,0.5);
+
+    border: rgb(0,0,0,0.5) solid 2px;
+}
+
+.platform.selected {
+    border: white solid 2px;
+}
+
+.platform-label {
+    font-family: Montserrat;
+    font-size: 40px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    margin: 10px;
+}
+
+.platform-description {
+    font-family: Montserrat;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+
+    text-align: center;
+    text-wrap: pretty;
+    width: 80%;
+}
+
+.platform-error {
+    color: #F15757;
+    font-family: Montserrat;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    margin: 10px;
+}
+
+.play-section {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    justify-content: center;
+
+    box-sizing: border-box;
+    width:100%;
+}
+
+.play-container {
+    background-color: $section-color;
+    
+    padding: 15px;
+    padding-top: 10px;
+    padding-bottom: 0px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 25px;
+    align-items: center;
+    width: 300px;
+    border-radius: 10px;
+    text-align: center;
+
+    transition: background-color 0.2s ease;
+    box-shadow: 0 4px 15px 0.5px rgb(0,0,0,0.2);
+}
+
+.play-container.hoverable:hover {
+    background-color: lighten($section-color, 20%);
+    box-shadow: 0 4px 15px 0.5px rgb(0,0,0,0.5);
+}
+
+
+.play-container.hoverable:active {
+    background-color: lighten($section-color, 30%);
+    box-shadow: 0 3px 15px 0.5px rgb(0,0,0,0.8);
+    transform: translateY(1px);
+}
+
+.play-container h1 {
+    text-align: center;
+    font-family: Londrina Solid;
+    font-size: 50px;
+    font-style: normal;
+    font-weight: 800;
+    line-height: normal;
+    margin: 0px;
+}
+
+.play-container p {
+    text-align: center;
+    font-family: Montserrat;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    text-wrap: balance;
+    transform: translateY(-20px);
+    margin-bottom: 0px;
+}

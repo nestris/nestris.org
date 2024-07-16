@@ -1,0 +1,56 @@
+<div class="modal">
+    <app-stepper class="stepper" [steps]="ALL_CALIBRATION_STEPS" [activeStep]="stepIndex" />
+    <div class="content">
+
+        <div class="select-video-source" *ngIf="currentStep === CalibrationStep.SELECT_VIDEO_SOURCE">
+            <div class="col left">
+                <app-solid-button [color]="ButtonColor.BLUE" label="Screen Capture"
+                    tooltip="Capture gameplay from an emulator on this computer through screen capture"
+                    (click)="setScreenCapture()" />
+                
+                <select [(ngModel)]="videoCapture.selectedDevice" (change)="setVideoCapture()">
+                    <option *ngFor="let device of (videoCapture.getVideoDevices$() | async)" [ngValue]="device">
+                        {{ (device === null) ? "...or select a video device" : device.label }}
+                    </option>
+                </select>
+
+            </div>
+            <div class="col">
+                <app-preview-canvas />
+            </div>
+        </div>
+
+        <div class="locate-tetris-board" *ngIf="currentStep === CalibrationStep.LOCATE_TETRIS_BOARD">
+            <div class="col">
+                <app-preview-canvas [showBoundingBoxes]="true" />
+            </div>
+            <div class="col">
+                <app-nes-board [hide]="!(ocr.getBoard$() | async)"
+                [nextType]="(ocr.getNextPiece$() | async) ?? undefined"
+                [level]="(ocr.getTextboxResult$(TextboxType.LEVEL) | async)?.value ?? 18"
+                [scale]="1.65" [board]="ocr.getBoard$() | async">
+                    <h2 class="no-board-text">Click on an empty part of the tetris board!</h2>
+                </app-nes-board>
+            </div>
+        </div>
+
+        <div class="verify-ocr" *ngIf="currentStep === CalibrationStep.VERIFY_OCR">
+
+            <div class="item" *ngFor="let type of ALL_TEXTBOX_TYPES">
+                <h1>{{type}}</h1>
+                <app-textbox-canvas *ngIf="(ocr.getTextbox$(type) | async) as textbox" [size]="40" 
+                    [textbox]="textbox" [pixels]="(videoCapture.getPixels$() | async)" />
+                <p>{{prettyTextboxResult(ocr.getTextboxResult$(type) | async)}}</p>
+            </div>
+            
+        </div>
+
+    </div>
+    <div class="buttons">
+        <app-solid-button [color]="ButtonColor.GREY" label="Back"
+            [disabled]="!previousAllowed()" (click)="previous()" />
+        <app-solid-button [color]="ButtonColor.BLUE" [label]="isLastStep() ? 'Finish' : 'Next'"
+            [tooltip]="nextTooltip()"
+            [disabled]="!nextAllowed()" (click)="next()" />
+    </div>
+</div>

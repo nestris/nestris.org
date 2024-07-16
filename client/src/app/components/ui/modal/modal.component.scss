@@ -1,0 +1,15 @@
+@import "../../../../styles.scss";
+
+.modal {
+    background-color: $modal-color;
+    border-radius: 20px;
+    padding: 15px;
+
+    position: relative;
+}
+
+.x {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+}

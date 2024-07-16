@@ -1,0 +1,33 @@
+<div class="main-container">
+    <div class="main">
+
+    <div class="list-container">
+      <div class="labels table-rows">
+        <p>Rating</p>
+        <p>Theme</p>
+        <p>Board</p>
+        <p>Current</p>
+        <p>Next</p>
+        <p>Accuracy</p>
+        <p>Attempts</p>
+        <p>Likes</p>
+        <p>Dislikes</p>
+      </div>
+
+      <div class="puzzle table-rows" *ngFor="let puzzle of (puzzles$ | async)"
+      >
+        <p>{{ puzzle.rating }}</p>
+        <p>{{ puzzle.theme }}</p>
+        <div class="item board"><app-nes-board [scale]="0.4" [board]="puzzle.board" /></div>
+        <div class="item"><app-nes-piece [scale]="1" [piece]="puzzle.current" /></div>
+        <div class="item"><app-nes-piece [scale]="1" [piece]="puzzle.next" /></div>
+        <p>{{ puzzle.accuracy }}</p>
+        <p>{{ puzzle.attempts }}</p>
+        <p>{{ puzzle.likes }}</p>
+        <p>{{ puzzle.dislikes }}</p>
+        
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,6 @@
+<div class="elo-container">
+  <h2>Puzzle Elo</h2>
+  <h1>{{(eloStats$ | async)?.elo}}</h1>
+  <h3>Highest: {{(eloStats$ | async)?.highest}}</h3>
+  <div class="elo-graph"></div>
+</div>

@@ -1,0 +1,7 @@
+<div class="border"
+[ngClass]="(maxTime - currentTime < 10.5) ? 'red' : ''">
+    <div class="fill" [ngStyle]="{width: (currentTime / maxTime * 100) + '%'}">
+    </div>
+
+    <p class="label">{{(maxTime-currentTime).toFixed(0)}}</p>
+</div>

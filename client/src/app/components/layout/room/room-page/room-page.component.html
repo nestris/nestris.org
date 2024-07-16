@@ -1,0 +1,70 @@
+<div class="main"
+    [class.player-solo]="(client$ | async)?.room?.mode === RoomMode.SOLO && (client$ | async)?.role !== Role.SPECTATOR"
+    [class.player-multiplayer]="(client$ | async)?.room?.mode === RoomMode.MULTIPLAYER && (client$ | async)?.role !== Role.SPECTATOR"
+>
+
+    <app-fullscreen-exit-button [onExit]="onExit.bind(this)" />
+
+    <ng-container *ngIf="(client$ | async) as client">
+        
+        <!-- LEFT BOARD -->
+        <!-- if playing, show on left side whether player 1 or 2 -->
+        <ng-container *ngIf="client.role === Role.PLAYER_1 || client.role === Role.PLAYER_2">
+
+            <app-layout-one class="game" *ngIf="(platform.getGameData$() | async) as data"
+                [class.solo]="client.room.mode === RoomMode.SOLO"
+                [class.left]="client.room.mode === RoomMode.MULTIPLAYER"
+                [board]="data.board" [level]="data.level"
+                [nextType]="data.nextPiece"
+                [level]="data.level"
+                [lines]="data.lines"
+                [score]="data.score"
+                [countdown]="data.countdown"
+                [keybinds]="['Rotate (Z & X) / Shift (, & .)', 'Quit (Q) / Restart (R)']"
+            />
+
+            <app-nes-emulator-menu class="emulator-menu" *ngIf="(platform.getPlatform$() | async) === Platform.ONLINE"
+                [class.multiplayer]="client.room.mode === RoomMode.MULTIPLAYER"
+                [selectedLevel]="(emulator.getSelectedLevel$() | async) ?? 9"
+                (selectedLevelChange)="emulator.setSelectedLevel($event)"
+                [isPaused]="(emulator.getPaused$() | async) ?? false"
+                (togglePause)="emulator.togglePaused()"
+                (reset)="emulator.resetGame()"
+            />
+            
+        </ng-container>
+
+        <!-- If spectating, show player 0 board on left side -->
+        <ng-container *ngIf="client.role === Role.SPECTATOR">
+            <app-layout-one class="game" *ngIf="roomState?.player(0) as player"
+                [class.solo]="client.room.mode === RoomMode.SOLO"
+                [class.left]="client.room.mode === RoomMode.MULTIPLAYER"
+                [board]="player.getBoard()"
+                [nextType]="player.getNext()"
+                [level]="player.getStatus().level"
+                [lines]="player.getStatus().lines"
+                [score]="player.getStatus().score"
+                [countdown]="player.getCountdown()"
+            />
+        </ng-container>
+
+
+        <!-- RIGHT BOARD. only show if in multiplayer -->
+        <ng-container *ngIf="client.room.mode === RoomMode.MULTIPLAYER">
+
+            <!-- if playing, show the other player on right side -->
+            <!-- if spectating, show player 2 board on right side -->
+            <app-layout-one class="game right"
+                *ngIf="roomState?.player(client.role === Role.PLAYER_2 ? 0 : 1) as player"
+                [board]="player.getBoard()"
+                [nextType]="player.getNext()"
+                [level]="player.getStatus().level"
+                [lines]="player.getStatus().lines"
+                [score]="player.getStatus().score"
+                [countdown]="player.getCountdown()"
+            />
+        </ng-container>
+
+    </ng-container>
+
+</div>

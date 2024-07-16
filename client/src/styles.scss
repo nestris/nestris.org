@@ -1,1 +1,59 @@
 /* You can add global styles to this file, and also import other style files */
+@import "node_modules/angular-notifier/styles";
+
+$section-color: #2D2D31;
+$subsection-color: #3B3B40;
+$modal-color: #161517;
+
+$ui-red-color: #F15757;
+$ui-green-color: #58D774;
+$ui-orange-color: #d79358;
+
+$button-active-color: #3C5EB7;
+$button-active-hover-color: #303c63;
+$button-disabled-color: #2F3033;
+
+
+$transparent-green-color: rgba(22, 175, 55, 0.20);
+$transparent-red-color: rgba(255, 27, 27, 0.20);
+$transparent-orange-color: rgba(255, 170, 0, 0.2);
+
+$brand-font: "Londrina Solid";
+$main-font: "Montserrat";
+$player-font: "Alegreya";
+
+html {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #242325;
+    color: white;
+}
+
+@font-face {
+    font-family: 'NES';
+    src: url('../../client/src/assets/fonts/Pixel_NES.otf') format('opentype');
+}
+
+.prevent-select {
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10 and IE 11 */
+    user-select: none; /* Standard syntax */
+  }
+
+a {
+color: inherit; /* Resets the link color to the parent element's color */
+text-decoration: none; /* Removes underline from links */
+font-size: inherit; /* Inherits font-size from parent element */
+font-weight: inherit; /* Inherits font-weight from parent element */
+background-color: transparent; /* Resets any background color */
+border: none; /* Removes any borders */
+padding: 0; /* Resets padding */
+margin: 0; /* Resets margin */
+}

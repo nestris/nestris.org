@@ -1,0 +1,38 @@
+<div class="board-container">
+
+    <div class="empty-board" *ngIf="hide"
+        [style.width]="(scale*boardWidthPixels) + 'px'"
+        [style.height]="(scale*boardHeightPixels) + 'px'"
+    ><ng-content></ng-content></div>
+
+    <app-nes-piece class="next-piece" *ngIf="nextType !== undefined"
+        [piece]="nextType"
+        [level]="level"
+        [ngStyle]="{padding: (5 * scale * 0.5) + 'px'}"
+        [scale]="scale * 0.5" />
+
+    <svg class="board-svg" *ngIf="!hide && board"
+        [attr.width]="(scale*boardWidthPixels) + 'px'"
+        [attr.height]="(scale*boardHeightPixels) + 'px'"
+        [attr.viewBox]="'0 0 ' + boardWidthPixels + ' ' + boardHeightPixels">
+
+        <g (mouseleave)="onMouseLeave()">
+            <g *ngFor="let y of ZERO_TO_NINETEEN">
+                <g *ngFor="let x of ZERO_TO_NINE">
+                    <g app-nes-block
+                        [attr.opacity]="getOpacityAt(x,y)"
+                        [color]="getBlockAt(x,y)"
+                        [level]="level"
+                        [interactable]="interactable"
+                        [offsetX]="9*x + 1"
+                        [offsetY]="9*y + 1"
+                        (mouseenter)="onMouseEnter(x,y)"
+                        [isHovering]="pointsAreEqual((hoveringBlock$ | async) ?? undefined, {x: x, y: y})"
+                    />
+                </g>
+            </g>
+        </g>
+    </svg>
+
+    <h1 *ngIf="countdown" class="countdown">{{countdown}}</h1>
+</div>

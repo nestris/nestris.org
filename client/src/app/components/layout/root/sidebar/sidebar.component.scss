@@ -1,0 +1,107 @@
+@import "../../../../../styles.scss";
+
+.sidebar {
+    background-color: $section-color;
+    height: 100%;
+    border-radius: 10px;
+
+    width: 230px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sidebar-top {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.sidebar-bottom {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.logo {
+    margin-top: 20px;
+    align-self: center;
+}
+
+.brand-name {
+    font-family: $brand-font;
+    font-weight: 400;
+    font-size: 22px;
+    margin-bottom: 0;
+    margin-top: -10px;
+    align-self: center;
+}
+
+.login-container {
+    margin-inline: 10px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.profile-tab, .login-container {
+    margin-top: 20px;
+}
+
+.home-tab {
+    margin-top: 35px;
+}
+
+.signin-tab {
+    margin-top: 20px;
+    margin-bottom: -10px;
+}
+
+.logo-small {
+    display: none;
+}
+
+.online-users {
+    font-family: $main-font;
+    font-size: 14px;
+    font-weight: 500;
+    margin-right: -4px;
+}
+
+.login-button.small {
+    display: none;
+}
+
+@media only screen and (max-width: 1000px) {
+    .sidebar {
+       width: 60px;
+    }
+
+    .logo-small {
+        display: block;
+        margin-top: 18px;
+    }
+
+    .logo, .brand-name {
+        display: none;
+    }
+
+    .profile-tab {
+        margin-top: 10px;
+    }
+
+    .login-button.small {
+        display: block;
+    }
+
+    .login-button.big {
+        display: none;
+    }
+}

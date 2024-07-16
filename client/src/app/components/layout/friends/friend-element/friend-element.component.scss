@@ -1,0 +1,65 @@
+@import "../../../../../styles.scss";
+
+.container {
+    background-color: $section-color;
+    border-radius: 5px;
+
+    box-sizing: border-box;
+    width: 100%;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.container.status-incoming {
+    background-color: $transparent-green-color;
+}
+
+.container.status-pending {
+    background-color: $transparent-orange-color;
+}
+
+.container-left, .container-right {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.container-left {
+    justify-content: flex-start;
+}
+
+.container-right {
+    justify-content: flex-end;
+    margin-right: 10px;
+    gap: 5px;
+    align-items: center;
+}
+
+.online-indicator {
+    margin-left: 5px;
+}
+
+.username {
+    font-family: $player-font;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+
+    min-width: 60px;
+    margin-right: 20px;
+}
+
+.status-description {
+    font-family: $player-font;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.status-description.pending, .status-description.incoming {
+    font-style: italic;
+}

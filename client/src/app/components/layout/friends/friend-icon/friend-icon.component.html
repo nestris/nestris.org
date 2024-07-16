@@ -1,0 +1,15 @@
+<div class="container">
+
+    <img src="./assets/img/friend-status-icons/is-friend.svg" width="15px"
+        [ngStyle]="{display: (status === FriendStatus.FRIENDS ? 'block' : 'none')}">
+
+    <img src="./assets/img/friend-status-icons/pending-friend.svg" width="15px"
+        [ngStyle]="{display: (status === FriendStatus.OUTGOING ? 'block' : 'none')}">
+
+    <img src="./assets/img/friend-status-icons/incoming-friend.svg" width="17px" class="interactable"
+        [ngStyle]="{display: (status === FriendStatus.INCOMING ? 'block' : 'none')}">
+        
+    <img src="./assets/img/friend-status-icons/not-friend.svg" width="15px" class="interactable"
+        [ngStyle]="{display: (status === FriendStatus.NOT_FRIENDS ? 'block' : 'none')}">
+
+</div>

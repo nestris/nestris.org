@@ -1,0 +1,11 @@
+<div class="modal">
+  
+  <img class="logo" src="./assets/img/branding/tetrisfish_logo.svg" width="110px" />
+
+  <input type="text" placeholder="Username" [(ngModel)]="username" class="username" autofocus />
+  <input type="password" placeholder="Password" [(ngModel)]="password" class="password" />
+
+  <app-solid-button [label]="getAuthButtonLabel()" [color]="ButtonColor.BLUE" (click)="login()" />
+  <p class="switch-mode prevent-select" (click)="toggleAuthMode()"><u>{{getSwitchModeMessage()}}</u></p>
+  
+</div>

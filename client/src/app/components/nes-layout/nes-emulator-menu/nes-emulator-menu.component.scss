@@ -1,0 +1,64 @@
+@import "../../../../styles.scss";
+@import "../nes-styles.scss";
+
+.level-buttons, .menu-buttons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.level-buttons {
+  flex-wrap: wrap;
+  width: 150px;
+  margin-top: 10px;
+}
+
+.menu-buttons {
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+.menu-button {
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.menu-buttons .menu-button {
+  padding: 2px 7px;
+}
+
+.menu-button:hover {
+  opacity: 0.7;
+}
+
+.menu-button p {
+  font-size: 14px;
+}
+
+.level-buttons .menu-button {
+  background-color: #5874D7;
+  width: 30px;
+  height: 22px;
+  box-sizing: border-box;
+}
+
+.level-buttons .menu-button.selected {
+  border: 1px solid white;
+}
+
+.menu-button.pause {
+  background-color: $ui-red-color;
+}
+
+.menu-button.pause.paused {
+  background-color: $ui-green-color;
+}
+
+.menu-button.reset {
+  background-color: $ui-orange-color;
+}

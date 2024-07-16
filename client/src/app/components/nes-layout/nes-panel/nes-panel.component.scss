@@ -1,0 +1,15 @@
+@import "../nes-styles.scss"; 
+
+:host {
+    display: block;
+
+    background-color: black;
+    border: solid white 1px;
+    border-radius: 5px;
+    padding: 5px 15px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}

@@ -1,0 +1,11 @@
+.interactable {
+    cursor: pointer;
+}
+
+.interactable:hover {
+    opacity: 0.6;
+}
+
+.interactable:active {
+    opacity: 0.5;
+}

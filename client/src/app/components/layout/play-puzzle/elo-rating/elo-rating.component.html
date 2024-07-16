@@ -1,0 +1,16 @@
+<div class="row" [ngClass]="{
+    'win': mode === EloMode.WIN,
+    'loss': mode === EloMode.LOSS,
+}">
+    <h1>{{((displayRating | async) ?? 1000).toFixed(0)}}</h1>
+    <div class="col">
+        <div class="icon-text win">
+            <img src="./assets/img/elo/up-arrow.svg" />
+            <p class="increase">{{increase}}</p>
+        </div>
+        <div class="icon-text loss">
+            <img src="./assets/img/elo/down-arrow.svg" />
+            <p class="decrease">{{decrease}}</p>
+        </div>
+    </div>
+</div>

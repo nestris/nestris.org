@@ -1,0 +1,127 @@
+@import "../../../../../../../styles.scss";
+
+:host {
+  flex-grow: 0.9;
+}
+
+.global-rank-container {
+  background-color: $section-color;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: row;
+
+
+  height: 100%;
+  box-sizing: border-box;
+
+  width: 100%;
+  box-sizing: border-box;
+  padding-inline: 15px;
+}
+
+.global-rank-container h2 {
+  font-family: $main-font;
+  font-weight: 700;
+  font-size: 18px;
+  color: rgb(255, 255 ,255 ,0.8);
+  text-wrap: nowrap;
+  margin: 0;
+}
+
+.global-rank-container h1 {
+  font-family: $main-font;
+  font-weight: 700;
+  font-size: 35px;
+  color: rgb(255, 255 ,255 ,0.8);
+  text-wrap: nowrap;
+  margin: 0;
+
+}
+
+.global-rank-container h1.single-digit {
+  font-size: 45px;
+}
+
+.left-col {
+  flex-grow: 1;
+  height: 100%;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+}
+
+.right-col {
+  width: 200px;
+  height: 100%;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  padding: 10px;
+}
+
+.item {
+  background-color: $subsection-color;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 5px;
+  padding: 10px;
+
+  height: 25px;
+  width: 100%;
+  box-sizing: border-box;
+  gap: 7px;
+}
+
+.spacer {
+  background-color: $subsection-color;
+  border-radius: 5px;
+
+  height: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.spacer.hide {
+  opacity: 0;
+}
+
+.item.middle {
+  background-color: $button-active-color;
+}
+
+.item.none {
+  opacity: 0;
+}
+
+.left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.rank, .elo {
+  font-family: $main-font;
+  font-weight: 700;
+  font-size: 12px;
+  color: white;
+  margin: 0;
+}
+
+.username {
+  font-family: $main-font;
+  font-weight: 500;
+  font-size: 12px;
+  color: white;
+  margin: 0;
+}

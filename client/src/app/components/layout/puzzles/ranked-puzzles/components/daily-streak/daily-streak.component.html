@@ -1,0 +1,30 @@
+<div class="daily-streak-container">
+  <h1>Solve {{PUZZLE_COUNT}} puzzles a day!</h1>
+
+  <div class="streak">
+    <div class="streak-item" *ngFor="let day of (streak$ | async)">
+      <p>{{ day.weekday.substring(0,3) }}</p>
+      <div class="streak-icon">
+        <img *ngIf="day.count >= PUZZLE_COUNT" src="./assets/img/misc-icons/streak-trophy.svg" alt="Streak" />
+      </div>
+    </div>
+  </div>
+  
+  <div class="today-container">
+    <div class="today">
+      <ng-container *ngFor="let index of [1,2,3,4,5]">
+        <img *ngIf="getTodayCount(streak$ | async) >= index" src="./assets/img/misc-icons/streak-on.svg" alt="Today" width="20" />
+        <img *ngIf="getTodayCount(streak$ | async) < index" src="./assets/img/misc-icons/streak-off.svg" alt="Today" width="20" />
+      </ng-container>
+    </div>
+    <div class="today">
+      <ng-container *ngFor="let index of [6,7,8,9,10]">
+        <img *ngIf="getTodayCount(streak$ | async) >= index" src="./assets/img/misc-icons/streak-on.svg" alt="Today" width="20" />
+        <img *ngIf="getTodayCount(streak$ | async) < index" src="./assets/img/misc-icons/streak-off.svg" alt="Today" width="20" />
+      </ng-container>
+    </div>
+    <p>{{getProgressString(streak$ | async)}}</p>
+  </div>
+
+
+</div>

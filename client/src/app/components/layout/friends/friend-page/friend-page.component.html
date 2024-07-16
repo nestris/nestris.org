@@ -1,0 +1,22 @@
+<app-solid-button class="add-friend-button"
+    label="Add Friend" [color]="ButtonColor.GREEN"
+    icon="./assets/img/friend-status-icons/not-friend.svg"
+    (click)="toggleFriendModal($event)" />
+
+<app-add-friend-modal *ngIf="friendsService.getFriendsInfo$() | async as challenges"
+    [visibility$]="friendModalVisibility$" 
+    [friendsInfo]="challenges"
+    />
+
+<div class="friends-list">
+    <ng-container *ngIf="friendsService.getChallenges$() | async as challenges">
+        <app-challenge *ngFor="let challenge of challenges"
+            [challenge]="challenge"
+        />
+    </ng-container>
+    <ng-container *ngIf="friendsService.getFriendsInfo$() | async as friendsInfo">
+        <app-friend-element *ngFor="let friendInfo of friendsInfo"
+            [friendInfo]="friendInfo"
+        />
+    </ng-container>
+</div>

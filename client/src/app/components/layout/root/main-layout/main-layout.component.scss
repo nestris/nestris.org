@@ -1,0 +1,20 @@
+.root {
+  display: flex;
+  flex-direction: row;
+
+  height: 100%;
+  box-sizing: border-box;
+
+  position: relative
+}
+
+// make page content scroll but not sidebar
+.content {
+  overflow-y: scroll;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.content-with-padding {
+  margin: 15px;
+}

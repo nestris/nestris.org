@@ -1,0 +1,83 @@
+@import "../../../../../styles.scss";
+
+.row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
+}
+
+.col {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.icon-text {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 3px;
+}
+
+h1 {
+    color: #FFF;
+    text-align: center;
+    font-family: Montserrat;
+    font-size: 40px;
+    font-style: normal;
+    font-weight: 800;
+    line-height: normal;
+    margin: 0
+}
+
+p {
+    text-align: center;
+    font-family: Montserrat;
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 800;
+    line-height: normal;
+    margin: 0;
+}
+
+p.increase {
+    color: $ui-green-color;
+}
+
+p.decrease {
+    color: $ui-red-color;
+}
+
+// Move up and down on win/lose
+.row .col {
+    transition: transform 0.4s ease-in-out 0.1s;
+}
+
+.row.win .col {
+    transform: translateY(11px);
+}
+
+.row.loss .col {
+    transform: translateY(-11px);
+}
+
+// Fade out on win/lose
+.icon-text {
+    transition: opacity 0.4s ease-in-out 0.1s;
+
+}
+.row.win .col .loss {
+    opacity: 0;
+}
+
+.row.loss .col .win {
+    opacity: 0;
+}
+
+.icon-text.win img {
+    transform: translateX(-2.8px);
+}

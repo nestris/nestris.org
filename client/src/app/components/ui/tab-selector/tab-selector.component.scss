@@ -1,0 +1,55 @@
+@import "../../../../styles.scss";
+
+:host {
+  display: flex;
+  justify-content: center;
+}
+
+.tab-selector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  // background-color: #ffffff26;
+  width: fit-content;
+  gap: 0px;
+}
+
+.tab {
+  cursor: pointer;
+  background-color: $section-color;
+  transition: background-color 0.1s;
+}
+
+.tab:hover {
+  background-color: $button-active-hover-color;
+}
+
+.tab.selected {
+  background-color: $button-active-color;
+}
+
+.tab:first-child {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.tab:last-child {
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.tab-label {
+  font-family: $main-font;
+  font-size: 16px;
+  font-weight: 600;
+  text-wrap: nowrap;
+  text-align: center;
+  color: white;
+  margin: 11px 30px;
+}
+
+.tab-label.small {
+  font-size: 12px;
+  margin: 5px 15px;
+}
