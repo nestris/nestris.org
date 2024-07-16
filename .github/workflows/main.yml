@@ -26,7 +26,6 @@ jobs:
       - name: Set environment variables for main
         if: github.ref == 'refs/heads/main'
         run: |
-          echo "NODE_ENV=production" >> $GITHUB_ENV
           echo "POSTGRES_USER=${{ secrets.POSTGRES_USER_PROD }}" >> $GITHUB_ENV
           echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD_PROD }}" >> $GITHUB_ENV
           echo "POSTGRES_DB=${{ secrets.POSTGRES_DB_PROD }}" >> $GITHUB_ENV
@@ -34,21 +33,27 @@ jobs:
       - name: Set environment variables for dev
         if: github.ref == 'refs/heads/dev'
         run: |
-          echo "NODE_ENV=development" >> $GITHUB_ENV
           echo "POSTGRES_USER=${{ secrets.POSTGRES_USER_DEV }}" >> $GITHUB_ENV
           echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD_DEV }}" >> $GITHUB_ENV
           echo "POSTGRES_DB=${{ secrets.POSTGRES_DB_DEV }}" >> $GITHUB_ENV
 
-      - name: Build and push Docker images
+      - name: Build and push Docker images for main
+        if: github.ref == 'refs/heads/main'
         run: |
-          docker compose -f docker-compose.yml build
-          docker compose -f docker-compose.yml push
+          docker compose -f docker-compose.prod.yml build
+          docker compose -f docker-compose.prod.yml push
+
+      - name: Build and push Docker images for dev
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          docker compose -f docker-compose.staging.yml build
+          docker compose -f docker-compose.staging.yml push
           
       - name: Deploy to DigitalOcean
         env:
           DO_SSH_KEY: ${{ secrets.DO_SSH_KEY }}
           DO_HOST: ${{ vars.DO_HOST }}
-          NODE_ENV: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
+          NODE_ENV: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
           POSTGRES_USER: ${{ github.ref == 'refs/heads/main' && secrets.POSTGRES_USER_PROD || secrets.POSTGRES_USER_DEV }}
           POSTGRES_PASSWORD: ${{ github.ref == 'refs/heads/main' && secrets.POSTGRES_PASSWORD_PROD || secrets.POSTGRES_PASSWORD_DEV }}
           POSTGRES_DB: ${{ github.ref == 'refs/heads/main' && secrets.POSTGRES_DB_PROD || secrets.POSTGRES_DB_DEV }}
@@ -61,6 +66,7 @@ jobs:
             export POSTGRES_USER=${POSTGRES_USER}
             export POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
             export POSTGRES_DB=${POSTGRES_DB}
-            docker compose pull
-            docker compose up -d --build
+            docker compose -f docker-compose.${NODE_ENV}.yml pull
+            docker compose -f docker-compose.${NODE_ENV}.yml up -d
+
           EOF

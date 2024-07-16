@@ -1,32 +1,30 @@
 services:
   client:
+    image: anselchang1/nestris.org:client-staging
     build:
       context: .
-      dockerfile: Dockerfile.dev.client
-    volumes:
-      - ./client:/app:cached  # Mount the client directory for live reload
+      dockerfile: Dockerfile.client
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=staging
     ports:
-      - "4200:4200"  # Expose port 4200 for development
+      - "81:80"  # Expose port 81 for staging client
     depends_on:
       - server  # Ensure client waits for server to be ready
     command: >
-      sh -c "npm start;"
+      sh -c "nginx -g 'daemon off;';"
 
   server:
+    image: anselchang1/nestris.org:server-staging
     build:
       context: .
       dockerfile: Dockerfile.server
-    volumes:
-      - ./server:/app:cached  # Mount the server directory for live reload
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-      - NODE_ENV=development
+      - NODE_ENV=staging
     ports:
-      - "3000:3000"
+      - "3001:3000" # Expose port 3001 for staging server
     depends_on:
       - postgres
 

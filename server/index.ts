@@ -4,6 +4,9 @@ import { Server as WebSocketServer } from 'ws';
 import { Pool } from 'pg';
 // import { sayHello } from '../shared/test';
 
+// Load environment variables
+require('dotenv').config();
+
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -21,6 +24,9 @@ const server = createServer(app);
 
 // WebSocket server setup
 const wss = new WebSocketServer({ server });
+
+// json middleware
+app.use(express.json());
 
 wss.on('connection', (ws) => {
   console.log('Client connected');
@@ -40,7 +46,10 @@ app.get('/api', async (req, res) => {
   const client = await pool.connect();
   try {
     const result = await client.query('SELECT NOW()');
-    res.send(result.rows[0]);
+    res.send({
+      now: result.rows[0],
+      NODE_ENV: process.env.NODE_ENV,
+    });
   } finally {
     client.release();
   }
