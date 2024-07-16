@@ -30,16 +30,14 @@ POSTGRES_PASSWORD=password
 POSTGRES_DB=mydatabase
 ```
 
-### Building without docker
-If you would like to do some lightweight testing without Docker, you may run server, client, and postgres individually without docker. Otherwise, if you want to build with Docker, ignore this step and proceed to the next one.
-
-You will need to install Postgres locally somehow.
+### Running server or client seperately
+If you just want to run the server or client individually, you don't need docker.
 
 To build client with live reload: `cd client; npm start`
-
-(In a different terminal)
 To build server: `cd server; npm start`
 
+However, note that the server and client will not be able to communicate. You may run Postgres locally for the server though.
+If you would like to build the entire integrated application, go to the next step.
 
 ### Install Docker
 ```

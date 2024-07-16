@@ -13,7 +13,7 @@ function asciiArtToString(asciiArt: string): string {
 // Function to read the file and convert ASCII art to BigInts
 async function readAsciiArtFromFile(digit: number): Promise<string[]> {
 
-  const filePath = path.join(__dirname, `../../../public/assets/digits/${digit}.txt`); // Update with actual file path
+  const filePath = path.join(__dirname, `../../assets/digits/${digit}.txt`); // Update with actual file path
 
   const fileContent = await fs.promises.readFile(filePath, { encoding: 'utf-8' });
   const blocks = fileContent.split('\n\n').filter((block: string) => block.trim() !== '');
