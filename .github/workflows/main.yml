@@ -63,4 +63,4 @@ jobs:
             export POSTGRES_DB=${POSTGRES_DB}
             docker compose pull
             docker compose up -d --build
-EOF
+          EOF
