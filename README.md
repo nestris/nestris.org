@@ -100,6 +100,14 @@ For production server: `docker compose -f docker-compose.production.yml logs`
 For staging server: `docker compose -f docker-compose.staging.yml logs`
 
 
+## Helpful Droplet commands
+
+### This opens up an interactive PostgreSQL session in the prod/staging database
+`docker exec -it [container-id] psql -U postgres -d mydatabase`
+
+List all tables with `\dt`
+
+
 ## Setting up production environment for CI/CD
 The current set up uses Github Actions and DigitalOcean. **This section should be irrelevant to you unless you are interested in hosting your own production deployment server.**
 
