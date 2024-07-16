@@ -55,7 +55,7 @@ jobs:
         run: |
           echo "${DO_SSH_KEY}" > key.pem
           chmod 600 key.pem
-          ssh -o StrictHostKeyChecking=no -i key.pem root@${DO_HOST} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i key.pem root@${DO_HOST} << EOF
             cd docker-angular-ts-node-postgres-websocket-template
             export NODE_ENV=${NODE_ENV}
             export POSTGRES_USER=${POSTGRES_USER}
@@ -63,3 +63,4 @@ jobs:
             export POSTGRES_DB=${POSTGRES_DB}
             docker compose pull
             docker compose up -d --build
+EOF
