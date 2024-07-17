@@ -240,7 +240,7 @@ export class EmulatorGameState {
         this.activePiece.moveBy(0, 0, 1);
 
         // if illegal, undo and lock piece instead
-        if (!this.activePiece!.isInBounds() || this.activePiece.intersectsBoard(this.isolatedBoard)) {
+        if (!this.activePiece!.isInBoundsIgnoreTop() || this.activePiece.intersectsBoard(this.isolatedBoard)) {
             // console.log("piece locked");
 
             this.activePiece.moveBy(0, 0, -1); // undo piece drop
