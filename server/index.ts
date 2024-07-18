@@ -1,7 +1,10 @@
 import express from 'express';
 import { Request, Response } from 'express';
+import session from 'express-session';
+import audit from 'express-requests-logger';
 import { createServer } from 'http';
 import { Server as WebSocketServer } from 'ws';
+import morgan from 'morgan';
 import { Pool } from 'pg';
 import { ServerState } from './src/server-state/server-state';
 import { getOCRDigits, initOCRDigits } from './src/ocr/digit-reader';
@@ -21,6 +24,7 @@ import { setFeedbackRoute } from './src/puzzle-generation/set-feedback';
 import { submitPuzzleAttemptRoute } from './src/puzzle-generation/submit-puzzle-attempt';
 import { sendChallengeRoute, rejectChallengeRoute, acceptChallengeRoute } from './src/routes/challenge-route';
 import { getTopMovesHybridRoute } from './src/stackrabbit/stackrabbit';
+import axios from 'axios';
 
 // Load environment variables
 require('dotenv').config();
@@ -29,15 +33,6 @@ async function main() {
 
   const app = express();
   const port = process.env.PORT || 3000;
-
-  // PostgreSQL setup
-  const pool = new Pool({
-    host: 'postgres',
-    user: process.env.POSTGRES_USER,
-    database: process.env.POSTGRES_DB,
-    password: process.env.POSTGRES_PASSWORD,
-    port: 5432,
-  });
 
   // HTTP server setup
   const server = createServer(app);
@@ -48,11 +43,143 @@ async function main() {
   // json middleware
   app.use(express.json());
 
+  // logging middleware
+  app.use(morgan('dev'))
+
+
   // all global state is stored in ServerState
   const state = new ServerState();
 
   // initialize OCR digits
   await initOCRDigits();
+
+  const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID!;
+  const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET!;
+  const DISCORD_API_URL = 'https://discord.com/api';
+
+
+  
+  app.use(session({
+    secret: DISCORD_CLIENT_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false } // Set to true if using HTTPS
+  }));
+
+  interface UserSession extends session.Session {
+    username: string;
+    accessToken: string;
+    refreshToken: string;
+  }
+
+  let redirectUri: string;
+  const redirectToDiscord = (req: express.Request, res: express.Response) => {
+    redirectUri = req.query.redirectUri as string;
+    const authorizeUrl = `${DISCORD_API_URL}/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=identify`;
+    // send the link to the client
+    console.log("redirecting to discord with url", authorizeUrl);
+    res.redirect(authorizeUrl);
+  };
+
+  const handleDiscordCallback = async (req: express.Request, res: express.Response) => {
+    const code = req.query.code as string;
+    if (!code) {
+        return res.status(400).send('Code is missing');
+    }
+
+    console.log("handling discord callback with code", code, "and redirect uri", redirectUri);
+
+    try {
+        const tokenResponse = await axios.post(`${DISCORD_API_URL}/oauth2/token`, null, {
+            params: {
+                client_id: DISCORD_CLIENT_ID,
+                client_secret: DISCORD_CLIENT_SECRET,
+                grant_type: 'authorization_code',
+                code: code,
+                redirect_uri: redirectUri
+            },
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        });
+
+        const accessToken = tokenResponse.data.access_token;
+        const refreshToken = tokenResponse.data.refresh_token;
+
+        const userResponse = await axios.get(`${DISCORD_API_URL}/users/@me`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
+        });
+
+        (req.session as UserSession).username = userResponse.data;
+        (req.session as UserSession).accessToken = accessToken;
+        (req.session as UserSession).refreshToken = refreshToken;
+        console.log(req.session);
+        res.redirect('/profile');
+    } catch (error) {
+        console.error('Error during Discord OAuth:', error);
+        res.status(500).send('An error occurred during authentication');
+    }
+  };
+
+  const refreshAccessToken = async (refreshToken: string) => {
+    console.log("refreshing access token with refresh token", refreshToken);
+    try {
+        const tokenResponse = await axios.post(`${DISCORD_API_URL}/oauth2/token`, null, {
+            params: {
+                client_id: DISCORD_CLIENT_ID,
+                client_secret: DISCORD_CLIENT_SECRET,
+                grant_type: 'refresh_token',
+                refresh_token: refreshToken
+            },
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        });
+
+        return tokenResponse.data.access_token;
+    } catch (error) {
+        console.error('Error refreshing access token:', error);
+        throw new Error('Failed to refresh access token');
+    }
+  };
+
+  const requireAuth = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    console.log("checking auth");
+
+    if (!(req.session as UserSession).username) {
+      console.log("no username in session, redirecting to login");
+      return res.redirect('/login');
+    }
+
+    const accessToken = (req.session as UserSession).accessToken;
+    const refreshToken = (req.session as UserSession).refreshToken;
+
+    try {
+        // Check if access token is still valid (you can implement a check here)
+        // For simplicity, assume it needs to be refreshed
+        const newAccessToken = await refreshAccessToken(refreshToken);
+        (req.session as UserSession).accessToken = newAccessToken;
+        console.log("refreshed access token to", newAccessToken);
+    } catch (error) {
+      console.error('Error refreshing access token:', error);
+      return res.redirect('/login');
+    }
+
+    next();
+  };
+
+  const handleLogout = (req: express.Request, res: express.Response) => {
+    console.log("logging out");
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).send('Failed to logout');
+        }
+        res.redirect('/');
+    });
+  };
+
 
   // initialize websocket
   wss.on('connection', (ws: any) => {
@@ -67,6 +194,11 @@ async function main() {
       state.onlineUserManager.onSocketClose(ws, code, reason);
     });
   });
+
+  app.get('/api/v2/login', redirectToDiscord);
+  app.get('/api/v2/callback', handleDiscordCallback);
+  app.get('/api/v2/profile', requireAuth, (req, res) => res.send(`Hello, ${(req.session as UserSession).username}`));
+  app.get('/api/v2/logout', handleLogout);
 
   app.get('/api/v2/online-users', (req, res) => {
     res.status(200).send(state.onlineUserManager.getOnlineUsersJSON());
