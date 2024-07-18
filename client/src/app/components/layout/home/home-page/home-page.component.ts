@@ -26,11 +26,7 @@ export class HomePageComponent implements OnInit {
 
   async login2() {
     const redirectUri = encodeURIComponent(window.location.origin + '/api/v2/callback');
-    const response = await fetchServer2<{url: string}>(Method.GET, 'api/v2/login', {redirectUri});
-    console.log(response);
-    
-    // redirect to the url
-    window.location.href = response.url;
+    window.location.href = `http://localhost:3000/api/v2/login?redirectUri=${redirectUri}`;
   }
 
 }

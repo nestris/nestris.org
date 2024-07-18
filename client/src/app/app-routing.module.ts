@@ -16,6 +16,9 @@ import { RankedPuzzlesComponent } from './components/layout/puzzles/ranked-puzzl
 import { YourPuzzlesComponent } from './components/layout/puzzles/your-puzzles/your-puzzles.component';
 import { PuzzleDatabaseComponent } from './components/layout/puzzles/puzzle-database/puzzle-database.component';
 import { MorePageComponent } from './components/layout/more/more-page/more-page.component';
+import { LearnPageComponent } from './components/layout/learn/learn-page/learn-page.component';
+import { DashboardComponent } from './components/layout/learn/dashboard/dashboard.component';
+import { LessonComponent } from './components/layout/learn/lesson/lesson.component';
 
 const routes: Routes = [
 
@@ -41,6 +44,17 @@ const routes: Routes = [
       { path: "home", component: HomePageComponent, },
       { path: "play", component: PlayPageComponent, },
       { path: "review", component: ReviewPageComponent },
+
+      { path: "learn", component: LearnPageComponent,
+        children: [
+          { path: "dashboard", component: DashboardComponent },
+          { path: "lesson", component: LessonComponent },
+          { path: "", redirectTo: "dashboard", pathMatch: "full", },
+          { path: "**", redirectTo: "dashboard", pathMatch: "full", }
+        ]
+       },
+
+
       { path: "puzzles", component: PuzzlesPageComponent,
         children: [
           { path: "ranked", component: RankedPuzzlesComponent },

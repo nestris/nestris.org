@@ -1,14 +1,13 @@
 export enum TabID {
     MY_PROFILE = 'profile',
     FRIENDS = 'friends',
-    ALERTS = 'alerts',
     HOME = 'home',
     PLAY = 'play',
     REVIEW = 'review',
     PUZZLES = 'puzzles',
     LEADERBOARD = 'leaderboard',
     MORE = 'more',
-
+    LEARN = 'learn',
     // fullscreen tabs
     SOLO = 'solo',
     MULTIPLAYER = 'multiplayer',
@@ -18,13 +17,13 @@ export enum TabID {
 const IS_TAB_FULLSCREEN: {[key in TabID]: boolean} = {
     [TabID.MY_PROFILE]: false,
     [TabID.FRIENDS]: false,
-    [TabID.ALERTS]: false,
     [TabID.HOME]: false,
     [TabID.PLAY]: false,
     [TabID.REVIEW]: false,
     [TabID.PUZZLES]: false,
     [TabID.LEADERBOARD]: false,
     [TabID.MORE]: false,
+    [TabID.LEARN]: false,
     [TabID.SOLO]: true,
     [TabID.MULTIPLAYER]: true,
     [TabID.PLAY_PUZZLE]: true,
@@ -40,7 +39,6 @@ export type ParametrizedTab = {
 const TAB_DISPLAY_NAMES: {[key in TabID]: string} = {
     [TabID.MY_PROFILE]: 'My Profile',
     [TabID.FRIENDS]: 'Friends',
-    [TabID.ALERTS]: 'Alerts',
     [TabID.HOME]: 'Home',
     [TabID.PLAY]: 'Play',
     [TabID.REVIEW]: 'Review',
@@ -50,24 +48,25 @@ const TAB_DISPLAY_NAMES: {[key in TabID]: string} = {
     [TabID.SOLO]: 'Solo',
     [TabID.MULTIPLAYER]: 'Multiplayer',
     [TabID.PLAY_PUZZLE]: 'Play Puzzle',
+    [TabID.LEARN]: 'Learn',
 };
 export const getTabDisplayName = (tab: TabID): string => TAB_DISPLAY_NAMES[tab];
 
 const TAB_ICONS: {[key in TabID]?: string} = {
     [TabID.MY_PROFILE]: 'profile.svg',
     [TabID.FRIENDS]: 'friends.svg',
-    [TabID.ALERTS]: 'alerts.svg',
     [TabID.HOME]: 'home.svg',
     [TabID.PLAY]: 'play.svg',
+    [TabID.LEARN]: 'learn.svg',
     [TabID.REVIEW]: 'review.svg',
     [TabID.PUZZLES]: 'puzzles.svg',
     [TabID.LEADERBOARD]: 'leaderboard.svg',
     [TabID.MORE]: 'more.svg',
+    
 };
 
 const TAB_BADGE_ICONS: {[key in TabID]?: string} = {
     [TabID.FRIENDS]: 'friends-badge.svg',
-    [TabID.ALERTS]: 'alerts-badge.svg',
 }
 
 export const getTabIcon = (tab: TabID): string => "./assets/img/tab-icons/" + TAB_ICONS[tab];

@@ -75,7 +75,7 @@ async function main() {
   let redirectUri: string;
   const redirectToDiscord = (req: express.Request, res: express.Response) => {
     redirectUri = req.query.redirectUri as string;
-    const authorizeUrl = `${DISCORD_API_URL}/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=identify`;
+    const authorizeUrl = `${DISCORD_API_URL}/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=identify`;
     // send the link to the client
     console.log("redirecting to discord with url", authorizeUrl);
     res.redirect(authorizeUrl);
@@ -90,21 +90,22 @@ async function main() {
     console.log("handling discord callback with code", code, "and redirect uri", redirectUri);
 
     try {
-        const tokenResponse = await axios.post(`${DISCORD_API_URL}/oauth2/token`, null, {
-            params: {
-                client_id: DISCORD_CLIENT_ID,
-                client_secret: DISCORD_CLIENT_SECRET,
-                grant_type: 'authorization_code',
-                code: code,
-                redirect_uri: redirectUri
-            },
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
+        const tokenResponse = await axios.post(`${DISCORD_API_URL}/oauth2/token`, {
+          client_id: DISCORD_CLIENT_ID,
+          client_secret: DISCORD_CLIENT_SECRET,
+          grant_type: 'authorization_code',
+          code: code,
+          redirect_uri: redirectUri
+        }, {
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+          }
         });
 
         const accessToken = tokenResponse.data.access_token;
         const refreshToken = tokenResponse.data.refresh_token;
+
+        console.log("got access token", accessToken, "and refresh token", refreshToken);
 
         const userResponse = await axios.get(`${DISCORD_API_URL}/users/@me`, {
             headers: {
@@ -126,17 +127,20 @@ async function main() {
   const refreshAccessToken = async (refreshToken: string) => {
     console.log("refreshing access token with refresh token", refreshToken);
     try {
-        const tokenResponse = await axios.post(`${DISCORD_API_URL}/oauth2/token`, null, {
-            params: {
-                client_id: DISCORD_CLIENT_ID,
-                client_secret: DISCORD_CLIENT_SECRET,
-                grant_type: 'refresh_token',
-                refresh_token: refreshToken
-            },
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-        });
+        
+      const tokenResponse = await axios.post(`${DISCORD_API_URL}/oauth2/token`,
+        {
+          client_id: DISCORD_CLIENT_ID,
+          client_secret: DISCORD_CLIENT_SECRET,
+          grant_type: 'refresh_token',
+          refresh_token: refreshToken
+        },
+        {
+          headers: {
+            'Content-Type' : 'application/x-www-form-urlencoded'
+          }
+        }
+      );
 
         return tokenResponse.data.access_token;
     } catch (error) {

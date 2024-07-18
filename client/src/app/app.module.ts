@@ -71,6 +71,9 @@ import { ChallengeModalComponent } from './components/modals/challenge-modal/cha
 import { ChallengeComponent } from './components/layout/friends/challenge/challenge.component';
 import { NesEmulatorMenuComponent } from './components/nes-layout/nes-emulator-menu/nes-emulator-menu.component';
 import { LoggerComponent } from './components/misc/logger/logger.component';
+import { LearnPageComponent } from './components/layout/learn/learn-page/learn-page.component';
+import { DashboardComponent } from './components/layout/learn/dashboard/dashboard.component';
+import { LessonComponent } from './components/layout/learn/lesson/lesson.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -181,6 +184,9 @@ const customNotifierOptions: NotifierOptions = {
     ChallengeComponent,
     NesEmulatorMenuComponent,
     LoggerComponent,
+    LearnPageComponent,
+    DashboardComponent,
+    LessonComponent,
   ],
   imports: [
     BrowserModule,
