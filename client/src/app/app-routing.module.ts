@@ -19,6 +19,7 @@ import { MorePageComponent } from './components/layout/more/more-page/more-page.
 import { LearnPageComponent } from './components/layout/learn/learn-page/learn-page.component';
 import { DashboardComponent } from './components/layout/learn/dashboard/dashboard.component';
 import { LessonComponent } from './components/layout/learn/lesson/lesson.component';
+import { LogoutComponent } from './components/misc/logout/logout.component';
 
 const routes: Routes = [
 
@@ -39,6 +40,8 @@ const routes: Routes = [
     path: '',
     component: MainLayoutComponent,
     children: [
+      { path: "logout", component: LogoutComponent},
+      
       { path: "profile", component: ProfilePageComponent },
       { path: "friends", component: FriendPageComponent },
       { path: "home", component: HomePageComponent, },

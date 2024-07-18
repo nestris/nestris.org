@@ -25,6 +25,7 @@ import { submitPuzzleAttemptRoute } from './src/puzzle-generation/submit-puzzle-
 import { sendChallengeRoute, rejectChallengeRoute, acceptChallengeRoute } from './src/routes/challenge-route';
 import { getTopMovesHybridRoute } from './src/stackrabbit/stackrabbit';
 import axios from 'axios';
+import { validate } from 'uuid';
 
 // Load environment variables
 require('dotenv').config();
@@ -124,51 +125,12 @@ async function main() {
     }
   };
 
-  const refreshAccessToken = async (refreshToken: string) => {
-    console.log("refreshing access token with refresh token", refreshToken);
-    try {
-        
-      const tokenResponse = await axios.post(`${DISCORD_API_URL}/oauth2/token`,
-        {
-          client_id: DISCORD_CLIENT_ID,
-          client_secret: DISCORD_CLIENT_SECRET,
-          grant_type: 'refresh_token',
-          refresh_token: refreshToken
-        },
-        {
-          headers: {
-            'Content-Type' : 'application/x-www-form-urlencoded'
-          }
-        }
-      );
-
-        return tokenResponse.data.access_token;
-    } catch (error) {
-        console.error('Error refreshing access token:', error);
-        throw new Error('Failed to refresh access token');
-    }
-  };
-
   const requireAuth = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     console.log("checking auth");
 
     if (!(req.session as UserSession).username) {
-      console.log("no username in session, redirecting to login");
-      return res.redirect('/login');
-    }
-
-    const accessToken = (req.session as UserSession).accessToken;
-    const refreshToken = (req.session as UserSession).refreshToken;
-
-    try {
-        // Check if access token is still valid (you can implement a check here)
-        // For simplicity, assume it needs to be refreshed
-        const newAccessToken = await refreshAccessToken(refreshToken);
-        (req.session as UserSession).accessToken = newAccessToken;
-        console.log("refreshed access token to", newAccessToken);
-    } catch (error) {
-      console.error('Error refreshing access token:', error);
-      return res.redirect('/login');
+      console.log("no username in session, redirecting to logout");
+      return res.status(401).send({error: "You are not logged in!"}); // unauthorized, triggers logout
     }
 
     next();
@@ -180,7 +142,7 @@ async function main() {
         if (err) {
             return res.status(500).send('Failed to logout');
         }
-        res.redirect('/');
+        res.status(200).send('Logged out');
     });
   };
 
@@ -201,7 +163,7 @@ async function main() {
 
   app.get('/api/v2/login', redirectToDiscord);
   app.get('/api/v2/callback', handleDiscordCallback);
-  app.get('/api/v2/profile', requireAuth, (req, res) => res.send(`Hello, ${(req.session as UserSession).username}`));
+  app.get('/api/v2/profile', requireAuth, (req, res) => res.send({msg: `Hello, ${(req.session as UserSession).username}`}));
   app.get('/api/v2/logout', handleLogout);
 
   app.get('/api/v2/online-users', (req, res) => {

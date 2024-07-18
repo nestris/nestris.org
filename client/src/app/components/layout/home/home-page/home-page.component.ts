@@ -29,4 +29,9 @@ export class HomePageComponent implements OnInit {
     window.location.href = `http://localhost:3000/api/v2/login?redirectUri=${redirectUri}`;
   }
 
+  async go(str: string) {
+    const response = await fetchServer2(Method.GET, `/api/v2/${str}`);
+    console.log(response);
+  }
+
 }

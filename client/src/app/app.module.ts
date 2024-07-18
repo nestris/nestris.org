@@ -74,6 +74,7 @@ import { LoggerComponent } from './components/misc/logger/logger.component';
 import { LearnPageComponent } from './components/layout/learn/learn-page/learn-page.component';
 import { DashboardComponent } from './components/layout/learn/dashboard/dashboard.component';
 import { LessonComponent } from './components/layout/learn/lesson/lesson.component';
+import { LogoutComponent } from './components/misc/logout/logout.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -187,6 +188,7 @@ const customNotifierOptions: NotifierOptions = {
     LearnPageComponent,
     DashboardComponent,
     LessonComponent,
+    LogoutComponent,
   ],
   imports: [
     BrowserModule,
