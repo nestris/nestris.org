@@ -16,11 +16,9 @@ import { RankedPuzzlesComponent } from './components/layout/puzzles/ranked-puzzl
 import { YourPuzzlesComponent } from './components/layout/puzzles/your-puzzles/your-puzzles.component';
 import { PuzzleDatabaseComponent } from './components/layout/puzzles/puzzle-database/puzzle-database.component';
 import { MorePageComponent } from './components/layout/more/more-page/more-page.component';
-import { CallbackComponent } from './components/misc/callback/callback.component';
 
 const routes: Routes = [
 
-  { path: 'callback', component: CallbackComponent },
   {
     path: 'online',
     component: FullscreenLayoutComponent,
