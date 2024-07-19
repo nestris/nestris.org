@@ -9,7 +9,7 @@ export interface ActivePuzzle {
 }
 
 // get the active puzzle for the username, or undefined if there is no active puzzle
-export async function getActivePuzzle(userid: number): Promise<ActivePuzzle | undefined> {
+export async function getActivePuzzle(userid: string): Promise<ActivePuzzle | undefined> {
   
   const result = await queryDB("SELECT * FROM active_puzzles WHERE username = $1", [userid]);
   if (result.rows.length === 0) {
@@ -26,14 +26,14 @@ export async function getActivePuzzle(userid: number): Promise<ActivePuzzle | un
   };
 }
 
-export async function hasActivePuzzle(userid: number): Promise<boolean> {
+export async function hasActivePuzzle(userid: string): Promise<boolean> {
   return (await getActivePuzzle(userid)) !== undefined;
 }
 
-export async function setActivePuzzle(userid: number, puzzleID: string, eloGain: number, eloLoss: number) {
+export async function setActivePuzzle(userid: string, puzzleID: string, eloGain: number, eloLoss: number) {
   await queryDB("INSERT INTO active_puzzles (userid, puzzle_id, elo_gain, elo_loss) VALUES ($1, $2, $3, $4)", [userid, puzzleID, eloGain, eloLoss]);
 }
 
-export async function clearActivePuzzle(userid: number) {
+export async function clearActivePuzzle(userid: string) {
   await queryDB("DELETE FROM active_puzzles WHERE userid = $1", [userid]);
 }

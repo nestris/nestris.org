@@ -13,7 +13,7 @@ export async function getAllUsernamesMatchingPatternRoute(req: Request, res: Res
 
 // GET request api/v2/user/:username
 export async function getUserByUserIDRoute(req: Request, res: Response) {
-  const userid = parseInt(req.params['userid']);
+  const userid = req.params['userid'];
 
   const response = await queryUserByUserID(userid);
 
@@ -22,7 +22,7 @@ export async function getUserByUserIDRoute(req: Request, res: Response) {
 
 // sends FriendInfo[] for all friends and potential friends (incoming/outcoming) for a user
 export async function getFriendsInfoRoute(req: Request, res: Response, state: ServerState) {
-  const userid = parseInt(req.params['userid']);
+  const userid = req.params['userid'];
 
   const response = await queryFriendsAndFriendRequestsForUser(userid);
 
@@ -44,14 +44,11 @@ export async function getFriendsInfoRoute(req: Request, res: Response, state: Se
 
 // POST request api/v2/friend-request/:from/:to
 export async function setFriendRequestRoute(req: Request, res: Response, state: ServerState) {
-  const from = parseInt(req.params['from']);
-  const to = parseInt(req.params['to']);
+  const from = req.params['from'];
+  const to = req.params['to'];
 
   if (!from) res.status(400).send("Missing 'from' parameter");
   if (!to) res.status(400).send("Missing 'to' parameter");
-
-  if (isNaN(from)) res.status(400).send("Invalid 'from' parameter");
-  if (isNaN(to)) res.status(400).send("Invalid 'to' parameter");
 
   if (from === to) {
     res.status(400).send("Cannot send friend request to yourself");
@@ -70,14 +67,11 @@ export async function setFriendRequestRoute(req: Request, res: Response, state: 
 
 // POST request api/v2/end-friendship/:from/:to
 export async function endFriendshipRoute(req: Request, res: Response, state: ServerState) {
-  const from = parseInt(req.params['from']);
-  const to = parseInt(req.params['to']);
+  const from = req.params['from'];
+  const to = req.params['to'];
 
   if (!from) res.status(400).send("Missing 'from' parameter");
   if (!to) res.status(400).send("Missing 'to' parameter");
-
-  if (isNaN(from)) res.status(400).send("Invalid 'from' parameter");
-  if (isNaN(to)) res.status(400).send("Invalid 'to' parameter");
 
   if (from === to) {
     res.status(400).send("Cannot end friendship with yourself");

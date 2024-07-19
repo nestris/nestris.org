@@ -26,7 +26,7 @@ closed when the user signs out.
 export class WebsocketService {
 
   private ws?: WebSocket;
-  private userid?: number;
+  private userid?: string;
   private username?: string;
   private sessionID?: string;
 
@@ -41,17 +41,18 @@ export class WebsocketService {
     private notificationService: NotificationService,
     private router: Router
   ) {
-
-    notificationService.notify(NotificationType.INFO, "Connecting to server...");
     
     // Check if logged in. If not, direct to login page
-    fetchServer2<{userid: number, username: string}>(Method.GET, '/api/me').then((response) => {
+    fetchServer2<{userid: string, username: string}>(Method.GET, '/api/v2/me').then((response) => {
       // if the user is already signed in, connect to the websocket
+      console.log("Logged in. Connecting to websocket...")
       const { userid, username } = response;
+      notificationService.notify(NotificationType.INFO, "Connecting to server...");
       this.connect(userid, username);
     }).catch((error) => {
       // If not signed in, redirect to login page with hard refresh
       if (location.pathname !== '/login') location.href = '/login';
+      console.error('Not signed in:', error);
     });
 
     /*
@@ -128,7 +129,7 @@ export class WebsocketService {
   }
 
   // get the userid of the signed in user, or undefined if not signed in
-  getUserID(): number | undefined {
+  getUserID(): string | undefined {
     if (!this.isSignedIn()) return undefined;
     return this.userid;
   }
@@ -178,7 +179,7 @@ export class WebsocketService {
 
   // called to connect to server
   // if the connection is successful, a ws connection is established and the user is signed in
-  connect(userid: number, username: string) {
+  connect(userid: string, username: string) {
 
     // if already signed in, do nothing
     if (this.isSignedIn()) {
@@ -220,14 +221,17 @@ export class WebsocketService {
 
   // called to disconnect from server. this will trigger the onclose event
   // and thus sign out the user
-  logout() {
+  async logout() {
+
+    this.notificationService.notify(NotificationType.ERROR, "Logging out..");
+
+    // send a request to the server to sign out
+    await fetchServer2(Method.POST, '/api/v2/logout');
+
     this.ws?.close();
     this.ws = undefined;
     this.username = undefined;
     this.sessionID = undefined;
-
-    // send a request to the server to sign out
-    fetchServer2(Method.POST, '/api/logout');
 
     // redirect to login page with hard refresh if we're not already there
     if (location.pathname !== '/login') location.href = '/login';

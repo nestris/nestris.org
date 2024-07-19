@@ -75,7 +75,7 @@ export function calculateEloChangeForPuzzle(userElo: number, numAttempts: number
 
 // given a user, select a random puzzle for the user to solve
 // The puzzle is not guaranteed to be unsolved by user before, but hopefully puzzle database is large enough that this is unlikely
-export async function selectRandomPuzzleForUser(userid: number): Promise<RatedPuzzle> {
+export async function selectRandomPuzzleForUser(userid: string): Promise<RatedPuzzle> {
   
   // first, fetch the user's current puzzle elo from database
   const user = await queryUserByUserID(userid);
@@ -118,7 +118,7 @@ export async function selectRandomPuzzleForUser(userid: number): Promise<RatedPu
 
 // returns a random RatedPuzzle for the user based on their elo
 export async function selectRandomPuzzleForUserRoute(req: Request, res: Response) {
-  const userid = parseInt(req.params['userid']);
+  const userid = req.params['userid'];
   console.log("Selecting random puzzle for user", userid);
 
   try {

@@ -18,7 +18,7 @@ export class RoomManager {
     return this.rooms.find(room => room.roomID === roomID);
   }
 
-  getUserByUserID(userid: number): RoomUser | undefined {
+  getUserByUserID(userid: string): RoomUser | undefined {
     for (const room of this.rooms) {
       const user = room.getUserByUserID(userid);
       if (user) return user;
@@ -34,7 +34,7 @@ export class RoomManager {
     return undefined;
   }
 
-  containsUser(userid: number): boolean {
+  containsUser(userid: string): boolean {
     return this.getUserByUserID(userid) !== undefined;
   }
 

@@ -115,7 +115,7 @@ export class Room {
     return this.players.find(player => player.session.socket === socket);
   }
 
-  getUserByUserID(userid: number): RoomUser | undefined {
+  getUserByUserID(userid: string): RoomUser | undefined {
     return this.players.find(player => player.session.user.userid === userid);
   }
 

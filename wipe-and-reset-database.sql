@@ -5,7 +5,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- USER TABLE
 DROP TABLE IF EXISTS "public"."users" CASCADE;
 CREATE TABLE "public"."users" (
-    "userid" int2 NOT NULL,
+    "userid" text NOT NULL,
     "username" text NOT NULL,
     "last_online" timestamp NOT NULL DEFAULT now(),
     "trophies" int2 NOT NULL DEFAULT 1000,
@@ -38,8 +38,8 @@ FOR EACH ROW EXECUTE FUNCTION update_highest_puzzle_elo();
 -- USER_RELATIONSHIPS table
 DROP TABLE IF EXISTS "public"."user_relationships" CASCADE;
 CREATE TABLE "public"."user_relationships" (
-    "userid1" int2 NOT NULL REFERENCES "public"."users"("userid"),
-    "userid2" int2 NOT NULL REFERENCES "public"."users"("userid"),
+    "userid1" text NOT NULL REFERENCES "public"."users"("userid"),
+    "userid2" text NOT NULL REFERENCES "public"."users"("userid"),
     "type" text CHECK (type = ANY (ARRAY['1_send_to_2'::text, '2_send_to_1'::text, 'friends'::text])),
     PRIMARY KEY ("userid1","userid2")
 );
@@ -110,7 +110,7 @@ FOR EACH ROW EXECUTE FUNCTION update_puzzle_feedback_cached_data();
 -- table to ensure that user can only have one active puzzle at a time, and to keep track of when the puzzle was started
 DROP TABLE IF EXISTS "public"."active_puzzles" CASCADE;
 CREATE TABLE "public"."active_puzzles" (
-    "userid" int2 NOT NULL REFERENCES "public"."users"("userid"),
+    "userid" text NOT NULL REFERENCES "public"."users"("userid"),
     "puzzle_id" uuid NOT NULL REFERENCES "public"."rated_puzzles"("id"),
     "elo_gain" int2 NOT NULL,
     "elo_loss" int2 NOT NULL,
@@ -125,7 +125,7 @@ DROP TABLE IF EXISTS "public"."puzzle_attempts" CASCADE;
 CREATE TABLE "public"."puzzle_attempts" (
     "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
     "puzzle_id" uuid NOT NULL REFERENCES "public"."rated_puzzles"("id"),
-    "userid" int2 NOT NULL REFERENCES "public"."users"("userid"),
+    "userid" text NOT NULL REFERENCES "public"."users"("userid"),
     "timestamp" timestamp NOT NULL DEFAULT now(),
 
     "is_correct" boolean NOT NULL,
@@ -169,7 +169,7 @@ FOR EACH ROW EXECUTE FUNCTION update_puzzle_cached_data();
 DROP TABLE IF EXISTS "public"."logs" CASCADE;
 CREATE TABLE "public"."logs" (
     "timestamp" timestamp NOT NULL DEFAULT now(),
-    "userid" int2 REFERENCES "public"."users"("userid"),
+    "userid" text REFERENCES "public"."users"("userid"),
     "message" text NOT NULL
 );
 

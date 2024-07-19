@@ -2,7 +2,7 @@ import express from 'express';
 import session from 'express-session';
 
 export interface UserSession extends session.Session {
-  userid: number;
+  userid: string;
   username: string;
   accessToken: string;
   refreshToken: string;
@@ -29,7 +29,7 @@ export function handleLogout(req: express.Request, res: express.Response) {
   });
 };
 
-export function getUserID(req: express.Request): number {
+export function getUserID(req: express.Request): string {
   return (req.session as UserSession).userid;
 }
 

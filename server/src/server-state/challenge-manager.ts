@@ -14,7 +14,7 @@ export class ChallengeManager {
   constructor(private readonly state: ServerState) {}
 
   // convert two players to a unique key which is used to index this.challenges
-  private challengeToKey(player1: number, player2: number): string {
+  private challengeToKey(player1: string, player2: string): string {
     const players = [player1, player2].sort();
     return players.join(",");
   }
@@ -70,7 +70,7 @@ export class ChallengeManager {
   // find the matching challenge and remove it from the list
   // then, notify both players to refresh their friends list
   // returns true if the challenge was successfully rejected
-  rejectChallenge(challenge: Challenge, rejector: number): boolean {
+  rejectChallenge(challenge: Challenge, rejectorid: string): boolean {
     const key = this.challengeToKey(challenge.senderid, challenge.receiverid);
 
     // if the challenge does not exist, do nothing
@@ -88,10 +88,10 @@ export class ChallengeManager {
     this.state.onlineUserManager.getOnlineUserByUserID(challenge.receiverid)?.sendJsonMessage(new UpdateOnlineFriendsMessage());
 
     // if rejector was the reciever of the challenge, notify the other player that the challenge was rejected
-    if (rejector === challenge.receiverid) {
-      const text = `${rejector} declined your challenge`;
+    if (rejectorid === challenge.receiverid) {
+      const text = `${rejectorid} declined your challenge`;
       const otherUser = this.state.onlineUserManager.getOnlineUserByUserID(
-        rejector === challenge.senderid ? challenge.receiverid : challenge.senderid
+        rejectorid === challenge.senderid ? challenge.receiverid : challenge.senderid
       );
       otherUser?.sendJsonMessage(new SendPushNotificationMessage(NotificationType.ERROR, text));
     }
@@ -168,7 +168,7 @@ export class ChallengeManager {
   }
 
   // get the challenge between two players
-  getChallenge(player1: number, player2: number): Challenge | undefined {
+  getChallenge(player1: string, player2: string): Challenge | undefined {
     const key = this.challengeToKey(player1, player2);
     return this.challenges.get(key);
   }

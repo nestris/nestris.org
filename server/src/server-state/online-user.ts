@@ -51,7 +51,7 @@ export class OnlineUser {
     private eventSubscribers: Map<UserEvent, Set<Function>> = new Map();
 
     constructor(
-        public readonly userid: number, // unique identifier for the user
+        public readonly userid: string, // unique identifier for the user
         public readonly username: string,
         socket: WebSocket, // live websocket connection
         public readonly sessionID: string, // unique identifier for the session

@@ -69,6 +69,7 @@ import { DashboardComponent } from './components/layout/learn/dashboard/dashboar
 import { LessonComponent } from './components/layout/learn/lesson/lesson.component';
 import { LoginPageComponent } from './components/layout/login/login-page/login-page.component';
 import { MainLeaderboardPageComponent } from './components/layout/main-leaderboard/main-leaderboard-page/main-leaderboard-page.component';
+import { WelcomePageComponent } from './components/layout/welcome/welcome-page/welcome-page.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -177,6 +178,7 @@ const customNotifierOptions: NotifierOptions = {
     LessonComponent,
     LoginPageComponent,
     MainLeaderboardPageComponent,
+    WelcomePageComponent,
   ],
   imports: [
     BrowserModule,

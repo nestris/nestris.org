@@ -4,7 +4,7 @@ import { FriendStatus } from "../../shared/models/friends";
 
 
 // find a user by matching username and return the user
-export async function queryUserByUserID(userid: number): Promise<DBUser | undefined> {
+export async function queryUserByUserID(userid: string): Promise<DBUser | undefined> {
 
   // make a SQL query to get the user with the specified username
   const query = `SELECT * FROM users WHERE userid = $1`;
@@ -29,8 +29,8 @@ export async function queryUserByUserID(userid: number): Promise<DBUser | undefi
 // get the list of friends, pending friends, and incoming friend requests for a user
 // user-relationship table has schema (username1, username2, type = "friends" | "1_send_to_2" | "2_send_to_1")
 // join to get the trophies and xp for each friend
-export async function queryFriendsAndFriendRequestsForUser(userid: number): Promise<{
-  userid: number;
+export async function queryFriendsAndFriendRequestsForUser(userid: string): Promise<{
+  userid: string;
   username: string;
   trophies: number;
   xp: number;
@@ -78,7 +78,7 @@ export async function queryFriendsAndFriendRequestsForUser(userid: number): Prom
 }
 
 // returns a list of full friends for a user as a list of strings
-export async function queryFriendUserIDsForUser(userid: number): Promise<number[]> {
+export async function queryFriendUserIDsForUser(userid: string): Promise<string[]> {
   const query = `
     SELECT userid2 as userid
     FROM user_relationships
@@ -99,12 +99,12 @@ export async function queryAllUsernamesMatchingPattern(pattern: string = "%"): P
   return result.rows.map((row) => row.username);
 }
 
-export async function createUser(username: string): Promise<void> {
-  const query = `INSERT INTO users (username) VALUES ($1)`;
-  await queryDB(query, [username]);
+export async function createUser(userid: string, username: string): Promise<void> {
+  const query = `INSERT INTO users (userid, username) VALUES ($1, $2)`;
+  await queryDB(query, [userid, username]);
 }
 
-export async function fetchUsernameFromUserID(userid: number): Promise<string> {
+export async function fetchUsernameFromUserID(userid: string): Promise<string> {
   const query = `SELECT username FROM users WHERE userid = $1`;
   const result = await queryDB(query, [userid]);
   return result.rows[0].username;

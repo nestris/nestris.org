@@ -15,6 +15,7 @@ import { LoginPageComponent } from './components/layout/login/login-page/login-p
 import { PuzzlesPageComponent } from './components/layout/puzzles/puzzles-page.component';
 import { LeaderboardComponent } from './components/layout/play-puzzle/leaderboard/leaderboard.component';
 import { MainLeaderboardPageComponent } from './components/layout/main-leaderboard/main-leaderboard-page/main-leaderboard-page.component';
+import { WelcomePageComponent } from './components/layout/welcome/welcome-page/welcome-page.component';
 
 const routes: Routes = [
 
@@ -52,9 +53,11 @@ const routes: Routes = [
         ]
        },
 
-
       { path: "puzzles", component: PuzzlesPageComponent },
       { path: "leaderboard", component: MainLeaderboardPageComponent },
+
+       { path: "welcome", component: WelcomePageComponent },
+
       { path: "", redirectTo: "play", pathMatch: "full", },
       { path: "**", redirectTo: "play", pathMatch: "full", }
     ],

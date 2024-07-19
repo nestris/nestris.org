@@ -41,7 +41,7 @@ export class ErrorMessage extends JsonMessage {
 // sent as initial message from client to server when user connects
 export class OnConnectMessage extends JsonMessage {
     constructor(
-        public readonly userid: number,
+        public readonly userid: string,
         public readonly username: string,
         public readonly sessionID: string,
     ) {

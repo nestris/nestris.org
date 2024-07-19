@@ -16,7 +16,7 @@ Manages the users that are online right now and thus are connected to socket wit
 export class OnlineUserManager {
 
     // map of userid to OnlineUser
-    private onlineUsers: Map<number, OnlineUser> = new Map<number, OnlineUser>();
+    private onlineUsers: Map<string, OnlineUser> = new Map<string, OnlineUser>();
 
     constructor(private readonly state: ServerState) {}
 
@@ -36,12 +36,12 @@ export class OnlineUserManager {
     }
 
     // get the number of friends that are online for a user
-    public async numOnlineFriends(userid: number): Promise<number> {
+    public async numOnlineFriends(userid: string): Promise<number> {
         const friends = await queryFriendUserIDsForUser(userid);
         return friends.filter(friend => this.isOnline(friend)).length;
     }
 
-    public getOnlineUserByUserID(userid: number): OnlineUser | undefined {
+    public getOnlineUserByUserID(userid: string): OnlineUser | undefined {
         return this.onlineUsers.get(userid);
     }
 
@@ -54,12 +54,12 @@ export class OnlineUserManager {
         return onlineUser?.getSessionBySocket(socket);
     }
 
-    public isOnline(userid: number): boolean {
+    public isOnline(userid: string): boolean {
         return this.onlineUsers.has(userid);
     }
 
     // get whether the user is online, and if so, what the user is doing
-    public getOnlineStatus(userid: number): OnlineUserStatus {
+    public getOnlineStatus(userid: string): OnlineUserStatus {
         const user = this.getOnlineUserByUserID(userid);
         if (user === undefined) return OnlineUserStatus.OFFLINE;
         return user.status;
@@ -72,7 +72,7 @@ export class OnlineUserManager {
     // on user connect, add to online pool, and update friends' online friends
     // if user does not exist, add user to database
     // if user is already online, add the socket to the user's sockets
-    public async onUserConnect(userid: number, username: string, socket: WebSocket, sessionID: string) {
+    public async onUserConnect(userid: string, username: string, socket: WebSocket, sessionID: string) {
 
         console.log(`User ${username} with id ${userid} attempting to connect.`);
 
@@ -94,16 +94,9 @@ export class OnlineUserManager {
 
         // if user does not exist, add user to database
         if (!user) {
-            console.log(`User ${username} does not exist, creating new user.`);
-            try {
-                await createUser(username);
-            } catch (error) {
-                console.error(error);
-                (new OnlineUser(userid, username, socket, "")).closeSocket(socket, SocketCloseCode.NEW_USER_DUPLICATE_INFO);
-                return;
-            }
+            console.error(`User ${username} with id ${userid} should not be initiating websocket connection, as they do not exist in the database.`);
+            return;
         }
-
 
         // create a new OnlineUser
         const onlineUser = new OnlineUser(userid, username, socket, sessionID);
@@ -135,7 +128,7 @@ export class OnlineUserManager {
     }
 
     // when user changes status, update friends' online friends
-    public async updateFriendsOnUserStatusChange(userid: number) {
+    public async updateFriendsOnUserStatusChange(userid: string) {
         const friends = await queryFriendUserIDsForUser(userid);
         for (const friend of friends) {
             
@@ -149,7 +142,7 @@ export class OnlineUserManager {
     }
 
     // on user disconnect, remove from online pool, and update friends' online friends
-    public async onUserDisconnect(userid: number) {
+    public async onUserDisconnect(userid: string) {
 
         // update the online friends of the user's friends
         const friends = await queryFriendUserIDsForUser(userid);

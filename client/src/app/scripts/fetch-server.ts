@@ -43,7 +43,7 @@ export async function fetchServer2<ResponseType>(
 
     // if the response is 401, tell the websocket to logout
     if (response.status === 401 && websocket) {
-        websocket.logout();
+        await websocket.logout();
     }
 
     if (!response.ok) {

@@ -7,7 +7,7 @@ import { ServerState } from "../server-state/server-state";
 
 // Used to send a friend request from one user to another
 // Can also be used to accept a friend request
-export async function sendFriendRequest(fromUserID: number, toUserID: number, state: ServerState): Promise<FriendStatus> {
+export async function sendFriendRequest(fromUserID: string, toUserID: string, state: ServerState): Promise<FriendStatus> {
   
   // make a SQL query to insert the friend request into the user_relationships table
   // if toUsername already sent a friend request to fromUsername, then set type to "friends"
@@ -82,7 +82,7 @@ export async function sendFriendRequest(fromUserID: number, toUserID: number, st
 }
 
 // Used to terminate a friendship, or cancel/decline a friend request
-export async function endFriendship(userid1: number, userid2: number, state: ServerState): Promise<void> {
+export async function endFriendship(userid1: string, userid2: string, state: ServerState): Promise<void> {
 
   if (userid1 === userid2) {
     throw new Error("Cannot end a friendship with yourself");

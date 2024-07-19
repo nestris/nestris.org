@@ -13,7 +13,7 @@ export class RatedPuzzleState extends PuzzleState {
   private eloHistory: number[] = [];
 
   constructor(
-    private readonly userid: number,
+    private readonly userid: string,
   ) {
     super();
   }

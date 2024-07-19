@@ -18,7 +18,7 @@ import { submitPuzzleAttemptRoute } from './src/puzzle-generation/submit-puzzle-
 import { sendChallengeRoute, rejectChallengeRoute, acceptChallengeRoute } from './src/routes/challenge-route';
 import { getTopMovesHybridRoute } from './src/stackrabbit/stackrabbit';
 import axios from 'axios';
-import { fetchUsernameFromUserID } from './src/database/user-queries';
+import { createUser, fetchUsernameFromUserID, queryUserByUserID } from './src/database/user-queries';
 import { getUserID, getUsername, handleLogout, requireAuth, UserSession } from './src/util/auth-util';
 
 // Load environment variables
@@ -103,15 +103,38 @@ async function main() {
             }
         });
 
-        const userID = parseInt(userResponse.data.id);
+        console.log(userResponse.data);
+        const userID = userResponse.data.id;
 
+        // Check if the user is already in the database. If not, create a new user.
+        let username: string;
+        const user = await queryUserByUserID(userID);
+        if (user) {
+          // If user already exists, fetch username from database
+          username = await fetchUsernameFromUserID(userID)
+        } else {
+          // If user does not exist, create a new user with username from Discord global name
+          username = userResponse.data.global_name;
+          await createUser(userID, username);
+        }
+
+        // Store the user's session
         (req.session as UserSession).accessToken = accessToken;
         (req.session as UserSession).refreshToken = refreshToken;
         (req.session as UserSession).userid = userID;
-        (req.session as UserSession).username = await fetchUsernameFromUserID(userID);
+        (req.session as UserSession).username = username;
+
+        // Check if the user is already in the database. If not, create a new user.
+        if (user) {
+          // User already exists. Go to Play page
+          res.redirect('/play');
+          console.log(`Authenticated returning user ${username}, redirecting to play`);
+        } else {
+          // New User. Go to welcome page
+          console.log(`Authenticated new user ${username}, redirecting to welcome`);
+          res.redirect('/welcome');
+        }
         
-        console.log(req.session);
-        res.redirect('/profile');
     } catch (error) {
         console.error('Error during Discord OAuth:', error);
         res.status(500).send('An error occurred during authentication');
@@ -135,7 +158,7 @@ async function main() {
 
   app.get('/api/v2/login', redirectToDiscord);
   app.get('/api/v2/callback', handleDiscordCallback);
-  app.get('/api/v2/logout', handleLogout);
+  app.post('/api/v2/logout', handleLogout);
 
   app.get('/api/v2/me', requireAuth, (req, res) => {
     // send the logged in user's username, or null if not logged in
@@ -151,12 +174,12 @@ async function main() {
   });
 
   app.get('/api/v2/online-user/:userid', requireAuth, (req, res) => {
-      const userid = parseInt(req.params['userid']);
+      const userid = req.params['userid'];
       res.status(200).send(state.onlineUserManager.getOnlineUserByUserID(userid)?.getOnlineUserInfo(state) ?? {error : "User not found"});
   });
 
   app.get('/api/v2/num-online-friends/:userid', async (req, res) => {
-      const numOnlineFriends = await state.onlineUserManager.numOnlineFriends(parseInt(req.params['userid']));
+      const numOnlineFriends = await state.onlineUserManager.numOnlineFriends(req.params['userid']);
       res.status(200).send({count: numOnlineFriends});
   });
 

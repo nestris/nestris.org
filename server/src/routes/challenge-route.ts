@@ -21,7 +21,7 @@ export async function sendChallengeRoute(req: Request, res: Response, state: Ser
 export async function rejectChallengeRoute(req: Request, res: Response, state: ServerState) {
 
   const challenge: Challenge = req.body.challenge;
-  const userid: number = parseInt(req.body.userid);
+  const userid: string = req.body.userid;
   
   if (!challenge) res.status(400).send("Missing 'challenge' parameter");
   if (!userid) res.status(400).send("Missing 'username' parameter");

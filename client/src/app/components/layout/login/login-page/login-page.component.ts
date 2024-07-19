@@ -9,7 +9,11 @@ import { WebsocketService } from 'src/app/services/websocket.service';
 export class LoginPageComponent {
 
   login() {
-    location.href = 'api/v2/login';
+    // After discord login, redirect to this callback URL in the server to process the code
+    const redirectUri = encodeURIComponent(window.location.origin + '/api/v2/callback');
+
+    // Redirect to discord login page. Hard refresh to avoid CORS issues
+    location.href = `api/v2/login?redirectUri=${redirectUri}`;
   }
 
 }

@@ -8,7 +8,7 @@ import { WebsocketService } from 'src/app/services/websocket.service';
 import { Challenge } from 'src/app/shared/models/challenge';
 
 export interface ChallengeModalConfig {
-  opponentid: number;
+  opponentid: string;
   opponentUsername: string;
 }
 
