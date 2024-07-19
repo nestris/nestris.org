@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Observable, Subject, map } from 'rxjs';
-import { Move } from 'src/app/components/modals/create-puzzle-modal/create-puzzle-modal.component';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { PuzzleSubmission } from 'src/app/models/puzzles/puzzle';
 import { getTopMovesHybrid } from 'src/app/scripts/stackrabbit-decoder';
@@ -13,17 +12,19 @@ import { GenericPuzzle } from 'src/app/shared/puzzles/generic-puzzle';
 import MoveableTetromino from 'src/app/shared/tetris/moveable-tetromino';
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { EloMode } from '../elo-rating/elo-rating.component';
-import { FolderPuzzleState } from './puzzle-states/folder-puzzle-state';
 import { PuzzleState, EloChange } from './puzzle-states/puzzle-state';
 import { RatedPuzzleState } from './puzzle-states/rated-puzzle-state';
-import { SinglePuzzleState } from './puzzle-states/single-puzzle-state';
-import { copyPuzzleLink } from 'src/app/util/copy-url';
 
 export enum PuzzleMode {
   RATED = "rated",
-  FOLDER = "folder",
-  SINGLE = "single"
 }
+
+export interface Move {
+  firstPlacement: MoveableTetromino;
+  secondPlacement: MoveableTetromino;
+  score: number;
+}
+
 @Component({
   selector: 'app-play-puzzle-page',
   templateUrl: './play-puzzle-page.component.html',
@@ -111,12 +112,6 @@ export class PlayPuzzlePageComponent implements OnInit {
         return;
       }
 
-      // if mode is folder or single, but id is not provided, redirect to default puzzle URL
-      if ((mode === PuzzleMode.FOLDER || mode === PuzzleMode.SINGLE) && !id) {
-        console.log("ID not provided");
-        this.redirectToDefaultURL();
-        return;
-      }
 
       // if mode is rated and not logged in, redirect back to puzzles page
       if (mode === PuzzleMode.RATED && !this.websocketService.isSignedIn()) {
@@ -131,16 +126,8 @@ export class PlayPuzzlePageComponent implements OnInit {
       switch (mode) {
         case PuzzleMode.RATED:
           // guaranteed to be logged in
-          puzzleState = new RatedPuzzleState(this.websocketService.getUsername()!);
+          puzzleState = new RatedPuzzleState(this.websocketService.getUserID()!);
           console.log("Rated puzzle state created");
-          break;
-        case PuzzleMode.FOLDER:
-          puzzleState = new FolderPuzzleState(id!);
-          console.log("Folder puzzle state created");
-          break;
-        case PuzzleMode.SINGLE:
-          puzzleState = new SinglePuzzleState(id!);
-          console.log("Single puzzle state created");
           break;
       }
 
@@ -285,10 +272,6 @@ export class PlayPuzzlePageComponent implements OnInit {
 
   exitUnratedPuzzle() {
     this.router.navigate(["/puzzles/view"]);
-  }
-
-  sharePuzzle() {
-    copyPuzzleLink(this.notifier, this.puzzle$.getValue()!.id);
   }
 
   retryPuzzle() {

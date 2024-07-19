@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { queryAllUsernamesMatchingPattern, queryFriendsAndFriendRequestsForUser, queryUserByUsername } from '../database/user-queries';
+import { queryAllUsernamesMatchingPattern, queryFriendsAndFriendRequestsForUser, queryUserByUserID } from '../database/user-queries';
 import { endFriendship, sendFriendRequest } from '../database/friendship-updates';
 import { ServerState } from '../server-state/server-state';
 import { FriendInfo, FriendStatusResult } from '../../shared/models/friends';
@@ -12,29 +12,30 @@ export async function getAllUsernamesMatchingPatternRoute(req: Request, res: Res
 }
 
 // GET request api/v2/user/:username
-export async function getUserByUsernameRoute(req: Request, res: Response) {
-  const username = req.params['username'];
+export async function getUserByUserIDRoute(req: Request, res: Response) {
+  const userid = parseInt(req.params['userid']);
 
-  const response = await queryUserByUsername(username);
+  const response = await queryUserByUserID(userid);
 
   res.status(200).send(response);
 }
 
 // sends FriendInfo[] for all friends and potential friends (incoming/outcoming) for a user
 export async function getFriendsInfoRoute(req: Request, res: Response, state: ServerState) {
-  const username = req.params['username'];
+  const userid = parseInt(req.params['userid']);
 
-  const response = await queryFriendsAndFriendRequestsForUser(username);
+  const response = await queryFriendsAndFriendRequestsForUser(userid);
 
   const friends: FriendInfo[] = response.map((friend) => {
     
     return {
+      userid: friend.userid,
       username: friend.username,
       friendStatus: friend.type,
-      onlineStatus: state.onlineUserManager.getOnlineStatus(friend.username),
+      onlineStatus: state.onlineUserManager.getOnlineStatus(friend.userid),
       xp: friend.xp,
       trophies: friend.trophies,
-      challenge: state.challengeManager.getChallenge(username, friend.username)
+      challenge: state.challengeManager.getChallenge(userid, friend.userid)
     }
   });
 
@@ -43,11 +44,14 @@ export async function getFriendsInfoRoute(req: Request, res: Response, state: Se
 
 // POST request api/v2/friend-request/:from/:to
 export async function setFriendRequestRoute(req: Request, res: Response, state: ServerState) {
-  const from = req.params['from'];
-  const to = req.params['to'];
+  const from = parseInt(req.params['from']);
+  const to = parseInt(req.params['to']);
 
   if (!from) res.status(400).send("Missing 'from' parameter");
   if (!to) res.status(400).send("Missing 'to' parameter");
+
+  if (isNaN(from)) res.status(400).send("Invalid 'from' parameter");
+  if (isNaN(to)) res.status(400).send("Invalid 'to' parameter");
 
   if (from === to) {
     res.status(400).send("Cannot send friend request to yourself");
@@ -66,11 +70,14 @@ export async function setFriendRequestRoute(req: Request, res: Response, state: 
 
 // POST request api/v2/end-friendship/:from/:to
 export async function endFriendshipRoute(req: Request, res: Response, state: ServerState) {
-  const from = req.params['from'];
-  const to = req.params['to'];
+  const from = parseInt(req.params['from']);
+  const to = parseInt(req.params['to']);
 
   if (!from) res.status(400).send("Missing 'from' parameter");
   if (!to) res.status(400).send("Missing 'to' parameter");
+
+  if (isNaN(from)) res.status(400).send("Invalid 'from' parameter");
+  if (isNaN(to)) res.status(400).send("Invalid 'to' parameter");
 
   if (from === to) {
     res.status(400).send("Cannot end friendship with yourself");

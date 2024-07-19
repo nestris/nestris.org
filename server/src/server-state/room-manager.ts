@@ -18,9 +18,9 @@ export class RoomManager {
     return this.rooms.find(room => room.roomID === roomID);
   }
 
-  getUserByUsername(username: string): RoomUser | undefined {
+  getUserByUserID(userid: number): RoomUser | undefined {
     for (const room of this.rooms) {
-      const user = room.getUserByUsername(username);
+      const user = room.getUserByUserID(userid);
       if (user) return user;
     }
     return undefined;
@@ -34,8 +34,8 @@ export class RoomManager {
     return undefined;
   }
 
-  containsUser(username: string): boolean {
-    return this.getUserByUsername(username) !== undefined;
+  containsUser(userid: number): boolean {
+    return this.getUserByUserID(userid) !== undefined;
   }
 
   getUserBySocket(socket: WebSocket): RoomUser | undefined {
@@ -48,7 +48,7 @@ export class RoomManager {
 
   assertUserNotInRoom(user: OnlineUser) {
 
-    if (this.getUserByUsername(user.username)) {
+    if (this.getUserByUserID(user.userid)) {
       throw new Error(`User ${user.username} is already in a room`);
     }
 
@@ -78,8 +78,8 @@ export class RoomManager {
   // create a room between challenge.senderSessionID and receiverSessionID, return the room id
   createMultiplayerRoom(challenge: Challenge, receiverSessionID: string) {
 
-    const sender = this.state.onlineUserManager.getOnlineUserByUsername(challenge.sender);
-    const receiver = this.state.onlineUserManager.getOnlineUserByUsername(challenge.receiver);
+    const sender = this.state.onlineUserManager.getOnlineUserByUserID(challenge.senderid);
+    const receiver = this.state.onlineUserManager.getOnlineUserByUserID(challenge.receiverid);
 
     // sanity checks that both users are online
     if (!sender || !receiver) throw new Error("Sender or receiver not online, cannot create multiplayer room");
@@ -97,7 +97,7 @@ export class RoomManager {
     const room = new Room(RoomMode.MULTIPLAYER);
     this.rooms.push(room);
 
-    console.log("Creating multiplayer room for", challenge.sender, "and", challenge.receiver, room.roomID);
+    console.log("Creating multiplayer room for", challenge.senderUsername, "and", challenge.receiverUsername, room.roomID);
 
 
     // add the users to the room

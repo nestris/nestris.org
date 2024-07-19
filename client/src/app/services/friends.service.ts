@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { fetchServer, Method } from '../scripts/fetch-server';
+import { fetchServer2, Method } from '../scripts/fetch-server';
 import { Challenge } from '../shared/models/challenge';
 import { FriendInfo, OnlineUserStatus, FriendStatus } from '../shared/models/friends';
 import { JsonMessageType } from '../shared/network/json-message';
@@ -39,11 +39,9 @@ export class FriendsService {
     const username = this.websocketService.getUsername();
     if (!username) return; // if not logged in, do nothing
 
-    const {status, content} = await fetchServer(Method.GET, `/api/v2/friends/${username}`);
-    if (status >= 400) return; 
+    const friendsInfo = await fetchServer2<FriendInfo[]>(Method.GET, `/api/v2/friends/${username}`, undefined, this.websocketService);
     
     // sort friendsInfo and update friendsInfo$
-    const friendsInfo = content as FriendInfo[];
     this.friendsInfo$.next(this.sort(friendsInfo));
 
     // extract the list of challenges from this.friendsInfo$ and update this.challenges$

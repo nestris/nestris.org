@@ -5,7 +5,7 @@ import { NotificationType } from "../../shared/models/notifications";
 import { JsonMessage, ConnectionSuccessfulMessage, SendPushNotificationMessage, UpdateOnlineFriendsMessage, JsonMessageType, OnConnectMessage, ErrorHandshakeIncompleteMessage, ErrorMessage } from "../../shared/network/json-message";
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
 import { decodeMessage, MessageType } from "../../shared/network/ws-message";
-import { queryFriendUsernamesForUser, queryUserByUsername, createUser } from "../database/user-queries";
+import { queryFriendUserIDsForUser, queryUserByUserID, createUser } from "../database/user-queries";
 import { handleJsonMessage } from "./message-handler";
 import { OnlineUser, UserSession, UserEvent, SocketCloseCode } from "./online-user";
 import { ServerState } from "./server-state";
@@ -15,8 +15,8 @@ Manages the users that are online right now and thus are connected to socket wit
 */
 export class OnlineUserManager {
 
-    // map of username to OnlineUser
-    private onlineUsers: Map<string, OnlineUser> = new Map<string, OnlineUser>();
+    // map of userid to OnlineUser
+    private onlineUsers: Map<number, OnlineUser> = new Map<number, OnlineUser>();
 
     constructor(private readonly state: ServerState) {}
 
@@ -31,22 +31,18 @@ export class OnlineUserManager {
         });
     }
 
-    public getOnlineUsernames(): string[] {
-        return Array.from(this.onlineUsers.keys());
-    }
-
     public numOnlineUsers(): number {
         return this.onlineUsers.size;
     }
 
     // get the number of friends that are online for a user
-    public async numOnlineFriends(username: string): Promise<number> {
-        const friends = await queryFriendUsernamesForUser(username);
+    public async numOnlineFriends(userid: number): Promise<number> {
+        const friends = await queryFriendUserIDsForUser(userid);
         return friends.filter(friend => this.isOnline(friend)).length;
     }
 
-    public getOnlineUserByUsername(username: string): OnlineUser | undefined {
-        return this.onlineUsers.get(username);
+    public getOnlineUserByUserID(userid: number): OnlineUser | undefined {
+        return this.onlineUsers.get(userid);
     }
 
     public getOnlineUserBySocket(socket: WebSocket): OnlineUser | undefined {
@@ -58,13 +54,13 @@ export class OnlineUserManager {
         return onlineUser?.getSessionBySocket(socket);
     }
 
-    public isOnline(username: string): boolean {
-        return this.onlineUsers.has(username);
+    public isOnline(userid: number): boolean {
+        return this.onlineUsers.has(userid);
     }
 
     // get whether the user is online, and if so, what the user is doing
-    public getOnlineStatus(username: string): OnlineUserStatus {
-        const user = this.getOnlineUserByUsername(username);
+    public getOnlineStatus(userid: number): OnlineUserStatus {
+        const user = this.getOnlineUserByUserID(userid);
         if (user === undefined) return OnlineUserStatus.OFFLINE;
         return user.status;
     }
@@ -76,12 +72,12 @@ export class OnlineUserManager {
     // on user connect, add to online pool, and update friends' online friends
     // if user does not exist, add user to database
     // if user is already online, add the socket to the user's sockets
-    public async onUserConnect(username: string, socket: WebSocket, sessionID: string) {
+    public async onUserConnect(userid: number, username: string, socket: WebSocket, sessionID: string) {
 
-        console.log(`User ${username} attempting to connect.`);
+        console.log(`User ${username} with id ${userid} attempting to connect.`);
 
         // if user is already online, add the socket to the user's sockets
-        const alreadyOnlineUser = this.getOnlineUserByUsername(username);
+        const alreadyOnlineUser = this.getOnlineUserByUserID(userid);
         if (alreadyOnlineUser) {
             alreadyOnlineUser.addSession(socket, sessionID);
             console.log(`User ${username} is already online, adding socket.`);
@@ -94,7 +90,7 @@ export class OnlineUserManager {
         }
 
         // get the user's friends from the database
-        let user = (await queryUserByUsername(username));
+        let user = (await queryUserByUserID(userid));
 
         // if user does not exist, add user to database
         if (!user) {
@@ -103,20 +99,20 @@ export class OnlineUserManager {
                 await createUser(username);
             } catch (error) {
                 console.error(error);
-                (new OnlineUser(username, socket, "")).closeSocket(socket, SocketCloseCode.NEW_USER_DUPLICATE_INFO);
+                (new OnlineUser(userid, username, socket, "")).closeSocket(socket, SocketCloseCode.NEW_USER_DUPLICATE_INFO);
                 return;
             }
         }
 
 
         // create a new OnlineUser
-        const onlineUser = new OnlineUser(username, socket, sessionID);
+        const onlineUser = new OnlineUser(userid, username, socket, sessionID);
 
         // add the user to the online pool
-        this.onlineUsers.set(username, onlineUser);
+        this.onlineUsers.set(userid, onlineUser);
 
         // update the online friends of the user's friends
-        const friends = await queryFriendUsernamesForUser(username);
+        const friends = await queryFriendUserIDsForUser(userid);
         console.log(`User ${username} has friends: ${friends.join(", ")}`);
         for (const friend of friends) {
             
@@ -124,7 +120,7 @@ export class OnlineUserManager {
                 console.log(`User ${friend} is online.`);
 
                 // send the friend a message that the user is online
-                const friendOnlineUser = this.getOnlineUserByUsername(friend)!;
+                const friendOnlineUser = this.getOnlineUserByUserID(friend)!;
                 friendOnlineUser.sendJsonMessage(new SendPushNotificationMessage(
                     NotificationType.SUCCESS,
                     `${username} is now online!`
@@ -139,44 +135,44 @@ export class OnlineUserManager {
     }
 
     // when user changes status, update friends' online friends
-    public async updateFriendsOnUserStatusChange(username: string) {
-        const friends = await queryFriendUsernamesForUser(username);
+    public async updateFriendsOnUserStatusChange(userid: number) {
+        const friends = await queryFriendUserIDsForUser(userid);
         for (const friend of friends) {
             
             if (this.isOnline(friend)) { // if user's friend is online
 
                 // send the friend a message that the user is online
-                const friendOnlineUser = this.getOnlineUserByUsername(friend)!;
+                const friendOnlineUser = this.getOnlineUserByUserID(friend)!;
                 friendOnlineUser.sendJsonMessage(new UpdateOnlineFriendsMessage());
             }
         }
     }
 
     // on user disconnect, remove from online pool, and update friends' online friends
-    public async onUserDisconnect(username: string) {
+    public async onUserDisconnect(userid: number) {
 
         // update the online friends of the user's friends
-        const friends = await queryFriendUsernamesForUser(username);
+        const friends = await queryFriendUserIDsForUser(userid);
         for (const friend of friends) {
             
             if (this.isOnline(friend)) { // if user's friend is online
 
                 // send the friend a message that the user is offline
-                const friendOnlineUser = this.getOnlineUserByUsername(friend)!;
+                const friendOnlineUser = this.getOnlineUserByUserID(friend)!;
                 friendOnlineUser.sendJsonMessage(new SendPushNotificationMessage(
                     NotificationType.ERROR,
-                    `${username} went offline.`
+                    `${userid} went offline.`
                 ));
                 friendOnlineUser.sendJsonMessage(new UpdateOnlineFriendsMessage());
             }
         }
 
-        const onlineUser = this.getOnlineUserByUsername(username);
+        const onlineUser = this.getOnlineUserByUserID(userid);
         onlineUser?.notify(UserEvent.ON_USER_OFFLINE);
 
         // remove the user from the online pool
-        this.onlineUsers.delete(username);
-        console.log(`User ${username} disconnected.`);
+        this.onlineUsers.delete(userid);
+        console.log(`User ${userid} disconnected.`);
     }
 
     // called when a message is received from a client
@@ -193,7 +189,7 @@ export class OnlineUserManager {
                 // ON_CONNECT is the only message that can be received from an unrecognized socket
                 // we convert the socket to an OnlineUser and add it to the online pool
                 const userInfo = (data as OnConnectMessage);
-                await this.onUserConnect(userInfo.username, ws, userInfo.sessionID);
+                await this.onUserConnect(userInfo.userid, userInfo.username, ws, userInfo.sessionID);
             }
             else { // if the message is not ON_CONNECT, then client is not allowed to send messages until handshake is complete
                 ws.send(JSON.stringify(new ErrorHandshakeIncompleteMessage()));
@@ -234,18 +230,13 @@ export class OnlineUserManager {
             onlineUser.notify(UserEvent.ON_SOCKET_CLOSE);
             
             if (isCompletelyOffline) {
-                await this.onUserDisconnect(onlineUser.username);
+                await this.onUserDisconnect(onlineUser.userid);
                 console.log(`So, user ${onlineUser.username} completely disconnected.`);
             } else {
                 console.log(`User ${onlineUser.username} disconnected from one socket, but still has other sockets open.`);
             }            
         }
 
-        this.printOnlineUsers();
-    }
-
-    public printOnlineUsers() {
-        console.log(`Online users: ${this.getOnlineUsernames()}`);
     }
 
 }

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { BehaviorSubject, Subscription } from 'rxjs';
-import { fetchServer, Method } from 'src/app/scripts/fetch-server';
+import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
 import { FriendsService } from 'src/app/services/friends.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { FriendStatus, FriendInfo } from 'src/app/shared/models/friends';
@@ -44,12 +44,7 @@ export class AddFriendModalComponent implements OnInit, OnChanges, OnDestroy {
     });
     
     // fetch list of all usernames from server
-    const {status, content} = await fetchServer(Method.GET, '/api/v2/all-usernames');
-     if (status !== 200) {
-       console.error("Could not get list of usernames");
-       return;
-     }
-     this.allUsernames = content as string[];
+    this.allUsernames = await fetchServer2<string[]>(Method.GET, '/api/v2/all-usernames', undefined, this.websocketService);
   }
 
   /*

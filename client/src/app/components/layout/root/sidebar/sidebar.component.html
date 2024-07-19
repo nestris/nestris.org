@@ -4,29 +4,19 @@
         <img class="logo-small" src="./assets/img/branding/tetrisfish_logo.svg" width="50px" />
         <!-- <h1 class="brand-name">nestris.org</h1> -->
 
-        <ng-container *ngIf="(websocketService.onSignInUpdate() | async)">
-            <app-profile-tab  class="profile-tab"/>
-            <app-sidebar-tab [tab]="TabID.FRIENDS">
-                <p class="online-users">{{(numOnlineFriends$ | async)}}</p>
-                <app-online-indicator [status]="!(numOnlineFriends$ | async) ? OnlineUserStatus.OFFLINE : OnlineUserStatus.IDLE" />
-            </app-sidebar-tab>
-        </ng-container>
-        <div class="login-container" *ngIf="!(websocketService.onSignInUpdate() | async)">
-            <app-solid-button class="login-button big"
-            [stretch]="true"
-            [color]="ButtonColor.BLUE" label="Login" (click)="openAuthModal()" />
-            <app-solid-button class="login-button small"
-            [stretch]="true" [fontSize]="12"
-            [color]="ButtonColor.BLUE" label="Login" (click)="openAuthModal()" />
-        </div>
 
-        <app-sidebar-tab class="home-tab" [tab]="TabID.HOME"/>
-        <app-sidebar-tab [tab]="TabID.PLAY" />
+        <app-profile-tab  class="profile-tab"/>
+        <app-sidebar-tab [tab]="TabID.FRIENDS">
+            <p class="online-users">{{(numOnlineFriends$ | async)}}</p>
+            <app-online-indicator [status]="!(numOnlineFriends$ | async) ? OnlineUserStatus.OFFLINE : OnlineUserStatus.IDLE" />
+        </app-sidebar-tab>
+        <app-sidebar-tab [tab]="TabID.SETTINGS"/>
+
+        <app-sidebar-tab class="play-tab" [tab]="TabID.PLAY" />
         <app-sidebar-tab [tab]="TabID.REVIEW"/>
         <app-sidebar-tab [tab]="TabID.LEARN"/>
         <app-sidebar-tab [tab]="TabID.PUZZLES"/>
         <app-sidebar-tab [tab]="TabID.LEADERBOARD"/>
-        <app-sidebar-tab [tab]="TabID.MORE" />
     </div>
     <div class="sidebar-bottom">
         <app-sign-out *ngIf="(websocketService.onSignInUpdate() | async)" />

@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { AppComponent } from './app.component';
 import { NotifierModule, NotifierOptions } from 'angular-notifier';
-import { HomePageComponent } from './components/layout/home/home-page/home-page.component';
 import { SidebarComponent } from './components/layout/root/sidebar/sidebar.component';
 import { PlayPageComponent } from './components/layout/play/play-page/play-page.component';
 import { SidebarTabComponent } from './components/layout/root/sidebar-tab/sidebar-tab.component';
@@ -24,7 +23,6 @@ import { OnlineIndicatorComponent } from './components/ui/online-indicator/onlin
 import { NesPanelComponent } from './components/nes-layout/nes-panel/nes-panel.component';
 import { NesBoardComponent } from './components/nes-layout/nes-board/nes-board.component';
 import { NesBlockComponent } from './components/nes-layout/nes-block/nes-block.component';
-import { PuzzlesPageComponent } from './components/layout/puzzles/puzzles-page/puzzles-page.component';
 import { RoomPageComponent } from './components/layout/room/room-page/room-page.component';
 import { OutlineButtonComponent } from './components/ui/outline-button/outline-button.component';
 import { LayoutOneComponent } from './components/nes-layout/layouts/layout-one/layout-one.component';
@@ -50,22 +48,17 @@ import { RouterModule } from '@angular/router';
 import { ProfilePageComponent } from './components/layout/profile/profile-page/profile-page.component';
 import { ReviewPageComponent } from './components/layout/review/review-page/review-page.component';
 import { TabSelectorComponent } from './components/ui/tab-selector/tab-selector.component';
-import { RankedPuzzlesComponent } from './components/layout/puzzles/ranked-puzzles/ranked-puzzles.component';
-import { YourPuzzlesComponent } from './components/layout/puzzles/your-puzzles/your-puzzles.component';
-import { CreatePuzzleModalComponent } from './components/modals/create-puzzle-modal/create-puzzle-modal.component';
+import { PuzzlesPageComponent } from './components/layout/puzzles/puzzles-page.component';
 import { AuthModalComponent } from './components/modals/auth-modal/auth-modal.component';
-import { PuzzleDatabaseComponent } from './components/layout/puzzles/puzzle-database/puzzle-database.component';
-import { YourPuzzleItemComponent } from './components/layout/puzzles/your-puzzle-item/your-puzzle-item.component';
 import { FullscreenExitButtonComponent } from './components/ui/fullscreen-exit-button/fullscreen-exit-button.component';
-import { MorePageComponent } from './components/layout/more/more-page/more-page.component';
 import { RatingStarsComponent } from './components/ui/rating-stars/rating-stars.component';
 import { FeedbackThumbsComponent } from './components/ui/feedback-thumbs/feedback-thumbs.component';
-import { EloComponent } from './components/layout/puzzles/ranked-puzzles/components/elo/elo.component';
-import { DailyStreakComponent } from './components/layout/puzzles/ranked-puzzles/components/daily-streak/daily-streak.component';
-import { GlobalRankComponent } from './components/layout/puzzles/ranked-puzzles/components/global-rank/global-rank.component';
-import { SummaryComponent } from './components/layout/puzzles/ranked-puzzles/components/summary/summary.component';
-import { InsightsComponent } from './components/layout/puzzles/ranked-puzzles/components/insights/insights.component';
-import { ButtonsComponent } from './components/layout/puzzles/ranked-puzzles/components/buttons/buttons.component';
+import { EloComponent } from './components/layout/puzzles/components/elo/elo.component';
+import { DailyStreakComponent } from './components/layout/puzzles/components/daily-streak/daily-streak.component';
+import { GlobalRankComponent } from './components/layout/puzzles/components/global-rank/global-rank.component';
+import { SummaryComponent } from './components/layout/puzzles/components/summary/summary.component';
+import { InsightsComponent } from './components/layout/puzzles/components/insights/insights.component';
+import { ButtonsComponent } from './components/layout/puzzles/components/buttons/buttons.component';
 import { TextboxCanvasComponent } from './components/modals/calibrate-ocr-modal-components/textbox-canvas/textbox-canvas.component';
 import { ChallengeModalComponent } from './components/modals/challenge-modal/challenge-modal.component';
 import { ChallengeComponent } from './components/layout/friends/challenge/challenge.component';
@@ -74,7 +67,8 @@ import { LoggerComponent } from './components/misc/logger/logger.component';
 import { LearnPageComponent } from './components/layout/learn/learn-page/learn-page.component';
 import { DashboardComponent } from './components/layout/learn/dashboard/dashboard.component';
 import { LessonComponent } from './components/layout/learn/lesson/lesson.component';
-import { LogoutComponent } from './components/misc/logout/logout.component';
+import { LoginPageComponent } from './components/layout/login/login-page/login-page.component';
+import { MainLeaderboardPageComponent } from './components/layout/main-leaderboard/main-leaderboard-page/main-leaderboard-page.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -122,7 +116,6 @@ const customNotifierOptions: NotifierOptions = {
     AppComponent,
     SidebarComponent,
     SidebarTabComponent,
-    HomePageComponent,
     PlayPageComponent,
     SignOutComponent,
     ProfileTabComponent,
@@ -164,14 +157,8 @@ const customNotifierOptions: NotifierOptions = {
     ProfilePageComponent,
     ReviewPageComponent,
     TabSelectorComponent,
-    RankedPuzzlesComponent,
-    YourPuzzlesComponent,
-    CreatePuzzleModalComponent,
     AuthModalComponent,
-    PuzzleDatabaseComponent,
-    YourPuzzleItemComponent,
     FullscreenExitButtonComponent,
-    MorePageComponent,
     RatingStarsComponent,
     FeedbackThumbsComponent,
     EloComponent,
@@ -188,7 +175,8 @@ const customNotifierOptions: NotifierOptions = {
     LearnPageComponent,
     DashboardComponent,
     LessonComponent,
-    LogoutComponent,
+    LoginPageComponent,
+    MainLeaderboardPageComponent,
   ],
   imports: [
     BrowserModule,

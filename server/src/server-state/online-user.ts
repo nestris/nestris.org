@@ -51,7 +51,8 @@ export class OnlineUser {
     private eventSubscribers: Map<UserEvent, Set<Function>> = new Map();
 
     constructor(
-        public readonly username: string, // unique identifier for the user
+        public readonly userid: number, // unique identifier for the user
+        public readonly username: string,
         socket: WebSocket, // live websocket connection
         public readonly sessionID: string, // unique identifier for the session
         //public readonly friends: string[], // set of usernames of friends
@@ -107,14 +108,14 @@ export class OnlineUser {
     onEnterGame(state: ServerState) {
         this.status = OnlineUserStatus.PLAYING;
         this.notify(UserEvent.ON_ENTER_GAME);
-        state.onlineUserManager.updateFriendsOnUserStatusChange(this.username);
+        state.onlineUserManager.updateFriendsOnUserStatusChange(this.userid);
     }
 
     // when user stops playing game, update status, and friends should be notified about status change
     onLeaveGame(state: ServerState) {
         this.status = OnlineUserStatus.IDLE;
         this.notify(UserEvent.ON_LEAVE_GAME);
-        state.onlineUserManager.updateFriendsOnUserStatusChange(this.username);
+        state.onlineUserManager.updateFriendsOnUserStatusChange(this.userid);
     }
 
     getStatus(): OnlineUserStatus {
@@ -140,11 +141,12 @@ export class OnlineUser {
 
     getOnlineUserInfo(state: ServerState): OnlineUserInfo {
         return {
+            userid: this.userid,
             username: this.username,
             status: this.status,
             connectTime: this.connectTime,
             sessions: this.sessions.map(session => session.sessionID),
-            roomID: state.roomManager.getUserByUsername(this.username)?.room.roomID
+            roomID: state.roomManager.getUserByUserID(this.userid)?.room.roomID
         }
     }
 

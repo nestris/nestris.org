@@ -7,25 +7,25 @@ import { ServerState } from "../server-state/server-state";
 
 // Used to send a friend request from one user to another
 // Can also be used to accept a friend request
-export async function sendFriendRequest(fromUsername: string, toUsername: string, state: ServerState): Promise<FriendStatus> {
+export async function sendFriendRequest(fromUserID: number, toUserID: number, state: ServerState): Promise<FriendStatus> {
   
   // make a SQL query to insert the friend request into the user_relationships table
   // if toUsername already sent a friend request to fromUsername, then set type to "friends"
   // if fromUsername already has a friend request to toUsername, or they are already friends, then do nothing
   // username1 < username2 in the table
 
-  if (fromUsername === toUsername) {
+  if (fromUserID === toUserID) {
     throw new Error("Cannot send a friend request to yourself");
   }
 
-  let username1, username2, relationship;
-  if (fromUsername < toUsername) {
-    username1 = fromUsername;
-    username2 = toUsername;
+  let userid1, userid2, relationship;
+  if (fromUserID < toUserID) {
+    userid1 = fromUserID;
+    userid2 = toUserID;
     relationship = "1_send_to_2";
   } else {
-    username1 = toUsername;
-    username2 = fromUsername;
+    userid1 = toUserID;
+    userid2 = fromUserID;
     relationship = "2_send_to_1";
   }
 
@@ -33,25 +33,27 @@ export async function sendFriendRequest(fromUsername: string, toUsername: string
   const query = `
     SELECT type
     FROM user_relationships
-    WHERE username1 = $1 AND username2 = $2
+    WHERE userid1 = $1 AND userid2 = $2
   `;
 
-  const result = await queryDB(query, [username1, username2]);
+  const result = await queryDB(query, [userid1, userid2]);
+
+  const fromUser = state.onlineUserManager.getOnlineUserByUserID(fromUserID);
+  const toUser = state.onlineUserManager.getOnlineUserByUserID(toUserID);
 
   if (result.rows.length === 0) {
     // if no relationship, then insert the relationship
     const insertQuery = `
-      INSERT INTO user_relationships (username1, username2, type)
+      INSERT INTO user_relationships (userid1, userid2, type)
       VALUES ($1, $2, $3)
     `;
-    await queryDB(insertQuery, [username1, username2, relationship]);
+    await queryDB(insertQuery, [userid1, userid2, relationship]);
 
     // send notification to the toUsername user
-    const user = state.onlineUserManager.getOnlineUserByUsername(toUsername);
-    const message = new SendPushNotificationMessage(NotificationType.SUCCESS, `${fromUsername} sent you a friend request!`);
-    user?.sendJsonMessage(message);
-    user?.sendJsonMessage(new UpdateFriendsBadgeMessage());
-    user?.sendJsonMessage(new UpdateOnlineFriendsMessage());
+    const message = new SendPushNotificationMessage(NotificationType.SUCCESS, `${fromUser?.username} sent you a friend request!`);
+    toUser?.sendJsonMessage(message);
+    toUser?.sendJsonMessage(new UpdateFriendsBadgeMessage());
+    toUser?.sendJsonMessage(new UpdateOnlineFriendsMessage());
 
     return FriendStatus.OUTGOING;
 
@@ -61,16 +63,14 @@ export async function sendFriendRequest(fromUsername: string, toUsername: string
       SET type = 'friends'
       WHERE username1 = $1 AND username2 = $2
     `;
-    await queryDB(updateQuery, [username1, username2]);
+    await queryDB(updateQuery, [userid1, userid2]);
 
     // send notification to the fromUsername user
-    const user = state.onlineUserManager.getOnlineUserByUsername(toUsername);
-    const message = new SendPushNotificationMessage(NotificationType.SUCCESS, `${fromUsername} accepted your friend request!`);
-    user?.sendJsonMessage(message);
+    const message = new SendPushNotificationMessage(NotificationType.SUCCESS, `${fromUser?.userid} accepted your friend request!`);
+    toUser?.sendJsonMessage(message);
 
     // update online count for both users, if they are online
-    user?.sendJsonMessage(new UpdateOnlineFriendsMessage());
-    const fromUser = state.onlineUserManager.getOnlineUserByUsername(fromUsername);
+    toUser?.sendJsonMessage(new UpdateOnlineFriendsMessage());
     fromUser?.sendJsonMessage(new UpdateOnlineFriendsMessage());
 
     return FriendStatus.FRIENDS;
@@ -82,9 +82,9 @@ export async function sendFriendRequest(fromUsername: string, toUsername: string
 }
 
 // Used to terminate a friendship, or cancel/decline a friend request
-export async function endFriendship(username1: string, username2: string, state: ServerState): Promise<void> {
+export async function endFriendship(userid1: number, userid2: number, state: ServerState): Promise<void> {
 
-  if (username1 === username2) {
+  if (userid1 === userid2) {
     throw new Error("Cannot end a friendship with yourself");
   }
 
@@ -96,5 +96,5 @@ export async function endFriendship(username1: string, username2: string, state:
     OR (username1 = $2 AND username2 = $1)
   `;
 
-  await queryDB(query, [username1, username2]);
+  await queryDB(query, [userid1, userid2]);
 }

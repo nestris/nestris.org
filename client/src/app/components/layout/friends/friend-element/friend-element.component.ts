@@ -57,7 +57,8 @@ export class FriendElementComponent {
 
   async sendChallenge() {
     const config: ChallengeModalConfig = {
-      opponent: this.friendInfo.username
+      opponentid: this.friendInfo.userid,
+      opponentUsername: this.friendInfo.username
     };
     this.modalService.showModal(ModalType.CHALLENGE_PLAYER, config);
   }

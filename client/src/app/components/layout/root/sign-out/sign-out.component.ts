@@ -14,7 +14,7 @@ export class SignOutComponent {
   ) {}
 
   click() {
-    this.websocketService.disconnect();
+    this.websocketService.logout();
   }
 
 }

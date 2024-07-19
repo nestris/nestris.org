@@ -50,7 +50,6 @@ https://docs.docker.com/compose/install/linux/#install-using-the-repository
 
 
 
-
 ### Every time you modify /shared, run this command
 `./update-shared.sh`
 
@@ -82,6 +81,25 @@ Server: localhost:3000
 ### Clean docker containers
 `docker compose down`
 
+
+### View Postgres Database
+One way I recommend viewing local, staging, and prod databases is through an application called TablePlus. You need to specify your host/socket username, password, and database name, all which should be defined by your environment. The port should be `6543`, which should be defined as the public-facing postgres port in docker-compose.yml.
+
+## Helpful Droplet commands
+
+### Show logs for a container
+`docker logs [container-id] [--follow]`
+
+### This opens up an interactive PostgreSQL session in the prod/staging database
+`docker exec -it [container-id] psql -U postgres -d mydatabase`
+
+### List all tables in database
+`\dt`
+
+### Wipe database and reset###
+Initializes the database. DO NOT RUN THIS unless you want to wipe all data.
+`docker exec -i [container-id] psql -U postgres -d mydatabase -f /docker-entrypoint-initdb.d/init.sql`
+
 ## How CI/CD works in this project
 This repository has a `main` branch and a `dev` branch. They are configured to automatically build and deploy to production and staging servers, respectively. Server tests are automatically run during build, but Angular tests are disabled, though you can run Angular tests locally.
 
@@ -99,21 +117,6 @@ If all Github Action builds pass but there is a problem in deployment at Digital
 For production server: `docker compose -f docker-compose.production.yml logs`
 For staging server: `docker compose -f docker-compose.staging.yml logs`
 
-
-## Helpful Droplet commands
-
-### Show logs for a container
-`docker logs [container-id] [--follow]`
-
-### This opens up an interactive PostgreSQL session in the prod/staging database
-`docker exec -it [container-id] psql -U postgres -d mydatabase`
-
-### List all tables in database
-`\dt`
-
-### Wipe database and reset###
-Initializes the database. DO NOT RUN THIS unless you want to wipe all data.
-`docker exec -i [container-id] psql -U postgres -d mydatabase -f /docker-entrypoint-initdb.d/init.sql`
 
 
 ## Setting up production environment for CI/CD

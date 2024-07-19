@@ -13,7 +13,7 @@ export class ProfilePageComponent implements OnInit {
 
   async ngOnInit() {
 
-    const response = await fetchServer2<{count: number}>(Method.GET, `/api/v2/profile`);
+    const response = await fetchServer2<{count: number}>(Method.GET, `/api/v2/me`);
     console.log(response);
   }
 

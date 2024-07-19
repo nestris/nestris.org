@@ -2,7 +2,7 @@ import { FirstSecondPlacements, GenericPuzzle } from "./generic-puzzle";
 
 export interface SerializedPuzzleSubmission {
   puzzleID: string;
-  username: string;
+  userid: number;
   x1?: number;
   y1?: number;
   r1?: number;

@@ -13,14 +13,14 @@ export class RatedPuzzleState extends PuzzleState {
   private eloHistory: number[] = [];
 
   constructor(
-    private readonly username: string,
+    private readonly userid: number,
   ) {
     super();
   }
 
   override async init(): Promise<void> {
 
-    const user = await fetchServer2<DBUser>(Method.GET, `/api/v2/user/${this.username}`);
+    const user = await fetchServer2<DBUser>(Method.GET, `/api/v2/user/${this.userid}`);
     console.log("User", user);
 
     // TODO: fetch the user's current puzzle elo from the server
@@ -33,7 +33,7 @@ export class RatedPuzzleState extends PuzzleState {
     // if retrying, just evaluate the submission client-side
     if (isRetry) return evaluatePuzzleSubmission(puzzle, submission);
 
-    submission.username = this.username;
+    submission.userid = this.userid;
     const puzzleResult = await fetchServer2<PuzzleResult>(Method.POST, `/api/v2/submit-puzzle-attempt`, submission);
 
     this.eloHistory.push(puzzleResult.resultingElo!);
@@ -43,7 +43,7 @@ export class RatedPuzzleState extends PuzzleState {
   override async _fetchNextPuzzle(): Promise<GenericPuzzle> {
     
     // fetch a rated puzzle from the server
-    const puzzle = await fetchServer2<RatedPuzzle>(Method.POST, `/api/v2/random-rated-puzzle/${this.username}`);
+    const puzzle = await fetchServer2<RatedPuzzle>(Method.POST, `/api/v2/random-rated-puzzle/${this.userid}`);
 
     this.eloChange = {
       eloGain: puzzle.eloGain!,

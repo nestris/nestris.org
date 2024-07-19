@@ -21,6 +21,7 @@ export enum OnlineUserStatus {
 
 // the schema sent by server to a user for some different user with friend status that is anything besides NOT_FRIENDS
 export interface FriendInfo {
+    userid: number;
     username: string;
     friendStatus: FriendStatus;
     onlineStatus: OnlineUserStatus;

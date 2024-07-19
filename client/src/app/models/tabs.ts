@@ -1,12 +1,11 @@
 export enum TabID {
     MY_PROFILE = 'profile',
     FRIENDS = 'friends',
-    HOME = 'home',
+    SETTINGS = 'settings',
     PLAY = 'play',
     REVIEW = 'review',
     PUZZLES = 'puzzles',
     LEADERBOARD = 'leaderboard',
-    MORE = 'more',
     LEARN = 'learn',
     // fullscreen tabs
     SOLO = 'solo',
@@ -17,12 +16,11 @@ export enum TabID {
 const IS_TAB_FULLSCREEN: {[key in TabID]: boolean} = {
     [TabID.MY_PROFILE]: false,
     [TabID.FRIENDS]: false,
-    [TabID.HOME]: false,
+    [TabID.SETTINGS]: false,
     [TabID.PLAY]: false,
     [TabID.REVIEW]: false,
     [TabID.PUZZLES]: false,
     [TabID.LEADERBOARD]: false,
-    [TabID.MORE]: false,
     [TabID.LEARN]: false,
     [TabID.SOLO]: true,
     [TabID.MULTIPLAYER]: true,
@@ -39,12 +37,11 @@ export type ParametrizedTab = {
 const TAB_DISPLAY_NAMES: {[key in TabID]: string} = {
     [TabID.MY_PROFILE]: 'My Profile',
     [TabID.FRIENDS]: 'Friends',
-    [TabID.HOME]: 'Home',
+    [TabID.SETTINGS]: 'Settings',
     [TabID.PLAY]: 'Play',
     [TabID.REVIEW]: 'Review',
     [TabID.PUZZLES]: 'Puzzles',
     [TabID.LEADERBOARD]: 'Leaderboard',
-    [TabID.MORE]: 'More',
     [TabID.SOLO]: 'Solo',
     [TabID.MULTIPLAYER]: 'Multiplayer',
     [TabID.PLAY_PUZZLE]: 'Play Puzzle',
@@ -55,13 +52,12 @@ export const getTabDisplayName = (tab: TabID): string => TAB_DISPLAY_NAMES[tab];
 const TAB_ICONS: {[key in TabID]?: string} = {
     [TabID.MY_PROFILE]: 'profile.svg',
     [TabID.FRIENDS]: 'friends.svg',
-    [TabID.HOME]: 'home.svg',
+    [TabID.SETTINGS]: 'settings.svg',
     [TabID.PLAY]: 'play.svg',
     [TabID.LEARN]: 'learn.svg',
     [TabID.REVIEW]: 'review.svg',
     [TabID.PUZZLES]: 'puzzles.svg',
     [TabID.LEADERBOARD]: 'leaderboard.svg',
-    [TabID.MORE]: 'more.svg',
     
 };
 

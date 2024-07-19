@@ -8,6 +8,7 @@ import { PacketGroup, PacketContent } from '../shared/network/stream-packets/pac
 import { PacketDisassembler } from '../shared/network/stream-packets/packet-disassembler';
 import { decodeMessage, MessageType } from '../shared/network/ws-message';
 import { NotificationService } from './notification.service';
+import { fetchServer2, Method } from '../scripts/fetch-server';
 
 
 /*
@@ -25,6 +26,7 @@ closed when the user signs out.
 export class WebsocketService {
 
   private ws?: WebSocket;
+  private userid?: number;
   private username?: string;
   private sessionID?: string;
 
@@ -39,6 +41,18 @@ export class WebsocketService {
     private notificationService: NotificationService,
     private router: Router
   ) {
+
+    notificationService.notify(NotificationType.INFO, "Connecting to server...");
+    
+    // Check if logged in. If not, direct to login page
+    fetchServer2<{userid: number, username: string}>(Method.GET, '/api/me').then((response) => {
+      // if the user is already signed in, connect to the websocket
+      const { userid, username } = response;
+      this.connect(userid, username);
+    }).catch((error) => {
+      // If not signed in, redirect to login page with hard refresh
+      if (location.pathname !== '/login') location.href = '/login';
+    });
 
     /*
      Sign in requires a handshake that works as follows:
@@ -56,7 +70,7 @@ export class WebsocketService {
 
     this.onSignIn().subscribe(() => {
       this.hasSignedInBefore = true;
-      this.notificationService.notify(NotificationType.SUCCESS, `Signed in as ${this.getUsername()}`)
+      this.notificationService.notify(NotificationType.SUCCESS, `Logged in as ${this.getUsername()}`)
     });
 
     this.onSignOut().subscribe(() => {
@@ -66,8 +80,7 @@ export class WebsocketService {
 
         this.notificationService.notify(NotificationType.ERROR, "You are now signed out");
       }
-  });
-
+    });
   }
 
   // observable emits true when signed in, false when signed out
@@ -112,6 +125,12 @@ export class WebsocketService {
   getUsername(): string | undefined {
     if (!this.isSignedIn()) return undefined;
     return this.username;
+  }
+
+  // get the userid of the signed in user, or undefined if not signed in
+  getUserID(): number | undefined {
+    if (!this.isSignedIn()) return undefined;
+    return this.userid;
   }
 
   getSessionID(): string | undefined {
@@ -159,14 +178,14 @@ export class WebsocketService {
 
   // called to connect to server
   // if the connection is successful, a ws connection is established and the user is signed in
-  connect(username: string) {
+  connect(userid: number, username: string) {
 
     // if already signed in, do nothing
     if (this.isSignedIn()) {
       console.error('Cannot connect when already signed in');
       return;
     }
-
+    this.userid = userid;
     this.username = username;
     this.sessionID = uuid();
 
@@ -177,7 +196,7 @@ export class WebsocketService {
     // when the websocket connects, send the OnConnectMessage to initiate the handshake
     this.ws.onopen = () => {
       console.log('Connected to the WebSocket server');
-      this.sendJsonMessage(new OnConnectMessage(username, this.sessionID!));
+      this.sendJsonMessage(new OnConnectMessage(userid, username, this.sessionID!));
     };
     
     // pipe messages to onEvent observables
@@ -201,11 +220,17 @@ export class WebsocketService {
 
   // called to disconnect from server. this will trigger the onclose event
   // and thus sign out the user
-  disconnect() {
+  logout() {
     this.ws?.close();
     this.ws = undefined;
     this.username = undefined;
     this.sessionID = undefined;
+
+    // send a request to the server to sign out
+    fetchServer2(Method.POST, '/api/logout');
+
+    // redirect to login page with hard refresh if we're not already there
+    if (location.pathname !== '/login') location.href = '/login';
   }
 
 }

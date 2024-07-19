@@ -2,6 +2,7 @@ import { OnlineUserStatus } from "./friends";
 
 // Interface for sending serialized information of OnlineUser from server to client
 export interface OnlineUserInfo {
+  userid: number;
   username: string;
   status: OnlineUserStatus;
   connectTime: number,

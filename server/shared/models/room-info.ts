@@ -16,6 +16,7 @@ export interface RoomInfo {
   roomID: string;
   mode: RoomMode;
   players: {
+    userid: number;
     username: string;
     sessionID: string;
     role: Role;
