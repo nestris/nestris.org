@@ -67,8 +67,8 @@ jobs:
           chmod 600 key.pem
           ssh -o StrictHostKeyChecking=no -i key.pem root@${DO_HOST} << EOF
             cd nestris.org
-            git pull origin ${BRANCH}
             git checkout ${BRANCH}
+            git pull origin ${BRANCH}
             export NODE_ENV=${NODE_ENV}
             export POSTGRES_USER=${POSTGRES_USER}
             export POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
