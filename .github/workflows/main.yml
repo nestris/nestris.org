@@ -73,7 +73,19 @@ jobs:
             export POSTGRES_USER=${POSTGRES_USER}
             export POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
             export POSTGRES_DB=${POSTGRES_DB}
+            export DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
+            export DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
             docker compose -f docker-compose.${NODE_ENV}.yml pull
             docker compose -f docker-compose.${NODE_ENV}.yml up -d
 
           EOF
+
+      - name: Finish main
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "Finished deploying to production 🚀! Website deployed at http://138.197.82.78:80"
+      
+      - name: Finish dev
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          echo "Finished deploying to staging 🚀! Website deployed at http://138.197.82.78:80"
