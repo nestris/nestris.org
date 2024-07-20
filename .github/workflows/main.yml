@@ -88,4 +88,4 @@ jobs:
       - name: Finish dev
         if: github.ref == 'refs/heads/dev'
         run: |
-          echo "Finished deploying to staging 🚀! Website deployed at http://138.197.82.78:80"
+          echo "Finished deploying to staging 🚀! Website deployed at http://138.197.82.78:81"

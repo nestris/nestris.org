@@ -10,6 +10,9 @@ export class LoginPageComponent {
 
   login() {
     // After discord login, redirect to this callback URL in the server to process the code
+    let baseURL = window.location.origin;
+    // remove port number if it exists
+    if (baseURL.includes(":")) baseURL = baseURL.slice(0, baseURL.lastIndexOf(":"));
     const redirectUri = encodeURIComponent(window.location.origin + '/api/v2/callback');
 
     // Redirect to discord login page. Hard refresh to avoid CORS issues
