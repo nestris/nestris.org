@@ -35,21 +35,21 @@ else
   exit 1
 fi
 
-# Make the destination directories read-only
-chmod -R a-w "$DEST_DIR1"
-if [ $? -eq 0 ]; then
-  echo "Successfully made $DEST_DIR1 read-only"
-else
-  echo "Failed to make $DEST_DIR1 read-only"
-  exit 1
-fi
+# # Make the destination directories read-only
+# chmod -R a-w "$DEST_DIR1"
+# if [ $? -eq 0 ]; then
+#   echo "Successfully made $DEST_DIR1 read-only"
+# else
+#   echo "Failed to make $DEST_DIR1 read-only"
+#   exit 1
+# fi
 
-chmod -R a-w "$DEST_DIR2"
-if [ $? -eq 0 ]; then
-  echo "Successfully made $DEST_DIR2 read-only"
-else
-  echo "Failed to make $DEST_DIR2 read-only"
-  exit 1
-fi
+# chmod -R a-w "$DEST_DIR2"
+# if [ $? -eq 0 ]; then
+#   echo "Successfully made $DEST_DIR2 read-only"
+# else
+#   echo "Failed to make $DEST_DIR2 read-only"
+#   exit 1
+# fi
 
-echo "Directory copied to both destinations successfully and made read-only!"
+echo "Directory copied to both destinations successfully!"
