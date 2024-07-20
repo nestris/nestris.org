@@ -8,10 +8,10 @@ export interface ActivePuzzle {
   startedAt: string;
 }
 
-// get the active puzzle for the username, or undefined if there is no active puzzle
+// get the active puzzle for the userid, or undefined if there is no active puzzle
 export async function getActivePuzzle(userid: string): Promise<ActivePuzzle | undefined> {
   
-  const result = await queryDB("SELECT * FROM active_puzzles WHERE username = $1", [userid]);
+  const result = await queryDB("SELECT * FROM active_puzzles WHERE userid = $1", [userid]);
   if (result.rows.length === 0) {
     return undefined;
   }

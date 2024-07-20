@@ -1,15 +1,16 @@
 import express from 'express';
 import session from 'express-session';
+import { PermissionLevel } from '../../shared/models/db-user';
 
 export interface UserSession extends session.Session {
   userid: string;
   username: string;
+  permission: PermissionLevel;
   accessToken: string;
   refreshToken: string;
 }
 
 export function requireAuth(req: express.Request, res: express.Response, next: express.NextFunction) {
-  console.log("checking auth");
 
   if (!(req.session as UserSession).userid) {
     console.log("no username in session, redirecting to logout");
@@ -18,6 +19,25 @@ export function requireAuth(req: express.Request, res: express.Response, next: e
 
   next();
 };
+
+export function requireAdmin(req: express.Request, res: express.Response, next: express.NextFunction) {
+  if ((req.session as UserSession).permission !== PermissionLevel.ADMIN) {
+    console.log("user is not an admin");
+    return res.status(403).send({error: "You do not have permission to access this resource!"});
+  }
+
+  next();
+}
+
+export function requireTrusted(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const permission = (req.session as UserSession).permission;
+  if (permission !== PermissionLevel.TRUSTED && permission !== PermissionLevel.ADMIN) {
+    console.log("user is not trusted");
+    return res.status(403).send({error: "You do not have permission to access this resource!"});
+  }
+
+  next();
+}
 
 export function handleLogout(req: express.Request, res: express.Response) {
   console.log("logging out");

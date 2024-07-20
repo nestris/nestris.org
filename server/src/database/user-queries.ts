@@ -1,5 +1,5 @@
 import { queryDB } from ".";
-import { DBUser } from "../../shared/models/db-user";
+import { DBUser, PermissionLevel } from "../../shared/models/db-user";
 import { FriendStatus } from "../../shared/models/friends";
 
 
@@ -100,8 +100,9 @@ export async function queryAllUsernamesMatchingPattern(pattern: string = "%"): P
   return result.rows.map((row) => row.username);
 }
 
-// Creates a user with assigned permission if on the whitelist, otherwise fail and return false
-export async function createUser(userid: string, username: string, discordTag: string): Promise<boolean> {
+// Creates a user with assigned permission if on the whitelist
+// return permission if user is created, else return null
+export async function createUser(userid: string, username: string, discordTag: string): Promise<PermissionLevel | null> {
 
   // Get the permission level of the user
   const query = `SELECT permission FROM whitelist WHERE discord_tag = $1`;
@@ -110,21 +111,15 @@ export async function createUser(userid: string, username: string, discordTag: s
   // If the user is not on the whitelist, return false
   if (result.rows.length === 0) {
     console.log(`Failed to create user ${username}, ${discordTag} not on whitelist`);
-    return false;
+    return null;
   }
 
   // Create the user with the permission level
-  const permission = result.rows[0].permission;
+  const permission = result.rows[0].permission as PermissionLevel;
   const query2 = `INSERT INTO users (userid, username, permission) VALUES ($1, $2, $3)`;
   await queryDB(query2, [userid, username, permission]);
 
   console.log(`Created user ${username} with permission level ${permission}`);
 
-  return true;
-}
-
-export async function fetchUsernameFromUserID(userid: string): Promise<string> {
-  const query = `SELECT username FROM users WHERE userid = $1`;
-  const result = await queryDB(query, [userid]);
-  return result.rows[0].username;
+  return permission;
 }

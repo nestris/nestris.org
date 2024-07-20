@@ -57,9 +57,9 @@ export function calculateEloChangeForPuzzle(userElo: number, numAttempts: number
   let eloGain = 100 / Math.pow(1.0005, userElo + 3000 - 500*rating);
   let eloLoss = 100 / Math.pow(1.0005, 3000 + 500*rating - userElo);
 
-  // for attempts 0-19, there's a multiplier. At attempt 0, 3x multiplier, at attempt 20+, 1x multiplier
+  // for attempts 0-19, there's a multiplier. At attempt 0, 4x multiplier, at attempt 25+, 1x multiplier
   // https://www.desmos.com/calculator/ys9xtkhdng
-  const attemptMultiplier = 1 + 2 * (20 - Math.min(numAttempts, 20)) / 20;
+  const attemptMultiplier = 1 + 3 * (25 - Math.min(numAttempts, 25)) / 25;
   eloGain *= attemptMultiplier;
   eloLoss *= attemptMultiplier;
 
@@ -81,12 +81,12 @@ export async function selectRandomPuzzleForUser(userid: string): Promise<RatedPu
   const user = await queryUserByUserID(userid);
   if (!user) throw new Error("User not found");
 
-  // second, query how many puzzles the user has attempted by counting the number of puzzle_attempts with matching username
-  const puzzleAttempts = await queryDB(`SELECT COUNT(*) FROM puzzle_attempts WHERE username = $1`, [userid]);
+  // second, query how many puzzles the user has attempted by counting the number of puzzle_attempts with matching userid
+  const puzzleAttempts = await queryDB(`SELECT COUNT(*) FROM puzzle_attempts WHERE userid = $1`, [userid]);
   const puzzleAttemptsCount = parseInt(puzzleAttempts.rows[0].count);
 
   // query the database for the user's puzzle elo, as well as the number of puzzles they have attempted
-  // counting number of puzzle_attempts with matching username)
+  // counting number of puzzle_attempts with matching userid)
   const elo = user.puzzleElo;
   const rating = getRandomPuzzleRatingForPlayerElo(elo);
   console.log(`Selecting random puzzle rating ${rating} for user ${userid} with elo ${elo} and ${puzzleAttemptsCount} attempts`);
@@ -95,7 +95,7 @@ export async function selectRandomPuzzleForUser(userid: string): Promise<RatedPu
   // by ordering by num_attempts_cached and selecting the first puzzle, we prioritize exploration over exploitation
   // ORDER by num_attempts_cached, then randomly
   let result = await queryDB(
-    `SELECT * FROM rated_puzzles WHERE rating = $1 AND id NOT IN (SELECT puzzle_id FROM puzzle_attempts WHERE username = $2) ORDER BY num_attempts_cached ASC LIMIT 1`,
+    `SELECT * FROM rated_puzzles WHERE rating = $1 AND id NOT IN (SELECT puzzle_id FROM puzzle_attempts WHERE userid = $2) ORDER BY num_attempts_cached ASC LIMIT 1`,
     [rating, userid]
   );
     

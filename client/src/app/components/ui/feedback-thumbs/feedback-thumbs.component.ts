@@ -23,16 +23,16 @@ export class FeedbackThumbsComponent {
 
   async setFeedback(feedback: PuzzleFeedback) {
 
-    const username = this.websocketService.getUsername();
+    const userid = this.websocketService.getUserID();
 
-    if (!username) {
-      console.error("No username found");
+    if (!userid) {
+      console.error("No userid found");
       return;
     }
 
     const body = {
       id: this.puzzleID,
-      username: username,
+      userid: userid,
       feedback: feedback,
     };
 
