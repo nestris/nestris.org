@@ -2,6 +2,19 @@ import { queryDB } from ".";
 import { DBUser, PermissionLevel } from "../../shared/models/db-user";
 import { FriendStatus } from "../../shared/models/friends";
 
+function rowToUser(row: any): DBUser {
+  return {
+    userid: row.userid,
+    username: row.username,
+    permission: row.permission,
+    lastOnline: row.last_online,
+    trophies: row.trophies,
+    xp: row.xp,
+    puzzleElo: row.puzzle_elo,
+    highestPuzzleElo: row.highest_puzzle_elo
+  };
+}
+
 
 // find a user by matching username and return the user
 export async function queryUserByUserID(userid: string): Promise<DBUser | undefined> {
@@ -14,17 +27,7 @@ export async function queryUserByUserID(userid: string): Promise<DBUser | undefi
     return undefined;
   }
 
-  const rawUser = result.rows[0];
-  return {
-    userid: rawUser.userid,
-    username: rawUser.username,
-    permission: rawUser.permission,
-    lastOnline: rawUser.last_online,
-    trophies: rawUser.trophies,
-    xp: rawUser.xp,
-    puzzleElo: rawUser.puzzle_elo,
-    highestPuzzleElo: rawUser.highest_puzzle_elo
-  };
+  return rowToUser(result.rows[0]);
 }
 
 // get the list of friends, pending friends, and incoming friend requests for a user
@@ -94,10 +97,11 @@ export async function queryFriendUserIDsForUser(userid: string): Promise<string[
 }
 
 // returns a list of all usernames in the database that match the pattern, sort alphabetically
-export async function queryAllUsernamesMatchingPattern(pattern: string = "%"): Promise<string[]> {
-  const query = `SELECT username FROM users WHERE username LIKE $1 ORDER BY username`;
+export async function queryAllUsersMatchingUsernamePattern(pattern: string = "%"): Promise<DBUser[]> {
+  const query = `SELECT * FROM users WHERE username LIKE $1 ORDER BY username`;
   const result = await queryDB(query, [pattern]);
-  return result.rows.map((row) => row.username);
+
+  return result.rows.map((row) => rowToUser(row));
 }
 
 // Creates a user with assigned permission if on the whitelist

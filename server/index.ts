@@ -6,7 +6,7 @@ import { Server as WebSocketServer } from 'ws';
 import morgan from 'morgan';
 import { ServerState } from './src/server-state/server-state';
 import { getOCRDigits, initOCRDigits } from './src/ocr/digit-reader';
-import { endFriendshipRoute, getAllUsernamesMatchingPatternRoute, getFriendsInfoRoute, getUserByUserIDRoute, setFriendRequestRoute } from './src/routes/user-route';
+import { endFriendshipRoute, getAllUsersMatchingUsernamePatternRoute, getFriendsInfoRoute, getUserByUserIDRoute, setFriendRequestRoute } from './src/routes/user-route';
 import { broadcastAnnouncementRoute } from './src/routes/broadcast-route';
 import { getDailyStreakRoute } from './src/puzzle-dashboard/puzzle-streak';
 import { getRelativePuzzleRankRoute } from './src/puzzle-dashboard/relative-puzzle-rank';
@@ -196,7 +196,7 @@ async function main() {
       res.status(200).send({count: numOnlineFriends});
   });
 
-  app.get('/api/v2/all-usernames', getAllUsernamesMatchingPatternRoute);
+  app.get('/api/v2/users-by-username', getAllUsersMatchingUsernamePatternRoute);
   app.get('/api/v2/user/:userid', getUserByUserIDRoute);
   app.get('/api/v2/friends/:userid',  async (req: Request, res: Response) => getFriendsInfoRoute(req, res, state));
 

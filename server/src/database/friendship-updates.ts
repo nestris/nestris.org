@@ -92,8 +92,8 @@ export async function endFriendship(userid1: string, userid2: string, state: Ser
   // if no relationship exists, do nothing
   const query = `
     DELETE FROM user_relationships
-    WHERE (username1 = $1 AND username2 = $2)
-    OR (username1 = $2 AND username2 = $1)
+    WHERE (userid1 = $1 AND userid2 = $2)
+    OR (userid1 = $2 AND userid2 = $1)
   `;
 
   await queryDB(query, [userid1, userid2]);

@@ -36,10 +36,10 @@ export class FriendsService {
 
   async syncWithServer() {
 
-    const username = this.websocketService.getUsername();
-    if (!username) return; // if not logged in, do nothing
+    const userid = this.websocketService.getUserID();
+    if (!userid) return; // if not logged in, do nothing
 
-    const friendsInfo = await fetchServer2<FriendInfo[]>(Method.GET, `/api/v2/friends/${username}`, undefined, this.websocketService);
+    const friendsInfo = await fetchServer2<FriendInfo[]>(Method.GET, `/api/v2/friends/${userid}`, undefined, this.websocketService);
     
     // sort friendsInfo and update friendsInfo$
     this.friendsInfo$.next(this.sort(friendsInfo));
@@ -52,7 +52,6 @@ export class FriendsService {
         (friendInfo) => friendInfo.challenge!
       )
     );
-    console.log("Challenges", this.challenges$.getValue());
   }
 
   // sort by friend request type, then by online status, then lexigrapically
