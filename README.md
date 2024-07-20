@@ -28,6 +28,8 @@ NODE_ENV=production
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=password
 POSTGRES_DB=mydatabase
+DISCORD_CLIENT_ID=<discord client id>
+DISCORD_CLIENT_SECRET=<discord client secret>
 ```
 
 ### Running server or client seperately
@@ -128,6 +130,8 @@ The current set up uses Github Actions and DigitalOcean. **This section should b
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=password
 POSTGRES_DB=mydatabase
+DISCORD_CLIENT_ID=<discord client id>
+DISCORD_CLIENT_SECRET=<discord client secret>
 DO_SSH_KEY=[private key]
 ```
 
