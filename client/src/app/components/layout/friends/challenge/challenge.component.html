@@ -1,7 +1,7 @@
 <div class="container">
   <div class="container-left">
-    <p *ngIf="isSender">You challenged {{challenge.receiver}} to a match</p>
-    <p *ngIf="!isSender">{{challenge.sender}} challenged you to a game!</p>
+    <p *ngIf="isSender">You challenged {{challenge.receiverUsername}} to a match</p>
+    <p *ngIf="!isSender">{{challenge.senderUsername}} challenged you to a game!</p>
 </div>
   <div class="container-right">
     <app-solid-button *ngIf="!isSender"

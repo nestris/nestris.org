@@ -23,8 +23,8 @@ export class ChallengeManager {
   // Only one challenge can exist between two players at a time
   createChallenge(challenge: Challenge): { success: boolean, error?: string } {
 
-    const sender = this.state.onlineUserManager.getOnlineUserByUsername(challenge.sender);
-    const receiver = this.state.onlineUserManager.getOnlineUserByUsername(challenge.receiver);
+    const sender = this.state.onlineUserManager.getOnlineUserByUserID(challenge.senderid);
+    const receiver = this.state.onlineUserManager.getOnlineUserByUserID(challenge.receiverid);
     
     // if either player is offline, challenge cannot be created. return false
     if (!receiver) return {
@@ -39,19 +39,19 @@ export class ChallengeManager {
     };
 
     // set the challenge, and overwrite any existing challenge
-    const key = this.challengeToKey(challenge.sender, challenge.receiver);
+    const key = this.challengeToKey(challenge.senderid, challenge.receiverid);
     this.challenges.set(key, challenge);
-    console.log(`Challenge sent from ${challenge.sender} to ${challenge.receiver}`);
+    console.log(`Challenge sent from ${challenge.senderUsername} to ${challenge.receiverUsername}`);
 
     // send notification to receiver
-    const text = `${challenge.sender} challenged you to a ${challenge.rated ? 'rated' : 'friendly'} game!`;
+    const text = `${challenge.senderUsername} challenged you to a ${challenge.rated ? 'rated' : 'friendly'} game!`;
     receiver?.sendJsonMessage(new SendPushNotificationMessage(NotificationType.SUCCESS, text));
     receiver?.sendJsonMessage(new UpdateFriendsBadgeMessage()); // update friends badge
     receiver?.sendJsonMessage(new UpdateOnlineFriendsMessage()); // refresh online friends list
 
     // if either player goes offline, remove the challenge
     [sender, receiver].forEach((player) => player!.subscribe(UserEvent.ON_USER_OFFLINE, () => {
-      console.log(`Challenge from ${challenge.sender} to ${challenge.receiver} cancelled due to user offline`);
+      console.log(`Challenge from ${challenge.senderUsername} to ${challenge.receiverUsername} cancelled due to user offline`);
       this.challenges.delete(key);
     }));
 
@@ -59,7 +59,7 @@ export class ChallengeManager {
     sender.subscribe(UserEvent.ON_SOCKET_CLOSE, () => {
 
       if (sender.containsSessionID(challenge.senderSessionID) && this.challenges.has(key)) {
-        console.log(`Challenge from ${challenge.sender} to ${challenge.receiver} cancelled due to user offline`);
+        console.log(`Challenge from ${challenge.senderUsername} to ${challenge.receiverUsername} cancelled due to user offline`);
         this.challenges.delete(key);
       }
     });
@@ -70,28 +70,28 @@ export class ChallengeManager {
   // find the matching challenge and remove it from the list
   // then, notify both players to refresh their friends list
   // returns true if the challenge was successfully rejected
-  rejectChallenge(challenge: Challenge, rejector: string): boolean {
-    const key = this.challengeToKey(challenge.sender, challenge.receiver);
+  rejectChallenge(challenge: Challenge, rejectorid: string): boolean {
+    const key = this.challengeToKey(challenge.senderid, challenge.receiverid);
 
     // if the challenge does not exist, do nothing
     if (!this.challenges.has(key)) {
-      console.log(`Challenge from ${challenge.sender} to ${challenge.receiver} does not exist`);
+      console.log(`Challenge from ${challenge.senderUsername} to ${challenge.receiverUsername} does not exist`);
       return false;
     }
 
     // remove the challenge
     this.challenges.delete(key);
-    console.log(`Challenge from ${challenge.sender} to ${challenge.receiver} rejected`);
+    console.log(`Challenge from ${challenge.senderUsername} to ${challenge.receiverUsername} rejected`);
 
     // notify both players to refresh their friends list
-    this.state.onlineUserManager.getOnlineUserByUsername(challenge.sender)?.sendJsonMessage(new UpdateOnlineFriendsMessage());
-    this.state.onlineUserManager.getOnlineUserByUsername(challenge.receiver)?.sendJsonMessage(new UpdateOnlineFriendsMessage());
+    this.state.onlineUserManager.getOnlineUserByUserID(challenge.senderid)?.sendJsonMessage(new UpdateOnlineFriendsMessage());
+    this.state.onlineUserManager.getOnlineUserByUserID(challenge.receiverid)?.sendJsonMessage(new UpdateOnlineFriendsMessage());
 
     // if rejector was the reciever of the challenge, notify the other player that the challenge was rejected
-    if (rejector === challenge.receiver) {
-      const text = `${rejector} declined your challenge`;
-      const otherUser = this.state.onlineUserManager.getOnlineUserByUsername(
-        rejector === challenge.sender ? challenge.receiver : challenge.sender
+    if (rejectorid === challenge.receiverid) {
+      const text = `${rejectorid} declined your challenge`;
+      const otherUser = this.state.onlineUserManager.getOnlineUserByUserID(
+        rejectorid === challenge.senderid ? challenge.receiverid : challenge.senderid
       );
       otherUser?.sendJsonMessage(new SendPushNotificationMessage(NotificationType.ERROR, text));
     }
@@ -102,21 +102,21 @@ export class ChallengeManager {
   acceptChallenge(challenge: Challenge, receiverSessionID: string): boolean {
 
     // verify both users are not in a room. otherwise, rescind the challenge
-    const sender = this.state.onlineUserManager.getOnlineUserByUsername(challenge.sender);
-    const receiver = this.state.onlineUserManager.getOnlineUserByUsername(challenge.receiver);
-    const key = this.challengeToKey(challenge.sender, challenge.receiver);  
+    const sender = this.state.onlineUserManager.getOnlineUserByUserID(challenge.senderid);
+    const receiver = this.state.onlineUserManager.getOnlineUserByUserID(challenge.receiverid);
+    const key = this.challengeToKey(challenge.senderid, challenge.receiverid);  
 
     // if either player is offline, challenge cannot be accepted. return false
     if (!sender || !receiver) {
-      console.log(`Challenge from ${challenge.sender} to ${challenge.receiver} cancelled due to user offline`);
+      console.log(`Challenge from ${challenge.senderUsername} to ${challenge.receiverUsername} cancelled due to user offline`);
       this.challenges.delete(key);
 
       if (sender) {
-        sender.sendJsonMessage(new SendPushNotificationMessage(NotificationType.ERROR, `Challenge failed, ${challenge.receiver} offline`));
+        sender.sendJsonMessage(new SendPushNotificationMessage(NotificationType.ERROR, `Challenge failed, ${challenge.receiverUsername} offline`));
         sender.sendJsonMessage(new UpdateOnlineFriendsMessage());
       }
       if (receiver) {
-        receiver.sendJsonMessage(new SendPushNotificationMessage(NotificationType.ERROR, `Challenge failed, ${challenge.sender} offline`));
+        receiver.sendJsonMessage(new SendPushNotificationMessage(NotificationType.ERROR, `Challenge failed, ${challenge.senderUsername} offline`));
         receiver.sendJsonMessage(new UpdateOnlineFriendsMessage());
       }
 
@@ -125,7 +125,7 @@ export class ChallengeManager {
 
     // if sender or reciver session is not online, challenge cannot be accepted. return false
     if (!sender.containsSessionID(challenge.senderSessionID) || !receiver.containsSessionID(receiverSessionID)) {
-      console.log(`Challenge from ${challenge.sender} to ${challenge.receiver} cancelled due to user offline`);
+      console.log(`Challenge from ${challenge.senderUsername} to ${challenge.receiverUsername} cancelled due to user offline`);
       this.challenges.delete(key);
 
       sender.sendJsonMessage(new UpdateOnlineFriendsMessage());
@@ -134,18 +134,18 @@ export class ChallengeManager {
     }
 
     // if either player is in a room, challenge cannot be accepted. return false
-    const senderInRoom = this.state.roomManager.containsUser(challenge.sender);
-    const receiverInRoom = this.state.roomManager.containsUser(challenge.receiver);
+    const senderInRoom = this.state.roomManager.containsUser(challenge.senderid);
+    const receiverInRoom = this.state.roomManager.containsUser(challenge.receiverid);
     if (senderInRoom || receiverInRoom) {
-      console.log(`Challenge from ${challenge.sender} to ${challenge.receiver} cancelled due to user in room`);
+      console.log(`Challenge from ${challenge.senderUsername} to ${challenge.receiverUsername} cancelled due to user in room`);
       this.challenges.delete(key);
 
       if (sender && !receiverInRoom) {
-        sender.sendJsonMessage(new SendPushNotificationMessage(NotificationType.ERROR, `Challenge failed, ${challenge.sender} is busy`));
+        sender.sendJsonMessage(new SendPushNotificationMessage(NotificationType.ERROR, `Challenge failed, ${challenge.senderUsername} is busy`));
         sender.sendJsonMessage(new UpdateOnlineFriendsMessage());
       }
       if (receiver && !senderInRoom) {
-        receiver.sendJsonMessage(new SendPushNotificationMessage(NotificationType.ERROR, `Challenge failed, ${challenge.receiver} is busy`));
+        receiver.sendJsonMessage(new SendPushNotificationMessage(NotificationType.ERROR, `Challenge failed, ${challenge.receiverUsername} is busy`));
         receiver.sendJsonMessage(new UpdateOnlineFriendsMessage());
       }
       return false;

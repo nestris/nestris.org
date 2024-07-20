@@ -168,7 +168,8 @@
                             icon="./assets/img/puzzle-button-icons/link.svg"
                             label="Share" [color]="ButtonColor.GREY"
                             [stretch]="true"
-                            (click)="sharePuzzle()"
+                            [disabled]="true"
+                            tooltip="Coming soon!"
                         />
                         <app-solid-button class="new-puzzle-button"
                             icon="./assets/img/button-icons/retry.svg"

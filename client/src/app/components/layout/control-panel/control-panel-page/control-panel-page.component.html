@@ -1,0 +1,22 @@
+<div class="main">
+    <div class="generate-div">
+        <input type="number" min="1" max="1000" [(ngModel)]="count" placeholder="Count">
+        <button (click)="generatePuzzles()" [disabled]="generating$ | async">Generate {{count}} Puzzles</button>
+    </div>
+
+    <table *ngIf="(aggregate$ | async) as aggregate">
+        <tr>
+            <th>Rating</th>
+            <th>Puzzle count</th>
+            <th>Attempts</th>
+            <th>Successes</th>
+        </tr>
+        <tr *ngFor="let rating of aggregate.ratings">
+            <td>{{rating.rating}}</td>
+            <td>{{rating.numPuzzles}}</td>
+            <td>{{rating.totalAttempts}}</td>
+            <td>{{rating.totalSolves}}</td>
+        </tr>
+    </table>
+
+</div>

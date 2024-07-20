@@ -9,7 +9,7 @@ import { Request, Response } from "express";
 
 
 // do this in a single query
-export async function getDailyStreak(username: string, timezone: string): Promise<DailyStreak> 
+export async function getDailyStreak(userid: string, timezone: string): Promise<DailyStreak> 
   {
 
   // query that gets the number of solved puzzles for a user for each of the last 7 days
@@ -17,7 +17,7 @@ export async function getDailyStreak(username: string, timezone: string): Promis
   const query = `
     SELECT COUNT(*) as count, DATE_TRUNC('day', NOW() AT TIME ZONE $2) - DATE_TRUNC('day', timestamp AT TIME ZONE $2) as days_ago
     FROM puzzle_attempts
-    WHERE username = $1
+    WHERE userid = $1
     AND is_correct = TRUE
     AND timestamp >= (DATE_TRUNC('day', NOW() AT TIME ZONE $2) - INTERVAL '7 days')
     GROUP BY DATE_TRUNC('day', timestamp AT TIME ZONE $2)
@@ -25,7 +25,7 @@ export async function getDailyStreak(username: string, timezone: string): Promis
     LIMIT 7
   `;
 
-  const result = await queryDB(query, [username, timezone]);
+  const result = await queryDB(query, [userid, timezone]);
   console.log(result.rows);
   const correctPuzzleCountRaw: number[] = result.rows.map((row: any) => row.count);
   const daysAgo: number[] = result.rows.map((row: any) => (row.days_ago["days"] ?? 0) + 1);
@@ -55,11 +55,11 @@ export async function getDailyStreak(username: string, timezone: string): Promis
 }
 
 export async function getDailyStreakRoute(req: Request, res: Response) {
-  const username = req.params['username'] as string;
+  const userid = req.params['userid'] as string;
   const timezone = req.query['timezone'] as string;
 
   try {
-    const streak = await getDailyStreak(username, decodeURIComponent(timezone));
+    const streak = await getDailyStreak(userid, decodeURIComponent(timezone));
     res.status(200).send(streak);
   } catch (error) {
     res.status(404).send(error);

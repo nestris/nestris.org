@@ -5,7 +5,7 @@ import { AttemptStats, TimePeriod } from "../../shared/puzzles/attempt-stats";
 import { PuzzleRating } from "../../shared/puzzles/puzzle-rating";
 
 
-export async function getAttemptStats(username: string, period: TimePeriod, timezone: string): Promise<AttemptStats> {
+export async function getAttemptStats(userid: string, period: TimePeriod, timezone: string): Promise<AttemptStats> {
     const zone = IANAZone.create(timezone);
     const now = DateTime.now().setZone(zone);
 
@@ -34,7 +34,7 @@ export async function getAttemptStats(username: string, period: TimePeriod, time
                 AVG(pa.solve_time) AS avg_solve_time
             FROM puzzle_attempts pa
             JOIN rated_puzzles p ON pa.puzzle_id = p.id
-            WHERE pa.username = $1 AND pa.timestamp >= $2
+            WHERE pa.userid = $1 AND pa.timestamp >= $2
             GROUP BY p.rating
         )
         SELECT
@@ -44,7 +44,7 @@ export async function getAttemptStats(username: string, period: TimePeriod, time
             avg_solve_time
         FROM filtered_attempts
         ORDER BY rating;`,
-        [username, periodStart.toISO()]
+        [userid, periodStart.toISO()]
     );
 
 
@@ -84,12 +84,12 @@ export async function getAttemptStats(username: string, period: TimePeriod, time
 }
 
 export async function getAttemptStatsRoute(req: Request, res: Response) {
-    const username = req.params['username'] as string;
+    const userid = req.params['userid'] as string;
     const period = req.query['period'] as TimePeriod;
     const timezone = req.query['timezone'] as string;
 
     try {
-      const stats = await getAttemptStats(username, period, timezone);
+      const stats = await getAttemptStats(userid, period, timezone);
       res.send(stats);
     } catch (error) {
       console.log(error);

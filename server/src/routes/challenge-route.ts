@@ -6,7 +6,6 @@ import { ServerState } from '../server-state/server-state';
 export async function sendChallengeRoute(req: Request, res: Response, state: ServerState) {
 
   const challenge: Challenge = req.body.challenge;
-  
   if (!challenge) res.status(400).send("Missing 'challenge' parameter");
 
   try {
@@ -22,13 +21,13 @@ export async function sendChallengeRoute(req: Request, res: Response, state: Ser
 export async function rejectChallengeRoute(req: Request, res: Response, state: ServerState) {
 
   const challenge: Challenge = req.body.challenge;
-  const username: string = req.body.username;
+  const userid: string = req.body.userid;
   
   if (!challenge) res.status(400).send("Missing 'challenge' parameter");
-  if (!username) res.status(400).send("Missing 'username' parameter");
+  if (!userid) res.status(400).send("Missing 'username' parameter");
 
   try {
-    const result = state.challengeManager.rejectChallenge(challenge, username);
+    const result = state.challengeManager.rejectChallenge(challenge, userid);
     res.status(200).send({success: result});
   }
   catch (error) {

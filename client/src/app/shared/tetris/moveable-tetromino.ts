@@ -165,12 +165,12 @@ export default class MoveableTetromino {
     }
 
     // attempt to kick the piece in all directions to a valid placement
-    public kickToValidPlacement(board: TetrisBoard): void {
+    public kickToValidPlacement(board: TetrisBoard, hoveredX: number, hoveredY: number, piece: TetrominoType, rotation: number): void {
 
         // no need to kick if already valid
         if (this.isValidPlacement(board)) return;
 
-        const kickOffsets: Point[] = [
+        let kickOffsets: Point[] = [
             { x: 1, y: 0 },
             { x: -1, y: 0 },
             { x: 0, y: -1 },
@@ -179,15 +179,46 @@ export default class MoveableTetromino {
             { x: -1, y: -1 },
             { x: 1, y: 1 },
             { x: -1, y: 1 },
+            { x: 0, y: 2 },
+            { x: -1, y: 2 },
+            { x: 1, y: 2 },
+
         ];
 
+        // vertical longbar has different kick offsets. No horizontal kicks if vertical
+        if (piece === TetrominoType.I_TYPE && rotation % 2 === 1) {
+            kickOffsets = [
+                { x: 0, y: 0 },
+                { x: 0, y: -1 },
+                { x: 0, y: 1 },
+                { x: 0, y: -2 },
+                { x: 0, y: 2 },
+            ];
+        }
+
+
+        let bestNotContainingMT: Point | undefined = undefined;
         for (let offset of kickOffsets) {
             const MT = new MoveableTetromino(this.tetrominoType, this.rotation, this.translateX + offset.x, this.translateY + offset.y);
             if (MT.isValidPlacement(board)) {
-                this.moveBy(0, offset.x, offset.y);
-                return;
+                
+                if (MT.contains(hoveredX, hoveredY)) {
+                    // If it's the best placement so far AND it contains the hovered block, then we definitely want tomove to it
+                    this.moveBy(0, offset.x, offset.y);
+                    return;
+                } else if (bestNotContainingMT === undefined) {
+                    // If it's the best placement so far, but it doesn't contain the hovered block, we'd prefer a
+                    // placement with the hovered block, but we'll take this one if we can't find one
+                    bestNotContainingMT = offset;
+                }
             }
         };
+
+        // We try to look for placements that contain the hovered block. But if we can't find
+        // any, we just move to the best placement that doesn't contain the hovered block
+        if (bestNotContainingMT !== undefined) {
+            this.moveBy(0, bestNotContainingMT.x, bestNotContainingMT.y);
+        }
     }
 
     public moveIntoBounds(): void {

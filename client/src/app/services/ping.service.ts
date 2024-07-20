@@ -9,9 +9,9 @@ Sends a ping to server frequently to determine latency
 */
 
 export enum PingSpeed {
-  FAST = "fast", // less than 50ms
-  MEDIUM = "medium", // less than 150ms
-  SLOW = "slow", // greater than 150ms
+  FAST = "fast",
+  MEDIUM = "medium",
+  SLOW = "slow",
 }
 
 const PING_SPEED_COLOR_MAP = new Map<PingSpeed, string>([
@@ -21,9 +21,9 @@ const PING_SPEED_COLOR_MAP = new Map<PingSpeed, string>([
 ]);
 
 const getPingSpeed = (ping: number): PingSpeed => {
-  if (ping < 50) {
+  if (ping < 100) {
     return PingSpeed.FAST;
-  } else if (ping < 150) {
+  } else if (ping < 300) {
     return PingSpeed.MEDIUM;
   } else {
     return PingSpeed.SLOW;

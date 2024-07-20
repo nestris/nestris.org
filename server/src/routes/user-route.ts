@@ -1,40 +1,41 @@
 import { Request, Response } from 'express';
-import { queryAllUsernamesMatchingPattern, queryFriendsAndFriendRequestsForUser, queryUserByUsername } from '../database/user-queries';
+import { queryAllUsersMatchingUsernamePattern, queryFriendsAndFriendRequestsForUser, queryUserByUserID } from '../database/user-queries';
 import { endFriendship, sendFriendRequest } from '../database/friendship-updates';
 import { ServerState } from '../server-state/server-state';
 import { FriendInfo, FriendStatusResult } from '../../shared/models/friends';
 
-export async function getAllUsernamesMatchingPatternRoute(req: Request, res: Response) {
+export async function getAllUsersMatchingUsernamePatternRoute(req: Request, res: Response) {
 
-  const response = await queryAllUsernamesMatchingPattern();
+  const response = await queryAllUsersMatchingUsernamePattern();
 
   res.status(200).send(response);
 }
 
 // GET request api/v2/user/:username
-export async function getUserByUsernameRoute(req: Request, res: Response) {
-  const username = req.params['username'];
+export async function getUserByUserIDRoute(req: Request, res: Response) {
+  const userid = req.params['userid'];
 
-  const response = await queryUserByUsername(username);
+  const response = await queryUserByUserID(userid);
 
   res.status(200).send(response);
 }
 
 // sends FriendInfo[] for all friends and potential friends (incoming/outcoming) for a user
 export async function getFriendsInfoRoute(req: Request, res: Response, state: ServerState) {
-  const username = req.params['username'];
+  const userid = req.params['userid'];
 
-  const response = await queryFriendsAndFriendRequestsForUser(username);
+  const response = await queryFriendsAndFriendRequestsForUser(userid);
 
   const friends: FriendInfo[] = response.map((friend) => {
     
     return {
+      userid: friend.userid,
       username: friend.username,
       friendStatus: friend.type,
-      onlineStatus: state.onlineUserManager.getOnlineStatus(friend.username),
+      onlineStatus: state.onlineUserManager.getOnlineStatus(friend.userid),
       xp: friend.xp,
       trophies: friend.trophies,
-      challenge: state.challengeManager.getChallenge(username, friend.username)
+      challenge: state.challengeManager.getChallenge(userid, friend.userid)
     }
   });
 

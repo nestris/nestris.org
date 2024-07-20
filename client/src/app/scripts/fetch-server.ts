@@ -1,3 +1,5 @@
+import { WebsocketService } from "../services/websocket.service";
+
 export function getBaseURL(): string {
     return window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
 
@@ -10,35 +12,14 @@ export enum Method {
     PUT = 'PUT',
 }
 
-// DEPRECATED: Use fetchServer2 instead
-export async function fetchServer(method: Method, urlStr: string, content: any = undefined): Promise<{status: number, content: any}> {
-
-    let url = new URL(urlStr, getBaseURL());
-    let json: string | undefined = undefined;
-
-    if (content) {
-        if (method === Method.POST) {
-            json = JSON.stringify(content);
-        } else {
-            for (const [key, value] of Object.entries(content)) {
-                // console.log(key, value);
-                url.searchParams.append(key, value as string);
-            }
-        }
-    }
-    
-    const response = await fetch( url.toString(), {
-        method: method.toString(),
-        headers: {'Content-Type': 'application/json'},
-        body: json
-    });
-    
-    const result = await response.json();
-    return {status: response.status, content: result};
-}
-
 // fetches from server and returns the response with generic-defined type
-export async function fetchServer2<ResponseType>(method: Method, urlStr: string, content: any = undefined): Promise<ResponseType> {
+// if websocket is provided and reponse is 401, tell the websocket to logout
+export async function fetchServer2<ResponseType>(
+    method: Method,
+    urlStr: string,
+    content: any = undefined,
+    websocket: WebsocketService | undefined = undefined
+): Promise<ResponseType> {
 
     let url = new URL(urlStr, getBaseURL());
     let json: string | undefined = undefined;
@@ -59,6 +40,11 @@ export async function fetchServer2<ResponseType>(method: Method, urlStr: string,
         headers: {'Content-Type': 'application/json'},
         body: json
     });
+
+    // if the response is 401, tell the websocket to logout
+    if (response.status === 401 && websocket) {
+        await websocket.logout();
+    }
 
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}, statusText: ${response.statusText}`);

@@ -5,6 +5,7 @@ import { TabID } from 'src/app/models/tabs';
 import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
+import { DBUser, PermissionLevel } from 'src/app/shared/models/db-user';
 import { OnlineUserStatus } from 'src/app/shared/models/friends';
 import { JsonMessageType } from 'src/app/shared/network/json-message';
 
@@ -59,6 +60,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   openAuthModal(): void {
     this.modalService.showModal(ModalType.AUTH);
+  }
+
+  showControlPanel(user: DBUser | undefined | null): boolean {
+    if (!user) return false;
+    return (user.permission !== PermissionLevel.DEFAULT);
   }
 
   ngOnDestroy() {

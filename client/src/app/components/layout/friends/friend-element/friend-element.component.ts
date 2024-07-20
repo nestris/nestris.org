@@ -45,19 +45,20 @@ export class FriendElementComponent {
 
   // send a message to server to accept friend request
   async acceptFriendRequest() {
-    await sendFriendRequest(this.websocketService.getUsername()!, this.friendInfo.username);
+    await sendFriendRequest(this.websocketService.getUserID()!, this.friendInfo.userid);
     this.friendsService.syncWithServer();
   }
 
   // send a message to server to declne friend request
   async endFriendship() {
-    await endFriendship(this.websocketService.getUsername()!, this.friendInfo.username);
+    await endFriendship(this.websocketService.getUserID()!, this.friendInfo.userid);
     this.friendsService.syncWithServer();
   }
 
   async sendChallenge() {
     const config: ChallengeModalConfig = {
-      opponent: this.friendInfo.username
+      opponentid: this.friendInfo.userid,
+      opponentUsername: this.friendInfo.username
     };
     this.modalService.showModal(ModalType.CHALLENGE_PLAYER, config);
   }

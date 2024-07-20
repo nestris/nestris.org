@@ -15,6 +15,7 @@ on the right of the tab, and when tab is clicked it sets the tab in the sidebar 
 })
 export class SidebarTabComponent {
   @Input() tab!: TabID;
+  @Input() orange: boolean = false;
 
 
   constructor(public badgeService: BadgeService) {}

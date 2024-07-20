@@ -99,7 +99,13 @@ export class PuzzleNesBoardComponent implements OnInit {
       return;
     }
     
+    // Empirical testing shows that this leads to the most intuitive user experience for mapping
+    // mouse position to piece placement
     if ([TetrominoType.J_TYPE, TetrominoType.L_TYPE, TetrominoType.T_TYPE].includes(piece)) {
+      y += 1;
+    }
+
+    if ([TetrominoType.Z_TYPE, TetrominoType.S_TYPE, TetrominoType.I_TYPE].includes(piece) && this.rotation % 2 === 1) {
       y += 1;
     }
 
@@ -107,7 +113,7 @@ export class PuzzleNesBoardComponent implements OnInit {
     
     // attempt to find a valid placement for the piece
     MT.moveIntoBounds();
-    MT.kickToValidPlacement(this.currentBoard$.getValue()!);
+    MT.kickToValidPlacement(this.currentBoard$.getValue()!, this.hoveredBlock.x, this.hoveredBlock.y, piece, this.rotation);
 
     // update hovered piece
     this.hoveredPiece$.next(MT);
