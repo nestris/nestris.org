@@ -70,6 +70,9 @@ import { LessonComponent } from './components/layout/learn/lesson/lesson.compone
 import { LoginPageComponent } from './components/layout/login/login-page/login-page.component';
 import { MainLeaderboardPageComponent } from './components/layout/main-leaderboard/main-leaderboard-page/main-leaderboard-page.component';
 import { WelcomePageComponent } from './components/layout/welcome/welcome-page/welcome-page.component';
+import { NotOnWhitelistPageComponent } from './component/layout/not-on-whitelist/not-on-whitelist-page/not-on-whitelist-page.component';
+import { ControlPanelPageComponent } from './components/layout/control-panel/control-panel-page/control-panel-page.component';
+import { SettingsPageComponent } from './components/layout/settings/settings-page/settings-page.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -179,6 +182,9 @@ const customNotifierOptions: NotifierOptions = {
     LoginPageComponent,
     MainLeaderboardPageComponent,
     WelcomePageComponent,
+    NotOnWhitelistPageComponent,
+    ControlPanelPageComponent,
+    SettingsPageComponent,
   ],
   imports: [
     BrowserModule,

@@ -25,10 +25,10 @@ export class EloComponent implements OnInit {
 
   async ngOnInit() {
 
-    const username = this.websocketService.getUsername();
-    if (!username) return; // user is not logged in
+    const userid = this.websocketService.getUserID();
+    if (!userid) return; // user is not logged in
 
-    const user = await fetchServer2<DBUser>(Method.GET, `/api/v2/user/${username}`);
+    const user = await fetchServer2<DBUser>(Method.GET, `/api/v2/user/${userid}`);
     this.eloStats$.next({ elo: user.puzzleElo, highest: user.highestPuzzleElo });
   }
 

@@ -21,10 +21,10 @@ export class GlobalRankComponent implements OnInit {
 
   async ngOnInit() {
 
-    const username = this.websocketService.getUsername();
-    if (!username) return; // user is not logged in
+    const userid = this.websocketService.getUserID();
+    if (!userid) return; // user is not logged in
 
-    this.rank$.next(await fetchServer2<PuzzleRank>(Method.GET, `/api/v2/puzzle-rank/${username}`));
+    this.rank$.next(await fetchServer2<PuzzleRank>(Method.GET, `/api/v2/puzzle-rank/${userid}`));
 
   }
 

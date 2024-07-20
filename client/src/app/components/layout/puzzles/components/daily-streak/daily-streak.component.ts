@@ -39,11 +39,11 @@ export class DailyStreakComponent implements OnInit {
 
   async ngOnInit() {
 
-    const username = this.websocketService.getUsername();
-    if (!username) return; // no username, no streak
+    const userid = this.websocketService.getUserID();
+    if (!userid) return; // no username, no streak
 
     // fetch streak data
-    this.streak$.next(await fetchServer2<DailyStreak>(Method.GET, `/api/v2/daily-streak/${username}`, {timezone: getTimezone()}));
+    this.streak$.next(await fetchServer2<DailyStreak>(Method.GET, `/api/v2/daily-streak/${userid}`, {timezone: getTimezone()}));
     console.log("streak: ", this.streak$.getValue());
     
   }

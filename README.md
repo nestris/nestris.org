@@ -98,6 +98,7 @@ One way I recommend viewing local, staging, and prod databases is through an app
 
 ### Wipe database and reset###
 Initializes the database. DO NOT RUN THIS unless you want to wipe all data.
+This needs to be run if you want after changing the database schema at wipe-and-reset-database.sql
 `docker exec -i [container-id] psql -U postgres -d mydatabase -f /docker-entrypoint-initdb.d/init.sql`
 
 ## How CI/CD works in this project

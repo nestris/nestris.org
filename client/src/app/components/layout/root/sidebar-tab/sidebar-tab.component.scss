@@ -4,6 +4,10 @@
     width: 100%;
 }
 
+h1.orange {
+    color: $ui-orange-color;
+}
+
 .tab {
     width: 100%;
     height: 45px;
@@ -22,7 +26,6 @@
 
 .selected .tab {
     background-color: #3D3D42;
-
 }
 
 .icon {

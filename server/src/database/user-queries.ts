@@ -18,6 +18,7 @@ export async function queryUserByUserID(userid: string): Promise<DBUser | undefi
   return {
     userid: rawUser.userid,
     username: rawUser.username,
+    permission: rawUser.permission,
     lastOnline: rawUser.last_online,
     trophies: rawUser.trophies,
     xp: rawUser.xp,
@@ -99,9 +100,27 @@ export async function queryAllUsernamesMatchingPattern(pattern: string = "%"): P
   return result.rows.map((row) => row.username);
 }
 
-export async function createUser(userid: string, username: string): Promise<void> {
-  const query = `INSERT INTO users (userid, username) VALUES ($1, $2)`;
-  await queryDB(query, [userid, username]);
+// Creates a user with assigned permission if on the whitelist, otherwise fail and return false
+export async function createUser(userid: string, username: string, discordTag: string): Promise<boolean> {
+
+  // Get the permission level of the user
+  const query = `SELECT permission FROM whitelist WHERE discord_tag = $1`;
+  const result = await queryDB(query, [discordTag]);
+
+  // If the user is not on the whitelist, return false
+  if (result.rows.length === 0) {
+    console.log(`Failed to create user ${username}, ${discordTag} not on whitelist`);
+    return false;
+  }
+
+  // Create the user with the permission level
+  const permission = result.rows[0].permission;
+  const query2 = `INSERT INTO users (userid, username, permission) VALUES ($1, $2, $3)`;
+  await queryDB(query2, [userid, username, permission]);
+
+  console.log(`Created user ${username} with permission level ${permission}`);
+
+  return true;
 }
 
 export async function fetchUsernameFromUserID(userid: string): Promise<string> {

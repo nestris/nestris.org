@@ -20,6 +20,7 @@ import { getTopMovesHybridRoute } from './src/stackrabbit/stackrabbit';
 import axios from 'axios';
 import { createUser, fetchUsernameFromUserID, queryUserByUserID } from './src/database/user-queries';
 import { getUserID, getUsername, handleLogout, requireAuth, UserSession } from './src/util/auth-util';
+import { DBUser } from './shared/models/db-user';
 
 // Load environment variables
 require('dotenv').config();
@@ -114,8 +115,14 @@ async function main() {
           username = await fetchUsernameFromUserID(userID)
         } else {
           // If user does not exist, create a new user with username from Discord global name
+
           username = userResponse.data.global_name;
-          await createUser(userID, username);
+          let discordTag = userResponse.data.username;
+          const success = await createUser(userID, username, discordTag);
+          if (!success) {
+            res.redirect('/not-on-whitelist');
+            return
+          }
         }
 
         // Store the user's session
@@ -160,12 +167,14 @@ async function main() {
   app.get('/api/v2/callback', handleDiscordCallback);
   app.post('/api/v2/logout', handleLogout);
 
-  app.get('/api/v2/me', requireAuth, (req, res) => {
+  app.get('/api/v2/me', requireAuth, async (req, res) => {
     // send the logged in user's username, or null if not logged in
-    res.send({
-      userid: getUserID(req),
-      username: getUsername(req),
-    });
+    const me: DBUser | undefined = await queryUserByUserID(getUserID(req));
+    if (!me) {
+      res.status(404).send({error: "User not found"});
+      return;
+    }
+    res.send(me);
   });
 
 
@@ -184,8 +193,8 @@ async function main() {
   });
 
   app.get('/api/v2/all-usernames', getAllUsernamesMatchingPatternRoute);
-  app.get('/api/v2/user/:username', getUserByUserIDRoute);
-  app.get('/api/v2/friends/:username',  async (req: Request, res: Response) => getFriendsInfoRoute(req, res, state));
+  app.get('/api/v2/user/:userid', getUserByUserIDRoute);
+  app.get('/api/v2/friends/:userid',  async (req: Request, res: Response) => getFriendsInfoRoute(req, res, state));
 
   app.post('/api/v2/friend-request/:from/:to', async (req: Request, res: Response) => setFriendRequestRoute(req, res, state)); 
   app.post('/api/v2/end-friendship/:from/:to', async (req: Request, res: Response) => endFriendshipRoute(req, res, state));
@@ -217,7 +226,7 @@ async function main() {
       res.status(200).send({rating: getRandomPuzzleRatingForPlayerElo(elo)});
   });
 
-  app.post('/api/v2/random-rated-puzzle/:username', selectRandomPuzzleForUserRoute);
+  app.post('/api/v2/random-rated-puzzle/:userid', selectRandomPuzzleForUserRoute);
 
   app.get('/api/v2/elo-change', async (req: Request, res: Response) => {
       const elo = parseInt(req.query['elo'] as string);
@@ -228,12 +237,12 @@ async function main() {
 
   app.post('/api/v2/submit-puzzle-attempt', submitPuzzleAttemptRoute);
 
-  app.get('/api/v2/daily-streak/:username', getDailyStreakRoute);
-  app.get('/api/v2/puzzle-rank/:username', getRelativePuzzleRankRoute);
+  app.get('/api/v2/daily-streak/:userid', getDailyStreakRoute);
+  app.get('/api/v2/puzzle-rank/:userid', getRelativePuzzleRankRoute);
 
   app.post('/api/v2/set-feedback', setFeedbackRoute);
 
-  app.get('/api/v2/puzzle-attempt-stats/:username', getAttemptStatsRoute);
+  app.get('/api/v2/puzzle-attempt-stats/:userid', getAttemptStatsRoute);
 
   app.get('/api/v2/ocr-digits', (req: Request, res: Response) => {
       res.status(200).send(getOCRDigits());

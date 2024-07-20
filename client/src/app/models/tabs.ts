@@ -1,5 +1,6 @@
 export enum TabID {
     MY_PROFILE = 'profile',
+    CONTROL_PANEL = 'control-panel',
     FRIENDS = 'friends',
     SETTINGS = 'settings',
     PLAY = 'play',
@@ -15,6 +16,7 @@ export enum TabID {
 
 const IS_TAB_FULLSCREEN: {[key in TabID]: boolean} = {
     [TabID.MY_PROFILE]: false,
+    [TabID.CONTROL_PANEL]: false,
     [TabID.FRIENDS]: false,
     [TabID.SETTINGS]: false,
     [TabID.PLAY]: false,
@@ -36,6 +38,7 @@ export type ParametrizedTab = {
 
 const TAB_DISPLAY_NAMES: {[key in TabID]: string} = {
     [TabID.MY_PROFILE]: 'My Profile',
+    [TabID.CONTROL_PANEL]: 'Control Panel',
     [TabID.FRIENDS]: 'Friends',
     [TabID.SETTINGS]: 'Settings',
     [TabID.PLAY]: 'Play',
@@ -51,6 +54,7 @@ export const getTabDisplayName = (tab: TabID): string => TAB_DISPLAY_NAMES[tab];
 
 const TAB_ICONS: {[key in TabID]?: string} = {
     [TabID.MY_PROFILE]: 'profile.svg',
+    [TabID.CONTROL_PANEL]: 'control-panel.svg',
     [TabID.FRIENDS]: 'friends.svg',
     [TabID.SETTINGS]: 'settings.svg',
     [TabID.PLAY]: 'play.svg',

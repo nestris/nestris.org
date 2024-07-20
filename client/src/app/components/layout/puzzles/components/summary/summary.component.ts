@@ -36,15 +36,15 @@ export class SummaryComponent implements OnChanges {
   async ngOnChanges(changes: SimpleChanges) {
 
     // fetch username, but if not logged in, exit
-    const username = this.websocket.getUsername();
-    if (!username) return;
+    const userid = this.websocket.getUserID();
+    if (!userid) return;
 
     // then, fetch the stats
     const params = {
       period: this.period,
       timezone: getTimezone()
     }
-    this.attemptStats$.next(await fetchServer2<AttemptStats>(Method.GET, `/api/v2/puzzle-attempt-stats/${username}`, params));
+    this.attemptStats$.next(await fetchServer2<AttemptStats>(Method.GET, `/api/v2/puzzle-attempt-stats/${userid}`, params));
     console.log("Stats:", this.attemptStats$.getValue());
   }
 

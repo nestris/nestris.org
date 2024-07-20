@@ -16,10 +16,14 @@ import { PuzzlesPageComponent } from './components/layout/puzzles/puzzles-page.c
 import { LeaderboardComponent } from './components/layout/play-puzzle/leaderboard/leaderboard.component';
 import { MainLeaderboardPageComponent } from './components/layout/main-leaderboard/main-leaderboard-page/main-leaderboard-page.component';
 import { WelcomePageComponent } from './components/layout/welcome/welcome-page/welcome-page.component';
+import { NotOnWhitelistPageComponent } from './component/layout/not-on-whitelist/not-on-whitelist-page/not-on-whitelist-page.component';
+import { ControlPanelPageComponent } from './components/layout/control-panel/control-panel-page/control-panel-page.component';
+import { SettingsPageComponent } from './components/layout/settings/settings-page/settings-page.component';
 
 const routes: Routes = [
 
   { path: "login", component: LoginPageComponent },
+  { path: "not-on-whitelist", component: NotOnWhitelistPageComponent },
 
   {
     path: 'online',
@@ -40,7 +44,9 @@ const routes: Routes = [
     children: [
             
       { path: "profile", component: ProfilePageComponent },
+      { path: "control-panel" , component: ControlPanelPageComponent },
       { path: "friends", component: FriendPageComponent },
+      { path: "settings", component: SettingsPageComponent },
       { path: "play", component: PlayPageComponent, },
       { path: "review", component: ReviewPageComponent },
 

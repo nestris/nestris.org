@@ -6,6 +6,9 @@
 
 
         <app-profile-tab  class="profile-tab"/>
+        
+        <app-sidebar-tab [orange]="true" [tab]="TabID.CONTROL_PANEL" *ngIf="showControlPanel(websocketService.getUser$() | async)"/>
+
         <app-sidebar-tab [tab]="TabID.FRIENDS">
             <p class="online-users">{{(numOnlineFriends$ | async)}}</p>
             <app-online-indicator [status]="!(numOnlineFriends$ | async) ? OnlineUserStatus.OFFLINE : OnlineUserStatus.IDLE" />

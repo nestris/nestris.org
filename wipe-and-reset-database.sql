@@ -6,7 +6,8 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 DROP TABLE IF EXISTS "public"."users" CASCADE;
 CREATE TABLE "public"."users" (
     "userid" text NOT NULL,
-    "username" text NOT NULL,
+    "username" text NOT NULL UNIQUE,
+    "permission" text NOT NULL DEFAULT 'default'::text,
     "last_online" timestamp NOT NULL DEFAULT now(),
     "trophies" int2 NOT NULL DEFAULT 1000,
     "xp" int2 NOT NULL DEFAULT 0,
@@ -33,6 +34,19 @@ DROP TRIGGER IF EXISTS update_highest_puzzle_elo_trigger ON users;
 CREATE TRIGGER update_highest_puzzle_elo_trigger
 BEFORE UPDATE ON users
 FOR EACH ROW EXECUTE FUNCTION update_highest_puzzle_elo();
+
+
+-- USER_WHITELIST table
+DROP TABLE IF EXISTS "public"."whitelist" CASCADE;
+CREATE TABLE "public"."whitelist" (
+    "discord_tag" text NOT NULL,
+    "permission" text NOT NULL DEFAULT 'default'::text, 
+    PRIMARY KEY ("discord_tag")
+);
+
+
+-- hardcode some users to whitelisted
+INSERT INTO whitelist (discord_tag, permission) VALUES ('anselchang', 'admin');
 
 
 -- USER_RELATIONSHIPS table

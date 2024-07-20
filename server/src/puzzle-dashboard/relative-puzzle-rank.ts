@@ -4,11 +4,11 @@ import { Request, Response } from "express";
 
 
 // get the player's global puzzle elo ranking and the 5 players surrounding the player in the global puzzle elo leaderboard
-export async function getRelativePuzzleRank(username: string): Promise<PuzzleRank> {
+export async function getRelativePuzzleRank(userid: string): Promise<PuzzleRank> {
 
   // make a SQL query to get the player's global puzzle elo ranking
   const query = `
-    SELECT username, puzzle_elo
+    SELECT userid, username, puzzle_elo
     FROM users
     ORDER BY puzzle_elo DESC
   `;
@@ -19,13 +19,11 @@ export async function getRelativePuzzleRank(username: string): Promise<PuzzleRan
   // find the player's global puzzle elo ranking
   let playerRank = 0;
   for (let i = 0; i < result.rows.length; i++) {
-    if (result.rows[i].username === username) {
+    if (result.rows[i].userid === userid) {
       playerRank = i + 1;
       break;
     }
   }
-
-  // console.log("Player rank: ", playerRank);
 
   // get the 5 players surrounding the player in the global puzzle elo leaderboard
   // if there is not a player in the leaderboard at a certain position, set to undefined
@@ -51,10 +49,10 @@ export async function getRelativePuzzleRank(username: string): Promise<PuzzleRan
 }
 
 export async function getRelativePuzzleRankRoute(req: Request, res: Response) {
-  const username = req.params['username'] as string;
+  const userid = req.params['userid'] as string;
 
   try {
-    const rank = await getRelativePuzzleRank(username);
+    const rank = await getRelativePuzzleRank(userid);
     res.status(200).send(rank);
   } catch (error) {
     res.status(404).send(error);
