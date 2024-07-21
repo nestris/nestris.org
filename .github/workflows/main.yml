@@ -37,6 +37,11 @@ jobs:
           echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD_DEV }}" >> $GITHUB_ENV
           echo "POSTGRES_DB=${{ secrets.POSTGRES_DB_DEV }}" >> $GITHUB_ENV
 
+      - name: Set up common environment variables
+        run: |
+          echo "DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}" >> $GITHUB_ENV
+          echo "DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }}" >> $GITHUB_ENV
+
       - name: Build and push Docker images for main
         if: github.ref == 'refs/heads/main'
         run: |
@@ -61,12 +66,26 @@ jobs:
           echo "${DO_SSH_KEY}" > key.pem
           chmod 600 key.pem
           ssh -o StrictHostKeyChecking=no -i key.pem root@${DO_HOST} << EOF
-            cd docker-angular-ts-node-postgres-websocket-template
+            cd nestris.org
+            git checkout ${BRANCH}
+            git pull origin ${BRANCH}
             export NODE_ENV=${NODE_ENV}
             export POSTGRES_USER=${POSTGRES_USER}
             export POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
             export POSTGRES_DB=${POSTGRES_DB}
+            export DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
+            export DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
             docker compose -f docker-compose.${NODE_ENV}.yml pull
             docker compose -f docker-compose.${NODE_ENV}.yml up -d
 
           EOF
+
+      - name: Finish main
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "Finished deploying to production 🚀! Website deployed at http://138.197.82.78:80"
+      
+      - name: Finish dev
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          echo "Finished deploying to staging 🚀! Website deployed at http://138.197.82.78:81"

@@ -1,13 +1,17 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { BehaviorSubject, Subscription } from 'rxjs';
-import { fetchServer, Method } from 'src/app/scripts/fetch-server';
+import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
 import { FriendsService } from 'src/app/services/friends.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { FriendStatus, FriendInfo } from 'src/app/shared/models/friends';
 import { sendFriendRequest } from '../friend-util';
+import { DBUser } from 'src/app/shared/models/db-user';
 
+// This is super cursed and definitely not the right way to go about things.
+// But it works for now so whatever.
 
 export interface PotentialFriend {
+  userid: string;
   username: string;
   status: FriendStatus;
 }
@@ -25,7 +29,7 @@ export class AddFriendModalComponent implements OnInit, OnChanges, OnDestroy {
   public typedUsername: string = "";
   public potentialFriends?: PotentialFriend[];
 
-  private allUsernames: string[] = [];
+  private matchingUsers: DBUser[] = [];
 
   private visibilitySubscription!: Subscription;
 
@@ -44,16 +48,11 @@ export class AddFriendModalComponent implements OnInit, OnChanges, OnDestroy {
     });
     
     // fetch list of all usernames from server
-    const {status, content} = await fetchServer(Method.GET, '/api/v2/all-usernames');
-     if (status !== 200) {
-       console.error("Could not get list of usernames");
-       return;
-     }
-     this.allUsernames = content as string[];
+    this.matchingUsers = await fetchServer2<DBUser[]>(Method.GET, '/api/v2/users-by-username', undefined, this.websocketService);
   }
 
   /*
-    Using the fetched global usernames list, compare with user's list of friends and
+    Using the fetched users list, compare with user's list of friends and
     see which ones are not already friends.
     Updates this.potentialFriends[]
 
@@ -68,19 +67,20 @@ export class AddFriendModalComponent implements OnInit, OnChanges, OnDestroy {
     const friendsInfo = this.friendsInfo;
     
     // compare the list of usernames with the user's friends list
-    const myUsername = this.websocketService.getUsername();
+    const myUserID = this.websocketService.getUserID();
     this.potentialFriends = [];
-    this.allUsernames.forEach((username: string) => {
+    this.matchingUsers.forEach((user: DBUser) => {
 
       // do not show myself in list
-      if (username === myUsername) return;
+      if (myUserID === user.userid) return;
 
       let status = FriendStatus.NOT_FRIENDS;
-      const friend = friendsInfo.find((friendInfo) => friendInfo.username === username); // find matching username on friends list, if any
+      const friend = friendsInfo.find((friendInfo) => friendInfo.userid === user.userid); // find matching username on friends list, if any
       if (friend !== undefined) status = friend.friendStatus;
 
       this.potentialFriends!.push({
-        username: username,
+        userid: user.userid,
+        username: user.username,
         status: status
       });
     });
@@ -92,8 +92,8 @@ export class AddFriendModalComponent implements OnInit, OnChanges, OnDestroy {
   // called when user clicks on a potential friend "add friend" icon
   sendFriendRequest(potentialFriend: PotentialFriend) {
     
-    const username = this.websocketService.getUsername();
-    if (username === undefined) return;
+    const userid = this.websocketService.getUserID();
+    if (userid === undefined) return;
 
     // only send friend request if user isn't already friends or hasn't already sent a friend request
     if (potentialFriend.status !== FriendStatus.NOT_FRIENDS && potentialFriend.status !== FriendStatus.INCOMING) return;
@@ -105,7 +105,7 @@ export class AddFriendModalComponent implements OnInit, OnChanges, OnDestroy {
     this.cdr.detectChanges();
 
     // send friend request to server
-    sendFriendRequest(username, potentialFriend.username).then((result) => {
+    sendFriendRequest(userid, potentialFriend.userid).then((result) => {
       if (result.status === FriendStatus.OUTGOING) potentialFriend.status = FriendStatus.OUTGOING;
       else if (result.status === FriendStatus.FRIENDS) potentialFriend.status = FriendStatus.FRIENDS;
       this.cdr.detectChanges();

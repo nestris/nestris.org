@@ -25,7 +25,7 @@ export class ChallengeComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.isSender = this.websocketService.getUsername() === this.challenge.sender;
+    this.isSender = this.websocketService.getUserID() === this.challenge.senderid;
   }
 
   async acceptChallenge() {

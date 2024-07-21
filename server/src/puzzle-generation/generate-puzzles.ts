@@ -117,28 +117,6 @@ export async function generatePuzzlesRoute(req: Request, res: Response) {
   const puzzles = await generatePuzzles(count);
 
   // send the partial rated puzzles to the client
-  res.send(puzzles);
+  res.send({count: puzzles.length});
 
-}
-
-// TODO: pagination
-export async function getRatedPuzzlesListRoute(req: Request, res: Response) {
-
-  //const result = await queryDB("SELECT * FROM rated_puzzles");
-
-  // select all from rated puzzles, with two additional attributes for each puzzle:
-  // report_count, which is the count for puzzle_attempts with the same puzzle_id where user_rating is -1
-  // average_user_rating, which is the average of user_rating for puzzle_attempts with the same puzzle_id ignoring user_ratings below 1
-  // write the query across multiple lines for readability
-  // order by rating
-  const result = await queryDB(
-    "SELECT * " +
-    "FROM rated_puzzles " + 
-    "ORDER BY rating ASC " + 
-    "LIMIT 100"
-  );
-
-
-  const puzzles: RatedPuzzle[] = result.rows.map((row: any) => decodeRatedPuzzleFromDB(row));
-  res.send(puzzles);
 }

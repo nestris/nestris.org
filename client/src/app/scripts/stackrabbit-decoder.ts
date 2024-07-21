@@ -4,7 +4,7 @@ import { decodeStackrabbitResponse } from "../shared/scripts/stackrabbit-decoder
 import MoveableTetromino from "../shared/tetris/moveable-tetromino";
 import { TetrisBoard } from "../shared/tetris/tetris-board";
 import { TetrominoType } from "../shared/tetris/tetromino-type";
-import { fetchServer, Method } from "./fetch-server";
+import { fetchServer2, Method } from "./fetch-server";
 
 
 export interface TopMovesHybridResponse {
@@ -30,7 +30,7 @@ export async function getTopMovesHybrid(
   depth: number = 3
 ): Promise<TopMovesHybridResponse> {
 
-  const response = await fetchServer(Method.GET, '/api/v2/stackrabbit/get-top-moves-hybrid', {
+  const response = await fetchServer2(Method.GET, '/api/v2/stackrabbit/get-top-moves-hybrid', {
     boardString: BinaryTranscoder.encode(board),
     level: level,
     lines: lines,
@@ -41,11 +41,7 @@ export async function getTopMovesHybrid(
     depth: depth
   });
 
-  if (response.status >= 399) {
-    throw new Error("Error getting top moves hybrid");
-  }
-
-  return decodeStackrabbitResponse(response.content, currentPiece, nextPiece);
+  return decodeStackrabbitResponse(response, currentPiece, nextPiece);
 
 }
 

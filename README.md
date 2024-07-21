@@ -28,6 +28,8 @@ NODE_ENV=production
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=password
 POSTGRES_DB=mydatabase
+DISCORD_CLIENT_ID=<discord client id>
+DISCORD_CLIENT_SECRET=<discord client secret>
 ```
 
 ### Running server or client seperately
@@ -47,7 +49,6 @@ apt install docker.io
 
 ### Install `docker-compose`
 https://docs.docker.com/compose/install/linux/#install-using-the-repository
-
 
 
 
@@ -82,6 +83,26 @@ Server: localhost:3000
 ### Clean docker containers
 `docker compose down`
 
+
+### View Postgres Database
+One way I recommend viewing local, staging, and prod databases is through an application called TablePlus. You need to specify your host/socket username, password, and database name, all which should be defined by your environment. The port should be `6543`, which should be defined as the public-facing postgres port in docker-compose.yml.
+
+## Helpful Droplet commands
+
+### Show logs for a container
+`docker logs [container-id] [--follow]`
+
+### This opens up an interactive PostgreSQL session in the prod/staging database
+`docker exec -it [container-id] psql -U postgres -d mydatabase`
+
+### List all tables in database
+`\dt`
+
+### Wipe database and reset###
+Initializes the database. DO NOT RUN THIS unless you want to wipe all data.
+This needs to be run if you want after changing the database schema at wipe-and-reset-database.sql
+`docker exec -i [container-id] psql -U postgres -d mydatabase -f /docker-entrypoint-initdb.d/init.sql`
+
 ## How CI/CD works in this project
 This repository has a `main` branch and a `dev` branch. They are configured to automatically build and deploy to production and staging servers, respectively. Server tests are automatically run during build, but Angular tests are disabled, though you can run Angular tests locally.
 
@@ -100,13 +121,6 @@ For production server: `docker compose -f docker-compose.production.yml logs`
 For staging server: `docker compose -f docker-compose.staging.yml logs`
 
 
-## Helpful Droplet commands
-
-### This opens up an interactive PostgreSQL session in the prod/staging database
-`docker exec -it [container-id] psql -U postgres -d mydatabase`
-
-List all tables with `\dt`
-
 
 ## Setting up production environment for CI/CD
 The current set up uses Github Actions and DigitalOcean. **This section should be irrelevant to you unless you are interested in hosting your own production deployment server.**
@@ -116,6 +130,8 @@ The current set up uses Github Actions and DigitalOcean. **This section should b
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=password
 POSTGRES_DB=mydatabase
+DISCORD_CLIENT_ID=<discord client id>
+DISCORD_CLIENT_SECRET=<discord client secret>
 DO_SSH_KEY=[private key]
 ```
 

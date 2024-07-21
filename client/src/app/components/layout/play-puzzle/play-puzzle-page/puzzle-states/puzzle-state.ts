@@ -38,7 +38,7 @@ export abstract class PuzzleState {
 
     const rawSubmission: SerializedPuzzleSubmission = {
       puzzleID: this.currentPuzzle!.id,
-      username: "",
+      userid: "",
       x1: submission.firstPiece?.getTranslateX() ?? undefined,
       y1: submission.firstPiece?.getTranslateY() ?? undefined,
       r1: submission.firstPiece?.getRotation() ?? undefined,

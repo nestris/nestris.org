@@ -3,7 +3,7 @@
 
         <div class="tab-left">
             <img class="icon" [src]="(badgeService.isBadgeActive$(tab) | async) ? getBadgeIcon(tab) : getIcon(tab)" width="20px">
-            <h1 class="label">{{ getDisplayName(tab) }}</h1>
+            <h1 class="label" [class.orange]="orange">{{ getDisplayName(tab) }}</h1>
         </div>
 
         <div class="tab-right">

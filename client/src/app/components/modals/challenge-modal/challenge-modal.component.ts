@@ -8,7 +8,8 @@ import { WebsocketService } from 'src/app/services/websocket.service';
 import { Challenge } from 'src/app/shared/models/challenge';
 
 export interface ChallengeModalConfig {
-  opponent: string; // username
+  opponentid: string;
+  opponentUsername: string;
 }
 
 @Component({
@@ -32,15 +33,18 @@ export class ChallengeModalComponent {
 
   async challenge() {
 
+    const userID = this.websocketService.getUserID();
     const username = this.websocketService.getUsername();
     const sessionID = this.websocketService.getSessionID();
-    if (!username || !sessionID) return; // if not logged in, do nothing
+    if (!userID || !username || !sessionID) return; // if not logged in, do nothing
 
     // set challenge parameters
     const challenge: Challenge = {
-      sender: username,
+      senderid: userID,
+      senderUsername: username,
       senderSessionID: sessionID,
-      receiver: this.config.opponent,
+      receiverid: this.config.opponentid,
+      receiverUsername: this.config.opponentUsername,
       startLevel: 18,
       rated: false,
     }
