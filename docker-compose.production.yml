@@ -40,7 +40,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
       - ./wipe-and-reset-database.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
-      - "6543:5432"
+      - "7654:5432"
 
 volumes:
   postgres-data:
