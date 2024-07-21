@@ -13,7 +13,8 @@ export class LoginPageComponent {
     let baseURL = window.location.origin;
     // remove port number if it exists
     if (baseURL.split(":").length > 1) baseURL = baseURL.slice(0, baseURL.lastIndexOf(":"));
-    const redirectUri = encodeURIComponent(baseURL + '/api/v2/callback');
+    // const redirectUri = encodeURIComponent(baseURL + '/api/v2/callback');
+    const redirectUri = encodeURIComponent(window.location.origin + '/api/v2/callback');
 
     // Redirect to discord login page. Hard refresh to avoid CORS issues
     location.href = `api/v2/login?redirectUri=${redirectUri}`;
