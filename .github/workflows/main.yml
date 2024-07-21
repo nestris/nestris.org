@@ -75,8 +75,8 @@ jobs:
             export POSTGRES_DB=${POSTGRES_DB}
             export DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
             export DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
-            docker compose -f docker-compose.${NODE_ENV}.yml pull
-            docker compose -f docker-compose.${NODE_ENV}.yml up -d
+            docker compose -p ${NODE_ENV} -f docker-compose.${NODE_ENV}.yml pull
+            docker compose -p ${NODE_ENV} -f docker-compose.${NODE_ENV}.yml up -d
 
           EOF
 
