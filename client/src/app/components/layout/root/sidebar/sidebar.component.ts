@@ -4,9 +4,11 @@ import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.com
 import { TabID } from 'src/app/models/tabs';
 import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
+import { ServerStatsService } from 'src/app/services/server-stats.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { DBUser, PermissionLevel } from 'src/app/shared/models/db-user';
 import { OnlineUserStatus } from 'src/app/shared/models/friends';
+import { DeploymentEnvironment } from 'src/app/shared/models/server-stats';
 import { JsonMessageType } from 'src/app/shared/network/json-message';
 
 
@@ -27,9 +29,12 @@ export class SidebarComponent implements OnInit, OnDestroy {
   private subscriptionA: any;
   private subscriptionB: any;
 
+  readonly DeploymentEnvironment = DeploymentEnvironment;
+
   constructor(
     public websocketService: WebsocketService,
-    public modalService: ModalManagerService
+    public modalService: ModalManagerService,
+    public serverStats: ServerStatsService,
   ) {}
 
   async ngOnInit() {

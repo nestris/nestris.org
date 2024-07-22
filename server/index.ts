@@ -22,6 +22,7 @@ import { createUser, queryUserByUserID } from './src/database/user-queries';
 import { getUserID, getUsername, handleLogout, requireAdmin, requireAuth, requireTrusted, UserSession } from './src/util/auth-util';
 import { DBUser, PermissionLevel } from './shared/models/db-user';
 import { getPuzzleAggregate } from './src/puzzle-generation/manage-puzzles';
+import { DeploymentEnvironment, ServerStats } from './shared/models/server-stats';
 
 // Load environment variables
 require('dotenv').config();
@@ -50,11 +51,12 @@ async function main() {
   // initialize OCR digits
   await initOCRDigits();
 
+  const NODE_ENV = process.env.NODE_ENV!;
   const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID!;
   const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET!;
   const DISCORD_API_URL = 'https://discord.com/api';
 
-  console.log(DISCORD_CLIENT_SECRET);
+  console.log(`Starting ${NODE_ENV} server`);
 
   app.use(session({
     secret: DISCORD_CLIENT_SECRET,
@@ -250,6 +252,13 @@ async function main() {
 
   app.get('/api/v2/ocr-digits', (req: Request, res: Response) => {
       res.status(200).send(getOCRDigits());
+  });
+
+  app.get('/api/v2/server-stats', (req: Request, res: Response) => {
+    const stats: ServerStats = {
+      environment: NODE_ENV as DeploymentEnvironment,
+    }
+    res.status(200).send(stats);
   });
 
   // catch all invalid api routes

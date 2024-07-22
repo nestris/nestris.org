@@ -79,6 +79,14 @@
     display: none;
 }
 
+.environment {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 @media only screen and (max-width: 1000px) {
     .sidebar {
        width: 60px;
@@ -102,6 +110,10 @@
     }
 
     .login-button.big {
+        display: none;
+    }
+
+    .environment {
         display: none;
     }
 }

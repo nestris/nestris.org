@@ -22,6 +22,11 @@
         <app-sidebar-tab [tab]="TabID.LEADERBOARD"/>
     </div>
     <div class="sidebar-bottom">
+        <ng-container *ngIf="(serverStats.getServerStats$() | async) as stats">
+            <div *ngIf="stats.environment !== DeploymentEnvironment.PRODUCTION" class="environment">
+                <p>{{stats.environment}}</p>
+            </div>
+        </ng-container>
         <app-sign-out *ngIf="(websocketService.onSignInUpdate() | async)" />
     </div>
     
