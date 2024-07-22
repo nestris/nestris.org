@@ -51,6 +51,8 @@ export class RoomPageComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
 
+    console.log("session:", this.websocket.getSessionID());
+
     // get room info from roomID
     this.route.queryParams.subscribe(async params => {
       const roomID = params['id'];
@@ -75,6 +77,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
         room: roomInfo,
         role: this.getRole(roomInfo)
       });
+      console.log('my role:', this.client$.getValue()!.role);
 
       // start listening for packets from the server
       this.packetSubscription = this.websocket.onPacketGroup().subscribe(packetGroup => {
@@ -91,9 +94,11 @@ export class RoomPageComponent implements OnInit, OnDestroy {
         this.platform.startPolling();
 
         // request recovery packets from other players through the server
+        console.log('Is player, requesting recovery packets');
         this.websocket.sendJsonMessage(new RequestRecoveryPacketMessage());
       } else {
         // user is a spectator. request to be added to the websocket room
+        console.log('Is spectator, requesting to spectate room');
         this.websocket.sendJsonMessage(new StartSpectateRoomMessage(roomID));
       }
 
