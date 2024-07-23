@@ -39,6 +39,8 @@ export class WebsocketService {
 
   private hasSignedInBefore = false;
 
+  private isGuest = false;
+
   constructor(
     private notificationService: NotificationService,
     private router: Router
@@ -85,6 +87,29 @@ export class WebsocketService {
         this.notificationService.notify(NotificationType.ERROR, "You are now signed out");
       }
     });
+  }
+
+  // Call this function to login with discord
+  login() {
+
+    // After discord login, redirect to this callback URL in the server to process the code
+    let baseURL = window.location.origin;
+    // remove port number if it exists
+    if (baseURL.split(":").length > 1) baseURL = baseURL.slice(0, baseURL.lastIndexOf(":"));
+    // const redirectUri = encodeURIComponent(baseURL + '/api/v2/callback');
+    const redirectUri = encodeURIComponent(window.location.origin + '/api/v2/callback');
+
+    // Redirect to discord login page. Hard refresh to avoid CORS issues
+    location.href = `api/v2/login?redirectUri=${redirectUri}`;
+  }
+
+  setGuestUser() {
+    this.isGuest = true;
+    this.router.navigate(['/play']);
+  }
+
+  isGuestUser() {
+    return this.isGuest;
   }
 
   // observable emits true when signed in, false when signed out
@@ -235,6 +260,10 @@ export class WebsocketService {
   // called to disconnect from server. this will trigger the onclose event
   // and thus sign out the user
   async logout() {
+
+    if (!this.isSignedIn()) {
+      return;
+    }
 
     this.notificationService.notify(NotificationType.ERROR, "Logging out..");
 
