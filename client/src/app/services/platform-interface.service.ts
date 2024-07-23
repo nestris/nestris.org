@@ -5,6 +5,8 @@ import { PacketAssembler } from '../shared/network/stream-packets/packet-assembl
 import { TetrisBoard } from '../shared/tetris/tetris-board';
 import { TetrominoType } from '../shared/tetris/tetromino-type';
 import { WebsocketService } from './websocket.service';
+import { NotificationService } from './notification.service';
+import { NotificationType } from '../shared/models/notifications';
 
 
 export enum Platform {
@@ -67,6 +69,7 @@ export class PlatformInterfaceService {
 
   constructor(
     private websocket: WebsocketService,
+    private notificationService: NotificationService
   ) {
 
     // every second, send all accumulated data to the server
@@ -95,6 +98,12 @@ export class PlatformInterfaceService {
   }
 
   setPlatform(platform: Platform) {
+
+    if (platform === Platform.OCR && !(this.websocket.isSignedIn())) {
+      this.notificationService.notify(NotificationType.ERROR, "You must be signed in to use the OCR platform.");
+      return;
+    }
+
     this.platform$.next(platform);
   }
 

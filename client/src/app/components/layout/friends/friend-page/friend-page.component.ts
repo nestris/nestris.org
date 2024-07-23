@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { FriendsService } from 'src/app/services/friends.service';
+import { WebsocketService } from 'src/app/services/websocket.service';
 
 
 @Component({
@@ -18,7 +19,8 @@ export class FriendPageComponent {
 
 
   constructor(
-    public friendsService: FriendsService
+    public friendsService: FriendsService,
+    public websocketService: WebsocketService
   ) {
 
   }
@@ -29,6 +31,11 @@ export class FriendPageComponent {
 
   // opens the friend modal when the user clicks on the friend button
   toggleFriendModal(event: MouseEvent) {
+
+    if (!this.websocketService.isSignedIn()) {
+      return;
+    }
+
     this.friendModalVisibility$.next(!this.friendModalVisibility$.getValue());
     event.stopPropagation(); // prevent the same click from closing the modal
   }
