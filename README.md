@@ -158,6 +158,6 @@ https://docs.docker.com/compose/install/linux/#install-using-the-repository
 
 ### Clone repository
 ```
-git clone https://github.com/AnselChang/docker-angular-ts-node-postgres-websocket-template.git
-cd docker-angular-ts-node-postgres-websocket-template
+git clone https://github.com/netris/nestris.org.git
+cd nestris.org
 ```
