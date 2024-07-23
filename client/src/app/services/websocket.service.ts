@@ -45,6 +45,8 @@ export class WebsocketService {
     private notificationService: NotificationService,
     private router: Router
   ) {
+
+    this.sessionID = uuid();
     
     // Check if logged in. If not, direct to login page
     fetchServer2<DBUser>(Method.GET, '/api/v2/me').then((response) => {
@@ -226,7 +228,6 @@ export class WebsocketService {
       console.error('Cannot connect when already signed in');
       return;
     }
-    this.sessionID = uuid();
 
     const host = `ws://${location.host}/ws`;
     console.log("Connecting:", host);
