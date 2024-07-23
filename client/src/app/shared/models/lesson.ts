@@ -1,8 +1,12 @@
+import { Difficulty } from "./difficulty";
+
 export interface LessonHeader {
+  filename: string,
   title: string,
   subtitle: string,
   author: string,
   difficulty: Difficulty,
+  views?: number,
 }
 
 export interface Lesson extends LessonHeader {
@@ -20,13 +24,6 @@ export interface Section {
   mode: string; // If parsing `@MOVE O-90=CORRECT`, mode is `MOVE`
   variant: string | null; // If parsing `@MOVE O-90=CORRECT`, variant is `O-90=CORRECT`
   text: string[]; // text content of the section. Each element is a paragraph
-}
-
-export enum Difficulty {
-  CORE = "CORE",
-  NOVICE = "NOVICE",
-  INTERMEDIATE = "INTERMEDIATE",
-  ADVANCED = "ADVANCED",
 }
 
 enum HeaderType {
@@ -57,7 +54,8 @@ function parseHeaderLine(expectedHeaderType: HeaderType, line: string | undefine
 
   const value = line.slice(firstWord.length).trim();
 
-  if (MAX_HEADER_CHARS[expectedHeaderType] && value.length > MAX_HEADER_CHARS[expectedHeaderType]) {
+  const maxChars = MAX_HEADER_CHARS[expectedHeaderType];
+  if (maxChars && value.length > maxChars) {
     throw new Error(`${expectedHeaderType} too long, max ${MAX_HEADER_CHARS[expectedHeaderType]} characters`);
   }
 
@@ -65,7 +63,7 @@ function parseHeaderLine(expectedHeaderType: HeaderType, line: string | undefine
   return line.slice(firstWord.length).trim();
 }
 
-function _parseLessonHeader(lines: string[]): LessonHeader {
+function _parseLessonHeader(filename: string, lines: string[]): LessonHeader {
   const title = parseHeaderLine(HeaderType.TITLE, lines.shift());
   const subtitle = parseHeaderLine(HeaderType.SUBTITLE, lines.shift());
   const author = parseHeaderLine(HeaderType.AUTHOR, lines.shift());
@@ -75,21 +73,21 @@ function _parseLessonHeader(lines: string[]): LessonHeader {
     throw new Error("Invalid difficulty");
   }
 
-  return { title, subtitle, author, difficulty: difficulty as Difficulty };
+  return {filename, title, subtitle, author, difficulty: difficulty as Difficulty };
 }
 
 // Get just the header of a lesson from its markdown file
-export function parseLessonHeader(file: string): LessonHeader {
+export function parseLessonHeader(filename: string, file: string): LessonHeader {
   const lines = file.split("\n");
-  return _parseLessonHeader(lines);
+  return _parseLessonHeader(filename, lines);
 }
 
 // Parse a markdown file into a full lesson based on markdown rules
-export function parseMarkdown(file: string): Lesson {
+export function parseMarkdown(filename: string, file: string): Lesson {
   const lines = file.split("\n");
   const pages: Page[] = [];
 
-  const header = _parseLessonHeader(lines);
+  const header = _parseLessonHeader(filename, lines);
   
   let currentPage: Page | null = null;
   let currentSection: Section | null = null;

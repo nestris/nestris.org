@@ -14,7 +14,7 @@ test('Test all lessons for valid markdown', () => {
 
   fs.readdirSync(lessonFolder).forEach(filename => {
     const file = bufferFile('../' + lessonFolder + filename).toString();
-    expect(parseMarkdown(file)).toBeDefined();
+    expect(parseMarkdown(filename, file)).toBeDefined();
   });
 
   // Make sure this doesn't throw an error

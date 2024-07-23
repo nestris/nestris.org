@@ -1,1 +1,4 @@
-<p>dashboard works!</p>
+<h2>Prepared for you</h2>
+<div class="lessons">
+    <app-lesson-card *ngFor="let lesson of (lessons$ | async)" [lesson]="lesson"></app-lesson-card>
+</div>

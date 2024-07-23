@@ -74,6 +74,7 @@ import { NotOnWhitelistPageComponent } from './component/layout/not-on-whitelist
 import { ControlPanelPageComponent } from './components/layout/control-panel/control-panel-page/control-panel-page.component';
 import { SettingsPageComponent } from './components/layout/settings/settings-page/settings-page.component';
 import { ProgressBarComponent } from './components/layout/learn/progress-bar/progress-bar.component';
+import { LessonCardComponent } from './components/layout/learn/lesson-card/lesson-card.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -187,6 +188,7 @@ const customNotifierOptions: NotifierOptions = {
     ControlPanelPageComponent,
     SettingsPageComponent,
     ProgressBarComponent,
+    LessonCardComponent,
   ],
   imports: [
     BrowserModule,

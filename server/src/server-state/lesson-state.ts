@@ -18,7 +18,7 @@ export class LessonState {
 
     fs.readdirSync(lessonFolder).forEach(filename => {
       const file = this.bufferFile(this.relativeLessonPath + filename).toString();
-      const fileHeader = parseLessonHeader(file);
+      const fileHeader = parseLessonHeader(filename, file);
       this.allLessonHeaders[filename] = fileHeader;
     });
 
@@ -33,8 +33,12 @@ export class LessonState {
     return this.allLessonHeaders;
   }
 
-  getLessonByFilename(filename: string): Lesson {
-    const file = this.bufferFile(this.relativeLessonPath + filename).toString();
-    return parseMarkdown(file);
+  getLessonByFilename(filename: string): Lesson | null {
+    try {
+      const file = this.bufferFile(this.relativeLessonPath + filename).toString();
+      return parseMarkdown(filename, file);
+    } catch (e) {
+      throw new Error(`Lesson ${filename} not found`);
+    }
   }
 }

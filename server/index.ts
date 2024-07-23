@@ -259,8 +259,12 @@ async function main() {
   });
 
   app.get('/api/v2/lesson/:filename', (req: Request, res: Response) => {
-    const lessonID = req.params['filename'];
-    res.status(200).send(state.lessonState.getLessonByFilename(lessonID));
+    try {
+      const lessonID = req.params['filename'];
+      res.status(200).send(state.lessonState.getLessonByFilename(lessonID));
+    } catch (e: any) {
+      res.status(404).send({error: e.message});
+    }
   });
 
   app.get('/api/v2/server-stats', (req: Request, res: Response) => {
