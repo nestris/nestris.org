@@ -67,7 +67,7 @@ https://docs.docker.com/compose/install/linux/#install-using-the-repository
 
 ## Run Application Locally
 
-### Run docker containers in dev mode with live reload
+### ~~Run docker containers in dev mode with live reload~~ NOT WORKING RIGHT NOW
 `docker compose -f docker-compose.dev.yml up --build`
 
 Then, you can open it in the browser
