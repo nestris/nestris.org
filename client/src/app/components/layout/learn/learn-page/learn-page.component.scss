@@ -20,7 +20,17 @@
     align-items: center;
     gap: 10px;
     
+    width: fit-content;
     margin-bottom: 20px;
+}
+
+.title:hover {
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.title:active {
+    opacity: 0.5;
 }
 
 h1 {

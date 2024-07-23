@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-learn-page',
@@ -6,5 +7,13 @@ import { Component } from '@angular/core';
   styleUrls: ['./learn-page.component.scss']
 })
 export class LearnPageComponent {
+
+  constructor(
+    private router: Router
+  ) { }
+
+  routeToDashboard() {
+    this.router.navigate(['/learn']);
+  }
 
 }
