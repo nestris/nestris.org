@@ -1,4 +1,7 @@
-Avoid the longbar dependency
+TITLE Avoid the longbar dependency
+SUBTITLE In this lesson series with world champion fractal161, learn how to create accommodating stacks that aren't dependent on longbars.
+AUTHOR fractal191
+DIFFICULTY CORE
 
 PAGE text
 

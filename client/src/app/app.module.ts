@@ -73,6 +73,7 @@ import { WelcomePageComponent } from './components/layout/welcome/welcome-page/w
 import { NotOnWhitelistPageComponent } from './component/layout/not-on-whitelist/not-on-whitelist-page/not-on-whitelist-page.component';
 import { ControlPanelPageComponent } from './components/layout/control-panel/control-panel-page/control-panel-page.component';
 import { SettingsPageComponent } from './components/layout/settings/settings-page/settings-page.component';
+import { ProgressBarComponent } from './components/layout/learn/progress-bar/progress-bar.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -185,6 +186,7 @@ const customNotifierOptions: NotifierOptions = {
     NotOnWhitelistPageComponent,
     ControlPanelPageComponent,
     SettingsPageComponent,
+    ProgressBarComponent,
   ],
   imports: [
     BrowserModule,

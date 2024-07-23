@@ -1,5 +1,11 @@
-export interface Lesson {
+export interface LessonHeader {
   title: string,
+  subtitle: string,
+  author: string,
+  difficulty: Difficulty,
+}
+
+export interface Lesson extends LessonHeader {
   pages: ValidPage[],
 }
 
@@ -16,13 +22,74 @@ export interface Section {
   text: string[]; // text content of the section. Each element is a paragraph
 }
 
-// Parse a markdown file into sections
+export enum Difficulty {
+  CORE = "CORE",
+  NOVICE = "NOVICE",
+  INTERMEDIATE = "INTERMEDIATE",
+  ADVANCED = "ADVANCED",
+}
+
+enum HeaderType {
+  TITLE = "TITLE",
+  SUBTITLE = "SUBTITLE",
+  AUTHOR = "AUTHOR",
+  DIFFICULTY = "DIFFICULTY",
+}
+
+// Optional max characters for each header type
+const MAX_HEADER_CHARS: { [key in HeaderType]?: number } = {
+  [HeaderType.TITLE]: 60,
+  [HeaderType.SUBTITLE]: 250,
+  [HeaderType.AUTHOR]: 20,
+}
+
+function parseHeaderLine(expectedHeaderType: HeaderType, line: string | undefined): string {
+
+  if (!line) {
+    throw new Error(`Expected ${expectedHeaderType} header, got nothing`);
+  }
+
+  // Get first word to check if it matches expected header type
+  const firstWord = line.split(" ")[0];
+  if (firstWord !== expectedHeaderType) {
+    throw new Error(`Expected ${expectedHeaderType} header, got ${firstWord}`);
+  }
+
+  const value = line.slice(firstWord.length).trim();
+
+  if (MAX_HEADER_CHARS[expectedHeaderType] && value.length > MAX_HEADER_CHARS[expectedHeaderType]) {
+    throw new Error(`${expectedHeaderType} too long, max ${MAX_HEADER_CHARS[expectedHeaderType]} characters`);
+  }
+
+  // Return the rest of the line
+  return line.slice(firstWord.length).trim();
+}
+
+function _parseLessonHeader(lines: string[]): LessonHeader {
+  const title = parseHeaderLine(HeaderType.TITLE, lines.shift());
+  const subtitle = parseHeaderLine(HeaderType.SUBTITLE, lines.shift());
+  const author = parseHeaderLine(HeaderType.AUTHOR, lines.shift());
+  const difficulty = parseHeaderLine(HeaderType.DIFFICULTY, lines.shift());
+
+  if (!Object.values(Difficulty).includes(difficulty as Difficulty)) {
+    throw new Error("Invalid difficulty");
+  }
+
+  return { title, subtitle, author, difficulty: difficulty as Difficulty };
+}
+
+// Get just the header of a lesson from its markdown file
+export function parseLessonHeader(file: string): LessonHeader {
+  const lines = file.split("\n");
+  return _parseLessonHeader(lines);
+}
+
+// Parse a markdown file into a full lesson based on markdown rules
 export function parseMarkdown(file: string): Lesson {
   const lines = file.split("\n");
   const pages: Page[] = [];
 
-  const title = lines.shift();
-  if (!title) throw new Error("Title must be defined in first line")
+  const header = _parseLessonHeader(lines);
   
   let currentPage: Page | null = null;
   let currentSection: Section | null = null;
@@ -112,7 +179,7 @@ export function parseMarkdown(file: string): Lesson {
   if (currentPage) pages.push(currentPage);
 
   return {
-    title: title,
+    ...header,
     pages: pages.map(parseValidPage)
   }
 }

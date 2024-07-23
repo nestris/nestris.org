@@ -254,6 +254,15 @@ async function main() {
       res.status(200).send(getOCRDigits());
   });
 
+  app.get('/api/v2/lesson', (req: Request, res: Response) => {
+    res.status(200).send(state.lessonState.getAllLessonHeaders());
+  });
+
+  app.get('/api/v2/lesson/:filename', (req: Request, res: Response) => {
+    const lessonID = req.params['filename'];
+    res.status(200).send(state.lessonState.getLessonByFilename(lessonID));
+  });
+
   app.get('/api/v2/server-stats', (req: Request, res: Response) => {
     const stats: ServerStats = {
       environment: NODE_ENV as DeploymentEnvironment,
