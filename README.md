@@ -1,7 +1,10 @@
 # nestris.org
 
+Production: http://138.197.82.78:80
+Staging: http://138.197.82.78:81
+
 # How to Contribute
-I'm grateful for every contribution to my passion project! Generally, the best way to contribute are to create Github tickets, then PR off of the dev branch into your own feature branch within the scope of the ticket. You can test locally using the instructions below, and make sure to write unit tests and run locally! Our integration testing involves merging into the dev branch to test on the staging server at http://138.197.82.78:81.
+I'm grateful for every contribution to my passion project! Generally, the best way to contribute are to create Github tickets, then PR off of the dev branch into your own feature branch within the scope of the ticket. You can test locally using the instructions below, and make sure to write unit tests and run locally! Our integration testing involves merging into the dev branch to test on the staging server, then merging into prod when everything is verified to be good to go.
 
 # For Developers
 https://www.nestris.org is a full-stack application written in Angular, NodeJS, and Postgres. It is containerized through Docker and uses Github Actions to deploy production and staging servers to a DigitalOcean Droplet.
