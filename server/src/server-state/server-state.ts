@@ -1,4 +1,5 @@
 import { ChallengeManager } from "./challenge-manager";
+import { LessonState } from "./lesson-state";
 import { OnlineUserManager } from "./online-user-manager";
 import { RoomManager } from "./room-manager";
 
@@ -11,5 +12,5 @@ export class ServerState {
     public readonly onlineUserManager = new OnlineUserManager(this);
     public readonly roomManager = new RoomManager(this);
     public readonly challengeManager = new ChallengeManager(this);
-
+    public readonly lessonState = new LessonState();
 }

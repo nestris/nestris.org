@@ -3,7 +3,7 @@
 
     <a routerLink="/online/puzzle"><div class="begin-button" [class.not-logged-in]="!(websocket.onSignInUpdate() | async)">
       <img src="./assets/img/puzzle-button-icons/play.svg" alt="Play" />
-      <p>{{(websocket.onSignInUpdate() | async) ? 'Begin' : 'Sign in to start playing!'}}</p>
+      <p>{{(websocket.onSignInUpdate() | async) ? 'Begin' : 'Login to start playing!'}}</p>
     </div></a>
 
     <div class="stat-row">

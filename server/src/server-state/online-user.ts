@@ -17,7 +17,7 @@ const SocketCloseExplanation: Map<SocketCloseCode, string> = new Map<SocketClose
     [SocketCloseCode.NORMAL, "User closed window or logged out normally."],
     [SocketCloseCode.ALREADY_LOGGED_IN, "User is already logged in; only one session can be active at a time."],
     [SocketCloseCode.NEW_USER_DUPLICATE_INFO, "User tried to create a new account with an existing username or email."],
-    [SocketCloseCode.EMAIL_MISMATCH, "User tried to log in with an incorrect email address."],
+    [SocketCloseCode.EMAIL_MISMATCH, "User tried to login with an incorrect email address."],
 ]);
 
 // events that OnlineUsers emit to subscribers

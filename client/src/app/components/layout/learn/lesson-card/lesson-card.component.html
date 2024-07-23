@@ -1,0 +1,22 @@
+<div class="lesson" [ngStyle]="{'border': '2px solid ' + getLessonColor()}">
+    <h1>{{lesson.title}}</h1>
+    <div class="tags">
+        <div class="difficulty" [ngStyle]="{'color': getLessonColor()}">{{getDifficulty()}}</div>
+    </div>
+    <div class="content">
+        <div class="content-left">
+            <p>{{lesson.subtitle}}</p>
+            <div class="buttons">
+                <app-solid-button label="Start" (click)="startLesson()"
+                [fontSize]="12" [paddingHorizontal]="10" [paddingVertical]="3" [borderRadius]="5" />
+                <app-solid-button [label]="(lesson.views ?? 0).toString()" icon="./assets/img/button-icons/eye.svg"
+                [color]="ButtonColor.GREY" [fontSize]="12" [paddingHorizontal]="10" [paddingVertical]="3" [borderRadius]="5"
+                [disableHover]="true" [iconHeight]="12" [noShadow]="true" />
+            </div>
+        </div>
+        <div class="content-right">
+            <app-nes-board [scale]="1" />
+        </div>
+        
+    </div>
+</div>

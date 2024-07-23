@@ -9,6 +9,8 @@ import { Role, RoomInfo, RoomMode, isPlayer } from 'src/app/shared/models/room-i
 import { RequestRecoveryPacketMessage, StartSpectateRoomMessage, StartSoloRoomMessage } from 'src/app/shared/network/json-message';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 import { ClientRoomState } from './room-state';
+import { NotificationService } from 'src/app/services/notification.service';
+import { NotificationType } from 'src/app/shared/models/notifications';
 
 export interface RoomClient {
   room: RoomInfo;
@@ -42,6 +44,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private cdr: ChangeDetectorRef,
+    private notificationService: NotificationService
   ) {
 
     // add 200ms to the batch period to account for network latency
@@ -50,6 +53,31 @@ export class RoomPageComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
+
+    console.log("session:", this.websocket.getSessionID());
+
+    // If not logged in, only thing user can do is play a solo game on the emulator
+    if (!this.websocket.isSignedIn()) {
+      this.notificationService.notify(NotificationType.WARNING, "You are not logged in. Progress will not be saved!");
+
+      this.client$.next({
+        room: {
+          roomID: '',
+          mode: RoomMode.SOLO,
+          players: [{
+            userid: '',
+            username: 'Guest',
+            sessionID: '',
+            role: Role.PLAYER_1
+          }]
+        },
+        role: Role.PLAYER_1
+      });
+
+      this.platform.setPlatform(Platform.ONLINE);
+      this.platform.startPolling();
+      return;
+    }
 
     // get room info from roomID
     this.route.queryParams.subscribe(async params => {
@@ -75,6 +103,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
         room: roomInfo,
         role: this.getRole(roomInfo)
       });
+      console.log('my role:', this.client$.getValue()!.role);
 
       // start listening for packets from the server
       this.packetSubscription = this.websocket.onPacketGroup().subscribe(packetGroup => {
@@ -91,9 +120,11 @@ export class RoomPageComponent implements OnInit, OnDestroy {
         this.platform.startPolling();
 
         // request recovery packets from other players through the server
+        console.log('Is player, requesting recovery packets');
         this.websocket.sendJsonMessage(new RequestRecoveryPacketMessage());
       } else {
         // user is a spectator. request to be added to the websocket room
+        console.log('Is spectator, requesting to spectate room');
         this.websocket.sendJsonMessage(new StartSpectateRoomMessage(roomID));
       }
 

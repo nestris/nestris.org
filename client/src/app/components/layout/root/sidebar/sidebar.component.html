@@ -5,7 +5,16 @@
         <!-- <h1 class="brand-name">nestris.org</h1> -->
 
 
-        <app-profile-tab  class="profile-tab"/>
+        <app-profile-tab  class="profile-tab" *ngIf="(websocketService.getUser$() | async)"/>
+
+        <div class="login-container" *ngIf="!(websocketService.getUser$() | async)">
+            <app-solid-button class="login-button big"
+            [stretch]="true"
+            [color]="ButtonColor.BLUE" label="Login" (click)="websocketService.login()" />
+            <app-solid-button class="login-button small"
+            [stretch]="true" [fontSize]="12"
+            [color]="ButtonColor.BLUE" label="Login" (click)="websocketService.login()" />
+        </div>
         
         <app-sidebar-tab [orange]="true" [tab]="TabID.CONTROL_PANEL" *ngIf="showControlPanel(websocketService.getUser$() | async)"/>
 
@@ -22,6 +31,11 @@
         <app-sidebar-tab [tab]="TabID.LEADERBOARD"/>
     </div>
     <div class="sidebar-bottom">
+        <ng-container *ngIf="(serverStats.getServerStats$() | async) as stats">
+            <div *ngIf="stats.environment !== DeploymentEnvironment.PRODUCTION" class="environment">
+                <p>{{stats.environment}}</p>
+            </div>
+        </ng-container>
         <app-sign-out *ngIf="(websocketService.onSignInUpdate() | async)" />
     </div>
     
