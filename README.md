@@ -1,8 +1,8 @@
 # nestris.org
 
-Production: http://138.197.82.78:80
+Production (main branch auto-deploy): http://138.197.82.78:80
 
-Staging: http://138.197.82.78:81
+Staging (dev branch auto-deploy): http://138.197.82.78:81
 
 # How to Contribute
 I'm grateful for every contribution to my passion project! Generally, the best way to contribute are to create Github tickets, then PR off of the dev branch into your own feature branch within the scope of the ticket. You can test locally using the instructions below, and make sure to write unit tests and run locally! Our integration testing involves merging into the dev branch to test on the staging server, then merging into prod when everything is verified to be good to go.
