@@ -3,7 +3,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { RandomRNG } from 'src/app/models/piece-sequence-generation/random-rng';
 import { BinaryEncoder } from 'src/app/shared/network/binary-codec';
 import { JsonMessageType } from 'src/app/shared/network/json-message';
-import { GameRecoveryPacket, NonGameRecoveryPacket, GameStartPacket, GameCountdownPacket, GamePlacementPacket, GameAbbrBoardPacket, GameFullBoardPacket, GameEndPacket } from 'src/app/shared/network/stream-packets/packet';
+import { GameStartPacket, GameCountdownPacket, GamePlacementPacket, GameAbbrBoardPacket, GameFullBoardPacket, GameEndPacket } from 'src/app/shared/network/stream-packets/packet';
 import { FpsTracker } from 'src/app/shared/scripts/fps-tracker';
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
@@ -70,54 +70,6 @@ export class EmulatorService {
       }
     });
 
-    // when server requests a recovery packet, generate one and queue it
-    // it is usually requested because a player has joined the room and needs a recovery packet
-    // to get up to speed with the current game state
-    websocket.onEvent(JsonMessageType.REQUEST_RECOVERY_PACKET).subscribe((event) => {
-
-      // ignore if emulator is not the selected platform
-      if (this.platform.getPlatform() !== Platform.ONLINE) return;
-
-      // get a snapshot of current game state and send as FullRecoveryPacket      
-      this.sendRecoveryPacket();
-    });
-  }
-
-  sendRecoveryPacket() {
-
-    console.log("requested from server, sending recovery packet");
-
-    this.platform.sendPacket(
-      this.currentState ? this.getGameRecoveryData(this.currentState) : this.getNonGameRecoveryData(),
-      true // send this packet immediately to minimize latency for the other players in the room
-    )
-  }
-
-  getGameRecoveryData(state: EmulatorGameState): BinaryEncoder {
-    const status = state.getStatus();
-
-    return new GameRecoveryPacket().toBinaryEncoder({
-      delta: this.timeDelta.getDelta(),
-      startLevel: state.startLevel,
-      current: state.getCurrentPieceType(),
-      next: state.getNextPieceType(),
-      isolatedBoard: state.getIsolatedBoard(),
-      score: status.score,
-      lines: status.lines,
-      level: status.level,
-      countdown: state.getCountdown() ?? 0,
-    });
-  }
-
-  getNonGameRecoveryData(): BinaryEncoder {
-    return new NonGameRecoveryPacket().toBinaryEncoder({
-      delta: this.timeDelta.getDelta(),
-      board: new TetrisBoard(),
-      next: TetrominoType.ERROR_TYPE,
-      level: 18,
-      lines: 0,
-      score: 0
-    });
   }
 
   tick() {

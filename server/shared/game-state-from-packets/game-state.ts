@@ -28,7 +28,14 @@ export class GameState {
     this.countdown = undefined;
   }
 
+  static fromRecovery(recovery: GameRecoverySchema): GameState {
+    const state = new GameState(recovery.startLevel, recovery.current, recovery.next);
+    state.onRecovery(recovery);
+    return state;
+  }
+
   generateRecoveryPacket(): GameRecoverySchema {
+
     return {
       startLevel: this.status.startLevel,
       lines: this.status.lines,
@@ -37,10 +44,10 @@ export class GameState {
       isolatedBoard: this.isolatedBoard,
       current: this.current,
       next: this.next,
-      countdown: 0 // no countdown included in recovery packet
-    }
-  }
+      countdown: 0, // countdown is not saved in recovery
+    };
 
+  }
   
   getStatus(): SmartGameStatus {
     return this.status;

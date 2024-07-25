@@ -28,6 +28,26 @@ export class GameState {
     this.countdown = undefined;
   }
 
+  static fromRecovery(recovery: GameRecoverySchema): GameState {
+    const state = new GameState(recovery.startLevel, recovery.current, recovery.next);
+    state.onRecovery(recovery);
+    return state;
+  }
+
+  generateRecoveryPacket(): GameRecoverySchema {
+
+    return {
+      startLevel: this.status.startLevel,
+      lines: this.status.lines,
+      score: this.status.score,
+      level: this.status.level,
+      isolatedBoard: this.isolatedBoard,
+      current: this.current,
+      next: this.next,
+      countdown: 0, // countdown is not saved in recovery
+    };
+
+  }
   
   getStatus(): SmartGameStatus {
     return this.status;
@@ -80,7 +100,9 @@ export class GameState {
   // called whenever a new piece is placed on the board. Updates board and counters
   // nextNextPiece is the piece in the next box after the piece is placed and the new piece spawns
   // pushdown is the number of pushdown points scored with this placement
-  onPlacement(placement: MoveableTetromino, nextNextPiece: TetrominoType, pushdown: number = 0) {
+  onPlacement(mtPose: MTPose, nextNextPiece: TetrominoType, pushdown: number = 0) {
+
+    const placement = MoveableTetromino.fromMTPose(this.current, mtPose);
 
     // assert that placement is valid
     if (!placement.isValidPlacement(this.isolatedBoard)) {

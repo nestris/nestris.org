@@ -1,7 +1,6 @@
 import { Challenge } from "../../shared/models/challenge";
 import { OnlineUserStatus } from "../../shared/models/friends";
 import { Role, RoomMode } from "../../shared/models/room-info";
-import { RequestRecoveryPacketMessage } from "../../shared/network/json-message";
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
 import { OnlineUser, UserSession } from "./online-user";
 import { Room, RoomUser } from "./room";
@@ -118,9 +117,6 @@ export class RoomManager {
     if (!room) throw new Error(`Room ${roomID} not found`);
 
     const newUser = room.addUser(session, Role.SPECTATOR);
-
-    // request all other players to send FullRecovery packet to initialize new player
-    room.sendJsonMessageToAllUsersExcept(newUser, new RequestRecoveryPacketMessage());
   }
 
   // forward binary message to the correct room

@@ -17,9 +17,9 @@ export enum PacketOpcode {
 
 // map of opcode to packet name
 export const PACKET_NAME: {[key in PacketOpcode]: string} = {
+  [PacketOpcode.LAST_PACKET_OPCODE]: "LAST_PACKET_OPCODE",
   [PacketOpcode.GAME_START]: "GAME_START",
   [PacketOpcode.GAME_END]: "GAME_END",
-  [PacketOpcode.LAST_PACKET_OPCODE]: "LAST_PACKET_OPCODE",
   [PacketOpcode.GAME_PLACEMENT]: "GAME_PLACEMENT",
   [PacketOpcode.GAME_FULL_BOARD]: "GAME_FULL_BOARD",
   [PacketOpcode.GAME_ABBR_BOARD]: "GAME_ABBR_BOARD",
@@ -27,6 +27,17 @@ export const PACKET_NAME: {[key in PacketOpcode]: string} = {
   [PacketOpcode.GAME_COUNTDOWN]: "GAME_COUNTDOWN",
 };
 
+
+// packets to be included in the database. All else are ignored.
+// We do not include GAME_FULL_BOARD placements because they are sent every frame, and are too expensive to store
+const DATABASE_PACKETS = new Set([
+  PacketOpcode.GAME_START,
+  PacketOpcode.GAME_PLACEMENT
+]);
+
+export function isDatabasePacket(opcode: PacketOpcode): boolean {
+  return DATABASE_PACKETS.has(opcode);
+}
 
 export interface PacketSchema {}
 

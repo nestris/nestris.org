@@ -2,7 +2,6 @@
 
 import { ChangeDetectorRef } from "@angular/core";
 import { GameState } from "src/app/shared/game-state-from-packets/game-state";
-import { GameStateFromPackets } from "src/app/shared/game-state-from-packets/game-state-from-packets";
 import { PacketContent, PACKET_NAME, PacketOpcode, GameStartPacket, GameStartSchema, GameRecoverySchema, GamePlacementSchema, GameFullBoardSchema, GameAbbrBoardSchema } from "src/app/shared/network/stream-packets/packet";
 import MoveableTetromino from "src/app/shared/tetris/moveable-tetromino";
 import { PacketReplayer } from "src/app/util/packet-replayer";
@@ -62,7 +61,7 @@ export class ClientRoomState {
     } else if (packet.opcode === PacketOpcode.GAME_PLACEMENT) {
       const placement = (packet.content as GamePlacementSchema);
       const activePiece = MoveableTetromino.fromMTPose(game!.getCurrentType(), placement.mtPose);
-      game!.onPlacement(activePiece, placement.nextNextType);
+      game!.onPlacement(activePiece.getMTPose(), placement.nextNextType);
     } else if (packet.opcode === PacketOpcode.GAME_COUNTDOWN) {
       game!.setCountdown(packet.content as number);
     } else if (packet.opcode === PacketOpcode.GAME_FULL_BOARD) {

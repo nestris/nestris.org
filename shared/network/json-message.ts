@@ -18,7 +18,6 @@ export enum JsonMessageType {
     UPDATE_ONLINE_FRIENDS = 'update_online_friends', // refreshes friends page
     START_SOLO_ROOM = 'start_solo_room',
     START_SPECTATE_ROOM = 'start_spectate_room',
-    REQUEST_RECOVERY_PACKET = 'request_recovery_packet', // sent from server to client to request FullRecovery packet
     GO_TO_ROOM = 'go_to_room', // sent from server to client to navigate to a room
     MULTIPLAYER_ROOM_UPDATE = 'multiplayer_room_update', // sent from server to client to update the multiplayer room
 }
@@ -124,12 +123,6 @@ export class StartSpectateRoomMessage extends JsonMessage {
     }
 }
 
-// sent from server to client to request a FullRecovery packet
-export class RequestRecoveryPacketMessage extends JsonMessage {
-    constructor() {
-        super(JsonMessageType.REQUEST_RECOVERY_PACKET)
-    }
-}
 
 // sent from server to client to navigate to a room
 export class GoToRoomMessage extends JsonMessage {
