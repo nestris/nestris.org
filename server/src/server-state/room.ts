@@ -68,6 +68,7 @@ export class RoomUser {
 export class Room {
 
   private players: RoomUser[] = [];
+  private spectators: RoomUser[] = [];
   public readonly roomID: string;
   public readonly mode: RoomMode;
 
@@ -88,10 +89,15 @@ export class Room {
 
     console.log(`User ${session.user.username} joined room ${this.roomID}`);
 
-    const newUser = new RoomUser(this, session, role)
-    this.players.push(newUser);
+    const newUser = new RoomUser(this, session, role);
+    if (isPlayer(role)) this.players.push(newUser);
+    else this.spectators.push(newUser);
 
     return newUser;
+  }
+
+  get allRoomUsers(): RoomUser[] {
+    return this.players.concat(this.spectators);
   }
 
   // remove a user from the room. returns true if the room is now empty and should be deleted
@@ -106,21 +112,22 @@ export class Room {
 
     // remove the user from the room
     this.players = this.players.filter(player => player !== roomUser);
+    this.spectators = this.spectators.filter(spectator => spectator !== roomUser);
 
     // return true if the room is now empty
-    return this.players.length === 0;
+    return this.allRoomUsers.length === 0;
   }
 
   getUserBySocket(socket: WebSocket): RoomUser | undefined {
-    return this.players.find(player => player.session.socket === socket);
+    return this.allRoomUsers.find(player => player.session.socket === socket);
   }
 
   getUserByUserID(userid: string): RoomUser | undefined {
-    return this.players.find(player => player.session.user.userid === userid);
+    return this.allRoomUsers.find(player => player.session.user.userid === userid);
   }
 
   getUserBySessionID(sessionID: string): RoomUser | undefined {
-    return this.players.find(player => player.session.user.sessionID === sessionID);
+    return this.allRoomUsers.find(player => player.session.user.sessionID === sessionID);
   }
 
   async onBinaryMessage(roomUser: RoomUser, packets: PacketDisassembler) {
@@ -184,15 +191,15 @@ export class Room {
   // send a binary message to all players in the room, except the specified user
   // useful for broadcasting game state updates
   sendBinaryMessageToAllPlayersExcept(roomUser: RoomUser, encoder: BinaryEncoder) {
-    this.players.filter(player => player !== roomUser).forEach(player => player.sendBinaryMessage(encoder.convertToUInt8Array()));
+    this.allRoomUsers.filter(player => player !== roomUser).forEach(player => player.sendBinaryMessage(encoder.convertToUInt8Array()));
   }
 
   sendJsonMessageToAllPlayersExcept(roomUser: RoomUser, message: JsonMessage) {
-    this.players.filter(player => player !== roomUser).forEach(player => player.sendJsonMessage(message));
+    this.allRoomUsers.filter(player => player !== roomUser).forEach(player => player.sendJsonMessage(message));
   }
 
   sendJsonMessageToAllPlayers(message: JsonMessage) {
-    this.players.forEach(player => player.sendJsonMessage(message));
+    this.allRoomUsers.forEach(player => player.sendJsonMessage(message));
   }
 
   // get a serialized dict of the room info for sending to clients
