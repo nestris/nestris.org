@@ -6,7 +6,7 @@ import { EmulatorService } from 'src/app/services/emulator/emulator.service';
 import { Platform, PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { Role, RoomInfo, RoomMode, isPlayer } from 'src/app/shared/models/room-info';
-import { RequestRecoveryPacketMessage, StartSpectateRoomMessage, StartSoloRoomMessage } from 'src/app/shared/network/json-message';
+import { StartSpectateRoomMessage, StartSoloRoomMessage } from 'src/app/shared/network/json-message';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 import { ClientRoomState } from './room-state';
 import { NotificationService } from 'src/app/services/notification.service';
@@ -118,10 +118,6 @@ export class RoomPageComponent implements OnInit, OnDestroy {
       if (isPlayer(this.client$.getValue()!.role)) {
         // if client is a player in the room, start polling from ocr/emulator
         this.platform.startPolling();
-
-        // request recovery packets from other players through the server
-        console.log('Is player, requesting recovery packets');
-        this.websocket.sendJsonMessage(new RequestRecoveryPacketMessage());
       } else {
         // user is a spectator. request to be added to the websocket room
         console.log('Is spectator, requesting to spectate room');

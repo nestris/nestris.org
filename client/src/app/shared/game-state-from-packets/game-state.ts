@@ -28,6 +28,12 @@ export class GameState {
     this.countdown = undefined;
   }
 
+  static fromRecovery(recovery: GameRecoverySchema): GameState {
+    const state = new GameState(recovery.startLevel, recovery.current, recovery.next);
+    state.onRecovery(recovery);
+    return state;
+  }
+
   
   getStatus(): SmartGameStatus {
     return this.status;

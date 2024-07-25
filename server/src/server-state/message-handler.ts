@@ -53,5 +53,5 @@ export async function handleRequestRecoveryPacketMessage(state: ServerState, ses
     const roomUser = state.roomManager.getUserBySessionID(session.sessionID);
 
     // if the user is in a room, send the recovery request to all other players in the room
-    if (roomUser) roomUser.room.sendJsonMessageToAllPlayersExcept(roomUser, new RequestRecoveryPacketMessage());
+    if (roomUser) roomUser.room.sendJsonMessageToAllUsersExcept(roomUser, new RequestRecoveryPacketMessage());
 }

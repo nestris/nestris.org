@@ -17,11 +17,14 @@ but the room still tracks the game state and saves it to the database when the g
 import { v4 as uuid } from "uuid";
 import { RoomMode, isPlayer, RoomInfo, Role } from "../../shared/models/room-info";
 import { BinaryEncoder, BinaryDecoder } from "../../shared/network/binary-codec";
-import { JsonMessage } from "../../shared/network/json-message";
-import { PacketContent, PacketOpcode, isDatabasePacket, PACKET_NAME } from "../../shared/network/stream-packets/packet";
+import { JsonMessage, MultiplayerRoomUpdateMessage } from "../../shared/network/json-message";
+import { PacketContent, PacketOpcode, GamePlacementSchema, GameStartSchema, GameRecoveryPacket } from "../../shared/network/stream-packets/packet";
 import { PacketAssembler, MAX_PLAYERS_IN_ROOM, MAX_PLAYER_BITCOUNT } from "../../shared/network/stream-packets/packet-assembler";
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
 import { UserSession } from "./online-user";
+import { MultiplayerManager } from "./room-multiplayer-manager";
+import { MatchResult, MultiplayerRoomState, PlayerRole } from "../../shared/models/multiplayer";
+import { GameState } from "../../shared/game-state-from-packets/game-state";
 
 
 export class RoomUser {
@@ -29,11 +32,21 @@ export class RoomUser {
   // only used for players. stores the game state packets that the user has sent for the current game
   private gameBinaryData: PacketAssembler = new PacketAssembler();
 
+  // We keep track of the current game state for the user mainly for recovery purposes
+  private gameState?: GameState;
+
+  private readonly sessionsPacketsSentTo: Set<string> = new Set();
+
   constructor(
     public readonly room: Room,
     public readonly session: UserSession,
     public readonly role: Role,
-  ) {}
+  ) {
+    
+    // add the user's own session ID to the list of sessions that the user has sent packets to
+    // so that the user doesn't send packets to themselves
+    this.sessionsPacketsSentTo.add(session.user.sessionID);
+  }
 
   // send a binary message to the user (only the session in the room)
   sendBinaryMessage(stream: Uint8Array) {
@@ -47,20 +60,58 @@ export class RoomUser {
     this.session.socket.send(JSON.stringify(message));
   }
 
-  // add a packet to the game state cache
+
   addGamePacket(packet: PacketContent) {
+    // push packet content into ongoing binary game cache
     this.gameBinaryData.addPacketContent(packet.binary);
+
+    // Update the current game state. We only care about game start and game placement packets.
+    // Other packets are ignored, as they don't affect the game state
+    if (packet.opcode === PacketOpcode.GAME_START) {
+      console.log(`Player ${this.session.user.username} RoomUser received game start packet`);
+      const gameStart = (packet.content as GameStartSchema);
+      this.gameState = new GameState(gameStart.level, gameStart.current, gameStart.next);
+    } else if (packet.opcode === PacketOpcode.GAME_PLACEMENT) {
+      if (!this.gameState) throw new Error("Cannot add game placement packet without game start packet");
+      const gamePlacement = (packet.content as GamePlacementSchema);
+      this.gameState.onPlacement(gamePlacement.mtPose, gamePlacement.nextNextType, gamePlacement.pushdown);
+      console.log(`Player ${this.session.user.username} now has score: ${this.gameState.getStatus().score}`);
+    }
+  }
+
+  // clear the cache of game packets
+  resetGame() {
+    this.gameBinaryData = new PacketAssembler();
   }
 
   // clear the cache, and return the packets of the finished game
   popCachedGameBinaryData(): Uint8Array {
     const data = this.gameBinaryData.encode();
-    this.gameBinaryData = new PacketAssembler();
+    this.resetGame();
     return data;
   }
 
   isInGame(): boolean {
     return this.gameBinaryData.hasPackets();
+  }
+
+  getScore(): number | null {
+    return this.gameState?.getStatus().score ?? null;
+  }
+
+  getRecoveryPacket(): BinaryEncoder {
+    if (!this.gameState) throw new Error("Cannot get recovery packet without game state");
+
+    const recoverySchema = this.gameState.generateRecoveryPacket();
+    return new GameRecoveryPacket().toBinaryEncoder(recoverySchema);
+  }
+
+  addSessionPacketSentTo(sessionID: string) {
+    this.sessionsPacketsSentTo.add(sessionID);
+  }
+
+  hasSessionPacketSentTo(sessionID: string): boolean {
+    return this.sessionsPacketsSentTo.has(sessionID);
   }
 
 }
@@ -72,9 +123,28 @@ export class Room {
   public readonly roomID: string;
   public readonly mode: RoomMode;
 
+  private readonly multiplayer?: MultiplayerManager;
+
   constructor(mode: RoomMode) {
     this.roomID = uuid();
     this.mode = mode;
+
+    if (mode === RoomMode.MULTIPLAYER) {
+
+      const winningScore = 2; // TEMPORARY
+      const startLevels = [15, 18, 19]; // TEMPORARY
+      const isRanked = false; // TEMPORARY
+
+      this.multiplayer = new MultiplayerManager(
+        winningScore, startLevels, isRanked,
+        (state: MultiplayerRoomState, match: MatchResult) => {
+          // send the room state and match result to all players in the room
+          const message = new MultiplayerRoomUpdateMessage(this.roomID, state, match);
+          this.sendJsonMessageToAllUsers(message);
+          console.log("Sent multiplayer room update message", message);
+      });
+    }
+
   }
 
   addUser(session: UserSession, role: Role): RoomUser {
@@ -104,11 +174,8 @@ export class Room {
   async removeUser(roomUser: RoomUser): Promise<boolean> {
 
     // if user had a game in progress, save the game state to the database
-    if (roomUser.isInGame()) {
-      const gamePackets = roomUser.popCachedGameBinaryData();
-      console.log("User left, so ended game forcibly with", gamePackets.length, "packets");
-      await this.saveGameToDatabase(roomUser, gamePackets);
-    }
+    if (roomUser.isInGame()) await this.endGame(roomUser);
+    
 
     // remove the user from the room
     this.players = this.players.filter(player => player !== roomUser);
@@ -147,58 +214,107 @@ export class Room {
     const playerIndex = this.players.indexOf(roomUser);
     encoder.addUnsignedInteger(playerIndex, MAX_PLAYER_BITCOUNT);
 
+    // For any users that haven't recieved any packets from this player yet, send recovery packets to those users
+    if (roomUser.isInGame()) {
+
+      const recoveryMessage = roomUser.getRecoveryPacket().convertToUInt8Array();
+
+      this.allRoomUsers.forEach(player => {
+        if (!player.hasSessionPacketSentTo(roomUser.session.user.sessionID)) {
+          console.log(`Player ${player.session.user.username} hasn't received packets from player ${roomUser.session.user.username}, sending recovery packet`);
+          player.sendBinaryMessage(recoveryMessage);
+        }
+      });
+    } else {
+      console.log(`Player ${roomUser.session.user.username} is not already in a game, not sending recovery packets`);
+    }
+    
     // resend the binary message to all players in the room, except the user
     encoder.addBinaryDecoder(BinaryDecoder.fromUInt8Array(packets.stream));
     console.log(`sending ${encoder.bitcount} bits to all players from player ${playerIndex}`);
-    this.sendBinaryMessageToAllPlayersExcept(roomUser, encoder);
+    this.sendBinaryMessageToAllUsersExcept(roomUser, encoder);
+
+    // save the session ID of the user that the packets were sent to
+    this.allRoomUsers.forEach(player => player.addSessionPacketSentTo(roomUser.session.user.sessionID));
     
     // go through each packet in the stream and cache packets that are within a game
     while (packets.hasMorePackets()) {
       const packetContent = packets.nextPacket();
 
-      if (packetContent.opcode !== PacketOpcode.NON_GAME_BOARD_STATE_CHANGE) {
-        // console.log("Received packet", PACKET_NAME[packetContent.opcode]);
-      }
+      if (packetContent.opcode === PacketOpcode.GAME_START) {
+        // reset the game packets cache when a new game starts
+        roomUser.resetGame();
 
-      // if the user is in a game, or if the current packet just started game, cache the game state packets
-      if (roomUser.isInGame() || packetContent.opcode === PacketOpcode.GAME_START) {
-
-        // we only store packets in database that belong there
-        if (isDatabasePacket(packetContent.opcode)) {
+        if (this.multiplayer) {
+          // if this is a multiplayer room, check if game start is legal, and if so, cache the game start packet
+          const startGame = this.multiplayer.onGameStartPacket(roomUser.role as PlayerRole);
+          if (startGame) {
+            roomUser.addGamePacket(packetContent);
+            console.log(`Player ${roomUser.session.user.username} started a legal multiplayer game`);
+          } else {
+            console.log(`Player ${roomUser.session.user.username} tried to start an illegal multiplayer game, ignoring game start packet`);
+          }
+        } else { // in solo mode, always cache the game start packet
           roomUser.addGamePacket(packetContent);
-          console.log("Caching packet", PACKET_NAME[packetContent.opcode]);
+          console.log(`Player ${roomUser.session.user.username} started a solo game`);
         }
 
+      } else if (roomUser.isInGame()) {
+        // If user is already in a game, cache the game packets
+        roomUser.addGamePacket(packetContent);
       }
 
       // if this packet ends the game, save the game state to the database and clear the cache
       // we don't need to add the game end packet to the packet list
       if (packetContent.opcode === PacketOpcode.GAME_END) {
-        const gamePackets = roomUser.popCachedGameBinaryData();
-        console.log("Ended game with", gamePackets.length, "packets");
-        
-        await this.saveGameToDatabase(roomUser, gamePackets);
+        await this.endGame(roomUser);
       }
     }
   }
 
+  // When game ends, whether by GAME_END packet or player leaving, end game for roomUser
+  // possibly save game to database. multiplayer will not save if game is not legal
+  private async endGame(roomUser: RoomUser) {
+
+    if (!roomUser.isInGame()) throw new Error("Cannot end game for user not in game");
+
+    let gameID: string | null = null;
+
+    if (this.multiplayer) {
+      const score = roomUser.getScore();
+      if (score === null) throw new Error("Game end packet received without a score");
+      gameID = this.multiplayer.onGameEndPacket(roomUser.role as PlayerRole, score);
+    } else {
+      // We always save the game in solo mode. Make a new game ID
+      gameID = uuid();
+    }
+
+    if (gameID) {
+      const gamePackets = roomUser.popCachedGameBinaryData();
+      console.log(`Saving ended game ${gameID} with ${gamePackets.length} bytes`);
+      await this.saveGameToDatabase(gameID, roomUser, gamePackets);
+    } else {
+      console.log("Game end packet received, but not saving game");
+    }
+
+  }
+
   // given all the packets of a game for a user, save the game state to the database
-  async saveGameToDatabase(roomUser: RoomUser, gameBinaryData: Uint8Array) {
+  async saveGameToDatabase(gameID: string, roomUser: RoomUser, gameBinaryData: Uint8Array) {
     // TODO: save game state to database
-    console.log("Saving game state to database for user", roomUser.session.user.username, gameBinaryData);
   }
 
   // send a binary message to all players in the room, except the specified user
   // useful for broadcasting game state updates
-  sendBinaryMessageToAllPlayersExcept(roomUser: RoomUser, encoder: BinaryEncoder) {
+  sendBinaryMessageToAllUsersExcept(roomUser: RoomUser, encoder: BinaryEncoder) {
     this.allRoomUsers.filter(player => player !== roomUser).forEach(player => player.sendBinaryMessage(encoder.convertToUInt8Array()));
   }
 
-  sendJsonMessageToAllPlayersExcept(roomUser: RoomUser, message: JsonMessage) {
+  sendJsonMessageToAllUsersExcept(roomUser: RoomUser, message: JsonMessage) {
     this.allRoomUsers.filter(player => player !== roomUser).forEach(player => player.sendJsonMessage(message));
   }
 
-  sendJsonMessageToAllPlayers(message: JsonMessage) {
+  sendJsonMessageToAllUsers(message: JsonMessage) {
     this.allRoomUsers.forEach(player => player.sendJsonMessage(message));
   }
 

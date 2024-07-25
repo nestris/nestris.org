@@ -120,7 +120,7 @@ export class RoomManager {
     const newUser = room.addUser(session, Role.SPECTATOR);
 
     // request all other players to send FullRecovery packet to initialize new player
-    room.sendJsonMessageToAllPlayersExcept(newUser, new RequestRecoveryPacketMessage());
+    room.sendJsonMessageToAllUsersExcept(newUser, new RequestRecoveryPacketMessage());
   }
 
   // forward binary message to the correct room

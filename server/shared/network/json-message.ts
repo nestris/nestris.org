@@ -1,3 +1,4 @@
+import { MatchResult, MultiplayerRoomState } from "../models/multiplayer"
 import { NotificationType } from "../models/notifications"
 
 /*
@@ -19,6 +20,7 @@ export enum JsonMessageType {
     START_SPECTATE_ROOM = 'start_spectate_room',
     REQUEST_RECOVERY_PACKET = 'request_recovery_packet', // sent from server to client to request FullRecovery packet
     GO_TO_ROOM = 'go_to_room', // sent from server to client to navigate to a room
+    MULTIPLAYER_ROOM_UPDATE = 'multiplayer_room_update', // sent from server to client to update the multiplayer room
 }
 
 export abstract class JsonMessage {
@@ -135,5 +137,16 @@ export class GoToRoomMessage extends JsonMessage {
         public readonly roomID: string
     ) {
         super(JsonMessageType.GO_TO_ROOM)
+    }
+}
+
+// sent from server to client to update the multiplayer room
+export class MultiplayerRoomUpdateMessage extends JsonMessage {
+    constructor(
+        public readonly roomID: string,
+        public readonly roomState: MultiplayerRoomState,
+        public readonly matchResult: MatchResult
+    ) {
+        super(JsonMessageType.MULTIPLAYER_ROOM_UPDATE)
     }
 }
