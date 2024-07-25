@@ -209,15 +209,17 @@ export class Room {
   async onPlayerBroadcastPackets(roomUser: RoomUser, packets: PacketDisassembler) {
     //console.log("Received binary message", packets.bitcount);
 
-    // prefix the stream with the RoomUser's index
-    const encoder = new BinaryEncoder();
+    // prefix packet data with the RoomUser's index
+    const encoderPrefix = new BinaryEncoder();
     const playerIndex = this.players.indexOf(roomUser);
-    encoder.addUnsignedInteger(playerIndex, MAX_PLAYER_BITCOUNT);
+    encoderPrefix.addUnsignedInteger(playerIndex, MAX_PLAYER_BITCOUNT);
 
     // For any users that haven't recieved any packets from this player yet, send recovery packets to those users
     if (roomUser.isInGame()) {
 
-      const recoveryMessage = roomUser.getRecoveryPacket().convertToUInt8Array();
+      const recoveryEncoder = encoderPrefix.copy();
+      recoveryEncoder.addBinaryEncoder(roomUser.getRecoveryPacket());
+      const recoveryMessage = recoveryEncoder.convertToUInt8Array();
 
       this.allRoomUsers.forEach(player => {
         if (!player.hasSessionPacketSentTo(roomUser.session.user.sessionID)) {
@@ -230,9 +232,10 @@ export class Room {
     }
     
     // resend the binary message to all players in the room, except the user
-    encoder.addBinaryDecoder(BinaryDecoder.fromUInt8Array(packets.stream));
-    console.log(`sending ${encoder.bitcount} bits to all players from player ${playerIndex}`);
-    this.sendBinaryMessageToAllUsersExcept(roomUser, encoder);
+    const packetsEncoder = encoderPrefix.copy();
+    packetsEncoder.addBinaryDecoder(BinaryDecoder.fromUInt8Array(packets.stream));
+    console.log(`sending ${packetsEncoder.bitcount} bits to all players from player ${playerIndex}`);
+    this.sendBinaryMessageToAllUsersExcept(roomUser, packetsEncoder);
 
     // save the session ID of the user that the packets were sent to
     this.allRoomUsers.forEach(player => player.addSessionPacketSentTo(roomUser.session.user.sessionID));

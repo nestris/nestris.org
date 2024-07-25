@@ -1,8 +1,8 @@
 // Handles binary messages from server and decodes into current game state for players in the room
 
 import { ChangeDetectorRef } from "@angular/core";
-import { GameState } from "src/app/shared/game-state-from-packets/game-state";
-import { PacketContent, PACKET_NAME, PacketOpcode, GameStartPacket, GameStartSchema, GameRecoverySchema, GamePlacementSchema, GameFullBoardSchema, GameAbbrBoardSchema } from "src/app/shared/network/stream-packets/packet";
+import { GameState, GameStateSnapshot } from "src/app/shared/game-state-from-packets/game-state";
+import { PacketContent, PACKET_NAME, PacketOpcode, GameStartSchema, GameRecoverySchema, GamePlacementSchema, GameFullBoardSchema, GameAbbrBoardSchema, GameCountdownPacket, GameCountdownSchema } from "src/app/shared/network/stream-packets/packet";
 import MoveableTetromino from "src/app/shared/tetris/moveable-tetromino";
 import { PacketReplayer } from "src/app/util/packet-replayer";
 
@@ -17,6 +17,7 @@ export class ClientRoomState {
   // map between each player index and their current game state
   playerStates: (GameState | null)[] = [];
   playerPackets: PacketReplayer[] = [];
+  playerSnapshots: (GameStateSnapshot | null)[] = [];
 
   constructor(
     private readonly cdr: ChangeDetectorRef,
@@ -28,12 +29,13 @@ export class ClientRoomState {
     for (let i = 0; i < this.numPlayers; i++) {
 
       this.playerStates.push(null);
+      this.playerSnapshots.push(null);
 
       // create a PacketReplayer for each player that will buffer packets from the server
       this.playerPackets.push(new PacketReplayer((packets) => {
         // when PacketReplayer decides it is time for a packet(s) to be executed,
         // update the player state with the packet(s)
-        packets.forEach((packet, i) => this.processPacket(i, packet));
+        packets.forEach((packet) => this.processPacket(i, packet));
 
         // notify the change detector that the player state has been updated
         this.cdr.detectChanges();
@@ -63,13 +65,16 @@ export class ClientRoomState {
       const activePiece = MoveableTetromino.fromMTPose(game!.getCurrentType(), placement.mtPose);
       game!.onPlacement(activePiece.getMTPose(), placement.nextNextType);
     } else if (packet.opcode === PacketOpcode.GAME_COUNTDOWN) {
-      game!.setCountdown(packet.content as number);
+      game!.setCountdown((packet.content as GameCountdownSchema).countdown);
     } else if (packet.opcode === PacketOpcode.GAME_FULL_BOARD) {
       const board = (packet.content as GameFullBoardSchema).board;
       game!.onFullBoardUpdate(board);
     } else if (packet.opcode === PacketOpcode.GAME_ABBR_BOARD) {
       const mtPose = (packet.content as GameAbbrBoardSchema).mtPose;
       game!.onAbbreviatedBoardUpdate(mtPose);
+    } else if (packet.opcode === PacketOpcode.GAME_END) {
+      this.playerSnapshots[packetIndex] = game!.getSnapshot();
+      this.playerStates[packetIndex] = null;
     } else {
       console.error(`Invalid packet received for player ${packetIndex}: ${PACKET_NAME[packet.opcode]}`);
     }
@@ -84,8 +89,9 @@ export class ClientRoomState {
 
   }
 
-  player(playerIndex: number): GameState | null {
-    return this.playerStates[playerIndex];
+  // Get the current game state, or the most recent game's state if the game has ended
+  player(playerIndex: number): GameStateSnapshot | null {
+    return this.playerStates[playerIndex]?.getSnapshot() ?? this.playerSnapshots[playerIndex];
   }
 
 }

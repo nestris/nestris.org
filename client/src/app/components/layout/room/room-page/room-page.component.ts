@@ -30,7 +30,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
   readonly RoomMode = RoomMode;
   readonly Role = Role;
   readonly Platform = Platform;
-  readonly BUFFER_DELAY;
+  readonly BUFFER_DELAY = 300;
 
   client$ = new BehaviorSubject<RoomClient | null>(null);
   roomState?: ClientRoomState;
@@ -47,8 +47,6 @@ export class RoomPageComponent implements OnInit, OnDestroy {
     private notificationService: NotificationService
   ) {
 
-    // add 200ms to the batch period to account for network latency
-    this.BUFFER_DELAY = platform.BATCH_PERIOD + 200; 
 
   }
 

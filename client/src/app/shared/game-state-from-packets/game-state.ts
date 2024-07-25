@@ -4,6 +4,15 @@ import { TetrisBoard } from "../tetris/tetris-board";
 import { TetrominoType } from "../tetris/tetromino-type";
 import { SmartGameStatus } from "../tetris/smart-game-status";
 
+export interface GameStateSnapshot {
+  level: number,
+  lines: number,
+  score: number,
+  board: TetrisBoard,
+  next: TetrominoType,
+  countdown: number | undefined,
+}
+
 // Keeps track of state within a legal game
 export class GameState {
 
@@ -125,5 +134,17 @@ export class GameState {
   setCountdown(countdown: number) {
     if (countdown === 0) this.countdown = undefined;
     else this.countdown = countdown;
+  }
+
+  // get a snapshot of the current game state
+  getSnapshot(): GameStateSnapshot {
+    return {
+      level: this.status.level,
+      lines: this.status.lines,
+      score: this.status.score,
+      board: this.currentBoard,
+      next: this.next,
+      countdown: this.countdown,
+    };
   }
 }
