@@ -23,6 +23,7 @@ import { getUserID, getUsername, handleLogout, requireAdmin, requireAuth, requir
 import { DBUser, PermissionLevel } from './shared/models/db-user';
 import { getPuzzleAggregate } from './src/puzzle-generation/manage-puzzles';
 import { DeploymentEnvironment, ServerStats } from './shared/models/server-stats';
+import { getMultiplayerStateRoute } from './src/routes/multiplayer-routes';
 
 // Load environment variables
 require('dotenv').config();
@@ -266,6 +267,8 @@ async function main() {
       res.status(404).send({error: e.message});
     }
   });
+
+  app.get('/api/v2/multiplayer-data/:roomID', (req: Request, res: Response) => getMultiplayerStateRoute(req, res, state))
 
   app.get('/api/v2/server-stats', (req: Request, res: Response) => {
     const stats: ServerStats = {

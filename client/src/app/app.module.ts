@@ -75,6 +75,11 @@ import { ControlPanelPageComponent } from './components/layout/control-panel/con
 import { SettingsPageComponent } from './components/layout/settings/settings-page/settings-page.component';
 import { ProgressBarComponent } from './components/layout/learn/progress-bar/progress-bar.component';
 import { LessonCardComponent } from './components/layout/learn/lesson-card/lesson-card.component';
+import { SoloBeforeFirstGameComponent } from './components/layout/room/modals/solo-before-first-game/solo-before-first-game.component';
+import { SoloAfterGameComponent } from './components/layout/room/modals/solo-after-game/solo-after-game.component';
+import { MultiplayerInMatchComponent } from './components/layout/room/modals/multiplayer-in-match/multiplayer-in-match.component';
+import { MultiplayerAfterMatchComponent } from './components/layout/room/modals/multiplayer-after-match/multiplayer-after-match.component';
+import { GenericRoomModalComponent } from './components/layout/room/modals/generic-room-modal/generic-room-modal.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -189,6 +194,11 @@ const customNotifierOptions: NotifierOptions = {
     SettingsPageComponent,
     ProgressBarComponent,
     LessonCardComponent,
+    SoloBeforeFirstGameComponent,
+    SoloAfterGameComponent,
+    MultiplayerInMatchComponent,
+    MultiplayerAfterMatchComponent,
+    GenericRoomModalComponent,
   ],
   imports: [
     BrowserModule,

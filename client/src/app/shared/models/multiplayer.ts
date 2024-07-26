@@ -47,6 +47,11 @@ export interface MatchResult {
     points: MatchPoint[];
 }
 
+export interface MultiplayerData {
+    state: MultiplayerRoomState;
+    match: MatchResult;
+}
+
 export function getMatchScore(match: MatchResult): [number, number] {
     let score1 = 0;
     let score2 = 0;

@@ -23,7 +23,7 @@ import { PacketAssembler, MAX_PLAYERS_IN_ROOM, MAX_PLAYER_BITCOUNT } from "../..
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
 import { UserSession } from "./online-user";
 import { MultiplayerManager } from "./room-multiplayer-manager";
-import { MatchResult, MultiplayerRoomState, PlayerRole } from "../../shared/models/multiplayer";
+import { MatchResult, MultiplayerData, MultiplayerRoomState, PlayerRole } from "../../shared/models/multiplayer";
 import { GameState } from "../../shared/game-state-from-packets/game-state";
 
 
@@ -123,7 +123,7 @@ export class Room {
   public readonly roomID: string;
   public readonly mode: RoomMode;
 
-  private readonly multiplayer?: MultiplayerManager;
+  public readonly multiplayer?: MultiplayerManager;
 
   constructor(mode: RoomMode) {
     this.roomID = uuid();
@@ -137,9 +137,9 @@ export class Room {
 
       this.multiplayer = new MultiplayerManager(
         winningScore, startLevels, isRanked,
-        (state: MultiplayerRoomState, match: MatchResult) => {
+        (data: MultiplayerData) => {
           // send the room state and match result to all players in the room
-          const message = new MultiplayerRoomUpdateMessage(this.roomID, state, match);
+          const message = new MultiplayerRoomUpdateMessage(this.roomID, data);
           this.sendJsonMessageToAllUsers(message);
           console.log("Sent multiplayer room update message", message);
       });

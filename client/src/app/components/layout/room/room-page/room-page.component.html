@@ -1,6 +1,13 @@
+<ng-container *ngIf="(client$ | async)?.room?.mode === RoomMode.MULTIPLAYER && (client$ | async)?.role !== Role.SPECTATOR">
+    <div class="multiplayer-background">
+        <div class="left"></div>
+        <div class="right"></div>
+    </div>
+</ng-container>
+
 <div class="main"
     [class.player-solo]="(client$ | async)?.room?.mode === RoomMode.SOLO && (client$ | async)?.role !== Role.SPECTATOR"
-    [class.player-multiplayer]="(client$ | async)?.room?.mode === RoomMode.MULTIPLAYER && (client$ | async)?.role !== Role.SPECTATOR"
+    [class.spectator]="(client$ | async)?.role === Role.SPECTATOR"
 >
 
     <app-fullscreen-exit-button [onExit]="onExit.bind(this)" />
@@ -21,15 +28,6 @@
                 [score]="data.score"
                 [countdown]="data.countdown"
                 [keybinds]="['Rotate (Z & X) / Shift (, & .)', 'Quit (Q) / Restart (R)']"
-            />
-
-            <app-nes-emulator-menu class="emulator-menu" *ngIf="(platform.getPlatform$() | async) === Platform.ONLINE"
-                [class.multiplayer]="client.room.mode === RoomMode.MULTIPLAYER"
-                [selectedLevel]="(emulator.getSelectedLevel$() | async) ?? 9"
-                (selectedLevelChange)="emulator.setSelectedLevel($event)"
-                [isPaused]="(emulator.getPaused$() | async) ?? false"
-                (togglePause)="emulator.togglePaused()"
-                (reset)="emulator.resetGame()"
             />
             
         </ng-container>
@@ -68,3 +66,11 @@
     </ng-container>
 
 </div>
+
+
+<ng-container *ngIf="multiplayerModalToShow(multiplayerData$ | async) as roomModalType">
+    <app-generic-room-modal>
+        <app-multiplayer-in-match *ngIf="roomModalType === RoomModalType.MULTIPLAYER_IN_MATCH"/>
+        <app-multiplayer-after-match *ngIf="roomModalType === RoomModalType.MULTIPLAYER_AFTER_MATCH"/>
+    </app-generic-room-modal>
+</ng-container>

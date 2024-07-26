@@ -1,5 +1,5 @@
 import { v4 as uuid } from "uuid";
-import { getMatchWinner, MatchResult, MultiplayerPlayerMode, MultiplayerRoomMode, MultiplayerRoomState, PlayerRole } from "../../shared/models/multiplayer";
+import { getMatchWinner, MatchResult, MultiplayerData, MultiplayerPlayerMode, MultiplayerRoomMode, MultiplayerRoomState, PlayerRole } from "../../shared/models/multiplayer";
 import { Role } from "../../shared/models/room-info";
 
 
@@ -23,7 +23,7 @@ export class MultiplayerManager {
         isRanked: boolean,
 
         // Whenever room state is updated, this function is called to notify the client
-        private readonly sendToClient: (state: MultiplayerRoomState, match: MatchResult) => void,
+        private readonly sendToClient: (data: MultiplayerData) => void,
     ) {
 
         this.state = {
@@ -50,8 +50,6 @@ export class MultiplayerManager {
             validStartLevels: validStartLevels,
             points: [],
         };
-
-        this.update();
     }
 
     setPlayerReady(role: PlayerRole) {
@@ -181,6 +179,10 @@ export class MultiplayerManager {
     }
 
     private update() {
-        this.sendToClient(this.state, this.match);
+        this.sendToClient(this.getData());
+    }
+
+    getData(): MultiplayerData {
+        return { state: this.state, match: this.match };
     }
 }

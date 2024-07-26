@@ -6,15 +6,25 @@ import { EmulatorService } from 'src/app/services/emulator/emulator.service';
 import { Platform, PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { Role, RoomInfo, RoomMode, isPlayer } from 'src/app/shared/models/room-info';
-import { StartSpectateRoomMessage, StartSoloRoomMessage } from 'src/app/shared/network/json-message';
+import { StartSpectateRoomMessage, StartSoloRoomMessage, JsonMessageType, MultiplayerRoomUpdateMessage } from 'src/app/shared/network/json-message';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 import { ClientRoomState } from './room-state';
 import { NotificationService } from 'src/app/services/notification.service';
 import { NotificationType } from 'src/app/shared/models/notifications';
+import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
+import { MultiplayerData, MultiplayerPlayerMode, MultiplayerRoomMode } from 'src/app/shared/models/multiplayer';
+
 
 export interface RoomClient {
   room: RoomInfo;
   role: Role;
+}
+
+export enum RoomModalType {
+  SOLO_BEFORE_FIRST_GAME = 'SOLO_BEFORE_FIRST_GAME',
+  SOLO_AFTER_GAME = 'SOLO_AFTER_GAME',
+  MULTIPLAYER_IN_MATCH = 'MULTIPLAYER_IN_MATCH',
+  MULTIPLAYER_AFTER_MATCH = 'MULTIPLAYER_AFTER_MATCH',
 }
 
 
@@ -30,12 +40,17 @@ export class RoomPageComponent implements OnInit, OnDestroy {
   readonly RoomMode = RoomMode;
   readonly Role = Role;
   readonly Platform = Platform;
+  readonly RoomModalType = RoomModalType;
+
   readonly BUFFER_DELAY = 300;
 
   client$ = new BehaviorSubject<RoomClient | null>(null);
   roomState?: ClientRoomState;
   
   private packetSubscription?: Subscription;
+
+  public multiplayerData$ = new BehaviorSubject<MultiplayerData | null>(null);
+  private multiplayerSubscription?: Subscription;
 
   constructor(
     public emulator: EmulatorService,
@@ -44,9 +59,14 @@ export class RoomPageComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
   ) {
 
+    this.multiplayerData$.subscribe((data) => {
+      if (data) {
+        console.log('new multiplayer data:', data);
+      }
+    });
 
   }
 
@@ -114,14 +134,17 @@ export class RoomPageComponent implements OnInit, OnDestroy {
 
       
       if (isPlayer(this.client$.getValue()!.role)) {
-        // if client is a player in the room, start polling from ocr/emulator
-        this.platform.startPolling();
+        
+        switch (roomInfo.mode) {
+          case RoomMode.SOLO: await this.initSoloRoom(); break;
+          case RoomMode.MULTIPLAYER: await this.initMultiplayerRoom(); break;
+          default: console.error('Invalid room mode', roomInfo.mode);
+        }
       } else {
         // user is a spectator. request to be added to the websocket room
         console.log('Is spectator, requesting to spectate room');
         this.websocket.sendJsonMessage(new StartSpectateRoomMessage(roomID));
       }
-
     });
   }
 
@@ -134,6 +157,32 @@ export class RoomPageComponent implements OnInit, OnDestroy {
     if (room.players[0]?.sessionID === sessionID) return Role.PLAYER_1;
     if (room.players[1]?.sessionID === sessionID) return Role.PLAYER_2;
     return Role.SPECTATOR;
+  }
+
+  private async initSoloRoom() {
+    console.log('init solo room');
+    
+  }
+
+  private async initMultiplayerRoom() {
+    console.log('init multiplayer room');
+    // Listen to all multiplayer room data updates, and get initial data
+    this.multiplayerSubscription = this.websocket.onEvent(JsonMessageType.MULTIPLAYER_ROOM_UPDATE).subscribe(message => {
+      this.multiplayerData$.next((message as MultiplayerRoomUpdateMessage).data);
+    });
+    this.multiplayerData$.next(await fetchServer2<MultiplayerData>(Method.GET, `/api/v2/multiplayer-data/${this.client$.getValue()!.room.roomID}`));
+  }
+
+  multiplayerModalToShow(data: MultiplayerData | null): RoomModalType | null {
+
+    if (!data) return null;
+
+    if ([MultiplayerRoomMode.WAITING, MultiplayerRoomMode.COUNTDOWN].includes(data.state.mode)) {
+      return RoomModalType.MULTIPLAYER_IN_MATCH;
+    } else if (data.state.mode === MultiplayerRoomMode.MATCH_ENDED) {
+      return RoomModalType.MULTIPLAYER_AFTER_MATCH;
+    }
+    return null;
   }
 
   @HostListener('window:keydown', ['$event'])
@@ -159,6 +208,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.platform.stopPolling();
     this.packetSubscription?.unsubscribe();
+    this.multiplayerSubscription?.unsubscribe();
   }
 
 }

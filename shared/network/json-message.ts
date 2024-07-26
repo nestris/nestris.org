@@ -1,4 +1,4 @@
-import { MatchResult, MultiplayerRoomState } from "../models/multiplayer"
+import { MatchResult, MultiplayerData, MultiplayerRoomState } from "../models/multiplayer"
 import { NotificationType } from "../models/notifications"
 
 /*
@@ -137,8 +137,7 @@ export class GoToRoomMessage extends JsonMessage {
 export class MultiplayerRoomUpdateMessage extends JsonMessage {
     constructor(
         public readonly roomID: string,
-        public readonly roomState: MultiplayerRoomState,
-        public readonly matchResult: MatchResult
+        public readonly data: MultiplayerData
     ) {
         super(JsonMessageType.MULTIPLAYER_ROOM_UPDATE)
     }

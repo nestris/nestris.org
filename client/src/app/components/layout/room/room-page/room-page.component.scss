@@ -4,11 +4,30 @@
     height: 100%;
 }
 
+.multiplayer-background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    z-index: -100; // behind everything else
+}
+
+.multiplayer-background .left {
+    background: linear-gradient(10deg,rgba(4,43,182,.5) 0%,rgba(0,0,0,1) 70%);
+}
+.multiplayer-background .right {
+    background: linear-gradient(350deg,rgba(182, 4, 4, 0.5) 0%,rgba(0,0,0,1) 70%);
+}
+
 .main {
     display: block;
     width: 100%;
     height: 100%;
-    background: linear-gradient(7deg,rgba(255,215,0,0.46) 0%,rgba(0,0,0,1) 70%);
+    
     position: relative;
 }
 
@@ -16,10 +35,9 @@
     background: linear-gradient(7deg,rgba(4,43,182,.5) 0%,rgba(0,0,0,1) 70%);
 }
 
-.main.player-multiplayer {
-    background: black;
+.main.spectator {
+    background: linear-gradient(7deg,rgba(255,215,0,0.46) 0%,rgba(0,0,0,1) 70%);
 }
-
 
 
 .emulator-menu {
