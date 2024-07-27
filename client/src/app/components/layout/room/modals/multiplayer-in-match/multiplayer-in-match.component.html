@@ -9,17 +9,20 @@
             </div>
         </div>
         <div class="player-cards">
-            <div *ngFor="let player of players" class="player-card" [ngClass]="getColor(player)">
+            <div *ngFor="let color of ['blue', 'red']" class="player-card" [ngClass]="color">
                 <div class="info">
-                    <h1 class="player">{{data.match.playerInfo[player].username}}</h1>
-                    <h2 class="trophies">{{data.match.playerInfo[player].trophiesBeforeMatch}}</h2>
+                    <h1 class="player">{{data.match.playerInfo[getPlayer(color)].username}}</h1>
+                    <h2 class="trophies">{{data.match.playerInfo[getPlayer(color)].trophiesBeforeMatch}}</h2>
                 </div>
-                <h1 class="score">{{getPlayerScore(data, player)}}</h1>
+                <h1 class="score">{{getPlayerScore(data, getPlayer(color))}}</h1>
             </div>
         </div>
         <div class="ready-cards">
-            <div *ngFor="let player of players" class="ready-card" [ngClass]="getColor(player)">
-
+            <div *ngFor="let color of ['blue', 'red']" class="ready-card prevent-select" [ngClass]="color" (click)="toggleReady(color)">
+                <div class="ready-content prevent-select">
+                    <h1 class="status prevent-select">{{getPlayerStatus(data, getPlayer(color))}}</h1>
+                    <p class="msg prevent-select">{{getPlayerMessage(data, getPlayer(color))}}</p>
+                </div>
             </div>
         </div>
     </div>

@@ -138,9 +138,41 @@
 
 .ready-card {
     height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
+.ready-card.blue {
+    cursor: pointer;
+}
 
+.ready-card.red {
+    cursor: not-allowed;
+}
+
+.ready-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.ready-content .status {
+    font-family: $main-font;
+    font-size: 30px;
+    font-weight: 700;
+    margin: 0;
+    padding: 0;
+}
+
+.ready-content .msg {
+    font-family: $main-font;
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0;
+    padding: 0;
+}
 
 .select-level-content {
     width: 100%;

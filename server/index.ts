@@ -23,7 +23,7 @@ import { getUserID, getUsername, handleLogout, requireAdmin, requireAuth, requir
 import { DBUser, PermissionLevel } from './shared/models/db-user';
 import { getPuzzleAggregate } from './src/puzzle-generation/manage-puzzles';
 import { DeploymentEnvironment, ServerStats } from './shared/models/server-stats';
-import { getMultiplayerStateRoute } from './src/routes/multiplayer-routes';
+import { getMultiplayerStateRoute, setMultiplayerReadiness } from './src/routes/multiplayer-routes';
 
 // Load environment variables
 require('dotenv').config();
@@ -233,7 +233,7 @@ async function main() {
       res.status(200).send({rating: getRandomPuzzleRatingForPlayerElo(elo)});
   });
 
-  app.post('/api/v2/random-rated-puzzle/:userid', selectRandomPuzzleForUserRoute);
+  app.post('/api/v2/random-rated-puzzle/:userid', requireAuth, selectRandomPuzzleForUserRoute);
 
   app.get('/api/v2/elo-change', async (req: Request, res: Response) => {
       const elo = parseInt(req.query['elo'] as string);
@@ -247,7 +247,7 @@ async function main() {
   app.get('/api/v2/daily-streak/:userid', getDailyStreakRoute);
   app.get('/api/v2/puzzle-rank/:userid', getRelativePuzzleRankRoute);
 
-  app.post('/api/v2/set-feedback', requireAuth, setFeedbackRoute);
+  app.post('/api/v2/set-feedback', requireAuth, requireAuth, setFeedbackRoute);
 
   app.get('/api/v2/puzzle-attempt-stats/:userid', getAttemptStatsRoute);
 
@@ -269,6 +269,9 @@ async function main() {
   });
 
   app.get('/api/v2/multiplayer-data/:roomID', (req: Request, res: Response) => getMultiplayerStateRoute(req, res, state))
+  app.post('/api/v2/multiplayer/set-readiness/:sessionID/:isReady', requireAuth, 
+    (req: Request, res: Response) => setMultiplayerReadiness(req, res, state)
+  );
 
   app.get('/api/v2/server-stats', (req: Request, res: Response) => {
     const stats: ServerStats = {

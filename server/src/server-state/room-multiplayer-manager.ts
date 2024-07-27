@@ -101,19 +101,29 @@ export class MultiplayerManager {
 
     setPlayerReady(role: PlayerRole) {
 
-        if (this.state.mode != MultiplayerRoomMode.WAITING) throw new Error("Room must be in WAITING mode");
+        if (![MultiplayerRoomMode.WAITING, MultiplayerRoomMode.COUNTDOWN].includes(this.state.mode)) {
+            throw new Error("Room must be in WAITING or COUNTDOWN mode");
+        }
+
+        // If player is already ready, ignore
+        if (this.state.players[role].mode === MultiplayerPlayerMode.READY) return;
+
+        // Set player to ready
         this.state.players[role].mode = MultiplayerPlayerMode.READY;
 
+        // If both players are ready, start countdown
         if (this.state.players[Role.PLAYER_1].mode === MultiplayerPlayerMode.READY &&
             this.state.players[Role.PLAYER_2].mode === MultiplayerPlayerMode.READY) {
             this.state.mode = MultiplayerRoomMode.COUNTDOWN;
-            this.update();
 
             this.countdownTimeout = setTimeout(() => {
                 this.state.mode = MultiplayerRoomMode.PLAYING;
                 this.update();
             }, BOTH_READY_COUNTDOWN_SECONDS * 1000);
         }
+
+        // Send updates to clients
+        this.update();
     }
 
     setPlayerNotReady(role: PlayerRole) {
@@ -121,12 +131,19 @@ export class MultiplayerManager {
         if (![MultiplayerRoomMode.WAITING, MultiplayerRoomMode.COUNTDOWN].includes(this.state.mode)) {
             throw new Error("Room must be in WAITING or COUNTDOWN mode");
         }
+
+        // If player is already not ready, ignore
+        if (this.state.players[role].mode === MultiplayerPlayerMode.NOT_READY) return;
+
+        // Set player to not ready, and reset countdown
         this.state.players[role].mode = MultiplayerPlayerMode.NOT_READY;
         this.state.mode = MultiplayerRoomMode.WAITING;
         if (this.countdownTimeout) {
             clearTimeout(this.countdownTimeout);
             this.countdownTimeout = null;
         }
+
+        // Send updates to clients
         this.update();
     }
 
@@ -227,6 +244,12 @@ export class MultiplayerManager {
 
     private update() {
         this.sendToClient(this.getData());
+    }
+
+    getPlayerRoleBySessionID(sessionID: string): PlayerRole {
+        if (this.players[Role.PLAYER_1].sessionID === sessionID) return Role.PLAYER_1;
+        if (this.players[Role.PLAYER_2].sessionID === sessionID) return Role.PLAYER_2;
+        throw new Error("Player not found");
     }
 
     getData(): MultiplayerData {
