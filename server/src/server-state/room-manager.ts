@@ -57,16 +57,14 @@ export class RoomManager {
   }
 
   // create a room for a single player, return the room id
-  createSingleplayerRoom(session: UserSession): string {
+  async createSingleplayerRoom(session: UserSession): Promise<string> {
 
     this.assertUserNotInRoom(session.user);
 
     // create a new room
-    const room = new Room(RoomMode.SOLO);
+    const room = new Room([session]);
+    await room.init();
     this.rooms.push(room);
-
-    // add the user to the room
-    room.addUser(session, Role.PLAYER_1);
 
     // notify the user that they have entered the game
     session.user.onEnterGame(this.state);
@@ -75,7 +73,7 @@ export class RoomManager {
   }
 
   // create a room between challenge.senderSessionID and receiverSessionID, return the room id
-  createMultiplayerRoom(challenge: Challenge, receiverSessionID: string) {
+  async createMultiplayerRoom(challenge: Challenge, receiverSessionID: string): Promise<string> {
 
     const sender = this.state.onlineUserManager.getOnlineUserByUserID(challenge.senderid);
     const receiver = this.state.onlineUserManager.getOnlineUserByUserID(challenge.receiverid);
@@ -93,15 +91,11 @@ export class RoomManager {
     if (!senderSession || !receiverSession) throw new Error("Sender or receiver session not online, cannot create multiplayer room");
 
     // At this point, we can create the room
-    const room = new Room(RoomMode.MULTIPLAYER);
+    const room = new Room([senderSession, receiverSession]);
+    await room.init();
     this.rooms.push(room);
 
-    console.log("Creating multiplayer room for", challenge.senderUsername, "and", challenge.receiverUsername, room.roomID);
-
-
-    // add the users to the room
-    room.addUser(senderSession, Role.PLAYER_1);
-    room.addUser(receiverSession, Role.PLAYER_2);
+    console.log("Created multiplayer room for", challenge.senderUsername, "and", challenge.receiverUsername, room.roomID);
 
     // notify the users that they have entered the game
     sender.onEnterGame(this.state);
@@ -110,13 +104,12 @@ export class RoomManager {
     return room.roomID;
   }
 
-  // create a room for two players, return the room id
-
   addSpectatorToRoom(roomID: string, session: UserSession) {
     const room = this.rooms.find(room => room.roomID === roomID);
     if (!room) throw new Error(`Room ${roomID} not found`);
-
-    const newUser = room.addUser(session, Role.SPECTATOR);
+    
+    // add the spectator to the room
+    room.addSpectator(session);
   }
 
   // forward binary message to the correct room

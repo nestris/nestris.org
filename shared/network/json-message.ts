@@ -1,4 +1,4 @@
-import { MatchResult, MultiplayerData, MultiplayerRoomState } from "../models/multiplayer"
+import { MatchInfo, MultiplayerData, MultiplayerRoomState } from "../models/multiplayer"
 import { NotificationType } from "../models/notifications"
 
 /*

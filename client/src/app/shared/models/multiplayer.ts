@@ -38,21 +38,38 @@ export interface MatchPoint {
     scorePlayer2: number;
 }
 
-export interface MatchResult {
+export interface MatchPlayerInfo {
+    userID: string;
+    username: string;
+    trophiesBeforeMatch: number;
+}
+
+export interface MatchPlayerStakes {
+    winXP: number;
+    winTrophies: number;
+    loseTrophies: number;
+}
+
+export interface MatchInfo {
     matchID: string;
     isRanked: boolean;
     seed: string;
     winningScore: number;
     validStartLevels: number[];
     points: MatchPoint[];
+
+    playerInfo: {[role in PlayerRole]: MatchPlayerInfo};
+
+    // If the match is ranked, these are the stakes for each player
+    playerStakes?: {[role in PlayerRole]: MatchPlayerStakes};
 }
 
 export interface MultiplayerData {
     state: MultiplayerRoomState;
-    match: MatchResult;
+    match: MatchInfo;
 }
 
-export function getMatchScore(match: MatchResult): [number, number] {
+export function getMatchScore(match: MatchInfo): [number, number] {
     let score1 = 0;
     let score2 = 0;
     for (const point of match.points) {
@@ -65,7 +82,7 @@ export function getMatchScore(match: MatchResult): [number, number] {
     return [score1, score2];
 }
 
-export function getMatchWinner(match: MatchResult): PlayerRole | null {
+export function getMatchWinner(match: MatchInfo): PlayerRole | null {
     const [score1, score2] = getMatchScore(match);
     if (score1 >= match.winningScore) return Role.PLAYER_1;
     if (score2 >= match.winningScore) return Role.PLAYER_2;

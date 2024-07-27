@@ -99,7 +99,7 @@ export class ChallengeManager {
     return true;
   }
 
-  acceptChallenge(challenge: Challenge, receiverSessionID: string): boolean {
+  async acceptChallenge(challenge: Challenge, receiverSessionID: string): Promise<boolean> {
 
     // verify both users are not in a room. otherwise, rescind the challenge
     const sender = this.state.onlineUserManager.getOnlineUserByUserID(challenge.senderid);
@@ -152,7 +152,7 @@ export class ChallengeManager {
     }
 
     // Both players and their sessions are online. Create a room for the two players
-    const roomID = this.state.roomManager.createMultiplayerRoom(challenge, receiverSessionID);
+    const roomID = await this.state.roomManager.createMultiplayerRoom(challenge, receiverSessionID);
 
     // send notification to both players to go to the room
     sender.sendJsonMessage(new GoToRoomMessage(roomID));

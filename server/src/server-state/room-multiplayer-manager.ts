@@ -1,16 +1,19 @@
 import { v4 as uuid } from "uuid";
-import { getMatchWinner, MatchResult, MultiplayerData, MultiplayerPlayerMode, MultiplayerRoomMode, MultiplayerRoomState, PlayerRole } from "../../shared/models/multiplayer";
+import { getMatchWinner, MatchPlayerInfo, MatchPlayerStakes, MatchInfo, MultiplayerData, MultiplayerPlayerMode, MultiplayerRoomMode, MultiplayerRoomState, PlayerRole } from "../../shared/models/multiplayer";
 import { Role } from "../../shared/models/room-info";
+import { UserSession } from "./online-user";
 
 
 const BOTH_READY_COUNTDOWN_SECONDS = 5;
 export class MultiplayerManager {
 
+    private players: {[role in PlayerRole]: UserSession};
+
     // Current state about the room
-    private state: MultiplayerRoomState;
+    private state!: MultiplayerRoomState;
 
     // Current state about the match
-    private match: MatchResult;
+    private match!: MatchInfo;
 
     private countdownTimeout: NodeJS.Timeout | null = null;
 
@@ -18,14 +21,43 @@ export class MultiplayerManager {
     private topoutPlayerScore: number | null = null;
 
     constructor(
-        winningScore: number,
-        validStartLevels: number[],
-        isRanked: boolean,
+        private readonly isRanked: boolean,
+        player1: UserSession,
+        player2: UserSession,
 
         // Whenever room state is updated, this function is called to notify the client
         private readonly sendToClient: (data: MultiplayerData) => void,
     ) {
+        this.players = {
+            [Role.PLAYER_1]: player1,
+            [Role.PLAYER_2]: player2,
+        };
+    }
 
+    private async getMatchPlayerInfo(role: PlayerRole): Promise<MatchPlayerInfo> {
+        return {
+            userID: this.players[role].user.userid,
+            username: this.players[role].user.username,
+            trophiesBeforeMatch: 1000, // TODO: Get actual trophies from database
+        };
+    }
+
+    // Calculate the stakes for the match by using the player's current trophies to determine the stakes
+    private async getMatchPlayerStakes(player: MatchPlayerInfo): Promise<MatchPlayerStakes> {
+        return {
+            winXP: 10, // TODO: Get actual XP
+            winTrophies: 20, // TODO: Get actual trophies
+            loseTrophies: 10, // TODO: Get actual trophies
+        };
+    }
+
+    async init() {
+
+        // TEMPORARY
+        const validStartLevels = [15, 18, 19];
+        const winningScore = 2;
+
+        // Initialize the multiplayer room state
         this.state = {
             startLevel: validStartLevels[ Math.floor(validStartLevels.length / 2) ],
             mode: MultiplayerRoomMode.WAITING,
@@ -42,13 +74,28 @@ export class MultiplayerManager {
             },
         };
 
+        // Fetch player info for the match
+        const playerInfo = {
+            [Role.PLAYER_1]: await this.getMatchPlayerInfo(Role.PLAYER_1),
+            [Role.PLAYER_2]: await this.getMatchPlayerInfo(Role.PLAYER_2),
+        };
+
+        // For ranked matches, calculate the stakes for the match
+        const playerStakes = this.isRanked ? {
+            [Role.PLAYER_1]: await this.getMatchPlayerStakes(playerInfo[Role.PLAYER_1]),
+            [Role.PLAYER_2]: await this.getMatchPlayerStakes(playerInfo[Role.PLAYER_2]),
+        } : undefined;
+
+        // Initialize the match info
         this.match = {
             matchID: uuid(),
-            isRanked: isRanked,
+            isRanked: this.isRanked,
             seed: "6EF248",
             winningScore: winningScore,
             validStartLevels: validStartLevels,
             points: [],
+            playerInfo: playerInfo,
+            playerStakes: playerStakes,
         };
     }
 

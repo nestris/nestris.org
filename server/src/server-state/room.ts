@@ -23,7 +23,7 @@ import { PacketAssembler, MAX_PLAYERS_IN_ROOM, MAX_PLAYER_BITCOUNT } from "../..
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
 import { UserSession } from "./online-user";
 import { MultiplayerManager } from "./room-multiplayer-manager";
-import { MatchResult, MultiplayerData, MultiplayerRoomState, PlayerRole } from "../../shared/models/multiplayer";
+import { MatchInfo, MultiplayerData, MultiplayerRoomState, PlayerRole } from "../../shared/models/multiplayer";
 import { GameState } from "../../shared/game-state-from-packets/game-state";
 
 
@@ -123,46 +123,55 @@ export class Room {
   public readonly roomID: string;
   public readonly mode: RoomMode;
 
-  public readonly multiplayer?: MultiplayerManager;
+  public multiplayer?: MultiplayerManager;
 
-  constructor(mode: RoomMode) {
+  constructor(playerSessions: UserSession[]) {
+    if (playerSessions.length < 1 || playerSessions.length > 2) {
+      throw new Error("Room must have 1 or 2 players");
+    }
+
+    this.players.push(new RoomUser(this, playerSessions[0], Role.PLAYER_1));
+    
+    if (playerSessions.length === 1) {
+      this.mode = RoomMode.SOLO;
+    } else { // 2 players
+      this.mode = RoomMode.MULTIPLAYER;
+      this.players.push(new RoomUser(this, playerSessions[1], Role.PLAYER_2));
+    }
+
     this.roomID = uuid();
-    this.mode = mode;
+  }
 
-    if (mode === RoomMode.MULTIPLAYER) {
+  async init() {
 
-      const winningScore = 2; // TEMPORARY
-      const startLevels = [15, 18, 19]; // TEMPORARY
-      const isRanked = false; // TEMPORARY
+    if (this.mode == RoomMode.SOLO) {
 
+    } else {
+      const isRanked = true; // TEMPORARY
       this.multiplayer = new MultiplayerManager(
-        winningScore, startLevels, isRanked,
+        isRanked,
+        this.players[0].session,
+        this.players[1].session,
         (data: MultiplayerData) => {
           // send the room state and match result to all players in the room
           const message = new MultiplayerRoomUpdateMessage(this.roomID, data);
           this.sendJsonMessageToAllUsers(message);
           console.log("Sent multiplayer room update message", message);
       });
+
+      await this.multiplayer.init();
     }
 
   }
 
-  addUser(session: UserSession, role: Role): RoomUser {
+  addSpectator(session: UserSession): RoomUser {
 
-    if (this.players.find(player => player.session.user.username === session.user.username)) {
+    if (this.spectators.find(player => player.session.user.username === session.user.username)) {
       throw new Error(`User ${session.user.username} is already in this room`);
     }
 
-    if (isPlayer(role) && this.players.length >= MAX_PLAYERS_IN_ROOM) {
-      throw new Error(`Room exeeds max players of ${MAX_PLAYERS_IN_ROOM}`);
-    }
-
-    console.log(`User ${session.user.username} joined room ${this.roomID}`);
-
-    const newUser = new RoomUser(this, session, role);
-    if (isPlayer(role)) this.players.push(newUser);
-    else this.spectators.push(newUser);
-
+    const newUser = new RoomUser(this, session, Role.SPECTATOR);
+    this.spectators.push(newUser);
     return newUser;
   }
 

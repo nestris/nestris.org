@@ -45,7 +45,7 @@ export async function acceptChallengeRoute(req: Request, res: Response, state: S
   if (!sessionID) res.status(400).send("Missing 'sessionID' parameter");
 
   try {
-    const result = state.challengeManager.acceptChallenge(challenge, sessionID);
+    const result = await state.challengeManager.acceptChallenge(challenge, sessionID);
     res.status(200).send({success: result});
   }
   catch (error) {
