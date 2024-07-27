@@ -1,3 +1,32 @@
 <div class="modal">
-    
+    <div class="upper-content">
+        <div class="header">
+            <app-solid-button label="Abort" [color]="ButtonColor.RED" />
+            <!-- <p>Trophy placeholder</p> -->
+            <div class="seed-container">
+                <p>Optional Seed</p>
+                <h1>{{data.match.seed}}</h1>
+            </div>
+        </div>
+        <div class="player-cards">
+            <div *ngFor="let player of players" class="player-card" [ngClass]="getColor(player)">
+                <div class="info">
+                    <h1 class="player">{{data.match.playerInfo[player].username}}</h1>
+                    <h2 class="trophies">{{data.match.playerInfo[player].trophiesBeforeMatch}}</h2>
+                </div>
+                <h1 class="score">{{getPlayerScore(data, player)}}</h1>
+            </div>
+        </div>
+        <div class="ready-cards">
+            <div *ngFor="let player of players" class="ready-card" [ngClass]="getColor(player)">
+
+            </div>
+        </div>
+    </div>
+    <div class="select-level-content">
+        <p>Your turn to select level!</p>
+    </div>
+    <div class="bottom-content">
+        <p>{{data.match.isRanked ? 'Ranked' : 'Unranked'}} • First to {{data.match.winningScore}}</p>
+    </div>
 </div>

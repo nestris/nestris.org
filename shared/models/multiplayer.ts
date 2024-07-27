@@ -69,7 +69,7 @@ export interface MultiplayerData {
     match: MatchInfo;
 }
 
-export function getMatchScore(match: MatchInfo): [number, number] {
+export function getMatchScore(match: MatchInfo): {[role in PlayerRole]: number} {
     let score1 = 0;
     let score2 = 0;
     for (const point of match.points) {
@@ -79,12 +79,15 @@ export function getMatchScore(match: MatchInfo): [number, number] {
             score2++;
         }
     }
-    return [score1, score2];
+    return {
+        [Role.PLAYER_1]: score1,
+        [Role.PLAYER_2]: score2,
+    };
 }
 
 export function getMatchWinner(match: MatchInfo): PlayerRole | null {
-    const [score1, score2] = getMatchScore(match);
-    if (score1 >= match.winningScore) return Role.PLAYER_1;
-    if (score2 >= match.winningScore) return Role.PLAYER_2;
+    const scores = getMatchScore(match);
+    if (scores[Role.PLAYER_1] >= match.winningScore) return Role.PLAYER_1;
+    if (scores[Role.PLAYER_2] >= match.winningScore) return Role.PLAYER_2;
     return null;
 }

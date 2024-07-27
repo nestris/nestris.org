@@ -68,9 +68,9 @@
 </div>
 
 
-<ng-container *ngIf="multiplayerModalToShow(multiplayerData$ | async) as roomModalType">
-    <app-generic-room-modal>
-        <app-multiplayer-in-match *ngIf="roomModalType === RoomModalType.MULTIPLAYER_IN_MATCH"/>
-        <app-multiplayer-after-match *ngIf="roomModalType === RoomModalType.MULTIPLAYER_AFTER_MATCH"/>
+<ng-container *ngIf="(multiplayerData$ | async) as data">
+    <app-generic-room-modal *ngIf="multiplayerModalToShow(data) as roomModalType">
+        <app-multiplayer-in-match *ngIf="roomModalType === RoomModalType.MULTIPLAYER_IN_MATCH" [data]="data"/>
+        <app-multiplayer-after-match *ngIf="roomModalType === RoomModalType.MULTIPLAYER_AFTER_MATCH" [data]="data"/>
     </app-generic-room-modal>
 </ng-container>

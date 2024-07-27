@@ -7,5 +7,161 @@
     position: relative;
 
     width: 800px;
-    height: 500px;
+    height: 520px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.upper-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    width: 100%;
+    box-sizing: border-box;
+    padding-right: 5px;
+}
+
+.seed-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.seed-container p {
+    font-family: $main-font;
+    font-size: 11px;
+    font-weight: 500;
+    margin: 0;
+    padding: 0;
+}
+
+.seed-container h1 {
+    font-family: 'NES';
+    font-size: 28px;
+    margin: 0;
+    padding: 0;
+}
+
+.player-cards, .ready-cards {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 20px;
+}
+
+.player-card, .ready-card {
+    border-radius: 10px;
+    border-style: solid;
+    width: 360px;
+    box-sizing: border-box;
+}
+
+.player-card.blue, .ready-card.blue {
+    border-color: $multiplayer-blue-color;
+    color: $multiplayer-blue-color;
+    background-color: rgba(60, 94, 183, 0.1);
+}
+
+.player-card.red, .ready-card.red {
+    border-color: $multiplayer-red-color;
+    color: $multiplayer-red-color;
+    background-color: rgba(183, 60, 60, 0.1);
+}
+
+.player-card {
+    height: 90px;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+.player-card.blue {
+    flex-direction: row;
+}
+.player-card.red {
+    flex-direction: row-reverse;
+}
+
+.player-card .info {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+}
+
+.player-card.blue .info {
+    align-items: flex-start;
+}
+
+.player-card.red .info {
+    align-items: flex-end;
+}
+
+.player-card .info .player {
+    font-family: $main-font;
+    font-size: 25px;
+    font-weight: 700;
+    margin: 0;
+    padding: 0;
+}
+
+.player-card .info .trophies {
+    font-family: $main-font;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+    padding: 0;
+}
+
+.player-card h1.score {
+    align-self: center;
+    font-family: $main-font;
+    font-size: 70px;
+    font-weight: 700;
+    margin: 0;
+    padding: 0;
+    margin-inline: 12px;
+}
+
+.ready-card {
+    height: 150px;
+}
+
+
+
+.select-level-content {
+    width: 100%;
+    box-sizing: border-box;
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.bottom-content {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+}
+
+.bottom-content p {
+    font-family: $main-font;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    padding: 0;
 }

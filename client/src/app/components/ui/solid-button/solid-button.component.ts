@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, HostBinding, Input } from '@angular
 
 export enum ButtonColor {
   GREEN = "#54A165",
-  RED = "#ca4d4d",
+  RED = "#B73C3C",
   BLUE = "#3C5EB7",
   GREY = "#2F3033"
 }

@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { MultiplayerData } from 'src/app/shared/models/multiplayer';
 
 @Component({
   selector: 'app-multiplayer-after-match',
@@ -6,5 +7,5 @@ import { Component } from '@angular/core';
   styleUrls: ['./multiplayer-after-match.component.scss']
 })
 export class MultiplayerAfterMatchComponent {
-
+  @Input() data!: MultiplayerData;
 }
