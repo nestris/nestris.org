@@ -80,6 +80,7 @@ import { SoloAfterGameComponent } from './components/layout/room/modals/solo-aft
 import { MultiplayerInMatchComponent } from './components/layout/room/modals/multiplayer-in-match/multiplayer-in-match.component';
 import { MultiplayerAfterMatchComponent } from './components/layout/room/modals/multiplayer-after-match/multiplayer-after-match.component';
 import { GenericRoomModalComponent } from './components/layout/room/modals/generic-room-modal/generic-room-modal.component';
+import { BannersComponent } from './components/layout/root/banners/banners.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -199,6 +200,7 @@ const customNotifierOptions: NotifierOptions = {
     MultiplayerInMatchComponent,
     MultiplayerAfterMatchComponent,
     GenericRoomModalComponent,
+    BannersComponent,
   ],
   imports: [
     BrowserModule,
