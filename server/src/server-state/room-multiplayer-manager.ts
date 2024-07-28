@@ -233,10 +233,6 @@ export class MultiplayerManager {
                 // Otherwise, reset for next match point
                 this.state.mode = MultiplayerRoomMode.WAITING;
 
-                // Reset player modes
-                this.state.players[Role.PLAYER_1].mode = MultiplayerPlayerMode.NOT_READY;
-                this.state.players[Role.PLAYER_2].mode = MultiplayerPlayerMode.NOT_READY;
-
                 // Toggle level picker
                 this.state.levelPicker = this.state.levelPicker === Role.PLAYER_1 ? Role.PLAYER_2 : Role.PLAYER_1;
             }
@@ -249,6 +245,13 @@ export class MultiplayerManager {
 
         // Return the id of the game that just ended for the player, so that the game can be saved
         return myGameID;
+    }
+
+    transitionDeadPlayerToWaiting(role: PlayerRole) {
+        if (this.state.players[role].mode === MultiplayerPlayerMode.DEAD) {
+            this.state.players[role].mode = MultiplayerPlayerMode.NOT_READY;
+            this.update();
+        }
     }
 
     onPlayerLeaveRoom(role: PlayerRole, score: number | null) {

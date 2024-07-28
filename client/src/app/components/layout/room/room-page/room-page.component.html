@@ -12,54 +12,68 @@
 >
 
     <ng-container *ngIf="(client$ | async) as client">
-        
-        <!-- LEFT BOARD -->
-        <!-- if playing, show on left side whether player 1 or 2 -->
-         <ng-container *ngIf="client.role === Role.PLAYER_1 || client.role === Role.PLAYER_2">
-            <div class="game-container" *ngIf="(platform.getGameData$() | async) as data">
 
-                <app-layout-one class="game"
-                    [board]="data.board" [level]="data.level"
-                    [nextType]="data.nextPiece"
-                    [level]="data.level"
-                    [lines]="data.lines"
-                    [score]="data.score"
-                    [countdown]="data.countdown"
-                />
-            </div>
-        </ng-container>
+        <div class="column left">
 
-        <!-- If spectating, show player 0 board on left side -->
-         <ng-container *ngIf="client.role === Role.SPECTATOR">
-            <div class="game-container" *ngIf="roomState?.player(0) as player">
-                <app-layout-one class="game" 
-                    [board]="player.board"
-                    [nextType]="player.next"
-                    [level]="player.level"
-                    [lines]="player.lines"
-                    [score]="player.score"
-                    [countdown]="player.countdown"
-                />
-            </div>
-        </ng-container>
+            
+            <!-- LEFT BOARD -->
+            <!-- if playing, show on left side whether player 1 or 2 -->
+            <ng-container *ngIf="client.role === Role.PLAYER_1 || client.role === Role.PLAYER_2">
+                <div class="game-container" *ngIf="(platform.getGameData$() | async) as data" [ngStyle]="{scale: getScale(client, screenWidth$ | async)}">
 
+                    <app-game-header *ngIf="(multiplayerData$ | async) as data" [data]="data" [role]="client.role" color="blue" />
 
-        <!-- RIGHT BOARD. only show if in multiplayer -->
-         <ng-container *ngIf="client.room.mode === RoomMode.MULTIPLAYER">
-            <div class="game-container" *ngIf="roomState?.player(client.role === Role.PLAYER_2 ? 0 : 1) as player">
+                    <app-layout-one class="game"
+                        [board]="data.board" [level]="data.level"
+                        [nextType]="data.nextPiece"
+                        [level]="data.level"
+                        [lines]="data.lines"
+                        [score]="data.score"
+                        [countdown]="data.countdown"
+                    />
+                </div>
+            </ng-container>
 
-                <!-- if playing, show the other player on right side -->
-                <!-- if spectating, show player 2 board on right side -->
-                <app-layout-one class="game right"
-                    [board]="player.board"
-                    [nextType]="player.next"
-                    [level]="player.level"
-                    [lines]="player.lines"
-                    [score]="player.score"
-                    [countdown]="player.countdown"
-                />
-            </div>
-        </ng-container>
+            <!-- If spectating, show player 0 board on left side -->
+            <ng-container *ngIf="client.role === Role.SPECTATOR">
+                <div class="game-container" *ngIf="roomState?.player(0) as player" [ngStyle]="{scale: getScale(client, screenWidth$ | async)}">
+
+                    <app-game-header *ngIf="(multiplayerData$ | async) as data" [data]="data" [role]="Role.PLAYER_1" color="blue" />
+
+                    <app-layout-one class="game" 
+                        [board]="player.board"
+                        [nextType]="player.next"
+                        [level]="player.level"
+                        [lines]="player.lines"
+                        [score]="player.score"
+                        [countdown]="player.countdown"
+                    />
+                </div>
+            </ng-container>
+        </div>
+
+        <div class="column right">
+
+            <!-- RIGHT BOARD. only show if in multiplayer -->
+            <ng-container *ngIf="client.room.mode === RoomMode.MULTIPLAYER">
+                <div class="game-container" *ngIf="roomState?.player(client.role === Role.PLAYER_2 ? 0 : 1) as player" [ngStyle]="{scale: getScale(client, screenWidth$ | async)}">
+
+                    <app-game-header *ngIf="(multiplayerData$ | async) as data" [data]="data" [role]="rightBoardRole(client.role)" color="red" />
+
+                    <!-- if playing, show the other player on right side -->
+                    <!-- if spectating, show player 2 board on right side -->
+                    <app-layout-one class="game right"
+                        [board]="player.board"
+                        [nextType]="player.next"
+                        [level]="player.level"
+                        [lines]="player.lines"
+                        [score]="player.score"
+                        [countdown]="player.countdown"
+                    />
+                </div>
+            </ng-container>
+
+        </div>
 
     </ng-container>
 

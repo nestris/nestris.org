@@ -11,7 +11,7 @@ import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 import { ClientRoomState } from './room-state';
 import { NotificationService } from 'src/app/services/notification.service';
 import { NotificationType } from 'src/app/shared/models/notifications';
-import { MultiplayerData, MultiplayerRoomMode } from 'src/app/shared/models/multiplayer';
+import { getMatchScore, MultiplayerData, MultiplayerPlayerMode, MultiplayerRoomMode, PlayerRole } from 'src/app/shared/models/multiplayer';
 
 
 export interface RoomClient {
@@ -50,6 +50,8 @@ export class RoomPageComponent implements OnInit, OnDestroy {
 
   public multiplayerData$ = new BehaviorSubject<MultiplayerData | null>(null);
   private multiplayerSubscription?: Subscription;
+
+  screenWidth$ = new BehaviorSubject<number>(window.innerWidth);
 
   constructor(
     public emulator: EmulatorService,
@@ -178,9 +180,18 @@ export class RoomPageComponent implements OnInit, OnDestroy {
 
     if (!data) return null;
 
-    if ([MultiplayerRoomMode.WAITING, MultiplayerRoomMode.COUNTDOWN].includes(data.state.mode)) {
+    const myRole = this.client$.getValue()!.role;
+    const myMode = data.state.players[myRole as PlayerRole].mode;
+    const roomMode = data.state.mode;
+
+    // When player is playing, or dead but hasn't pressed "next" to get to modal yet, don't show modal
+    if ([MultiplayerPlayerMode.IN_GAME, MultiplayerPlayerMode.DEAD].includes(myMode)) {
+      return null;
+    }
+
+    if ([MultiplayerRoomMode.WAITING, MultiplayerRoomMode.COUNTDOWN].includes(roomMode)) {
       return RoomModalType.MULTIPLAYER_IN_MATCH;
-    } else if (data.state.mode === MultiplayerRoomMode.MATCH_ENDED) {
+    } else if (roomMode === MultiplayerRoomMode.MATCH_ENDED) {
       return RoomModalType.MULTIPLAYER_AFTER_MATCH;
     }
     return null;
@@ -200,11 +211,23 @@ export class RoomPageComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Transition from PLAYING -> WAITING should reset PacketReplayers
-    if (old.state.mode === MultiplayerRoomMode.PLAYING && now.state.mode === MultiplayerRoomMode.WAITING) {
+    // Transition from DEAD -> NOT_READY should reset PacketReplayers
+    const myRole = (this.client$.getValue()!.role as PlayerRole);
+    if (
+      old.state.players[myRole].mode === MultiplayerPlayerMode.DEAD &&
+      now.state.players[myRole].mode === MultiplayerPlayerMode.NOT_READY
+    ) {
       console.log('Resetting PacketReplayers');
       this.roomState!.resetPacketReplayers();
     }
+  }
+
+  rightBoardRole(role: Role): PlayerRole {
+    // if spectator, right side is always player 2's board
+    if (role === Role.SPECTATOR) return Role.PLAYER_2;
+
+    // If player, right side is the other player's board
+    return role === Role.PLAYER_1 ? Role.PLAYER_2 : Role.PLAYER_1;
   }
 
   @HostListener('window:keydown', ['$event'])
@@ -216,6 +239,23 @@ export class RoomPageComponent implements OnInit, OnDestroy {
   handleKeyup(event: KeyboardEvent) {
     this.emulator.handleKeyup(event);
   }
+
+  // We want to keep track of screen width to dynamically scale games
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event) {
+    this.screenWidth$.next(window.innerWidth);
+  }
+
+  // Get how much to CSS scale each game board, depending on the screen width and solo/multiplayer mode
+  getScale(client: RoomClient, screenWidth: number | null): number {
+    if (!screenWidth) screenWidth = this.screenWidth$.getValue();
+
+    // If multiplayer, scale proportionally so it fills around half the screen width
+    if (client.room.mode === RoomMode.MULTIPLAYER) return screenWidth / 1370;
+
+    // If solo, scale proportionally so it fills most of the screen width
+    else return screenWidth / 1100;
+  };
 
   async onExit() {
 
