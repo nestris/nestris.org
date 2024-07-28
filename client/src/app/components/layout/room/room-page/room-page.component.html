@@ -5,8 +5,6 @@
     </div>
 </ng-container>
 
-<app-fullscreen-exit-button [onExit]="onExit.bind(this)" />
-
 <div class="main"
     [class.solo]="(client$ | async)?.room?.mode === RoomMode.SOLO"
     [class.multiplayer]="(client$ | async)?.room?.mode === RoomMode.MULTIPLAYER"
@@ -27,7 +25,6 @@
                     [lines]="data.lines"
                     [score]="data.score"
                     [countdown]="data.countdown"
-                    [keybinds]="['Rotate (Z & X) / Shift (, & .)', 'Quit (Q) / Restart (R)']"
                 />
             </div>
         </ng-container>
@@ -67,6 +64,9 @@
     </ng-container>
 
 </div>
+
+<!-- Exit button in front of player boards -->
+<app-fullscreen-exit-button [onExit]="onExit.bind(this)" />
 
 
 <ng-container *ngIf="(multiplayerData$ | async) as data">

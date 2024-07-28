@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
-import { Platform } from 'src/app/services/platform-interface.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { getMatchScore, MultiplayerData, MultiplayerPlayerMode, MultiplayerRoomMode, PlayerRole } from 'src/app/shared/models/multiplayer';
 import { isPlayer, Role } from 'src/app/shared/models/room-info';

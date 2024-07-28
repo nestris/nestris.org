@@ -60,8 +60,6 @@ export class PlatformInterfaceService {
   private platform$ = new BehaviorSubject<Platform>(Platform.ONLINE);
   private polledGameData$ = new BehaviorSubject<PolledGameData>(DEFAULT_POLLED_GAME_DATA);
 
-  private pollingEmulator$ = new BehaviorSubject<boolean>(false);
-  private pollingOCR$ = new BehaviorSubject<boolean>(false);
 
   private assembler = new PacketAssembler();
 
@@ -115,28 +113,6 @@ export class PlatformInterfaceService {
     return this.platform$.asObservable();
   }
 
-  startPolling() {
-    if (this.platform$.getValue() === Platform.ONLINE) {
-      this.pollingEmulator$.next(true);
-      this.pollingOCR$.next(false);
-    } else {
-      this.pollingOCR$.next(true);
-      this.pollingEmulator$.next(false);
-    }
-  }
-
-  getPollingEmulator$(): Observable<boolean> {
-    return this.pollingEmulator$.asObservable();
-  }
-
-  getPollingOCR$(): Observable<boolean> {
-    return this.pollingOCR$.asObservable();
-  }
-
-  stopPolling() {
-    this.pollingEmulator$.next(false);
-    this.pollingOCR$.next(false);
-  }
 
   // called by emulator/game-state service to update the game data
   updateGameData(data: PolledGameData) {

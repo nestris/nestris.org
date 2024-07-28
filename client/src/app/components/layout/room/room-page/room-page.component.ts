@@ -11,8 +11,7 @@ import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 import { ClientRoomState } from './room-state';
 import { NotificationService } from 'src/app/services/notification.service';
 import { NotificationType } from 'src/app/shared/models/notifications';
-import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
-import { MultiplayerData, MultiplayerPlayerMode, MultiplayerRoomMode } from 'src/app/shared/models/multiplayer';
+import { MultiplayerData, MultiplayerRoomMode } from 'src/app/shared/models/multiplayer';
 
 
 export interface RoomClient {
@@ -93,7 +92,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
       });
 
       this.platform.setPlatform(Platform.ONLINE);
-      this.platform.startPolling();
+      this.emulator.startGame(9);
       return;
     }
 
@@ -168,7 +167,9 @@ export class RoomPageComponent implements OnInit, OnDestroy {
     console.log('init multiplayer room');
     // Listen to all multiplayer room data updates, and get initial data
     this.multiplayerSubscription = this.websocket.onEvent(JsonMessageType.MULTIPLAYER_ROOM_UPDATE).subscribe(message => {
+      const old = this.multiplayerData$.getValue();
       this.multiplayerData$.next((message as MultiplayerRoomUpdateMessage).data);
+      this.onMultiplayerDataChange(old, this.multiplayerData$.getValue());
     });
     this.multiplayerData$.next(await fetchServer2<MultiplayerData>(Method.GET, `/api/v2/multiplayer-data/${this.client$.getValue()!.room.roomID}`));
   }
@@ -183,6 +184,21 @@ export class RoomPageComponent implements OnInit, OnDestroy {
       return RoomModalType.MULTIPLAYER_AFTER_MATCH;
     }
     return null;
+  }
+
+  private onMultiplayerDataChange(old: MultiplayerData | null, now: MultiplayerData | null) {
+    if (!old || !now) return;
+
+    // Transition from COUNTDOWN -> PLAYING should trigger game start
+    if (old.state.mode === MultiplayerRoomMode.COUNTDOWN && now.state.mode === MultiplayerRoomMode.PLAYING) {
+      console.log('countdown ended, starting game');
+      if (this.platform.getPlatform() === Platform.ONLINE) {
+        // If online, start emulator game at startLevel
+        this.emulator.startGame(now.state.startLevel);
+      } else {
+        // If OCR, start polling for game data
+      }
+    }
   }
 
   @HostListener('window:keydown', ['$event'])
@@ -206,7 +222,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.platform.stopPolling();
+    this.emulator.stopGame();
     this.packetSubscription?.unsubscribe();
     this.multiplayerSubscription?.unsubscribe();
   }
