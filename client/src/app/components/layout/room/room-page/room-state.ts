@@ -53,6 +53,10 @@ export class ClientRoomState {
     }
   }
 
+  resetPacketReplayers() {
+    this.packetReplayers.forEach((replayer) => replayer.reset());
+  }
+
   private processPacket(packetIndex: number, packet: PacketContent) {
 
     // Can only transition null -> GameStartPacket or null -> GameRecoveryPacket

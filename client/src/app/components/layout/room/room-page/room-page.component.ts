@@ -199,6 +199,12 @@ export class RoomPageComponent implements OnInit, OnDestroy {
         // If OCR, start polling for game data
       }
     }
+
+    // Transition from PLAYING -> WAITING should reset PacketReplayers
+    if (old.state.mode === MultiplayerRoomMode.PLAYING && now.state.mode === MultiplayerRoomMode.WAITING) {
+      console.log('Resetting PacketReplayers');
+      this.roomState!.resetPacketReplayers();
+    }
   }
 
   @HostListener('window:keydown', ['$event'])

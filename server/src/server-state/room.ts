@@ -50,7 +50,6 @@ export class RoomUser {
 
   // send a binary message to the user (only the session in the room)
   sendBinaryMessage(stream: Uint8Array) {
-    console.log("Sending binary message to user", this.session.user.username, stream.length);
     this.session.socket.send(stream);
   }
 
@@ -242,15 +241,18 @@ export class Room {
     // resend the binary message to all players in the room, except the user
     const packetsEncoder = encoderPrefix.copy();
     packetsEncoder.addBinaryDecoder(BinaryDecoder.fromUInt8Array(packets.stream));
-    console.log(`sending ${packetsEncoder.bitcount} bits to all players from player ${playerIndex}`);
     this.sendBinaryMessageToAllUsersExcept(roomUser, packetsEncoder);
 
     // save the session ID of the user that the packets were sent to
     this.allRoomUsers.forEach(player => player.addSessionPacketSentTo(roomUser.session.user.sessionID));
     
     // go through each packet in the stream and cache packets that are within a game
+    let packetsReceived = 0;
     while (packets.hasMorePackets()) {
       const packetContent = packets.nextPacket();
+      packetsReceived++;
+
+      console.log(`Received packet ${packetContent.opcode} from player ${roomUser.session.user.username}: ${packetContent.content}`);
 
       if (packetContent.opcode === PacketOpcode.GAME_START) {
         // reset the game packets cache when a new game starts
@@ -282,6 +284,7 @@ export class Room {
         await this.endGame(roomUser);
       }
     }
+    console.log(`Received ${packetsReceived} packets from player ${roomUser.session.user.username}`);
   }
 
   // When game ends, whether by GAME_END packet or player leaving, end game for roomUser
@@ -303,7 +306,7 @@ export class Room {
 
     if (gameID) {
       const gamePackets = roomUser.popCachedGameBinaryData();
-      console.log(`Saving ended game ${gameID} with ${gamePackets.length} bytes`);
+      console.log(`Saving ended game ${gameID} with ${gamePackets.length} bytes from player ${roomUser.session.user.username}`);
       await this.saveGameToDatabase(gameID, roomUser, gamePackets);
     } else {
       console.log("Game end packet received, but not saving game");

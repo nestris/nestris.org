@@ -32,6 +32,13 @@ export class PacketReplayer {
     this.dynamicBufferTask = new PeriodicTask(50, () => this.adjustBufferDelay());
   }
 
+  reset() {
+    this.buffer = [];
+    this.initialTime = undefined;
+    this.timeToExecutePacket = this.initialBufferDelay;
+    this.onTimePackets.reset();
+  }
+
   ingestPacket(packet: PacketContent): void {
 
     if (this.initialTime === undefined) {
@@ -51,7 +58,7 @@ export class PacketReplayer {
   sendQueuedPacket(forceExecuteFirst: boolean = false) {
 
     // assert there is a packet to send
-    if (this.buffer.length === 0) throw new Error("No packet to send");
+    if (this.buffer.length === 0) console.log("WARNING: No packet to send.");
 
     const queuedPacket = this.buffer[0];
 
@@ -114,6 +121,9 @@ export class PacketReplayer {
 
   // Adjust the buffer delay based on the percentage of packets that were on time
   private adjustBufferDelay() {
+
+    // wait until we have enough data to make a decision
+    if (!this.onTimePackets.isFull()) return;
 
     const percentage = this.percentagePacketsOnTime();
     

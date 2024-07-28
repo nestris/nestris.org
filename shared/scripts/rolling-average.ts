@@ -19,6 +19,13 @@ export class RollingAverage {
         this.count = 0;
     }
 
+    reset(): void {
+        this.end = -1;
+        this.count = 0;
+        this.rollingSum = 0;
+        this.values.fill(0);
+    }
+
     push(value: number): void {
 
         const afterEnd = (this.end + 1) % this.size;
@@ -53,5 +60,9 @@ export class RollingAverage {
 
     getValues(): number[] {
         return this.values.slice(0, this.count);
+    }
+
+    isFull(): boolean {
+        return this.count === this.size;
     }
 }

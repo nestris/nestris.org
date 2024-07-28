@@ -12,7 +12,7 @@ export async function handleJsonMessage(state: ServerState, session: UserSession
         case JsonMessageType.START_SOLO_ROOM: return await handleStartSoloRoomMessage(state, session, message as StartSoloRoomMessage);
         case JsonMessageType.START_SPECTATE_ROOM: return await handleStartSpectateRoomMessage(state, session, message as StartSpectateRoomMessage);
             
-        default: console.log(`Unknown message type: ${message.type}`);
+        default: console.log(`Unknown message type: ${message.type} from message ${message}`);
     }
 }
 
