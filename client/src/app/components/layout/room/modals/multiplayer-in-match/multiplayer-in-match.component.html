@@ -23,11 +23,21 @@
                     <h1 class="status prevent-select">{{getPlayerStatus(data, getPlayer(color))}}</h1>
                     <p class="msg prevent-select">{{getPlayerMessage(data, getPlayer(color))}}</p>
                 </div>
+                <app-loading-animation *ngIf="data.state.mode === MultiplayerRoomMode.COUNTDOWN" class="loading" [size]="40" />
             </div>
         </div>
     </div>
     <div class="select-level-content">
-        <p>Your turn to select level!</p>
+        <div class="select-level-container">
+            <h1>{{data.state.levelPicker === myRole ? "Your turn to select level!" : "Opponent sets level this turn"}}</h1>
+            <div class="levels prevent-select">
+                <div class="level prevent-select" *ngFor="let level of data.match.validStartLevels"
+                [ngClass]="getLevelClasses(data, level)" (click)="selectLevel(level)">
+                    <p>{{level}}</p>
+                </div>
+            </div>
+        </div>
+        
     </div>
     <div class="bottom-content">
         <p>{{data.match.isRanked ? 'Ranked' : 'Unranked'}} • First to {{data.match.winningScore}}</p>

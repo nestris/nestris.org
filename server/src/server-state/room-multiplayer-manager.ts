@@ -4,7 +4,7 @@ import { Role } from "../../shared/models/room-info";
 import { UserSession } from "./online-user";
 
 
-const BOTH_READY_COUNTDOWN_SECONDS = 5;
+const BOTH_READY_COUNTDOWN_SECONDS = 2.5;
 export class MultiplayerManager {
 
     private players: {[role in PlayerRole]: UserSession};
@@ -148,13 +148,14 @@ export class MultiplayerManager {
     }
 
     selectLevelForPlayer(role: PlayerRole, level: number) {
-            
+        // Verify that the player can select a level
         if (this.state.mode != MultiplayerRoomMode.WAITING) throw new Error("Room must be in WAITING mode");
         if (this.state.levelPicker != role) throw new Error("Not this player's turn to pick level");
         if (this.state.players[role].mode != MultiplayerPlayerMode.NOT_READY) throw new Error("Player must be in NOT_READY mode");
         if (!this.match.validStartLevels.includes(level)) throw new Error("Invalid level selection");
 
-        this.state.levelPicker = role === Role.PLAYER_1 ? Role.PLAYER_2 : Role.PLAYER_1;
+        // Set the level for the player and update client
+        this.state.startLevel = level;
         this.update();
     }
 

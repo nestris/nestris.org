@@ -17,6 +17,7 @@ export class MultiplayerInMatchComponent {
 
   readonly ButtonColor = ButtonColor;
   readonly players: PlayerRole[] = [Role.PLAYER_1, Role.PLAYER_2];
+  readonly MultiplayerRoomMode = MultiplayerRoomMode;
 
   constructor(
     private readonly websocket: WebsocketService
@@ -94,4 +95,18 @@ export class MultiplayerInMatchComponent {
     }
   }
 
+  getLevelClasses(data: MultiplayerData, level: number): string[] {
+    const classes = [data.state.levelPicker === this.myRole ? 'blue' : 'red'];
+    if (data.state.startLevel !== level) classes.push('not-selected');
+    return classes;
+  }
+
+  async selectLevel(level: number) {
+
+    // Only the blue player can select the level
+    if (this.data.state.levelPicker !== this.myRole) return;
+
+    // Send the request to the server to select the level
+    await fetchServer2(Method.POST, `/api/v2/multiplayer/select-level/${this.websocket.getSessionID()}/${level}`);
+  }
 }

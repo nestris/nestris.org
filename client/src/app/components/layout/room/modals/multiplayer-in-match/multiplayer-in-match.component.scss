@@ -183,6 +183,62 @@
     align-items: center;
 }
 
+.select-level-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.select-level-container h1 {
+    font-family: $main-font;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    padding: 0;
+}
+
+.levels {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.level {
+    width: 60px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+}
+
+.level.blue {
+    background-color: $multiplayer-blue-color;
+    cursor: pointer;
+}
+
+.level.red {
+    background-color: $multiplayer-red-color;
+    cursor: not-allowed;
+}
+
+.level.not-selected {
+    opacity: 0.3;
+}
+
+.level.blue.not-selected:hover {
+    opacity: 0.5;
+}
+
+
+.level p {
+    font-family: 'NES';
+    font-size: 30px;
+    margin: 0;
+    padding: 0;
+}
+
 .bottom-content {
     width: 100%;
     box-sizing: border-box;
@@ -196,4 +252,10 @@
     font-weight: 600;
     margin: 0;
     padding: 0;
+}
+
+.loading {
+    position: absolute;
+    transform: translateY(48px) scale(0.35);
+    opacity: 0.7;
 }

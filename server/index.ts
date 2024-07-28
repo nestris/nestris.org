@@ -23,7 +23,7 @@ import { getUserID, getUsername, handleLogout, requireAdmin, requireAuth, requir
 import { DBUser, PermissionLevel } from './shared/models/db-user';
 import { getPuzzleAggregate } from './src/puzzle-generation/manage-puzzles';
 import { DeploymentEnvironment, ServerStats } from './shared/models/server-stats';
-import { getMultiplayerStateRoute, setMultiplayerReadiness } from './src/routes/multiplayer-routes';
+import { getMultiplayerStateRoute, selectLevelForPlayer, setMultiplayerReadiness } from './src/routes/multiplayer-routes';
 
 // Load environment variables
 require('dotenv').config();
@@ -271,6 +271,9 @@ async function main() {
   app.get('/api/v2/multiplayer-data/:roomID', (req: Request, res: Response) => getMultiplayerStateRoute(req, res, state))
   app.post('/api/v2/multiplayer/set-readiness/:sessionID/:isReady', requireAuth, 
     (req: Request, res: Response) => setMultiplayerReadiness(req, res, state)
+  );
+  app.post('/api/v2/multiplayer/select-level/:sessionID/:level', requireAuth,
+    (req: Request, res: Response) => selectLevelForPlayer(req, res, state)
   );
 
   app.get('/api/v2/server-stats', (req: Request, res: Response) => {
