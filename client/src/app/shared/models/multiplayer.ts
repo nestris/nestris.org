@@ -10,6 +10,7 @@ export enum MultiplayerRoomMode {
 }
 
 export enum MultiplayerPlayerMode {
+    NOT_IN_ROOM = "NOT_IN_ROOM",
     NOT_READY = "NOT_READY",
     READY = "READY",
     IN_GAME = "IN_GAME",

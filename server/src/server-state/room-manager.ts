@@ -138,6 +138,17 @@ export class RoomManager {
     }
   }
 
+  // Delete empty rooms and log wihch rooms were deleted
+  removeEmptyRooms() {
+    this.rooms = this.rooms.filter(room => {
+      if (room.isEmpty()) {
+        console.log(`Room deleted: ${room.roomID}`);
+        return false;
+      }
+      return true;
+    });
+  }
+
 
 
 

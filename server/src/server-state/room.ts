@@ -182,7 +182,11 @@ export class Room {
 
     // if user had a game in progress, save the game state to the database
     if (roomUser.isInGame()) await this.endGame(roomUser);
-    
+
+    // if the user is a player, handle the player leaving the room in multiplayer
+    if (this.multiplayer && isPlayer(roomUser.role)) {
+      this.multiplayer.onPlayerLeaveRoom(roomUser.role as PlayerRole, roomUser.getScore());
+    }
 
     // remove the user from the room
     this.players = this.players.filter(player => player !== roomUser);
@@ -331,6 +335,10 @@ export class Room {
 
   sendJsonMessageToAllUsers(message: JsonMessage) {
     this.allRoomUsers.forEach(player => player.sendJsonMessage(message));
+  }
+
+  isEmpty(): boolean {
+    return this.allRoomUsers.length === 0;
   }
 
   // get a serialized dict of the room info for sending to clients

@@ -227,10 +227,14 @@ export class RoomPageComponent implements OnInit, OnDestroy {
     this.websocket.sendJsonMessage(new StartSoloRoomMessage("", false));
   }
 
-  ngOnDestroy(): void {
+  async ngOnDestroy() {
     this.emulator.stopGame();
     this.packetSubscription?.unsubscribe();
     this.multiplayerSubscription?.unsubscribe();
+
+    // Tell server to leave the room
+    console.log('leaving room');
+    await fetchServer2(Method.POST, `/api/v2/leave-room/${this.websocket.getSessionID()}`);
   }
 
 }

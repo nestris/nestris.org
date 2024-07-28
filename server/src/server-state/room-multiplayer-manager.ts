@@ -1,6 +1,6 @@
 import { v4 as uuid } from "uuid";
 import { getMatchWinner, MatchPlayerInfo, MatchPlayerStakes, MatchInfo, MultiplayerData, MultiplayerPlayerMode, MultiplayerRoomMode, MultiplayerRoomState, PlayerRole } from "../../shared/models/multiplayer";
-import { Role } from "../../shared/models/room-info";
+import { Role, RoomMode } from "../../shared/models/room-info";
 import { UserSession } from "./online-user";
 
 
@@ -182,10 +182,14 @@ export class MultiplayerManager {
 
     // Only should move player mode from IN_GAME to DEAD. Ignore otherwise.
     // Return a new game uuid if game should be saved and accepted as a valid game during the match
-    onGameEndPacket(role: PlayerRole, score: number): string | null {
+    onGameEndPacket(role: PlayerRole, score: number, becauseLeftRoom: boolean = false): string | null {
 
         // In a special case where game that was started in countdown ends in countdown, go back to READY mode
-        if (this.state.mode === MultiplayerRoomMode.COUNTDOWN && this.state.players[role].mode === MultiplayerPlayerMode.IN_GAME) {
+        if (
+            this.state.mode === MultiplayerRoomMode.COUNTDOWN &&
+            this.state.players[role].mode === MultiplayerPlayerMode.IN_GAME &&
+            !becauseLeftRoom
+        ) {
             this.state.players[role].mode = MultiplayerPlayerMode.READY;
             this.update();
 
@@ -238,11 +242,27 @@ export class MultiplayerManager {
             }
         }
 
+        if (becauseLeftRoom) this.state.players[role].mode = MultiplayerPlayerMode.NOT_IN_ROOM;
+
         // Push updates to multiplayer and match state
         this.update();
 
         // Return the id of the game that just ended for the player, so that the game can be saved
         return myGameID;
+    }
+
+    onPlayerLeaveRoom(role: PlayerRole, score: number | null) {
+
+        // If player is in game, end the game
+        if (this.state.mode === MultiplayerRoomMode.PLAYING) {
+            console.log("Player left room while in game");
+            this.onGameEndPacket(role, score ?? 0, true);
+        } else {
+            // Otherwise, just update player status
+            console.log("Player left room while not in game");
+            this.state.players[role].mode = MultiplayerPlayerMode.NOT_IN_ROOM;
+            this.update();
+        }
     }
 
     isPlayerInGame(role: PlayerRole): boolean {

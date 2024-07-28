@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { Router } from '@angular/router';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
 import { WebsocketService } from 'src/app/services/websocket.service';
@@ -19,7 +20,8 @@ export class MultiplayerInMatchComponent {
   readonly MultiplayerRoomMode = MultiplayerRoomMode;
 
   constructor(
-    private readonly websocket: WebsocketService
+    private readonly websocket: WebsocketService,
+    private readonly router: Router
   ) { }
 
   async toggleReady(color: string) {
@@ -61,6 +63,7 @@ export class MultiplayerInMatchComponent {
   getPlayerStatus(data: MultiplayerData, role: PlayerRole): string {
     const mode = data.state.players[role].mode;
     switch (mode) {
+      case MultiplayerPlayerMode.NOT_IN_ROOM: return "Not in room";
       case MultiplayerPlayerMode.NOT_READY: return "Not Ready";
       case MultiplayerPlayerMode.READY: return "Ready!";
       case MultiplayerPlayerMode.IN_GAME: return "Playing";
@@ -85,6 +88,7 @@ export class MultiplayerInMatchComponent {
 
     const mode = data.state.players[role].mode;
     switch (mode) {
+      case MultiplayerPlayerMode.NOT_IN_ROOM: return "Waiting for player to rejoin...";
       case MultiplayerPlayerMode.NOT_READY: 
         return this.myRole === role ? "Click here when you’re ready!" : "Waiting for opponent...";
       case MultiplayerPlayerMode.READY:
@@ -107,5 +111,9 @@ export class MultiplayerInMatchComponent {
 
     // Send the request to the server to select the level
     await fetchServer2(Method.POST, `/api/v2/multiplayer/select-level/${this.websocket.getSessionID()}/${level}`);
+  }
+
+  leaveMatch() {
+    this.router.navigate(['/']);
   }
 }

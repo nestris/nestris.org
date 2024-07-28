@@ -1,7 +1,7 @@
 <div class="modal">
     <div class="upper-content">
         <div class="header">
-            <app-solid-button label="Abort" [color]="ButtonColor.RED" />
+            <app-solid-button label="Abort" [color]="ButtonColor.RED" (click)="leaveMatch()" />
             <!-- <p>Trophy placeholder</p> -->
             <div class="seed-container">
                 <p>Optional Seed</p>
