@@ -4,7 +4,7 @@ import { Role } from "../../shared/models/room-info";
 import { UserSession } from "./online-user";
 
 
-const BOTH_READY_COUNTDOWN_SECONDS = 2.5;
+const BOTH_READY_COUNTDOWN_SECONDS = 2;
 export class MultiplayerManager {
 
     private players: {[role in PlayerRole]: UserSession};

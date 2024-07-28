@@ -24,15 +24,21 @@
 }
 
 .main {
-    display: block;
+    position: absolute;
     width: 100%;
     height: 100%;
-    
-    position: relative;
 }
 
-.main.player-solo {
+.main.solo {
     background: linear-gradient(7deg,rgba(4,43,182,.5) 0%,rgba(0,0,0,1) 70%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.main.multiplayer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
 }
 
 .main.spectator {
@@ -40,29 +46,13 @@
 }
 
 
-.emulator-menu {
-    position: absolute;
-    top: 450px;
-    left: calc(30% + 290px);
-}
-
-.game {
-    position: absolute;
-    top: 100px;   
-}
-
-.game.solo {
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.game.left {
-    left: 150px;
-}
-
-.game.right {
-    right: 150px;
+.game-container {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .emulator-menu.multiplayer {

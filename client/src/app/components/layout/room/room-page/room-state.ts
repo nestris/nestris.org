@@ -4,8 +4,18 @@ import { ChangeDetectorRef } from "@angular/core";
 import { GameState, GameStateSnapshot } from "src/app/shared/game-state-from-packets/game-state";
 import { PacketContent, PACKET_NAME, PacketOpcode, GameStartSchema, GameRecoverySchema, GamePlacementSchema, GameFullBoardSchema, GameAbbrBoardSchema, GameCountdownPacket, GameCountdownSchema } from "src/app/shared/network/stream-packets/packet";
 import MoveableTetromino from "src/app/shared/tetris/moveable-tetromino";
+import { TetrisBoard } from "src/app/shared/tetris/tetris-board";
+import { TetrominoType } from "src/app/shared/tetris/tetromino-type";
 import { PacketReplayer } from "src/app/util/packet-replayer";
 
+const defaultState: GameStateSnapshot = { 
+  level: 0,
+  lines: 0,
+  score: 0,
+  board: new TetrisBoard(),
+  next: TetrominoType.ERROR_TYPE,
+  countdown: 0,
+};
 
 /*
 Stores the most up-to-date-versions of each player's states from the room, and processes packets
@@ -89,9 +99,9 @@ export class ClientRoomState {
 
   }
 
-  // Get the current game state, or the most recent game's state if the game has ended
-  player(playerIndex: number): GameStateSnapshot | null {
-    return this.playerStates[playerIndex]?.getSnapshot() ?? this.playerSnapshots[playerIndex];
+  // Get the current game state, or the most recent game's state if the game has ended, else just an empty board
+  player(playerIndex: number): GameStateSnapshot {
+    return this.playerStates[playerIndex]?.getSnapshot() ?? this.playerSnapshots[playerIndex] ?? defaultState;
   }
 
 }
