@@ -156,7 +156,6 @@ export class Room {
           // send the room state and match result to all players in the room
           const message = new MultiplayerRoomUpdateMessage(this.roomID, data);
           this.sendJsonMessageToAllUsers(message);
-          console.log("Sent multiplayer room update message", message);
       });
 
       await this.multiplayer.init();
@@ -279,6 +278,7 @@ export class Room {
       // if this packet ends the game, save the game state to the database and clear the cache
       // we don't need to add the game end packet to the packet list
       if (packetContent.opcode === PacketOpcode.GAME_END) {
+        console.log(`Player ${roomUser.session.user.username} ended the game`);
         await this.endGame(roomUser);
       }
     }

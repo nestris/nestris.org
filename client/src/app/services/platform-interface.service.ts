@@ -62,8 +62,9 @@ export class PlatformInterfaceService {
 
 
   private assembler = new PacketAssembler();
+  private numBatchedPackets: number = 0;
 
-  public readonly BATCH_PERIOD = 500; // send all accumulated data to the server every BATCH_PERIOD ms
+  public readonly BATCH_PERIOD = 250; // send all accumulated data to the server every BATCH_PERIOD ms
 
   constructor(
     private websocket: WebsocketService,
@@ -123,26 +124,26 @@ export class PlatformInterfaceService {
   // by default, is not sent immediately, but is batched and sent by sendBatchedPackets() every second
   sendPacket(packet: BinaryEncoder, sendImmediately: boolean = false) {
     this.assembler.addPacketContent(packet);
+    this.numBatchedPackets++;
     if (sendImmediately) this.sendBatchedPackets();
   }
 
   // called every second internally to send all accumulated data to the server
   sendBatchedPackets() {
 
-    // console.log("sendData()");
-
     // if there are no packets to send, don't do anything
     if (!this.assembler.hasPackets()) {
-      // console.log("No packets to send");
       return;
     }
 
     // encode the packets into Uint8Array, and send it to the server
     const binaryData = this.assembler.encode();
+    console.log(`Sending ${this.numBatchedPackets} batched packets`);
     this.websocket.sendBinaryMessage(binaryData);
 
     // clear the assembler for the next batch of packets
     this.assembler = new PacketAssembler();
+    this.numBatchedPackets = 0;
 
   }
 

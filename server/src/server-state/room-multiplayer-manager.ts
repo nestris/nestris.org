@@ -228,6 +228,12 @@ export class MultiplayerManager {
             } else {
                 // Otherwise, reset for next match point
                 this.state.mode = MultiplayerRoomMode.WAITING;
+
+                // Reset player modes
+                this.state.players[Role.PLAYER_1].mode = MultiplayerPlayerMode.NOT_READY;
+                this.state.players[Role.PLAYER_2].mode = MultiplayerPlayerMode.NOT_READY;
+
+                // Toggle level picker
                 this.state.levelPicker = this.state.levelPicker === Role.PLAYER_1 ? Role.PLAYER_2 : Role.PLAYER_1;
             }
         }

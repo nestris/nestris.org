@@ -193,7 +193,6 @@ export class WebsocketService {
 
       // decode stream into packets from a player index
       const packets = data as PacketDisassembler;
-      console.log(`Recieved ${packets.bitcount/8} bytes from player ${packets.getPlayerIndex()} this second`);
 
       const playerIndex = packets.getPlayerIndex()!;
 
@@ -215,7 +214,6 @@ export class WebsocketService {
   }
 
   sendBinaryMessage(message: Uint8Array) {
-    console.log('Sending BINARY message:', message);
     this.ws?.send(message);
   }
 

@@ -26,7 +26,7 @@ export class ClientRoomState {
 
   // map between each player index and their current game state
   playerStates: (GameState | null)[] = [];
-  playerPackets: PacketReplayer[] = [];
+  packetReplayers: PacketReplayer[] = [];
   playerSnapshots: (GameStateSnapshot | null)[] = [];
 
   constructor(
@@ -42,7 +42,7 @@ export class ClientRoomState {
       this.playerSnapshots.push(null);
 
       // create a PacketReplayer for each player that will buffer packets from the server
-      this.playerPackets.push(new PacketReplayer((packets) => {
+      this.packetReplayers.push(new PacketReplayer((packets) => {
         // when PacketReplayer decides it is time for a packet(s) to be executed,
         // update the player state with the packet(s)
         packets.forEach((packet) => this.processPacket(i, packet));
@@ -94,9 +94,12 @@ export class ClientRoomState {
   onReceivePacket(packetIndex: number, packet: PacketContent) {
 
     // add the packet to the PacketReplayer queue, to be executed when the PacketReplayer decides
-    console.log(`Received packet from player ${packetIndex}: ${PACKET_NAME[packet.opcode]} ${packet.content}`);
-    this.playerPackets[packetIndex].ingestPacket(packet);
+    this.packetReplayers[packetIndex].ingestPacket(packet);
 
+  }
+
+  getPacketReplayer(playerIndex: number): PacketReplayer {
+    return this.packetReplayers[playerIndex];
   }
 
   // Get the current game state, or the most recent game's state if the game has ended, else just an empty board

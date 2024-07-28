@@ -77,6 +77,10 @@ export function getMatchScore(match: MatchInfo): {[role in PlayerRole]: number} 
             score1++;
         } else if (point.scorePlayer1 < point.scorePlayer2) {
             score2++;
+        } else {
+            // Tie
+            score1 += 0.5;
+            score2 += 0.5;
         }
     }
     return {

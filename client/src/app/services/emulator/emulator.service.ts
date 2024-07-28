@@ -181,7 +181,6 @@ export class EmulatorService {
   }
 
 
-
   // if matching keybind, update currently pressed keys on keydown
   handleKeydown(event: KeyboardEvent) {
 
