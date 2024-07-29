@@ -17,11 +17,11 @@
     background-color: rgba(0, 255, 0, 0.4);
 }
 
-.game-over.lose {
+.game-over.lose, .game-over.topout {
     background-color: rgba(255, 0, 0, 0.4);
 }
 
-.game-over.draw {
+.game-over.tie {
     background-color: rgba(255, 255, 0, 0.4);
 }
 

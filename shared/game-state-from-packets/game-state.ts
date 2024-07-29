@@ -27,6 +27,8 @@ export class GameState {
   private currentBoard: TetrisBoard; 
   private countdown: number | undefined;
 
+  private numTetrises: number = 0;
+
   constructor(startLevel: number, current: TetrominoType, next: TetrominoType) {
     this.status = new SmartGameStatus(startLevel);
     this.isolatedBoard = new TetrisBoard(); // the board without the active piece. updated every placement
@@ -79,6 +81,10 @@ export class GameState {
     return this.countdown;
   }
 
+  getNumTetrises(): number {
+    return this.numTetrises;
+  }
+
   onRecovery(recovery: GameRecoverySchema) {
     this.status = new SmartGameStatus(recovery.startLevel, recovery.lines, recovery.score, recovery.level);
     this.isolatedBoard = recovery.isolatedBoard;
@@ -122,6 +128,9 @@ export class GameState {
     placement.blitToBoard(this.isolatedBoard);
     const linesCleared = this.isolatedBoard.processLineClears();
     this.status.onLineClear(linesCleared);
+
+    // increment tetrises and lines cleared
+    if (linesCleared === 4) this.numTetrises++;
 
     // shift current and next pieces
     this.current = this.next;

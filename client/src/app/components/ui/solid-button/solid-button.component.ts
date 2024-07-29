@@ -24,7 +24,7 @@ export class SolidButtonComponent {
   @Input() loading: boolean = false;
   @Input() paddingHorizontal: number = 15;
   @Input() paddingVertical: number = 6;
-  @Input() borderRadius: number = 10;
+  @Input() borderRadius: number = 5;
   @Input() disableHover: boolean = false;
   @Input() iconHeight?: number;
   @Input() noShadow: boolean = false;

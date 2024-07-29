@@ -9,6 +9,7 @@ export enum GameOverMode {
   WIN = 'win',
   TIE = 'tie',
   LOSE = 'lose',
+  TOPOUT = 'topout',
 }
 
 @Component({

@@ -5,9 +5,8 @@
     <div class="buttons">
         <app-solid-button label="Exit" [color]="ButtonColor.RED" (click)="exit()" />
         <div class="buttons-right">
-            <app-solid-button icon="./assets/img/button-icons/analyze.svg" [color]="ButtonColor.GREY" (click)="clickAnalyze()" />
-            <app-solid-button label="Next" [color]="ButtonColor.BLUE" (click)="clickNext.emit()" />
-
+            <app-solid-button label="Play" [color]="ButtonColor.BLUE" (click)="clickPlay.emit(18)" />
+            <!-- TODO: keybinds button here -->
         </div>
     </div>
 </div>

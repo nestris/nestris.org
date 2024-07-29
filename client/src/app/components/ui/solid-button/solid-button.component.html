@@ -1,5 +1,5 @@
 <div class="button prevent-select"
-    [ngStyle]="{backgroundColor: color, paddingInline: paddingHorizontal + 'px', borderRadius: borderRadius + 'px'}"
+    [ngStyle]="{backgroundColor: color, paddingInline: !label ? 0 : paddingHorizontal + 'px', borderRadius: borderRadius + 'px'}"
     [ngClass]="{
         'disabled': disabled || loading,
         'loading' : loading,

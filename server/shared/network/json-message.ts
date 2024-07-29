@@ -20,6 +20,7 @@ export enum JsonMessageType {
     START_SPECTATE_ROOM = 'start_spectate_room',
     GO_TO_ROOM = 'go_to_room', // sent from server to client to navigate to a room
     MULTIPLAYER_ROOM_UPDATE = 'multiplayer_room_update', // sent from server to client to update the multiplayer room
+    SOLO_GAME_END = 'solo_game_end', // sent from server to client on solo game end, with game details
 }
 
 export abstract class JsonMessage {
@@ -140,5 +141,17 @@ export class MultiplayerRoomUpdateMessage extends JsonMessage {
         public readonly data: MultiplayerData
     ) {
         super(JsonMessageType.MULTIPLAYER_ROOM_UPDATE)
+    }
+}
+
+// sent from server to client on solo game end, with game details
+export class SoloGameEndMessage extends JsonMessage {
+    constructor(
+        public readonly gameID: string,
+        public readonly score: number,
+        public readonly lines: number,
+        public readonly tetrises: number,
+    ) {
+        super(JsonMessageType.SOLO_GAME_END)
     }
 }

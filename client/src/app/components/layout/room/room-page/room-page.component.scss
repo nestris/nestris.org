@@ -17,10 +17,10 @@
 }
 
 .multiplayer-background .left {
-    background: linear-gradient(10deg,rgba(4,43,182,.5) 0%,rgba(0,0,0,1) 70%);
+    background: linear-gradient(10deg,rgba(4,43,182,.5) 0%,rgba(0,0,0,1) 90%);
 }
 .multiplayer-background .right {
-    background: linear-gradient(350deg,rgba(182, 4, 4, 0.5) 0%,rgba(0,0,0,1) 70%);
+    background: linear-gradient(350deg,rgba(182, 4, 4, 0.5) 0%,rgba(0,0,0,1) 90%);
 }
 
 .main {
@@ -30,7 +30,7 @@
 }
 
 .main.solo {
-    background: linear-gradient(7deg,rgba(4,43,182,.5) 0%,rgba(0,0,0,1) 70%);
+    background: linear-gradient(7deg,rgba(4,43,182,.5) 0%,rgba(0,0,0,1) 90%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -42,7 +42,7 @@
 }
 
 .main.spectator {
-    background: linear-gradient(7deg,rgba(255,215,0,0.46) 0%,rgba(0,0,0,1) 70%);
+    background: linear-gradient(7deg,rgba(255,215,0,0.46) 0%,rgba(0,0,0,1) 90%);
 }
 
 .column {

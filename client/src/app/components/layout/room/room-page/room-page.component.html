@@ -30,7 +30,7 @@
                         [lines]="data.lines"
                         [score]="data.score"
                         [countdown]="data.countdown"
-                        [gameOver]="getGameOverMode(multiplayerData$ | async, client.role)"
+                        [gameOver]="getGameOverMode(multiplayerData$ | async, client.role, soloMode$ | async)"
                         [gameOverShowNext]="true"
                         (clickNext)="clickNext()"
                     />
@@ -56,7 +56,7 @@
             </ng-container>
         </div>
 
-        <div class="column right">
+        <div class="column right" *ngIf="client.room.mode === RoomMode.MULTIPLAYER">
 
             <!-- RIGHT BOARD. only show if in multiplayer -->
             <ng-container *ngIf="client.room.mode === RoomMode.MULTIPLAYER">
@@ -93,5 +93,13 @@
         <app-multiplayer-in-match *ngIf="roomModalType === RoomModalType.MULTIPLAYER_IN_MATCH"
             [myRole]="(client$ | async)?.role" [data]="data"/>
         <app-multiplayer-after-match *ngIf="roomModalType === RoomModalType.MULTIPLAYER_AFTER_MATCH" [data]="data"/>
+    </app-generic-room-modal>
+</ng-container>
+
+
+<ng-container *ngIf="(soloMode$ | async) as soloMode">
+    <app-generic-room-modal *ngIf="[SoloMode.BEFORE_GAME, SoloMode.AFTER_GAME].includes(soloMode)">
+        <app-solo-before-game *ngIf="soloMode === SoloMode.BEFORE_GAME" (clickPlay)="clickPlaySolo($event)"/>
+        <app-solo-after-game *ngIf="soloMode === SoloMode.AFTER_GAME" [game]="(soloGameEndMessage$ | async)!" (clickNext)="clickSoloAfterToBefore()"/>
     </app-generic-room-modal>
 </ng-container>

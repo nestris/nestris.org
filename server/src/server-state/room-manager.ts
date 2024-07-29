@@ -67,7 +67,7 @@ export class RoomManager {
     this.rooms.push(room);
 
     // notify the user that they have entered the game
-    session.user.onEnterGame(this.state);
+    session.user.onEnterRoom();
     
     return room.roomID;
   }
@@ -98,8 +98,8 @@ export class RoomManager {
     console.log("Created multiplayer room for", challenge.senderUsername, "and", challenge.receiverUsername, room.roomID);
 
     // notify the users that they have entered the game
-    sender.onEnterGame(this.state);
-    receiver.onEnterGame(this.state);
+    sender.onEnterRoom();
+    receiver.onEnterRoom();
 
     return room.roomID;
   }
@@ -130,7 +130,7 @@ export class RoomManager {
     if (!roomUser) return;
 
     const isEmpty = await roomUser.room.removeUser(roomUser); // remove user from room
-    roomUser.session.user.onLeaveGame(this.state);
+    roomUser.session.user.onLeaveRoom();
     console.log(`User ${roomUser.session.user.username} left room ${roomUser.room}`);
     if (isEmpty) {
       this.rooms = this.rooms.filter(room => room !== roomUser.room); // remove room if now empty

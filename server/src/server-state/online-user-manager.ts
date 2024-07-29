@@ -99,7 +99,7 @@ export class OnlineUserManager {
         }
 
         // create a new OnlineUser
-        const onlineUser = new OnlineUser(userid, username, socket, sessionID);
+        const onlineUser = new OnlineUser(this.state, userid, username, socket, sessionID);
 
         // add the user to the online pool
         this.onlineUsers.set(userid, onlineUser);

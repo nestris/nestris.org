@@ -36,6 +36,7 @@ export async function handleStartSoloRoomMessage(state: ServerState, session: Us
         session.socket.send(JSON.stringify(new StartSoloRoomMessage(message.id, true, roomID))); // send success message with room id
     } catch (error) {
         // if user is already in a room, send an error message
+        console.log(`Error creating room: ${error}`);
         session.socket.send(JSON.stringify(new StartSoloRoomMessage(message.id, false)));
     }
 }

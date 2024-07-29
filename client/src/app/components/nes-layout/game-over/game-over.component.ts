@@ -19,6 +19,8 @@ export class GameOverComponent {
         return 'DRAW';
       case GameOverMode.LOSE:
         return 'DEFEAT';
+      case GameOverMode.TOPOUT:
+        return 'GAME OVER';
     }
   }
 }

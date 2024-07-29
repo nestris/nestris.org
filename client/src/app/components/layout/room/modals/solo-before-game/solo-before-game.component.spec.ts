@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SoloBeforeFirstGameComponent } from './solo-before-first-game.component';
+import { SoloBeforeGameComponent } from './solo-before-game.component';
 
 describe('SoloBeforeFirstGameComponent', () => {
-  let component: SoloBeforeFirstGameComponent;
-  let fixture: ComponentFixture<SoloBeforeFirstGameComponent>;
+  let component: SoloBeforeGameComponent;
+  let fixture: ComponentFixture<SoloBeforeGameComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [SoloBeforeFirstGameComponent]
+      declarations: [SoloBeforeGameComponent]
     });
-    fixture = TestBed.createComponent(SoloBeforeFirstGameComponent);
+    fixture = TestBed.createComponent(SoloBeforeGameComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

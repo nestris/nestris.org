@@ -24,8 +24,8 @@ const SocketCloseExplanation: Map<SocketCloseCode, string> = new Map<SocketClose
 export enum UserEvent {
     ON_SOCKET_CONNECT = "SOCKET_CONNECT", // when a new socket connects
     ON_SOCKET_CLOSE = "SOCKET_CLOSE", // when a socket closes.
-    ON_ENTER_GAME = "ENTER_GAME", // when a user enters a game
-    ON_LEAVE_GAME = "LEAVE_GAME", // when a user leaves a game
+    ON_ENTER_ROOM = "ENTER_ROOM", // when a user enters a room
+    ON_LEAVE_ROOM = "LEAVE_ROOM", // when a user leaves a room
     ON_USER_OFFLINE = "USER_OFFLINE", // when a user goes offline. OnlineUser is deleted after this event.
 }
 
@@ -51,6 +51,7 @@ export class OnlineUser {
     private eventSubscribers: Map<UserEvent, Set<Function>> = new Map();
 
     constructor(
+        public readonly state: ServerState,
         public readonly userid: string, // unique identifier for the user
         public readonly username: string,
         socket: WebSocket, // live websocket connection
@@ -105,17 +106,17 @@ export class OnlineUser {
     }
 
     // when user starts playing game, update status, and friends should be notified about status change
-    onEnterGame(state: ServerState) {
+    onEnterRoom() {
         this.status = OnlineUserStatus.PLAYING;
-        this.notify(UserEvent.ON_ENTER_GAME);
-        state.onlineUserManager.updateFriendsOnUserStatusChange(this.userid);
+        this.notify(UserEvent.ON_ENTER_ROOM);
+        this.state.onlineUserManager.updateFriendsOnUserStatusChange(this.userid);
     }
 
     // when user stops playing game, update status, and friends should be notified about status change
-    onLeaveGame(state: ServerState) {
+    onLeaveRoom() {
         this.status = OnlineUserStatus.IDLE;
-        this.notify(UserEvent.ON_LEAVE_GAME);
-        state.onlineUserManager.updateFriendsOnUserStatusChange(this.userid);
+        this.notify(UserEvent.ON_LEAVE_ROOM);
+        this.state.onlineUserManager.updateFriendsOnUserStatusChange(this.userid);
     }
 
     getStatus(): OnlineUserStatus {
@@ -125,6 +126,7 @@ export class OnlineUser {
     hasSocket(socket: WebSocket): boolean {
         return this.sessions.some(session => session.socket === socket);
     }
+
 
     // subscribe to an event
     subscribe(event: UserEvent, callback: Function) {

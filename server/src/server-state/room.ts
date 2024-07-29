@@ -17,7 +17,7 @@ but the room still tracks the game state and saves it to the database when the g
 import { v4 as uuid } from "uuid";
 import { RoomMode, isPlayer, RoomInfo, Role } from "../../shared/models/room-info";
 import { BinaryEncoder, BinaryDecoder } from "../../shared/network/binary-codec";
-import { JsonMessage, MultiplayerRoomUpdateMessage } from "../../shared/network/json-message";
+import { JsonMessage, MultiplayerRoomUpdateMessage, SoloGameEndMessage } from "../../shared/network/json-message";
 import { PacketContent, PacketOpcode, GamePlacementSchema, GameStartSchema, GameRecoveryPacket } from "../../shared/network/stream-packets/packet";
 import { PacketAssembler, MAX_PLAYERS_IN_ROOM, MAX_PLAYER_BITCOUNT } from "../../shared/network/stream-packets/packet-assembler";
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
@@ -81,6 +81,7 @@ export class RoomUser {
   // clear the cache of game packets
   resetGame() {
     this.gameBinaryData = new PacketAssembler();
+    this.gameState = undefined;
   }
 
   // clear the cache, and return the packets of the finished game
@@ -96,6 +97,10 @@ export class RoomUser {
 
   getScore(): number | null {
     return this.gameState?.getStatus().score ?? null;
+  }
+
+  getGameState(): GameState | undefined {
+    return this.gameState;
   }
 
   getRecoveryPacket(): BinaryEncoder {
@@ -191,6 +196,11 @@ export class Room {
     // remove the user from the room
     this.players = this.players.filter(player => player !== roomUser);
     this.spectators = this.spectators.filter(spectator => spectator !== roomUser);
+
+    console.log(`User ${roomUser.session.user.username} removed from room ${this.roomID}`);
+
+    // Check if user is still in any other rooms. if not, set user status to IDLE
+    roomUser.session.user.onLeaveRoom();
 
     // return true if the room is now empty
     return this.allRoomUsers.length === 0;
@@ -309,9 +319,10 @@ export class Room {
     }
 
     if (gameID) {
+      const gameState = roomUser.getGameState()!;
       const gamePackets = roomUser.popCachedGameBinaryData();
       console.log(`Saving ended game ${gameID} with ${gamePackets.length} bytes from player ${roomUser.session.user.username}`);
-      await this.saveGameToDatabase(gameID, roomUser, gamePackets);
+      await this.saveGameToDatabase(gameID, roomUser, gamePackets, gameState);
     } else {
       console.log("Game end packet received, but not saving game");
     }
@@ -319,8 +330,20 @@ export class Room {
   }
 
   // given all the packets of a game for a user, save the game state to the database
-  async saveGameToDatabase(gameID: string, roomUser: RoomUser, gameBinaryData: Uint8Array) {
+  async saveGameToDatabase(gameID: string, roomUser: RoomUser, gameBinaryData: Uint8Array, gameState: GameState) {
     // TODO: save game state to database
+    console.log(`Saving game ${gameID} for player ${roomUser.session.user.username}`);
+
+    // For solo games, send the game state to the user
+    if (this.mode === RoomMode.SOLO) {
+      roomUser.sendJsonMessage(new SoloGameEndMessage(gameID,
+        gameState.getStatus().score,
+        gameState.getStatus().lines,
+        gameState.getNumTetrises()
+      ));
+      console.log(`Sent game end message to player ${roomUser.session.user.username} for game ${gameID} with score ${gameState.getStatus().score}`);
+    }
+    
   }
 
   // send a binary message to all players in the room, except the specified user

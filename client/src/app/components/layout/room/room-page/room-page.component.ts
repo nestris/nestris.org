@@ -6,7 +6,7 @@ import { EmulatorService } from 'src/app/services/emulator/emulator.service';
 import { Platform, PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { Role, RoomInfo, RoomMode, isPlayer } from 'src/app/shared/models/room-info';
-import { StartSpectateRoomMessage, StartSoloRoomMessage, JsonMessageType, MultiplayerRoomUpdateMessage } from 'src/app/shared/network/json-message';
+import { StartSpectateRoomMessage, StartSoloRoomMessage, JsonMessageType, MultiplayerRoomUpdateMessage, SoloGameEndMessage } from 'src/app/shared/network/json-message';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 import { ClientRoomState } from './room-state';
 import { NotificationService } from 'src/app/services/notification.service';
@@ -27,6 +27,13 @@ export enum RoomModalType {
   MULTIPLAYER_AFTER_MATCH = 'MULTIPLAYER_AFTER_MATCH',
 }
 
+export enum SoloMode {
+  BEFORE_GAME = 'BEFORE_GAME', // on solo room init, start here
+  IN_GAME = 'IN_GAME', // When "Play" in modal clicked, transition here and start emulator/ocr
+  TOPOUT = 'TOPOUT', // When server tells client that game ends, transition here
+  AFTER_GAME = 'AFTER_GAME', // When play clicks "Next" after topout, transition here and show modal
+}
+
 
 @Component({
   selector: 'app-room-page',
@@ -41,16 +48,21 @@ export class RoomPageComponent implements OnInit, OnDestroy {
   readonly Role = Role;
   readonly Platform = Platform;
   readonly RoomModalType = RoomModalType;
+  readonly SoloMode = SoloMode;
 
   readonly BUFFER_DELAY = 300;
 
   client$ = new BehaviorSubject<RoomClient | null>(null);
   roomState?: ClientRoomState;
+
+  soloMode$ = new BehaviorSubject<SoloMode | null>(null);
+  soloGameEndMessage$ = new BehaviorSubject<SoloGameEndMessage | null>(null);
   
   private packetSubscription?: Subscription;
 
   public multiplayerData$ = new BehaviorSubject<MultiplayerData | null>(null);
   private multiplayerSubscription?: Subscription;
+  private soloSubscription?: Subscription;
 
   screenWidth$ = new BehaviorSubject<number>(window.innerWidth);
 
@@ -163,7 +175,14 @@ export class RoomPageComponent implements OnInit, OnDestroy {
 
   private async initSoloRoom() {
     console.log('init solo room');
-    
+    this.soloMode$.next(SoloMode.BEFORE_GAME);
+
+    // If recieve end solo game from server, transition to AFTER_GAME
+    this.soloSubscription = this.websocket.onEvent(JsonMessageType.SOLO_GAME_END).subscribe((message) => {
+      this.soloGameEndMessage$.next(message as SoloGameEndMessage);
+      this.soloMode$.next(SoloMode.TOPOUT);
+    });
+
   }
 
   private async initMultiplayerRoom() {
@@ -175,6 +194,37 @@ export class RoomPageComponent implements OnInit, OnDestroy {
       this.onMultiplayerDataChange(old, this.multiplayerData$.getValue());
     });
     this.multiplayerData$.next(await fetchServer2<MultiplayerData>(Method.GET, `/api/v2/multiplayer-data/${this.client$.getValue()!.room.roomID}`));
+  }
+
+  clickPlaySolo(level: number) {
+    if (this.soloMode$.getValue() === SoloMode.BEFORE_GAME) {
+      this.soloMode$.next(SoloMode.IN_GAME);
+      this.startGame(level);
+    } else {
+      console.error(`Must be in BEFORE_GAME mode to transition to IN_GAME mode, but in ${this.soloMode$.getValue()}`);
+    }
+  }
+
+  // When user clicks "Next" in the After Game modal in solo to go to the Before Game modal
+  clickSoloAfterToBefore() {
+    if (this.soloMode$.getValue() === SoloMode.AFTER_GAME) {
+      // delay by 200ms for better UX. Otherwise, there's a chance of double clicking through both modals
+      setTimeout(() => {
+        this.soloMode$.next(SoloMode.BEFORE_GAME);
+      }, 50);
+    } else {
+      console.error(`Must be in AFTER_GAME mode to transition to BEFORE_GAME mode, but in ${this.soloMode$.getValue()}`);
+    }
+  }
+
+  // Start the game, either by starting the emulator or starting OCR
+  private startGame(level: number) {
+    if (this.platform.getPlatform() === Platform.ONLINE) {
+      // If online, start emulator game at startLevel
+      this.emulator.startGame(level);
+    } else {
+      // If OCR, start polling for game data
+    }
   }
 
   multiplayerModalToShow(data: MultiplayerData | null): RoomModalType | null {
@@ -203,13 +253,8 @@ export class RoomPageComponent implements OnInit, OnDestroy {
 
     // Transition from COUNTDOWN -> PLAYING should trigger game start
     if (old.state.mode === MultiplayerRoomMode.COUNTDOWN && now.state.mode === MultiplayerRoomMode.PLAYING) {
-      console.log('countdown ended, starting game');
-      if (this.platform.getPlatform() === Platform.ONLINE) {
-        // If online, start emulator game at startLevel
-        this.emulator.startGame(now.state.startLevel);
-      } else {
-        // If OCR, start polling for game data
-      }
+      console.log('countdown ended, starting multiplayer game');
+      this.startGame(now.state.startLevel);
     }
 
     // Transition from DEAD -> NOT_READY should reset PacketReplayers
@@ -255,14 +300,18 @@ export class RoomPageComponent implements OnInit, OnDestroy {
     if (client.room.mode === RoomMode.MULTIPLAYER) return screenWidth / 1370;
 
     // If solo, scale proportionally so it fills most of the screen width
-    else return screenWidth / 1100;
+    else return screenWidth / 1250;
   };
 
-  getGameOverMode(data: MultiplayerData | null, role: PlayerRole): GameOverMode | undefined {
+  getGameOverMode(data: MultiplayerData | null, role: PlayerRole, soloMode?: SoloMode | null): GameOverMode | undefined {
+
+    // If solo mode, just show topout screen
+    if (soloMode === SoloMode.TOPOUT) return GameOverMode.TOPOUT;
 
     if (!data) return undefined;
     if (data.match.points.length === 0) return undefined;
 
+    // If in multiplayer mode and game over, determine if win/lose/tie and show that
     if ([MultiplayerRoomMode.WAITING, MultiplayerRoomMode.MATCH_ENDED].includes(data.state.mode)) {
       const endedGame = data.match.points[data.match.points.length - 1];
       const myScore = role === Role.PLAYER_1 ? endedGame.scorePlayer1 : endedGame.scorePlayer2;
@@ -277,8 +326,15 @@ export class RoomPageComponent implements OnInit, OnDestroy {
 
   async clickNext() {
     console.log('click next');
-    const sessionID = this.websocket.getSessionID();
-    await fetchServer2(Method.POST, `/api/v2/multiplayer/transition-dead-to-waiting/${sessionID}`);
+    if (this.client$.getValue()!.room.mode === RoomMode.SOLO) {
+      // In solo mode, transition from topout to after game
+      this.soloMode$.next(SoloMode.AFTER_GAME);
+    } else {
+      // In multiplayer mode, transition from dead to waiting in the server
+      const sessionID = this.websocket.getSessionID();
+      await fetchServer2(Method.POST, `/api/v2/multiplayer/transition-dead-to-waiting/${sessionID}`);
+    }
+    
   }
 
   async onExit() {
@@ -295,6 +351,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
     this.emulator.stopGame();
     this.packetSubscription?.unsubscribe();
     this.multiplayerSubscription?.unsubscribe();
+    this.soloSubscription?.unsubscribe();
 
     // Tell server to leave the room
     console.log('leaving room');
