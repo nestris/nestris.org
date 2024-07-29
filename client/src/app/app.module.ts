@@ -82,6 +82,7 @@ import { MultiplayerAfterMatchComponent } from './components/layout/room/modals/
 import { GenericRoomModalComponent } from './components/layout/room/modals/generic-room-modal/generic-room-modal.component';
 import { BannersComponent } from './components/layout/root/banners/banners.component';
 import { GameHeaderComponent } from './components/layout/room/game-header/game-header.component';
+import { GameOverComponent } from './components/nes-layout/game-over/game-over.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -203,6 +204,7 @@ const customNotifierOptions: NotifierOptions = {
     GenericRoomModalComponent,
     BannersComponent,
     GameHeaderComponent,
+    GameOverComponent,
   ],
   imports: [
     BrowserModule,

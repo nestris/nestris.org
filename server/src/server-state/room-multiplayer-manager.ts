@@ -218,10 +218,10 @@ export class MultiplayerManager {
             
             this.match.points.push({
                 seed: this.match.seed,
-                gameIDPlayer1: role === Role.PLAYER_1 ? this.topoutPlayerGameID : myGameID,
-                scorePlayer1: role === Role.PLAYER_1 ? this.topoutPlayerScore : score,
-                gameIDPlayer2: role === Role.PLAYER_2 ? this.topoutPlayerGameID : myGameID,
-                scorePlayer2: role === Role.PLAYER_2 ? this.topoutPlayerScore : score,
+                gameIDPlayer1: role === Role.PLAYER_1 ? myGameID : this.topoutPlayerGameID,
+                scorePlayer1: role === Role.PLAYER_1 ? score : this.topoutPlayerScore,
+                gameIDPlayer2: role === Role.PLAYER_2 ? myGameID:  this.topoutPlayerGameID ,
+                scorePlayer2: role === Role.PLAYER_2 ? score : this.topoutPlayerScore,
             });
             this.topoutPlayerGameID = null;
             this.topoutPlayerScore = null;

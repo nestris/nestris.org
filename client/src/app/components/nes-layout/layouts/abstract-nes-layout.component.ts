@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
+import { GameOverMode } from '../nes-board/nes-board.component';
 
 /*
 An abstract layout that defines the game state interface and leaves layout html and css up to implementation
@@ -24,4 +25,7 @@ export abstract class AbstractNesLayoutComponent {
   @Input() trt: number = 0;
   @Input() drought?: number = undefined; // if undefined, not in drought and hidden. if drought, replace trt
   @Input() das?: number = undefined; // if undefined, not in das and hidden. if das, replace trt
+  @Input() gameOver? : GameOverMode;
+  @Input() gameOverShowNext: boolean = false;
+  @Output() clickNext = new EventEmitter<void>();
 }

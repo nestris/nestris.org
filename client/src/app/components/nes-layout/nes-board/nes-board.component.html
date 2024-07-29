@@ -19,7 +19,7 @@
         <g (mouseleave)="onMouseLeave()">
             <g *ngFor="let y of ZERO_TO_NINETEEN">
                 <g *ngFor="let x of ZERO_TO_NINE">
-                    <g app-nes-block
+                    <g app-nes-block class="block" [ngClass]="{'animate' : animateOpacity}"
                         [attr.opacity]="getOpacityAt(x,y)"
                         [color]="getBlockAt(x,y)"
                         [level]="level"
@@ -35,4 +35,8 @@
     </svg>
 
     <h1 *ngIf="countdown" class="countdown">{{countdown}}</h1>
+
+    <app-game-over class="game-over" [mode]="gameOver ?? GameOverMode.TIE" [showNext]="gameOverShowNext"
+        (clickNext)="clickNext.emit()" [ngStyle]="{opacity : (gameOver ? 1 : 0)}" />
+    
 </div>

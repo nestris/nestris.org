@@ -106,6 +106,24 @@ export function selectLevelForPlayer(req: Request, res: Response, state: ServerS
         res.status(200).send({success: true});
     } catch (e: any) {
         res.status(400).send({error: e.message});
+    }   
+}
+
+export function transitionDeadToWaiting(req: Request, res: Response, state: ServerState) {
+
+    let response;
+    try {
+        response = verifyMultiplayerRequest(req, res, state);
+    } catch (e) {
+        // Error response already sent
+        return;
     }
-   
+    const {multiplayer, playerRole} = response;
+
+    try {
+        multiplayer.transitionDeadPlayerToWaiting(playerRole);
+        res.status(200).send({success: true});
+    } catch (e: any) {
+        res.status(400).send({error: e.message});
+    }
 }

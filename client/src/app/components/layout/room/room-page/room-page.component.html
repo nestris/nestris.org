@@ -30,6 +30,9 @@
                         [lines]="data.lines"
                         [score]="data.score"
                         [countdown]="data.countdown"
+                        [gameOver]="getGameOverMode(multiplayerData$ | async, client.role)"
+                        [gameOverShowNext]="true"
+                        (clickNext)="clickNext()"
                     />
                 </div>
             </ng-container>
@@ -47,6 +50,7 @@
                         [lines]="player.lines"
                         [score]="player.score"
                         [countdown]="player.countdown"
+                        [gameOver]="getGameOverMode(multiplayerData$ | async, Role.PLAYER_1)"
                     />
                 </div>
             </ng-container>
@@ -69,6 +73,7 @@
                         [lines]="player.lines"
                         [score]="player.score"
                         [countdown]="player.countdown"
+                        [gameOver]="getGameOverMode(multiplayerData$ | async, rightBoardRole(client.role))"
                     />
                 </div>
             </ng-container>

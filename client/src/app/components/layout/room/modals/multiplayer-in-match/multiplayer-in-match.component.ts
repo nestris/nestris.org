@@ -64,10 +64,10 @@ export class MultiplayerInMatchComponent {
     const mode = data.state.players[role].mode;
     switch (mode) {
       case MultiplayerPlayerMode.NOT_IN_ROOM: return "Not in room";
+      case MultiplayerPlayerMode.DEAD: // Fall through
       case MultiplayerPlayerMode.NOT_READY: return "Not Ready";
       case MultiplayerPlayerMode.READY: return "Ready!";
       case MultiplayerPlayerMode.IN_GAME: return "Playing";
-      case MultiplayerPlayerMode.DEAD: return "Dead";
     }
   }
 
@@ -89,12 +89,12 @@ export class MultiplayerInMatchComponent {
     const mode = data.state.players[role].mode;
     switch (mode) {
       case MultiplayerPlayerMode.NOT_IN_ROOM: return "Waiting for player to rejoin...";
+      case MultiplayerPlayerMode.DEAD: // Fall through
       case MultiplayerPlayerMode.NOT_READY: 
         return this.myRole === role ? "Click here when you’re ready!" : "Waiting for opponent...";
       case MultiplayerPlayerMode.READY:
         return this.myRole === role ? "Click again if you’re not ready" : "Opponent is waiting for you";
       case MultiplayerPlayerMode.IN_GAME: return "Started game";
-      case MultiplayerPlayerMode.DEAD: return "Dead";
     }
   }
 

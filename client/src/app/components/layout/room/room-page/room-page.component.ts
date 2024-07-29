@@ -12,6 +12,7 @@ import { ClientRoomState } from './room-state';
 import { NotificationService } from 'src/app/services/notification.service';
 import { NotificationType } from 'src/app/shared/models/notifications';
 import { getMatchScore, MultiplayerData, MultiplayerPlayerMode, MultiplayerRoomMode, PlayerRole } from 'src/app/shared/models/multiplayer';
+import { GameOverMode } from 'src/app/components/nes-layout/nes-board/nes-board.component';
 
 
 export interface RoomClient {
@@ -256,6 +257,29 @@ export class RoomPageComponent implements OnInit, OnDestroy {
     // If solo, scale proportionally so it fills most of the screen width
     else return screenWidth / 1100;
   };
+
+  getGameOverMode(data: MultiplayerData | null, role: PlayerRole): GameOverMode | undefined {
+
+    if (!data) return undefined;
+    if (data.match.points.length === 0) return undefined;
+
+    if ([MultiplayerRoomMode.WAITING, MultiplayerRoomMode.MATCH_ENDED].includes(data.state.mode)) {
+      const endedGame = data.match.points[data.match.points.length - 1];
+      const myScore = role === Role.PLAYER_1 ? endedGame.scorePlayer1 : endedGame.scorePlayer2;
+      const theirScore = role === Role.PLAYER_1 ? endedGame.scorePlayer2 : endedGame.scorePlayer1;
+
+      if (myScore > theirScore) return GameOverMode.WIN;
+      if (myScore < theirScore) return GameOverMode.LOSE;
+      return GameOverMode.TIE;
+    }
+    return undefined;
+  }
+
+  async clickNext() {
+    console.log('click next');
+    const sessionID = this.websocket.getSessionID();
+    await fetchServer2(Method.POST, `/api/v2/multiplayer/transition-dead-to-waiting/${sessionID}`);
+  }
 
   async onExit() {
 
