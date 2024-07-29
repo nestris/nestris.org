@@ -1,0 +1,261 @@
+@import "../../../../../../styles.scss";
+
+.modal {
+    background-color: $modal-color;
+    border-radius: 20px;
+    padding: 15px;
+    position: relative;
+
+    width: 800px;
+    height: 520px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.upper-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    width: 100%;
+    box-sizing: border-box;
+    padding-right: 5px;
+}
+
+.seed-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.seed-container p {
+    font-family: $main-font;
+    font-size: 11px;
+    font-weight: 500;
+    margin: 0;
+    padding: 0;
+}
+
+.seed-container h1 {
+    font-family: 'NES';
+    font-size: 28px;
+    margin: 0;
+    padding: 0;
+}
+
+.player-cards, .ready-cards {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 20px;
+}
+
+.player-card, .ready-card {
+    border-radius: 10px;
+    border-style: solid;
+    width: 360px;
+    box-sizing: border-box;
+}
+
+.player-card.blue, .ready-card.blue {
+    border-color: $multiplayer-blue-color;
+    color: $multiplayer-blue-color;
+    background-color: rgba(60, 94, 183, 0.1);
+}
+
+.player-card.red, .ready-card.red {
+    border-color: $multiplayer-red-color;
+    color: $multiplayer-red-color;
+    background-color: rgba(183, 60, 60, 0.1);
+}
+
+.player-card {
+    height: 90px;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+.player-card.blue {
+    flex-direction: row;
+}
+.player-card.red {
+    flex-direction: row-reverse;
+}
+
+.player-card .info {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+}
+
+.player-card.blue .info {
+    align-items: flex-start;
+}
+
+.player-card.red .info {
+    align-items: flex-end;
+}
+
+.player-card .info .player {
+    font-family: $main-font;
+    font-size: 25px;
+    font-weight: 700;
+    margin: 0;
+    padding: 0;
+}
+
+.player-card .info .trophies {
+    font-family: $main-font;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+    padding: 0;
+}
+
+.player-card h1.score {
+    align-self: center;
+    font-family: $main-font;
+    font-size: 70px;
+    font-weight: 700;
+    margin: 0;
+    padding: 0;
+    margin-inline: 12px;
+}
+
+.ready-card {
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.ready-card.blue {
+    cursor: pointer;
+}
+
+.ready-card.red {
+    cursor: not-allowed;
+}
+
+.ready-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.ready-content .status {
+    font-family: $main-font;
+    font-size: 30px;
+    font-weight: 700;
+    margin: 0;
+    padding: 0;
+}
+
+.ready-content .msg {
+    font-family: $main-font;
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0;
+    padding: 0;
+}
+
+.select-level-content {
+    width: 100%;
+    box-sizing: border-box;
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.select-level-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.select-level-container h1 {
+    font-family: $main-font;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    padding: 0;
+}
+
+.levels {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.level {
+    width: 60px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+}
+
+.level.blue {
+    background-color: $multiplayer-blue-color;
+    cursor: pointer;
+}
+
+.level.red {
+    background-color: $multiplayer-red-color;
+    cursor: not-allowed;
+}
+
+.level.not-selected {
+    opacity: 0.3;
+}
+
+.level.blue.not-selected:hover {
+    opacity: 0.5;
+}
+
+
+.level p {
+    font-family: 'NES';
+    font-size: 30px;
+    margin: 0;
+    padding: 0;
+}
+
+.bottom-content {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+}
+
+.bottom-content p {
+    font-family: $main-font;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    padding: 0;
+}
+
+.loading {
+    position: absolute;
+    transform: translateY(48px) scale(0.35);
+    opacity: 0.7;
+}

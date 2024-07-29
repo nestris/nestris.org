@@ -1,70 +1,105 @@
+<ng-container *ngIf="(client$ | async)?.room?.mode === RoomMode.MULTIPLAYER && (client$ | async)?.role !== Role.SPECTATOR">
+    <div class="multiplayer-background">
+        <div class="left"></div>
+        <div class="right"></div>
+    </div>
+</ng-container>
+
 <div class="main"
-    [class.player-solo]="(client$ | async)?.room?.mode === RoomMode.SOLO && (client$ | async)?.role !== Role.SPECTATOR"
-    [class.player-multiplayer]="(client$ | async)?.room?.mode === RoomMode.MULTIPLAYER && (client$ | async)?.role !== Role.SPECTATOR"
+    [class.solo]="(client$ | async)?.room?.mode === RoomMode.SOLO"
+    [class.multiplayer]="(client$ | async)?.room?.mode === RoomMode.MULTIPLAYER"
+    [class.spectator]="(client$ | async)?.role === Role.SPECTATOR"
 >
 
-    <app-fullscreen-exit-button [onExit]="onExit.bind(this)" />
-
     <ng-container *ngIf="(client$ | async) as client">
-        
-        <!-- LEFT BOARD -->
-        <!-- if playing, show on left side whether player 1 or 2 -->
-        <ng-container *ngIf="client.role === Role.PLAYER_1 || client.role === Role.PLAYER_2">
 
-            <app-layout-one class="game" *ngIf="(platform.getGameData$() | async) as data"
-                [class.solo]="client.room.mode === RoomMode.SOLO"
-                [class.left]="client.room.mode === RoomMode.MULTIPLAYER"
-                [board]="data.board" [level]="data.level"
-                [nextType]="data.nextPiece"
-                [level]="data.level"
-                [lines]="data.lines"
-                [score]="data.score"
-                [countdown]="data.countdown"
-                [keybinds]="['Rotate (Z & X) / Shift (, & .)', 'Quit (Q) / Restart (R)']"
-            />
+        <div class="column left">
 
-            <app-nes-emulator-menu class="emulator-menu" *ngIf="(platform.getPlatform$() | async) === Platform.ONLINE"
-                [class.multiplayer]="client.room.mode === RoomMode.MULTIPLAYER"
-                [selectedLevel]="(emulator.getSelectedLevel$() | async) ?? 9"
-                (selectedLevelChange)="emulator.setSelectedLevel($event)"
-                [isPaused]="(emulator.getPaused$() | async) ?? false"
-                (togglePause)="emulator.togglePaused()"
-                (reset)="emulator.resetGame()"
-            />
             
-        </ng-container>
+            <!-- LEFT BOARD -->
+            <!-- if playing, show on left side whether player 1 or 2 -->
+            <ng-container *ngIf="client.role === Role.PLAYER_1 || client.role === Role.PLAYER_2">
+                <div class="game-container" *ngIf="(platform.getGameData$() | async) as data" [ngStyle]="{scale: getScale(client, screenWidth$ | async)}">
 
-        <!-- If spectating, show player 0 board on left side -->
-        <ng-container *ngIf="client.role === Role.SPECTATOR">
-            <app-layout-one class="game" *ngIf="roomState?.player(0) as player"
-                [class.solo]="client.room.mode === RoomMode.SOLO"
-                [class.left]="client.room.mode === RoomMode.MULTIPLAYER"
-                [board]="player.getBoard()"
-                [nextType]="player.getNext()"
-                [level]="player.getStatus().level"
-                [lines]="player.getStatus().lines"
-                [score]="player.getStatus().score"
-                [countdown]="player.getCountdown()"
-            />
-        </ng-container>
+                    <app-game-header *ngIf="(multiplayerData$ | async) as data" [data]="data" [role]="client.role" color="blue" />
 
+                    <app-layout-one class="game"
+                        [board]="data.board" [level]="data.level"
+                        [nextType]="data.nextPiece"
+                        [level]="data.level"
+                        [lines]="data.lines"
+                        [score]="data.score"
+                        [countdown]="data.countdown"
+                        [gameOver]="getGameOverMode(multiplayerData$ | async, client.role, soloMode$ | async)"
+                        [gameOverShowNext]="true"
+                        (clickNext)="clickNext()"
+                    />
+                </div>
+            </ng-container>
 
-        <!-- RIGHT BOARD. only show if in multiplayer -->
-        <ng-container *ngIf="client.room.mode === RoomMode.MULTIPLAYER">
+            <!-- If spectating, show player 0 board on left side -->
+            <ng-container *ngIf="client.role === Role.SPECTATOR">
+                <div class="game-container" *ngIf="roomState?.player(0) as player" [ngStyle]="{scale: getScale(client, screenWidth$ | async)}">
 
-            <!-- if playing, show the other player on right side -->
-            <!-- if spectating, show player 2 board on right side -->
-            <app-layout-one class="game right"
-                *ngIf="roomState?.player(client.role === Role.PLAYER_2 ? 0 : 1) as player"
-                [board]="player.getBoard()"
-                [nextType]="player.getNext()"
-                [level]="player.getStatus().level"
-                [lines]="player.getStatus().lines"
-                [score]="player.getStatus().score"
-                [countdown]="player.getCountdown()"
-            />
-        </ng-container>
+                    <app-game-header *ngIf="(multiplayerData$ | async) as data" [data]="data" [role]="Role.PLAYER_1" color="blue" />
+
+                    <app-layout-one class="game" 
+                        [board]="player.board"
+                        [nextType]="player.next"
+                        [level]="player.level"
+                        [lines]="player.lines"
+                        [score]="player.score"
+                        [countdown]="player.countdown"
+                        [gameOver]="getGameOverMode(multiplayerData$ | async, Role.PLAYER_1)"
+                    />
+                </div>
+            </ng-container>
+        </div>
+
+        <div class="column right" *ngIf="client.room.mode === RoomMode.MULTIPLAYER">
+
+            <!-- RIGHT BOARD. only show if in multiplayer -->
+            <ng-container *ngIf="client.room.mode === RoomMode.MULTIPLAYER">
+                <div class="game-container" *ngIf="roomState?.player(client.role === Role.PLAYER_2 ? 0 : 1) as player" [ngStyle]="{scale: getScale(client, screenWidth$ | async)}">
+
+                    <app-game-header *ngIf="(multiplayerData$ | async) as data" [data]="data" [role]="rightBoardRole(client.role)" color="red" />
+
+                    <!-- if playing, show the other player on right side -->
+                    <!-- if spectating, show player 2 board on right side -->
+                    <app-layout-one class="game right"
+                        [board]="player.board"
+                        [nextType]="player.next"
+                        [level]="player.level"
+                        [lines]="player.lines"
+                        [score]="player.score"
+                        [countdown]="player.countdown"
+                        [gameOver]="getGameOverMode(multiplayerData$ | async, rightBoardRole(client.role))"
+                    />
+                </div>
+            </ng-container>
+
+        </div>
 
     </ng-container>
 
 </div>
+
+<!-- Exit button in front of player boards -->
+<app-fullscreen-exit-button [onExit]="onExit.bind(this)"/>
+
+
+<ng-container *ngIf="(multiplayerData$ | async) as data">
+    <app-generic-room-modal *ngIf="multiplayerModalToShow(data) as roomModalType">
+        <app-multiplayer-in-match *ngIf="roomModalType === RoomModalType.MULTIPLAYER_IN_MATCH"
+            [myRole]="(client$ | async)?.role" [data]="data"/>
+        <app-multiplayer-after-match *ngIf="roomModalType === RoomModalType.MULTIPLAYER_AFTER_MATCH" [data]="data"/>
+    </app-generic-room-modal>
+</ng-container>
+
+
+<ng-container *ngIf="(soloMode$ | async) as soloMode">
+    <app-generic-room-modal *ngIf="[SoloMode.BEFORE_GAME, SoloMode.AFTER_GAME].includes(soloMode)">
+        <app-solo-before-game *ngIf="soloMode === SoloMode.BEFORE_GAME" (clickPlay)="clickPlaySolo($event)"/>
+        <app-solo-after-game *ngIf="soloMode === SoloMode.AFTER_GAME" [game]="(soloGameEndMessage$ | async)!" (clickNext)="clickSoloAfterToBefore()"/>
+    </app-generic-room-modal>
+</ng-container>

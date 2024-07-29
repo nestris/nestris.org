@@ -3,7 +3,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { RandomRNG } from 'src/app/models/piece-sequence-generation/random-rng';
 import { BinaryEncoder } from 'src/app/shared/network/binary-codec';
 import { JsonMessageType } from 'src/app/shared/network/json-message';
-import { GameRecoveryPacket, NonGameRecoveryPacket, GameStartPacket, GameCountdownPacket, GamePlacementPacket, GameAbbrBoardPacket, GameFullBoardPacket, GameEndPacket } from 'src/app/shared/network/stream-packets/packet';
+import { GameStartPacket, GameCountdownPacket, GamePlacementPacket, GameAbbrBoardPacket, GameFullBoardPacket, GameEndPacket } from 'src/app/shared/network/stream-packets/packet';
 import { FpsTracker } from 'src/app/shared/scripts/fps-tracker';
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
@@ -29,12 +29,6 @@ export class EmulatorService {
 
   private currentState: EmulatorGameState | undefined = undefined;
 
-  // BehaviorSubjects that are controlled by EmulatorMenuComponent
-  private isPaused$ = new BehaviorSubject<boolean>(false);
-  private selectedLevel$ = new BehaviorSubject<number>(9);
-
-  private fpsTracker?: FpsTracker;
-
   private framesDone: number = 0;
   private epoch: number = performance.now();
 
@@ -49,78 +43,10 @@ export class EmulatorService {
 
   constructor(
     private platform: PlatformInterfaceService,
-    private websocket: WebsocketService
-) {
+) {}
 
-    platform.getPollingEmulator$().subscribe((polling) => {
-
-      if (polling) { // start emulator loop
-        if (!this.loop) {
-          this.timeDelta.resetDelta();
-          this.previousCountdown = undefined;
-          this.startGame(this.selectedLevel$.getValue(), false);
-          this.loop = setInterval(() => this.tick(), 0);
-        }
-      } else { // stop emulator loop
-        if (this.loop) {
-          clearInterval(this.loop);
-          this.loop = undefined;
-          this.stopGame();
-        }
-      }
-    });
-
-    // when server requests a recovery packet, generate one and queue it
-    // it is usually requested because a player has joined the room and needs a recovery packet
-    // to get up to speed with the current game state
-    websocket.onEvent(JsonMessageType.REQUEST_RECOVERY_PACKET).subscribe((event) => {
-
-      // ignore if emulator is not the selected platform
-      if (this.platform.getPlatform() !== Platform.ONLINE) return;
-
-      // get a snapshot of current game state and send as FullRecoveryPacket      
-      this.sendRecoveryPacket();
-    });
-  }
-
-  sendRecoveryPacket() {
-
-    console.log("requested from server, sending recovery packet");
-
-    this.platform.sendPacket(
-      this.currentState ? this.getGameRecoveryData(this.currentState) : this.getNonGameRecoveryData(),
-      true // send this packet immediately to minimize latency for the other players in the room
-    )
-  }
-
-  getGameRecoveryData(state: EmulatorGameState): BinaryEncoder {
-    const status = state.getStatus();
-
-    return new GameRecoveryPacket().toBinaryEncoder({
-      delta: this.timeDelta.getDelta(),
-      startLevel: state.startLevel,
-      current: state.getCurrentPieceType(),
-      next: state.getNextPieceType(),
-      isolatedBoard: state.getIsolatedBoard(),
-      score: status.score,
-      lines: status.lines,
-      level: status.level,
-      countdown: state.getCountdown() ?? 0,
-    });
-  }
-
-  getNonGameRecoveryData(): BinaryEncoder {
-    return new NonGameRecoveryPacket().toBinaryEncoder({
-      delta: this.timeDelta.getDelta(),
-      board: new TetrisBoard(),
-      next: TetrominoType.ERROR_TYPE,
-      level: 18,
-      lines: 0,
-      score: 0
-    });
-  }
-
-  tick() {
+  // tick function that advances the emulator state during the game loop
+  private tick() {
 
     if (this.currentState === undefined) return;
     
@@ -129,28 +55,26 @@ export class EmulatorService {
     const frames = diff / 1000 * EMULATOR_FPS | 0;
     const frameAmount = frames - this.framesDone;
 
+    // Advance as many frames as needed to catch up to current time
     for (let i = 0; i < frameAmount; i++) {
-      if (!this.isPaused$.getValue()) this.advanceEmulatorState();
+      this.advanceEmulatorState();
     }
 
+    // update the number of frames done for the next calculation of frames to advance
     this.framesDone = frames;
-
   }
 
   // starting game will create a game object and execute game frames at 60fps
   // if slowmode, will execute games at 5ps instead
-  startGame(level: number, startPaused: boolean) {
+  startGame(level: number) {
 
     console.log("starting game at level", level);
 
-    this.fpsTracker = new FpsTracker();
+    // Record initial game start time for deterimining time elapsed between frames
+    this.timeDelta.resetDelta();
 
     // set all keys to unpressed
     this.keyManager.resetAll();
-
-    // start paused
-    this.isPaused$.next(startPaused);
-
 
     this.epoch = performance.now();
     this.framesDone = 0;
@@ -163,15 +87,14 @@ export class EmulatorService {
     const next = this.currentState.getNextPieceType();
     this.platform.sendPacket(new GameStartPacket().toBinaryEncoder({level, current, next}));
 
+    // start game loop
+    this.loop = setInterval(() => this.tick(), 0);
 }
 
   // run emulator for one tick
   // if keyboard input, rollback and runahead
   // if topped out, stop game
   private advanceEmulatorState() {
-
-    // tick fps tracker
-    this.fpsTracker?.tick();
     
     const pressedKeys = this.keyManager.generate();
 
@@ -245,14 +168,17 @@ export class EmulatorService {
     // if game is already stopped, do nothing
     if (this.currentState === undefined) return;
 
-    this.fpsTracker = undefined;
-    this.currentState = undefined;
+    // stop game loop
     console.log("game stopped");
+    clearInterval(this.loop);
+    this.loop = undefined;
 
+    // Reset game state
+    this.currentState = undefined;
+    
     // send game end packet
     this.platform.sendPacket(new GameEndPacket().toBinaryEncoder({}));
   }
-
 
 
   // if matching keybind, update currently pressed keys on keydown
@@ -263,10 +189,6 @@ export class EmulatorService {
       this.keyManager.onPress(keybind);
       event.stopPropagation();
       event.preventDefault();
-    } else if (["Enter", " "].includes(event.key) && this.currentState) { // toggle pause
-      this.togglePaused();
-    } else if (event.key === "r") { // restart game
-      this.resetGame();
     }
   }
 
@@ -279,37 +201,5 @@ export class EmulatorService {
       event.stopPropagation();
       event.preventDefault();
     }
-  }
-
-  resetGame() {
-    this.stopGame();
-    this.startGame(this.selectedLevel$.getValue(), false);
-  }
-
-  getPaused$(): Observable<boolean> {
-    return this.isPaused$.asObservable();
-  }
-
-  togglePaused() {
-    this.isPaused$.next(!this.isPaused$.getValue())
-  }
-
-  getSelectedLevel$(): Observable<number> {
-    return this.selectedLevel$.asObservable();
-  }
-
-  setSelectedLevel(level: number) {
-
-    if (level < 0 || level > 29) {
-      console.error("Cannot set level to", level);
-      return;
-    }
-
-    this.selectedLevel$.next(level);
-  }
-
-  // returns the average number of ticks per second over the last second
-  getFPS(): number {
-    return this.fpsTracker?.getFPS() ?? 0;
   }
 }

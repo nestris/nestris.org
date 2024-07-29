@@ -60,12 +60,11 @@ export class PlatformInterfaceService {
   private platform$ = new BehaviorSubject<Platform>(Platform.ONLINE);
   private polledGameData$ = new BehaviorSubject<PolledGameData>(DEFAULT_POLLED_GAME_DATA);
 
-  private pollingEmulator$ = new BehaviorSubject<boolean>(false);
-  private pollingOCR$ = new BehaviorSubject<boolean>(false);
 
   private assembler = new PacketAssembler();
+  private numBatchedPackets: number = 0;
 
-  public readonly BATCH_PERIOD = 500; // send all accumulated data to the server every BATCH_PERIOD ms
+  public readonly BATCH_PERIOD = 250; // send all accumulated data to the server every BATCH_PERIOD ms
 
   constructor(
     private websocket: WebsocketService,
@@ -115,28 +114,6 @@ export class PlatformInterfaceService {
     return this.platform$.asObservable();
   }
 
-  startPolling() {
-    if (this.platform$.getValue() === Platform.ONLINE) {
-      this.pollingEmulator$.next(true);
-      this.pollingOCR$.next(false);
-    } else {
-      this.pollingOCR$.next(true);
-      this.pollingEmulator$.next(false);
-    }
-  }
-
-  getPollingEmulator$(): Observable<boolean> {
-    return this.pollingEmulator$.asObservable();
-  }
-
-  getPollingOCR$(): Observable<boolean> {
-    return this.pollingOCR$.asObservable();
-  }
-
-  stopPolling() {
-    this.pollingEmulator$.next(false);
-    this.pollingOCR$.next(false);
-  }
 
   // called by emulator/game-state service to update the game data
   updateGameData(data: PolledGameData) {
@@ -147,26 +124,26 @@ export class PlatformInterfaceService {
   // by default, is not sent immediately, but is batched and sent by sendBatchedPackets() every second
   sendPacket(packet: BinaryEncoder, sendImmediately: boolean = false) {
     this.assembler.addPacketContent(packet);
+    this.numBatchedPackets++;
     if (sendImmediately) this.sendBatchedPackets();
   }
 
   // called every second internally to send all accumulated data to the server
   sendBatchedPackets() {
 
-    // console.log("sendData()");
-
     // if there are no packets to send, don't do anything
     if (!this.assembler.hasPackets()) {
-      // console.log("No packets to send");
       return;
     }
 
     // encode the packets into Uint8Array, and send it to the server
     const binaryData = this.assembler.encode();
+    console.log(`Sending ${this.numBatchedPackets} batched packets`);
     this.websocket.sendBinaryMessage(binaryData);
 
     // clear the assembler for the next batch of packets
     this.assembler = new PacketAssembler();
+    this.numBatchedPackets = 0;
 
   }
 

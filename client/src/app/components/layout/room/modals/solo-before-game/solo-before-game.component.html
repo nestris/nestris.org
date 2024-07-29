@@ -1,0 +1,12 @@
+<div class="modal">
+    <div class="content">
+
+    </div>
+    <div class="buttons">
+        <app-solid-button label="Exit" [color]="ButtonColor.RED" (click)="exit()" />
+        <div class="buttons-right">
+            <app-solid-button label="Play" [color]="ButtonColor.BLUE" (click)="clickPlay.emit(18)" />
+            <!-- TODO: keybinds button here -->
+        </div>
+    </div>
+</div>

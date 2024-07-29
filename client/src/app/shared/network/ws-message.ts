@@ -20,11 +20,15 @@ export enum MessageType {
 export async function decodeMessage(message: any, containsPlayerIndexPrefix: boolean): Promise<{type: MessageType, data: JsonMessage | PacketDisassembler}> {
     if (typeof message === 'string') {
         const jsonMessage = JSON.parse(message);
-        return {
-            type: MessageType.JSON,
-            data: jsonMessage
-        };
 
+        if ((jsonMessage as JsonMessage).type) {
+            return {
+                type: MessageType.JSON,
+                data: jsonMessage
+            };
+        } else {
+            console.log("WARNING: Received invalid JSON message, trying to decode as arraybuffer", message);
+        }
     }
 
     // try to decode as json if its an arraybuffer
@@ -32,10 +36,14 @@ export async function decodeMessage(message: any, containsPlayerIndexPrefix: boo
     if (messageString) {
         try {
             const jsonMessage = JSON.parse(messageString);
-            return {
-                type: MessageType.JSON,
-                data: jsonMessage
-            };
+            if ((jsonMessage as JsonMessage).type) {
+                return {
+                    type: MessageType.JSON,
+                    data: jsonMessage
+                };
+            } else {
+                console.log("WARNING: Received invalid JSON message, trying to decode as binary", message);
+            }
         } catch {
             // do nothing
         }

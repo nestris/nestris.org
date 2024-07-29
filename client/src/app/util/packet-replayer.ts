@@ -1,5 +1,7 @@
 import { BinaryEncoder } from "../shared/network/binary-codec";
 import { PacketContent, getPacketDelay } from "../shared/network/stream-packets/packet";
+import { PeriodicTask } from "../shared/scripts/periodic-task";
+import { RollingAverage, RollingAverageStrategy } from "../shared/scripts/rolling-average";
 
 /*
 Given a stream of PacketSchema, some of them TimedPacketSchema, process these packets respecting 
@@ -14,13 +16,27 @@ export class PacketReplayer {
   private timeToExecutePacket: number;
 
 
+  // track the percentage of packets that were on time so that we can monitor performance and adjust buffer delay
+  private onTimePackets: RollingAverage = new RollingAverage(50, RollingAverageStrategy.DELTA);
+  private dynamicBufferTask: PeriodicTask;
+
   constructor(
     // callback will be called when it is time for the upcoming packet(s) to execute
     // multiple packets means that some or all of them are not timed, so they execute immediately
     private readonly executePackets: (packets: PacketContent[]) => void,
-    private readonly bufferDelay: number, // buffer packets this amount in ms before executing to avoid network jitter
+    private readonly initialBufferDelay: number, // buffer packets to minimize impact of network jitter
   ) {
-    this.timeToExecutePacket = bufferDelay;
+    this.timeToExecutePacket = this.initialBufferDelay;
+
+    // periodically adjust the buffer delay based on the percentage of on-time packets
+    this.dynamicBufferTask = new PeriodicTask(50, () => this.adjustBufferDelay());
+  }
+
+  reset() {
+    this.buffer = [];
+    this.initialTime = undefined;
+    this.timeToExecutePacket = this.initialBufferDelay;
+    this.onTimePackets.reset();
   }
 
   ingestPacket(packet: PacketContent): void {
@@ -34,12 +50,15 @@ export class PacketReplayer {
     // if buffer was empty before and only now has a packet, means there is no packet queued
     // so we start queue this packet
     if (this.buffer.length === 1) this.sendQueuedPacket();
+
+    // Every N cycles, adjust the buffer delay based on the percentage of packets that were on time
+    this.dynamicBufferTask.execute();
   }
 
   sendQueuedPacket(forceExecuteFirst: boolean = false) {
 
     // assert there is a packet to send
-    if (this.buffer.length === 0) throw new Error("No packet to send");
+    if (this.buffer.length === 0) console.log("WARNING: No packet to send.");
 
     const queuedPacket = this.buffer[0];
 
@@ -57,16 +76,22 @@ export class PacketReplayer {
         // essentially, we are resetting
         console.log("Packet delay too long; resetting initial time");
         this.initialTime = performance.now();
-        this.timeToExecutePacket = this.bufferDelay;
+        this.timeToExecutePacket = this.initialBufferDelay;
       }
 
       const currentTime = performance.now() - this.initialTime!;
       const timeToWait = this.timeToExecutePacket - currentTime;
 
       if (timeToWait > 0) {
+        // there's time before packet needs to be executed, so packet came on time
+        this.onTimePackets.push(1);
+
         // if the queued packet is a timed packet and we have to wait, set a timeout
         setTimeout(() => this.sendQueuedPacket(true), timeToWait);
         return;
+      } else {
+        // packet is late
+        this.onTimePackets.push(0);
       }
     }
 
@@ -85,6 +110,44 @@ export class PacketReplayer {
     // queue the next packet, if it exists
     if (this.buffer.length > 0) this.sendQueuedPacket();
   }
+
+  percentagePacketsOnTime(): number {
+    return this.onTimePackets.get();
+  }
+
+  packetsOnTimeHistory(): number[] {
+    return this.onTimePackets.getValues();
+  }
+
+  // Adjust the buffer delay based on the percentage of packets that were on time
+  private adjustBufferDelay() {
+
+    // wait until we have enough data to make a decision
+    if (!this.onTimePackets.isFull()) return;
+
+    const percentage = this.percentagePacketsOnTime();
+    
+    let delayAdjustment: number;
+    if (percentage == 1) {
+      // all packets are on time, so we can reduce the buffer delay
+      delayAdjustment = -10;
+    } else if (percentage > 0.90) {
+      // most packets are on time, so we keep the buffer delay the same
+      return;
+    } else if (percentage > 0.7) {
+      // some packets are late, so we increase the buffer delay
+      delayAdjustment = 20;
+    } else {
+      // most packets are late, so we increase the buffer delay significantly
+      delayAdjustment = 100;
+    }
+
+    // shift the current buffer delay
+    this.timeToExecutePacket += delayAdjustment;
+  
+    console.log(`Packet reliability: ${percentage * 100}%. ${delayAdjustment > 0 ? "Increasing" : "Decreasing"} buffer delay by ${Math.abs(delayAdjustment)}ms`);
+  }
+
 }
 
 let opcode = 0;

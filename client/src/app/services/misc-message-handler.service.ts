@@ -18,7 +18,11 @@ export class MiscMessageHandlerService {
   ) {
 
     websocket.onEvent(JsonMessageType.GO_TO_ROOM).subscribe((message) => this.goToRoom((message as GoToRoomMessage).roomID));
-    
+
+    // TEMPORARY LOGGING ONLY
+    websocket.onEvent(JsonMessageType.MULTIPLAYER_ROOM_UPDATE).subscribe((message) => {
+      console.log("multiplayer", message);
+    });
   }
 
   // go to the room with the given roomID

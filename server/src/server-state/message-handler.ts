@@ -1,4 +1,4 @@
-import { JsonMessage, JsonMessageType, PingMessage, StartSoloRoomMessage, StartSpectateRoomMessage, RequestRecoveryPacketMessage, PongMessage } from "../../shared/network/json-message";
+import { JsonMessage, JsonMessageType, PingMessage, StartSoloRoomMessage, StartSpectateRoomMessage, PongMessage } from "../../shared/network/json-message";
 import { UserSession } from "./online-user";
 import { ServerState } from "./server-state";
 
@@ -11,9 +11,8 @@ export async function handleJsonMessage(state: ServerState, session: UserSession
         case JsonMessageType.PING: return await handlePingMessage(state, session, message as PingMessage);
         case JsonMessageType.START_SOLO_ROOM: return await handleStartSoloRoomMessage(state, session, message as StartSoloRoomMessage);
         case JsonMessageType.START_SPECTATE_ROOM: return await handleStartSpectateRoomMessage(state, session, message as StartSpectateRoomMessage);
-        case JsonMessageType.REQUEST_RECOVERY_PACKET: return await handleRequestRecoveryPacketMessage(state, session, message as RequestRecoveryPacketMessage);
             
-        default: console.log(`Unknown message type: ${message.type}`);
+        default: console.log(`Unknown message type: ${message.type} from message ${message}`);
     }
 }
 
@@ -33,10 +32,11 @@ export async function handleStartSoloRoomMessage(state: ServerState, session: Us
 
     try {
         // try to create a room for the user
-        const roomID = state.roomManager.createSingleplayerRoom(session);
+        const roomID = await state.roomManager.createSingleplayerRoom(session);
         session.socket.send(JSON.stringify(new StartSoloRoomMessage(message.id, true, roomID))); // send success message with room id
     } catch (error) {
         // if user is already in a room, send an error message
+        console.log(`Error creating room: ${error}`);
         session.socket.send(JSON.stringify(new StartSoloRoomMessage(message.id, false)));
     }
 }
@@ -44,14 +44,4 @@ export async function handleStartSoloRoomMessage(state: ServerState, session: Us
 // when user wants to start spectating a room, add user to the room
 export async function handleStartSpectateRoomMessage(state: ServerState, session: UserSession, message: StartSpectateRoomMessage) {
     state.roomManager.addSpectatorToRoom(message.roomID, session);
-}
-
-// when user requests a recovery packet, rebroadcast the request to all other players in the room
-export async function handleRequestRecoveryPacketMessage(state: ServerState, session: UserSession, message: RequestRecoveryPacketMessage) {
-    
-    // get the room user from the session
-    const roomUser = state.roomManager.getUserBySessionID(session.sessionID);
-
-    // if the user is in a room, send the recovery request to all other players in the room
-    if (roomUser) roomUser.room.sendJsonMessageToAllPlayersExcept(roomUser, new RequestRecoveryPacketMessage());
 }

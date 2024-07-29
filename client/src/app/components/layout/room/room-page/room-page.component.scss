@@ -4,47 +4,62 @@
     height: 100%;
 }
 
-.main {
-    display: block;
+.multiplayer-background {
+    position: absolute;
     width: 100%;
     height: 100%;
-    background: linear-gradient(7deg,rgba(255,215,0,0.46) 0%,rgba(0,0,0,1) 70%);
-    position: relative;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr)); // force equally spaced columns even if children are bigger
+    z-index: -100; // behind everything else
 }
 
-.main.player-solo {
-    background: linear-gradient(7deg,rgba(4,43,182,.5) 0%,rgba(0,0,0,1) 70%);
+.multiplayer-background .left {
+    background: linear-gradient(10deg,rgba(4,43,182,.5) 0%,rgba(0,0,0,1) 90%);
+}
+.multiplayer-background .right {
+    background: linear-gradient(350deg,rgba(182, 4, 4, 0.5) 0%,rgba(0,0,0,1) 90%);
 }
 
-.main.player-multiplayer {
-    background: black;
-}
-
-
-
-.emulator-menu {
+.main {
     position: absolute;
-    top: 450px;
-    left: calc(30% + 290px);
+    width: 100%;
+    height: 100%;
 }
 
-.game {
-    position: absolute;
-    top: 100px;   
+.main.solo {
+    background: linear-gradient(7deg,rgba(4,43,182,.5) 0%,rgba(0,0,0,1) 90%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.game.solo {
-    left: 30%;
+.main.multiplayer {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr)); // force equally spaced columns even if children are bigger
 }
 
-.game.left {
-    left: 150px;
+.main.spectator {
+    background: linear-gradient(7deg,rgba(255,215,0,0.46) 0%,rgba(0,0,0,1) 90%);
 }
 
-.game.right {
-    right: 150px;
+.column {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
-.emulator-menu.multiplayer {
-    left: 450px;
+.game-container {
+    width: fit-content;
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }

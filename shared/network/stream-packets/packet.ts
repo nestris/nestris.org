@@ -6,34 +6,27 @@ import { BinaryEncoder, BinaryDecoder } from "../binary-codec";
 
 export enum PacketOpcode {
   LAST_PACKET_OPCODE = 0, // sent at the end of the PacketAssembler
-  NON_GAME_BOARD_STATE_CHANGE = 1,
   GAME_START = 2,
   GAME_END = 3,
   GAME_PLACEMENT = 4,
   GAME_FULL_BOARD = 5, // for full board state changes where active piece cannot be inferred 
   GAME_ABBR_BOARD = 6, // for abbreviated board state changes where active piece can be inferred
   GAME_RECOVERY = 7, // encapsulates all state during a game for a full recovery
-  NON_GAME_RECOVERY = 8, // encapsulates all state outside of a game for a full recovery
   GAME_COUNTDOWN = 9, // stores the current countdown value, or not in countdown if value is 0 
 }
 
 // map of opcode to packet name
 export const PACKET_NAME: {[key in PacketOpcode]: string} = {
-  [PacketOpcode.NON_GAME_BOARD_STATE_CHANGE]: "NON_GAME_BOARD_STATE_CHANGE",
+  [PacketOpcode.LAST_PACKET_OPCODE]: "LAST_PACKET_OPCODE",
   [PacketOpcode.GAME_START]: "GAME_START",
   [PacketOpcode.GAME_END]: "GAME_END",
-  [PacketOpcode.LAST_PACKET_OPCODE]: "LAST_PACKET_OPCODE",
   [PacketOpcode.GAME_PLACEMENT]: "GAME_PLACEMENT",
   [PacketOpcode.GAME_FULL_BOARD]: "GAME_FULL_BOARD",
   [PacketOpcode.GAME_ABBR_BOARD]: "GAME_ABBR_BOARD",
   [PacketOpcode.GAME_RECOVERY]: "GAME_RECOVERY",
-  [PacketOpcode.NON_GAME_RECOVERY]: "NON_GAME_RECOVERY",
   [PacketOpcode.GAME_COUNTDOWN]: "GAME_COUNTDOWN",
 };
 
-export function isRecoveryPacket(opcode: PacketOpcode): boolean {
-  return opcode === PacketOpcode.GAME_RECOVERY || opcode === PacketOpcode.NON_GAME_RECOVERY;
-}
 
 // packets to be included in the database. All else are ignored.
 // We do not include GAME_FULL_BOARD placements because they are sent every frame, and are too expensive to store
@@ -136,28 +129,6 @@ export abstract class Packet<Schema> {
 
 export const PACKET_MAP: {[key in PacketOpcode]?: Packet<any>} = {};
 
-// ================================ NON_GAME_BOARD_STATE_CHANGE =================================
-PACKET_CONTENT_LENGTH[PacketOpcode.NON_GAME_BOARD_STATE_CHANGE] = 412;
-export interface NonGameBoardStateChangeSchema extends TimedPacketSchema {
-  // inherited 12 bit delta in ms
-  board: TetrisBoard; // 400 bits board state, 2 bits per mino
-}
-export class NonGameBoardStateChangePacket extends Packet<NonGameBoardStateChangeSchema> {
-  constructor() { super(PacketOpcode.NON_GAME_BOARD_STATE_CHANGE); }
-  protected override _decodePacketContent(content: BinaryDecoder): NonGameBoardStateChangeSchema {
-    return {
-      delta: content.nextUnsignedInteger(12),
-      board: content.nextTetrisBoard(),
-    };
-  }
-  protected override _toBinaryEncoderWithoutOpcode(content: NonGameBoardStateChangeSchema): BinaryEncoder {
-    const encoder = new BinaryEncoder();
-    encoder.addUnsignedInteger(content.delta, 12);
-    encoder.addTetrisBoard(content.board);
-    return encoder;
-  }
-}
-PACKET_MAP[PacketOpcode.NON_GAME_BOARD_STATE_CHANGE] = new NonGameBoardStateChangePacket();
 
 // ================================ GAME_START =================================
 PACKET_CONTENT_LENGTH[PacketOpcode.GAME_START] = 14;
@@ -290,9 +261,8 @@ PACKET_MAP[PacketOpcode.GAME_ABBR_BOARD] = new GameAbbrBoardPacket();
 
 
 // ================================ GAME_RECOVERY =================================
-PACKET_CONTENT_LENGTH[PacketOpcode.GAME_RECOVERY] = 480;
-export interface GameRecoverySchema extends TimedPacketSchema {
-  // inherited 12 bit delta in ms
+PACKET_CONTENT_LENGTH[PacketOpcode.GAME_RECOVERY] = 468;
+export interface GameRecoverySchema extends PacketSchema {
   startLevel: number; // 8 bits start level of game. If not in game, value does not matter
   current: TetrominoType; // 3 bits current piece type
   next: TetrominoType; // 3 bits next piece type
@@ -306,7 +276,6 @@ export class GameRecoveryPacket extends Packet<GameRecoverySchema> {
   constructor() { super(PacketOpcode.GAME_RECOVERY); }
   protected override _decodePacketContent(content: BinaryDecoder): GameRecoverySchema {
     return {
-      delta: content.nextUnsignedInteger(12),
       startLevel: content.nextUnsignedInteger(8),
       current: content.nextTetrominoType(),
       next: content.nextTetrominoType(),
@@ -319,7 +288,6 @@ export class GameRecoveryPacket extends Packet<GameRecoverySchema> {
   }
   protected override _toBinaryEncoderWithoutOpcode(content: GameRecoverySchema): BinaryEncoder {
     const encoder = new BinaryEncoder();
-    encoder.addUnsignedInteger(content.delta, 12);
     encoder.addUnsignedInteger(content.startLevel, 8);
     encoder.addTetrominoType(content.current);
     encoder.addTetrominoType(content.next);
@@ -333,40 +301,6 @@ export class GameRecoveryPacket extends Packet<GameRecoverySchema> {
 }
 PACKET_MAP[PacketOpcode.GAME_RECOVERY] = new GameRecoveryPacket();
 
-// ================================ NON_GAME_RECOVERY =================================
-PACKET_CONTENT_LENGTH[PacketOpcode.NON_GAME_RECOVERY] = 455;
-export interface NonGameRecoverySchema extends TimedPacketSchema {
-  // inherited 12 bit delta in ms
-  board: TetrisBoard; // 400 bits full board state, 2 bits per mino
-  next: TetrominoType; // 3 bits next piece type
-  level: number; // 8 bits level, cap at 255
-  lines: number; // 16 bits lines, cap at 65,535
-  score: number; // 26 bits score, cap at 67,108,863
-}
-export class NonGameRecoveryPacket extends Packet<NonGameRecoverySchema> {
-  constructor() { super(PacketOpcode.NON_GAME_RECOVERY); }
-  protected override _decodePacketContent(content: BinaryDecoder): NonGameRecoverySchema {
-    return {
-      delta: content.nextUnsignedInteger(12),
-      board: content.nextTetrisBoard(),
-      next: content.nextTetrominoType(),
-      level: content.nextUnsignedInteger(8),
-      lines: content.nextUnsignedInteger(16),
-      score: content.nextUnsignedInteger(26),
-    };
-  }
-  protected override _toBinaryEncoderWithoutOpcode(content: NonGameRecoverySchema): BinaryEncoder {
-    const encoder = new BinaryEncoder();
-    encoder.addUnsignedInteger(content.delta, 12);
-    encoder.addTetrisBoard(content.board);
-    encoder.addTetrominoType(content.next);
-    encoder.addUnsignedInteger(content.level, 8);
-    encoder.addUnsignedInteger(content.lines, 16);
-    encoder.addUnsignedInteger(content.score, 26);
-    return encoder;
-  }
-}
-PACKET_MAP[PacketOpcode.NON_GAME_RECOVERY] = new NonGameRecoveryPacket();
 
 // ================================ GAME_COUNTDOWN =================================
 // Timed because board might not be updated while in countdown

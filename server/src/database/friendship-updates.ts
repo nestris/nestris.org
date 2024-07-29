@@ -61,7 +61,7 @@ export async function sendFriendRequest(fromUserID: string, toUserID: string, st
     const updateQuery = `
       UPDATE user_relationships
       SET type = 'friends'
-      WHERE username1 = $1 AND username2 = $2
+      WHERE userid1 = $1 AND userid2 = $2
     `;
     await queryDB(updateQuery, [userid1, userid2]);
 

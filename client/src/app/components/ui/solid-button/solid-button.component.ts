@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, HostBinding, Input } from '@angular
 
 export enum ButtonColor {
   GREEN = "#54A165",
-  RED = "#ca4d4d",
+  RED = "#B73C3C",
   BLUE = "#3C5EB7",
   GREY = "#2F3033"
 }
@@ -24,7 +24,7 @@ export class SolidButtonComponent {
   @Input() loading: boolean = false;
   @Input() paddingHorizontal: number = 15;
   @Input() paddingVertical: number = 6;
-  @Input() borderRadius: number = 10;
+  @Input() borderRadius: number = 5;
   @Input() disableHover: boolean = false;
   @Input() iconHeight?: number;
   @Input() noShadow: boolean = false;

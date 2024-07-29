@@ -1,3 +1,4 @@
+import { MatchInfo, MultiplayerData, MultiplayerRoomState } from "../models/multiplayer"
 import { NotificationType } from "../models/notifications"
 
 /*
@@ -17,8 +18,9 @@ export enum JsonMessageType {
     UPDATE_ONLINE_FRIENDS = 'update_online_friends', // refreshes friends page
     START_SOLO_ROOM = 'start_solo_room',
     START_SPECTATE_ROOM = 'start_spectate_room',
-    REQUEST_RECOVERY_PACKET = 'request_recovery_packet', // sent from server to client to request FullRecovery packet
     GO_TO_ROOM = 'go_to_room', // sent from server to client to navigate to a room
+    MULTIPLAYER_ROOM_UPDATE = 'multiplayer_room_update', // sent from server to client to update the multiplayer room
+    SOLO_GAME_END = 'solo_game_end', // sent from server to client on solo game end, with game details
 }
 
 export abstract class JsonMessage {
@@ -122,12 +124,6 @@ export class StartSpectateRoomMessage extends JsonMessage {
     }
 }
 
-// sent from server to client to request a FullRecovery packet
-export class RequestRecoveryPacketMessage extends JsonMessage {
-    constructor() {
-        super(JsonMessageType.REQUEST_RECOVERY_PACKET)
-    }
-}
 
 // sent from server to client to navigate to a room
 export class GoToRoomMessage extends JsonMessage {
@@ -135,5 +131,27 @@ export class GoToRoomMessage extends JsonMessage {
         public readonly roomID: string
     ) {
         super(JsonMessageType.GO_TO_ROOM)
+    }
+}
+
+// sent from server to client to update the multiplayer room
+export class MultiplayerRoomUpdateMessage extends JsonMessage {
+    constructor(
+        public readonly roomID: string,
+        public readonly data: MultiplayerData
+    ) {
+        super(JsonMessageType.MULTIPLAYER_ROOM_UPDATE)
+    }
+}
+
+// sent from server to client on solo game end, with game details
+export class SoloGameEndMessage extends JsonMessage {
+    constructor(
+        public readonly gameID: string,
+        public readonly score: number,
+        public readonly lines: number,
+        public readonly tetrises: number,
+    ) {
+        super(JsonMessageType.SOLO_GAME_END)
     }
 }

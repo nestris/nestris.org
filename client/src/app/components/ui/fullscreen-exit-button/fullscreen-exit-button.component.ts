@@ -24,7 +24,7 @@ export class FullscreenExitButtonComponent {
 
     let route;
     if (exitRoute) route = decodeURIComponent(exitRoute);
-    else route = "/puzzles";
+    else route = "/";
 
     this.router.navigate([route]);
 

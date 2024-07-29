@@ -75,6 +75,14 @@ import { ControlPanelPageComponent } from './components/layout/control-panel/con
 import { SettingsPageComponent } from './components/layout/settings/settings-page/settings-page.component';
 import { ProgressBarComponent } from './components/layout/learn/progress-bar/progress-bar.component';
 import { LessonCardComponent } from './components/layout/learn/lesson-card/lesson-card.component';
+import { SoloBeforeGameComponent } from './components/layout/room/modals/solo-before-game/solo-before-game.component';
+import { SoloAfterGameComponent } from './components/layout/room/modals/solo-after-game/solo-after-game.component';
+import { MultiplayerInMatchComponent } from './components/layout/room/modals/multiplayer-in-match/multiplayer-in-match.component';
+import { MultiplayerAfterMatchComponent } from './components/layout/room/modals/multiplayer-after-match/multiplayer-after-match.component';
+import { GenericRoomModalComponent } from './components/layout/room/modals/generic-room-modal/generic-room-modal.component';
+import { BannersComponent } from './components/layout/root/banners/banners.component';
+import { GameHeaderComponent } from './components/layout/room/game-header/game-header.component';
+import { GameOverComponent } from './components/nes-layout/game-over/game-over.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -189,6 +197,14 @@ const customNotifierOptions: NotifierOptions = {
     SettingsPageComponent,
     ProgressBarComponent,
     LessonCardComponent,
+    SoloBeforeGameComponent,
+    SoloAfterGameComponent,
+    MultiplayerInMatchComponent,
+    MultiplayerAfterMatchComponent,
+    GenericRoomModalComponent,
+    BannersComponent,
+    GameHeaderComponent,
+    GameOverComponent,
   ],
   imports: [
     BrowserModule,

@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Pixels } from 'src/app/models/ocr/pixels';
-import { NonGameBoardStateChangePacket } from 'src/app/shared/network/stream-packets/packet';
 import { FpsTracker } from 'src/app/shared/scripts/fps-tracker';
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
@@ -98,21 +97,6 @@ export class GameStateService {
       };
       this.platform.updateGameData(data);
     }
-
-    // if updated board, send NonGameFrameCapturePacket
-    if (updatedBoard) {
-      this.platform.sendPacket(new NonGameBoardStateChangePacket().toBinaryEncoder({
-        board: this.board$.getValue(),
-        delta: 0
-      }))
-    }
-
-    // if updated status, send NonGameStatusChangePacket
-    // TODO
-
-    // if updated next piece, send NonGameNextPieceChangePacket
-    // TODO
-
   }
 
   // if in game, use careful combination of OCR and derived game state to only poll what is necessary

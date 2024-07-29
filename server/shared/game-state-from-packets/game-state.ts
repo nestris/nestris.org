@@ -4,6 +4,15 @@ import { TetrisBoard } from "../tetris/tetris-board";
 import { TetrominoType } from "../tetris/tetromino-type";
 import { SmartGameStatus } from "../tetris/smart-game-status";
 
+export interface GameStateSnapshot {
+  level: number,
+  lines: number,
+  score: number,
+  board: TetrisBoard,
+  next: TetrominoType,
+  countdown: number | undefined,
+}
+
 // Keeps track of state within a legal game
 export class GameState {
 
@@ -18,6 +27,8 @@ export class GameState {
   private currentBoard: TetrisBoard; 
   private countdown: number | undefined;
 
+  private numTetrises: number = 0;
+
   constructor(startLevel: number, current: TetrominoType, next: TetrominoType) {
     this.status = new SmartGameStatus(startLevel);
     this.isolatedBoard = new TetrisBoard(); // the board without the active piece. updated every placement
@@ -28,6 +39,26 @@ export class GameState {
     this.countdown = undefined;
   }
 
+  static fromRecovery(recovery: GameRecoverySchema): GameState {
+    const state = new GameState(recovery.startLevel, recovery.current, recovery.next);
+    state.onRecovery(recovery);
+    return state;
+  }
+
+  generateRecoveryPacket(): GameRecoverySchema {
+
+    return {
+      startLevel: this.status.startLevel,
+      lines: this.status.lines,
+      score: this.status.score,
+      level: this.status.level,
+      isolatedBoard: this.isolatedBoard,
+      current: this.current,
+      next: this.next,
+      countdown: 0, // countdown is not saved in recovery
+    };
+
+  }
   
   getStatus(): SmartGameStatus {
     return this.status;
@@ -48,6 +79,10 @@ export class GameState {
 
   getCountdown(): number | undefined {
     return this.countdown;
+  }
+
+  getNumTetrises(): number {
+    return this.numTetrises;
   }
 
   onRecovery(recovery: GameRecoverySchema) {
@@ -80,7 +115,9 @@ export class GameState {
   // called whenever a new piece is placed on the board. Updates board and counters
   // nextNextPiece is the piece in the next box after the piece is placed and the new piece spawns
   // pushdown is the number of pushdown points scored with this placement
-  onPlacement(placement: MoveableTetromino, nextNextPiece: TetrominoType, pushdown: number = 0) {
+  onPlacement(mtPose: MTPose, nextNextPiece: TetrominoType, pushdown: number = 0) {
+
+    const placement = MoveableTetromino.fromMTPose(this.current, mtPose);
 
     // assert that placement is valid
     if (!placement.isValidPlacement(this.isolatedBoard)) {
@@ -91,6 +128,9 @@ export class GameState {
     placement.blitToBoard(this.isolatedBoard);
     const linesCleared = this.isolatedBoard.processLineClears();
     this.status.onLineClear(linesCleared);
+
+    // increment tetrises and lines cleared
+    if (linesCleared === 4) this.numTetrises++;
 
     // shift current and next pieces
     this.current = this.next;
@@ -103,5 +143,17 @@ export class GameState {
   setCountdown(countdown: number) {
     if (countdown === 0) this.countdown = undefined;
     else this.countdown = countdown;
+  }
+
+  // get a snapshot of the current game state
+  getSnapshot(): GameStateSnapshot {
+    return {
+      level: this.status.level,
+      lines: this.status.lines,
+      score: this.status.score,
+      board: this.currentBoard,
+      next: this.next,
+      countdown: this.countdown,
+    };
   }
 }

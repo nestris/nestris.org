@@ -68,7 +68,7 @@ export class FriendElementComponent {
     
     try {
       // get the friend's room ID, and navigate to the room page
-      const friend = await fetchServer2<OnlineUserInfo>(Method.GET, `/api/v2/online-user/${this.friendInfo.username}`);
+      const friend = await fetchServer2<OnlineUserInfo>(Method.GET, `/api/v2/online-user/${this.friendInfo.userid}`);
       if (!friend.roomID) throw new Error();
       this.router.navigate(['/online/room'], { queryParams: { id: friend.roomID } });
     } catch (e) {

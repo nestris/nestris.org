@@ -5,6 +5,13 @@ import { TetrisBoard, ColorType } from 'src/app/shared/tetris/tetris-board';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 
 
+export enum GameOverMode {
+  WIN = 'win',
+  TIE = 'tie',
+  LOSE = 'lose',
+  TOPOUT = 'topout',
+}
+
 @Component({
   selector: 'app-nes-board',
   templateUrl: './nes-board.component.html',
@@ -35,7 +42,15 @@ export class NesBoardComponent {
 
   @Input() nextType?: TetrominoType; // if defined, will be shown at top right corner
 
+  @Input() gameOver?: GameOverMode;
+  @Input() gameOverShowNext: boolean = false;
+  @Output() clickNext = new EventEmitter<void>();
+  
+  @Input() animateOpacity: boolean = false;
+
   @Output() hoveringBlock = new EventEmitter<Point | undefined>();
+
+  @Output() gameOverClick = new EventEmitter<void>();
 
   hoveringBlock$ = this.hoveringBlock.asObservable();
 
@@ -45,6 +60,8 @@ export class NesBoardComponent {
   // for iterating over rows and columns in template
   public readonly ZERO_TO_NINE: number[] = Array(10).fill(0).map((x, i) => i);
   public readonly ZERO_TO_NINETEEN: number[] = Array(20).fill(0).map((x, i) => i);
+
+  readonly GameOverMode = GameOverMode;
 
   onMouseEnter(x: number, y: number) {
     this.hoveringBlock.emit({x, y});
@@ -65,6 +82,8 @@ export class NesBoardComponent {
 
   // get the opacity of a block at a given row and column
   getOpacityAt(x: number, y: number): number {
+
+    if (this.gameOver) return 0.2;
 
     if (this.activePiece && this.activePiece.contains(x,y)) return this.activePieceOpacity;
     if (this.nextPiece && this.nextPiece.contains(x,y)) return this.nextPieceOpacity;
