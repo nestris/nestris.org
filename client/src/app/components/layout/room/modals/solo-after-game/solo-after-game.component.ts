@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { SoloGameEndMessage } from 'src/app/shared/network/json-message';
@@ -26,5 +26,16 @@ export class SoloAfterGameComponent {
 
   exit() {
     this.router.navigate(['/']);
+  }
+
+  // Pressing "space" or "enter" should also trigger the next button
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (event.key === ' ' || event.key === 'Enter') {
+      console.log('click solo after game');
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      this.clickNext.emit();
+    }
   }
 }
