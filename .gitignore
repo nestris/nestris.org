@@ -11,6 +11,10 @@ client/dist
 server/node_modules
 server/coverage
 
+# OCR
+ocr-library/node_modules
+ocr-library/coverage
+
 # Environment variables
 .env
 .env.development
