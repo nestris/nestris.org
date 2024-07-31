@@ -1,2 +1,9 @@
-width: 1920
-height: 1080
+frameIndex: 10
+floodfillPoint:
+  x: 500
+  'y': 500
+boardRect:
+  top: 0
+  bottom: 1963
+  left: 0
+  right: 3023

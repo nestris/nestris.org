@@ -1,3 +1,4 @@
+import { Point } from "shared/tetris/point";
 import { RGBColor } from "shared/tetris/tetromino-colors";
 
 export interface Frame {
@@ -5,7 +6,7 @@ export interface Frame {
     get width(): number;
     get height(): number;
 
-    getPixelAt(x: number, y: number): RGBColor | undefined;
+    getPixelAt(point: Point): RGBColor | undefined;
 }
 
 export class RGBFrame implements Frame {
@@ -19,8 +20,8 @@ export class RGBFrame implements Frame {
         return this.pixels.length;
     }
 
-    getPixelAt(x: number, y: number): RGBColor | undefined {
-        if (x < 0 || x >= this.width || y < 0 || y >= this.height) return undefined;
-        return this.pixels[y][x];
+    getPixelAt(point: Point): RGBColor | undefined {
+        if (point.x < 0 || point.x >= this.width || point.y < 0 || point.y >= this.height) return undefined;
+        return this.pixels[point.y][point.x];
     }
 } 
