@@ -1,14 +1,24 @@
 import { spawn, execSync } from 'child_process';
 import { RGBColor } from '../shared/tetris/tetromino-colors';
 
-// Function to get video dimensions
+/**
+ * Gets the width and height of a video file.
+ * @param filePath Path to the video file
+ * @returns An object with the width and height of the video
+ */
 const getVideoDimensions = (filePath: string): { width: number, height: number } => {
     const ffprobeOutput = execSync(`ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 ${filePath}`).toString().trim();
     const [width, height] = ffprobeOutput.split('x').map(Number);
     return { width, height };
 };
 
-// endFrame bound is exclusive. If undefined, all frames from startFrame to the end of the video are processed
+/**
+ * Parses a video file and returns an array of 2D RGB arrays, where each 2D array represents a frame.
+ * @param videoPath Path to the video file
+ * @param startFrame Specifies the first frame to process, inclusive. Default is 0.
+ * @param endFrame Specifies the last frame to process, exclusive. If not provided, all frames after startFrame will be processed.
+ * @returns A promise that resolves with the array of 2D RGB arrays
+ */
 export function parseVideo(videoPath: string, startFrame: number = 0, endFrame?: number): Promise<RGBColor[][][]> {
     return new Promise((resolve, reject) => {
         // Get video dimensions

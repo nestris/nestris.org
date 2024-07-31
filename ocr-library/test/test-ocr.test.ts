@@ -5,14 +5,16 @@ import { parseVideo } from "./parse-video";
 const TEST_CASE_DIRECTORY = 'test-cases';
 const OUTPUT_DIRECTORY = 'test-output';
 
+// The names of all the test case folders in the test-cases directory. Exclude hidden files.
 const allTestCases = readdirSync(TEST_CASE_DIRECTORY).filter(testCase =>!testCase.startsWith('.'));
 
+// Iterate over all test cases found in the test-cases directory
 for (const testCase of allTestCases) {
     test(`Test case: ${testCase}`, async () => {
 
+        // Parse the video file into frames
         const frames = await parseVideo(`${TEST_CASE_DIRECTORY}/${testCase}/game.mov`, 0, 3);
         console.log(frames.length);
-        console.log(allTestCases);
 
         // Delete test-output directory for this test case, if it exists
         const outputDirectory = `${OUTPUT_DIRECTORY}/${testCase}`;
