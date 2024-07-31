@@ -14,7 +14,7 @@ server/coverage
 # OCR
 ocr-library/node_modules
 ocr-library/coverage
-ocr-library/test-visualize/py12
+ocr-library/test-python/py12
 
 # Environment variables
 .env
