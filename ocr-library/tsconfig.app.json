@@ -6,7 +6,7 @@
     "types": []
   },
   "files": [
-    "tests/test-ocr.test.ts"
+    "test/test-ocr.test.ts"
   ],
   "include": [
     "./**/*.d.ts"
