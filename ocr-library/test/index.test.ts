@@ -41,6 +41,7 @@ async function runTestCases() {
         const outputDirectory = `${OUTPUT_DIRECTORY}/${testCase}`;
         const calibrationOutputPath = `${OUTPUT_DIRECTORY}/${testCase}/calibration.yaml`;
 
+        // Run all calibrate testcases with `npm test -- -t calibrate`
         test(`calibrate-${testCase}`, async () => {
 
             // Get the test case configuration, which contains info on calibration and verification
@@ -57,6 +58,7 @@ async function runTestCases() {
 
         });
 
+        // Run all ocr testcases with `npm test -- -t ocr`
         test(`ocr-${testCase}`, async () => {
 
             // Parse the video file into frames

@@ -1,7 +1,7 @@
-import { Frame } from "ocr/models/frame";
-import { Rectangle } from "ocr/models/rectangle";
-import { Point } from "shared/tetris/point";
-import { RGBColor } from "shared/tetris/tetromino-colors";
+import { Frame } from "../models/frame";
+import { Rectangle, scalePointWithinRect } from "../models/rectangle";
+import { Point } from "../../shared/tetris/point";
+import { RGBColor } from "../../shared/tetris/tetromino-colors";
 
 export class FloodFill {
 
@@ -18,6 +18,24 @@ export class FloodFill {
     static fromFrame(frame: Frame, point: Point): FloodFill {
         const floodfill = new FloodFill(frame.width, frame.height);
         floodfill.floodfill(frame, point);
+        return floodfill;
+    }
+
+    /**
+     * Use an existing rect and a relative point(s) to calculate the new floodfill point(s)
+     * @param frame 
+     * @param rect 
+     * @param relativePoint 
+     */
+    static fromRelativeRect(frame: Frame, rect: Rectangle, relativePoint: Point | Point[]): FloodFill {
+        
+        // convert to array if not already
+        const points = Array.isArray(relativePoint) ? relativePoint : [relativePoint];
+        const floodfillPoints = points.map(point => scalePointWithinRect(rect, point, true));
+
+        // create a new floodfill object and floodfill at the points
+        const floodfill = new FloodFill(frame.width, frame.height);
+        floodfillPoints.forEach(point => floodfill.floodfill(frame, point));
         return floodfill;
     }
 

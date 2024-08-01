@@ -10,6 +10,9 @@ export interface Calibration {
     floodfillPoint: Point;
 
     // All the bounding rectangles for the OCR elements
-    boardRect: Rectangle;
+    rects: {
+        board: Rectangle;
+        next: Rectangle;
+    }
     // TODO 
 }

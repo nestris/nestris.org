@@ -16,10 +16,20 @@ export function calibrate(frame: Frame, frameIndex: number, point: Point): Calib
     const boardRect = FloodFill.fromFrame(frame, point).getBoundingRect();
     if (!boardRect) throw new Error("Could not floodfill main board");
 
+    const NEXTBOX_LOCATIONS: Point[] = [
+        {x: 1.5, y: 0.41}, // top of the next box
+        {x: 1.5, y: 0.595} // bottom of the next box
+    ];
+    const nextRect = FloodFill.fromRelativeRect(frame, boardRect, NEXTBOX_LOCATIONS).getBoundingRect();
+    if (!nextRect) throw new Error("Could not floodfill next box");
+
     return {
         frameIndex,
         floodfillPoint: point,
-        boardRect
+        rects: {
+            board: boardRect,
+            next: nextRect
+        }
     };
 
 }

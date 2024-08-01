@@ -95,11 +95,11 @@ def play_video(testcase: str, mode: Mode):
         abs_path = os.path.join(os.path.dirname(__file__), rel_path)
         with open(abs_path, "r") as file:
             output = yaml.safe_load(file)
-            for rect in ["boardRect"]:
-                x1 = output[rect]["left"]
-                y1 = output[rect]["top"]
-                x2 = output[rect]["right"]
-                y2 = output[rect]["bottom"]
+            for rect_name, rect in output["rects"].items():
+                x1 = rect["left"]
+                y1 = rect["top"]
+                x2 = rect["right"]
+                y2 = rect["bottom"]
                 for frame in frames:
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 1)
 
