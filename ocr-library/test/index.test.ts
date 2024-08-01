@@ -36,15 +36,12 @@ async function runTestCases() {
 
     // Iterate over all test cases found in the test-cases directory
     for (const testCase of allTestCases) {
-        test(`Test case: ${testCase}`, async () => {
 
-            const videoPath = `${TEST_CASE_DIRECTORY}/${testCase}/game.mov`;
-            const outputDirectory = `${OUTPUT_DIRECTORY}/${testCase}`;
-            const calibrationOutputPath = `${OUTPUT_DIRECTORY}/${testCase}/calibration.yaml`;
+        const videoPath = `${TEST_CASE_DIRECTORY}/${testCase}/game.mov`;
+        const outputDirectory = `${OUTPUT_DIRECTORY}/${testCase}`;
+        const calibrationOutputPath = `${OUTPUT_DIRECTORY}/${testCase}/calibration.yaml`;
 
-            // Delete test-output directory for this test case if it exists, and create a new one
-            if (existsSync(outputDirectory)) rmdirSync(outputDirectory, { recursive: true });
-            mkdirSync(outputDirectory, { recursive: true });
+        test(`calibrate-${testCase}`, async () => {
 
             // Get the test case configuration, which contains info on calibration and verification
             const config = load(readFileSync(`${TEST_CASE_DIRECTORY}/${testCase}/config.yaml`, 'utf8')) as Config;
@@ -57,6 +54,10 @@ async function runTestCases() {
             const calibration = calibrate(calibrationFrame, config.calibration.frame, { x: config.calibration.x, y: config.calibration.y });
             writeFileSync(calibrationOutputPath, dump(calibration));
             console.log(`Calibration set to ${JSON.stringify(calibration, null, 2)}`);
+
+        });
+
+        test(`ocr-${testCase}`, async () => {
 
             // Parse the video file into frames
             console.log('Parsing video...');

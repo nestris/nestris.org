@@ -71,41 +71,6 @@ export async function parseVideo(testcase: string, startFrame: number = 0, endFr
         frames.push(frame);
     }
 
-    // for the first frame, downscale into 1/100 size by averaging, and print neatly
-
-    const firstFrame = frames[0];
-    const downscale = 100;
-    const downscaleFrame: RGBColor[][] = [];
-    
-
-    for (let y = 0; y < height; y += downscale) {
-        const row: RGBColor[] = [];
-        for (let x = 0; x < width; x += downscale) {
-            let r = 0, g = 0, b = 0;
-            for (let dy = 0; dy < downscale; dy++) {
-                for (let dx = 0; dx < downscale; dx++) {
-                    // Ensure y + dy and x + dx are within bounds
-                    if (y + dy < height && x + dx < width) {
-                        const { r: pr = 0, g: pg = 0, b: pb = 0 } = firstFrame[y + dy][x + dx] || {};
-                        r += pr;
-                        g += pg;
-                        b += pb;
-                    }
-                }
-            }
-            // round to nearest integer
-            r = Math.round(r / (downscale * downscale));
-            g = Math.round(g / (downscale * downscale));
-            b = Math.round(b / (downscale * downscale));
-            row.push({ r, g, b });
-        }
-        downscaleFrame.push(row);
-    }
-
-    console.log("First frame downscale");
-    console.log(downscaleFrame.map(row => row.map(({ r, g, b }) => `(${r},${g},${b})`).join(' ')))
-
-
     return frames;
     
 }
