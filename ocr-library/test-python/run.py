@@ -21,6 +21,11 @@ class Mode(Enum):
     OUTPUT = "output"
 
 
+POINT_GROUP_COLORS = {
+    "board": (0, 0, 255),
+    "shine": (0, 255, 0),
+}
+
 def calibrate(testcase: str, frame: int, x: int, y: int):
     """
     In the corresponding test case, save the coordinates at the given frame as the calibration configs
@@ -68,7 +73,7 @@ def play_video(testcase: str, mode: Mode):
     frames = []
 
     
-    if mode == Mode.BOUNDS:
+    if False and mode == Mode.BOUNDS:
         # We only need to get the calibration frame for this mode
         rel_path = f"../test-cases/{testcase}/config.yaml"
         abs_path = os.path.join(os.path.dirname(__file__), rel_path)
@@ -91,11 +96,18 @@ def play_video(testcase: str, mode: Mode):
 
     # if in bounds, add bounding rect to each frame
     if mode == Mode.BOUNDS:
-        rel_path = f"../test-output/{testcase}/calibration.yaml"
-        abs_path = os.path.join(os.path.dirname(__file__), rel_path)
-        with open(abs_path, "r") as file:
-            output = yaml.safe_load(file)
-            for rect_name, rect in output["rects"].items():
+        calibration_path = os.path.join(os.path.dirname(__file__), f"../test-output/{testcase}/calibration.yaml")
+        calibration_plus_path = os.path.join(os.path.dirname(__file__), f"../test-output/{testcase}/calibration-plus.yaml")
+
+        with (
+            open(calibration_path, "r") as calibration_file,
+            open(calibration_plus_path, "r") as calibration_plus_file
+        ):
+            calibration = yaml.safe_load(calibration_file)
+            calibration_plus = yaml.safe_load(calibration_plus_file)
+
+            # Draw all bounding rects
+            for rect_name, rect in calibration["rects"].items():
                 x1 = rect["left"]
                 y1 = rect["top"]
                 x2 = rect["right"]
@@ -103,12 +115,21 @@ def play_video(testcase: str, mode: Mode):
                 for frame in frames:
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 1)
 
+            # Draw all calibration points
+            for group, points in calibration_plus["points"].items():
+                print(points)
+                for point in points:
+                    x = point["x"]
+                    y = point["y"]
+                    for frame in frames:
+                        cv2.circle(frame, (x, y), 1, POINT_GROUP_COLORS[group], -1)
+
 
     total_frames = len(frames)
     cv2.createTrackbar("Frame", WINDOW, 0, total_frames - 1, update_frame_position)
 
     # scale window down
-    if frames:
+    if False and frames:
         cv2.imshow(WINDOW, frames[0])
         cv2.resizeWindow(WINDOW, 800, 500)
 

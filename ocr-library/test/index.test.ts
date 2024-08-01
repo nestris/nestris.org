@@ -40,6 +40,7 @@ async function runTestCases() {
         const videoPath = `${TEST_CASE_DIRECTORY}/${testCase}/game.mov`;
         const outputDirectory = `${OUTPUT_DIRECTORY}/${testCase}`;
         const calibrationOutputPath = `${OUTPUT_DIRECTORY}/${testCase}/calibration.yaml`;
+        const calibrationPlusOutputPath = `${OUTPUT_DIRECTORY}/${testCase}/calibration-plus.yaml`;
 
         // Run all calibrate testcases with `npm test -- -t calibrate`
         test(`calibrate-${testCase}`, async () => {
@@ -48,14 +49,22 @@ async function runTestCases() {
             const config = load(readFileSync(`${TEST_CASE_DIRECTORY}/${testCase}/config.yaml`, 'utf8')) as Config;
             console.log(config.calibration);
 
-            // Get the calibration data, calibrate on the specified frame, and save the calibration data
             console.log(`Calibrating on frame ${config.calibration.frame}...`);
+
+            // Get the frame to be used for calibration based on the config
             const calibrationVideo = await parseVideo(testCase, config.calibration.frame, config.calibration.frame);
             const calibrationFrame = new RGBFrame(calibrationVideo[0]);
-            const calibration = calibrate(calibrationFrame, config.calibration.frame, { x: config.calibration.x, y: config.calibration.y });
-            writeFileSync(calibrationOutputPath, dump(calibration));
-            console.log(`Calibration set to ${JSON.stringify(calibration, null, 2)}`);
 
+            // Calibrate on the specified frame
+            const [calibration, calibrationPlus] = calibrate(calibrationFrame, config.calibration.frame, {
+                x: config.calibration.x, y: config.calibration.y
+            });
+
+            // Save the calibration and calibration plus data to the output directory
+            writeFileSync(calibrationOutputPath, dump(calibration));
+            writeFileSync(calibrationPlusOutputPath, dump(calibrationPlus));
+
+            console.log(`Calibration set to ${JSON.stringify(calibration, null, 2)}`);
         });
 
         // Run all ocr testcases with `npm test -- -t ocr`
