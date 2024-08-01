@@ -1,6 +1,9 @@
 import { Point } from "shared/tetris/point";
 import { RGBColor } from "shared/tetris/tetromino-colors";
 
+/**
+ * Generic interface that allows fetching individual RGB pixels from a frame.
+ */
 export interface Frame {
     
     get width(): number;

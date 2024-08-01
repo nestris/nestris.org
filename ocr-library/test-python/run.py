@@ -24,6 +24,7 @@ class Mode(Enum):
 POINT_GROUP_COLORS = {
     "board": (0, 0, 255),
     "shine": (0, 255, 0),
+    "mino": (255, 0, 0)
 }
 
 def calibrate(testcase: str, frame: int, x: int, y: int):

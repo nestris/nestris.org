@@ -127,4 +127,13 @@ export class TetrisBoard {
         console.log(str);
     }
 
+    // Generator to iterate through all cells in the grid
+    *iterateMinos(): Generator<{x: number, y: number, color: ColorType}> {
+        for (let y = 0; y < 20; y++) {
+            for (let x = 0; x < 10; x++) {
+                yield { x, y, color: this.getAt(x, y) };
+            }
+        }
+    }
+
 }

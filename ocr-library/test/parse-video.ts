@@ -64,7 +64,7 @@ export async function parseVideo(testcase: string, startFrame: number = 0, endFr
             const row: RGBColor[] = [];
             for (let x = 0; x < width; x++) {
                 const [r, g, b] = image[y][x];
-                row.push({ r, g, b });
+                row.push(new RGBColor(r, g, b));
             }
             frame.push(row);
         }

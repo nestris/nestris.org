@@ -16,7 +16,6 @@ export function calibrate(frame: Frame, frameIndex: number, point: Point): [Cali
     // Floodfill at the given point to derive the main board
     const boardRect = FloodFill.fromFrame(frame, point).getBoundingRect();
     if (!boardRect) throw new Error("Could not floodfill main board");
-    const boardOCR = new BoardOCRBox(boardRect);
 
     // Use the main board rect to derive floodfill points and thus bounding rect for the next box
     const NEXTBOX_LOCATIONS: Point[] = [
@@ -36,7 +35,7 @@ export function calibrate(frame: Frame, frameIndex: number, point: Point): [Cali
     };
 
     const calibrationPlus: CalibrationPlus = {
-        points: boardOCR.getPlusPoints(),
+        points: (new BoardOCRBox(boardRect)).getPlusPoints(),
     };
 
     return [calibration, calibrationPlus];
