@@ -71,7 +71,8 @@ def play_video(testcase: str, mode: Mode):
     if mode == Mode.BOUNDS:
         # We only need to get the calibration frame for this mode
         rel_path = f"../test-cases/{testcase}/config.yaml"
-        with open(rel_path, "r") as file:
+        abs_path = os.path.join(os.path.dirname(__file__), rel_path)
+        with open(abs_path, "r") as file:
             config = yaml.safe_load(file)
             frame_number = config["calibration"]["frame"]
         video.set(cv2.CAP_PROP_POS_FRAMES, frame_number-1)
@@ -90,7 +91,9 @@ def play_video(testcase: str, mode: Mode):
 
     # if in bounds, add bounding rect to each frame
     if mode == Mode.BOUNDS:
-        with open(f"../test-output/{testcase}/calibration.yaml", "r") as file:
+        rel_path = f"../test-output/{testcase}/calibration.yaml"
+        abs_path = os.path.join(os.path.dirname(__file__), rel_path)
+        with open(abs_path, "r") as file:
             output = yaml.safe_load(file)
             for rect in ["boardRect"]:
                 x1 = output[rect]["left"]
@@ -98,7 +101,7 @@ def play_video(testcase: str, mode: Mode):
                 x2 = output[rect]["right"]
                 y2 = output[rect]["bottom"]
                 for frame in frames:
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 1)
 
 
     total_frames = len(frames)

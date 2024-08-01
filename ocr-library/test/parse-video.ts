@@ -1,90 +1,112 @@
-import { spawn, execSync } from 'child_process';
 import { RGBColor } from '../shared/tetris/tetromino-colors';
 
-/**
- * Gets the width and height of a video file.
- * @param filePath Path to the video file
- * @returns An object with the width and height of the video
- */
-const getVideoDimensions = (filePath: string): { width: number, height: number } => {
-    const ffprobeOutput = execSync(`ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 ${filePath}`).toString().trim();
-    const [width, height] = ffprobeOutput.split('x').map(Number);
-    return { width, height };
-};
+export async function fetchAPI(method: string, endpoint: string): Promise<any> {
+    const response = await fetch(`http://localhost:5001/${endpoint}`, 
+        {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    return await response.json();
+}
+
 
 /**
  * Parses a video file and returns an array of 2D RGB arrays, where each 2D array represents a frame.
  * @param videoPath Path to the video file
  * @param startFrame Specifies the first frame to process, inclusive. Default is 0.
- * @param endFrame Specifies the last frame to process, exclusive. If not provided, all frames after startFrame will be processed.
+ * @param endFrame Specifies the last frame to process, inclusive. If not provided, all frames after startFrame will be processed.
  * @returns A promise that resolves with the array of 2D RGB arrays
  */
-export function parseVideo(videoPath: string, startFrame: number = 0, endFrame?: number): Promise<RGBColor[][][]> {
-    return new Promise((resolve, reject) => {
-        // Get video dimensions
-        const { width, height } = getVideoDimensions(videoPath);
-        const frameSize = width * height * 3; // full HD in RGB (24bpp)
-        const buffer = Buffer.alloc(frameSize + 1024 * 1024); // frameSize + 1MB headroom
-        let bufPos = 0;
-        let frame = 0;
+export async function parseVideo(testcase: string, startFrame: number = 0, endFrame?: number): Promise<RGBColor[][][]> {
 
-        // Construct the ffmpeg command
-        const ffmpegArgs = [
-            '-i', videoPath,
-            '-f', 'rawvideo',
-            '-pix_fmt', 'rgb24',
-            '-vf', `select='gte(n\\,${startFrame})${endFrame !== undefined ? `+lt(n\\,${endFrame})` : ''}'`,
-            'pipe:1' // ffmpeg will output the data to stdout
-        ];
+    /*
+    Use API for video frame processing at localhost:5000.
 
-        const ffmpeg = spawn('ffmpeg', ffmpegArgs);
+    1. /info [GET]: 
+    - Retrieves video details (number of frames, width, height) and the current testcase.
 
-        const frames: RGBColor[][][] = [];
+    2. /frame/<int:frame> [GET]:
+    - Fetches the RGB pixel data of the specified frame number as a 2D array.
 
-        ffmpeg.stdout.on('data', (chunk: Buffer) => {
-            chunk.copy(buffer, bufPos);
-            bufPos += chunk.length;
+    3. /set/<string:testcase> [POST]:
+    - Sets the video to use a specific testcase and initializes video properties.
+    */
 
-            // We have a complete frame (and possibly a bit of the next frame) in the buffer
-            if (bufPos >= frameSize) {
-                const rawPixels: Buffer = buffer.subarray(0, frameSize);
-                // Convert raw pixels to 2D RGB array
-                const rgbArray: RGBColor[][] = [];
-                for (let y = 0; y < height; y++) {
-                    const row: RGBColor[] = [];
-                    for (let x = 0; x < width; x++) {
-                        const idx = (y * width + x) * 3;
-                        const r = rawPixels[idx];
-                        const g = rawPixels[idx + 1];
-                        const b = rawPixels[idx + 2];
-                        row.push(new RGBColor(r, g, b));
+    // Set the video to use the specified testcase
+    await fetchAPI('POST', `set/${testcase}`);
+
+    // Fetch video details
+    const info = await fetchAPI('GET', 'info');
+    console.log(info);
+    const { testcase: fetchedTestcase, frames: numFrames, width, height } = info;
+    if (fetchedTestcase !== testcase) throw new Error(`Failed to set testcase to ${testcase}, got ${fetchedTestcase}`);
+    if (startFrame < 0 || startFrame >= numFrames) throw new Error(`Invalid start frame ${startFrame}, video has ${numFrames} frames`);
+    if (endFrame && (endFrame < 0 || endFrame >= numFrames)) throw new Error(`Invalid end frame ${endFrame}, video has ${numFrames} frames`);
+    
+    // Process frames
+    const frames: RGBColor[][][] = [];
+    for (let i = startFrame; i <= (endFrame ?? numFrames-1); i++) {
+
+        // Fetch frame data from API
+        const { image } = await fetchAPI('GET', `frame/${i}`);
+
+        // Image is a 2d list of [r,g,b]. Convert image data to 2D RGB array
+        const frame: RGBColor[][] = [];
+        for (let y = 0; y < height; y++) {
+            const row: RGBColor[] = [];
+            for (let x = 0; x < width; x++) {
+                const [r, g, b] = image[y][x];
+                row.push({ r, g, b });
+            }
+            frame.push(row);
+        }
+        frames.push(frame);
+    }
+
+    // for the first frame, downscale into 1/100 size by averaging, and print neatly
+
+    const firstFrame = frames[0];
+    const downscale = 100;
+    const downscaleFrame: RGBColor[][] = [];
+    
+
+    for (let y = 0; y < height; y += downscale) {
+        const row: RGBColor[] = [];
+        for (let x = 0; x < width; x += downscale) {
+            let r = 0, g = 0, b = 0;
+            for (let dy = 0; dy < downscale; dy++) {
+                for (let dx = 0; dx < downscale; dx++) {
+                    // Ensure y + dy and x + dx are within bounds
+                    if (y + dy < height && x + dx < width) {
+                        const { r: pr = 0, g: pg = 0, b: pb = 0 } = firstFrame[y + dy][x + dx] || {};
+                        r += pr;
+                        g += pg;
+                        b += pb;
                     }
-                    rgbArray.push(row);
                 }
-
-                // Do something with the 2D RGB array
-                console.log(`Processed frame ${frame}`);
-                frames.push(rgbArray);
-
-                // Copy the overflowing part of the chunk to the beginning of the buffer
-                buffer.copy(buffer, 0, frameSize, bufPos);
-                bufPos = bufPos - frameSize;
-
-                frame++;
             }
+            // round to nearest integer
+            r = Math.round(r / (downscale * downscale));
+            g = Math.round(g / (downscale * downscale));
+            b = Math.round(b / (downscale * downscale));
+            row.push({ r, g, b });
+        }
+        downscaleFrame.push(row);
+    }
 
-            // Stop processing if endFrame is reached or if 5 frames are processed
-            if (endFrame !== undefined && frame >= endFrame - startFrame) {
-                ffmpeg.kill('SIGINT'); // Send SIGINT signal to ffmpeg to terminate it gracefully
-            }
-        });
+    console.log("First frame downscale");
+    console.log(downscaleFrame.map(row => row.map(({ r, g, b }) => `(${r},${g},${b})`).join(' ')))
 
-        ffmpeg.on('close', () => {
-            resolve(frames);
-        });
 
-        ffmpeg.on('error', (err) => {
-            reject(err);
-        });
-    });
+    return frames;
+    
 }
+

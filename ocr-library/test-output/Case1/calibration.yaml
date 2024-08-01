@@ -1,9 +1,9 @@
-frameIndex: 307
+frameIndex: 41
 floodfillPoint:
-  x: 2997
-  'y': 1887
+  x: 623
+  'y': 487
 boardRect:
-  top: 0
-  bottom: 1963
-  left: 0
-  right: 3023
+  top: 126
+  bottom: 645
+  left: 359
+  right: 657

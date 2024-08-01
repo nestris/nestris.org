@@ -52,14 +52,15 @@ async function runTestCases() {
 
             // Get the calibration data, calibrate on the specified frame, and save the calibration data
             console.log(`Calibrating on frame ${config.calibration.frame}...`);
-            const calibrationVideo = await parseVideo(videoPath, config.calibration.frame, config.calibration.frame + 1);
+            const calibrationVideo = await parseVideo(testCase, config.calibration.frame, config.calibration.frame);
             const calibrationFrame = new RGBFrame(calibrationVideo[0]);
             const calibration = calibrate(calibrationFrame, config.calibration.frame, { x: config.calibration.x, y: config.calibration.y });
             writeFileSync(calibrationOutputPath, dump(calibration));
+            console.log(`Calibration set to ${JSON.stringify(calibration, null, 2)}`);
 
             // Parse the video file into frames
             console.log('Parsing video...');
-            const frames = await parseVideo(videoPath, 0, 3);
+            const frames = await parseVideo(testCase, 0, 3);
             console.log(frames.length);
 
         }, 60000); // Set timeout to 60 seconds
