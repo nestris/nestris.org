@@ -1,4 +1,4 @@
-<ng-container *ngIf="(client$ | async)?.room?.mode === RoomMode.MULTIPLAYER && (client$ | async)?.role !== Role.SPECTATOR">
+<ng-container *ngIf="(client$ | async)?.room?.mode === RoomMode.MULTIPLAYER">
     <div class="multiplayer-background">
         <div class="left"></div>
         <div class="right"></div>

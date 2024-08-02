@@ -151,13 +151,18 @@ export class RoomPageComponent implements OnInit, OnDestroy {
         
         switch (roomInfo.mode) {
           case RoomMode.SOLO: await this.initSoloRoom(); break;
-          case RoomMode.MULTIPLAYER: await this.initMultiplayerRoom(); break;
+          case RoomMode.MULTIPLAYER: await this.initMultiplayerRoom(true); break;
           default: console.error('Invalid room mode', roomInfo.mode);
         }
       } else {
         // user is a spectator. request to be added to the websocket room
         console.log('Is spectator, requesting to spectate room');
         this.websocket.sendJsonMessage(new StartSpectateRoomMessage(roomID));
+
+        // Also subscribe to multiplayer room updates as a spectator
+        if (roomInfo.mode === RoomMode.MULTIPLAYER) {
+          await this.initMultiplayerRoom(false);
+        }
       }
     });
   }
@@ -185,13 +190,15 @@ export class RoomPageComponent implements OnInit, OnDestroy {
 
   }
 
-  private async initMultiplayerRoom() {
+  private async initMultiplayerRoom(isPlayer: boolean) {
     console.log('init multiplayer room');
     // Listen to all multiplayer room data updates, and get initial data
     this.multiplayerSubscription = this.websocket.onEvent(JsonMessageType.MULTIPLAYER_ROOM_UPDATE).subscribe(message => {
       const old = this.multiplayerData$.getValue();
       this.multiplayerData$.next((message as MultiplayerRoomUpdateMessage).data);
-      this.onMultiplayerDataChange(old, this.multiplayerData$.getValue());
+
+      // Players also can bind to changes to update player UI
+      if (isPlayer) this.onMultiplayerDataChange(old, this.multiplayerData$.getValue());
     });
     this.multiplayerData$.next(await fetchServer2<MultiplayerData>(Method.GET, `/api/v2/multiplayer-data/${this.client$.getValue()!.room.roomID}`));
   }
@@ -232,6 +239,10 @@ export class RoomPageComponent implements OnInit, OnDestroy {
     if (!data) return null;
 
     const myRole = this.client$.getValue()!.role;
+
+    // Spectators don't see modals
+    if (!isPlayer(myRole)) return null;
+
     const myMode = data.state.players[myRole as PlayerRole].mode;
     const roomMode = data.state.mode;
 
