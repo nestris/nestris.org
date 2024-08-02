@@ -15,6 +15,8 @@ export class PacketReplayer {
   private initialTime?: number = undefined;
   private timeToExecutePacket: number;
 
+  private previousPacketTime: number = performance.now();
+
 
   // track the percentage of packets that were on time so that we can monitor performance and adjust buffer delay
   private onTimePackets: RollingAverage = new RollingAverage(50, RollingAverageStrategy.DELTA);
@@ -32,12 +34,6 @@ export class PacketReplayer {
     this.dynamicBufferTask = new PeriodicTask(50, () => this.adjustBufferDelay());
   }
 
-  reset() {
-    this.buffer = [];
-    this.initialTime = undefined;
-    this.timeToExecutePacket = this.initialBufferDelay;
-    this.onTimePackets.reset();
-  }
 
   ingestPacket(packet: PacketContent): void {
 
@@ -66,7 +62,8 @@ export class PacketReplayer {
 
     if (delay && !forceExecuteFirst) {
 
-      if (delay < 2000) {
+      const timeSinceLastPacket = performance.now() - this.previousPacketTime;
+      if (timeSinceLastPacket < 2000) {
         // under normal conditions, a frame lasts well under two seconds. in this case, we calculate
         // time to execute the packet using initialTime to avoid roundoff errors
         this.timeToExecutePacket += delay;     
@@ -74,9 +71,10 @@ export class PacketReplayer {
         // if the delay is too large, we reset initialTime, especially in case delay overflows
         // in this case, currentTime will compute to 0, and the timeToWait will just be buffer delay
         // essentially, we are resetting
-        console.log("Packet delay too long; resetting initial time");
+        console.log(`Long time since last packet at ${timeSinceLastPacket/1000}ms, resetting initial time`);
         this.initialTime = performance.now();
         this.timeToExecutePacket = this.initialBufferDelay;
+        this.onTimePackets.reset();
       }
 
       const currentTime = performance.now() - this.initialTime!;
@@ -99,6 +97,9 @@ export class PacketReplayer {
     const packetsToExecute = [queuedPacket];
     this.buffer.shift();
 
+    // update the previous packet time if this packet was a timed packet
+    if (getPacketDelay(queuedPacket)) this.previousPacketTime = performance.now();
+
     // check if there are more non-timed packets to execute
     while (this.buffer.length > 0 && getPacketDelay(this.buffer[0]) === undefined) {
       packetsToExecute.push(this.buffer.shift()!);
@@ -106,7 +107,7 @@ export class PacketReplayer {
 
     // execute the packets maintaining order
     this.executePackets(packetsToExecute);
-
+    
     // queue the next packet, if it exists
     if (this.buffer.length > 0) this.sendQueuedPacket();
   }

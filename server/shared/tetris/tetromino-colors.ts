@@ -18,6 +18,10 @@ export function getColorTypeForTetromino(tetrominoType: TetrominoType): ColorTyp
 export class RGBColor {
     constructor(public readonly r: number, public readonly g: number, public readonly b: number) {}
 
+    get average(): number {
+        return (this.r + this.g + this.b) / 3;
+    }
+
     public toString(): string {
         return `rgb(${this.r}, ${this.g}, ${this.b})`;
     }

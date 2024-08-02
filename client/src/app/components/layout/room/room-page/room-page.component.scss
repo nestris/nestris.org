@@ -41,10 +41,6 @@
     grid-template-columns: repeat(2, minmax(0, 1fr)); // force equally spaced columns even if children are bigger
 }
 
-.main.spectator {
-    background: linear-gradient(7deg,rgba(255,215,0,0.46) 0%,rgba(0,0,0,1) 90%);
-}
-
 .column {
     width: 100%;
     height: 100%;
@@ -57,7 +53,6 @@
 
 .game-container {
     width: fit-content;
-    height: 100%;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;

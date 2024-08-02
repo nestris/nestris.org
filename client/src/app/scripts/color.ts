@@ -1,14 +1,11 @@
+import { RGBColor } from "../shared/tetris/tetromino-colors";
+
 export type HSVColor = {
     h: number;
     s: number;
     v: number;
 }
 
-export type RGBColor = {
-    r: number;
-    g: number;
-    b: number;
-}
 
 export function rgbToHsv(rgb: RGBColor): HSVColor {
     let rPrime = rgb.r / 255;
@@ -82,9 +79,9 @@ export function hsvToRgb(hsv: HSVColor): RGBColor {
         bPrime = x;
     }
 
-    return {
-        r: Math.round((rPrime + m) * 255),
-        g: Math.round((gPrime + m) * 255),
-        b: Math.round((bPrime + m) * 255)
-    };
+    return new RGBColor(
+        Math.round((rPrime + m) * 255),
+        Math.round((gPrime + m) * 255),
+        Math.round((bPrime + m) * 255)
+    );
 }

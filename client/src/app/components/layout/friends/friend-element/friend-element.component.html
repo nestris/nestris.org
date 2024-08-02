@@ -21,6 +21,8 @@
         
 
         <ng-container *ngIf="friendInfo.friendStatus === FriendStatus.FRIENDS">
+
+            <!-- Spectating feature disabled until fixed -->
             <app-solid-button icon="./assets/img/button-icons/eye.svg" [color]="ButtonColor.GREY" (click)="spectate()"
                 [disabled]="friendInfo.onlineStatus !== OnlineUserStatus.PLAYING"
                 [tooltip]="friendInfo.onlineStatus === OnlineUserStatus.PLAYING ?

@@ -10,7 +10,7 @@ I'm grateful for every contribution to my passion project! Generally, the best w
 # For Developers
 https://www.nestris.org is a full-stack application written in Angular, NodeJS, and Postgres. It is containerized through Docker and uses Github Actions to deploy production and staging servers to a DigitalOcean Droplet.
 
-# Set up your development environment
+## Set up your development environment
 If you're interested in developing, testing, or running nestris.org locally, follow the instructions below.
 
 ### Clone repository
@@ -105,7 +105,30 @@ One way I recommend viewing local, staging, and prod databases is through an app
 ### Wipe database and reset###
 Initializes the database. DO NOT RUN THIS unless you want to wipe all data.
 This needs to be run if you want after changing the database schema at wipe-and-reset-database.sql
+
 `docker exec -i [container-id] psql -U postgres -d mydatabase -f /docker-entrypoint-initdb.d/init.sql`
+
+## Developing for the OCR library
+OCR development is on a dedicated subdirectory called `ocr-library`. To start working on it, `cd ocr-library`.
+
+### Install npm
+Run `npm install` in the `ocr-library` directory
+
+### Install ffmpeg
+This is for processing videos used in test cases. For mac users, you can install ffmpeg with brew `brew instal ffmpeg`.
+
+### Development workflow
+`ocr-library` contains a few subdirectories:
+- `ocr` hosts the core OCR logic. Running `./update-shared.sh` copies this directory into `client/src/app` to be used in the client application
+- `test-cases` contains all the different gameplay videos used for validation testing. Each case contains a `game.mov` video, and a `config.yaml` file that specifies data that is used for calibration and to validate against the OCR results
+- `test-output` contains the generated test results for each `test-case`
+- `test` contains the testing logic that parses gameplay videos and runs OCR logic against each testcase and generate the test output
+
+### Run OCR tests
+Run all OCR test cases through jest with `npm test`.
+
+This will go through each `test-case`, run OCR logic through the entire game, verify the result, and save the output and debug logs into `test-output`.
+
 
 ## How CI/CD works in this project
 This repository has a `main` branch and a `dev` branch. They are configured to automatically build and deploy to production and staging servers, respectively. Server tests are automatically run during build, but Angular tests are disabled, though you can run Angular tests locally.

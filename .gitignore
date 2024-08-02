@@ -11,6 +11,11 @@ client/dist
 server/node_modules
 server/coverage
 
+# OCR
+ocr-library/node_modules
+ocr-library/coverage
+ocr-library/test-python/py12
+
 # Environment variables
 .env
 .env.development

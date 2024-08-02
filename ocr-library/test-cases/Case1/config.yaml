@@ -1,0 +1,13 @@
+calibration:
+  frame: 41
+  x: 623
+  y: 487
+verification:
+  end:
+    evel: 19
+    lines: 146
+    score: 146000
+  start:
+    currentPiece: null
+    level: 18
+    nextPiece: L

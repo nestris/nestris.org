@@ -1,4 +1,4 @@
-<ng-container *ngIf="(client$ | async)?.room?.mode === RoomMode.MULTIPLAYER && (client$ | async)?.role !== Role.SPECTATOR">
+<ng-container *ngIf="(client$ | async)?.room?.mode === RoomMode.MULTIPLAYER">
     <div class="multiplayer-background">
         <div class="left"></div>
         <div class="right"></div>
@@ -92,7 +92,8 @@
     <app-generic-room-modal *ngIf="multiplayerModalToShow(data) as roomModalType">
         <app-multiplayer-in-match *ngIf="roomModalType === RoomModalType.MULTIPLAYER_IN_MATCH"
             [myRole]="(client$ | async)?.role" [data]="data"/>
-        <app-multiplayer-after-match *ngIf="roomModalType === RoomModalType.MULTIPLAYER_AFTER_MATCH" [data]="data"/>
+        <app-multiplayer-after-match *ngIf="roomModalType === RoomModalType.MULTIPLAYER_AFTER_MATCH"
+            [myRole]="(client$ | async)?.role" [data]="data"/>
     </app-generic-room-modal>
 </ng-container>
 
