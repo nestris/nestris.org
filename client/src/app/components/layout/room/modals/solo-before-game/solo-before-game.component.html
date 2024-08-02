@@ -1,11 +1,24 @@
 <div class="modal">
     <div class="content">
+        <h1 class="title">Play a solo game!</h1>
+        <div></div>
+        <div class="select-level-content">
+            <div class="select-level-container">
+                <h1>Select start level</h1>
+                <div class="levels prevent-select">
+                    <div class="level prevent-select" *ngFor="let level of VALID_START_LEVELS"
+                    [ngClass]="{'selected' : (selectedLevel$ | async) == level}" (click)="selectedLevel$.next(level)">
+                        <p>{{level}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </div>
     <div class="buttons">
         <app-solid-button label="Exit" [color]="ButtonColor.RED" (click)="exit()" />
         <div class="buttons-right">
-            <app-solid-button label="Play" [color]="ButtonColor.BLUE" (click)="clickPlay.emit(18)" />
+            <app-solid-button label="Play" [color]="ButtonColor.BLUE" (click)="clickPlay.emit(selectedLevel$.getValue())" />
             <!-- TODO: keybinds button here -->
         </div>
     </div>

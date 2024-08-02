@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, HostListener, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
@@ -43,6 +43,15 @@ export class MultiplayerInMatchComponent {
 
     // Send the request to the server to toggle the ready status
     await fetchServer2(Method.POST, `/api/v2/multiplayer/set-readiness/${sessionID}/${ready}`);
+  }
+
+  // When space or enter is pressed, toggle the ready status
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (event.key === ' ' || event.key === 'Enter') {
+      event.preventDefault();
+      this.toggleReady('blue');
+    }
   }
 
   getPlayer(color: string): PlayerRole {
