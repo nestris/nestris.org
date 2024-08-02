@@ -34,6 +34,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   constructor(
     public websocketService: WebsocketService,
     public modalService: ModalManagerService,
+    public serverStatsService: ServerStatsService
   ) {}
 
   async ngOnInit() {

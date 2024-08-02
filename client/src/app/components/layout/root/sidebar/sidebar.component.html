@@ -1,4 +1,4 @@
-<div class="sidebar">
+<div class="sidebar" *ngIf="(serverStatsService.getServerStats$() | async)?.environment as env">
     <div class="sidebar-top">
         <img class="logo" src="./assets/img/branding/tetrisfish_logo.svg" width="110px" />
         <img class="logo-small" src="./assets/img/branding/tetrisfish_logo.svg" width="50px" />
@@ -22,13 +22,13 @@
             <p class="online-users">{{(numOnlineFriends$ | async)}}</p>
             <app-online-indicator [status]="!(numOnlineFriends$ | async) ? OnlineUserStatus.OFFLINE : OnlineUserStatus.IDLE" />
         </app-sidebar-tab>
-        <app-sidebar-tab [tab]="TabID.SETTINGS"/>
+        <app-sidebar-tab *ngIf="env===DeploymentEnvironment.STAGING" [tab]="TabID.SETTINGS"/>
 
         <app-sidebar-tab class="play-tab" [tab]="TabID.PLAY" />
-        <app-sidebar-tab [tab]="TabID.REVIEW"/>
-        <app-sidebar-tab [tab]="TabID.LEARN"/>
+        <app-sidebar-tab *ngIf="env===DeploymentEnvironment.STAGING" [tab]="TabID.REVIEW"/>
+        <app-sidebar-tab *ngIf="env===DeploymentEnvironment.STAGING" [tab]="TabID.LEARN"/>
         <app-sidebar-tab [tab]="TabID.PUZZLES"/>
-        <app-sidebar-tab [tab]="TabID.LEADERBOARD"/>
+        <app-sidebar-tab *ngIf="env===DeploymentEnvironment.STAGING" [tab]="TabID.LEADERBOARD"/>
     </div>
     <div class="sidebar-bottom">
         <app-sign-out *ngIf="(websocketService.onSignInUpdate() | async)" />

@@ -29,11 +29,8 @@ export class Pixels {
     y = Math.floor(y);
 
     const index = (y * this.width! + x) * 4;
-    return {
-        r: this.pixels[index],
-        g: this.pixels[index + 1],
-        b: this.pixels[index + 2],
-    };
+
+    return new RGBColor(this.pixels[index], this.pixels[index + 1], this.pixels[index + 2]);
   }
 
 
