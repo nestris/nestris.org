@@ -256,16 +256,6 @@ export class RoomPageComponent implements OnInit, OnDestroy {
       console.log('countdown ended, starting multiplayer game');
       this.startGame(now.state.startLevel);
     }
-
-    // Transition from DEAD -> NOT_READY should reset PacketReplayers
-    const myRole = (this.client$.getValue()!.role as PlayerRole);
-    if (
-      old.state.players[myRole].mode === MultiplayerPlayerMode.DEAD &&
-      now.state.players[myRole].mode === MultiplayerPlayerMode.NOT_READY
-    ) {
-      console.log('Resetting PacketReplayers');
-      this.roomState!.resetPacketReplayers();
-    }
   }
 
   rightBoardRole(role: Role): PlayerRole {

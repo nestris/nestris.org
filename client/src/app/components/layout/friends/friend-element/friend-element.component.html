@@ -23,11 +23,11 @@
         <ng-container *ngIf="friendInfo.friendStatus === FriendStatus.FRIENDS">
 
             <!-- Spectating feature disabled until fixed -->
-            <!-- <app-solid-button icon="./assets/img/button-icons/eye.svg" [color]="ButtonColor.GREY" (click)="spectate()"
+            <app-solid-button icon="./assets/img/button-icons/eye.svg" [color]="ButtonColor.GREY" (click)="spectate()"
                 [disabled]="friendInfo.onlineStatus !== OnlineUserStatus.PLAYING"
                 [tooltip]="friendInfo.onlineStatus === OnlineUserStatus.PLAYING ?
                 'Spectate ' + friendInfo.username + '\'s game!' : friendInfo.onlineStatus === OnlineUserStatus.IDLE ?
-                friendInfo.username + ' is not in a game' : friendInfo.username + ' is not online'" /> -->
+                friendInfo.username + ' is not in a game' : friendInfo.username + ' is not online'" />
                     
             <app-solid-button icon="./assets/img/button-icons/challenge.svg" [color]="ButtonColor.GREY" (click)="sendChallenge()" 
                 [disabled]="friendInfo.onlineStatus !== OnlineUserStatus.IDLE"
