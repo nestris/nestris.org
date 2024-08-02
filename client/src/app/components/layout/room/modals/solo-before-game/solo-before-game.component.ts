@@ -1,5 +1,6 @@
 import { Component, EventEmitter, HostListener, Output } from '@angular/core';
 import { Router } from '@angular/router';
+import { BehaviorSubject } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 
 @Component({
@@ -13,6 +14,10 @@ export class SoloBeforeGameComponent {
 
   readonly ButtonColor = ButtonColor;
 
+  readonly VALID_START_LEVELS = [0, 5, 9, 12, 15, 18, 19, 29]
+
+  selectedLevel$ = new BehaviorSubject<number>(18);
+
   constructor(
     private readonly router: Router
   ) { }
@@ -24,7 +29,7 @@ export class SoloBeforeGameComponent {
       console.log('click solo before game');
       event.preventDefault();
       event.stopImmediatePropagation();
-      this.clickPlay.emit(18);
+      this.clickPlay.emit(this.selectedLevel$.getValue());
     }
   }
 
