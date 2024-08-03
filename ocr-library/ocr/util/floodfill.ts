@@ -1,5 +1,5 @@
-import { Frame } from "../models/frame";
-import { Rectangle, scalePointWithinRect } from "../models/rectangle";
+import { Frame } from "./frame";
+import { Rectangle, scalePointWithinRect } from "./rectangle";
 import { Point } from "../../shared/tetris/point";
 import { RGBColor } from "../../shared/tetris/tetromino-colors";
 

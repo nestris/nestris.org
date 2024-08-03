@@ -118,7 +118,6 @@ def play_video(testcase: str, mode: Mode):
 
             # Draw all calibration points
             for group, points in calibration_plus["points"].items():
-                print(points)
                 for point in points:
                     x = point["x"]
                     y = point["y"]

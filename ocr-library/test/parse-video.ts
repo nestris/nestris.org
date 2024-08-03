@@ -1,4 +1,6 @@
+import { VideoSource } from '../ocr/state-machine/video-source';
 import { RGBColor } from '../shared/tetris/tetromino-colors';
+import { Frame, RGBFrame } from '../ocr/util/frame';
 
 export async function fetchAPI(method: string, endpoint: string): Promise<any> {
     const response = await fetch(`http://localhost:5001/${endpoint}`, 
@@ -19,59 +21,81 @@ export async function fetchAPI(method: string, endpoint: string): Promise<any> {
 
 
 /**
- * Parses a video file and returns an array of 2D RGB arrays, where each 2D array represents a frame.
- * @param videoPath Path to the video file
- * @param startFrame Specifies the first frame to process, inclusive. Default is 0.
- * @param endFrame Specifies the last frame to process, inclusive. If not provided, all frames after startFrame will be processed.
- * @returns A promise that resolves with the array of 2D RGB arrays
+ * A video source that fetches frames from the API. Must be initialized before use.
  */
-export async function parseVideo(testcase: string, startFrame: number = 0, endFrame?: number): Promise<RGBColor[][][]> {
+export class TestVideoSource extends VideoSource {
 
-    /*
-    Use API for video frame processing at localhost:5000.
+    private numFrames!: number;
+    private width!: number;
+    private height!: number;
+    private currentFrameIndex: number = 0;
 
-    1. /info [GET]: 
-    - Retrieves video details (number of frames, width, height) and the current testcase.
+    constructor(private readonly testcase: string) {
+        super();
+        this.testcase = testcase;
+    }
 
-    2. /frame/<int:frame> [GET]:
-    - Fetches the RGB pixel data of the specified frame number as a 2D array.
+    async init(): Promise<void> {
+        // Set the video to use the specified testcase
+        await fetchAPI('POST', `set/${this.testcase}`);
 
-    3. /set/<string:testcase> [POST]:
-    - Sets the video to use a specific testcase and initializes video properties.
-    */
+        // Fetch video details
+        const { testcase: fetchedTestcase, frames: numFrames, width, height } = await fetchAPI('GET', 'info');
+        if (fetchedTestcase !== this.testcase) throw new Error(`Failed to set testcase to ${this.testcase}, got ${fetchedTestcase}`);
 
-    // Set the video to use the specified testcase
-    await fetchAPI('POST', `set/${testcase}`);
+        this.numFrames = numFrames;
+        this.width = width;
+        this.height = height;
+    }
 
-    // Fetch video details
-    const info = await fetchAPI('GET', 'info');
-    console.log(info);
-    const { testcase: fetchedTestcase, frames: numFrames, width, height } = info;
-    if (fetchedTestcase !== testcase) throw new Error(`Failed to set testcase to ${testcase}, got ${fetchedTestcase}`);
-    if (startFrame < 0 || startFrame >= numFrames) throw new Error(`Invalid start frame ${startFrame}, video has ${numFrames} frames`);
-    if (endFrame && (endFrame < 0 || endFrame >= numFrames)) throw new Error(`Invalid end frame ${endFrame}, video has ${numFrames} frames`);
-    
-    // Process frames
-    const frames: RGBColor[][][] = [];
-    for (let i = startFrame; i <= (endFrame ?? numFrames-1); i++) {
+    /**
+     * Gets the number of frames in the video.
+     * @returns The number of frames in the video
+     */
+    getNumFrames(): number {
+        return this.numFrames;
+    }
+
+    /**
+     * Fetches the next frame from the video through the API.
+     * @returns A promise that resolves with the next frame
+     */
+    override async getNextFrame(): Promise<Frame> {
+
+        if (this.currentFrameIndex >= this.numFrames) {
+            throw new Error('No more frames to fetch');
+        }
+
+        const frame = await this.getFrame(this.currentFrameIndex);
+        this.currentFrameIndex++;
+        return frame;
+    }
+
+    /**
+     * Fetches the frame at the specified index from the API.
+     * @param index The index of the frame to fetch
+     * @returns A promise that resolves with the frame
+     */
+    async getFrame(index: number): Promise<Frame> {
+
+        if (index < 0 || index >= this.numFrames) {
+            throw new Error(`Invalid frame index ${index}, video has ${this.numFrames} frames`);
+        }
 
         // Fetch frame data from API
-        const { image } = await fetchAPI('GET', `frame/${i}`);
+        const { image } = await fetchAPI('GET', `frame/${this.currentFrameIndex}`);
 
         // Image is a 2d list of [r,g,b]. Convert image data to 2D RGB array
         const frame: RGBColor[][] = [];
-        for (let y = 0; y < height; y++) {
+        for (let y = 0; y < this.height; y++) {
             const row: RGBColor[] = [];
-            for (let x = 0; x < width; x++) {
+            for (let x = 0; x < this.width; x++) {
                 const [r, g, b] = image[y][x];
                 row.push(new RGBColor(r, g, b));
             }
             frame.push(row);
         }
-        frames.push(frame);
+
+        return new RGBFrame(frame);
     }
-
-    return frames;
-    
 }
-

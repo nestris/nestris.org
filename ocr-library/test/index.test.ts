@@ -1,8 +1,9 @@
-import { readdirSync, readFileSync, existsSync, rmdirSync, mkdirSync, writeFileSync } from "fs";
+import { readdirSync, readFileSync, writeFileSync } from "fs";
 import { load, dump } from "js-yaml";
-import { parseVideo } from "./parse-video";
+import { TestVideoSource } from "./parse-video";
 import { calibrate } from "../ocr/calibration/calibrate";
-import { RGBFrame } from "../ocr/models/frame";
+import { testStateMachine } from "./test-state-machine";
+import { Calibration } from "../ocr/util/calibration";
 
 const TEST_CASE_DIRECTORY = 'test-cases';
 const OUTPUT_DIRECTORY = 'test-output';
@@ -52,8 +53,9 @@ async function runTestCases() {
             console.log(`Calibrating on frame ${config.calibration.frame}...`);
 
             // Get the frame to be used for calibration based on the config
-            const calibrationVideo = await parseVideo(testCase, config.calibration.frame, config.calibration.frame);
-            const calibrationFrame = new RGBFrame(calibrationVideo[0]);
+            const videoSource = new TestVideoSource(testCase);
+            await videoSource.init();
+            const calibrationFrame = await videoSource.getFrame(config.calibration.frame);
 
             // Calibrate on the specified frame
             const [calibration, calibrationPlus] = calibrate(calibrationFrame, config.calibration.frame, {
@@ -70,11 +72,14 @@ async function runTestCases() {
         // Run all ocr testcases with `npm test -- -t ocr`
         test(`ocr-${testCase}`, async () => {
 
-            // Parse the video file into frames
-            console.log('Parsing video...');
-            const frames = await parseVideo(testCase, 0, 3);
-            console.log(frames.length);
+            // Get the calibration data from the output directory
+            const calibration = load(readFileSync(calibrationOutputPath, 'utf8')) as Calibration;
 
+            // Run the full OCR state machine on the test case
+            const testResults = await testStateMachine(testCase, calibration);
+
+            // Save the test results to the output directory
+            writeFileSync(`${outputDirectory}/test-results.yaml`, dump(testResults));
         }, 60000); // Set timeout to 60 seconds
     }
 

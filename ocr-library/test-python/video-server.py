@@ -64,15 +64,8 @@ def set_testcase(testcase):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-def main(testcase: str):
-    # Initialize video with the provided testcase
-    app.cap, app.num_frames, app.width, app.height = initialize_video(testcase)
-    app.testcase = testcase  # Store the testcase name
+def main():
     app.run(port=5001)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Start a Flask server for video frame processing.')
-    parser.add_argument('testcase', type=str, default="Case1", help='Test case directory name')
-
-    args = parser.parse_args()
-    main(args.testcase)
+    main()

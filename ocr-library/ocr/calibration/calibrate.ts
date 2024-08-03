@@ -1,5 +1,5 @@
-import { Calibration, CalibrationPlus } from "../models/calibration";
-import { Frame } from "../models/frame";
+import { Calibration, CalibrationPlus } from "../util/calibration";
+import { Frame } from "../util/frame";
 import { FloodFill } from "../util/floodfill";
 import { Point } from "../../shared/tetris/point";
 import { BoardOCRBox } from "./board-ocr-box";

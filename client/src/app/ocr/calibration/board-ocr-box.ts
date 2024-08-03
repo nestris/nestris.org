@@ -1,4 +1,4 @@
-import { Rectangle, scalePointWithinRect } from "../models/rectangle";
+import { Rectangle, scalePointWithinRect } from "../util/rectangle";
 import { Point } from "../../shared/tetris/point";
 
 export class BoardOCRBox {
