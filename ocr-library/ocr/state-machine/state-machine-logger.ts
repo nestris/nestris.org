@@ -12,6 +12,7 @@ export abstract class StateMachineLogger {
 export interface SerializedStateMachineFrame {
     // Frame data
     binaryBoard?: string;
+    boardNoise?: number;
 
     // State data
     stateID: string;
@@ -26,10 +27,12 @@ export class JsonLogger extends StateMachineLogger {
     override log(frame: OCRFrame, ocrState: OCRState, data?: GameData): void {
 
         const binaryBoard = frame.getBinaryBoard(false);
+        const boardNoise = frame.getBoardNoise(false);
 
         this.frames.push({
             // Frame data
             binaryBoard: binaryBoard ? BinaryTranscoder.encode(binaryBoard) : undefined,
+            boardNoise: boardNoise ? boardNoise : undefined,
 
             // State data
             stateID: ocrState.id,

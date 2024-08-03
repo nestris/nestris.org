@@ -13,6 +13,7 @@ The <testcase> argument is the name of the test case to run. The <mode> argument
 """
 
 import cv2, yaml, argparse, os
+import numpy as np
 from enum import Enum
 from ocr_results import OCRResults
 
@@ -24,6 +25,10 @@ class Mode(Enum):
 RED = (0, 0, 255)
 GREEN = (0, 255, 0)
 BLUE = (255, 0, 0)
+
+LEFT_ARROW_KEY = 2
+RIGHT_ARROW_KEY = 3
+SPACE_KEY = 32
 
 POINT_GROUP_COLORS = {
     "board": RED,
@@ -60,12 +65,14 @@ def play_video(testcase: str, mode: Mode):
     global frame_number
 
     WINDOW = f"{testcase}: {mode.value.upper()} mode"
+    OUTPUT_WINDOW = f"{testcase}: State Machine Viewer"
     
     # Load video capture from file
     video = cv2.VideoCapture(f"../test-cases/{testcase}/game.mov")
     
     cv2.namedWindow(WINDOW, cv2.WINDOW_KEEPRATIO)
-
+    if mode == Mode.OUTPUT:
+        cv2.namedWindow(OUTPUT_WINDOW, cv2.WINDOW_KEEPRATIO)
 
     def mouse_callback(event, x, y, flags, param):
         if event == cv2.EVENT_LBUTTONDOWN:
@@ -142,9 +149,13 @@ def play_video(testcase: str, mode: Mode):
     cv2.createTrackbar("Frame", WINDOW, 0, total_frames - 1, update_frame_position)
 
     # scale window down
-    if False and frames:
+    if frames:
         cv2.imshow(WINDOW, frames[0])
         cv2.resizeWindow(WINDOW, 800, 500)
+        
+        if mode == Mode.OUTPUT:
+            cv2.resizeWindow(OUTPUT_WINDOW, 500, 500)
+            cv2.moveWindow(OUTPUT_WINDOW, 800, 0)
 
     # Make the window appear on top of all other windows
     #cv2.setWindowProperty(WINDOW, cv2.WND_PROP_TOPMOST, 1)
@@ -161,22 +172,35 @@ def play_video(testcase: str, mode: Mode):
         # Display the current frame
         cv2.imshow(WINDOW, frames[frame_number])
 
+        # Display the state machine viewer
+        if ocr_results:
+            # Create a blank image
+            img = 255 * np.ones(shape=[500, 500, 3], dtype=np.uint8)
+            font_size = 0.5
+            color = (0, 0, 0)
+
+            noise = ocr_results.get_noise_at_frame(frame_number)
+            cv2.putText(img, f"Noise: {noise}", (10, 20), cv2.FONT_HERSHEY_SIMPLEX, font_size, color, 1, cv2.LINE_AA)
+
+            cv2.imshow(OUTPUT_WINDOW, img)
+
         # Wait for user input
         key = cv2.waitKey(30)  # Adjust the delay for smoother playback
-
         # Control playback and frame navigation
         if key == ord('q'):
             break
-        elif key == 32:  # Space bar
+        elif key == SPACE_KEY:  # Space bar
             playing = not playing
             if playing and frame_number == total_frames - 1:
                 frame_number = 0
-        elif key == 2555904:  # Left arrow key
+        elif key == LEFT_ARROW_KEY:  # Left arrow key
             frame_number = max(frame_number - 1, 0)
             playing = False
-        elif key == 2424832:  # Right arrow key
+        elif key == RIGHT_ARROW_KEY:  # Right arrow key
             frame_number = min(frame_number + 1, total_frames - 1)
             playing = False
+
+        cv2.setTrackbarPos("Frame", WINDOW, frame_number)
 
     # Release capture object and destroy all windows
     cv2.destroyAllWindows()

@@ -107,3 +107,7 @@ export function classifyColor(level: number, colorToClassify: RGBColor): ColorTy
     else if (mostSimilarColor === colorFirst) return ColorType.PRIMARY;
     else return ColorType.SECONDARY;
 }
+
+export function colorDistance(color1: RGBColor, color2: RGBColor): number {
+    return Math.sqrt(Math.pow(color2.r - color1.r, 2) + Math.pow(color2.g - color1.g, 2) + Math.pow(color2.b - color1.b, 2));
+}

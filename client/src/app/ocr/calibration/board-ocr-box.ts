@@ -48,7 +48,7 @@ export class BoardOCRBox {
 
     /**
      * Returns a list of points that should be pixel coordinates inside the mino at the given point. They should be
-     * to the NE, SE, and SW of the center of the mino. Purpose of using multiple points is redundancy and smoothing
+     * to the NE and SW of the center of the mino. Purpose of using multiple points is redundancy and smoothing
      * out pixel values, as well as looking at SD to help determine the validity of the entire board. High SD across
      * all minos in the board indicates that we are not looking at the board.
      * @param mino 
@@ -61,7 +61,6 @@ export class BoardOCRBox {
 
         const offsets = [
             { x: radiusX, y: -radiusY }, // NE
-            { x: radiusX, y: radiusY }, // SE
             { x: -radiusX, y: radiusY }, // SW
         ]
 

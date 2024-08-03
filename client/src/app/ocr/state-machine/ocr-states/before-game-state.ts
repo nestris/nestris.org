@@ -17,6 +17,6 @@ export class BeforeGameState extends OCRState {
     protected override onAdvanceFrame(gameData: GameData, ocrFrame: OCRFrame): void {
         
         // trigger lazy-loading of the board
-        const frame = ocrFrame.getBoardUncolored();
+        const frame = ocrFrame.getBinaryBoard();
     }
 }
