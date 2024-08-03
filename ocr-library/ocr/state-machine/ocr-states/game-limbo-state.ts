@@ -17,6 +17,6 @@ export class GameLimboState extends OCRState {
     protected override onAdvanceFrame(gameData: GameData, ocrFrame: OCRFrame): void {
         
         // trigger lazy-loading of the board
-        const frame = ocrFrame.getBoardUncolored();
+        const frame = ocrFrame.getBinaryBoard();
     }
 }

@@ -14,17 +14,21 @@ The <testcase> argument is the name of the test case to run. The <mode> argument
 
 import cv2, yaml, argparse, os
 from enum import Enum
+from ocr_results import OCRResults
 
 class Mode(Enum):
     CALIBRATE = "calibrate"
     BOUNDS = "bounds"
     OUTPUT = "output"
 
+RED = (0, 0, 255)
+GREEN = (0, 255, 0)
+BLUE = (255, 0, 0)
 
 POINT_GROUP_COLORS = {
-    "board": (0, 0, 255),
-    "shine": (0, 255, 0),
-    "mino": (255, 0, 0)
+    "board": RED,
+    "shine": GREEN,
+    "mino": BLUE
 }
 
 def calibrate(testcase: str, frame: int, x: int, y: int):
@@ -74,26 +78,35 @@ def play_video(testcase: str, mode: Mode):
     frames = []
 
     
-    if False and mode == Mode.BOUNDS:
-        # We only need to get the calibration frame for this mode
-        rel_path = f"../test-cases/{testcase}/config.yaml"
-        abs_path = os.path.join(os.path.dirname(__file__), rel_path)
-        with open(abs_path, "r") as file:
-            config = yaml.safe_load(file)
-            frame_number = config["calibration"]["frame"]
-        video.set(cv2.CAP_PROP_POS_FRAMES, frame_number-1)
+    # Read all frames from the video and store them in a list
+    while video.isOpened():
         ret, frame = video.read()
-        if ret:
-            frames.append(frame)
-    else:
-        # Read all frames from the video and store them in a list
-        while video.isOpened():
-            ret, frame = video.read()
-            if not ret:
-                break
-            frames.append(frame)
+        if not ret:
+            break
+        frames.append(frame)
     
     video.release()
+
+    # if output, extract the OCR results from the test-results YAML from the test case
+    if mode == Mode.OUTPUT:
+        results_path = os.path.join(os.path.dirname(__file__), f"../test-output/{testcase}/test-results.yaml")
+        calibration_plus_path = os.path.join(os.path.dirname(__file__), f"../test-output/{testcase}/calibration-plus.yaml")
+        with (
+            open(calibration_plus_path) as calibration_plus_file,
+            open(results_path) as results_file
+        ):
+            calibration_plus = yaml.safe_load(calibration_plus_file)
+            results_dict = yaml.safe_load(results_file)
+
+        ocr_results = OCRResults(results_dict)
+
+        for minoIndex, mino in enumerate(calibration_plus["points"]["shine"]):
+            x, y = mino["x"], mino["y"]
+            for frameIndex, frame in enumerate(frames):
+                color = GREEN if ocr_results.get_mino_at_frame(frameIndex, minoIndex) else RED
+                cv2.circle(frame, (x, y), 2, color, -1)
+
+
 
     # if in bounds, add bounding rect to each frame
     if mode == Mode.BOUNDS:
@@ -125,7 +138,7 @@ def play_video(testcase: str, mode: Mode):
                         cv2.circle(frame, (x, y), 1, POINT_GROUP_COLORS[group], -1)
 
 
-    total_frames = len(frames)
+    total_frames = ocr_results.num_frames() if ocr_results else len(frames)
     cv2.createTrackbar("Frame", WINDOW, 0, total_frames - 1, update_frame_position)
 
     # scale window down

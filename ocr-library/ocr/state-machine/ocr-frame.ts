@@ -31,7 +31,7 @@ export class OCRFrame {
      * @param loadIfNotLoaded If true, the property will be computed if it has not been loaded yet
      * @returns The extracted tetris board
      */
-    getBoardUncolored(loadIfNotLoaded: boolean = true): TetrisBoard | undefined {
+    getBinaryBoard(loadIfNotLoaded: boolean = true): TetrisBoard | undefined {
         if (loadIfNotLoaded && !this._boardUncolored) {
 
             // Iterate through each mino on the board and determine the block's color if it exists
@@ -46,7 +46,7 @@ export class OCRFrame {
                 if (blockShineColor.average > 130) {
                     // If block shine detected, we use the mino points to determine the color of the block
                     // TODO: Implement color detection
-                    this._boardUncolored.setAt(point.x, point.y, ColorType.WHITE);
+                    this._boardUncolored.setAt(point.x, point.y, ColorType.PRIMARY);
                 } else {
                     // If block shine not detected, no mino exists at this point
                     this._boardUncolored.setAt(point.x, point.y, ColorType.EMPTY);
