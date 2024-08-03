@@ -2,6 +2,7 @@ import { BoardOCRBox } from "../calibration/board-ocr-box";
 import { Calibration } from "../util/calibration";
 import { Frame } from "../util/frame";
 import { ColorType, TetrisBoard } from "../../shared/tetris/tetris-board";
+import { colorDistance } from "../../shared/tetris/tetromino-colors";
 
 /**
  * An OCRFrame stores a single RGB frame of a video, and provides methods to extract information from the frame
@@ -12,7 +13,7 @@ export class OCRFrame {
     readonly boardOCRBox: BoardOCRBox;
 
     private _boardUncolored: TetrisBoard | undefined;
-    private _boardConsistency: number | undefined;
+    private _boardNoise: number | undefined;
 
     /**
      * @param frame The singular frame to extract OCR information from
@@ -63,14 +64,22 @@ export class OCRFrame {
      * it is a Tetris board that being displayed on the frame.
      * @param loadIfNotLoaded 
      */
-    getBoardConsistency(loadIfNotLoaded: boolean = true): number | undefined {
-        if (loadIfNotLoaded && this._boardConsistency === undefined) {
+    getBoardNoise(loadIfNotLoaded: boolean = true): number | undefined {
+        if (loadIfNotLoaded && this._boardNoise === undefined) {
 
+            // Iterate through each mino on the board get the color distance between two points on the mino
             let totalDifference = 0;
             for (let point of (new TetrisBoard()).iterateMinos()) {
                 const [point1, point2] = this.boardOCRBox.getMinoPoints(point);
-            
+                const color1 = this.frame.getPixelAt(point1);
+                const color2 = this.frame.getPixelAt(point2);
+                if (!color1 || !color2) throw new Error(`Color not found at ${point1.x}, ${point1.y} or ${point2.x}, ${point2.y}`);
+                totalDifference += colorDistance(color1, color2);
+            }
+
+            // Average the total difference across all minos
+            this._boardNoise = totalDifference / 200;
         }
-        return this._boardConsistency;
+        return this._boardNoise;
     }
 }
