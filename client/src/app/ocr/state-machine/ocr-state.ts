@@ -3,11 +3,19 @@ import { OCRFrame } from "./ocr-frame";
 import { OCRStateID } from "./ocr-states/ocr-state-id";
 import { PersistenceStrategy } from "./persistence-strategy";
 
+export interface EventStatus {
+    name: string;
+    preconditionMet: boolean;
+    persistenceMet: boolean;
+}
+
 /**
  * Represents the OCR machine in a particular state. Each state holds its own data and logic,
  * and OCRStateMachine determines transitions based on current state and OCRFrame data.
  */
 export abstract class OCRState {
+
+    private eventStatuses: EventStatus[] = [];
 
     constructor(
         public readonly id: OCRStateID,
@@ -21,18 +29,32 @@ export abstract class OCRState {
      * @param ocrFrame The current OCR frame
      * @returns The new state to transition to, or undefined if no transition is needed
      */
-    advanceState(gameData: GameData | undefined, ocrFrame: OCRFrame): OCRStateID | undefined {
+    advanceState(gameData: GameData | undefined, ocrFrame: OCRFrame): OCRStateID | undefined {        
 
         // Update this state before checking for events
         this.onAdvanceFrame(gameData, ocrFrame);
 
         // Check for events and trigger the first one that is met
+        // And, keep a record of the state of each event for debugging purposes
+        this.eventStatuses = [];
         for (const event of this.events) {
-            if (event.checkForEvent(ocrFrame, gameData)) {
+
+            const eventStatus = event.checkForEvent(ocrFrame, gameData);
+            this.eventStatuses.push(eventStatus);
+
+            if (eventStatus.persistenceMet) {
                 return event.triggerEvent(ocrFrame, gameData);
             }
         }
         return undefined;
+    }
+
+    /**
+     * Returns the status of all events that were checked this frame. Useful for debugging.
+     * @returns The status of all events that were checked this frame
+     */
+    getEventStatusesThisFrame(): EventStatus[] {
+        return this.eventStatuses;
     }
 
     /**
@@ -49,6 +71,7 @@ export abstract class OCRState {
 export abstract class StateEvent {
 
     constructor(
+        public readonly name: string,
         private readonly persistence: PersistenceStrategy
     ) {}
 
@@ -60,19 +83,11 @@ export abstract class StateEvent {
      * @param gameData 
      * @returns Whether the event should be triggered
      */
-    checkForEvent(ocrFrame: OCRFrame, gameData: GameData | undefined): boolean {
+    checkForEvent(ocrFrame: OCRFrame, gameData: GameData | undefined): EventStatus {
         const preconditionMet = this.precondition(ocrFrame, gameData);
-        return this.persistence.meetsPersistenceCondition(preconditionMet);
+        const persistenceMet = this.persistence.meetsPersistenceCondition(preconditionMet);
+        return { name: this.name, preconditionMet, persistenceMet };
     }
-
-    /**
-     * Triggers the event and possibly returns the new state to transition to. Override this method
-     * to define custom logic for what happens when the event is triggered.
-     * @param ocrFrame The current OCR frame
-     * @param gameData The current game data
-     * @returns The new state to transition to, or undefined if no transition is needed
-     */
-    abstract triggerEvent(ocrFrame: OCRFrame, gameData: GameData | undefined): OCRStateID | undefined;
 
     /**
      * Checks if the precondition for this event is met. Override this method to implement custom logic
@@ -82,5 +97,14 @@ export abstract class StateEvent {
      * @returns Whether the precondition is met
      */
     protected abstract precondition(ocrFrame: OCRFrame, gameData: GameData | undefined): boolean;
+
+    /**
+     * Triggers the event and possibly returns the new state to transition to. Override this method
+     * to define custom logic for what happens when the event is triggered.
+     * @param ocrFrame The current OCR frame
+     * @param gameData The current game data
+     * @returns The new state to transition to, or undefined if no transition is needed
+     */
+    abstract triggerEvent(ocrFrame: OCRFrame, gameData: GameData | undefined): OCRStateID | undefined;
 
 }

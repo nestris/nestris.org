@@ -47,15 +47,16 @@ export class OCRStateMachine {
         // Advance the current OCR state
         this.stateProfiler.start();
         const newStateID = this.currentState.advanceState(this.gameData, ocrFrame);
+        const eventStatuses = this.currentState.getEventStatusesThisFrame();
+        this.stateProfiler.stop();
+
+        // Log the current state of the OCR machine
+        this.logger.log(ocrFrame, this.currentState, eventStatuses, this.gameData);
 
         // Transition to the new state if needed
         if (newStateID !== undefined) {
             this.currentState = ocrStateFactory(newStateID);
         }
-        this.stateProfiler.stop();
-
-        // Log the current state of the OCR machine
-        this.logger.log(ocrFrame, this.currentState, this.gameData);
     }
 
     getFrameProfilerResults(): ProfilerResults {

@@ -1,12 +1,12 @@
 import { OCRFrame } from "./ocr-frame";
 import { GameData } from "./game-data";
-import { OCRState } from "./ocr-state";
+import { EventStatus, OCRState } from "./ocr-state";
 import { BinaryTranscoder } from "../../shared/network/tetris-board-transcoding/binary-transcoder";
 import { TETROMINO_CHAR } from "../../shared/tetris/tetrominos";
 
 export abstract class StateMachineLogger {
 
-    abstract log(frame: OCRFrame, ocrState: OCRState, data?: GameData): void;
+    abstract log(frame: OCRFrame, ocrState: OCRState, eventStatuses: EventStatus[], data?: GameData): void;
 
 }
 
@@ -19,6 +19,7 @@ export interface SerializedStateMachineFrame {
 
     // State data
     stateID: string;
+    eventStatuses: EventStatus[];
 
     // Game data
 }
@@ -27,7 +28,7 @@ export class JsonLogger extends StateMachineLogger {
 
     private frames: SerializedStateMachineFrame[] = [];
 
-    override log(frame: OCRFrame, ocrState: OCRState, data?: GameData): void {
+    override log(frame: OCRFrame, ocrState: OCRState, eventStatuses: EventStatus[], data?: GameData): void {
 
         const binaryBoard = frame.getBinaryBoard(false);
         const boardNoise = frame.getBoardNoise(false);
@@ -42,6 +43,7 @@ export class JsonLogger extends StateMachineLogger {
 
             // State data
             stateID: ocrState.id,
+            eventStatuses: eventStatuses,
 
             // Game data
         });
