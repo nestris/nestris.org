@@ -19,7 +19,7 @@ export class Profiler {
     /**
      * Starts measuring the time it takes to execute some task.
      */
-    startFunction() {
+    start() {
 
         if (this.currentStartTime) {
             throw new Error('Profiler is already running');
@@ -31,7 +31,7 @@ export class Profiler {
     /**
      * Stops measuring the time it takes to execute some task.
      */
-    stopFunction() {
+    stop() {
 
         if (!this.currentStartTime) {
             throw new Error('Profiler is not running');
