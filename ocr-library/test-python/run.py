@@ -63,6 +63,27 @@ def calibrate(testcase: str, frame: int, x: int, y: int):
 
     print(f"Set calibration for {testcase} at frame {frame} with coordinates ({x}, {y})")
 
+class StateMachineText:
+    def __init__(self):
+        self.x = 10
+        self.y = 20
+
+        self.font_size = 0.5
+        self.color = (0, 0, 0)
+
+        self.img = 255 * np.ones(shape=[500, 500, 3], dtype=np.uint8)
+
+    def add_text(self, text, indent: int = 0):
+        x = self.x + indent * 20
+        cv2.putText(self.img, text, (x, self.y), cv2.FONT_HERSHEY_SIMPLEX, self.font_size, self.color, 1, cv2.LINE_AA)
+        self.new_line()
+
+    def new_line(self):
+        self.y += 20
+
+    def show(self, window: str):
+        cv2.imshow(window, self.img)
+
 
 def update_frame_position(val):
     global frame_number
@@ -127,9 +148,7 @@ def play_video(testcase: str, mode: Mode):
                 cv2.circle(frame, (x, y), 2, color, -1)
     else:
         ocr_results = None
-
-
-
+    
     # if in bounds, add bounding rect to each frame
     if mode == Mode.BOUNDS:
         calibration_path = os.path.join(os.path.dirname(__file__), f"../test-output/{testcase}/calibration.yaml")
@@ -188,21 +207,20 @@ def play_video(testcase: str, mode: Mode):
 
         # Display the state machine viewer
         if ocr_results:
-            # Create a blank image
-            img = 255 * np.ones(shape=[500, 500, 3], dtype=np.uint8)
-            font_size = 0.5
-            color = (0, 0, 0)
+            state_machine_text = StateMachineText()
+            state_machine_text.add_text(f"Frame: {frame_number}")
+            state_machine_text.add_text(f"State: {ocr_results.get_state_at_frame(frame_number)}")
+            state_machine_text.add_text(f"Noise: {ocr_results.get_noise_at_frame(frame_number)}")
+            state_machine_text.add_text(f"Next Type: {ocr_results.get_next_type_at_frame(frame_number)}")
 
-            state = ocr_results.get_state_at_frame(frame_number)
-            cv2.putText(img, f"State: {state}", (10, 20), cv2.FONT_HERSHEY_SIMPLEX, font_size, color, 1, cv2.LINE_AA)
+            state_machine_text.new_line()
+            state_machine_text.add_text("Event Statuses:")
+            for event_status in ocr_results.get_event_statuses_at_frame(frame_number):
+                state_machine_text.add_text(f"{event_status.name}:")
+                state_machine_text.add_text(f"Precondition met: {event_status.precondition_met}", indent=1)
+                state_machine_text.add_text(f"Persistence met: {event_status.persistence_met}", indent=1)
 
-            noise = ocr_results.get_noise_at_frame(frame_number)
-            cv2.putText(img, f"Noise: {noise}", (10, 40), cv2.FONT_HERSHEY_SIMPLEX, font_size, color, 1, cv2.LINE_AA)
-
-            next_type = ocr_results.get_next_type_at_frame(frame_number)
-            cv2.putText(img, f"Next Type: {next_type}", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, font_size, color, 1, cv2.LINE_AA)
-
-            cv2.imshow(OUTPUT_WINDOW, img)
+            state_machine_text.show(OUTPUT_WINDOW)
 
         # Wait for user input
         key = cv2.waitKey(30)  # Adjust the delay for smoother playback

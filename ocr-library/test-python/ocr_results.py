@@ -1,4 +1,11 @@
 from typing import List, Dict
+from dataclasses import dataclass
+
+@dataclass
+class EventStatus:
+    name: str
+    precondition_met: bool
+    persistence_met: bool
 
 """
 Stores the results dict from test-results.yaml, which holds all the information for an ocr test case at each frame.
@@ -21,6 +28,19 @@ class OCRResults:
             return ""
         
         return self.results[frame]["stateID"]
+    
+    def get_event_statuses_at_frame(self, frame: int) -> List[EventStatus]:
+        """
+        Returns the event statuses at the frame.
+        """
+
+        if frame < 0 or frame >= len(self.results):
+            return []
+        
+        return [
+            EventStatus(s["name"], s["preconditionMet"], s["persistenceMet"])
+            for s in self.results[frame]["eventStatuses"]
+        ]
 
     def get_next_grid_point_at_frame(self, frame: int, minoIndex: int) -> bool:
         """
@@ -48,15 +68,18 @@ class OCRResults:
 
         return self.results[frame]["binaryBoard"][minoIndex] == "1"
     
-    def get_noise_at_frame(self, frame: int) -> float:
+    def get_noise_at_frame(self, frame: int) -> str:
         """
         Returns the consistency of the frame.
         """
 
         if frame < 0 or frame >= len(self.results):
             return -1
+        
+        if "boardNoise" not in self.results[frame]:
+            return "(Not fetched)"
 
-        return self.results[frame]["boardNoise"]
+        return str(self.results[frame]["boardNoise"])
     
     def get_next_type_at_frame(self, frame: int) -> str:
         """
@@ -66,10 +89,10 @@ class OCRResults:
         if frame < 0 or frame >= len(self.results):
             return ""
         if "nextType" not in self.results[frame]:
-            raise Exception(f"nextType not found in frame {frame}")
+            return "(Not fetched)"
         type = self.results[frame]["nextType"]
         if type == "E":
-            return "Not found"
+            return "Invalid type"
         return type
     
     def num_frames(self) -> int:
