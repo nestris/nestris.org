@@ -12,6 +12,16 @@ class OCRResults:
         A 200-bit binary string representing whether the mino exists in the frame.
         """
 
+    def get_state_at_frame(self, frame: int) -> str:
+        """
+        Returns the state of the board at the frame.
+        """
+
+        if frame < 0 or frame >= len(self.results):
+            return ""
+        
+        return self.results[frame]["stateID"]
+
     def get_next_grid_point_at_frame(self, frame: int, minoIndex: int) -> bool:
         """
         Returns whether the next grid point is detected in the frame.

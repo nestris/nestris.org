@@ -193,11 +193,14 @@ def play_video(testcase: str, mode: Mode):
             font_size = 0.5
             color = (0, 0, 0)
 
+            state = ocr_results.get_state_at_frame(frame_number)
+            cv2.putText(img, f"State: {state}", (10, 20), cv2.FONT_HERSHEY_SIMPLEX, font_size, color, 1, cv2.LINE_AA)
+
             noise = ocr_results.get_noise_at_frame(frame_number)
-            cv2.putText(img, f"Noise: {noise}", (10, 20), cv2.FONT_HERSHEY_SIMPLEX, font_size, color, 1, cv2.LINE_AA)
+            cv2.putText(img, f"Noise: {noise}", (10, 40), cv2.FONT_HERSHEY_SIMPLEX, font_size, color, 1, cv2.LINE_AA)
 
             next_type = ocr_results.get_next_type_at_frame(frame_number)
-            cv2.putText(img, f"Next Type: {next_type}", (10, 40), cv2.FONT_HERSHEY_SIMPLEX, font_size, color, 1, cv2.LINE_AA)
+            cv2.putText(img, f"Next Type: {next_type}", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, font_size, color, 1, cv2.LINE_AA)
 
             cv2.imshow(OUTPUT_WINDOW, img)
 
