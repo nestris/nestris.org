@@ -153,9 +153,5 @@ export class TetronimoOCR {
         } else {
             return lowestDiffType;
         }
-
-
-
     }
-
 }

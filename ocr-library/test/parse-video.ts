@@ -83,7 +83,7 @@ export class TestVideoSource extends VideoSource {
         }
 
         // Fetch frame data from API
-        const { image } = await fetchAPI('GET', `frame/${this.currentFrameIndex}`);
+        const { image } = await fetchAPI('GET', `frame/${index}`);
 
         // Image is a 2d list of [r,g,b]. Convert image data to 2D RGB array
         const frame: RGBColor[][] = [];

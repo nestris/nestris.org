@@ -19,5 +19,6 @@ export class BeforeGameState extends OCRState {
         // trigger lazy-loading of the board properties
         const frame = ocrFrame.getBinaryBoard();
         const consistency = ocrFrame.getBoardNoise();
+        const nextType = ocrFrame.getNextType();
     }
 }

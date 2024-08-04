@@ -1,7 +1,7 @@
 calibration:
-  frame: 41
-  x: 623
-  y: 487
+  frame: 70
+  x: 489
+  y: 435
 verification:
   end:
     evel: 19

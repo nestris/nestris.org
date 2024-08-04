@@ -29,6 +29,9 @@ export async function testStateMachine(testcase: string, calibration: Calibratio
         log(`Executed frame ${i}`);
     }
 
+    console.log("Frame profiler results (ms):", stateMachine.getFrameProfilerResults());
+    console.log("State profiler results (ms):", stateMachine.getStateProfilerResults());
+
     // Return the serialized frames and states from the state machine logger
     return logger.getSerializedFrames();
 

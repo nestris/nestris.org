@@ -3,6 +3,8 @@ import { Frame } from "../util/frame";
 import { FloodFill } from "../util/floodfill";
 import { Point } from "../../shared/tetris/point";
 import { BoardOCRBox } from "./board-ocr-box";
+import { NextOCRBox } from "./next-ocr-box";
+import { scalePointWithinRect } from "../util/rectangle";
 
 /**
  * Given a frame and a point, calibrate all the bounding rectangles for all the OCR elements.
@@ -19,11 +21,11 @@ export function calibrate(frame: Frame, frameIndex: number, point: Point): [Cali
 
     // Use the main board rect to derive floodfill points and thus bounding rect for the next box
     const NEXTBOX_LOCATIONS: Point[] = [
-        {x: 1.5, y: 0.41}, // top of the next box
-        {x: 1.5, y: 0.595} // bottom of the next box
+        {x: 1.5, y: 0.42}, // top of the next box
+        {x: 1.5, y: 0.58} // bottom of the next box
     ];
-    const nextRect = FloodFill.fromRelativeRect(frame, boardRect, NEXTBOX_LOCATIONS).getBoundingRect();
-    if (!nextRect) throw new Error("Could not floodfill next box");
+    let nextRect = FloodFill.fromRelativeRect(frame, boardRect, NEXTBOX_LOCATIONS).getBoundingRect();
+    if (!nextRect) throw Error("Could not floodfill next box");
 
     const calibration: Calibration = {
         frameIndex,
@@ -34,8 +36,16 @@ export function calibrate(frame: Frame, frameIndex: number, point: Point): [Cali
         }
     };
 
+    const points = Object.assign({},
+        (new BoardOCRBox(boardRect)).getPlusPoints(),
+        { 
+            next: (new NextOCRBox(nextRect)).getGridPoints().flat(),
+            nextFloodfill: NEXTBOX_LOCATIONS.map(point => scalePointWithinRect(boardRect, point, true))
+        }
+    )
+
     const calibrationPlus: CalibrationPlus = {
-        points: (new BoardOCRBox(boardRect)).getPlusPoints(),
+        points: points,
     };
 
     return [calibration, calibrationPlus];

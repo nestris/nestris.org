@@ -76,7 +76,7 @@ async function runTestCases() {
             const calibration = load(readFileSync(calibrationOutputPath, 'utf8')) as Calibration;
 
             // Run the full OCR state machine on the test case
-            const testResults = await testStateMachine(testCase, calibration, 100);
+            const testResults = await testStateMachine(testCase, calibration);
 
             // Save the test results to the output directory
             writeFileSync(`${outputDirectory}/test-results.yaml`, dump(testResults));

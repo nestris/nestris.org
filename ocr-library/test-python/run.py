@@ -25,6 +25,11 @@ class Mode(Enum):
 RED = (0, 0, 255)
 GREEN = (0, 255, 0)
 BLUE = (255, 0, 0)
+ORANGE = (0, 165, 255)
+PURPLE = (128, 0, 128)
+PINK = (147, 20, 255)
+YELLOW = (0, 255, 255)
+CYAN = (255, 255, 0)
 
 LEFT_ARROW_KEY = 2
 RIGHT_ARROW_KEY = 3
@@ -33,7 +38,9 @@ SPACE_KEY = 32
 POINT_GROUP_COLORS = {
     "board": RED,
     "shine": GREEN,
-    "mino": BLUE
+    "mino": BLUE,
+    "next": ORANGE,
+    "nextFloodfill": YELLOW
 }
 
 def calibrate(testcase: str, frame: int, x: int, y: int):
@@ -107,11 +114,19 @@ def play_video(testcase: str, mode: Mode):
 
         ocr_results = OCRResults(results_dict)
 
-        for minoIndex, mino in enumerate(calibration_plus["points"]["shine"]):
-            x, y = mino["x"], mino["y"]
-            for frameIndex, frame in enumerate(frames):
+        for frameIndex, frame in enumerate(frames):
+            for minoIndex, mino in enumerate(calibration_plus["points"]["board"]):
+                x, y = mino["x"], mino["y"]
                 color = GREEN if ocr_results.get_mino_at_frame(frameIndex, minoIndex) else RED
                 cv2.circle(frame, (x, y), 2, color, -1)
+
+        for frameIndex, frame in enumerate(frames):
+            for minoIndex, mino in enumerate(calibration_plus["points"]["next"]):
+                x, y = mino["x"], mino["y"]
+                color = GREEN if ocr_results.get_next_grid_point_at_frame(frameIndex, minoIndex) else RED
+                cv2.circle(frame, (x, y), 2, color, -1)
+    else:
+        ocr_results = None
 
 
 
@@ -138,6 +153,7 @@ def play_video(testcase: str, mode: Mode):
 
             # Draw all calibration points
             for group, points in calibration_plus["points"].items():
+                print(group)
                 for point in points:
                     x = point["x"]
                     y = point["y"]
@@ -149,13 +165,11 @@ def play_video(testcase: str, mode: Mode):
     cv2.createTrackbar("Frame", WINDOW, 0, total_frames - 1, update_frame_position)
 
     # scale window down
-    if frames:
+    if frames and mode == Mode.OUTPUT:
         cv2.imshow(WINDOW, frames[0])
-        cv2.resizeWindow(WINDOW, 800, 500)
-        
-        if mode == Mode.OUTPUT:
-            cv2.resizeWindow(OUTPUT_WINDOW, 500, 500)
-            cv2.moveWindow(OUTPUT_WINDOW, 800, 0)
+        cv2.resizeWindow(WINDOW, 1000, 600)
+        cv2.resizeWindow(OUTPUT_WINDOW, 400, 600)
+        cv2.moveWindow(OUTPUT_WINDOW, 1000, 0)
 
     # Make the window appear on top of all other windows
     #cv2.setWindowProperty(WINDOW, cv2.WND_PROP_TOPMOST, 1)
@@ -181,6 +195,9 @@ def play_video(testcase: str, mode: Mode):
 
             noise = ocr_results.get_noise_at_frame(frame_number)
             cv2.putText(img, f"Noise: {noise}", (10, 20), cv2.FONT_HERSHEY_SIMPLEX, font_size, color, 1, cv2.LINE_AA)
+
+            next_type = ocr_results.get_next_type_at_frame(frame_number)
+            cv2.putText(img, f"Next Type: {next_type}", (10, 40), cv2.FONT_HERSHEY_SIMPLEX, font_size, color, 1, cv2.LINE_AA)
 
             cv2.imshow(OUTPUT_WINDOW, img)
 

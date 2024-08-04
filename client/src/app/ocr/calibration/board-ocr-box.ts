@@ -1,6 +1,9 @@
 import { Rectangle, scalePointWithinRect } from "../util/rectangle";
 import { Point } from "../../shared/tetris/point";
 
+/**
+ * Fetches all the relevant pixel coordinates for a TetrisBoard relative to a given bounding box
+ */
 export class BoardOCRBox {
 
     constructor(

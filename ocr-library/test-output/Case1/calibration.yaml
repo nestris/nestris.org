@@ -1,7 +1,7 @@
-frameIndex: 41
+frameIndex: 70
 floodfillPoint:
-  x: 623
-  'y': 487
+  x: 489
+  'y': 435
 rects:
   board:
     top: 126

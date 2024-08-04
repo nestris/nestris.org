@@ -3,6 +3,9 @@ import { Calibration } from "../util/calibration";
 import { Frame } from "../util/frame";
 import { ColorType, TetrisBoard } from "../../shared/tetris/tetris-board";
 import { colorDistance } from "../../shared/tetris/tetromino-colors";
+import { NextOCRBox } from "../calibration/next-ocr-box";
+import { TetrominoType } from "../../shared/tetris/tetromino-type";
+import { findSimilarTetrominoType } from "../calibration/next-ocr-similarity";
 
 /**
  * An OCRFrame stores a single RGB frame of a video, and provides methods to extract information from the frame
@@ -11,9 +14,11 @@ import { colorDistance } from "../../shared/tetris/tetromino-colors";
 export class OCRFrame {
 
     readonly boardOCRBox: BoardOCRBox;
+    readonly nextOCRBox: NextOCRBox;
 
     private _boardUncolored: TetrisBoard | undefined;
     private _boardNoise: number | undefined;
+    private _nextType: TetrominoType | undefined;
 
     /**
      * @param frame The singular frame to extract OCR information from
@@ -24,6 +29,8 @@ export class OCRFrame {
         public readonly calibration: Calibration
     ) {
         this.boardOCRBox = new BoardOCRBox(calibration.rects.board);
+        this.nextOCRBox = new NextOCRBox(calibration.rects.next);
+
     }
 
     /**
@@ -81,5 +88,39 @@ export class OCRFrame {
             this._boardNoise = totalDifference / 200;
         }
         return this._boardNoise;
+    }
+
+    /**
+     * Gets the binary grid of the next box from this frame by checking if each pixel
+     * is above a certain brightness threshold.
+     * @returns The binary grid of the next box, where 1 is bright and 0 is dark
+     */
+    getNextGrid(): number[][] {
+
+        // A pixel is considered "bright" if its average color is above this threshold
+        const BRIGHTNESS_THRESHOLD = 10;
+
+        return this.nextOCRBox.getGridPoints().map(row => {
+            return row.map(point => {
+                const pixel = this.frame.getPixelAt(point);
+                if (!pixel) throw new Error(`Pixel not found at ${point.x}, ${point.y}`);
+
+                return pixel.average > BRIGHTNESS_THRESHOLD ? 1 : 0;
+            })
+        });
+    }
+
+    /**
+     * Gets the type of the next tetromino from getNextGrid() by finding similarities between
+     * the grid and the known OCR tetrominos.
+     * @param loadIfNotLoaded If true, the property will be computed if it has not been loaded yet
+     * @returns The type of the next tetromino
+     */
+    getNextType(loadIfNotLoaded: boolean = true): TetrominoType | undefined {
+        if (loadIfNotLoaded && this._nextType === undefined) {
+            const nextGrid = this.getNextGrid();
+            this._nextType = findSimilarTetrominoType(nextGrid);
+        }
+        return this._nextType;
     }
 }
