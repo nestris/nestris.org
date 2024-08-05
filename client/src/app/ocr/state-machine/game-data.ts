@@ -13,7 +13,7 @@ export class GameData {
     ) {}
 
     startGame(level: number, current: TetrominoType, next: TetrominoType): void {
-        this.packetSender.sendPacket(new GameStartPacket().toBinaryEncoder({level, current, next}));
+        this.packetSender.bufferPacket(new GameStartPacket().toBinaryEncoder({level, current, next}));
     }
 
 

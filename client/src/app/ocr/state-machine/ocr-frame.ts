@@ -6,7 +6,7 @@ import { colorDistance } from "../../shared/tetris/tetromino-colors";
 import { NextOCRBox } from "../calibration/next-ocr-box";
 import { TetrominoType } from "../../shared/tetris/tetromino-type";
 import { findSimilarTetrominoType } from "../calibration/next-ocr-similarity";
-import MoveableTetromino from "shared/tetris/moveable-tetromino";
+import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
 
 /**
  * An OCRFrame stores a single RGB frame of a video, and provides methods to extract information from the frame
@@ -131,10 +131,10 @@ export class OCRFrame {
      * Gets the level of the game from the frame by OCRing the level number from the frame. If
      * there is not sufficient confidence in the OCR, returns null.
      * @param loadIfNotLoaded If true, the property will be computed if it has not been loaded yet
-     * @returns The level of the game. If the level could not be OCR'd, returns null. If the level
+     * @returns The level of the game. If the level could not be OCR'd, returns -1. If the level
      * has not been loaded yet, returns undefined.
      */
-    getLevel(loadIfNotLoaded: boolean = true): number | null | undefined {
+    getLevel(loadIfNotLoaded: boolean = true): number | undefined {
         if (loadIfNotLoaded && this._level === undefined) {
             this._level = 18; // TODO: Implement OCR
         }

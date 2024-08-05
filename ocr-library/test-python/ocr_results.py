@@ -94,6 +94,47 @@ class OCRResults:
         if type == "E":
             return "Invalid type"
         return type
+
+    def get_level_at_frame(self, frame: int) -> str:
+        """
+        Returns the level of the game at the frame.
+        """
+
+        if frame < 0 or frame >= len(self.results):
+            return ""
+        if "level" not in self.results[frame]:
+            return "(Not fetched)"
+        
+        level = self.results[frame]["level"]
+        if level == -1:
+            return "OCR could not detect level"
+        return str(level)
+    
+    def get_board_only_type_at_frame(self, frame: int) -> str:
+        """
+        Returns type of the tetromino if there is precisely one tetromino on the board.
+        """
+
+        if frame < 0 or frame >= len(self.results):
+            return ""
+        if "boardOnlyType" not in self.results[frame]:
+            return "(Not fetched)"
+        
+        type = self.results[frame]["boardOnlyType"]
+        if type == "E":
+            return "Board does not have exactly one tetromino"
+        return type
+
+
+    def get_packets_at_frame(self, frame: int) -> List[str]:
+        """
+        Returns the packets at the frame.
+        """
+
+        if frame < 0 or frame >= len(self.results):
+            return []
+        
+        return self.results[frame]["packets"]
     
     def num_frames(self) -> int:
         return len(self.results)

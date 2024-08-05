@@ -168,5 +168,5 @@ export const PIECE_TOP_LEFT: {[key in TetrominoType] : Point[]} = {
     [TetrominoType.T_TYPE] : PIECE_T.map(getTopLeft),
     [TetrominoType.S_TYPE] : PIECE_S.map(getTopLeft),
     [TetrominoType.Z_TYPE] : PIECE_Z.map(getTopLeft),
-    [TetrominoType.ERROR_TYPE] : PIECE_ERROR.map(getTopLeft),
+    [TetrominoType.ERROR_TYPE] : [{ x: 0, y: 0 }],
 }

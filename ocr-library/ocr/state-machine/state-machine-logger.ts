@@ -3,9 +3,9 @@ import { GameData } from "./game-data";
 import { EventStatus, OCRState } from "./ocr-state";
 import { BinaryTranscoder } from "../../shared/network/tetris-board-transcoding/binary-transcoder";
 import { TETROMINO_CHAR } from "../../shared/tetris/tetrominos";
-import { BinaryDecoder, BinaryEncoder } from "../../shared/network/binary-codec";
-import { PACKET_NAME, PacketOpcode } from "shared/network/stream-packets/packet";
-import { PacketDisassembler } from "shared/network/stream-packets/packet-disassembler";
+import { BinaryEncoder } from "../../shared/network/binary-codec";
+import { PACKET_NAME } from "../../shared/network/stream-packets/packet";
+import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
 
 export abstract class StateMachineLogger {
 
@@ -25,6 +25,8 @@ export interface SerializedStateMachineFrame {
     boardNoise?: number;
     nextGrid?: string;
     nextType?: string;
+    level?: number;
+    boardOnlyType?: string;
 
     // State data
     stateID: string;
@@ -33,7 +35,7 @@ export interface SerializedStateMachineFrame {
     // Game data
 
     // Packet data
-    packet: string[];
+    packets: string[];
 }
 
 export class JsonLogger extends StateMachineLogger {
@@ -43,15 +45,17 @@ export class JsonLogger extends StateMachineLogger {
     override log(frame: OCRFrame, ocrState: OCRState, eventStatuses: EventStatus[], packets: BinaryEncoder[], data?: GameData): void {
 
         const binaryBoard = frame.getBinaryBoard(false);
-        const boardNoise = frame.getBoardNoise(false);
         const nextType = frame.getNextType(false);
+        const boardOnlyType = frame.getBoardOnlyTetrominoType(false);
 
         this.frames.push({
             // Frame data
             binaryBoard: binaryBoard ? BinaryTranscoder.encode(binaryBoard) : undefined,
-            boardNoise: boardNoise ? boardNoise : undefined,
+            boardNoise: frame.getBoardNoise(false),
             nextGrid: frame.getNextGrid().flat().join(""),
             nextType: nextType !== undefined ? TETROMINO_CHAR[nextType] : undefined,
+            level: frame.getLevel(false),
+            boardOnlyType: boardOnlyType !== undefined ? TETROMINO_CHAR[boardOnlyType] : undefined,
 
             // State data
             stateID: ocrState.id,
@@ -60,7 +64,7 @@ export class JsonLogger extends StateMachineLogger {
             // Game data
 
             // Packet data
-            packet: packets.map(packet => {
+            packets: packets.map(packet => {
                 const disassembler = new PacketDisassembler(packet.convertToUInt8Array(), false);
                 const opcode = disassembler.nextPacket().opcode;
                 return PACKET_NAME[opcode];

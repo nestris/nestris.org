@@ -212,6 +212,13 @@ def play_video(testcase: str, mode: Mode):
             state_machine_text.add_text(f"State: {ocr_results.get_state_at_frame(frame_number)}")
             state_machine_text.add_text(f"Noise: {ocr_results.get_noise_at_frame(frame_number)}")
             state_machine_text.add_text(f"Next Type: {ocr_results.get_next_type_at_frame(frame_number)}")
+            state_machine_text.add_text(f"Level: {ocr_results.get_level_at_frame(frame_number)}")
+            state_machine_text.add_text(f"Only tetromino on board: {ocr_results.get_board_only_type_at_frame(frame_number)}")
+
+            state_machine_text.new_line()
+            state_machine_text.add_text("Packets:")
+            for packet in ocr_results.get_packets_at_frame(frame_number):
+                state_machine_text.add_text(packet, indent=1)
 
             state_machine_text.new_line()
             state_machine_text.add_text("Event Statuses:")

@@ -62,8 +62,8 @@ export class StartGameEvent extends StateEvent {
         const nextType = ocrFrame.getNextType()!;
         if (nextType === TetrominoType.ERROR_TYPE) return false;
 
-        // A null level means that OCR was unable to extract the level from the frame
-        if (ocrFrame.getLevel()! === null) return false;
+        // A level of -1 means that OCR was unable to extract the level from the frame
+        if (ocrFrame.getLevel()! === -1) return false;
 
         // Check that the board must have exactly 4 minos with an identifiable MoveableTetromino
         if (ocrFrame.getBoardOnlyTetrominoType()! === TetrominoType.ERROR_TYPE) return false;

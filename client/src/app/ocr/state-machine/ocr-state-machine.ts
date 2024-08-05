@@ -54,8 +54,11 @@ export class OCRStateMachine {
         const eventStatuses = this.currentState.getEventStatusesThisFrame();
         this.stateProfiler.stop();
 
+        // Send all the packets that were accumulated this frame
+        const packets = this.packetSender.sendBufferedPackets();
+
         // Log the current state of the OCR machine
-        this.logger.log(ocrFrame, this.currentState, eventStatuses, this.gameData);
+        this.logger.log(ocrFrame, this.currentState, eventStatuses, packets, this.gameData);
 
         // Transition to the new state if needed
         if (newStateID !== undefined) {
