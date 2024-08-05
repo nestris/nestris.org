@@ -19,6 +19,19 @@ class OCRResults:
         A 200-bit binary string representing whether the mino exists in the frame.
         """
 
+    def get_attribute_at_frame(self, frame: int, attribute: str) -> str:
+        """
+        Returns the attribute at the frame.
+        """
+
+        if frame < 0 or frame >= len(self.results):
+            return ""
+        
+        if attribute not in self.results[frame]:
+            return "(Not fetched)"
+        
+        return self.results[frame][attribute]
+
     def get_state_at_frame(self, frame: int) -> str:
         """
         Returns the state of the board at the frame.

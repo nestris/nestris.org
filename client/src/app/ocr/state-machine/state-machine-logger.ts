@@ -6,6 +6,7 @@ import { TETROMINO_CHAR } from "../../shared/tetris/tetrominos";
 import { BinaryEncoder } from "../../shared/network/binary-codec";
 import { PACKET_NAME } from "../../shared/network/stream-packets/packet";
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
+import { TetrominoType } from "shared/tetris/tetromino-type";
 
 export abstract class StateMachineLogger {
 
@@ -37,6 +38,8 @@ export interface SerializedStateMachineFrame {
 
     // Game data
     stableBoard?: string;
+    gameCurrentType?: string;
+    gameNextType?: string;
 
     // Packet data
     packets: string[];
@@ -48,9 +51,9 @@ export class JsonLogger extends StateMachineLogger {
 
     override log(stateCount: number, frame: OCRFrame, ocrState: OCRState, eventStatuses: EventStatus[], packets: BinaryEncoder[], globalState: GlobalState): void {
 
+        const typeToChar = (type: TetrominoType | undefined) => type !== undefined ? TETROMINO_CHAR[type] : undefined;
+
         const binaryBoard = frame.getBinaryBoard(false);
-        const nextType = frame.getNextType(false);
-        const boardOnlyType = frame.getBoardOnlyTetrominoType(false);
 
         const stableBoard = globalState.game?.getStableBoard();
 
@@ -59,9 +62,9 @@ export class JsonLogger extends StateMachineLogger {
             binaryBoard: binaryBoard ? BinaryTranscoder.encode(binaryBoard) : undefined,
             boardNoise: frame.getBoardNoise(false),
             nextGrid: frame.getNextGrid().flat().join(""),
-            nextType: nextType !== undefined ? TETROMINO_CHAR[nextType] : undefined,
+            nextType: typeToChar(frame.getNextType(false)),
             level: frame.getLevel(false),
-            boardOnlyType: boardOnlyType !== undefined ? TETROMINO_CHAR[boardOnlyType] : undefined,
+            boardOnlyType: typeToChar(frame.getBoardOnlyTetrominoType(false)),
 
             // State data
             stateID: ocrState.id,
@@ -71,6 +74,8 @@ export class JsonLogger extends StateMachineLogger {
 
             // Game data
             stableBoard: stableBoard ? BinaryTranscoder.encode(stableBoard) : undefined,
+            gameCurrentType: typeToChar(globalState.game?.getCurrentType()),
+            gameNextType: typeToChar(globalState.game?.getNextType()),
 
             // Packet data
             packets: packets.map(packet => {

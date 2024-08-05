@@ -223,15 +223,17 @@ def play_video(testcase: str, mode: Mode):
             state_frame_count = ocr_results.get_relative_state_frame_count_at_frame(frame_number)
             state_machine_text.add_text(f"[{state_count}] State: {state_name} ({state_frame_count})")
 
-            state_machine_text.add_text(f"Noise: {ocr_results.get_noise_at_frame(frame_number)}")
-            state_machine_text.add_text(f"Next Type: {ocr_results.get_next_type_at_frame(frame_number)}")
-            state_machine_text.add_text(f"Level: {ocr_results.get_level_at_frame(frame_number)}")
-            state_machine_text.add_text(f"Only tetromino on board: {ocr_results.get_board_only_type_at_frame(frame_number)}")
+            state_machine_text.new_line()
+            state_machine_text.add_text("OCR:")
+            state_machine_text.add_text(f"Noise: {ocr_results.get_noise_at_frame(frame_number)}", indent=1)
+            state_machine_text.add_text(f"Next Type: {ocr_results.get_next_type_at_frame(frame_number)}", indent=1)
+            state_machine_text.add_text(f"Level: {ocr_results.get_level_at_frame(frame_number)}", indent=1)
+            state_machine_text.add_text(f"Only tetromino on board: {ocr_results.get_board_only_type_at_frame(frame_number)}", indent=1)
 
             state_machine_text.new_line()
-            state_machine_text.add_text("Packets:")
-            for packet in ocr_results.get_packets_at_frame(frame_number):
-                state_machine_text.add_text(packet, indent=1)
+            state_machine_text.add_text("Game state:")
+            state_machine_text.add_text(f"Current type: {ocr_results.get_attribute_at_frame(frame_number, "gameCurrentType")}", indent=1)
+            state_machine_text.add_text(f"Next type: {ocr_results.get_attribute_at_frame(frame_number, "gameNextType")}", indent=1)
 
             state_machine_text.new_line()
             state_machine_text.add_text("Event Statuses:")
@@ -239,6 +241,11 @@ def play_video(testcase: str, mode: Mode):
                 state_machine_text.add_text(f"{event_status.name}:")
                 state_machine_text.add_text(f"Precondition met: {event_status.precondition_met}", indent=1)
                 state_machine_text.add_text(f"Persistence met: {event_status.persistence_met}", indent=1)
+
+            state_machine_text.new_line()
+            state_machine_text.add_text("Packets:")
+            for packet in ocr_results.get_packets_at_frame(frame_number):
+                state_machine_text.add_text(packet, indent=1)
 
             state_machine_text.show(OUTPUT_WINDOW)
 
