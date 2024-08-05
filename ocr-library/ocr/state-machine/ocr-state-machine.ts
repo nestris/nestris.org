@@ -2,7 +2,7 @@ import { Calibration } from "ocr/util/calibration";
 import { VideoSource } from "./video-source";
 import { OCRState } from "./ocr-state";
 import { BeforeGameState } from "./ocr-states/before-game-state";
-import { GameData } from "./game-data";
+import { GlobalState } from "./global-state";
 import { StateMachineLogger } from "./state-machine-logger";
 import { OCRFrame } from "./ocr-frame";
 import { OcrStateFactory as ocrStateFactory } from "./ocr-states/ocr-state-factory";
@@ -12,10 +12,13 @@ import { PacketSender } from "ocr/util/packet-sender";
 export class OCRStateMachine {
 
     private currentState: OCRState;
-    private gameData: GameData;
+    private globalState: GlobalState;
 
     private frameProfiler = new Profiler();
     private stateProfiler = new Profiler();
+
+    // How many state transitions have occurred
+    private stateCount: number = 0;
 
     /**
      * Dependency injection for videoSource and logger allows for easy swapping of inputs.
@@ -31,10 +34,8 @@ export class OCRStateMachine {
         private readonly packetSender: PacketSender,
         private readonly logger: StateMachineLogger,
     ) {
-
-        this.currentState = new BeforeGameState();
-        this.gameData = new GameData(this.packetSender);
-
+        this.globalState = new GlobalState(this.packetSender);
+        this.currentState = new BeforeGameState(this.globalState);
     }
 
     /**
@@ -50,7 +51,7 @@ export class OCRStateMachine {
 
         // Advance the current OCR state
         this.stateProfiler.start();
-        const newStateID = this.currentState.advanceState(this.gameData, ocrFrame);
+        const newStateID = this.currentState.advanceState(ocrFrame);
         const eventStatuses = this.currentState.getEventStatusesThisFrame();
         this.stateProfiler.stop();
 
@@ -58,11 +59,12 @@ export class OCRStateMachine {
         const packets = this.packetSender.sendBufferedPackets();
 
         // Log the current state of the OCR machine
-        this.logger.log(ocrFrame, this.currentState, eventStatuses, packets, this.gameData);
+        this.logger.log(this.stateCount, ocrFrame, this.currentState, eventStatuses, packets, this.globalState);
 
         // Transition to the new state if needed
         if (newStateID !== undefined) {
-            this.currentState = ocrStateFactory(newStateID);
+            this.stateCount++;
+            this.currentState = ocrStateFactory(newStateID, this.globalState);
         }
     }
 

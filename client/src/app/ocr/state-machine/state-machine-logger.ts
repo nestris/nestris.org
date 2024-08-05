@@ -1,5 +1,5 @@
 import { OCRFrame } from "./ocr-frame";
-import { GameData } from "./game-data";
+import { GlobalState } from "./global-state";
 import { EventStatus, OCRState } from "./ocr-state";
 import { BinaryTranscoder } from "../../shared/network/tetris-board-transcoding/binary-transcoder";
 import { TETROMINO_CHAR } from "../../shared/tetris/tetrominos";
@@ -10,11 +10,12 @@ import { PacketDisassembler } from "../../shared/network/stream-packets/packet-d
 export abstract class StateMachineLogger {
 
     abstract log(
+        stateCount: number,
         frame: OCRFrame,
         ocrState: OCRState,
         eventStatuses: EventStatus[],
         packets: BinaryEncoder[],
-        data?: GameData,
+        globalState: GlobalState,
     ): void;
 
 }
@@ -30,9 +31,12 @@ export interface SerializedStateMachineFrame {
 
     // State data
     stateID: string;
+    stateCount: number;
+    stateFrameCount: number;
     eventStatuses: EventStatus[];
 
     // Game data
+    stableBoard?: string;
 
     // Packet data
     packets: string[];
@@ -42,11 +46,13 @@ export class JsonLogger extends StateMachineLogger {
 
     private frames: SerializedStateMachineFrame[] = [];
 
-    override log(frame: OCRFrame, ocrState: OCRState, eventStatuses: EventStatus[], packets: BinaryEncoder[], data?: GameData): void {
+    override log(stateCount: number, frame: OCRFrame, ocrState: OCRState, eventStatuses: EventStatus[], packets: BinaryEncoder[], globalState: GlobalState): void {
 
         const binaryBoard = frame.getBinaryBoard(false);
         const nextType = frame.getNextType(false);
         const boardOnlyType = frame.getBoardOnlyTetrominoType(false);
+
+        const stableBoard = globalState.game?.getStableBoard();
 
         this.frames.push({
             // Frame data
@@ -59,9 +65,12 @@ export class JsonLogger extends StateMachineLogger {
 
             // State data
             stateID: ocrState.id,
+            stateCount: stateCount,
+            stateFrameCount: ocrState.getRelativeFrameCount(),
             eventStatuses: eventStatuses,
 
             // Game data
+            stableBoard: stableBoard ? BinaryTranscoder.encode(stableBoard) : undefined,
 
             // Packet data
             packets: packets.map(packet => {

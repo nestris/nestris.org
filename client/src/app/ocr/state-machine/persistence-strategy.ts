@@ -9,6 +9,22 @@ export abstract class PersistenceStrategy {
 }
 
 /**
+ * Simplest persistence strategy that requires the precondition to be met for a single frame.
+ */
+export class SingleFramePersistenceStrategy extends PersistenceStrategy {
+
+    /**
+     * Returns whether the precondition was met this frame.
+     * @param preconditionMet Whether the precondition for this event was met this tick
+     * @returns Whether the precondition was met this frame
+     */
+    override meetsPersistenceCondition(preconditionMet: boolean): boolean {
+        return preconditionMet;
+    }
+}
+
+
+/**
  * A persistence strategy that requires a certain number of consecutive frames to meet the persistence condition.
  */
 export class ConsecutivePersistenceStrategy extends PersistenceStrategy {

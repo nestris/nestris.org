@@ -1,5 +1,5 @@
 import { TetrominoType } from "../../../shared/tetris/tetromino-type";
-import { GameData } from "../game-data";
+import { GlobalState } from "../global-state";
 import { OCRFrame } from "../ocr-frame";
 import { OCRState, StateEvent } from "../ocr-state";
 import { ConsecutivePersistenceStrategy } from "../persistence-strategy";
@@ -7,10 +7,10 @@ import { OCRStateID } from "./ocr-state-id";
 
 export class BeforeGameState extends OCRState {
         
-    constructor() {
-        super(OCRStateID.BEFORE_GAME, [
-            new StartGameEvent()
-        ]);
+    constructor(globalState: GlobalState) {
+        super(OCRStateID.BEFORE_GAME, globalState);
+
+        this.registerEvent(new StartGameEvent(globalState));
     }
 
     /**
@@ -18,7 +18,7 @@ export class BeforeGameState extends OCRState {
      * @param gameData 
      * @param ocrFrame 
      */
-    protected override onAdvanceFrame(gameData: GameData, ocrFrame: OCRFrame): void {
+    protected override onAdvanceFrame(ocrFrame: OCRFrame): void {
         
         // trigger lazy-loading of the board properties
         const frame = ocrFrame.getBinaryBoard();
@@ -34,7 +34,7 @@ export class BeforeGameState extends OCRState {
  */
 export class StartGameEvent extends StateEvent {
 
-    constructor() {
+    constructor(private readonly globalState: GlobalState) {
         super(
             "StartGameEvent",
             new ConsecutivePersistenceStrategy(5)
@@ -50,9 +50,8 @@ export class StartGameEvent extends StateEvent {
      * - The board must have exactly 4 minos with an identifiable MoveableTetromino
      * 
      * @param ocrFrame The current OCR frame
-     * @param gameData The current game data
      */
-    protected override precondition(ocrFrame: OCRFrame, gameData: GameData): boolean {
+    protected override precondition(ocrFrame: OCRFrame): boolean {
 
         // A high noise indicates that the frame may not be capturing a tetris board correctly
         const noise = ocrFrame.getBoardNoise()!;
@@ -78,13 +77,12 @@ export class StartGameEvent extends StateEvent {
      * When the persistence condition is met, we transition BeforeGameState -> InGameState. This should
      * trigger the start of the game.
      * @param ocrFrame The current OCR frame
-     * @param gameData The current game data
      * @returns The new state to transition to
      */
-    override triggerEvent(ocrFrame: OCRFrame, gameData: GameData): OCRStateID | undefined {
+    override triggerEvent(ocrFrame: OCRFrame): OCRStateID | undefined {
 
         // Start the game
-        gameData.startGame(ocrFrame.getLevel()!, ocrFrame.getBoardOnlyTetrominoType()!, ocrFrame.getNextType()!);
+        this.globalState.startGame(ocrFrame.getLevel()!, ocrFrame.getBoardOnlyTetrominoType()!, ocrFrame.getNextType()!);
 
         return OCRStateID.PIECE_DROPPING;
     }

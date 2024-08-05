@@ -138,8 +138,16 @@ def play_video(testcase: str, mode: Mode):
         for frameIndex, frame in enumerate(frames):
             for minoIndex, mino in enumerate(calibration_plus["points"]["board"]):
                 x, y = mino["x"], mino["y"]
-                color = GREEN if ocr_results.get_mino_at_frame(frameIndex, minoIndex) else RED
-                cv2.circle(frame, (x, y), 2, color, -1)
+
+                # Draw mino points for CurrentBoard
+                visible = ocr_results.get_mino_at_frame(frameIndex, minoIndex)
+                cv2.circle(frame, (x, y), 2, GREEN if visible else RED, -1)
+
+                # Draw mino points for StableBoard
+                visible = ocr_results.get_stable_board_mino_at_frame(frameIndex, minoIndex)
+                if visible:
+                    cv2.circle(frame, (x, y), 6, BLUE, -1)
+
 
         for frameIndex, frame in enumerate(frames):
             for minoIndex, mino in enumerate(calibration_plus["points"]["next"]):
@@ -209,7 +217,12 @@ def play_video(testcase: str, mode: Mode):
         if ocr_results:
             state_machine_text = StateMachineText()
             state_machine_text.add_text(f"Frame: {frame_number}")
-            state_machine_text.add_text(f"State: {ocr_results.get_state_at_frame(frame_number)}")
+
+            state_name = ocr_results.get_state_at_frame(frame_number)
+            state_count = ocr_results.get_state_count_at_frame(frame_number)
+            state_frame_count = ocr_results.get_relative_state_frame_count_at_frame(frame_number)
+            state_machine_text.add_text(f"[{state_count}] State: {state_name} ({state_frame_count})")
+
             state_machine_text.add_text(f"Noise: {ocr_results.get_noise_at_frame(frame_number)}")
             state_machine_text.add_text(f"Next Type: {ocr_results.get_next_type_at_frame(frame_number)}")
             state_machine_text.add_text(f"Level: {ocr_results.get_level_at_frame(frame_number)}")

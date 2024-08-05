@@ -29,6 +29,26 @@ class OCRResults:
         
         return self.results[frame]["stateID"]
     
+    def get_relative_state_frame_count_at_frame(self, frame: int) -> int:
+        """
+        Returns the relative state frame count at the frame.
+        """
+
+        if frame < 0 or frame >= len(self.results):
+            return -1
+        
+        return self.results[frame]["stateFrameCount"]
+    
+    def get_state_count_at_frame(self, frame: int) -> int:
+        """
+        Returns the state count at the frame.
+        """
+
+        if frame < 0 or frame >= len(self.results):
+            return -1
+        
+        return self.results[frame]["stateCount"]
+    
     def get_event_statuses_at_frame(self, frame: int) -> List[EventStatus]:
         """
         Returns the event statuses at the frame.
@@ -65,8 +85,27 @@ class OCRResults:
         
         if minoIndex < 0 or minoIndex >= 200:
             return False
+    
+        if "binaryBoard" not in self.results[frame]:
+            return False
 
         return self.results[frame]["binaryBoard"][minoIndex] == "1"
+    
+    def get_stable_board_mino_at_frame(self, frame: int, minoIndex: int) -> bool:
+        """
+        Returns whether the mino is detected on the StableBoard in the frame.
+        """
+
+        if frame < 0 or frame >= len(self.results):
+            return False
+        
+        if minoIndex < 0 or minoIndex >= 200:
+            return False
+        
+        if "stableBoard" not in self.results[frame]:
+            return False
+
+        return self.results[frame]["stableBoard"][minoIndex] == "1"
     
     def get_noise_at_frame(self, frame: int) -> str:
         """
