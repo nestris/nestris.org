@@ -8,11 +8,12 @@ import { FpsTracker } from 'src/app/shared/scripts/fps-tracker';
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 import { TimeDelta } from 'src/app/util/time-delta';
-import { PlatformInterfaceService, Platform, PolledGameData } from '../platform-interface.service';
+import { PlatformInterfaceService, Platform } from '../platform-interface.service';
 import { WebsocketService } from '../websocket.service';
 import { KeyManager } from './currently-pressed-keys';
 import { EmulatorGameState, EMULATOR_FPS } from './emulator-game-state';
 import { Keybinds } from './keybinds';
+import { GameDisplayData } from 'src/app/shared/tetris/game-display-data';
 
 
 /*
@@ -36,10 +37,6 @@ export class EmulatorService {
 
   // used for calculating time elapsed between frames
   private timeDelta = new TimeDelta();
-
-  // store previous data to check if data has changed
-  private previousCountdown: number | undefined = undefined;
-  private previousBoard: TetrisBoard = new TetrisBoard();
 
   constructor(
     private platform: PlatformInterfaceService,
@@ -100,12 +97,16 @@ export class EmulatorService {
 
     if (!this.currentState) return;
 
+    // Store previous data for comparison
+    const previousBoard = this.currentState.getDisplayBoard();
+    const previousCountdown = this.currentState.getCountdown();
+
     // execute frame
     const result = this.currentState.executeFrame(pressedKeys);
     const newBoard = this.currentState.getDisplayBoard();
 
     // update game data
-    const data: PolledGameData = {
+    const data: GameDisplayData = {
       board: newBoard,
       level: this.currentState.getStatus().level,
       score: this.currentState.getStatus().score,
@@ -117,12 +118,11 @@ export class EmulatorService {
 
     // send countdown packet if countdown has changed
     const currentCountdown = this.currentState.getCountdown();
-    if (currentCountdown !== this.previousCountdown) {
+    if (currentCountdown !== previousCountdown) {
       this.platform.sendPacket(new GameCountdownPacket().toBinaryEncoder({
         delta: this.timeDelta.getDelta(),
         countdown: currentCountdown ?? 0,
       }));
-      this.previousCountdown = currentCountdown;
     }
 
     // send placement packet if piece has been placed
@@ -136,7 +136,7 @@ export class EmulatorService {
     }
 
     // send packet with board info if board has changed
-    if (!this.previousBoard.equals(newBoard)) {
+    if (!previousBoard.equals(newBoard)) {
 
       const activePiece = this.currentState.getActivePiece();
 
@@ -155,7 +155,6 @@ export class EmulatorService {
         }));
       }
 
-      this.previousBoard = newBoard;
     }
     
     // if topped out, stop game

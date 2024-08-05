@@ -4,9 +4,10 @@ import { Pixels } from 'src/app/models/ocr/pixels';
 import { FpsTracker } from 'src/app/shared/scripts/fps-tracker';
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
-import { PlatformInterfaceService, PolledGameData } from '../platform-interface.service';
+import { PlatformInterfaceService } from '../platform-interface.service';
 import { OcrService, TextboxType } from './ocr.service';
 import { VideoCaptureService } from './video-capture.service';
+import { GameDisplayData } from 'src/app/shared/tetris/game-display-data';
 
 @Injectable({
   providedIn: 'root'
@@ -87,7 +88,7 @@ export class GameStateService {
 
     // if any of the textboxes were updated, send updated game data to platform service
     if (updatedBoard || updatedNextPiece || updatedStatus) {
-      const data: PolledGameData = {
+      const data: GameDisplayData = {
         board: this.board$.getValue(),
         nextPiece: this.nextPiece$.getValue(),
         level: this.level$.getValue(),

@@ -135,18 +135,6 @@ export class EmulatorGameState {
         return this.status;
     }
 
-    getTrt(): number {
-        return 0; // TODO: implement this
-    }
-
-    getDrought(): number {
-        return 0; // TODO: implement this
-    }
-
-    getCurrentDAS(): number {
-        return this.currentDAS;
-    }
-
     isToppedOut(): boolean {
         return this.toppedOut;
     }

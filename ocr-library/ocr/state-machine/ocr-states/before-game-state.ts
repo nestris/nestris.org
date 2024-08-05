@@ -46,12 +46,13 @@ export class StartGameEvent extends StateEvent {
      * - The board must be have low noise
      * - The next piece must be defined
      * - The score must be 0
+     * - The level must be valid
      * - The board must have exactly 4 minos with an identifiable MoveableTetromino
      * 
      * @param ocrFrame The current OCR frame
      * @param gameData The current game data
      */
-    protected override precondition(ocrFrame: OCRFrame, gameData: GameData | undefined): boolean {
+    protected override precondition(ocrFrame: OCRFrame, gameData: GameData): boolean {
 
         // A high noise indicates that the frame may not be capturing a tetris board correctly
         const noise = ocrFrame.getBoardNoise()!;
@@ -61,6 +62,12 @@ export class StartGameEvent extends StateEvent {
         const nextType = ocrFrame.getNextType()!;
         if (nextType === TetrominoType.ERROR_TYPE) return false;
 
+        // A null level means that OCR was unable to extract the level from the frame
+        if (ocrFrame.getLevel()! === null) return false;
+
+        // Check that the board must have exactly 4 minos with an identifiable MoveableTetromino
+        if (ocrFrame.getBoardOnlyTetrominoType()! === TetrominoType.ERROR_TYPE) return false;
+
         // TODO: Implement the rest of the requirements
 
         // We've met all the requirements
@@ -68,12 +75,17 @@ export class StartGameEvent extends StateEvent {
     }
 
     /**
-     * When the persistence condition is met, we transition BeforeGameState -> InGameState.
+     * When the persistence condition is met, we transition BeforeGameState -> InGameState. This should
+     * trigger the start of the game.
      * @param ocrFrame The current OCR frame
      * @param gameData The current game data
      * @returns The new state to transition to
      */
-    override triggerEvent(ocrFrame: OCRFrame, gameData: GameData | undefined): OCRStateID | undefined {
+    override triggerEvent(ocrFrame: OCRFrame, gameData: GameData): OCRStateID | undefined {
+
+        // Start the game
+        gameData.startGame(ocrFrame.getLevel()!, ocrFrame.getBoardOnlyTetrominoType()!, ocrFrame.getNextType()!);
+
         return OCRStateID.PIECE_DROPPING;
     }
 

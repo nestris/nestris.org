@@ -29,7 +29,7 @@ export abstract class OCRState {
      * @param ocrFrame The current OCR frame
      * @returns The new state to transition to, or undefined if no transition is needed
      */
-    advanceState(gameData: GameData | undefined, ocrFrame: OCRFrame): OCRStateID | undefined {        
+    advanceState(gameData: GameData, ocrFrame: OCRFrame): OCRStateID | undefined {        
 
         // Update this state before checking for events
         this.onAdvanceFrame(gameData, ocrFrame);
@@ -63,7 +63,7 @@ export abstract class OCRState {
      * @param gameData The current game data
      * @param ocrFrame The current OCR frame
      */
-    protected onAdvanceFrame(gameData: GameData | undefined, ocrFrame: OCRFrame): void {}
+    protected onAdvanceFrame(gameData: GameData, ocrFrame: OCRFrame): void {}
 
 }
 
@@ -83,7 +83,7 @@ export abstract class StateEvent {
      * @param gameData 
      * @returns Whether the event should be triggered
      */
-    checkForEvent(ocrFrame: OCRFrame, gameData: GameData | undefined): EventStatus {
+    checkForEvent(ocrFrame: OCRFrame, gameData: GameData): EventStatus {
         const preconditionMet = this.precondition(ocrFrame, gameData);
         const persistenceMet = this.persistence.meetsPersistenceCondition(preconditionMet);
         return { name: this.name, preconditionMet, persistenceMet };
@@ -96,7 +96,7 @@ export abstract class StateEvent {
      * @param gameData The current game data
      * @returns Whether the precondition is met
      */
-    protected abstract precondition(ocrFrame: OCRFrame, gameData: GameData | undefined): boolean;
+    protected abstract precondition(ocrFrame: OCRFrame, gameData: GameData): boolean;
 
     /**
      * Triggers the event and possibly returns the new state to transition to. Override this method
@@ -105,6 +105,6 @@ export abstract class StateEvent {
      * @param gameData The current game data
      * @returns The new state to transition to, or undefined if no transition is needed
      */
-    abstract triggerEvent(ocrFrame: OCRFrame, gameData: GameData | undefined): OCRStateID | undefined;
+    abstract triggerEvent(ocrFrame: OCRFrame, gameData: GameData): OCRStateID | undefined;
 
 }

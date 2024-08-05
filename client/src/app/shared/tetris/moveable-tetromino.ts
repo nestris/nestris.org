@@ -2,7 +2,8 @@ import { BlockSet } from "./block-set";
 import { Point } from "./point";
 import { ColorType, TetrisBoard } from "./tetris-board";
 import { getColorTypeForTetromino } from "./tetromino-colors";
-import { TetrominoType } from "./tetromino-type";
+import { PIECE_TOP_LEFT } from "./tetromino-shapes";
+import { ALL_TETROMINO_TYPES, TetrominoType } from "./tetromino-type";
 import { TETROMINO_CHAR, Tetromino } from "./tetrominos";
 
 /*
@@ -87,28 +88,43 @@ export default class MoveableTetromino {
         return new MoveableTetromino(type, rotation, translateX, translateY);
     }
 
-    static doesBlocksetMatchMask(pieceMask: TetrisBoard, maskStartX: number, maskStartY: number, blockSet: BlockSet): boolean {
-        let exists = true;
-        blockSet.blocks.forEach(block => {
-            if (!pieceMask.exists(block.x + maskStartX, block.y + maskStartY)) {
-                exists = false;
-            }
-        });
-        return exists;
-    }
+    /**
+     * Attempt to extract a MoveableTetromino from an otherwise-empty TetrisBoard, or null if one is not found.
+     * @param board The TetrisBoard to extract from
+     * @returns The extracted MoveableTetromino, or null if one is not found
+     */
+    static extractFromTetrisBoard(board: TetrisBoard): MoveableTetromino | null {
 
-    static getMTForPieceMask(pieceMask: TetrisBoard, maskStartX: number, maskStartY: number, pieceType: TetrominoType): MoveableTetromino | undefined {
-        const tetronimo = Tetromino.getPieceByType(pieceType);
-        console.log("getmtf", pieceType);
-        console.log(tetronimo.numPossibleRotations());
-        for (let rot = 0; rot < tetronimo.numPossibleRotations(); rot++) {
-            const blockSet = tetronimo.getBlockSet(rot);
-            if (MoveableTetromino.doesBlocksetMatchMask(pieceMask, maskStartX, maskStartY, blockSet)) {
-                return new MoveableTetromino(pieceType, rot, maskStartX, maskStartY);
+        // The board can only contain the exact number of minos a tetromino has
+        if (board.count() !== 4) return null;
+
+        // Find the top left block of the tetromino in the TetrisBoard
+        const topLeft = (() => {
+            for (let y = 0; y < 20; y++) {
+                for (let x = 0; x < 10; x++) {
+                    if (board.exists(x, y)) return { x, y };
+                }
+            }
+            throw new Error("Board is empty");
+        })();
+
+        // Iterate through each rotation of each tetromino type, and check for a match
+        for (let type of ALL_TETROMINO_TYPES) {
+            for (let r = 0; r < Tetromino.getPieceByType(type).numPossibleRotations(); r++) {
+
+                // The MT that is aligned with the top left block of the board's top left block
+                const offset = PIECE_TOP_LEFT[type][r];
+                const MT = new MoveableTetromino(type, r, topLeft.x - offset.x, topLeft.y - offset.y);
+
+                // Check if each block of the MT is in the board
+                if (MT.getCurrentBlockSet().blocks.every(block => board.exists(block.x, block.y))) {
+                    return MT;
+                }
             }
         }
-        return undefined;
-    };
+
+        return null;
+    }
 
 
     private updateCurrentBlockSet(): void {

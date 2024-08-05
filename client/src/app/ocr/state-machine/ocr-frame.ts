@@ -6,6 +6,7 @@ import { colorDistance } from "../../shared/tetris/tetromino-colors";
 import { NextOCRBox } from "../calibration/next-ocr-box";
 import { TetrominoType } from "../../shared/tetris/tetromino-type";
 import { findSimilarTetrominoType } from "../calibration/next-ocr-similarity";
+import MoveableTetromino from "shared/tetris/moveable-tetromino";
 
 /**
  * An OCRFrame stores a single RGB frame of a video, and provides methods to extract information from the frame
@@ -19,6 +20,8 @@ export class OCRFrame {
     private _boardUncolored: TetrisBoard | undefined;
     private _boardNoise: number | undefined;
     private _nextType: TetrominoType | undefined;
+    private _level: number | undefined;
+    private _boardOnlyTetrominoType: TetrominoType | undefined;
 
     /**
      * @param frame The singular frame to extract OCR information from
@@ -123,4 +126,34 @@ export class OCRFrame {
         }
         return this._nextType;
     }
+
+    /**
+     * Gets the level of the game from the frame by OCRing the level number from the frame. If
+     * there is not sufficient confidence in the OCR, returns null.
+     * @param loadIfNotLoaded If true, the property will be computed if it has not been loaded yet
+     * @returns The level of the game. If the level could not be OCR'd, returns null. If the level
+     * has not been loaded yet, returns undefined.
+     */
+    getLevel(loadIfNotLoaded: boolean = true): number | null | undefined {
+        if (loadIfNotLoaded && this._level === undefined) {
+            this._level = 18; // TODO: Implement OCR
+        }
+        return this._level;
+    }
+
+    /**
+     * If the board currently contains only one valid tetromino and no other minos, returns the
+     * type of that tetromino. Otherwise, returns TETROMINO_TYPE.ERROR_TYPE.
+     * @param loadIfNotLoaded If true, the property will be computed if it has not been loaded yet
+     * @returns The type of the tetromino on the board, or TETROMINO_TYPE.ERROR_TYPE if not found
+     */
+    getBoardOnlyTetrominoType(loadIfNotLoaded: boolean = true): TetrominoType | undefined {
+        if (loadIfNotLoaded && this._boardOnlyTetrominoType === undefined) {
+            this._boardOnlyTetrominoType = MoveableTetromino.extractFromTetrisBoard(
+                this.getBinaryBoard()!
+            )?.tetrominoType ?? TetrominoType.ERROR_TYPE;
+        }
+        return this._boardOnlyTetrominoType;
+    }
+
 }
