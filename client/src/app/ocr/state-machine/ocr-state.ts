@@ -2,6 +2,7 @@ import { GlobalState } from "./global-state";
 import { OCRFrame } from "./ocr-frame";
 import { OCRStateID } from "./ocr-states/ocr-state-id";
 import { PersistenceStrategy, SingleFramePersistenceStrategy } from "./persistence-strategy";
+import { TextLogger } from "./state-machine-logger";
 
 export interface EventStatus {
     name: string;
@@ -23,6 +24,7 @@ export abstract class OCRState {
     constructor(
         public readonly id: OCRStateID,
         public readonly globalState: GlobalState,
+        public readonly textLogger: TextLogger
     ) {}
 
     /**

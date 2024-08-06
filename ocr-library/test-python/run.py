@@ -68,18 +68,18 @@ class StateMachineText:
         self.x = 10
         self.y = 20
 
-        self.font_size = 0.5
+        self.font_size = 0.4
         self.color = (0, 0, 0)
 
         self.img = 255 * np.ones(shape=[500, 500, 3], dtype=np.uint8)
 
     def add_text(self, text, indent: int = 0):
-        x = self.x + indent * 20
+        x = self.x + indent * 15
         cv2.putText(self.img, text, (x, self.y), cv2.FONT_HERSHEY_SIMPLEX, self.font_size, self.color, 1, cv2.LINE_AA)
         self.new_line()
 
     def new_line(self):
-        self.y += 20
+        self.y += 15
 
     def show(self, window: str):
         cv2.imshow(window, self.img)
@@ -146,7 +146,7 @@ def play_video(testcase: str, mode: Mode):
                 # Draw mino points for StableBoard
                 visible = ocr_results.get_stable_board_mino_at_frame(frameIndex, minoIndex)
                 if visible:
-                    cv2.circle(frame, (x, y), 6, BLUE, -1)
+                    cv2.circle(frame, (x, y), 9, BLUE, 2)
 
 
         for frameIndex, frame in enumerate(frames):
@@ -246,6 +246,11 @@ def play_video(testcase: str, mode: Mode):
             state_machine_text.add_text("Packets:")
             for packet in ocr_results.get_packets_at_frame(frame_number):
                 state_machine_text.add_text(packet, indent=1)
+
+            state_machine_text.new_line()
+            state_machine_text.add_text("Logs:")
+            for log in ocr_results.get_logs_at_frame(frame_number):
+                state_machine_text.add_text(log, indent=1)
 
             state_machine_text.show(OUTPUT_WINDOW)
 

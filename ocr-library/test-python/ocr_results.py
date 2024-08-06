@@ -118,7 +118,7 @@ class OCRResults:
         if "stableBoard" not in self.results[frame]:
             return False
 
-        return self.results[frame]["stableBoard"][minoIndex] == "1"
+        return self.results[frame]["stableBoard"][minoIndex] != "0"
     
     def get_noise_at_frame(self, frame: int) -> str:
         """
@@ -187,6 +187,16 @@ class OCRResults:
             return []
         
         return self.results[frame]["packets"]
+    
+    def get_logs_at_frame(self, frame: int) -> List[str]:
+        """
+        Returns the logs at the frame.
+        """
+
+        if frame < 0 or frame >= len(self.results):
+            return []
+        
+        return self.results[frame]["textLogs"]
     
     def num_frames(self) -> int:
         return len(self.results)

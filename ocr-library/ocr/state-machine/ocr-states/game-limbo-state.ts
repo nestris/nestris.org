@@ -1,12 +1,13 @@
 import { GlobalState } from "../global-state";
 import { OCRFrame } from "../ocr-frame";
 import { OCRState } from "../ocr-state";
+import { TextLogger } from "../state-machine-logger";
 import { OCRStateID } from "./ocr-state-id";
 
 export class GameLimboState extends OCRState {
         
-    constructor(globalState: GlobalState) {
-        super(OCRStateID.GAME_LIMBO, globalState);
+    constructor(globalState: GlobalState, textLogger: TextLogger) {
+        super(OCRStateID.GAME_LIMBO, globalState, textLogger);
     }
 
     /**

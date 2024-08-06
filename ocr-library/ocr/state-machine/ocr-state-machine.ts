@@ -3,7 +3,7 @@ import { VideoSource } from "./video-source";
 import { OCRState } from "./ocr-state";
 import { BeforeGameState } from "./ocr-states/before-game-state";
 import { GlobalState } from "./global-state";
-import { StateMachineLogger } from "./state-machine-logger";
+import { StateMachineLogger, TextLogger } from "./state-machine-logger";
 import { OCRFrame } from "./ocr-frame";
 import { OcrStateFactory as ocrStateFactory } from "./ocr-states/ocr-state-factory";
 import { Profiler, ProfilerResults } from "../../shared/scripts/profiler";
@@ -16,6 +16,8 @@ export class OCRStateMachine {
 
     private frameProfiler = new Profiler();
     private stateProfiler = new Profiler();
+
+    private textLogger = new TextLogger();
 
     // How many state transitions have occurred
     private stateCount: number = 0;
@@ -35,7 +37,7 @@ export class OCRStateMachine {
         private readonly logger: StateMachineLogger,
     ) {
         this.globalState = new GlobalState(this.packetSender);
-        this.currentState = new BeforeGameState(this.globalState);
+        this.currentState = new BeforeGameState(this.globalState, this.textLogger);
     }
 
     /**
@@ -59,12 +61,12 @@ export class OCRStateMachine {
         const packets = this.packetSender.sendBufferedPackets();
 
         // Log the current state of the OCR machine
-        this.logger.log(this.stateCount, ocrFrame, this.currentState, eventStatuses, packets, this.globalState);
+        this.logger.log(this.stateCount, ocrFrame, this.currentState, eventStatuses, packets, this.globalState, this.textLogger.popLogs());
 
         // Transition to the new state if needed
         if (newStateID !== undefined) {
             this.stateCount++;
-            this.currentState = ocrStateFactory(newStateID, this.globalState);
+            this.currentState = ocrStateFactory(newStateID, this.globalState, this.textLogger);
         }
     }
 

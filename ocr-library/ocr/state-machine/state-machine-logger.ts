@@ -8,6 +8,21 @@ import { PACKET_NAME } from "../../shared/network/stream-packets/packet";
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
 import { TetrominoType } from "shared/tetris/tetromino-type";
 
+export class TextLogger {
+
+    private logs: string[] = [];
+
+    log(message: string): void {
+        this.logs.push(message);
+    }
+
+    popLogs(): string[] {
+        const logs = this.logs;
+        this.logs = [];
+        return logs;
+    }
+}
+
 export abstract class StateMachineLogger {
 
     abstract log(
@@ -17,6 +32,7 @@ export abstract class StateMachineLogger {
         eventStatuses: EventStatus[],
         packets: BinaryEncoder[],
         globalState: GlobalState,
+        textLogs: string[]
     ): void;
 
 }
@@ -43,13 +59,15 @@ export interface SerializedStateMachineFrame {
 
     // Packet data
     packets: string[];
+
+    textLogs: string[];
 }
 
 export class JsonLogger extends StateMachineLogger {
 
     private frames: SerializedStateMachineFrame[] = [];
 
-    override log(stateCount: number, frame: OCRFrame, ocrState: OCRState, eventStatuses: EventStatus[], packets: BinaryEncoder[], globalState: GlobalState): void {
+    override log(stateCount: number, frame: OCRFrame, ocrState: OCRState, eventStatuses: EventStatus[], packets: BinaryEncoder[], globalState: GlobalState, textLogs: string[]): void {
 
         const typeToChar = (type: TetrominoType | undefined) => type !== undefined ? TETROMINO_CHAR[type] : undefined;
 
@@ -83,6 +101,8 @@ export class JsonLogger extends StateMachineLogger {
                 const opcode = disassembler.nextPacket().opcode;
                 return PACKET_NAME[opcode];
             }),
+
+            textLogs: textLogs
         });
     }
 
