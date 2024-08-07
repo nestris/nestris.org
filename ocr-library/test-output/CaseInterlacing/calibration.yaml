@@ -1,0 +1,15 @@
+frameIndex: 0
+floodfillPoint:
+  x: 504
+  'y': 459
+rects:
+  board:
+    top: 0
+    bottom: 719
+    left: 0
+    right: 1279
+  next:
+    top: 0
+    bottom: 0
+    left: 0
+    right: 0

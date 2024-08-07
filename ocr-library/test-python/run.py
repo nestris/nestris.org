@@ -16,6 +16,7 @@ import cv2, yaml, argparse, os
 import numpy as np
 from enum import Enum
 from ocr_results import OCRResults
+from find_video import find_video_file
 
 class Mode(Enum):
     CALIBRATE = "calibrate"
@@ -50,36 +51,55 @@ def calibrate(testcase: str, frame: int, x: int, y: int):
 
     rel_path = f"../test-cases/{testcase}/config.yaml"
 
-    # Read YAML and update the calibration values
-    with open(rel_path, "r") as file:
-        config = yaml.safe_load(file)
-        config["calibration"]["frame"] = frame
-        config["calibration"]["x"] = x
-        config["calibration"]["y"] = y
+
+    # Check if the test case directory and config file exist
+    if os.path.exists(rel_path):
+        # Read YAML and update the calibration values
+        with open(rel_path, "r") as file:
+            config = yaml.safe_load(file)
+    else:
+        # Initialize the config if the file does not exist
+        config = {
+            "calibration": {},
+            "verification": {
+                "level": -1,
+                "lines": -1,
+                "score": -1
+            }
+        }
+
+    config["calibration"]["frame"] = frame
+    config["calibration"]["x"] = x
+    config["calibration"]["y"] = y
 
     # Write the updated calibration values to YAML
     with open(rel_path, "w") as file:
         yaml.dump(config, file)
 
+    # Check if output folder exists. If not, create it
+    output_dir = f"../test-output/{testcase}"
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
     print(f"Set calibration for {testcase} at frame {frame} with coordinates ({x}, {y})")
 
 class StateMachineText:
     def __init__(self):
-        self.x = 10
+        self.x = 5
         self.y = 20
 
-        self.font_size = 0.4
+        self.font_size = 0.3
         self.color = (0, 0, 0)
 
         self.img = 255 * np.ones(shape=[500, 500, 3], dtype=np.uint8)
 
     def add_text(self, text, indent: int = 0):
-        x = self.x + indent * 15
+        x = self.x + indent * 10
         cv2.putText(self.img, text, (x, self.y), cv2.FONT_HERSHEY_SIMPLEX, self.font_size, self.color, 1, cv2.LINE_AA)
         self.new_line()
 
     def new_line(self):
-        self.y += 15
+        self.y += 10
 
     def show(self, window: str):
         cv2.imshow(window, self.img)
@@ -96,7 +116,7 @@ def play_video(testcase: str, mode: Mode):
     OUTPUT_WINDOW = f"{testcase}: State Machine Viewer"
     
     # Load video capture from file
-    video = cv2.VideoCapture(f"../test-cases/{testcase}/game.mov")
+    video = cv2.VideoCapture(find_video_file(f"../test-cases/{testcase}"))
     
     cv2.namedWindow(WINDOW, cv2.WINDOW_KEEPRATIO)
     if mode == Mode.OUTPUT:
@@ -195,7 +215,7 @@ def play_video(testcase: str, mode: Mode):
     if frames and mode == Mode.OUTPUT:
         cv2.imshow(WINDOW, frames[0])
         cv2.resizeWindow(WINDOW, 1000, 600)
-        cv2.resizeWindow(OUTPUT_WINDOW, 400, 600)
+        cv2.resizeWindow(OUTPUT_WINDOW, 800, 600)
         cv2.moveWindow(OUTPUT_WINDOW, 1000, 0)
 
     # Make the window appear on top of all other windows

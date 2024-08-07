@@ -101,7 +101,7 @@ export class OCRFrame {
     getNextGrid(): number[][] {
 
         // A pixel is considered "bright" if its average color is above this threshold
-        const BRIGHTNESS_THRESHOLD = 10;
+        const BRIGHTNESS_THRESHOLD = 30;
 
         return this.nextOCRBox.getGridPoints().map(row => {
             return row.map(point => {

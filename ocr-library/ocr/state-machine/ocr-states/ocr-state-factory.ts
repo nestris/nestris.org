@@ -1,7 +1,7 @@
 import { GlobalState } from "../global-state";
 import { TextLogger } from "../state-machine-logger";
 import { BeforeGameState } from "./before-game-state";
-import { PieceDroppingState } from "./during-game-state";
+import { PieceDroppingState } from "./during-game-state/during-game-state";
 import { GameEndState } from "./game-end-state";
 import { GameLimboState } from "./game-limbo-state";
 import { OCRStateID } from "./ocr-state-id";

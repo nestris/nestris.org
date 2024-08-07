@@ -25,7 +25,15 @@ export function calibrate(frame: Frame, frameIndex: number, point: Point): [Cali
         {x: 1.5, y: 0.58} // bottom of the next box
     ];
     let nextRect = FloodFill.fromRelativeRect(frame, boardRect, NEXTBOX_LOCATIONS).getBoundingRect();
-    if (!nextRect) throw Error("Could not floodfill next box");
+    if (!nextRect) {
+        console.log("Could not floodfill next box");
+        nextRect = {
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0
+        };
+    }
 
     const calibration: Calibration = {
         frameIndex,

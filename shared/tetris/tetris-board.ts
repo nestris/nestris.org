@@ -115,6 +115,17 @@ export class TetrisBoard {
         return true;
     }
 
+    equalsIgnoreColor(other: TetrisBoard): boolean {
+        for (let y = 0; y < 20; y++) {
+            for (let x = 0; x < 10; x++) {
+                if (this.exists(x, y) !== other.exists(x, y)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     // print 20x10 grid with the color numbers
     print() {
         let str = "";

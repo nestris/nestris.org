@@ -1,11 +1,12 @@
 import cv2
+from find_video import find_video_file
 import argparse
 from flask import Flask, jsonify
 
 app = Flask(__name__)
 
 def initialize_video(testcase):
-    video_path = f"../test-cases/{testcase}/game.mov"
+    video_path = find_video_file(f"../test-cases/{testcase}")
     cap = cv2.VideoCapture(video_path)
 
     if not cap.isOpened():
@@ -62,6 +63,7 @@ def set_testcase(testcase):
         app.testcase = testcase  # Store the testcase name
         return jsonify({"message": "Test case set successfully"})
     except Exception as e:
+        print(f"Error: {e}")
         return jsonify({"error": str(e)}), 500
 
 def main():

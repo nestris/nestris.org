@@ -3,11 +3,6 @@ calibration:
   x: 489
   y: 435
 verification:
-  end:
-    evel: 19
-    lines: 146
-    score: 146000
-  start:
-    currentPiece: null
-    level: 18
-    nextPiece: L
+  level: 19
+  lines: 146
+  score: 146000

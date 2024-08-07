@@ -42,6 +42,7 @@ async function runTestCases() {
         const outputDirectory = `${OUTPUT_DIRECTORY}/${testCase}`;
         const calibrationOutputPath = `${OUTPUT_DIRECTORY}/${testCase}/calibration.yaml`;
         const calibrationPlusOutputPath = `${OUTPUT_DIRECTORY}/${testCase}/calibration-plus.yaml`;
+        
 
         // Run all calibrate testcases with `npm test -- -t calibrate`
         test(`calibrate-${testCase}`, async () => {
@@ -76,7 +77,7 @@ async function runTestCases() {
             const calibration = load(readFileSync(calibrationOutputPath, 'utf8')) as Calibration;
 
             // Run the full OCR state machine on the test case
-            const testResults = await testStateMachine(testCase, calibration);
+            const testResults = await testStateMachine(testCase, calibration, 300);
 
             // Save the test results to the output directory
             writeFileSync(`${outputDirectory}/test-results.yaml`, dump(testResults));
