@@ -103,7 +103,7 @@ export class RegularSpawnEvent extends StateEvent {
     override triggerEvent(ocrFrame: OCRFrame): OCRStateID | undefined {
 
         // Update the stable board to reflect the new piece placement and report the placement of the previous piece
-        this.globalState.placePiece(this.validPlacement!, ocrFrame.getNextType()!);
+        this.globalState.game!.placePiece(this.validPlacement!, ocrFrame.getNextType()!);
         this.myState.textLogger.log(`RegularSpawnEvent: Placed ${TETROMINO_CHAR[this.validPlacement!.tetrominoType]} at ${this.validPlacement!.getTetrisNotation()}`);
 
         // We transition to a new instance of the same state

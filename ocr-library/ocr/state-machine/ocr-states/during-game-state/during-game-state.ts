@@ -30,19 +30,31 @@ export class PieceDroppingState extends OCRState {
     protected override onAdvanceFrame(ocrFrame: OCRFrame): void {
         if (this.globalState.game === undefined) throw new Error("Game must be defined in PieceDroppingState");
 
-        this.computeActivePiece(ocrFrame);
+        // We attempt to compute the active piece for this frame
+        const activePieceThisFrame = this.computeActivePiece(ocrFrame);
+
+        if (activePieceThisFrame) {
+            // We only update the active piece if it was found this frame
+            this.activePiece = activePieceThisFrame;
+
+            // We use the found active piece this frame to send an abbreviated-length packet for just the active piece
+            this.globalState.game!.setAbbreviatedBoard(activePieceThisFrame);
+        } else {
+            // We didn't find the active piece this frame, so we are forced to send the entire board state
+            const colorBoard = ocrFrame.getBinaryBoard()!; // TODO: GET COLORS FROM OCR
+            this.globalState.game!.setFullBoard(colorBoard);
+        }
 
     }
 
     /**
-     * We attempt to update the location of the active piece this frame. This is done by subtracting the stable
+     * We attempt to find the location of the active piece this frame. This is done by subtracting the stable
      * board from the current board, and checking if the result is a valid MoveableTetromino that matches the
      * current piece type. A known activePiece is not guaranteed to found at any frame, but can be useful
      * to help determine the final placement of the falling piece, though a fallback is necessary if not found.
-     * Note that if the active piece is not found this frame, it is not overwritten.
      * @param ocrFrame The current OCR frame to use for updating the active piece
      */
-    private computeActivePiece(ocrFrame: OCRFrame) {
+    private computeActivePiece(ocrFrame: OCRFrame): MoveableTetromino | null {
         
         // If the current board's count is not exactly 4 minos more than the stable board, then we cannot determine
         // the active piece
@@ -50,32 +62,40 @@ export class PieceDroppingState extends OCRState {
         const currentCount = ocrFrame.getBinaryBoard()!.count();
         if (currentCount !== stableCount + 4) {
             this.textLogger.log("Active piece not updated: Current board count is not 4 more than stable board count");
-            return;
+            return null;
         }
 
         // Do a perfect subtraction, subtracting the stable board from the current board to get the active piece
         const diffBoard = TetrisBoard.subtract(ocrFrame.getBinaryBoard()!, this.globalState.game!.getStableBoard(), true);
         if (diffBoard === null) {
             this.textLogger.log("Active piece not updated: Failed to subtract stable board from current board");
-            return;
+            return null;
         }
 
         // Extract the active piece from the diff board, if it exists
         const mt = MoveableTetromino.extractFromTetrisBoard(diffBoard);
         if (mt === null) {
             this.textLogger.log("Active piece not updated: Failed to extract MoveableTetromino from diff board");
-            return;
+            return null;
         }
 
         // Check that the extracted piece is of the correct type
         if (mt.tetrominoType !== this.globalState.game!.getCurrentType()) {
             this.textLogger.log("Active piece not updated: Extracted piece is not of the correct type");
-            return;
+            return null;
         }
 
         // We have found a valid active piece
-        this.activePiece = mt;
         this.textLogger.log(`Active piece updated: ${TETROMINO_CHAR[mt.tetrominoType]} at ${mt.getTetrisNotation()}`);
+        return mt;
+    }
+
+    private sendFullGameBoardPacket(ocrFrame: OCRFrame) {
+
+    }
+
+    private sendAbbreviatedGameBoardPacket(activePiece: MoveableTetromino) {
+
     }
 
     /**

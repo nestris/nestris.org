@@ -38,8 +38,9 @@ export abstract class StateMachineLogger {
 }
 
 export interface SerializedStateMachineFrame {
-    // Frame data
     binaryBoard?: string;
+    stableBoard?: string;
+
     boardNoise?: number;
     nextGrid?: string;
     nextType?: string;
@@ -53,9 +54,12 @@ export interface SerializedStateMachineFrame {
     eventStatuses: EventStatus[];
 
     // Game data
-    stableBoard?: string;
     gameCurrentType?: string;
     gameNextType?: string;
+    gameScore?: number;
+    gameLevel?: number;
+    gameLines?: number;
+    
 
     // Packet data
     packets: string[];
@@ -94,6 +98,9 @@ export class JsonLogger extends StateMachineLogger {
             stableBoard: stableBoard ? BinaryTranscoder.encode(stableBoard) : undefined,
             gameCurrentType: typeToChar(globalState.game?.getCurrentType()),
             gameNextType: typeToChar(globalState.game?.getNextType()),
+            gameScore: globalState.game?.getStatus().score,
+            gameLines: globalState.game?.getStatus().lines,
+            gameLevel: globalState.game?.getStatus().level,
 
             // Packet data
             packets: packets.map(packet => {

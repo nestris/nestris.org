@@ -254,6 +254,9 @@ def play_video(testcase: str, mode: Mode):
             state_machine_text.add_text("Game state:")
             state_machine_text.add_text(f"Current type: {ocr_results.get_attribute_at_frame(frame_number, "gameCurrentType")}", indent=1)
             state_machine_text.add_text(f"Next type: {ocr_results.get_attribute_at_frame(frame_number, "gameNextType")}", indent=1)
+            state_machine_text.add_text(f"Level: {ocr_results.get_attribute_at_frame(frame_number, "gameLevel")}", indent=1)
+            state_machine_text.add_text(f"Lines: {ocr_results.get_attribute_at_frame(frame_number, "gameLines")}", indent=1)
+            state_machine_text.add_text(f"Score: {ocr_results.get_attribute_at_frame(frame_number, "gameScore")}", indent=1)
 
             state_machine_text.new_line()
             state_machine_text.add_text("Event Statuses:")

@@ -8,6 +8,7 @@ import { OCRFrame } from "./ocr-frame";
 import { OcrStateFactory as ocrStateFactory } from "./ocr-states/ocr-state-factory";
 import { Profiler, ProfilerResults } from "../../shared/scripts/profiler";
 import { PacketSender } from "ocr/util/packet-sender";
+import { GameDisplayData } from "shared/tetris/game-display-data";
 
 export class OCRStateMachine {
 
@@ -68,6 +69,10 @@ export class OCRStateMachine {
             this.stateCount++;
             this.currentState = ocrStateFactory(newStateID, this.globalState, this.textLogger);
         }
+    }
+
+    getGameDisplayData(): GameDisplayData {
+        return this.globalState.getGameDisplayData();
     }
 
     getFrameProfilerResults(): ProfilerResults {
