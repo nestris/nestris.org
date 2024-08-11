@@ -194,6 +194,8 @@ export class VideoCaptureService {
   // Captures a single frame and stores it
   private captureFrame() {
 
+    this.fpsTracker?.tick();
+
     const canvas = this.canvasElement;
     const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
 
@@ -230,7 +232,7 @@ export class VideoCaptureService {
     if (this.capturing$.getValue()) return;
 
     this.capturing$.next(true);
-    this.fpsTracker = new FpsTracker();
+    this.fpsTracker = new FpsTracker(200);
 
     // start capturing
     console.log("starting capture");

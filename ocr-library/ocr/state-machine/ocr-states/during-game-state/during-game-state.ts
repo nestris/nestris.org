@@ -4,7 +4,7 @@ import { OCRFrame } from "../../ocr-frame";
 import { OCRState, StateEvent } from "../../ocr-state";
 import { OCRStateID } from "../ocr-state-id";
 import MoveableTetromino from "../../../../shared/tetris/moveable-tetromino";
-import { TextLogger } from "../../state-machine-logger";
+import { LogType, TextLogger } from "../../state-machine-logger";
 import { TETROMINO_CHAR } from "../../../../shared/tetris/tetrominos";
 import { RegularSpawnEvent } from "./regular-spawn-event";
 import { LineClearSpawnEvent } from "./line-clear-spawn-event";
@@ -61,32 +61,32 @@ export class PieceDroppingState extends OCRState {
         const stableCount = this.globalState.game!.getStableBoardCount();
         const currentCount = ocrFrame.getBinaryBoard()!.count();
         if (currentCount !== stableCount + 4) {
-            this.textLogger.log("Active piece not updated: Current board count is not 4 more than stable board count");
+            this.textLogger.log(LogType.VERBOSE, "Active piece not updated: Current board count is not 4 more than stable board count");
             return null;
         }
 
         // Do a perfect subtraction, subtracting the stable board from the current board to get the active piece
         const diffBoard = TetrisBoard.subtract(ocrFrame.getBinaryBoard()!, this.globalState.game!.getStableBoard(), true);
         if (diffBoard === null) {
-            this.textLogger.log("Active piece not updated: Failed to subtract stable board from current board");
+            this.textLogger.log(LogType.VERBOSE, "Active piece not updated: Failed to subtract stable board from current board");
             return null;
         }
 
         // Extract the active piece from the diff board, if it exists
         const mt = MoveableTetromino.extractFromTetrisBoard(diffBoard);
         if (mt === null) {
-            this.textLogger.log("Active piece not updated: Failed to extract MoveableTetromino from diff board");
+            this.textLogger.log(LogType.VERBOSE, "Active piece not updated: Failed to extract MoveableTetromino from diff board");
             return null;
         }
 
         // Check that the extracted piece is of the correct type
         if (mt.tetrominoType !== this.globalState.game!.getCurrentType()) {
-            this.textLogger.log("Active piece not updated: Extracted piece is not of the correct type");
+            this.textLogger.log(LogType.VERBOSE, "Active piece not updated: Extracted piece is not of the correct type");
             return null;
         }
 
         // We have found a valid active piece
-        this.textLogger.log(`Active piece updated: ${TETROMINO_CHAR[mt.tetrominoType]} at ${mt.getTetrisNotation()}`);
+        this.textLogger.log(LogType.VERBOSE, `Active piece updated: ${TETROMINO_CHAR[mt.tetrominoType]} at ${mt.getTetrisNotation()}`);
         return mt;
     }
 

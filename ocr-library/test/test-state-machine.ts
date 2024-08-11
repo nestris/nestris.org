@@ -5,6 +5,7 @@ import { Calibration } from "../ocr/util/calibration";
 import { log, error } from "console";
 import { PacketSender } from "../ocr/util/packet-sender";
 import { BinaryEncoder } from "../shared/network/binary-codec";
+import { OCRFrame } from "ocr/state-machine/ocr-frame";
 
 export class MockPacketSender extends PacketSender {
 
@@ -27,17 +28,17 @@ export async function testStateMachine(testcase: string, calibration: Calibratio
     const packetSender = new MockPacketSender();
 
     // Initialize the state machine
-    const stateMachine = new OCRStateMachine(calibration, videoSource, packetSender, logger);
+    const stateMachine = new OCRStateMachine(null, packetSender, logger);
 
     // Advance the state machine by one frame for each frame in the video
     if (!maxFrames) maxFrames = videoSource.getNumFrames();
     for (let i = 0; i < Math.min(videoSource.getNumFrames(), maxFrames); i++) {
-        await stateMachine.advanceFrame();
+        const ocrFrame = new OCRFrame(await videoSource.getNextFrame(), calibration);
+        await stateMachine.advanceFrame(ocrFrame);
         log(`Executed frame ${i}`);
     }
 
-    console.log("Frame profiler results (ms):", stateMachine.getFrameProfilerResults());
-    console.log("State profiler results (ms):", stateMachine.getStateProfilerResults());
+    console.log("Profiler results (ms):", stateMachine.getProfilerResults());
 
     // Return the serialized frames and states from the state machine logger
     return logger.getSerializedFrames();

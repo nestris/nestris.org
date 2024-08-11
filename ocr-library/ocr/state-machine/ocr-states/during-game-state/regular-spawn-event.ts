@@ -7,6 +7,7 @@ import { TetrisBoard } from "../../../../shared/tetris/tetris-board";
 import { OCRFrame } from "../../../state-machine/ocr-frame";
 import { OCRStateID } from "../ocr-state-id";
 import { TETROMINO_CHAR } from "../../../../shared/tetris/tetrominos";
+import { LogType } from "../../state-machine-logger";
 
 /**
  * Event that triggers when a new piece is spawned without a line clear. This should result in the previous
@@ -34,13 +35,13 @@ export class RegularSpawnEvent extends StateEvent {
 
         // State must have been running for at least 5 frames before we even consider this event
         if (this.myState.getRelativeFrameCount() < 5) {
-            this.myState.textLogger.log("RegularSpawnEvent: Not enough frames have passed");
+            this.myState.textLogger.log(LogType.VERBOSE, "RegularSpawnEvent: Not enough frames have passed");
             return false;
         }
 
         // Next box piece must be valid
         if (ocrFrame.getNextType() === undefined) {
-            this.myState.textLogger.log("RegularSpawnEvent: Next piece is undefined");
+            this.myState.textLogger.log(LogType.VERBOSE, "RegularSpawnEvent: Next piece is undefined");
             return false;
         }
 
@@ -49,7 +50,7 @@ export class RegularSpawnEvent extends StateEvent {
 
         // If the current board has less than 8 minos, it means that the new piece has not spawned yet
         if (currentCount < stableCount + 8) {
-            this.myState.textLogger.log(`RegularSpawnEvent: need at least ${stableCount + 8} minos, got ${currentCount}`);
+            this.myState.textLogger.log(LogType.VERBOSE, `RegularSpawnEvent: need at least ${stableCount + 8} minos, got ${currentCount}`);
             return false;
         }
 
@@ -58,14 +59,14 @@ export class RegularSpawnEvent extends StateEvent {
         // valid spawn event.
         const diffBoard = TetrisBoard.subtract(ocrFrame.getBinaryBoard()!, this.globalState.game!.getStableBoard(), true);
         if (diffBoard === null) {
-            this.myState.textLogger.log("RegularSpawnEvent: Failed to subtract stable board from current board");
+            this.myState.textLogger.log(LogType.VERBOSE, "RegularSpawnEvent: Failed to subtract stable board from current board");
             return false;
         }
 
         // There should be exactly two connected components in the diff board: the placed piece and the new piece
         const cc = diffBoard.extractAllConnectedComponents();
         if (cc.length !== 2) {
-            this.myState.textLogger.log("RegularSpawnEvent: Invalid number of connected components (expected 2, got " + cc.length + ")");
+            this.myState.textLogger.log(LogType.VERBOSE, "RegularSpawnEvent: Invalid number of connected components (expected 2, got " + cc.length + ")");
             return false;
         }
 
@@ -76,7 +77,7 @@ export class RegularSpawnEvent extends StateEvent {
             if (mt !== null && mt.tetrominoType === this.globalState.game!.getCurrentType()) {
                 // If we have already found a valid placement, then this is not a valid spawn event
                 if (validPlacement !== undefined) {
-                    this.myState.textLogger.log("RegularSpawnEvent: Found multiple valid placements from connected components");
+                    this.myState.textLogger.log(LogType.VERBOSE, "RegularSpawnEvent: Found multiple valid placements from connected components");
                     return false;
                 }
 
@@ -86,13 +87,13 @@ export class RegularSpawnEvent extends StateEvent {
         }
         // If we did not find a valid placement, then this is not a valid spawn event
         if (validPlacement === undefined) {
-            this.myState.textLogger.log("RegularSpawnEvent: Did not find a valid placement from connected components");
+            this.myState.textLogger.log(LogType.VERBOSE, "RegularSpawnEvent: Did not find a valid placement from connected components");
             return false;
         }
 
         // We have a valid placement
         this.validPlacement = validPlacement;
-        this.myState.textLogger.log("RegularSpawnEvent: Found valid placement");
+        this.myState.textLogger.log(LogType.VERBOSE, "RegularSpawnEvent: Found valid placement");
         return true;
     }
 
@@ -103,8 +104,8 @@ export class RegularSpawnEvent extends StateEvent {
     override triggerEvent(ocrFrame: OCRFrame): OCRStateID | undefined {
 
         // Update the stable board to reflect the new piece placement and report the placement of the previous piece
-        this.globalState.game!.placePiece(this.validPlacement!, ocrFrame.getNextType()!);
-        this.myState.textLogger.log(`RegularSpawnEvent: Placed ${TETROMINO_CHAR[this.validPlacement!.tetrominoType]} at ${this.validPlacement!.getTetrisNotation()}`);
+        this.globalState.game!.placePiece(this.validPlacement!, ocrFrame.getNextType()!, this.myState.textLogger);
+        this.myState.textLogger.log(LogType.INFO, `RegularSpawnEvent: Placed ${TETROMINO_CHAR[this.validPlacement!.tetrominoType]} at ${this.validPlacement!.getTetrisNotation()}`);
 
         // We transition to a new instance of the same state
         return OCRStateID.PIECE_DROPPING;

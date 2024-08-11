@@ -32,7 +32,7 @@
                         [countdown]="data.countdown"
                         [gameOver]="getGameOverMode(multiplayerData$ | async, client.role, soloMode$ | async)"
                         [gameOverShowNext]="true"
-                        (clickNext)="clickNext()"
+                        (clickNext)="onClickNextAfterGameOver()"
                     />
                 </div>
             </ng-container>

@@ -1,4 +1,4 @@
-import { Frame } from "ocr/util/frame";
+import { Frame } from "../util/frame";
 
 export abstract class VideoSource {
 

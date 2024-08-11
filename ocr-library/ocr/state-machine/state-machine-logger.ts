@@ -6,20 +6,32 @@ import { TETROMINO_CHAR } from "../../shared/tetris/tetrominos";
 import { BinaryEncoder } from "../../shared/network/binary-codec";
 import { PACKET_NAME } from "../../shared/network/stream-packets/packet";
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
-import { TetrominoType } from "shared/tetris/tetromino-type";
+import { TetrominoType } from "../../shared/tetris/tetromino-type";
+
+export enum LogType {
+    INFO = "INFO",
+    ERROR = "ERROR",
+    VERBOSE = "VERBOSE"
+}
 
 export class TextLogger {
 
-    private logs: string[] = [];
+    private logs: {type: LogType, message: string}[] = [];
 
-    log(message: string): void {
-        this.logs.push(message);
+    log(type: LogType, message: string): void {
+        this.logs.push({ type, message });
     }
 
     popLogs(): string[] {
         const logs = this.logs;
+        for (const {type, message} of logs) {
+            if (type === LogType.INFO) console.log(message);
+            if (type === LogType.ERROR) console.error(message);
+        }
+
         this.logs = [];
-        return logs;
+
+        return logs.map(log => log.message);
     }
 }
 

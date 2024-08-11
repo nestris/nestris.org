@@ -1,11 +1,12 @@
 import { PacketSender } from "../util/packet-sender";
 import { DEFAULT_POLLED_GAME_DATA, GameDisplayData } from "../../shared/tetris/game-display-data";
-import { GameAbbrBoardPacket, GameEndPacket, GameFullBoardPacket, GamePlacementPacket, GameStartPacket } from "../../shared/network/stream-packets/packet";
+import { GameAbbrBoardPacket, GameFullBoardPacket, GamePlacementPacket, GameStartPacket } from "../../shared/network/stream-packets/packet";
 import { TetrominoType } from "../../shared/tetris/tetromino-type";
 import { TetrisBoard } from "../../shared/tetris/tetris-board";
 import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
 import { SmartGameStatus } from "../../shared/tetris/smart-game-status";
-import GameStatus, { IGameStatus } from "shared/tetris/game-status";
+import GameStatus, { IGameStatus } from "../../shared/tetris/game-status";
+import { LogType, TextLogger } from "./state-machine-logger";
 
 /**
  * Stores the state global to the state machine, and sends packets to the injected PacketSender on changes.
@@ -75,13 +76,17 @@ export class GameState {
         return this.status.status;
     }
 
-    placePiece(mt: MoveableTetromino, nextType: TetrominoType) {
+    placePiece(mt: MoveableTetromino, nextType: TetrominoType, logger: TextLogger) {
 
         // Place the piece on the stable board and process line clears
         mt.blitToBoard(this.stableBoard);
         const linesCleared = this.stableBoard.processLineClears();
         this.status.onLineClear(linesCleared);
         this.stableBoardCount = this.stableBoard.count();
+
+        if (linesCleared > 0) {
+            logger.log(LogType.INFO, `${linesCleared} lines cleared. New score: ${this.status.score} at ${this.status.lines} lines, level ${this.status.level}`);
+        }
 
         // Shift the next piece
         this.currentType = this.nextType;
@@ -102,6 +107,10 @@ export class GameState {
      * @param board The full color board for this frame
      */
     setFullBoard(board: TetrisBoard) {
+
+        // Duplicate board, do not need to resend
+        if (this.displayBoard.equals(board)) return;
+
         this.displayBoard = board;
         this.packetSender.bufferPacket(new GameFullBoardPacket().toBinaryEncoder({
             delta: 0,
@@ -116,8 +125,13 @@ export class GameState {
      */
     setAbbreviatedBoard(activePiece: MoveableTetromino) {
         // Set display board to the active piece on the stable board
-        this.displayBoard = this.stableBoard.copy();
-        activePiece.blitToBoard(this.displayBoard);
+        const newDisplayBoard = this.stableBoard.copy();
+        activePiece.blitToBoard(newDisplayBoard);
+
+        // Duplicate board, do not need to resend
+        if (this.displayBoard.equals(newDisplayBoard)) return;
+
+        this.displayBoard = newDisplayBoard;
 
         // Send the abbreviated packet
         this.packetSender.bufferPacket(new GameAbbrBoardPacket().toBinaryEncoder({

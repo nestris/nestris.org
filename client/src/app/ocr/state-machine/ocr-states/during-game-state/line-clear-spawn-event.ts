@@ -7,6 +7,7 @@ import { ColorType, TetrisBoard } from "../../../../shared/tetris/tetris-board";
 import { OCRFrame } from "../../ocr-frame";
 import { OCRStateID } from "../ocr-state-id";
 import { TETROMINO_CHAR } from "../../../../shared/tetris/tetrominos";
+import { LogType } from "../../state-machine-logger";
 
 /**
  * Event that triggers when a new piece is spawned without a line clear. This should result in the previous
@@ -34,13 +35,13 @@ export class LineClearSpawnEvent extends StateEvent {
 
         // State must have been running for at least 5 frames before we even consider this event
         if (this.myState.getRelativeFrameCount() < 5) {
-            this.myState.textLogger.log("LineClearSpawnEvent: Not enough frames have passed");
+            this.myState.textLogger.log(LogType.VERBOSE, "LineClearSpawnEvent: Not enough frames have passed");
             return false;
         }
 
         // Next box piece must be valid
         if (ocrFrame.getNextType() === undefined) {
-            this.myState.textLogger.log("LineClearSpawnEvent: Next piece is undefined");
+            this.myState.textLogger.log(LogType.VERBOSE, "LineClearSpawnEvent: Next piece is undefined");
             return false;
         }
 
@@ -50,29 +51,29 @@ export class LineClearSpawnEvent extends StateEvent {
 
         // Account for a line clear of 10+ minos, placed piece, and maximum of 6 mino spawned piece to account for interlacing
         if (currentCount > stableCount) {
-            this.myState.textLogger.log(`LineClearSpawnEvent: Need equal or less than ${stableCount} minos, got ${currentCount}`);
+            this.myState.textLogger.log(LogType.VERBOSE, `LineClearSpawnEvent: Need equal or less than ${stableCount} minos, got ${currentCount}`);
             return false;
         }
 
         // Attempt to extract the active piece, which should be the first connected component in the current board
         const cc = currentBoard.extractAllConnectedComponents();
         if (cc.length === 0) {
-            this.myState.textLogger.log("LineClearSpawnEvent: No connected components found in current board");
+            this.myState.textLogger.log(LogType.VERBOSE, "LineClearSpawnEvent: No connected components found in current board");
             return false;
         }
         const ccCount = cc[0].count();
         if (ccCount < 4 || ccCount > 6) {
-            this.myState.textLogger.log(`LineClearSpawnEvent: Spawned piece not betweeen 4-6 minos (got ${cc[0].count()})`);
+            this.myState.textLogger.log(LogType.VERBOSE, `LineClearSpawnEvent: Spawned piece not betweeen 4-6 minos (got ${cc[0].count()})`);
             return false;
         }
 
-        this.myState.textLogger.log(`LineClearSpawnEvent: Found possible spawn piece with ${cc[0].count()} minos`);
+        this.myState.textLogger.log(LogType.VERBOSE, `LineClearSpawnEvent: Found possible spawn piece with ${cc[0].count()} minos`);
 
         // Remove the connected component from the current board to get the result of the placed piece + line
         // clear, without the spawned piece. This should be a perfect subtraction.
         const isolatedBoard = TetrisBoard.subtract(ocrFrame.getBinaryBoard()!, cc[0], true);
         if (isolatedBoard === null) {
-            this.myState.textLogger.log("LineClearSpawnEvent: Failed to subtract spawned piece from current board");
+            this.myState.textLogger.log(LogType.VERBOSE, "LineClearSpawnEvent: Failed to subtract spawned piece from current board");
             return false;
         }
 
@@ -80,7 +81,7 @@ export class LineClearSpawnEvent extends StateEvent {
         const activePiecePlacement = this.checkActivePiecePlacement(isolatedBoard);
         if (activePiecePlacement) {
             this.validPlacement = activePiecePlacement;
-            this.myState.textLogger.log("LineClearSpawnEvent: Found valid placement from active piece");
+            this.myState.textLogger.log(LogType.VERBOSE, "LineClearSpawnEvent: Found valid placement from active piece");
             return true;
         }
 
@@ -101,14 +102,14 @@ export class LineClearSpawnEvent extends StateEvent {
         // Get the active piece
         const activePiece = this.myState.getActivePiece();
         if (activePiece === undefined) {
-            this.myState.textLogger.log("[ActivePiecePlacement] LineClearSpawnEvent: Active piece is undefined");
+            this.myState.textLogger.log(LogType.VERBOSE, "[ActivePiecePlacement] LineClearSpawnEvent: Active piece is undefined");
             return undefined;
         }
 
         // Check that the active piece is at a valid placement on the stable board
         const stableBoard = this.globalState.game!.getStableBoard();
         if (!activePiece.isValidPlacement(stableBoard)) {
-            this.myState.textLogger.log(`[ActivePiecePlacement] LineClearSpawnEvent: Active piece ${activePiece.getTetrisNotation()} is not a valid placement`);
+            this.myState.textLogger.log(LogType.VERBOSE, `[ActivePiecePlacement] LineClearSpawnEvent: Active piece ${activePiece.getTetrisNotation()} is not a valid placement`);
             return undefined;
         }
 
@@ -119,13 +120,13 @@ export class LineClearSpawnEvent extends StateEvent {
         // Clear lines on the placed board. Since this is on a line-clearing place, we expect at least one line to be cleared
         const linesCleared = stableBoardWithPiece.processLineClears();
         if (linesCleared === 0) {
-            this.myState.textLogger.log(`[ActivePiecePlacement] LineClearSpawnEvent: Active piece ${activePiece.getTetrisNotation()} is a valid placement, but no lines were cleared`);
+            this.myState.textLogger.log(LogType.VERBOSE, `[ActivePiecePlacement] LineClearSpawnEvent: Active piece ${activePiece.getTetrisNotation()} is a valid placement, but no lines were cleared`);
             return undefined;
         }
 
         // Check if the cleared board is equal to the isolated board
         if (!stableBoardWithPiece.equalsIgnoreColor(isolatedBoard)) {
-            this.myState.textLogger.log(`[ActivePiecePlacement] LineClearSpawnEvent: Placing active piece ${activePiece.getTetrisNotation()} does not result in isolated board`);
+            this.myState.textLogger.log(LogType.VERBOSE, `[ActivePiecePlacement] LineClearSpawnEvent: Placing active piece ${activePiece.getTetrisNotation()} does not result in isolated board`);
             return undefined;
         }
 
@@ -140,8 +141,8 @@ export class LineClearSpawnEvent extends StateEvent {
     override triggerEvent(ocrFrame: OCRFrame): OCRStateID | undefined {
 
         // Update the stable board to reflect the new piece placement and report the placement of the previous piece
-        this.globalState.game!.placePiece(this.validPlacement!, ocrFrame.getNextType()!);
-        this.myState.textLogger.log(`RegularSpawnEvent: Placed ${TETROMINO_CHAR[this.validPlacement!.tetrominoType]} at ${this.validPlacement!.getTetrisNotation()}`);
+        this.myState.textLogger.log(LogType.INFO, `RegularSpawnEvent: Placed ${TETROMINO_CHAR[this.validPlacement!.tetrominoType]} at ${this.validPlacement!.getTetrisNotation()}`);
+        this.globalState.game!.placePiece(this.validPlacement!, ocrFrame.getNextType()!, this.myState.textLogger);
 
         // We transition to a new instance of the same state
         return OCRStateID.PIECE_DROPPING;
