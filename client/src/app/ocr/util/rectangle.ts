@@ -1,4 +1,4 @@
-import { Point } from "shared/tetris/point";
+import { Point } from "../../shared/tetris/point";
 
 export type Rectangle = {
     top: number;

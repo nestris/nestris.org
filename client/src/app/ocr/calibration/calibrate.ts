@@ -13,7 +13,7 @@ import { scalePointWithinRect } from "../util/rectangle";
  * @param frameIndex The index of the provided calibration frame in the video
  * @param point The point to start the main board floodfill from
  */
-export function calibrate(frame: Frame, frameIndex: number, point: Point): [Calibration, CalibrationPlus] {
+export function calibrate(frame: Frame, point: Point): [Calibration, CalibrationPlus] {
 
     // Floodfill at the given point to derive the main board
     const boardRect = FloodFill.fromFrame(frame, point).getBoundingRect();
@@ -36,7 +36,6 @@ export function calibrate(frame: Frame, frameIndex: number, point: Point): [Cali
     }
 
     const calibration: Calibration = {
-        frameIndex,
         floodfillPoint: point,
         rects: {
             board: boardRect,

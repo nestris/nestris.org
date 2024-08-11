@@ -57,14 +57,14 @@ export class PreviewCanvasComponent implements AfterViewInit, OnDestroy {
     const rect = this.canvasParentElement.nativeElement.getBoundingClientRect();
     const CANVAS_RESOLUTION_SCALE_X = this.videoCapture.getCanvasElement().width / this.CANVAS_WIDTH;
     const CANVAS_RESOLUTION_SCALE_Y = this.videoCapture.getCanvasElement().height / this.CANVAS_HEIGHT;
-    this.mouseX = (event.clientX - rect.left) * CANVAS_RESOLUTION_SCALE_X;
-    this.mouseY = (event.clientY - rect.top) * CANVAS_RESOLUTION_SCALE_Y;
+    this.mouseX = Math.round((event.clientX - rect.left) * CANVAS_RESOLUTION_SCALE_X);
+    this.mouseY = Math.round((event.clientY - rect.top) * CANVAS_RESOLUTION_SCALE_Y);
 
   }
 
   private onMouseClick(): void {
     if (this.isMouseOnVideo) {
-      this.videoCapture._onMouseClick(this.mouseX, this.mouseY);
+      this.videoCapture.calibrateOnMouseClick({x : this.mouseX, y : this.mouseY});
     }
   }
 

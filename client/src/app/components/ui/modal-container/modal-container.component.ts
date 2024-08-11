@@ -36,6 +36,7 @@ export class ModalContainerComponent {
     this.visibility$.subscribe((visibility) => {
       if (!visibility) {
         this.modalManager.hideModal();
+        console.log("Hide modal");
       }
     });
 

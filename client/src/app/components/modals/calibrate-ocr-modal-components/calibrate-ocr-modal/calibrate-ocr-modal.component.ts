@@ -1,10 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
-import { Subject, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
-import { TextboxResult } from 'src/app/models/ocr/text-box';
 import { ModalManagerService } from 'src/app/services/modal-manager.service';
-import { GameStateService } from 'src/app/services/ocr/game-state.service';
-import { TextboxType, ALL_TEXTBOX_TYPES, OcrService } from 'src/app/services/ocr/ocr.service';
 import { VideoCaptureService } from 'src/app/services/ocr/video-capture.service';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 
@@ -27,13 +24,9 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
   readonly ButtonColor = ButtonColor;
 
   readonly CalibrationStep = CalibrationStep;
-  readonly TextboxType = TextboxType;
   readonly ALL_CALIBRATION_STEPS = Object.values(CalibrationStep);
-  readonly ALL_TEXTBOX_TYPES = ALL_TEXTBOX_TYPES;
 
   public stepIndex: number = 0;
-
-  private clickCanvasSubscription!: Subscription;
 
   get currentStep(): CalibrationStep {
     return this.ALL_CALIBRATION_STEPS[this.stepIndex];
@@ -41,31 +34,21 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
 
   constructor(
     public videoCapture: VideoCaptureService,
-    public ocr: OcrService,
     private modalManager: ModalManagerService,
-    private gameState: GameStateService
   ) {
-
-    // if on "locate tetris board step", clicking canvas initiates floodfill
-    this.clickCanvasSubscription = this.videoCapture.getMouseClick$().subscribe((mouse) => {
-      
-      if (this.currentStep === CalibrationStep.LOCATE_TETRIS_BOARD) {
-        const pixels = this.videoCapture.getPixels();
-        if (pixels && mouse) this.ocr.calibrateOCRBoxes(pixels, mouse.x, mouse.y);
-      }
-
-    });
 
   }
 
   ngOnInit() {
+
+    console.log("calibrate ocr model oninit");
 
     // generate list of video sources
     this.videoCapture.generateVideoDevicesList();
 
     // if there is already a video source, start capturing immediately
     if (this.videoCapture.hasCaptureSource()) {
-      this.gameState.startCapture();
+      this.videoCapture.startCapture();
     }
   }
 
@@ -77,7 +60,8 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
         return this.videoCapture.hasCaptureSource();
 
       case CalibrationStep.LOCATE_TETRIS_BOARD:
-        return this.ocr.getNextPiece() !== undefined && this.ocr.getNextPiece() !== TetrominoType.ERROR_TYPE;
+        const nextPiece = this.videoCapture.getCurrentFrame()?.ocrFrame?.getNextType();
+        return nextPiece !== undefined && nextPiece !== TetrominoType.ERROR_TYPE;
 
       case CalibrationStep.VERIFY_OCR:
         return true;
@@ -129,7 +113,8 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
         return "Video source not set yet";
 
       case CalibrationStep.LOCATE_TETRIS_BOARD:
-        return this.ocr.getBoard() === undefined ? "Tetris board not located yet" : "Valid next piece not detected";
+        const board = this.videoCapture.getCurrentFrame()?.ocrFrame?.getBinaryBoard();
+        return board === undefined ? "Tetris board not located yet" : "Valid next piece not detected";
 
       case CalibrationStep.VERIFY_OCR:
         return "OCR has not been verified yet";
@@ -152,7 +137,10 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
     });
 
     this.videoCapture.setCaptureSource(mediaStream);
-    this.gameState.startCapture();
+    this.videoCapture.startCapture();
+
+    // Go to next step
+    this.next();
   }
 
   async setVideoCapture() {
@@ -163,7 +151,7 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
     // if no device selected, stop capture
     if (!selectedDevice) {
       this.videoCapture.setCaptureSource(null);
-      this.gameState.stopCapture();
+      this.videoCapture.stopCapture();
       return;
     }
 
@@ -176,20 +164,15 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
     });
 
     this.videoCapture.setCaptureSource(mediaStream);
-    this.gameState.startCapture();
+    this.videoCapture.startCapture();
+
+    // Go to next step
+    this.next();
   }
 
   ngOnDestroy() {
-    this.clickCanvasSubscription.unsubscribe();
-    this.gameState.stopCapture(); // don't capture when not necessary to save processing time
+    console.log("calibrate ocr model ondestroy");
+    this.videoCapture.stopCapture(); // don't capture when not necessary to save processing time
   }
-
-
-  prettyTextboxResult(result: TextboxResult | null | undefined) {
-    if (!result) return "";
-    const confidenceString = (result.confidence * 100).toFixed(0);
-    return `${result.value} (${confidenceString}%)`;
-  }
-
 
 }

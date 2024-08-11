@@ -1,4 +1,4 @@
-import { Calibration } from "ocr/util/calibration";
+import { Calibration } from "../util/calibration";
 import { VideoSource } from "./video-source";
 import { OCRState } from "./ocr-state";
 import { BeforeGameState } from "./ocr-states/before-game-state";
@@ -7,8 +7,8 @@ import { StateMachineLogger, TextLogger } from "./state-machine-logger";
 import { OCRFrame } from "./ocr-frame";
 import { OcrStateFactory as ocrStateFactory } from "./ocr-states/ocr-state-factory";
 import { Profiler, ProfilerResults } from "../../shared/scripts/profiler";
-import { PacketSender } from "ocr/util/packet-sender";
-import { GameDisplayData } from "shared/tetris/game-display-data";
+import { PacketSender } from "../util/packet-sender";
+import { GameDisplayData } from "../../shared/tetris/game-display-data";
 
 export class OCRStateMachine {
 

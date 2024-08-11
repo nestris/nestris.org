@@ -1,11 +1,20 @@
 import { ElementRef, Injectable, Renderer2, RendererFactory2 } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { OCRBox, Rectangle } from 'src/app/models/ocr/ocr-box';
-import { Pixels } from 'src/app/models/ocr/pixels';
-import { OcrService, OCRType } from './ocr.service';
+import { Pixels } from 'src/app/services/ocr/pixels';
 import { Point } from 'src/app/shared/tetris/point';
+import { Calibration } from 'src/app/ocr/util/calibration';
+import { calibrate } from 'src/app/ocr/calibration/calibrate';
+import { Frame } from 'src/app/ocr/util/frame';
+import { OCRFrame } from 'src/app/ocr/state-machine/ocr-frame';
+import { FpsTracker } from 'src/app/shared/scripts/fps-tracker';
+import { Rectangle } from 'src/app/ocr/util/rectangle';
+import { ColorType } from 'src/app/shared/tetris/tetris-board';
 
-
+export interface FrameWithContext {
+  ctx: CanvasRenderingContext2D,
+  rawFrame: Frame,
+  ocrFrame?: OCRFrame,
+}
 
 @Injectable({
   providedIn: 'root'
@@ -25,25 +34,40 @@ export class VideoCaptureService {
   private defaultCanvasParent!: HTMLElement;
   private currentCanvasParent?: HTMLElement = undefined;
 
-  private hidden: boolean = true;
-  private showBoundingBoxes: boolean = false;
-
   // the error for why video source failed
   private permissionError$ = new BehaviorSubject<string | null>(null);
 
-  // observable for pixels of video capture source. updated every frame
-  private pixels$ = new BehaviorSubject<Pixels | null>(null);
+  // The calibration, if set
+  private calibration?: Calibration;
 
-  // subject for location of mouse when clicking on canvas
-  private mouseClick$ = new BehaviorSubject<{ x: number, y: number } | null>(null);
-   
+  // whether capture source is being polled for pixels every frame
+  private capturing$ = new BehaviorSubject<boolean>(false);
+
+  // The current captured frame
+  private currentFrame$ = new BehaviorSubject<FrameWithContext | null>(null);
+
+  // track fps for polling video
+  private fpsTracker?: FpsTracker;
+
+  private hidden: boolean = true;
+  private showBoundingBoxes: boolean = false;
 
   constructor(
     rendererFactory: RendererFactory2,
-    private ocrService: OcrService,
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
     this.canvasElement = this.renderer.createElement('canvas');
+  }
+
+  getCurrentFrame(): FrameWithContext | null {
+    return this.currentFrame$.getValue();
+  }
+
+  /**
+   * Get the observable to the current frame, guaranteed to exist
+   */
+  getCurrentFrame$(): Observable<FrameWithContext | null> {
+    return this.currentFrame$.asObservable();;
   }
 
   public initVideoDevices() {
@@ -89,26 +113,33 @@ export class VideoCaptureService {
     this.canvasElement.style.width = displayWidth + 'px';
     this.canvasElement.style.height = displayHeight + 'px';
     this.showBoundingBoxes = showBoundingBoxes;
+    console.log("setCanvasLocation with showBoundingBoxes", showBoundingBoxes)
   }
 
   getCanvasElement(): HTMLCanvasElement {
     return this.canvasElement;
   }
 
-  // only called by preview canvas component
-  _onMouseClick(x: number, y: number) {
-    this.mouseClick$.next({ x: Math.floor(x), y: Math.floor(y) });
-  }
-
-  // subscribe to this to get mouse click events on canvas
-  getMouseClick$(): Observable<{ x: number, y: number } | null> {
-    return this.mouseClick$.asObservable();
-  }
-
   // go back to default canvas parent and hide canvas
   resetCanvasLocation() {
     this.moveCanvasToDOM(this.defaultCanvasParent, true);
     this.showBoundingBoxes = false;
+    console.log("resetCanvasLocation");
+  }
+
+  /**
+   * Calibrate all the OCR boxes through floodfilling at the location of the mouse click
+   * @param mouse The position of the mouse in frame pixel units
+   */
+  calibrateOnMouseClick(mouse: Point) {
+
+    const rawFrame = this.getCurrentFrame()?.rawFrame;
+    if (!rawFrame) {
+      console.log("Cannot calibrate when no frame is set");
+      return;
+    }
+
+    this.calibration = calibrate(rawFrame, mouse)[0];
   }
 
   // set the video capture source, whether from screen capture or video source
@@ -155,26 +186,13 @@ export class VideoCaptureService {
     return this.permissionError$.asObservable();
   }
 
-  // subscribe to pixels of last polled video frame
-  getPixels$(): Observable<Pixels | null> {
-    return this.pixels$.asObservable();
-  }
-
-  getPixels(): Pixels | null {
-    return this.pixels$.getValue();
-  }
-
   // get the video element itself. useful if wanting to blit the video to another canvas in addition to the internal one
   getVideoElement(): HTMLVideoElement {
     return this.videoElement;
   }
 
-  // polls the video capture source for pixels and emits them.
-  // calls itself recursively
-  pollPixels(): {
-    ctx: CanvasRenderingContext2D | null,
-    pixels: Pixels | null
-  } {
+  // Captures a single frame and stores it
+  private captureFrame() {
 
     const canvas = this.canvasElement;
     const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
@@ -185,45 +203,65 @@ export class VideoCaptureService {
     // Get the pixel data from the canvas and emit it
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const pixels = new Pixels(imageData.data, canvas.width, canvas.height);
-    this.pixels$.next(pixels);
 
-    return { ctx, pixels };
+    // If calibration is set, initialize the OCRFrame
+    let ocrFrame: OCRFrame | undefined = undefined;
+    if (this.calibration) {
+      ocrFrame = new OCRFrame(pixels, this.calibration);
+
+      // Draw bounding boxes if flag is set
+      if (!this.hidden && this.showBoundingBoxes) this.drawBoundingBoxes(ctx, ocrFrame);
+    }
+
+    this.currentFrame$.next({ ctx, rawFrame: pixels, ocrFrame: ocrFrame });
+
+    // Queue capturing the next frame
+    requestAnimationFrame(() => this.captureFrame());
   }
 
+  // Start capturing pixels from capture source as fast as possible
+  startCapture() {
+
+    // make sure capture source is set
+    if (!this.hasCaptureSource()) {
+      throw new Error("capture source not set");
+    }
+
+    if (this.capturing$.getValue()) return;
+
+    this.capturing$.next(true);
+    this.fpsTracker = new FpsTracker();
+
+    // start capturing
+    console.log("starting capture");
+    this.captureFrame();
+  }
+
+  // stop capturing pixels from capture source.
+  // sets the capturing flag to false, which will terminate the captureFrame() loop on the start of the next frame
+  stopCapture() {
+    console.log("stopping capture");
+    this.capturing$.next(false);
+    this.fpsTracker = undefined;
+  }
+
+  getFPS(): number | undefined {
+    return this.fpsTracker?.getFPS();
+  }
 
   // draw bounding boxes on canvas
-  drawBoundingBoxes(ctx: CanvasRenderingContext2D) {
+  drawBoundingBoxes(ctx: CanvasRenderingContext2D, ocrFrame: OCRFrame) {
 
-    // don't draw bounding boxes if hidden
-    if (this.hidden || !this.showBoundingBoxes) return;
+    this.drawRect(ctx, ocrFrame.calibration.rects.board, "green");
+    this.drawRect(ctx, ocrFrame.calibration.rects.next, "green");
 
-    // draw board bounding box with both block shine and center of board
-    const boardExists = (x: number, y: number) => {
-      return this.ocrService.getBoard()?.exists(x, y) ?? false;
+    // Draw dots on each cell of the board representing whether there is a mino there
+    for (let {x, y, color} of ocrFrame.getBinaryBoard()!.iterateMinos()) {
+      const minoColor = (color === ColorType.EMPTY) ? "red" : "green";
+      const minoCenter = ocrFrame.boardOCRBox.getMinoCenter({x, y}, true);
+      this.drawCircle(ctx, minoCenter.x, minoCenter.y, 2, minoColor);
     }
-    this.drawOCROverlay(ctx, this.ocrService.getOCRBox(OCRType.BOARD), boardExists);
-    this.drawOCROverlay(ctx, this.ocrService.getOCRBox(OCRType.BOARD_SHINE), boardExists);
     
-    // draw next box bounding box
-    const nextExists = (x: number, y: number) => {
-      return this.ocrService.getNextBox()?.existsAt(x, y) ?? false;
-    }
-    this.drawOCROverlay(ctx, this.ocrService.getOCRBox(OCRType.NEXT), nextExists);
-
-  }
-
-  // draw the bounding box of an OCRBox onto the canvas
-  private drawOCROverlay(ctx: CanvasRenderingContext2D, ocr?: OCRBox,
-    exists: (x: number, y: number) => boolean = () => false
-  ): void {
-
-    if (!ocr) return;
-
-    // draw board rect
-    this.drawRect(ctx, ocr.getBoundingRect(), "rgb(0, 255, 0)");
-
-    // draw OCR positions
-    this.drawOCRPositions(ctx, ocr.getPositions(), exists);
   }
 
   // draw a rectangle given a rectangle, with border just outside of rectangle bounds
@@ -240,20 +278,6 @@ export class VideoCaptureService {
       boardRect.bottom - boardRect.top + BORDER_WIDTH*2);
   }
 
-  // draw a dot for each OCR position
-  private drawOCRPositions(ctx: CanvasRenderingContext2D, positions: Point[][],
-    exists: (x: number, y: number) => boolean = () => false  
-  ) {
-
-    for (let yIndex = 0; yIndex < positions.length; yIndex++) {
-      for (let xIndex = 0; xIndex < positions[yIndex].length; xIndex++) {
-        const {x,y} = positions[yIndex][xIndex];
-        const isMino = exists(xIndex, yIndex);
-        const color = isMino ? "rgb(0,255,0)" : "rgb(255,0,0)";
-        this.drawCircle(ctx, x, y, 2, color);
-      }
-    }
-  }
 
   // example: drawCircle(ctx, 50, 50, 25, 'black', 'red', 2)
   private drawCircle(

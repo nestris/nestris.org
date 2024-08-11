@@ -1,5 +1,5 @@
-import { Point } from "shared/tetris/point";
-import { Rectangle, scalePointWithinRect } from "../util/rectangle";
+import { Point } from "../../shared/tetris/point";
+import { Rectangle, scalePointWithinRect } from "./rectangle";
 
 test("unit-rectangle", () => {
     const rect: Rectangle = {

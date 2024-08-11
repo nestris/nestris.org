@@ -59,7 +59,6 @@ import { GlobalRankComponent } from './components/layout/puzzles/components/glob
 import { SummaryComponent } from './components/layout/puzzles/components/summary/summary.component';
 import { InsightsComponent } from './components/layout/puzzles/components/insights/insights.component';
 import { ButtonsComponent } from './components/layout/puzzles/components/buttons/buttons.component';
-import { TextboxCanvasComponent } from './components/modals/calibrate-ocr-modal-components/textbox-canvas/textbox-canvas.component';
 import { ChallengeModalComponent } from './components/modals/challenge-modal/challenge-modal.component';
 import { ChallengeComponent } from './components/layout/friends/challenge/challenge.component';
 import { NesEmulatorMenuComponent } from './components/nes-layout/nes-emulator-menu/nes-emulator-menu.component';
@@ -181,7 +180,6 @@ const customNotifierOptions: NotifierOptions = {
     SummaryComponent,
     InsightsComponent,
     ButtonsComponent,
-    TextboxCanvasComponent,
     ChallengeModalComponent,
     ChallengeComponent,
     NesEmulatorMenuComponent,

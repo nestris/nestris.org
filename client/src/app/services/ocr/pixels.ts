@@ -3,10 +3,12 @@ Stores the Uint8ClampedArray for a single frame of video capture.
 Exposes a method to get individual pixels from the frame.
 */
 
+import { Frame } from "src/app/ocr/util/frame";
+import { Point } from "src/app/shared/tetris/point";
 import { RGBColor } from "src/app/shared/tetris/tetromino-colors";
 
 
-export class Pixels {
+export class Pixels implements Frame {
 
     constructor(
         public readonly pixels: Uint8ClampedArray,
@@ -15,7 +17,8 @@ export class Pixels {
     ) {}
 
     // get RGB for pixel at (x, y), A is ignored
-  public getPixelAt(x: number, y: number): RGBColor | undefined {
+  public getPixelAt(point: Point): RGBColor | undefined {
+    let {x, y} = point;
 
     if (x < 0 || x >= this.width!) {
       return undefined;

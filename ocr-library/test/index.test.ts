@@ -59,7 +59,7 @@ async function runTestCases() {
             const calibrationFrame = await videoSource.getFrame(config.calibration.frame);
 
             // Calibrate on the specified frame
-            const [calibration, calibrationPlus] = calibrate(calibrationFrame, config.calibration.frame, {
+            const [calibration, calibrationPlus] = calibrate(calibrationFrame, {
                 x: config.calibration.x, y: config.calibration.y
             });
 

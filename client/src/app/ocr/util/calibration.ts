@@ -1,14 +1,10 @@
-import { Point } from "shared/tetris/point";
+import { Point } from "../../shared/tetris/point";
 import { Rectangle } from "./rectangle";
-import { RGBColor } from "shared/tetris/tetromino-colors";
 
 /**
  * Represents the complete calibration settings for a video, which is used to OCR each frame.
  */
 export interface Calibration {
-
-    // The index of the frame that this calibration is for
-    frameIndex: number;
 
     // The point that the floodfill started from
     floodfillPoint: Point;
