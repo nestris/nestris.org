@@ -26,8 +26,8 @@ export class BoardOCRBox {
         }
 
         return scalePointWithinRect(this.rect, {
-            x: (mino.x + 0.5) / 10,
-            y: (mino.y + 0.5) / 20.15,
+            x: (mino.x + 0.5) / 9.95,
+            y: (mino.y + 0.5) / 20.1,
         }, round);
     }
 
@@ -39,7 +39,7 @@ export class BoardOCRBox {
      */
     getBlockShine(mino: Point): Point {
 
-        const radiusX = (this.rect.bottom - this.rect.top) / 80;
+        const radiusX = (this.rect.bottom - this.rect.top) / 90;
         const radiusY = (this.rect.bottom - this.rect.top) / 95;
 
         const center = this.getMinoCenter(mino);

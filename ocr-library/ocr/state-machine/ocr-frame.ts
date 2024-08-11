@@ -55,7 +55,7 @@ export class OCRFrame {
                 const blockShineColor = this.frame.getPixelAt(blockShinePosition);
                 if (!blockShineColor) throw new Error(`Block shine color not found at ${blockShinePosition.x}, ${blockShinePosition.y}`);
 
-                if (blockShineColor.average > 130) {
+                if (blockShineColor.average > 30) {
                     // If block shine detected, we use the mino points to determine the color of the block
                     // TODO: Implement color detection
                     this._boardUncolored.setAt(point.x, point.y, ColorType.PRIMARY);

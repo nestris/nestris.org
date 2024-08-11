@@ -258,7 +258,7 @@ export class VideoCaptureService {
     // Draw dots on each cell of the board representing whether there is a mino there
     for (let {x, y, color} of ocrFrame.getBinaryBoard()!.iterateMinos()) {
       const minoColor = (color === ColorType.EMPTY) ? "red" : "green";
-      const minoCenter = ocrFrame.boardOCRBox.getMinoCenter({x, y}, true);
+      const minoCenter = ocrFrame.boardOCRBox.getBlockShine({x, y});
       this.drawCircle(ctx, minoCenter.x, minoCenter.y, 2, minoColor);
     }
     
@@ -269,7 +269,7 @@ export class VideoCaptureService {
     ctx.strokeStyle = color;
 
     // draw border so that the border is outside the rect
-    const BORDER_WIDTH = 2;
+    const BORDER_WIDTH = 1;
     ctx.lineWidth = BORDER_WIDTH;
     ctx.strokeRect(
       boardRect.left - BORDER_WIDTH,

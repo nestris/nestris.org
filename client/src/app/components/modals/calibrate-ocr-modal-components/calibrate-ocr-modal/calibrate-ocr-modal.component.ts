@@ -132,7 +132,7 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
     // get screen capture, requesting with 1000px width
     const mediaStream = await navigator.mediaDevices.getDisplayMedia({
       video: {
-        width: 1000,
+        width: 1200,
       }
     });
 
@@ -159,7 +159,7 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
     const mediaStream = await navigator.mediaDevices.getUserMedia({
       video: {
         deviceId: selectedDevice.deviceId,
-        width: 1000,
+        width: 1200,
       }
     });
 
