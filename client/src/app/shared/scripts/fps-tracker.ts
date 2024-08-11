@@ -19,7 +19,9 @@ export class FpsTracker {
 
     private lastTick = Date.now();
 
-    constructor() {
+    private i = 0;
+
+    constructor(private readonly printEvery: number | undefined = undefined) {
         this.timestamps = [];
     }
 
@@ -36,6 +38,14 @@ export class FpsTracker {
         this.averageFPS.push(fps);
 
         this.lastTick = now;
+
+        if (this.printEvery) {
+            this.i++;
+            if (this.i == this.printEvery) {
+                console.log("FPS:", this.getFPS());
+                this.i = 0;
+            }
+        }
     }
 
     endTick(): void {
