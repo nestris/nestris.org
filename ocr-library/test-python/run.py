@@ -12,7 +12,7 @@ The <testcase> argument is the name of the test case to run. The <mode> argument
 
 """
 
-import cv2, yaml, argparse, os
+import cv2, yaml, argparse, os, ipdb
 import numpy as np
 from enum import Enum
 from ocr_results import OCRResults
@@ -50,7 +50,6 @@ def calibrate(testcase: str, frame: int, x: int, y: int):
     """
 
     rel_path = f"../test-cases/{testcase}/config.yaml"
-
 
     # Check if the test case directory and config file exist
     if os.path.exists(rel_path):
@@ -130,17 +129,9 @@ def play_video(testcase: str, mode: Mode):
 
     frame_number = 0
     playing = False
-    frames = []
-
+    total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
     
-    # Read all frames from the video and store them in a list
-    while video.isOpened():
-        ret, frame = video.read()
-        if not ret:
-            break
-        frames.append(frame)
-    
-    video.release()
+    cv2.createTrackbar("Frame", WINDOW, 0, total_frames - 1, update_frame_position)
 
     # if output, extract the OCR results from the test-results YAML from the test case
     if mode == Mode.OUTPUT:
@@ -154,88 +145,68 @@ def play_video(testcase: str, mode: Mode):
             results_dict = yaml.safe_load(results_file)
 
         ocr_results = OCRResults(results_dict)
+    else:
+        ocr_results = None
+    
+    while True:
+        # Set the current frame position in the video
+        video.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
+        ret, frame = video.read()
+        if not ret:
+            break
+        
+        # if in bounds, add bounding rect to each frame
+        if mode == Mode.BOUNDS:
+            calibration_path = os.path.join(os.path.dirname(__file__), f"../test-output/{testcase}/calibration.yaml")
+            calibration_plus_path = os.path.join(os.path.dirname(__file__), f"../test-output/{testcase}/calibration-plus.yaml")
 
-        for frameIndex, frame in enumerate(frames):
+            with (
+                open(calibration_path, "r") as calibration_file,
+                open(calibration_plus_path, "r") as calibration_plus_file
+            ):
+                calibration = yaml.safe_load(calibration_file)
+                calibration_plus = yaml.safe_load(calibration_plus_file)
+
+                # Draw all bounding rects
+                for rect_name, rect in calibration["rects"].items():
+                    x1 = rect["left"]
+                    y1 = rect["top"]
+                    x2 = rect["right"]
+                    y2 = rect["bottom"]
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 1)
+
+                # Draw all calibration points
+                for group, points in calibration_plus["points"].items():
+                    for point in points:
+                        x = point["x"]
+                        y = point["y"]
+                        color = POINT_GROUP_COLORS[group] if group in POINT_GROUP_COLORS else BLUE
+                        cv2.circle(frame, (x, y), 1, color, -1)
+
+        # if output, draw the OCR results on the frame
+        if ocr_results and mode == Mode.OUTPUT:
             for minoIndex, mino in enumerate(calibration_plus["points"]["board"]):
                 x, y = mino["x"], mino["y"]
 
                 # Draw mino points for CurrentBoard
-                visible = ocr_results.get_mino_at_frame(frameIndex, minoIndex)
+                visible = ocr_results.get_mino_at_frame(frame_number, minoIndex)
                 cv2.circle(frame, (x, y), 2, GREEN if visible else RED, -1)
 
                 # Draw mino points for StableBoard
-                visible = ocr_results.get_stable_board_mino_at_frame(frameIndex, minoIndex)
+                visible = ocr_results.get_stable_board_mino_at_frame(frame_number, minoIndex)
                 if visible:
                     cv2.circle(frame, (x, y), 9, BLUE, 2)
 
-
-        for frameIndex, frame in enumerate(frames):
             for minoIndex, mino in enumerate(calibration_plus["points"]["next"]):
                 x, y = mino["x"], mino["y"]
-                color = GREEN if ocr_results.get_next_grid_point_at_frame(frameIndex, minoIndex) else RED
+                color = GREEN if ocr_results.get_next_grid_point_at_frame(frame_number, minoIndex) else RED
                 cv2.circle(frame, (x, y), 2, color, -1)
-    else:
-        ocr_results = None
-    
-    # if in bounds, add bounding rect to each frame
-    if mode == Mode.BOUNDS:
-        calibration_path = os.path.join(os.path.dirname(__file__), f"../test-output/{testcase}/calibration.yaml")
-        calibration_plus_path = os.path.join(os.path.dirname(__file__), f"../test-output/{testcase}/calibration-plus.yaml")
 
-        with (
-            open(calibration_path, "r") as calibration_file,
-            open(calibration_plus_path, "r") as calibration_plus_file
-        ):
-            calibration = yaml.safe_load(calibration_file)
-            calibration_plus = yaml.safe_load(calibration_plus_file)
-
-            # Draw all bounding rects
-            for rect_name, rect in calibration["rects"].items():
-                x1 = rect["left"]
-                y1 = rect["top"]
-                x2 = rect["right"]
-                y2 = rect["bottom"]
-                for frame in frames:
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 1)
-
-            # Draw all calibration points
-            for group, points in calibration_plus["points"].items():
-                print(group)
-                for point in points:
-                    x = point["x"]
-                    y = point["y"]
-                    for frame in frames:
-                        color = POINT_GROUP_COLORS[group] if group in POINT_GROUP_COLORS else BLUE
-                        cv2.circle(frame, (x, y), 1, color, -1)
-
-
-    total_frames = ocr_results.num_frames() if ocr_results else len(frames)
-    cv2.createTrackbar("Frame", WINDOW, 0, total_frames - 1, update_frame_position)
-
-    # scale window down
-    if frames and mode == Mode.OUTPUT:
-        cv2.imshow(WINDOW, frames[0])
-        cv2.resizeWindow(WINDOW, 1000, 600)
-        cv2.resizeWindow(OUTPUT_WINDOW, 800, 600)
-        cv2.moveWindow(OUTPUT_WINDOW, 1000, 0)
-
-    # Make the window appear on top of all other windows
-    #cv2.setWindowProperty(WINDOW, cv2.WND_PROP_TOPMOST, 1)
-
-    while True:
-
-        if playing:
-            if frame_number < total_frames:
-                frame_number += 1
-                cv2.setTrackbarPos("Frame", WINDOW, frame_number)
-            else:
-                playing = False
-            
         # Display the current frame
-        cv2.imshow(WINDOW, frames[frame_number])
+        cv2.imshow(WINDOW, frame)
 
         # Display the state machine viewer
-        if ocr_results:
+        if ocr_results and mode == Mode.OUTPUT:
             state_machine_text = StateMachineText()
             state_machine_text.add_text(f"Frame: {frame_number}")
 
@@ -250,59 +221,61 @@ def play_video(testcase: str, mode: Mode):
             state_machine_text.add_text(f"Next Type: {ocr_results.get_next_type_at_frame(frame_number)}", indent=1)
             state_machine_text.add_text(f"Level: {ocr_results.get_level_at_frame(frame_number)}", indent=1)
             state_machine_text.add_text(f"Only tetromino on board: {ocr_results.get_board_only_type_at_frame(frame_number)}", indent=1)
+            state_machine_text.add_text(f"Lines sent: {ocr_results.get_attribute_at_frame(frame_number, 'gameLinesSent')}", indent=1)
+
+            predictions = ocr_results.get_attribute_at_frame(frame_number, 'levelPrediction')
+            try:
+                for prediction in predictions:
+                    for i in range(len(prediction["probabilities"])):
+                        prediction["probabilities"][i] = round(prediction["probabilities"][i], 2)
+                state_machine_text.new_line()
+                state_machine_text.add_text(f"{predictions[0]["digit"]} {predictions[0]["probability"]}", indent=1)
+                state_machine_text.add_text(f"{predictions[0]["probabilities"]}", indent=1)
+                state_machine_text.new_line()
+                state_machine_text.add_text(f"{predictions[1]["digit"]} {predictions[1]["probability"]}", indent=1)
+                state_machine_text.add_text(f"{predictions[1]["probabilities"]}", indent=1)
+            except:
+                pass
 
             state_machine_text.new_line()
             state_machine_text.add_text("Game state:")
-            state_machine_text.add_text(f"Current type: {ocr_results.get_attribute_at_frame(frame_number, "gameCurrentType")}", indent=1)
-            state_machine_text.add_text(f"Next type: {ocr_results.get_attribute_at_frame(frame_number, "gameNextType")}", indent=1)
-            state_machine_text.add_text(f"Level: {ocr_results.get_attribute_at_frame(frame_number, "gameLevel")}", indent=1)
-            state_machine_text.add_text(f"Lines: {ocr_results.get_attribute_at_frame(frame_number, "gameLines")}", indent=1)
-            state_machine_text.add_text(f"Score: {ocr_results.get_attribute_at_frame(frame_number, "gameScore")}", indent=1)
-
-            state_machine_text.new_line()
-            state_machine_text.add_text("Event Statuses:")
-            for event_status in ocr_results.get_event_statuses_at_frame(frame_number):
-                state_machine_text.add_text(f"{event_status.name}:")
-                state_machine_text.add_text(f"Precondition met: {event_status.precondition_met}", indent=1)
-                state_machine_text.add_text(f"Persistence met: {event_status.persistence_met}", indent=1)
-
-            state_machine_text.new_line()
-            state_machine_text.add_text("Packets:")
-            for packet in ocr_results.get_packets_at_frame(frame_number):
-                state_machine_text.add_text(packet, indent=1)
-
-            state_machine_text.new_line()
-            state_machine_text.add_text("Logs:")
-            for log in ocr_results.get_logs_at_frame(frame_number):
-                state_machine_text.add_text(log, indent=1)
+            state_machine_text.add_text(f"Current type: {ocr_results.get_attribute_at_frame(frame_number, 'gameCurrentType')}", indent=1)
+            state_machine_text.add_text(f"Next type: {ocr_results.get_attribute_at_frame(frame_number, 'gameNextType')}", indent=1)
+            state_machine_text.add_text(f"Lock delay: {ocr_results.get_attribute_at_frame(frame_number, 'gameLockDelay')}", indent=1)
+            state_machine_text.add_text(f"Lines sent: {ocr_results.get_attribute_at_frame(frame_number, 'gameLinesSent')}", indent=1)
 
             state_machine_text.show(OUTPUT_WINDOW)
 
-        # Wait for user input
-        key = cv2.waitKey(30)  # Adjust the delay for smoother playback
-        # Control playback and frame navigation
-        if key == ord('q'):
+        key = cv2.waitKey(10)
+
+        if key == ord("q") or key == 27:  # q or Esc key to exit
             break
-        elif key == SPACE_KEY:  # Space bar
+        elif key == SPACE_KEY:
             playing = not playing
-            if playing and frame_number == total_frames - 1:
-                frame_number = 0
-        elif key == LEFT_ARROW_KEY:  # Left arrow key
-            frame_number = max(frame_number - 1, 0)
-            playing = False
-        elif key == RIGHT_ARROW_KEY:  # Right arrow key
+        elif key == ord("r"):  # r key to restart
+            frame_number = 0
+        elif key == ord("d") or key == RIGHT_ARROW_KEY:  # d or right arrow key to advance one frame
             frame_number = min(frame_number + 1, total_frames - 1)
-            playing = False
+        elif key == ord("a") or key == LEFT_ARROW_KEY:  # a or left arrow key to go back one frame
+            frame_number = max(frame_number - 1, 0)
+        elif key == ord("s"):  # s key to save a frame
+            cv2.imwrite(f"{testcase}_frame_{frame_number}.png", frame)
+            print(f"Saved {testcase}_frame_{frame_number}.png")
+        elif key == ord("c"):  # c key to callibrate at the current frame
+            calibrate(testcase, frame_number, x, y)
 
         cv2.setTrackbarPos("Frame", WINDOW, frame_number)
+        
+        if playing:
+            frame_number = min(frame_number + 1, total_frames - 1)
 
-    # Release capture object and destroy all windows
+    video.release()
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    argparser = argparse.ArgumentParser()
-    argparser.add_argument("testcase", help="Name of the test case to run")
-    argparser.add_argument("mode", choices=[mode.value for mode in Mode], default="output", help="What action to perform")
-    args = argparser.parse_args()
+    parser = argparse.ArgumentParser(description="Test Case Video Player")
+    parser.add_argument("testcase", type=str, help="Name of the test case")
+    parser.add_argument("mode", type=str, choices=[e.value for e in Mode], help="Mode to run the player in")
+    args = parser.parse_args()
 
     play_video(args.testcase, Mode(args.mode))

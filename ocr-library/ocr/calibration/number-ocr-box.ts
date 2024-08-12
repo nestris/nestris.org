@@ -1,6 +1,7 @@
 import { Frame } from "ocr/util/frame";
 import { Rectangle, scalePointWithinRect, scaleValueWithinRange } from "../util/rectangle";
 import { RGBColor } from "shared/tetris/tetromino-colors";
+import { DigitClassifier, Prediction } from "ocr/digit-classifier/digit-classifier";
 
 // width and height for the normalized rect around one digit
 const NUMBER_PIXEL_SIZE = 14;
@@ -13,6 +14,7 @@ export class NumberOCRBox {
     constructor(
         public readonly numDigits: number,
         public readonly rect: Rectangle,
+        private readonly digitClassifier?: DigitClassifier,
     ) {}
 
     /**
@@ -72,5 +74,10 @@ export class NumberOCRBox {
 
         return matrix;
     }
+
+    async predictDigit(digit: number, frame: Frame): Promise<Prediction | undefined> {
+        return await this.digitClassifier?.predictDigit(this.getDigitMatrix(digit, frame));
+    }
+
 
 }

@@ -54,7 +54,7 @@ export class OCRStateMachine {
 
         // Log the current state of the OCR machine
         const logs = this.textLogger.popLogs();
-        this.logger?.log(this.stateCount, ocrFrame, this.currentState, eventStatuses, packets, this.globalState, logs);
+        await this.logger?.log(this.stateCount, ocrFrame, this.currentState, eventStatuses, packets, this.globalState, logs);
 
         // Transition to the new state if needed
         if (newStateID !== undefined) {

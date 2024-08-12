@@ -8,6 +8,7 @@ import { TetrominoType } from "../../shared/tetris/tetromino-type";
 import { findSimilarTetrominoType } from "../calibration/next-ocr-similarity";
 import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
 import { NumberOCRBox } from "../calibration/number-ocr-box";
+import { DigitClassifier, Prediction } from "ocr/digit-classifier/digit-classifier";
 
 /**
  * An OCRFrame stores a single RGB frame of a video, and provides methods to extract information from the frame
@@ -32,12 +33,13 @@ export class OCRFrame {
      */
     constructor(
         public readonly frame: Frame,
-        public readonly calibration: Calibration
+        public readonly calibration: Calibration,
+        public readonly digitClassifier?: DigitClassifier,
     ) {
         this.boardOCRBox = new BoardOCRBox(calibration.rects.board);
         this.nextOCRBox = new NextOCRBox(calibration.rects.next);
-        this.levelOCRBox = new NumberOCRBox(2, calibration.rects.level);
-        this.scoreOCRBox = new NumberOCRBox(6, calibration.rects.score);
+        this.levelOCRBox = new NumberOCRBox(2, calibration.rects.level, digitClassifier);
+        this.scoreOCRBox = new NumberOCRBox(6, calibration.rects.score, digitClassifier);
     }
 
     /**
@@ -143,6 +145,10 @@ export class OCRFrame {
             this._level = 18; // TODO: Implement OCR
         }
         return this._level;
+    }
+
+    async getLevelPrediction(): Promise<(Prediction | undefined)[]> {
+        return [await this.levelOCRBox.predictDigit(0, this.frame), await this.levelOCRBox.predictDigit(1, this.frame)];
     }
 
     /**

@@ -45,7 +45,7 @@ export abstract class StateMachineLogger {
         packets: BinaryEncoder[],
         globalState: GlobalState,
         textLogs: string[]
-    ): void;
+    ): Promise<void>;
 
 }
 
@@ -58,6 +58,7 @@ export interface SerializedStateMachineFrame {
     nextType?: string;
     level?: number;
     boardOnlyType?: string;
+    levelPrediction: any;
 
     // State data
     stateID: string;
@@ -83,7 +84,7 @@ export class JsonLogger extends StateMachineLogger {
 
     private frames: SerializedStateMachineFrame[] = [];
 
-    override log(stateCount: number, frame: OCRFrame, ocrState: OCRState, eventStatuses: EventStatus[], packets: BinaryEncoder[], globalState: GlobalState, textLogs: string[]): void {
+    override async log(stateCount: number, frame: OCRFrame, ocrState: OCRState, eventStatuses: EventStatus[], packets: BinaryEncoder[], globalState: GlobalState, textLogs: string[]) {
 
         const typeToChar = (type: TetrominoType | undefined) => type !== undefined ? TETROMINO_CHAR[type] : undefined;
 
@@ -99,6 +100,7 @@ export class JsonLogger extends StateMachineLogger {
             nextType: typeToChar(frame.getNextType(false)),
             level: frame.getLevel(false),
             boardOnlyType: typeToChar(frame.getBoardOnlyTetrominoType(false)),
+            levelPrediction: await frame.getLevelPrediction(),
 
             // State data
             stateID: ocrState.id,
