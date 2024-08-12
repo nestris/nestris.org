@@ -1,12 +1,16 @@
-import { readdirSync, readFileSync, writeFileSync } from "fs";
+import { readdirSync, readFileSync, writeFileSync, existsSync, write } from "fs";
 import { load, dump } from "js-yaml";
 import { TestVideoSource } from "./parse-video";
 import { calibrate } from "../ocr/calibration/calibrate";
 import { testStateMachine } from "./test-state-machine";
 import { Calibration } from "../ocr/util/calibration";
+import { log } from "console";
+import { OCRFrame } from "../ocr/state-machine/ocr-frame";
+import { PermutationIterator } from "../shared/scripts/permutation-iterator";
 
 const TEST_CASE_DIRECTORY = 'test-cases';
 const OUTPUT_DIRECTORY = 'test-output';
+const DIGIT_DATASET = 'digit-classifier/digit-dataset.json';
 
 // Interface for config.yaml files
 interface Config {
@@ -42,7 +46,6 @@ async function runTestCases() {
         const outputDirectory = `${OUTPUT_DIRECTORY}/${testCase}`;
         const calibrationOutputPath = `${OUTPUT_DIRECTORY}/${testCase}/calibration.yaml`;
         const calibrationPlusOutputPath = `${OUTPUT_DIRECTORY}/${testCase}/calibration-plus.yaml`;
-        
 
         // Run all calibrate testcases with `npm test -- -t calibrate`
         test(`calibrate-${testCase}`, async () => {
@@ -67,7 +70,7 @@ async function runTestCases() {
             writeFileSync(calibrationOutputPath, dump(calibration));
             writeFileSync(calibrationPlusOutputPath, dump(calibrationPlus));
 
-            console.log(`Calibration set to ${JSON.stringify(calibration, null, 2)}`);
+            log(`Calibration set to ${JSON.stringify(calibration, null, 2)}`);
         });
 
         // Run all ocr testcases with `npm test -- -t ocr`
@@ -83,7 +86,6 @@ async function runTestCases() {
             writeFileSync(`${outputDirectory}/test-results.yaml`, dump(testResults));
         }, 600000); // Set timeout to 10 minutes
     }
-
 }
 
 // The names of all the test case folders in the test-cases directory. Exclude hidden files.

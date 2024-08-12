@@ -13,6 +13,8 @@ export interface Calibration {
     rects: {
         board: Rectangle;
         next: Rectangle;
+        level: Rectangle;
+        score: Rectangle;
     }
     // TODO 
 }

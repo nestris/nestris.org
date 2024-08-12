@@ -2,10 +2,10 @@ import { JsonLogger, SerializedStateMachineFrame } from "../ocr/state-machine/st
 import { TestVideoSource } from "./parse-video";
 import { OCRStateMachine } from "../ocr/state-machine/ocr-state-machine";
 import { Calibration } from "../ocr/util/calibration";
-import { log, error } from "console";
+import { log } from "console";
 import { PacketSender } from "../ocr/util/packet-sender";
 import { BinaryEncoder } from "../shared/network/binary-codec";
-import { OCRFrame } from "ocr/state-machine/ocr-frame";
+import { OCRFrame } from "../ocr/state-machine/ocr-frame";
 
 export class MockPacketSender extends PacketSender {
 

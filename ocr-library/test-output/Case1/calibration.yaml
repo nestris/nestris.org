@@ -1,4 +1,3 @@
-frameIndex: 70
 floodfillPoint:
   x: 489
   'y': 435
@@ -13,3 +12,13 @@ rects:
     bottom: 439
     left: 718
     right: 838
+  level:
+    top: 513
+    left: 778
+    bottom: 539
+    right: 839
+  score:
+    top: 177
+    left: 719
+    bottom: 204
+    right: 897

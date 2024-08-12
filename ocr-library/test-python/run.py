@@ -205,7 +205,8 @@ def play_video(testcase: str, mode: Mode):
                     x = point["x"]
                     y = point["y"]
                     for frame in frames:
-                        cv2.circle(frame, (x, y), 1, POINT_GROUP_COLORS[group], -1)
+                        color = POINT_GROUP_COLORS[group] if group in POINT_GROUP_COLORS else BLUE
+                        cv2.circle(frame, (x, y), 1, color, -1)
 
 
     total_frames = ocr_results.num_frames() if ocr_results else len(frames)

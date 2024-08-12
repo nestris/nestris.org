@@ -1672,3 +1672,9 @@ points:
       'y': 172
     - x: 402
       'y': 213
+  levelFloodfill:
+    - x: 372
+      'y': 265
+  scoreFloodfill:
+    - x: 372
+      'y': 110

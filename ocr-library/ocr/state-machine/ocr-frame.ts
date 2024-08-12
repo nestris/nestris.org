@@ -7,6 +7,7 @@ import { NextOCRBox } from "../calibration/next-ocr-box";
 import { TetrominoType } from "../../shared/tetris/tetromino-type";
 import { findSimilarTetrominoType } from "../calibration/next-ocr-similarity";
 import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
+import { NumberOCRBox } from "../calibration/number-ocr-box";
 
 /**
  * An OCRFrame stores a single RGB frame of a video, and provides methods to extract information from the frame
@@ -16,6 +17,8 @@ export class OCRFrame {
 
     readonly boardOCRBox: BoardOCRBox;
     readonly nextOCRBox: NextOCRBox;
+    readonly levelOCRBox: NumberOCRBox;
+    readonly scoreOCRBox: NumberOCRBox;
 
     private _boardUncolored: TetrisBoard | undefined;
     private _boardNoise: number | undefined;
@@ -33,7 +36,8 @@ export class OCRFrame {
     ) {
         this.boardOCRBox = new BoardOCRBox(calibration.rects.board);
         this.nextOCRBox = new NextOCRBox(calibration.rects.next);
-
+        this.levelOCRBox = new NumberOCRBox(2, calibration.rects.level);
+        this.scoreOCRBox = new NumberOCRBox(6, calibration.rects.score);
     }
 
     /**

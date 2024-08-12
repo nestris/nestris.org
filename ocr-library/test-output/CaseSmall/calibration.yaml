@@ -12,3 +12,13 @@ rects:
     bottom: 219
     left: 359
     right: 419
+  level:
+    top: 256
+    left: 389
+    bottom: 269
+    right: 419
+  score:
+    top: 88
+    left: 360
+    bottom: 101
+    right: 448
