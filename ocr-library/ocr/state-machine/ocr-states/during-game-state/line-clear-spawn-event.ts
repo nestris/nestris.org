@@ -31,7 +31,7 @@ export class LineClearSpawnEvent extends StateEvent {
      * if previously-placed piece is a valid tetromino in a valid placement, the precondition is met. We do
      * not care if the dropping piece is valid, because interlacing may alter the dropping piece's shape.
      */
-    protected override precondition(ocrFrame: OCRFrame): boolean {
+    protected override async precondition(ocrFrame: OCRFrame): Promise<boolean> {
 
         // State must have been running for at least 5 frames before we even consider this event
         if (this.myState.getRelativeFrameCount() < 5) {
@@ -138,7 +138,7 @@ export class LineClearSpawnEvent extends StateEvent {
      * This event triggers the piece placement of the previous piece, and updates the stable board to reflect
      * the new piece placement.
      */
-    override triggerEvent(ocrFrame: OCRFrame): OCRStateID | undefined {
+    override async triggerEvent(ocrFrame: OCRFrame): Promise<OCRStateID | undefined> {
 
         // Update the stable board to reflect the new piece placement and report the placement of the previous piece
         this.myState.textLogger.log(LogType.INFO, `RegularSpawnEvent: Placed ${TETROMINO_CHAR[this.validPlacement!.tetrominoType]} at ${this.validPlacement!.getTetrisNotation()}`);

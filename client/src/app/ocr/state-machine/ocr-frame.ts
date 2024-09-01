@@ -8,6 +8,7 @@ import { TetrominoType } from "../../shared/tetris/tetromino-type";
 import { findSimilarTetrominoType } from "../calibration/next-ocr-similarity";
 import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
 import { NumberOCRBox } from "../calibration/number-ocr-box";
+import { DigitClassifier, Prediction } from "../digit-classifier/digit-classifier";
 
 /**
  * An OCRFrame stores a single RGB frame of a video, and provides methods to extract information from the frame
@@ -24,6 +25,7 @@ export class OCRFrame {
     private _boardNoise: number | undefined;
     private _nextType: TetrominoType | undefined;
     private _level: number | undefined;
+    private _score: number | undefined;
     private _boardOnlyTetrominoType: TetrominoType | undefined;
 
     /**
@@ -32,12 +34,13 @@ export class OCRFrame {
      */
     constructor(
         public readonly frame: Frame,
-        public readonly calibration: Calibration
+        public readonly calibration: Calibration,
+        public readonly digitClassifier?: DigitClassifier,
     ) {
         this.boardOCRBox = new BoardOCRBox(calibration.rects.board);
         this.nextOCRBox = new NextOCRBox(calibration.rects.next);
-        this.levelOCRBox = new NumberOCRBox(2, calibration.rects.level);
-        this.scoreOCRBox = new NumberOCRBox(6, calibration.rects.score);
+        this.levelOCRBox = new NumberOCRBox(2, calibration.rects.level, digitClassifier);
+        this.scoreOCRBox = new NumberOCRBox(6, calibration.rects.score, digitClassifier);
     }
 
     /**
@@ -132,17 +135,56 @@ export class OCRFrame {
     }
 
     /**
+     * Predicts the digits of for a given NumberOCRBox from the frame. If minimum confidence is not met,
+     * returns -1.
+     * @param ocrBox 
+     */
+    private async predictDigits(ocrBox: NumberOCRBox): Promise<number> {
+    
+        // Each digit must have a minimum confidence of this value for the OCR to be successful
+        const MINIMUM_CONFIDENCE = 0.7;
+
+        // Predict each digit from the frame
+        const digits = await Promise.all(
+            Array.from({length: ocrBox.numDigits}, (_, i) => ocrBox.predictDigit(i, this.frame))
+        );
+    
+        // If any digit is not found or has low confidence, we fail OCR
+        if (digits.some(digit => digit === undefined)) return -1;
+        if (digits.some(digit => digit!.probability < MINIMUM_CONFIDENCE)) return -1;
+    
+        // If all digits are found and have high confidence, we return the number
+        return digits.reduce((acc, digit) => acc * 10 + digit!.digit, 0);
+    }
+
+    /**
      * Gets the level of the game from the frame by OCRing the level number from the frame. If
      * there is not sufficient confidence in the OCR, returns null.
      * @param loadIfNotLoaded If true, the property will be computed if it has not been loaded yet
      * @returns The level of the game. If the level could not be OCR'd, returns -1. If the level
      * has not been loaded yet, returns undefined.
      */
-    getLevel(loadIfNotLoaded: boolean = true): number | undefined {
+    async getLevel(loadIfNotLoaded: boolean = true): Promise<number | undefined> {
         if (loadIfNotLoaded && this._level === undefined) {
-            this._level = 18; // TODO: Implement OCR
+            // Predict the digits of the level from the frame, or return -1 if OCR fails
+            this._level = await this.predictDigits(this.levelOCRBox);
         }
         return this._level;
+    }
+
+    /**
+     * Gets the score of the game from the frame by OCRing the score number from the frame. If
+     * there is not sufficient confidence in the OCR, returns null.
+     * @param loadIfNotLoaded If true, the property will be computed if it has not been loaded yet
+     * @returns The score of the game. If the score could not be OCR'd, returns -1. If the score
+     * has not been loaded yet, returns undefined.
+     */
+    async getScore(loadIfNotLoaded: boolean = true): Promise<number | undefined> {
+        if (loadIfNotLoaded && this._score === undefined) {
+            // Predict the digits of the score from the frame, or return -1 if OCR fails
+            this._score = await this.predictDigits(this.scoreOCRBox);
+        }
+        return this._score;
     }
 
     /**

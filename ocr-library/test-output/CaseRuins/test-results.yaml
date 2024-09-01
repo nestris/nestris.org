@@ -3,35 +3,8 @@
   boardNoise: 1.5510181290168286
   nextGrid: '01111110011111100001100000011000'
   nextType: T
-  level: 18
+  level: 19
   boardOnlyType: L
-  levelPrediction:
-    - digit: 1
-      probability: 1
-      probabilities:
-        - 3.321404085679806e-27
-        - 1
-        - 1.5846715587390003e-29
-        - 8.41569315910811e-19
-        - 4.8309262022969426e-24
-        - 0
-        - 0
-        - 4.030833899538156e-32
-        - 2.5124281498759828e-37
-        - 3.1190032162953456e-35
-    - digit: 9
-      probability: 1
-      probabilities:
-        - 0
-        - 0
-        - 0
-        - 2.4454883464429406e-38
-        - 0
-        - 2.84521325263071e-32
-        - 0
-        - 0
-        - 9.498577863268984e-27
-        - 1
   stateID: BEFORE_GAME
   stateCount: 0
   stateFrameCount: 1
@@ -47,35 +20,8 @@
   boardNoise: 1.5510181290168286
   nextGrid: '01111110011111100001100000011000'
   nextType: T
-  level: 18
+  level: 19
   boardOnlyType: L
-  levelPrediction:
-    - digit: 1
-      probability: 1
-      probabilities:
-        - 3.321404085679806e-27
-        - 1
-        - 1.5846715587390003e-29
-        - 8.41569315910811e-19
-        - 4.8309262022969426e-24
-        - 0
-        - 0
-        - 4.030833899538156e-32
-        - 2.5124281498759828e-37
-        - 3.1190032162953456e-35
-    - digit: 9
-      probability: 1
-      probabilities:
-        - 0
-        - 0
-        - 0
-        - 2.4454883464429406e-38
-        - 0
-        - 2.84521325263071e-32
-        - 0
-        - 0
-        - 9.498577863268984e-27
-        - 1
   stateID: BEFORE_GAME
   stateCount: 0
   stateFrameCount: 2
@@ -91,35 +37,8 @@
   boardNoise: 1.776985452026305
   nextGrid: '01111110011111100001100000011000'
   nextType: T
-  level: 18
+  level: 19
   boardOnlyType: L
-  levelPrediction:
-    - digit: 1
-      probability: 1
-      probabilities:
-        - 2.5335084565469214e-27
-        - 1
-        - 1.572194189316604e-31
-        - 4.4058715502477186e-20
-        - 4.728617463318197e-26
-        - 0
-        - 0
-        - 2.1092432925469806e-32
-        - 0
-        - 1.2598012196404595e-36
-    - digit: 9
-      probability: 1
-      probabilities:
-        - 0
-        - 0
-        - 0
-        - 0
-        - 0
-        - 4.272828752210415e-34
-        - 0
-        - 0
-        - 1.780031699229164e-27
-        - 1
   stateID: BEFORE_GAME
   stateCount: 0
   stateFrameCount: 3
@@ -135,35 +54,8 @@
   boardNoise: 1.781127587650036
   nextGrid: '01111110011111100001100000011000'
   nextType: T
-  level: 18
+  level: 19
   boardOnlyType: L
-  levelPrediction:
-    - digit: 1
-      probability: 1
-      probabilities:
-        - 2.5335084565469214e-27
-        - 1
-        - 1.572194189316604e-31
-        - 4.4058715502477186e-20
-        - 4.728617463318197e-26
-        - 0
-        - 0
-        - 2.1092432925469806e-32
-        - 0
-        - 1.2598012196404595e-36
-    - digit: 9
-      probability: 1
-      probabilities:
-        - 0
-        - 0
-        - 0
-        - 0
-        - 0
-        - 4.272828752210415e-34
-        - 0
-        - 0
-        - 1.780031699229164e-27
-        - 1
   stateID: BEFORE_GAME
   stateCount: 0
   stateFrameCount: 4
@@ -179,35 +71,8 @@
   boardNoise: 1.778165791913804
   nextGrid: '01111110011111100001100000011000'
   nextType: T
-  level: 18
+  level: 19
   boardOnlyType: L
-  levelPrediction:
-    - digit: 1
-      probability: 1
-      probabilities:
-        - 2.5335084565469214e-27
-        - 1
-        - 1.572194189316604e-31
-        - 4.4058715502477186e-20
-        - 4.728617463318197e-26
-        - 0
-        - 0
-        - 2.1092432925469806e-32
-        - 0
-        - 1.2598012196404595e-36
-    - digit: 9
-      probability: 1
-      probabilities:
-        - 0
-        - 0
-        - 0
-        - 0
-        - 0
-        - 4.272828752210415e-34
-        - 0
-        - 0
-        - 1.780031699229164e-27
-        - 1
   stateID: BEFORE_GAME
   stateCount: 0
   stateFrameCount: 5
@@ -221,42 +86,15 @@
   gameNextType: T
   gameScore: 0
   gameLines: 0
-  gameLevel: 18
+  gameLevel: 19
   packets:
     - GAME_START
   textLogs:
     - 'StartGameEvent: All requirements met'
-    - Start game with level 18, current piece L, next piece T
+    - Start game with level [object Promise], current piece L, next piece T
 - binaryBoard: >-
     00001110000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   nextGrid: '01111110011111100001100000011000'
-  levelPrediction:
-    - digit: 1
-      probability: 1
-      probabilities:
-        - 2.5335084565469214e-27
-        - 1
-        - 1.572194189316604e-31
-        - 4.4058715502477186e-20
-        - 4.728617463318197e-26
-        - 0
-        - 0
-        - 2.1092432925469806e-32
-        - 0
-        - 1.2598012196404595e-36
-    - digit: 9
-      probability: 1
-      probabilities:
-        - 0
-        - 0
-        - 0
-        - 0
-        - 0
-        - 4.272828752210415e-34
-        - 0
-        - 0
-        - 1.780031699229164e-27
-        - 1
   stateID: PIECE_DROPPING
   stateCount: 1
   stateFrameCount: 1
@@ -273,7 +111,7 @@
   gameNextType: T
   gameScore: 0
   gameLines: 0
-  gameLevel: 18
+  gameLevel: 19
   packets:
     - GAME_ABBR_BOARD
   textLogs:
@@ -283,33 +121,6 @@
 - binaryBoard: >-
     00001110000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   nextGrid: '01111110011111100001100000011000'
-  levelPrediction:
-    - digit: 1
-      probability: 1
-      probabilities:
-        - 2.5335084565469214e-27
-        - 1
-        - 1.572194189316604e-31
-        - 4.4058715502477186e-20
-        - 4.728617463318197e-26
-        - 0
-        - 0
-        - 2.1092432925469806e-32
-        - 0
-        - 1.2598012196404595e-36
-    - digit: 9
-      probability: 1
-      probabilities:
-        - 0
-        - 0
-        - 0
-        - 0
-        - 0
-        - 4.272828752210415e-34
-        - 0
-        - 0
-        - 1.780031699229164e-27
-        - 1
   stateID: PIECE_DROPPING
   stateCount: 1
   stateFrameCount: 2
@@ -326,7 +137,7 @@
   gameNextType: T
   gameScore: 0
   gameLines: 0
-  gameLevel: 18
+  gameLevel: 19
   packets: []
   textLogs:
     - 'Active piece updated: L at L-567'
@@ -335,33 +146,6 @@
 - binaryBoard: >-
     00001110000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   nextGrid: '01111110011111100001100000011000'
-  levelPrediction:
-    - digit: 1
-      probability: 1
-      probabilities:
-        - 2.5335084565469214e-27
-        - 1
-        - 1.572194189316604e-31
-        - 4.4058715502477186e-20
-        - 4.728617463318197e-26
-        - 0
-        - 0
-        - 2.1092432925469806e-32
-        - 0
-        - 1.2598012196404595e-36
-    - digit: 9
-      probability: 1
-      probabilities:
-        - 0
-        - 0
-        - 0
-        - 0
-        - 0
-        - 4.272828752210415e-34
-        - 0
-        - 0
-        - 1.780031699229164e-27
-        - 1
   stateID: PIECE_DROPPING
   stateCount: 1
   stateFrameCount: 3
@@ -378,7 +162,7 @@
   gameNextType: T
   gameScore: 0
   gameLines: 0
-  gameLevel: 18
+  gameLevel: 19
   packets: []
   textLogs:
     - 'Active piece updated: L at L-567'
@@ -387,33 +171,6 @@
 - binaryBoard: >-
     00001110000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   nextGrid: '01111110011111100001100000011000'
-  levelPrediction:
-    - digit: 1
-      probability: 1
-      probabilities:
-        - 2.5335084565469214e-27
-        - 1
-        - 1.572194189316604e-31
-        - 4.4058715502477186e-20
-        - 4.728617463318197e-26
-        - 0
-        - 0
-        - 2.1092432925469806e-32
-        - 0
-        - 1.2598012196404595e-36
-    - digit: 9
-      probability: 1
-      probabilities:
-        - 0
-        - 0
-        - 0
-        - 0
-        - 0
-        - 4.272828752210415e-34
-        - 0
-        - 0
-        - 1.780031699229164e-27
-        - 1
   stateID: PIECE_DROPPING
   stateCount: 1
   stateFrameCount: 4
@@ -430,7 +187,7 @@
   gameNextType: T
   gameScore: 0
   gameLines: 0
-  gameLevel: 18
+  gameLevel: 19
   packets: []
   textLogs:
     - 'Active piece updated: L at L-567'
@@ -440,33 +197,6 @@
     00001110000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   nextGrid: '01111110011111100001100000011000'
   nextType: T
-  levelPrediction:
-    - digit: 1
-      probability: 1
-      probabilities:
-        - 2.5335084565469214e-27
-        - 1
-        - 1.572194189316604e-31
-        - 4.4058715502477186e-20
-        - 4.728617463318197e-26
-        - 0
-        - 0
-        - 2.1092432925469806e-32
-        - 0
-        - 1.2598012196404595e-36
-    - digit: 9
-      probability: 1
-      probabilities:
-        - 0
-        - 0
-        - 0
-        - 0
-        - 0
-        - 4.272828752210415e-34
-        - 0
-        - 0
-        - 1.780031699229164e-27
-        - 1
   stateID: PIECE_DROPPING
   stateCount: 1
   stateFrameCount: 5
@@ -483,7 +213,7 @@
   gameNextType: T
   gameScore: 0
   gameLines: 0
-  gameLevel: 18
+  gameLevel: 19
   packets: []
   textLogs:
     - 'Active piece updated: L at L-567'
@@ -493,33 +223,6 @@
     00001110000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   nextGrid: '01111110011111100001100000011000'
   nextType: T
-  levelPrediction:
-    - digit: 1
-      probability: 1
-      probabilities:
-        - 2.5335084565469214e-27
-        - 1
-        - 1.572194189316604e-31
-        - 4.4058715502477186e-20
-        - 4.728617463318197e-26
-        - 0
-        - 0
-        - 2.1092432925469806e-32
-        - 0
-        - 1.2598012196404595e-36
-    - digit: 9
-      probability: 1
-      probabilities:
-        - 0
-        - 0
-        - 0
-        - 0
-        - 0
-        - 4.272828752210415e-34
-        - 0
-        - 0
-        - 1.780031699229164e-27
-        - 1
   stateID: PIECE_DROPPING
   stateCount: 1
   stateFrameCount: 6
@@ -536,7 +239,7 @@
   gameNextType: T
   gameScore: 0
   gameLines: 0
-  gameLevel: 18
+  gameLevel: 19
   packets: []
   textLogs:
     - 'Active piece updated: L at L-567'
@@ -546,33 +249,6 @@
     00001110000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   nextGrid: '01111110011111100001100000011000'
   nextType: T
-  levelPrediction:
-    - digit: 1
-      probability: 1
-      probabilities:
-        - 2.5335084565469214e-27
-        - 1
-        - 1.572194189316604e-31
-        - 4.4058715502477186e-20
-        - 4.728617463318197e-26
-        - 0
-        - 0
-        - 2.1092432925469806e-32
-        - 0
-        - 1.2598012196404595e-36
-    - digit: 9
-      probability: 1
-      probabilities:
-        - 0
-        - 0
-        - 0
-        - 0
-        - 0
-        - 4.272828752210415e-34
-        - 0
-        - 0
-        - 1.780031699229164e-27
-        - 1
   stateID: PIECE_DROPPING
   stateCount: 1
   stateFrameCount: 7
@@ -589,7 +265,7 @@
   gameNextType: T
   gameScore: 0
   gameLines: 0
-  gameLevel: 18
+  gameLevel: 19
   packets: []
   textLogs:
     - 'Active piece updated: L at L-567'
@@ -599,33 +275,6 @@
     00001110000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   nextGrid: '01111110011111100001100000011000'
   nextType: T
-  levelPrediction:
-    - digit: 1
-      probability: 1
-      probabilities:
-        - 2.5335084565469214e-27
-        - 1
-        - 1.572194189316604e-31
-        - 4.4058715502477186e-20
-        - 4.728617463318197e-26
-        - 0
-        - 0
-        - 2.1092432925469806e-32
-        - 0
-        - 1.2598012196404595e-36
-    - digit: 9
-      probability: 1
-      probabilities:
-        - 0
-        - 0
-        - 0
-        - 0
-        - 0
-        - 4.272828752210415e-34
-        - 0
-        - 0
-        - 1.780031699229164e-27
-        - 1
   stateID: PIECE_DROPPING
   stateCount: 1
   stateFrameCount: 8
@@ -642,7 +291,7 @@
   gameNextType: T
   gameScore: 0
   gameLines: 0
-  gameLevel: 18
+  gameLevel: 19
   packets: []
   textLogs:
     - 'Active piece updated: L at L-567'
@@ -652,33 +301,6 @@
     00001110000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   nextGrid: '01111110011111100001100000011000'
   nextType: T
-  levelPrediction:
-    - digit: 1
-      probability: 1
-      probabilities:
-        - 2.5335084565469214e-27
-        - 1
-        - 1.572194189316604e-31
-        - 4.4058715502477186e-20
-        - 4.728617463318197e-26
-        - 0
-        - 0
-        - 2.1092432925469806e-32
-        - 0
-        - 1.2598012196404595e-36
-    - digit: 9
-      probability: 1
-      probabilities:
-        - 0
-        - 0
-        - 0
-        - 0
-        - 0
-        - 4.272828752210415e-34
-        - 0
-        - 0
-        - 1.780031699229164e-27
-        - 1
   stateID: PIECE_DROPPING
   stateCount: 1
   stateFrameCount: 9
@@ -695,7 +317,7 @@
   gameNextType: T
   gameScore: 0
   gameLines: 0
-  gameLevel: 18
+  gameLevel: 19
   packets: []
   textLogs:
     - 'Active piece updated: L at L-567'
@@ -705,33 +327,6 @@
     00011100000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   nextGrid: '01111110011111100001100000011000'
   nextType: T
-  levelPrediction:
-    - digit: 1
-      probability: 1
-      probabilities:
-        - 2.5335084565469214e-27
-        - 1
-        - 1.572194189316604e-31
-        - 4.4058715502477186e-20
-        - 4.728617463318197e-26
-        - 0
-        - 0
-        - 2.1092432925469806e-32
-        - 0
-        - 1.2598012196404595e-36
-    - digit: 9
-      probability: 1
-      probabilities:
-        - 0
-        - 0
-        - 0
-        - 0
-        - 0
-        - 4.272828752210415e-34
-        - 0
-        - 0
-        - 1.780031699229164e-27
-        - 1
   stateID: PIECE_DROPPING
   stateCount: 1
   stateFrameCount: 10
@@ -748,7 +343,7 @@
   gameNextType: T
   gameScore: 0
   gameLines: 0
-  gameLevel: 18
+  gameLevel: 19
   packets:
     - GAME_ABBR_BOARD
   textLogs:
@@ -759,33 +354,6 @@
     00011100000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   nextGrid: '01111110011111100001100000011000'
   nextType: T
-  levelPrediction:
-    - digit: 1
-      probability: 1
-      probabilities:
-        - 2.5335084565469214e-27
-        - 1
-        - 1.572194189316604e-31
-        - 4.4058715502477186e-20
-        - 4.728617463318197e-26
-        - 0
-        - 0
-        - 2.1092432925469806e-32
-        - 0
-        - 1.2598012196404595e-36
-    - digit: 9
-      probability: 1
-      probabilities:
-        - 0
-        - 0
-        - 0
-        - 0
-        - 0
-        - 4.272828752210415e-34
-        - 0
-        - 0
-        - 1.780031699229164e-27
-        - 1
   stateID: PIECE_DROPPING
   stateCount: 1
   stateFrameCount: 11
@@ -802,7 +370,7 @@
   gameNextType: T
   gameScore: 0
   gameLines: 0
-  gameLevel: 18
+  gameLevel: 19
   packets: []
   textLogs:
     - 'Active piece updated: L at L-456'
@@ -812,33 +380,6 @@
     00011100000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   nextGrid: '01111110011111100001100000011000'
   nextType: T
-  levelPrediction:
-    - digit: 1
-      probability: 1
-      probabilities:
-        - 2.5335084565469214e-27
-        - 1
-        - 1.572194189316604e-31
-        - 4.4058715502477186e-20
-        - 4.728617463318197e-26
-        - 0
-        - 0
-        - 2.1092432925469806e-32
-        - 0
-        - 1.2598012196404595e-36
-    - digit: 9
-      probability: 1
-      probabilities:
-        - 0
-        - 0
-        - 0
-        - 0
-        - 0
-        - 4.272828752210415e-34
-        - 0
-        - 0
-        - 1.780031699229164e-27
-        - 1
   stateID: PIECE_DROPPING
   stateCount: 1
   stateFrameCount: 12
@@ -855,7 +396,7 @@
   gameNextType: T
   gameScore: 0
   gameLines: 0
-  gameLevel: 18
+  gameLevel: 19
   packets: []
   textLogs:
     - 'Active piece updated: L at L-456'
@@ -865,33 +406,6 @@
     00011100000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   nextGrid: '01111110011111100001100000011000'
   nextType: T
-  levelPrediction:
-    - digit: 1
-      probability: 1
-      probabilities:
-        - 2.5335084565469214e-27
-        - 1
-        - 1.572194189316604e-31
-        - 4.4058715502477186e-20
-        - 4.728617463318197e-26
-        - 0
-        - 0
-        - 2.1092432925469806e-32
-        - 0
-        - 1.2598012196404595e-36
-    - digit: 9
-      probability: 1
-      probabilities:
-        - 0
-        - 0
-        - 0
-        - 0
-        - 0
-        - 4.272828752210415e-34
-        - 0
-        - 0
-        - 1.780031699229164e-27
-        - 1
   stateID: PIECE_DROPPING
   stateCount: 1
   stateFrameCount: 13
@@ -908,7 +422,7 @@
   gameNextType: T
   gameScore: 0
   gameLines: 0
-  gameLevel: 18
+  gameLevel: 19
   packets: []
   textLogs:
     - 'Active piece updated: L at L-456'
@@ -918,33 +432,6 @@
     00011100000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   nextGrid: '01111110011111100001100000011000'
   nextType: T
-  levelPrediction:
-    - digit: 1
-      probability: 1
-      probabilities:
-        - 2.5335084565469214e-27
-        - 1
-        - 1.572194189316604e-31
-        - 4.4058715502477186e-20
-        - 4.728617463318197e-26
-        - 0
-        - 0
-        - 2.1092432925469806e-32
-        - 0
-        - 1.2598012196404595e-36
-    - digit: 9
-      probability: 1
-      probabilities:
-        - 0
-        - 0
-        - 0
-        - 0
-        - 0
-        - 4.272828752210415e-34
-        - 0
-        - 0
-        - 1.780031699229164e-27
-        - 1
   stateID: PIECE_DROPPING
   stateCount: 1
   stateFrameCount: 14
@@ -961,7 +448,7 @@
   gameNextType: T
   gameScore: 0
   gameLines: 0
-  gameLevel: 18
+  gameLevel: 19
   packets: []
   textLogs:
     - 'Active piece updated: L at L-456'
@@ -971,33 +458,6 @@
     00011100000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   nextGrid: '01111110011111100001100000011000'
   nextType: T
-  levelPrediction:
-    - digit: 1
-      probability: 1
-      probabilities:
-        - 2.5335084565469214e-27
-        - 1
-        - 1.572194189316604e-31
-        - 4.4058715502477186e-20
-        - 4.728617463318197e-26
-        - 0
-        - 0
-        - 2.1092432925469806e-32
-        - 0
-        - 1.2598012196404595e-36
-    - digit: 9
-      probability: 1
-      probabilities:
-        - 0
-        - 0
-        - 0
-        - 0
-        - 0
-        - 4.272828752210415e-34
-        - 0
-        - 0
-        - 1.780031699229164e-27
-        - 1
   stateID: PIECE_DROPPING
   stateCount: 1
   stateFrameCount: 15
@@ -1014,7 +474,7 @@
   gameNextType: T
   gameScore: 0
   gameLines: 0
-  gameLevel: 18
+  gameLevel: 19
   packets: []
   textLogs:
     - 'Active piece updated: L at L-456'

@@ -69,7 +69,7 @@ export class StartGameEvent extends StateEvent {
      * 
      * @param ocrFrame The current OCR frame
      */
-    protected override precondition(ocrFrame: OCRFrame): boolean {
+    protected override async precondition(ocrFrame: OCRFrame): Promise<boolean> {
 
         // A high noise indicates that the frame may not be capturing a tetris board correctly
         const noise = ocrFrame.getBoardNoise()!;
@@ -86,7 +86,7 @@ export class StartGameEvent extends StateEvent {
         }
 
         // A level of -1 means that OCR was unable to extract the level from the frame
-        const level = ocrFrame.getLevel()!;
+        const level = await ocrFrame.getLevel()!;
         if (level === -1) {
             this.textLogger.log(LogType.VERBOSE, "StartGameEvent: Level is not defined");
             return false;
@@ -94,6 +94,18 @@ export class StartGameEvent extends StateEvent {
 
         if (this.startLevel && level !== this.startLevel) {
             this.textLogger.log(LogType.VERBOSE, `StartGameEvent: Starting level ${level} does not match required level ${this.startLevel}`);
+            return false;
+        }
+
+        const score = await ocrFrame.getScore()!;
+        if (score === -1) {
+            this.textLogger.log(LogType.VERBOSE, "StartGameEvent: Score is not defined");
+            return false;
+        }
+
+        if (score !== 0) {
+            this.textLogger.log(LogType.VERBOSE, `StartGameEvent: Score is not 0: ${score}`);
+            return false;
         }
 
         // Check that the board must have exactly 4 minos with an identifiable MoveableTetromino
@@ -115,12 +127,12 @@ export class StartGameEvent extends StateEvent {
      * @param ocrFrame The current OCR frame
      * @returns The new state to transition to
      */
-    override triggerEvent(ocrFrame: OCRFrame): OCRStateID | undefined {
+    override async triggerEvent(ocrFrame: OCRFrame): Promise<OCRStateID | undefined> {
 
         // Start the game
         const current = ocrFrame.getBoardOnlyTetrominoType()!;
         const next = ocrFrame.getNextType()!;
-        this.globalState.startGame(ocrFrame.getLevel()!, current, next);
+        this.globalState.startGame((await ocrFrame.getLevel())!, current, next);
         this.textLogger.log(LogType.INFO, `Start game with level ${ocrFrame.getLevel()!}, current piece ${TETROMINO_CHAR[current]}, next piece ${TETROMINO_CHAR[next]}`);
         return OCRStateID.PIECE_DROPPING;
     }

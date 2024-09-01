@@ -42,7 +42,7 @@ export abstract class OCRState {
      * @param ocrFrame The current OCR frame
      * @returns The new state to transition to, or undefined if no transition is needed
      */
-    advanceState(ocrFrame: OCRFrame): OCRStateID | undefined {    
+    async advanceState(ocrFrame: OCRFrame): Promise<OCRStateID | undefined> {    
         this.relativeFrameCount++;    
 
         // Update this state before checking for events
@@ -53,11 +53,11 @@ export abstract class OCRState {
         this.eventStatuses = [];
         for (const event of this.events) {
 
-            const eventStatus = event.checkForEvent(ocrFrame);
+            const eventStatus = await event.checkForEvent(ocrFrame);
             this.eventStatuses.push(eventStatus);
 
             if (eventStatus.persistenceMet) {
-                return event.triggerEvent(ocrFrame);
+                return await event.triggerEvent(ocrFrame);
             }
         }
         return undefined;
@@ -110,8 +110,8 @@ export abstract class StateEvent {
      * @param ocrFrame 
      * @returns Whether the event should be triggered
      */
-    checkForEvent(ocrFrame: OCRFrame): EventStatus {
-        const preconditionMet = this.precondition(ocrFrame);
+    async checkForEvent(ocrFrame: OCRFrame): Promise<EventStatus> {
+        const preconditionMet = await this.precondition(ocrFrame);
         const persistenceMet = this.persistence.meetsPersistenceCondition(preconditionMet);
         return { name: this.name, preconditionMet, persistenceMet };
     }
@@ -122,7 +122,7 @@ export abstract class StateEvent {
      * @param ocrFrame The current OCR frame
      * @returns Whether the precondition is met
      */
-    protected abstract precondition(ocrFrame: OCRFrame): boolean;
+    protected abstract precondition(ocrFrame: OCRFrame): Promise<boolean>;
 
     /**
      * Triggers the event and possibly returns the new state to transition to. Override this method
@@ -130,6 +130,6 @@ export abstract class StateEvent {
      * @param ocrFrame The current OCR frame
      * @returns The new state to transition to, or undefined if no transition is needed
      */
-    abstract triggerEvent(ocrFrame: OCRFrame): OCRStateID | undefined;
+    abstract triggerEvent(ocrFrame: OCRFrame): Promise<OCRStateID | undefined>;
 
 }

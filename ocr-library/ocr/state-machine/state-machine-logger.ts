@@ -57,8 +57,8 @@ export interface SerializedStateMachineFrame {
     nextGrid?: string;
     nextType?: string;
     level?: number;
+    score?: number;
     boardOnlyType?: string;
-    levelPrediction: any;
 
     // State data
     stateID: string;
@@ -98,9 +98,9 @@ export class JsonLogger extends StateMachineLogger {
             boardNoise: frame.getBoardNoise(false),
             nextGrid: frame.getNextGrid().flat().join(""),
             nextType: typeToChar(frame.getNextType(false)),
-            level: frame.getLevel(false),
+            level: await frame.getLevel(false),
+            score: await frame.getScore(false),
             boardOnlyType: typeToChar(frame.getBoardOnlyTetrominoType(false)),
-            levelPrediction: await frame.getLevelPrediction(),
 
             // State data
             stateID: ocrState.id,

@@ -46,7 +46,7 @@ export class OCRStateMachine {
         this.profiler.start();
 
         // Advance the current OCR state
-        const newStateID = this.currentState.advanceState(ocrFrame);
+        const newStateID = await this.currentState.advanceState(ocrFrame);
         const eventStatuses = this.currentState.getEventStatusesThisFrame();
 
         // Send all the packets that were accumulated this frame

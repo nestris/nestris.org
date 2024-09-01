@@ -44,6 +44,20 @@ POINT_GROUP_COLORS = {
     "nextFloodfill": YELLOW
 }
 
+def setup_windows(window_name_1, window_name_2=None):
+    screen_width = 2100  # Example screen width; adjust based on your screen resolution
+    screen_height = 1200  # Example screen height; adjust based on your screen resolution
+    
+    window_width = screen_width // 2
+    window_height = screen_height // 2
+    
+    cv2.resizeWindow(window_name_1, window_width, window_height)
+    cv2.moveWindow(window_name_1, 0, 0)
+    
+    if window_name_2:
+        cv2.resizeWindow(window_name_2, window_width, window_height)
+        cv2.moveWindow(window_name_2, window_width, 0)
+
 def calibrate(testcase: str, frame: int, x: int, y: int):
     """
     In the corresponding test case, save the coordinates at the given frame as the calibration configs
@@ -148,6 +162,7 @@ def play_video(testcase: str, mode: Mode):
     else:
         ocr_results = None
     
+    first = True
     while True:
         # Set the current frame position in the video
         video.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
@@ -217,32 +232,51 @@ def play_video(testcase: str, mode: Mode):
 
             state_machine_text.new_line()
             state_machine_text.add_text("OCR:")
-            state_machine_text.add_text(f"Noise: {ocr_results.get_noise_at_frame(frame_number)}", indent=1)
-            state_machine_text.add_text(f"Next Type: {ocr_results.get_next_type_at_frame(frame_number)}", indent=1)
-            state_machine_text.add_text(f"Level: {ocr_results.get_level_at_frame(frame_number)}", indent=1)
+            state_machine_text.add_text(f"Noise: {ocr_results.get_attribute_at_frame(frame_number, 'boardNoise')}", indent=1)
+            state_machine_text.add_text(f"Next Type: {ocr_results.get_attribute_at_frame(frame_number, 'nextType')}", indent=1)
+            state_machine_text.add_text(f"Level: {ocr_results.get_attribute_at_frame(frame_number, 'level')}", indent=1)
+            state_machine_text.add_text(f"Score: {ocr_results.get_attribute_at_frame(frame_number, 'score')}", indent=1)
             state_machine_text.add_text(f"Only tetromino on board: {ocr_results.get_board_only_type_at_frame(frame_number)}", indent=1)
             state_machine_text.add_text(f"Lines sent: {ocr_results.get_attribute_at_frame(frame_number, 'gameLinesSent')}", indent=1)
 
-            predictions = ocr_results.get_attribute_at_frame(frame_number, 'levelPrediction')
-            try:
-                for prediction in predictions:
-                    for i in range(len(prediction["probabilities"])):
-                        prediction["probabilities"][i] = round(prediction["probabilities"][i], 2)
-                state_machine_text.new_line()
-                state_machine_text.add_text(f"{predictions[0]["digit"]} {predictions[0]["probability"]}", indent=1)
-                state_machine_text.add_text(f"{predictions[0]["probabilities"]}", indent=1)
-                state_machine_text.new_line()
-                state_machine_text.add_text(f"{predictions[1]["digit"]} {predictions[1]["probability"]}", indent=1)
-                state_machine_text.add_text(f"{predictions[1]["probabilities"]}", indent=1)
-            except:
-                pass
+            # predictions = ocr_results.get_attribute_at_frame(frame_number, 'levelPrediction')
+            # try:
+            #     for prediction in predictions:
+            #         for i in range(len(prediction["probabilities"])):
+            #             prediction["probabilities"][i] = round(prediction["probabilities"][i], 2)
+            #     state_machine_text.new_line()
+            #     state_machine_text.add_text(f"{predictions[0]["digit"]} {predictions[0]["probability"]}", indent=1)
+            #     state_machine_text.add_text(f"{predictions[0]["probabilities"]}", indent=1)
+            #     state_machine_text.new_line()
+            #     state_machine_text.add_text(f"{predictions[1]["digit"]} {predictions[1]["probability"]}", indent=1)
+            #     state_machine_text.add_text(f"{predictions[1]["probabilities"]}", indent=1)
+            # except:
+            #     pass
 
             state_machine_text.new_line()
             state_machine_text.add_text("Game state:")
             state_machine_text.add_text(f"Current type: {ocr_results.get_attribute_at_frame(frame_number, 'gameCurrentType')}", indent=1)
             state_machine_text.add_text(f"Next type: {ocr_results.get_attribute_at_frame(frame_number, 'gameNextType')}", indent=1)
-            state_machine_text.add_text(f"Lock delay: {ocr_results.get_attribute_at_frame(frame_number, 'gameLockDelay')}", indent=1)
-            state_machine_text.add_text(f"Lines sent: {ocr_results.get_attribute_at_frame(frame_number, 'gameLinesSent')}", indent=1)
+            state_machine_text.add_text(f"Score: {ocr_results.get_attribute_at_frame(frame_number, 'gameScore')}", indent=1)
+            state_machine_text.add_text(f"Lines: {ocr_results.get_attribute_at_frame(frame_number, 'gameLines')}", indent=1)
+            state_machine_text.add_text(f"Level: {ocr_results.get_attribute_at_frame(frame_number, 'gameLevel')}", indent=1)
+
+            state_machine_text.new_line()
+            state_machine_text.add_text("Event Statuses:")
+            for event_status in ocr_results.get_event_statuses_at_frame(frame_number):
+                state_machine_text.add_text(f"{event_status.name}:")
+                state_machine_text.add_text(f"Precondition met: {event_status.precondition_met}", indent=1)
+                state_machine_text.add_text(f"Persistence met: {event_status.persistence_met}", indent=1)
+
+            state_machine_text.new_line()
+            state_machine_text.add_text("Packets:")
+            for packet in ocr_results.get_packets_at_frame(frame_number):
+                state_machine_text.add_text(packet, indent=1)
+
+            state_machine_text.new_line()
+            state_machine_text.add_text("Logs:")
+            for log in ocr_results.get_logs_at_frame(frame_number):
+                state_machine_text.add_text(log, indent=1)
 
             state_machine_text.show(OUTPUT_WINDOW)
 
@@ -268,6 +302,10 @@ def play_video(testcase: str, mode: Mode):
         
         if playing:
             frame_number = min(frame_number + 1, total_frames - 1)
+
+        if first:
+            setup_windows(WINDOW, OUTPUT_WINDOW if mode == Mode.OUTPUT else None)
+            first = False
 
     video.release()
     cv2.destroyAllWindows()
