@@ -7,10 +7,12 @@ from sklearn.utils import resample
 from tensorflow.keras import layers, models, Input
 import matplotlib.pyplot as plt
 
-# Step 1: Load the JSON file
-def load_data(json_file):
-    with open(json_file, 'r') as file:
-        data = json.load(file)
+# Step 1: Load the JSON directory files
+def load_data(json_directory):
+    data = {}
+    for digit in range(10):
+        with open(f'{json_directory}/{digit}.json', 'r') as file:
+            data[digit] = json.load(file)
     return data
 
 # Step 2: Balance the dataset
@@ -91,8 +93,8 @@ def plot_history(history):
     plt.show()
 
 # Main function to load, balance, prepare, and train the model
-def main(json_file):
-    data = load_data(json_file)
+def main(json_directory):
+    data = load_data(json_directory)
     balanced_data = balance_dataset(data)
     X_train, X_val, y_train, y_val = prepare_data(balanced_data)
     model, history = build_and_train_model(X_train, X_val, y_train, y_val)
@@ -100,8 +102,8 @@ def main(json_file):
     return model
 
 # Example usage
-json_file = 'digit-dataset.json'
-trained_model = main(json_file)
+json_directory = 'digit-dataset'
+trained_model = main(json_directory)
 
 # Save the model if needed
 trained_model.save('digit_classifier_model.h5')

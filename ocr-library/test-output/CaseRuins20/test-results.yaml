@@ -1,0 +1,920 @@
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.221285431710434
+  nextGrid: '01111110011111100001100000011000'
+  nextType: T
+  level: 18
+  boardOnlyType: E
+  levelPrediction:
+    - digit: 2
+      probability: 1
+      probabilities:
+        - 4.550762912025325e-34
+        - 1.107979176988617e-25
+        - 1
+        - 2.3407536839928693e-27
+        - 6.604879413343777e-32
+        - 0
+        - 0
+        - 1.2221817271423705e-23
+        - 7.9698125005273965e-22
+        - 5.72960842171404e-38
+    - digit: 0
+      probability: 1
+      probabilities:
+        - 1
+        - 1.2041907792160302e-27
+        - 4.8709290022809296e-33
+        - 1.193532981191821e-23
+        - 2.3334782851579384e-20
+        - 7.597923630878892e-28
+        - 9.945530162436035e-22
+        - 5.587114808074761e-22
+        - 6.700558654309583e-23
+        - 3.925516694311573e-27
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 1
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - >-
+      StartGameEvent: Board does not have exactly 4 minos with an identifiable
+      MoveableTetromino
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.124634300742716
+  nextGrid: '01111110011111100001100000011000'
+  nextType: T
+  level: 18
+  boardOnlyType: E
+  levelPrediction:
+    - digit: 2
+      probability: 1
+      probabilities:
+        - 4.550762912025325e-34
+        - 1.107979176988617e-25
+        - 1
+        - 2.3407536839928693e-27
+        - 6.604879413343777e-32
+        - 0
+        - 0
+        - 1.2221817271423705e-23
+        - 7.9698125005273965e-22
+        - 5.72960842171404e-38
+    - digit: 0
+      probability: 1
+      probabilities:
+        - 1
+        - 1.2041907792160302e-27
+        - 4.8709290022809296e-33
+        - 1.193532981191821e-23
+        - 2.3334782851579384e-20
+        - 7.597923630878892e-28
+        - 9.945530162436035e-22
+        - 5.587114808074761e-22
+        - 6.700558654309583e-23
+        - 3.925516694311573e-27
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 2
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - >-
+      StartGameEvent: Board does not have exactly 4 minos with an identifiable
+      MoveableTetromino
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.127012470605562
+  nextGrid: '01111110011111100001100000011000'
+  nextType: T
+  level: 18
+  boardOnlyType: E
+  levelPrediction:
+    - digit: 2
+      probability: 1
+      probabilities:
+        - 4.550762912025325e-34
+        - 1.107979176988617e-25
+        - 1
+        - 2.3407536839928693e-27
+        - 6.604879413343777e-32
+        - 0
+        - 0
+        - 1.2221817271423705e-23
+        - 7.9698125005273965e-22
+        - 5.72960842171404e-38
+    - digit: 0
+      probability: 1
+      probabilities:
+        - 1
+        - 1.2041907792160302e-27
+        - 4.8709290022809296e-33
+        - 1.193532981191821e-23
+        - 2.3334782851579384e-20
+        - 7.597923630878892e-28
+        - 9.945530162436035e-22
+        - 5.587114808074761e-22
+        - 6.700558654309583e-23
+        - 3.925516694311573e-27
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 3
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - >-
+      StartGameEvent: Board does not have exactly 4 minos with an identifiable
+      MoveableTetromino
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.160212638933046
+  nextGrid: '01111110011111100001100000011000'
+  nextType: T
+  level: 18
+  boardOnlyType: E
+  levelPrediction:
+    - digit: 2
+      probability: 1
+      probabilities:
+        - 4.550762912025325e-34
+        - 1.107979176988617e-25
+        - 1
+        - 2.3407536839928693e-27
+        - 6.604879413343777e-32
+        - 0
+        - 0
+        - 1.2221817271423705e-23
+        - 7.9698125005273965e-22
+        - 5.72960842171404e-38
+    - digit: 0
+      probability: 1
+      probabilities:
+        - 1
+        - 1.2041907792160302e-27
+        - 4.8709290022809296e-33
+        - 1.193532981191821e-23
+        - 2.3334782851579384e-20
+        - 7.597923630878892e-28
+        - 9.945530162436035e-22
+        - 5.587114808074761e-22
+        - 6.700558654309583e-23
+        - 3.925516694311573e-27
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 4
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - >-
+      StartGameEvent: Board does not have exactly 4 minos with an identifiable
+      MoveableTetromino
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.174462044214692
+  nextGrid: '01111110011111100001100000011000'
+  nextType: T
+  level: 18
+  boardOnlyType: E
+  levelPrediction:
+    - digit: 2
+      probability: 1
+      probabilities:
+        - 4.550762912025325e-34
+        - 1.107979176988617e-25
+        - 1
+        - 2.3407536839928693e-27
+        - 6.604879413343777e-32
+        - 0
+        - 0
+        - 1.2221817271423705e-23
+        - 7.9698125005273965e-22
+        - 5.72960842171404e-38
+    - digit: 0
+      probability: 1
+      probabilities:
+        - 1
+        - 1.2041907792160302e-27
+        - 4.8709290022809296e-33
+        - 1.193532981191821e-23
+        - 2.3334782851579384e-20
+        - 7.597923630878892e-28
+        - 9.945530162436035e-22
+        - 5.587114808074761e-22
+        - 6.700558654309583e-23
+        - 3.925516694311573e-27
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 5
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - >-
+      StartGameEvent: Board does not have exactly 4 minos with an identifiable
+      MoveableTetromino
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.174462044214692
+  nextGrid: '01111110011111100001100000011000'
+  nextType: T
+  level: 18
+  boardOnlyType: E
+  levelPrediction:
+    - digit: 2
+      probability: 1
+      probabilities:
+        - 4.550762912025325e-34
+        - 1.107979176988617e-25
+        - 1
+        - 2.3407536839928693e-27
+        - 6.604879413343777e-32
+        - 0
+        - 0
+        - 1.2221817271423705e-23
+        - 7.9698125005273965e-22
+        - 5.72960842171404e-38
+    - digit: 0
+      probability: 1
+      probabilities:
+        - 1
+        - 1.2041907792160302e-27
+        - 4.8709290022809296e-33
+        - 1.193532981191821e-23
+        - 2.3334782851579384e-20
+        - 7.597923630878892e-28
+        - 9.945530162436035e-22
+        - 5.587114808074761e-22
+        - 6.700558654309583e-23
+        - 3.925516694311573e-27
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 6
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - >-
+      StartGameEvent: Board does not have exactly 4 minos with an identifiable
+      MoveableTetromino
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.18348125495669
+  nextGrid: '01111110011111100001100000011000'
+  nextType: T
+  level: 18
+  boardOnlyType: E
+  levelPrediction:
+    - digit: 2
+      probability: 1
+      probabilities:
+        - 4.550762912025325e-34
+        - 1.107979176988617e-25
+        - 1
+        - 2.3407536839928693e-27
+        - 6.604879413343777e-32
+        - 0
+        - 0
+        - 1.2221817271423705e-23
+        - 7.9698125005273965e-22
+        - 5.72960842171404e-38
+    - digit: 0
+      probability: 1
+      probabilities:
+        - 1
+        - 1.2041907792160302e-27
+        - 4.8709290022809296e-33
+        - 1.193532981191821e-23
+        - 2.3334782851579384e-20
+        - 7.597923630878892e-28
+        - 9.945530162436035e-22
+        - 5.587114808074761e-22
+        - 6.700558654309583e-23
+        - 3.925516694311573e-27
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 7
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - >-
+      StartGameEvent: Board does not have exactly 4 minos with an identifiable
+      MoveableTetromino
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.200123413129704
+  nextGrid: '01111110011111100001100000011000'
+  nextType: T
+  level: 18
+  boardOnlyType: E
+  levelPrediction:
+    - digit: 2
+      probability: 1
+      probabilities:
+        - 4.550762912025325e-34
+        - 1.107979176988617e-25
+        - 1
+        - 2.3407536839928693e-27
+        - 6.604879413343777e-32
+        - 0
+        - 0
+        - 1.2221817271423705e-23
+        - 7.9698125005273965e-22
+        - 5.72960842171404e-38
+    - digit: 0
+      probability: 1
+      probabilities:
+        - 1
+        - 1.2041907792160302e-27
+        - 4.8709290022809296e-33
+        - 1.193532981191821e-23
+        - 2.3334782851579384e-20
+        - 7.597923630878892e-28
+        - 9.945530162436035e-22
+        - 5.587114808074761e-22
+        - 6.700558654309583e-23
+        - 3.925516694311573e-27
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 8
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - >-
+      StartGameEvent: Board does not have exactly 4 minos with an identifiable
+      MoveableTetromino
+- binaryBoard: >-
+    00001110000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.006100951302166
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 18
+  boardOnlyType: E
+  levelPrediction:
+    - digit: 2
+      probability: 1
+      probabilities:
+        - 4.550762912025325e-34
+        - 1.107979176988617e-25
+        - 1
+        - 2.3407536839928693e-27
+        - 6.604879413343777e-32
+        - 0
+        - 0
+        - 1.2221817271423705e-23
+        - 7.9698125005273965e-22
+        - 5.72960842171404e-38
+    - digit: 0
+      probability: 1
+      probabilities:
+        - 1
+        - 1.2041907792160302e-27
+        - 4.8709290022809296e-33
+        - 1.193532981191821e-23
+        - 2.3334782851579384e-20
+        - 7.597923630878892e-28
+        - 9.945530162436035e-22
+        - 5.587114808074761e-22
+        - 6.700558654309583e-23
+        - 3.925516694311573e-27
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 9
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - >-
+      StartGameEvent: Board does not have exactly 4 minos with an identifiable
+      MoveableTetromino
+- binaryBoard: >-
+    00000000000000111000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.776651829702365
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 18
+  boardOnlyType: E
+  levelPrediction:
+    - digit: 2
+      probability: 1
+      probabilities:
+        - 4.550762912025325e-34
+        - 1.107979176988617e-25
+        - 1
+        - 2.3407536839928693e-27
+        - 6.604879413343777e-32
+        - 0
+        - 0
+        - 1.2221817271423705e-23
+        - 7.9698125005273965e-22
+        - 5.72960842171404e-38
+    - digit: 0
+      probability: 1
+      probabilities:
+        - 1
+        - 1.2041907792160302e-27
+        - 4.8709290022809296e-33
+        - 1.193532981191821e-23
+        - 2.3334782851579384e-20
+        - 7.597923630878892e-28
+        - 9.945530162436035e-22
+        - 5.587114808074761e-22
+        - 6.700558654309583e-23
+        - 3.925516694311573e-27
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 10
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - >-
+      StartGameEvent: Board does not have exactly 4 minos with an identifiable
+      MoveableTetromino
+- binaryBoard: >-
+    00000000000000000000000111000000001000000000000000000000000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.992949122606122
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 18
+  boardOnlyType: E
+  levelPrediction:
+    - digit: 2
+      probability: 1
+      probabilities:
+        - 4.550762912025325e-34
+        - 1.107979176988617e-25
+        - 1
+        - 2.3407536839928693e-27
+        - 6.604879413343777e-32
+        - 0
+        - 0
+        - 1.2221817271423705e-23
+        - 7.9698125005273965e-22
+        - 5.72960842171404e-38
+    - digit: 0
+      probability: 1
+      probabilities:
+        - 1
+        - 1.2041907792160302e-27
+        - 4.8709290022809296e-33
+        - 1.193532981191821e-23
+        - 2.3334782851579384e-20
+        - 7.597923630878892e-28
+        - 9.945530162436035e-22
+        - 5.587114808074761e-22
+        - 6.700558654309583e-23
+        - 3.925516694311573e-27
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 11
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - >-
+      StartGameEvent: Board does not have exactly 4 minos with an identifiable
+      MoveableTetromino
+- binaryBoard: >-
+    00000000000000000000000010000000001100000000100000000000000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.125814401034415
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 18
+  boardOnlyType: E
+  levelPrediction:
+    - digit: 2
+      probability: 1
+      probabilities:
+        - 4.550762912025325e-34
+        - 1.107979176988617e-25
+        - 1
+        - 2.3407536839928693e-27
+        - 6.604879413343777e-32
+        - 0
+        - 0
+        - 1.2221817271423705e-23
+        - 7.9698125005273965e-22
+        - 5.72960842171404e-38
+    - digit: 0
+      probability: 1
+      probabilities:
+        - 1
+        - 1.2041907792160302e-27
+        - 4.8709290022809296e-33
+        - 1.193532981191821e-23
+        - 2.3334782851579384e-20
+        - 7.597923630878892e-28
+        - 9.945530162436035e-22
+        - 5.587114808074761e-22
+        - 6.700558654309583e-23
+        - 3.925516694311573e-27
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 12
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - >-
+      StartGameEvent: Board does not have exactly 4 minos with an identifiable
+      MoveableTetromino
+- binaryBoard: >-
+    00000000000000000000000000000000001000000000110000000010000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.980925348169347
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 18
+  boardOnlyType: E
+  levelPrediction:
+    - digit: 2
+      probability: 1
+      probabilities:
+        - 4.550762912025325e-34
+        - 1.107979176988617e-25
+        - 1
+        - 2.3407536839928693e-27
+        - 6.604879413343777e-32
+        - 0
+        - 0
+        - 1.2221817271423705e-23
+        - 7.9698125005273965e-22
+        - 5.72960842171404e-38
+    - digit: 0
+      probability: 1
+      probabilities:
+        - 1
+        - 1.2041907792160302e-27
+        - 4.8709290022809296e-33
+        - 1.193532981191821e-23
+        - 2.3334782851579384e-20
+        - 7.597923630878892e-28
+        - 9.945530162436035e-22
+        - 5.587114808074761e-22
+        - 6.700558654309583e-23
+        - 3.925516694311573e-27
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 13
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - >-
+      StartGameEvent: Board does not have exactly 4 minos with an identifiable
+      MoveableTetromino
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000100000000011000000001000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.893348004267132
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 18
+  boardOnlyType: E
+  levelPrediction:
+    - digit: 2
+      probability: 1
+      probabilities:
+        - 4.550762912025325e-34
+        - 1.107979176988617e-25
+        - 1
+        - 2.3407536839928693e-27
+        - 6.604879413343777e-32
+        - 0
+        - 0
+        - 1.2221817271423705e-23
+        - 7.9698125005273965e-22
+        - 5.72960842171404e-38
+    - digit: 0
+      probability: 1
+      probabilities:
+        - 1
+        - 1.2041907792160302e-27
+        - 4.8709290022809296e-33
+        - 1.193532981191821e-23
+        - 2.3334782851579384e-20
+        - 7.597923630878892e-28
+        - 9.945530162436035e-22
+        - 5.587114808074761e-22
+        - 6.700558654309583e-23
+        - 3.925516694311573e-27
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 14
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - >-
+      StartGameEvent: Board does not have exactly 4 minos with an identifiable
+      MoveableTetromino
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000010000000001100000000100000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.059439259042138
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 18
+  boardOnlyType: E
+  levelPrediction:
+    - digit: 2
+      probability: 1
+      probabilities:
+        - 4.550762912025325e-34
+        - 1.107979176988617e-25
+        - 1
+        - 2.3407536839928693e-27
+        - 6.604879413343777e-32
+        - 0
+        - 0
+        - 1.2221817271423705e-23
+        - 7.9698125005273965e-22
+        - 5.72960842171404e-38
+    - digit: 0
+      probability: 1
+      probabilities:
+        - 1
+        - 1.2041907792160302e-27
+        - 4.8709290022809296e-33
+        - 1.193532981191821e-23
+        - 2.3334782851579384e-20
+        - 7.597923630878892e-28
+        - 9.945530162436035e-22
+        - 5.587114808074761e-22
+        - 6.700558654309583e-23
+        - 3.925516694311573e-27
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 15
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - >-
+      StartGameEvent: Board does not have exactly 4 minos with an identifiable
+      MoveableTetromino
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000001000000000110000000010000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.979125988710521
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 18
+  boardOnlyType: E
+  levelPrediction:
+    - digit: 2
+      probability: 1
+      probabilities:
+        - 4.550762912025325e-34
+        - 1.107979176988617e-25
+        - 1
+        - 2.3407536839928693e-27
+        - 6.604879413343777e-32
+        - 0
+        - 0
+        - 1.2221817271423705e-23
+        - 7.9698125005273965e-22
+        - 5.72960842171404e-38
+    - digit: 0
+      probability: 1
+      probabilities:
+        - 1
+        - 1.2041907792160302e-27
+        - 4.8709290022809296e-33
+        - 1.193532981191821e-23
+        - 2.3334782851579384e-20
+        - 7.597923630878892e-28
+        - 9.945530162436035e-22
+        - 5.587114808074761e-22
+        - 6.700558654309583e-23
+        - 3.925516694311573e-27
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 16
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - >-
+      StartGameEvent: Board does not have exactly 4 minos with an identifiable
+      MoveableTetromino
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000100000000011000000001000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.009501378231457
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 18
+  boardOnlyType: E
+  levelPrediction:
+    - digit: 2
+      probability: 1
+      probabilities:
+        - 4.550762912025325e-34
+        - 1.107979176988617e-25
+        - 1
+        - 2.3407536839928693e-27
+        - 6.604879413343777e-32
+        - 0
+        - 0
+        - 1.2221817271423705e-23
+        - 7.9698125005273965e-22
+        - 5.72960842171404e-38
+    - digit: 0
+      probability: 1
+      probabilities:
+        - 1
+        - 1.2041907792160302e-27
+        - 4.8709290022809296e-33
+        - 1.193532981191821e-23
+        - 2.3334782851579384e-20
+        - 7.597923630878892e-28
+        - 9.945530162436035e-22
+        - 5.587114808074761e-22
+        - 6.700558654309583e-23
+        - 3.925516694311573e-27
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 17
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - >-
+      StartGameEvent: Board does not have exactly 4 minos with an identifiable
+      MoveableTetromino
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000001100000000100000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.039249611958653
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 18
+  boardOnlyType: E
+  levelPrediction:
+    - digit: 2
+      probability: 1
+      probabilities:
+        - 4.550762912025325e-34
+        - 1.107979176988617e-25
+        - 1
+        - 2.3407536839928693e-27
+        - 6.604879413343777e-32
+        - 0
+        - 0
+        - 1.2221817271423705e-23
+        - 7.9698125005273965e-22
+        - 5.72960842171404e-38
+    - digit: 0
+      probability: 1
+      probabilities:
+        - 1
+        - 1.2041907792160302e-27
+        - 4.8709290022809296e-33
+        - 1.193532981191821e-23
+        - 2.3334782851579384e-20
+        - 7.597923630878892e-28
+        - 9.945530162436035e-22
+        - 5.587114808074761e-22
+        - 6.700558654309583e-23
+        - 3.925516694311573e-27
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 18
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - >-
+      StartGameEvent: Board does not have exactly 4 minos with an identifiable
+      MoveableTetromino
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000110000001010000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.01180283674014
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 18
+  boardOnlyType: E
+  levelPrediction:
+    - digit: 2
+      probability: 1
+      probabilities:
+        - 4.550762912025325e-34
+        - 1.107979176988617e-25
+        - 1
+        - 2.3407536839928693e-27
+        - 6.604879413343777e-32
+        - 0
+        - 0
+        - 1.2221817271423705e-23
+        - 7.9698125005273965e-22
+        - 5.72960842171404e-38
+    - digit: 0
+      probability: 1
+      probabilities:
+        - 1
+        - 1.2041907792160302e-27
+        - 4.8709290022809296e-33
+        - 1.193532981191821e-23
+        - 2.3334782851579384e-20
+        - 7.597923630878892e-28
+        - 9.945530162436035e-22
+        - 5.587114808074761e-22
+        - 6.700558654309583e-23
+        - 3.925516694311573e-27
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 19
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - >-
+      StartGameEvent: Board does not have exactly 4 minos with an identifiable
+      MoveableTetromino
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000001011000010101000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.993024516088246
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 18
+  boardOnlyType: E
+  levelPrediction:
+    - digit: 2
+      probability: 1
+      probabilities:
+        - 4.550762912025325e-34
+        - 1.107979176988617e-25
+        - 1
+        - 2.3407536839928693e-27
+        - 6.604879413343777e-32
+        - 0
+        - 0
+        - 1.2221817271423705e-23
+        - 7.9698125005273965e-22
+        - 5.72960842171404e-38
+    - digit: 0
+      probability: 1
+      probabilities:
+        - 1
+        - 1.2041907792160302e-27
+        - 4.8709290022809296e-33
+        - 1.193532981191821e-23
+        - 2.3334782851579384e-20
+        - 7.597923630878892e-28
+        - 9.945530162436035e-22
+        - 5.587114808074761e-22
+        - 6.700558654309583e-23
+        - 3.925516694311573e-27
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 20
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - >-
+      StartGameEvent: Board does not have exactly 4 minos with an identifiable
+      MoveableTetromino

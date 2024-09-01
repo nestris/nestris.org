@@ -9,7 +9,7 @@ import { PermutationIterator } from "../shared/scripts/permutation-iterator";
 
 const TEST_CASE_DIRECTORY = 'test-cases';
 const OUTPUT_DIRECTORY = 'test-output';
-const DIGIT_DATASET = 'digit-classifier/digit-dataset.json';
+const DIGIT_DATASET = 'digit-classifier/digit-dataset';
 
 async function generateDataset() {
     console.log("start", allTestCases);
@@ -36,6 +36,9 @@ async function generateDataset() {
         const variations = new PermutationIterator();
         variations.register("threshold", 90, 140, 5);
         variations.register("top", -2, 2);
+        variations.register("left", -2, 2);
+        variations.register("right", -2, 2);
+        variations.register("bottom", -2, 2);
 
         const training = readFileSync(trainingPath, 'utf8');
         for (let line of training.split("\n")) {
@@ -51,9 +54,9 @@ async function generateDataset() {
                     //console.log(`variation: ${JSON.stringify(variation, null, 2)}`);
                     const matrix = ocrFrame.scoreOCRBox.getDigitMatrix(index, rawFrame, variation.threshold, {
                         top: variation.top,
-                        left: 0,
-                        right: 0,
-                        bottom: 0
+                        left: variation.left,
+                        right: variation.right,
+                        bottom: variation.bottom
                     });
 
                     const digit = stringScore[index];
@@ -70,7 +73,11 @@ async function generateDataset() {
         if (!(digit in dataset)) continue;
         console.log(`${digit}: ${dataset[digit].length}`);
     }
-    writeFileSync(DIGIT_DATASET, JSON.stringify(dataset));
+    for (let digit = 0; digit < 10; digit++) {
+        if (!(digit in dataset)) continue;
+        writeFileSync(`${DIGIT_DATASET}/${digit}.json`, JSON.stringify(dataset[digit]));
+    }
+    
 }
 
 // The names of all the test case folders in the test-cases directory. Exclude hidden files.
