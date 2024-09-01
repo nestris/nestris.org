@@ -39,7 +39,7 @@ export class DigitClassifier {
 
     } else {
       // Browser environment
-      modelPath = 'https://your-server.com/path-to-model/model.json';
+      modelPath = './assets/digit_classifier_model/model.json';
 
       try {
         // Load the model from a URL

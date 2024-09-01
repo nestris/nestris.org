@@ -1,7 +1,6 @@
-import { Frame } from "ocr/util/frame";
-import { Rectangle, scalePointWithinRect, scaleValueWithinRange } from "../util/rectangle";
-import { RGBColor } from "shared/tetris/tetromino-colors";
-import { DigitClassifier, Prediction } from "ocr/digit-classifier/digit-classifier";
+import { Frame } from "../util/frame";
+import { Rectangle, scalePointWithinRect } from "../util/rectangle";
+import { DigitClassifier, Prediction } from "../digit-classifier/digit-classifier";
 
 // width and height for the normalized rect around one digit
 const NUMBER_PIXEL_SIZE = 14;
