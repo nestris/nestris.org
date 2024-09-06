@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { BehaviorSubject, from, Observable, Subscription } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
+import { OCRFrame } from 'src/app/ocr/state-machine/ocr-frame';
 import { ModalManagerService } from 'src/app/services/modal-manager.service';
-import { VideoCaptureService } from 'src/app/services/ocr/video-capture.service';
+import { FrameWithContext, VideoCaptureService } from 'src/app/services/ocr/video-capture.service';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 
 
@@ -26,7 +27,12 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
   readonly CalibrationStep = CalibrationStep;
   readonly ALL_CALIBRATION_STEPS = Object.values(CalibrationStep);
 
+  ocrLevel$ = new BehaviorSubject<number | undefined>(undefined);
+
   public stepIndex: number = 0;
+
+  frameUpdateSubscription: Subscription | undefined;
+  private computingLevel = false;
 
   get currentStep(): CalibrationStep {
     return this.ALL_CALIBRATION_STEPS[this.stepIndex];
@@ -36,6 +42,13 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
     public videoCapture: VideoCaptureService,
     private modalManager: ModalManagerService,
   ) {
+
+    // subscribe to frame updates to get level
+    this.frameUpdateSubscription = this.videoCapture.getCurrentFrame$().subscribe(
+      (frame: FrameWithContext | null) => {
+        if (frame?.ocrFrame) this.onFrameUpdate(frame.ocrFrame);
+      }
+    );
 
   }
 
@@ -170,9 +183,24 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
     this.next();
   }
 
+  // Compute level only when not already computing
+  onFrameUpdate(frame: OCRFrame) {
+    if (this.computingLevel) return;
+    this.computingLevel = true;
+    frame.getLevel().then(level => {
+      this.ocrLevel$.next(level);
+
+      // wait 1 second before allowing another level computation
+      setTimeout(() => {
+        this.computingLevel = false;
+      }, 1000);
+    });
+  }
+
   ngOnDestroy() {
     console.log("calibrate ocr model ondestroy");
     this.videoCapture.stopCapture(); // don't capture when not necessary to save processing time
+    this.frameUpdateSubscription?.unsubscribe();
   }
 
 }

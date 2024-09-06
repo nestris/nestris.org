@@ -19,6 +19,7 @@ export function calibrate(frame: Frame, point: Point): [Calibration, Calibration
     // Floodfill at the given point to derive the main board
     const boardRect = FloodFill.fromFrame(frame, point).getBoundingRect();
     if (!boardRect) throw new Error("Could not floodfill main board");
+    console.log("calibrated boardRect", boardRect);
 
     // Use the main board rect to derive floodfill points and thus bounding rect for the next box
     const NEXTBOX_LOCATIONS: Point[] = [
@@ -30,25 +31,23 @@ export function calibrate(frame: Frame, point: Point): [Calibration, Calibration
         console.log("Could not floodfill next box");
         nextRect = {top: 0, bottom: 0, left: 0, right: 0 };
     }
+    console.log("calibrated nextRect", nextRect);
 
     const LEVEL_LOCATION: Point = { x: 1.3, y: 0.78 };
     const levelRect = calibrateNumberBox(frame, boardRect,
         LEVEL_LOCATION,
         { left: 0.4, top: 0.48, right: 0.76, bottom: 0.86 }
     );
-    const levelBox = new NumberOCRBox(2, levelRect);
+    console.log("calibrated levelRect", levelRect);
 
-    levelBox.getDigitMatrix(0, frame);
-    levelBox.getDigitMatrix(1, frame);
 
     const SCORE_LOCATION: Point = { x: 1.3, y: 0.18 };
     const scoreRect = calibrateNumberBox(frame, boardRect,
         SCORE_LOCATION,
         { left: 0.04, top: 0.68, right: 0.94, bottom: 0.82 },
     );
-    const scoreBox = new NumberOCRBox(6, scoreRect);
+    console.log("calibrated scoreRect", scoreRect);
 
-    for (let i = 0; i < 6; i++) scoreBox.getDigitMatrix(i, frame);
 
     const calibration: Calibration = {
         floodfillPoint: point,

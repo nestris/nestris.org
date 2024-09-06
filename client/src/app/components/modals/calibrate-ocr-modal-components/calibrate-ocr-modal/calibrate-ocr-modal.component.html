@@ -29,9 +29,8 @@
                 <!-- If OCRFrame, show the current frame's OCR board -->
                 <app-nes-board *ngIf="(videoCapture.getCurrentFrame$() | async)?.ocrFrame as frame"
                 [nextType]="frame.getNextType()"
-                [level]="(frame.getLevel() | async) ?? 18"
+                [level]="(ocrLevel$ | async) ?? 18"
                 [scale]="1.65" [board]="frame.getBinaryBoard()">
-                    <h2 class="no-board-text">Click on an empty part of the tetris board!</h2>
                 </app-nes-board>
 
                 <!-- If no OCRFrame, show an empty board with text to click on empty part of tetris board -->

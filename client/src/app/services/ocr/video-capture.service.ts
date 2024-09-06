@@ -9,6 +9,8 @@ import { OCRFrame } from 'src/app/ocr/state-machine/ocr-frame';
 import { FpsTracker } from 'src/app/shared/scripts/fps-tracker';
 import { Rectangle } from 'src/app/ocr/util/rectangle';
 import { ColorType } from 'src/app/shared/tetris/tetris-board';
+import { DigitClassifier } from 'src/app/ocr/digit-classifier/digit-classifier';
+import { BrowserDigitClassifer } from 'src/app/scripts/browser-digit-classifier';
 
 export interface FrameWithContext {
   ctx: CanvasRenderingContext2D,
@@ -52,11 +54,16 @@ export class VideoCaptureService {
   private hidden: boolean = true;
   private showBoundingBoxes: boolean = false;
 
+  private digitClassifier: DigitClassifier = new BrowserDigitClassifer();
+
   constructor(
     rendererFactory: RendererFactory2,
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
     this.canvasElement = this.renderer.createElement('canvas');
+
+    // Initialize the digit classifier
+    this.digitClassifier.init();
   }
 
   getCurrentFrame(): FrameWithContext | null {
@@ -209,7 +216,7 @@ export class VideoCaptureService {
     // If calibration is set, initialize the OCRFrame
     let ocrFrame: OCRFrame | undefined = undefined;
     if (this.calibration) {
-      ocrFrame = new OCRFrame(pixels, this.calibration);
+      ocrFrame = new OCRFrame(pixels, this.calibration, this.digitClassifier);
 
       // Draw bounding boxes if flag is set
       if (!this.hidden && this.showBoundingBoxes) this.drawBoundingBoxes(ctx, ocrFrame);

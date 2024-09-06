@@ -75,7 +75,12 @@ export class NumberOCRBox {
     }
 
     async predictDigit(digit: number, frame: Frame): Promise<Prediction | undefined> {
-        return await this.digitClassifier?.predictDigit(this.getDigitMatrix(digit, frame));
+        console.log("predictDkigit", digit);
+        if (!this.digitClassifier) {
+            console.error("Digit classifier not set");
+            return undefined;
+        }
+        return await this.digitClassifier.predictDigit(this.getDigitMatrix(digit, frame));
     }
 
 

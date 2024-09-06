@@ -7,6 +7,7 @@ import { PacketSender } from "../ocr/util/packet-sender";
 import { BinaryEncoder } from "../shared/network/binary-codec";
 import { OCRFrame } from "../ocr/state-machine/ocr-frame";
 import { DigitClassifier } from "../ocr/digit-classifier/digit-classifier";
+import { TestDigitClassifier } from "./test-digit-classifier";
 
 export class MockPacketSender extends PacketSender {
 
@@ -31,7 +32,7 @@ export async function testStateMachine(testcase: string, calibration: Calibratio
     // Initialize the state machine
     const stateMachine = new OCRStateMachine(null, packetSender, logger);
 
-    const digitClassifier = new DigitClassifier();
+    const digitClassifier = new TestDigitClassifier();
     await digitClassifier.init();
 
     // Advance the state machine by one frame for each frame in the video
