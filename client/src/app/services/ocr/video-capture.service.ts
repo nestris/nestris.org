@@ -41,6 +41,7 @@ export class VideoCaptureService {
 
   // The calibration, if set
   private calibration?: Calibration;
+  private isCalibrationValid$ = new BehaviorSubject<boolean>(false);
 
   // whether capture source is being polled for pixels every frame
   private capturing$ = new BehaviorSubject<boolean>(false);
@@ -72,6 +73,18 @@ export class VideoCaptureService {
 
   getCurrentFrame(): FrameWithContext | null {
     return this.currentFrame$.getValue();
+  }
+
+  setCalibrationValid(isValid: boolean) {
+    this.isCalibrationValid$.next(isValid);
+  }
+
+  getCalibrationValid$(): Observable<boolean> {
+    return this.isCalibrationValid$.asObservable();
+  }
+
+  getCalibrationValid(): boolean {
+    return this.isCalibrationValid$.getValue();
   }
 
   /**
@@ -143,6 +156,9 @@ export class VideoCaptureService {
    * @param mouse The position of the mouse in frame pixel units
    */
   calibrateOnMouseClick(mouse: Point) {
+
+    // Reset validity of calibration
+    this.setCalibrationValid(false);
 
     const rawFrame = this.getCurrentFrame()?.rawFrame;
     if (!rawFrame) {

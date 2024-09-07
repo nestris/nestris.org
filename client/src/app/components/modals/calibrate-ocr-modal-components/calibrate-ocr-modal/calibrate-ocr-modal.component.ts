@@ -4,14 +4,15 @@ import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.com
 import { OCRFrame } from 'src/app/ocr/state-machine/ocr-frame';
 import { ModalManagerService } from 'src/app/services/modal-manager.service';
 import { FrameWithContext, VideoCaptureService } from 'src/app/services/ocr/video-capture.service';
+import { Platform, PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 
 
 export enum CalibrationStep {
   SELECT_VIDEO_SOURCE = "Select video source",
   LOCATE_TETRIS_BOARD = "Locate tetris board",
-  VERIFY_OCR = "Verify OCR",
-  ANTI_CHEAT = "Anti-cheat"
+  // VERIFY_OCR = "Verify OCR",
+  // ANTI_CHEAT = "Anti-cheat"
 }
 
 @Component({
@@ -27,6 +28,8 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
   readonly CalibrationStep = CalibrationStep;
   readonly ALL_CALIBRATION_STEPS = Object.values(CalibrationStep);
 
+  // We do not poll for level every frame, as that is too computationally expensive. Instead,
+  // we poll for level every few frames and cache the result here.
   ocrLevel$ = new BehaviorSubject<number | undefined>(undefined);
 
   public stepIndex: number = 0;
@@ -41,6 +44,7 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
   constructor(
     public videoCapture: VideoCaptureService,
     private modalManager: ModalManagerService,
+    private platformService: PlatformInterfaceService
   ) {
 
     // subscribe to frame updates to get level
@@ -69,24 +73,34 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
   }
 
   // whether allowed to go to next step of stepper for calibration
-  nextAllowed(): boolean {
+  // returns true if allowed, or a string tooltip if not allowed
+  nextAllowed(): true | string {
 
     switch (this.currentStep) {
       case CalibrationStep.SELECT_VIDEO_SOURCE:
-        return this.videoCapture.hasCaptureSource();
+
+        if (!this.videoCapture.hasCaptureSource()) return "Video source not set";
+
+        return true;
 
       case CalibrationStep.LOCATE_TETRIS_BOARD:
-        const nextPiece = this.videoCapture.getCurrentFrame()?.ocrFrame?.getNextType();
-        return nextPiece !== undefined && nextPiece !== TetrominoType.ERROR_TYPE;
 
-      case CalibrationStep.VERIFY_OCR:
+        const ocrFrame = this.videoCapture.getCurrentFrame()?.ocrFrame;
+        if (!ocrFrame) return "Invalid video frame";
+
+        const nextPiece = ocrFrame.getNextType();
+        if (nextPiece === undefined || nextPiece === TetrominoType.ERROR_TYPE) return "Valid next piece not detected";
+
+        const level = this.ocrLevel$.getValue();
+        if (level === undefined || level === -1) return "Valid level not detected";
+
         return true;
 
-      case CalibrationStep.ANTI_CHEAT:
-        return true;
+      // case CalibrationStep.VERIFY_OCR:
+      //   return true;
 
-      default:
-        return false;
+      // case CalibrationStep.ANTI_CHEAT:
+      //   return true;
     }
   }
 
@@ -103,8 +117,12 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
   next() {
     if (this.nextAllowed()) {
 
-      // if at the last step, finish and hide modal
-      if (this.isLastStep()) this.modalManager.hideModal();
+      // if at the last step, mark as valid, switch to this platform, and hide modal
+      if (this.isLastStep()) {
+        this.videoCapture.setCalibrationValid(true);
+        this.platformService.setPlatform(Platform.OCR);
+        this.modalManager.hideModal();
+      }
 
       // otherwise, go to next step
       else this.stepIndex++;
@@ -118,30 +136,6 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
     }
   }
 
-  // show a tooltip for next button if not allowed to go to next step
-  nextTooltip(): string {
-
-    if (this.nextAllowed()) return "";
-
-
-    switch (this.currentStep) {
-      case CalibrationStep.SELECT_VIDEO_SOURCE:
-        return "Video source not set yet";
-
-      case CalibrationStep.LOCATE_TETRIS_BOARD:
-        const board = this.videoCapture.getCurrentFrame()?.ocrFrame?.getBinaryBoard();
-        return board === undefined ? "Tetris board not located yet" : "Valid next piece not detected";
-
-      case CalibrationStep.VERIFY_OCR:
-        return "OCR has not been verified yet";
-
-      case CalibrationStep.ANTI_CHEAT:
-        return "Complete anti-cheat first";
-
-      default:
-        return "";
-    }
-  }
 
   async setScreenCapture() {
 
@@ -193,10 +187,10 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
     frame.getLevel().then(level => {
       this.ocrLevel$.next(level);
 
-      // wait 1 second before allowing another level computation
+      // wait a short time before allowing another level computation
       setTimeout(() => {
         this.computingLevel = false;
-      }, 1000);
+      }, 300);
     });
   }
 

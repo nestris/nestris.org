@@ -40,16 +40,15 @@
             </div>
         </div>
 
-        <div class="verify-ocr" *ngIf="currentStep === CalibrationStep.VERIFY_OCR">
-
-        </div>
+        <!-- <div class="verify-ocr" *ngIf="currentStep === CalibrationStep.VERIFY_OCR"></div> -->
 
     </div>
     <div class="buttons">
         <app-solid-button [color]="ButtonColor.GREY" label="Back"
             [disabled]="!previousAllowed()" (click)="previous()" />
         <app-solid-button [color]="ButtonColor.BLUE" [label]="isLastStep() ? 'Finish' : 'Next'"
-            [tooltip]="nextTooltip()"
-            [disabled]="!nextAllowed()" (click)="next()" />
+            *ngIf="nextAllowed() as allowed"
+            [tooltip]="allowed === true ? '' : allowed"
+            [disabled]="allowed !== true" (click)="next()" />
     </div>
 </div>

@@ -12,7 +12,7 @@
             icon="./assets/img/button-icons/calibrate.svg"
             />
     </div>
-    <div class="platform ocr"[ngClass]="(platformService.onPlatformChange() | async) === Platform.OCR ? 'selected' : ''" (click)="platformService.setPlatform(Platform.OCR)">
+    <div class="platform ocr"[ngClass]="(platformService.onPlatformChange() | async) === Platform.OCR ? 'selected' : ''" (click)="onClickOCRPlatform()">
         <h1 class="platform-label">OCR Capture</h1>
         <img class="platform-icon" height="78px" src="./assets/img/button-icons/platform-icons/ocr-platform.png">
         <p class="platform-description">
@@ -23,7 +23,9 @@
             icon="./assets/img/button-icons/calibrate.svg"
             (click)="setupCalibration()"
              />
-        <p class="platform-error">Calibration not yet set</p>
+        <p class="platform-error" [ngStyle]="{
+            opacity: (videoCapture.getCalibrationValid$() | async) ? 0 : 1
+        }">Calibration not yet set</p>
     </div>
 </section>
 

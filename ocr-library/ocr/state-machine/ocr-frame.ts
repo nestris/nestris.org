@@ -149,7 +149,7 @@ export class OCRFrame {
             Array.from({length: ocrBox.numDigits}, (_, i) => ocrBox.predictDigit(i, this.frame))
         );
 
-        console.log("digits", digits);
+        // console.log("digits", digits);
     
         // If any digit is not found or has low confidence, we fail OCR
         if (digits.some(digit => digit === undefined)) return -1;
@@ -169,9 +169,9 @@ export class OCRFrame {
     async getLevel(loadIfNotLoaded: boolean = true): Promise<number | undefined> {
         if (loadIfNotLoaded && this._level === undefined) {
             // Predict the digits of the level from the frame, or return -1 if OCR fails
-            console.log("OCRFrame.getLevel");
+            // console.log("OCRFrame.getLevel");
             this._level = await this.predictDigits(this.levelOCRBox);
-            console.log("OCRFrame.getLevel result", this._level);
+            // console.log("OCRFrame.getLevel result", this._level);
         }
         return this._level;
     }
@@ -186,9 +186,9 @@ export class OCRFrame {
     async getScore(loadIfNotLoaded: boolean = true): Promise<number | undefined> {
         if (loadIfNotLoaded && this._score === undefined) {
             // Predict the digits of the score from the frame, or return -1 if OCR fails
-            console.log("OCRFrame.getScore");
+            // console.log("OCRFrame.getScore");
             this._score = await this.predictDigits(this.scoreOCRBox);
-            console.log("OCRFrame.getScore result", this._score);
+            // console.log("OCRFrame.getScore result", this._score);
         }
         return this._score;
     }

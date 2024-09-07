@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
 import { NotificationService } from 'src/app/services/notification.service';
+import { VideoCaptureService } from 'src/app/services/ocr/video-capture.service';
 import { Platform, PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { NotificationType } from 'src/app/shared/models/notifications';
@@ -23,6 +24,7 @@ export class PlayPageComponent {
   
   constructor(
     public platformService: PlatformInterfaceService,
+    public videoCapture: VideoCaptureService,
     private modalManager: ModalManagerService,
     private router: Router,
     private websocket: WebsocketService,
@@ -33,6 +35,15 @@ export class PlayPageComponent {
 
   setupCalibration() {
     this.modalManager.showModal(ModalType.CALIBRATE_OCR);
+  }
+
+  onClickOCRPlatform() {
+    // if calibration is valid, switch to OCR platform
+    if (this.videoCapture.getCalibrationValid()) {
+      this.platformService.setPlatform(Platform.OCR);
+    } else { // Otherwise, first calibrate
+      this.setupCalibration();
+    }
   }
 
   async playSolo() {
