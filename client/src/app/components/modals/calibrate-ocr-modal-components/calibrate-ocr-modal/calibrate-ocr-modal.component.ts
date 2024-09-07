@@ -56,6 +56,9 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
 
     console.log("calibrate ocr model oninit");
 
+    // start initializing digit classifier
+    this.videoCapture.initDigitClassifier();
+
     // generate list of video sources
     this.videoCapture.generateVideoDevicesList();
 

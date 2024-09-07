@@ -61,9 +61,13 @@ export class VideoCaptureService {
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
     this.canvasElement = this.renderer.createElement('canvas');
+  }
+
+  async initDigitClassifier() {
+    if (this.digitClassifier.isInitialized()) return;
 
     // Initialize the digit classifier
-    this.digitClassifier.init();
+    await this.digitClassifier.init();
   }
 
   getCurrentFrame(): FrameWithContext | null {

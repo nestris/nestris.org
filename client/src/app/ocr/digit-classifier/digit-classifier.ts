@@ -8,14 +8,22 @@ export interface Prediction {
 
 export abstract class DigitClassifier {
 
-  protected model!: tf.LayersModel;
+  protected model?: tf.LayersModel;
 
   // Inheriting classes must implement this method and initialize the model
   abstract init(): Promise<void>;
 
+  isInitialized(): boolean {
+    return !!this.model;
+  }
 
   // Function to predict the digit from a 14x14 matrix
   async predictDigit(digitMatrix: number[][]): Promise<Prediction> {
+
+    if (!this.model) {
+      throw new Error('Model not loaded');
+    }
+
     // Convert the input array to a Tensor
     const inputTensor = tf.tensor4d(digitMatrix.flat(), [1, 14, 14, 1]);
 

@@ -6,6 +6,7 @@ export class BrowserDigitClassifer extends DigitClassifier {
     override async init(): Promise<void> {
 
         let modelPath: string;
+        let startLoadTime: number = Date.now();
 
         // Browser environment
         modelPath = './assets/digit_classifier_model/model.json';
@@ -18,7 +19,7 @@ export class BrowserDigitClassifer extends DigitClassifier {
             return;
         }
 
-        console.log('Model loaded successfully.');
+        console.log('Model loaded successfully in', Date.now() - startLoadTime, 'ms');
 
     }
 
