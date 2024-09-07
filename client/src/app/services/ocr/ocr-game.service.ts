@@ -16,8 +16,8 @@ export class OcrGameService {
     private platform: PlatformInterfaceService
   ) {
 
-    
-    this.videoCapture.getCurrentFrame$().subscribe(async (frame) => {
+    // Register a subscriber to the video capture service for processing video frames
+    this.videoCapture.registerSubscriber(async (frame) => {
       if (!this.stateMachine) return;
       if (!frame || !frame.ocrFrame) return;
       
@@ -29,6 +29,7 @@ export class OcrGameService {
 
       // On reaching game end state, stop polling
       if (this.stateMachine.getCurrentState() === OCRStateID.GAME_END) this.stopGame();
+
     })
   }
 

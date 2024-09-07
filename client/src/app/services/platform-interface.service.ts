@@ -82,6 +82,8 @@ export class PlatformInterfaceService extends PacketSender {
       return;
     }
 
+    console.log(`Switching to platform: ${platform}`);
+
     this.platform$.next(platform);
   }
 

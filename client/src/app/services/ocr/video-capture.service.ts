@@ -49,6 +49,9 @@ export class VideoCaptureService {
   // The current captured frame
   private currentFrame$ = new BehaviorSubject<FrameWithContext | null>(null);
 
+  // Store a list of blocking functions that process the current frame
+  private subscribers: Array<(frame: FrameWithContext) => Promise<void>> = [];
+
   // track fps for polling video
   private fpsTracker?: FpsTracker;
 
@@ -91,7 +94,16 @@ export class VideoCaptureService {
    * Get the observable to the current frame, guaranteed to exist
    */
   getCurrentFrame$(): Observable<FrameWithContext | null> {
-    return this.currentFrame$.asObservable();;
+    return this.currentFrame$.asObservable();
+  }
+
+  /**
+   * Register a function that processes the current frame, blocking the next frame from being processed until
+   * the function is done
+   * @param subscriber A function that processes the current frame
+   */
+  registerSubscriber(subscriber: (frame: FrameWithContext) => Promise<void>) {
+    this.subscribers.push(subscriber);
   }
 
   public initVideoDevices() {
@@ -219,7 +231,7 @@ export class VideoCaptureService {
   }
 
   // Captures a single frame and stores it
-  private captureFrame() {
+  private async captureFrame() {
 
     this.fpsTracker?.tick();
 
@@ -242,10 +254,18 @@ export class VideoCaptureService {
       if (!this.hidden && this.showBoundingBoxes) this.drawBoundingBoxes(ctx, ocrFrame);
     }
 
+    // Emit the frame
     this.currentFrame$.next({ ctx, rawFrame: pixels, ocrFrame: ocrFrame });
+
+    // Call all the subscribers and wait for them to finish
+    const frameWithContext = this.currentFrame$.getValue();
+    if (frameWithContext) {
+      await Promise.all(this.subscribers.map(subscriber => subscriber(frameWithContext)));
+    }
 
     // Queue capturing the next frame
     requestAnimationFrame(() => this.captureFrame());
+    
   }
 
   // Start capturing pixels from capture source as fast as possible
