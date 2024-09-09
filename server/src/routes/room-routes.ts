@@ -18,8 +18,22 @@ export async function leaveRoomRoute(req: Request, res: Response, state: ServerS
         return;
     }
 
+    // Verify room exists
+    const roomID = req.params['roomID'];
+    const room = state.roomManager.getRoomByID(roomID);
+    if (!room) {
+        // Room does not exist
+        res.status(200).send({success: false, error: "Room does not exist"});
+        return;
+    }
+    if (room !== roomUser.room) {
+        // Room user is in is not the same as the room in the request
+        res.status(200).send({success: false, error: "User is in a different room"});
+        return
+    }
+
     // Leave room
-    const isEmpty = await roomUser.room.removeUser(roomUser);
+    const isEmpty = await room.removeUser(roomUser);
     if (isEmpty) state.roomManager.removeEmptyRooms();
 
     res.status(200).send({success: true});

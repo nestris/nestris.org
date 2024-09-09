@@ -25,6 +25,7 @@ import { UserSession } from "./online-user";
 import { MultiplayerManager } from "./room-multiplayer-manager";
 import { MatchInfo, MultiplayerData, MultiplayerRoomState, PlayerRole } from "../../shared/models/multiplayer";
 import { GameState } from "../../shared/game-state-from-packets/game-state";
+import { Challenge } from "../../shared/models/challenge";
 
 
 export class RoomUser {
@@ -129,7 +130,7 @@ export class Room {
 
   public multiplayer?: MultiplayerManager;
 
-  constructor(playerSessions: UserSession[]) {
+  constructor(playerSessions: UserSession[], private readonly challenge?: Challenge) {
     if (playerSessions.length < 1 || playerSessions.length > 2) {
       throw new Error("Room must have 1 or 2 players");
     }
@@ -151,9 +152,8 @@ export class Room {
     if (this.mode == RoomMode.SOLO) {
 
     } else {
-      const isRanked = true; // TEMPORARY
       this.multiplayer = new MultiplayerManager(
-        isRanked,
+        this.challenge!,
         this.players[0].session,
         this.players[1].session,
         (data: MultiplayerData) => {

@@ -2,6 +2,7 @@ import { v4 as uuid } from "uuid";
 import { getMatchWinner, MatchPlayerInfo, MatchPlayerStakes, MatchInfo, MultiplayerData, MultiplayerPlayerMode, MultiplayerRoomMode, MultiplayerRoomState, PlayerRole } from "../../shared/models/multiplayer";
 import { Role, RoomMode } from "../../shared/models/room-info";
 import { UserSession } from "./online-user";
+import { Challenge } from "../../shared/models/challenge";
 
 
 const BOTH_READY_COUNTDOWN_SECONDS = 2;
@@ -21,7 +22,7 @@ export class MultiplayerManager {
     private topoutPlayerScore: number | null = null;
 
     constructor(
-        private readonly isRanked: boolean,
+        private readonly challenge: Challenge,
         player1: UserSession,
         player2: UserSession,
 
@@ -53,9 +54,12 @@ export class MultiplayerManager {
 
     async init() {
 
-        // TEMPORARY
-        const validStartLevels = [15, 18, 19];
-        const winningScore = 2;
+        let validStartLevels: number[];
+        if (this.challenge.rated) {
+            // TEMPORARY: should derive valid start levels from trophies
+            validStartLevels = [15, 18, 19];
+        }
+        else validStartLevels = [9, 12, 15, 18, 19, 29];
 
         // Initialize the multiplayer room state
         this.state = {
@@ -81,7 +85,7 @@ export class MultiplayerManager {
         };
 
         // For ranked matches, calculate the stakes for the match
-        const playerStakes = this.isRanked ? {
+        const playerStakes = this.challenge.rated ? {
             [Role.PLAYER_1]: await this.getMatchPlayerStakes(playerInfo[Role.PLAYER_1]),
             [Role.PLAYER_2]: await this.getMatchPlayerStakes(playerInfo[Role.PLAYER_2]),
         } : undefined;
@@ -89,9 +93,9 @@ export class MultiplayerManager {
         // Initialize the match info
         this.match = {
             matchID: uuid(),
-            isRanked: this.isRanked,
+            isRanked: this.challenge.rated,
             seed: "6EF248",
-            winningScore: winningScore,
+            winningScore: this.challenge.winningScore,
             validStartLevels: validStartLevels,
             points: [],
             playerInfo: playerInfo,

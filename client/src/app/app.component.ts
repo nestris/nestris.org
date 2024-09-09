@@ -6,6 +6,7 @@ import { ModalManagerService } from './services/modal-manager.service';
 import { MiscMessageHandlerService } from './services/misc-message-handler.service';
 import { ServerStatsService } from './services/server-stats.service';
 import { BannerManagerService } from './services/banner-manager.service';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
@@ -19,7 +20,13 @@ export class AppComponent implements OnInit {
     private miscMessageHandlerService: MiscMessageHandlerService,
     private serverStatsService: ServerStatsService,
     private bannerManagerService: BannerManagerService,
+    private router: Router,
   ) {
+
+    // Force ngOnDestroy to be called on route change
+    this.router.routeReuseStrategy.shouldReuseRoute = function () {
+      return false;
+    };
   }
 
   async ngOnInit() {

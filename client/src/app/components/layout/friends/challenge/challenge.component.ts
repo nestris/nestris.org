@@ -43,8 +43,6 @@ export class ChallengeComponent implements OnInit {
       challenge: this.challenge,
       sessionID: sessionID,
     });
-
-
   }
 
   async rejectChallenge() {

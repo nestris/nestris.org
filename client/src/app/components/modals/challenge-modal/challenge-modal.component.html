@@ -2,7 +2,9 @@
 
   <h1>Challenge {{config.opponentUsername}}</h1>
 
-  <div class="content"></div>
+  <div class="content">
+    <app-tab-selector [tabs]="winningScoreTabs" [(selectedTab)]="winningScore" [tabStrings]="winningScoreStrings" />
+  </div>
 
   <div class="buttons">
     <p class="error">{{(error$ | async)}}</p>

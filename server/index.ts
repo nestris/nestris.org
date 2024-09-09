@@ -280,7 +280,7 @@ async function main() {
     (req: Request, res: Response) => transitionDeadToWaiting(req, res, state)
   )
 
-  app.post('/api/v2/leave-room/:sessionID', requireAuth, async (req: Request, res: Response) => leaveRoomRoute(req, res, state));
+  app.post('/api/v2/leave-room/:sessionID/:roomID', requireAuth, async (req: Request, res: Response) => leaveRoomRoute(req, res, state));
 
 
   app.get('/api/v2/server-stats', (req: Request, res: Response) => {

@@ -1,6 +1,6 @@
 import { Challenge } from "../../shared/models/challenge";
 import { NotificationType } from "../../shared/models/notifications";
-import { SendPushNotificationMessage, UpdateFriendsBadgeMessage, UpdateOnlineFriendsMessage, GoToRoomMessage } from "../../shared/network/json-message";
+import { SendPushNotificationMessage, UpdateFriendsBadgeMessage, UpdateOnlineFriendsMessage, GoToRoomMessage, RematchOfferedMessage } from "../../shared/network/json-message";
 import { UserEvent } from "./online-user";
 import { ServerState } from "./server-state";
 
@@ -44,7 +44,13 @@ export class ChallengeManager {
     console.log(`Challenge sent from ${challenge.senderUsername} to ${challenge.receiverUsername}`);
 
     // send notification to receiver
-    const text = `${challenge.senderUsername} challenged you to a ${challenge.rated ? 'rated' : 'friendly'} game!`;
+    let text;
+    if (challenge.isRematch) {
+      text = `${challenge.senderUsername} wants to rematch!`;
+      receiver?.sendJsonMessage(new RematchOfferedMessage(challenge));
+    }
+    else text = `${challenge.senderUsername} challenged you to a ${challenge.rated ? 'rated' : 'friendly'} game!`;
+
     receiver?.sendJsonMessage(new SendPushNotificationMessage(NotificationType.SUCCESS, text));
     receiver?.sendJsonMessage(new UpdateFriendsBadgeMessage()); // update friends badge
     receiver?.sendJsonMessage(new UpdateOnlineFriendsMessage()); // refresh online friends list
@@ -131,6 +137,21 @@ export class ChallengeManager {
       sender.sendJsonMessage(new UpdateOnlineFriendsMessage());
       receiver.sendJsonMessage(new UpdateOnlineFriendsMessage());
       return false;
+    }
+
+    // If challenge is a replay, remove the players from the room
+    if (challenge.isRematch) {
+      const senderUser = this.state.roomManager.getUserByUserID(challenge.senderid);
+      const receiverUser = this.state.roomManager.getUserByUserID(challenge.receiverid);
+      if (senderUser?.room) {
+        senderUser.room.removeUser(senderUser);
+        console.log(`Removed ${senderUser.session.user.username} from room ${senderUser.room.roomID} for rematch`);
+      }
+      if (receiverUser?.room) {
+        receiverUser.room.removeUser(receiverUser);
+        console.log(`Removed ${receiverUser.session.user.username} from room ${receiverUser.room.roomID} for rematch`);
+      }
+      this.state.roomManager.removeEmptyRooms();
     }
 
     // if either player is in a room, challenge cannot be accepted. return false

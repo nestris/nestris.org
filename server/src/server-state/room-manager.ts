@@ -91,7 +91,7 @@ export class RoomManager {
     if (!senderSession || !receiverSession) throw new Error("Sender or receiver session not online, cannot create multiplayer room");
 
     // At this point, we can create the room
-    const room = new Room([senderSession, receiverSession]);
+    const room = new Room([senderSession, receiverSession], challenge);
     await room.init();
     this.rooms.push(room);
 
