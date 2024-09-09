@@ -70,8 +70,14 @@ export async function endFriendshipRoute(req: Request, res: Response, state: Ser
   const from = req.params['from'];
   const to = req.params['to'];
 
-  if (!from) res.status(400).send("Missing 'from' parameter");
-  if (!to) res.status(400).send("Missing 'to' parameter");
+  if (!from) {
+    res.status(400).send("Missing 'from' parameter");
+    return;
+  }
+  if (!to) {
+    res.status(400).send("Missing 'to' parameter");
+    return;
+  }
 
   if (from === to) {
     res.status(400).send("Cannot end friendship with yourself");
