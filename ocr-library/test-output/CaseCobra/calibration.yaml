@@ -1,0 +1,24 @@
+floodfillPoint:
+  x: 434
+  'y': 335
+rects:
+  board:
+    top: 125
+    bottom: 639
+    left: 305
+    right: 562
+  next:
+    top: 304
+    bottom: 434
+    left: 615
+    right: 717
+  level:
+    top: 508
+    left: 666
+    bottom: 534
+    right: 717
+  score:
+    top: 174
+    left: 615
+    bottom: 201
+    right: 769

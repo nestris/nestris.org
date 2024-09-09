@@ -115,6 +115,17 @@ export class TetrisBoard {
         return true;
     }
 
+    equalsIgnoreColor(other: TetrisBoard): boolean {
+        for (let y = 0; y < 20; y++) {
+            for (let x = 0; x < 10; x++) {
+                if (this.exists(x, y) !== other.exists(x, y)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     // print 20x10 grid with the color numbers
     print() {
         let str = "";
@@ -134,6 +145,93 @@ export class TetrisBoard {
                 yield { x, y, color: this.getAt(x, y) };
             }
         }
+    }
+
+    /**
+     * Create a new board that is equal to board1 - board2. If the perfect flag is set, null will be returned
+     * instead if a mino that exists on board2 does not exist on board1. Otherwise, a mino that exists on board2
+     * subtracting from an empty cell on board1 will do nothing.
+     * @param board1 The board to subtract from
+     * @param board2 The board to subtract
+     * @param perfect If true, return null if a mino that exists on board2 does not exist on board1
+     * @returns A new board that is equal to board1 - board2
+     */
+    static subtract(board1: TetrisBoard, board2: TetrisBoard, perfect: boolean): TetrisBoard | null {
+        const newBoard = new TetrisBoard();
+        for (let { x, y, color } of board1.iterateMinos()) {
+            const color2 = board2.getAt(x, y);
+            if (color2 === ColorType.EMPTY) {
+                newBoard.setAt(x, y, color);
+            } else {
+                if (color === ColorType.EMPTY) {
+                    if (perfect) {
+                        return null;
+                    }
+                } else {
+                    newBoard.setAt(x, y, ColorType.EMPTY);
+                }
+            }
+        }
+        return newBoard;
+    }
+
+    /**
+     * Get the list of all connected components on the board as a list of TetrisBoard objects. A connected
+     * component is a group of cells that are connected to each other through vertical or horizontal adjacency.
+     * @returns A list of TetrisBoard objects, each representing a connected component
+     */
+    extractAllConnectedComponents(): TetrisBoard[] {
+
+        const visited = new Set<string>();
+        const components: TetrisBoard[] = [];
+
+        const isInBounds = (x: number, y: number): boolean => {
+            return x >= 0 && x < 10 && y >= 0 && y < 20;
+        };
+
+        const getKey = (x: number, y: number): string => {
+            return `${x},${y}`;
+        };
+
+        const directions = [
+            { dx: 0, dy: 1 },
+            { dx: 1, dy: 0 },
+            { dx: 0, dy: -1 },
+            { dx: -1, dy: 0 }
+        ];
+
+        const bfs = (startX: number, startY: number): TetrisBoard => {
+            const queue: { x: number, y: number }[] = [{ x: startX, y: startY }];
+            const component = new TetrisBoard();
+            component.setAt(startX, startY, this.getAt(startX, startY));
+            visited.add(getKey(startX, startY));
+
+            while (queue.length > 0) {
+                const { x, y } = queue.shift()!;
+                for (const { dx, dy } of directions) {
+                    const newX = x + dx;
+                    const newY = y + dy;
+                    if (isInBounds(newX, newY) && !visited.has(getKey(newX, newY)) && this.exists(newX, newY)) {
+                        queue.push({ x: newX, y: newY });
+                        visited.add(getKey(newX, newY));
+                        component.setAt(newX, newY, this.getAt(newX, newY));
+                    }
+                }
+            }
+
+            return component;
+        };
+
+        for (let y = 0; y < 20; y++) {
+            for (let x = 0; x < 10; x++) {
+                if (this.exists(x, y) && !visited.has(getKey(x, y))) {
+                    const component = bfs(x, y);
+                    components.push(component);
+                }
+            }
+        }
+
+        return components;
     }
 
 }

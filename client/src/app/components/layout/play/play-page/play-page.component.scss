@@ -75,7 +75,7 @@
     width: 80%;
 }
 
-.platform-error {
+.platform.ocr .platform-error {
     color: #F15757;
     font-family: Montserrat;
     font-size: 16px;
@@ -83,6 +83,14 @@
     font-weight: 600;
     line-height: normal;
     margin: 10px;
+}
+
+.platform.ocr.calibrated .platform-error {
+    opacity: 0;
+}
+
+.platform.ocr.calibrated .platform-button {
+    transform: translateY(12px);
 }
 
 .play-section {

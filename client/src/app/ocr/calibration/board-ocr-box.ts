@@ -1,6 +1,9 @@
-import { Rectangle, scalePointWithinRect } from "../models/rectangle";
+import { Rectangle, scalePointWithinRect } from "../util/rectangle";
 import { Point } from "../../shared/tetris/point";
 
+/**
+ * Fetches all the relevant pixel coordinates for a TetrisBoard relative to a given bounding box
+ */
 export class BoardOCRBox {
 
     constructor(
@@ -23,8 +26,8 @@ export class BoardOCRBox {
         }
 
         return scalePointWithinRect(this.rect, {
-            x: (mino.x + 0.5) / 10,
-            y: (mino.y + 0.5) / 20.15,
+            x: (mino.x + 0.5) / 9.95,
+            y: (mino.y + 0.5) / 20.1,
         }, round);
     }
 
@@ -36,7 +39,7 @@ export class BoardOCRBox {
      */
     getBlockShine(mino: Point): Point {
 
-        const radiusX = (this.rect.bottom - this.rect.top) / 80;
+        const radiusX = (this.rect.bottom - this.rect.top) / 90;
         const radiusY = (this.rect.bottom - this.rect.top) / 95;
 
         const center = this.getMinoCenter(mino);
@@ -48,7 +51,7 @@ export class BoardOCRBox {
 
     /**
      * Returns a list of points that should be pixel coordinates inside the mino at the given point. They should be
-     * to the NE, SE, and SW of the center of the mino. Purpose of using multiple points is redundancy and smoothing
+     * to the NE and SW of the center of the mino. Purpose of using multiple points is redundancy and smoothing
      * out pixel values, as well as looking at SD to help determine the validity of the entire board. High SD across
      * all minos in the board indicates that we are not looking at the board.
      * @param mino 
@@ -61,7 +64,6 @@ export class BoardOCRBox {
 
         const offsets = [
             { x: radiusX, y: -radiusY }, // NE
-            { x: radiusX, y: radiusY }, // SE
             { x: -radiusX, y: radiusY }, // SW
         ]
 

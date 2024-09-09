@@ -2,7 +2,7 @@
     <div class="content">
         <h1 class="title">Play a solo game!</h1>
         <div></div>
-        <div class="select-level-content">
+        <div class="select-level-content" *ngIf="platform.getPlatform() == Platform.ONLINE">
             <div class="select-level-container">
                 <h1>Select start level</h1>
                 <div class="levels prevent-select">

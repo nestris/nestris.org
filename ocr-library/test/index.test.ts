@@ -1,11 +1,16 @@
-import { readdirSync, readFileSync, existsSync, rmdirSync, mkdirSync, writeFileSync } from "fs";
+import { readdirSync, readFileSync, writeFileSync, existsSync, write } from "fs";
 import { load, dump } from "js-yaml";
-import { parseVideo } from "./parse-video";
+import { TestVideoSource } from "./parse-video";
 import { calibrate } from "../ocr/calibration/calibrate";
-import { RGBFrame } from "../ocr/models/frame";
+import { testStateMachine } from "./test-state-machine";
+import { Calibration } from "../ocr/util/calibration";
+import { log } from "console";
+import { OCRFrame } from "../ocr/state-machine/ocr-frame";
+import { PermutationIterator } from "../shared/scripts/permutation-iterator";
 
 const TEST_CASE_DIRECTORY = 'test-cases';
 const OUTPUT_DIRECTORY = 'test-output';
+const DIGIT_DATASET = 'digit-classifier/digit-dataset.json';
 
 // Interface for config.yaml files
 interface Config {
@@ -52,11 +57,12 @@ async function runTestCases() {
             console.log(`Calibrating on frame ${config.calibration.frame}...`);
 
             // Get the frame to be used for calibration based on the config
-            const calibrationVideo = await parseVideo(testCase, config.calibration.frame, config.calibration.frame);
-            const calibrationFrame = new RGBFrame(calibrationVideo[0]);
+            const videoSource = new TestVideoSource(testCase);
+            await videoSource.init();
+            const calibrationFrame = await videoSource.getFrame(config.calibration.frame);
 
             // Calibrate on the specified frame
-            const [calibration, calibrationPlus] = calibrate(calibrationFrame, config.calibration.frame, {
+            const [calibration, calibrationPlus] = calibrate(calibrationFrame, {
                 x: config.calibration.x, y: config.calibration.y
             });
 
@@ -64,20 +70,22 @@ async function runTestCases() {
             writeFileSync(calibrationOutputPath, dump(calibration));
             writeFileSync(calibrationPlusOutputPath, dump(calibrationPlus));
 
-            console.log(`Calibration set to ${JSON.stringify(calibration, null, 2)}`);
+            log(`Calibration set to ${JSON.stringify(calibration, null, 2)}`);
         });
 
         // Run all ocr testcases with `npm test -- -t ocr`
         test(`ocr-${testCase}`, async () => {
 
-            // Parse the video file into frames
-            console.log('Parsing video...');
-            const frames = await parseVideo(testCase, 0, 3);
-            console.log(frames.length);
+            // Get the calibration data from the output directory
+            const calibration = load(readFileSync(calibrationOutputPath, 'utf8')) as Calibration;
 
-        }, 60000); // Set timeout to 60 seconds
+            // Run the full OCR state machine on the test case
+            const testResults = await testStateMachine(testCase, calibration, 50);
+
+            // Save the test results to the output directory
+            writeFileSync(`${outputDirectory}/test-results.yaml`, dump(testResults));
+        }, 600000); // Set timeout to 10 minutes
     }
-
 }
 
 // The names of all the test case folders in the test-cases directory. Exclude hidden files.

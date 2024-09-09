@@ -13,6 +13,7 @@ import { NotificationService } from 'src/app/services/notification.service';
 import { NotificationType } from 'src/app/shared/models/notifications';
 import { getMatchScore, MultiplayerData, MultiplayerPlayerMode, MultiplayerRoomMode, PlayerRole } from 'src/app/shared/models/multiplayer';
 import { GameOverMode } from 'src/app/components/nes-layout/nes-board/nes-board.component';
+import { OcrGameService } from 'src/app/services/ocr/ocr-game.service';
 
 
 export interface RoomClient {
@@ -68,6 +69,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
 
   constructor(
     public emulator: EmulatorService,
+    public ocrGame: OcrGameService,
     public platform: PlatformInterfaceService,
     private websocket: WebsocketService,
     private route: ActivatedRoute,
@@ -88,35 +90,44 @@ export class RoomPageComponent implements OnInit, OnDestroy {
 
     console.log("session:", this.websocket.getSessionID());
 
-    // If not logged in, only thing user can do is play a solo game on the emulator
-    if (!this.websocket.isSignedIn()) {
-      this.notificationService.notify(NotificationType.WARNING, "You are not logged in. Progress will not be saved!");
-
-      this.client$.next({
-        room: {
-          roomID: '',
-          mode: RoomMode.SOLO,
-          players: [{
-            userid: '',
-            username: 'Guest',
-            sessionID: '',
-            role: Role.PLAYER_1
-          }]
-        },
-        role: Role.PLAYER_1
-      });
-
-      this.platform.setPlatform(Platform.ONLINE);
-      this.emulator.startGame(9);
-      return;
-    }
-
     // get room info from roomID
     this.route.queryParams.subscribe(async params => {
       const roomID = params['id'];
+
       if (!roomID) {
-        console.error('No room ID provided');
-        this.redirectHome();
+
+        // If not logged in, play a solo game on the emulator as a guest
+        if (!this.websocket.isSignedIn()) {
+          this.notificationService.notify(NotificationType.WARNING, "You are not logged in. Progress will not be saved!");
+
+          this.client$.next({
+            room: {
+              roomID: '',
+              mode: RoomMode.SOLO,
+              players: [{
+                userid: '',
+                username: 'Guest',
+                sessionID: '',
+                role: Role.PLAYER_1
+              }]
+            },
+            role: Role.PLAYER_1
+          });
+
+          this.platform.setPlatform(Platform.ONLINE);
+          this.emulator.startGame(9);
+
+        } else { // If logged in but no room ID, redirect to home
+          console.error('No room ID provided');
+          this.redirectHome();
+        }
+        return;
+      }
+
+      // If room ID is provided but not logged in, redirect to login
+      if (!this.websocket.isSignedIn()) {
+        this.notificationService.notify(NotificationType.ERROR, "You must be logged in to join a room");
+        this.router.navigate(['/login']);
         return;
       }
 
@@ -206,7 +217,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
   clickPlaySolo(level: number) {
     if (this.soloMode$.getValue() === SoloMode.BEFORE_GAME) {
       this.soloMode$.next(SoloMode.IN_GAME);
-      this.startGame(level);
+      this.startGame(level, RoomMode.SOLO);
     } else {
       console.error(`Must be in BEFORE_GAME mode to transition to IN_GAME mode, but in ${this.soloMode$.getValue()}`);
     }
@@ -225,12 +236,14 @@ export class RoomPageComponent implements OnInit, OnDestroy {
   }
 
   // Start the game, either by starting the emulator or starting OCR
-  private startGame(level: number) {
+  private startGame(level: number, mode: RoomMode) {
     if (this.platform.getPlatform() === Platform.ONLINE) {
       // If online, start emulator game at startLevel
       this.emulator.startGame(level);
     } else {
-      // If OCR, start polling for game data
+      // If OCR, start polling for game data. In solo mode, can start on any level. But on
+      // multiplayer mode, needs to match the agreed-upon level
+      this.ocrGame.startGame(mode === RoomMode.MULTIPLAYER ? level : null);
     }
   }
 
@@ -265,7 +278,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
     // Transition from COUNTDOWN -> PLAYING should trigger game start
     if (old.state.mode === MultiplayerRoomMode.COUNTDOWN && now.state.mode === MultiplayerRoomMode.PLAYING) {
       console.log('countdown ended, starting multiplayer game');
-      this.startGame(now.state.startLevel);
+      this.startGame(now.state.startLevel, RoomMode.MULTIPLAYER);
     }
   }
 
@@ -325,7 +338,10 @@ export class RoomPageComponent implements OnInit, OnDestroy {
     return undefined;
   }
 
-  async clickNext() {
+  /**
+   * Called when this player tops out
+   */
+  async onClickNextAfterGameOver() {
     console.log('click next');
     if (this.client$.getValue()!.room.mode === RoomMode.SOLO) {
       // In solo mode, transition from topout to after game
@@ -350,6 +366,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
 
   async ngOnDestroy() {
     this.emulator.stopGame();
+    this.ocrGame.stopGame();
     this.packetSubscription?.unsubscribe();
     this.multiplayerSubscription?.unsubscribe();
     this.soloSubscription?.unsubscribe();

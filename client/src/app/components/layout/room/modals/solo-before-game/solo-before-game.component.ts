@@ -2,6 +2,7 @@ import { Component, EventEmitter, HostListener, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
+import { Platform, PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 
 @Component({
   selector: 'app-solo-before-game',
@@ -13,13 +14,15 @@ export class SoloBeforeGameComponent {
   @Output() clickPlay = new EventEmitter<number>();
 
   readonly ButtonColor = ButtonColor;
+  readonly Platform = Platform;
 
   readonly VALID_START_LEVELS = [0, 5, 9, 12, 15, 18, 19, 29]
 
   selectedLevel$ = new BehaviorSubject<number>(18);
 
   constructor(
-    private readonly router: Router
+    private readonly router: Router,
+    public readonly platform: PlatformInterfaceService
   ) { }
 
   // Pressing "space" or "enter" should also trigger the next button

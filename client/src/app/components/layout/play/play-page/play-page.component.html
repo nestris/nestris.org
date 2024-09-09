@@ -12,7 +12,10 @@
             icon="./assets/img/button-icons/calibrate.svg"
             />
     </div>
-    <div class="platform ocr"[ngClass]="(platformService.onPlatformChange() | async) === Platform.OCR ? 'selected' : ''" (click)="platformService.setPlatform(Platform.OCR)">
+    <div class="platform ocr" (click)="onClickOCRPlatform()" [ngClass]="{
+        'selected' : (platformService.onPlatformChange() | async) === Platform.OCR,
+        'calibrated' : (videoCapture.getCalibrationValid$() | async)
+    }">
         <h1 class="platform-label">OCR Capture</h1>
         <img class="platform-icon" height="78px" src="./assets/img/button-icons/platform-icons/ocr-platform.png">
         <p class="platform-description">

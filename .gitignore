@@ -15,6 +15,10 @@ server/coverage
 ocr-library/node_modules
 ocr-library/coverage
 ocr-library/test-python/py12
+ocr-library/test-python/__pycache__
+ocr-library/digit-classifier/digit_classifier_venv
+ocr-library/digit-classifier/digit-dataset
+ocr-library/digit-classifier/py11
 
 # Environment variables
 .env

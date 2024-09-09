@@ -1,0 +1,1274 @@
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  boardNoise: 1.3418260038062635
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  level: 19
+  score: 0
+  boardOnlyType: I
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 1
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: true
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: All requirements met'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  boardNoise: 1.4875331313151638
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  level: 19
+  score: 0
+  boardOnlyType: I
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 2
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: true
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: All requirements met'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  boardNoise: 1.5370497591854977
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  level: 19
+  score: 0
+  boardOnlyType: I
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 3
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: true
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: All requirements met'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  boardNoise: 1.5603458711458247
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  level: 19
+  score: 0
+  boardOnlyType: I
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 4
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: true
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: All requirements met'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  boardNoise: 1.669030085533869
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  level: 19
+  score: 0
+  boardOnlyType: I
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 5
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: true
+      persistenceMet: true
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets:
+    - GAME_START
+  textLogs:
+    - 'StartGameEvent: All requirements met'
+    - Start game with level [object Promise], current piece I, next piece J
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 1
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets:
+    - GAME_ABBR_BOARD
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: Not enough frames have passed'
+    - 'LineClearSpawnEvent: Not enough frames have passed'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 2
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: Not enough frames have passed'
+    - 'LineClearSpawnEvent: Not enough frames have passed'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 3
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: Not enough frames have passed'
+    - 'LineClearSpawnEvent: Not enough frames have passed'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 4
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: Not enough frames have passed'
+    - 'LineClearSpawnEvent: Not enough frames have passed'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 5
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 6
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 7
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 8
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 9
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 10
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 11
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 12
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 13
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 14
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 15
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 16
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 17
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 18
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 19
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 20
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 21
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 22
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 23
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 24
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 25
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 26
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 27
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 28
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 29
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 30
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 31
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 32
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 33
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00000000000001111000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 34
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets:
+    - GAME_ABBR_BOARD
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00000000000001111000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 35
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00000000000000000000000000000000011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 36
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets:
+    - GAME_ABBR_BOARD
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00000000000000000000000000000000011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 37
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000001111000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 38
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets:
+    - GAME_ABBR_BOARD
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000111100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 39
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets:
+    - GAME_ABBR_BOARD
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 40
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets:
+    - GAME_ABBR_BOARD
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 41
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 42
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets: []
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000001111000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 43
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets:
+    - GAME_ABBR_BOARD
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000011110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 44
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets:
+    - GAME_ABBR_BOARD
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001111000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  nextGrid: '01111110011111100000011000000110'
+  nextType: J
+  stateID: PIECE_DROPPING
+  stateCount: 1
+  stateFrameCount: 45
+  eventStatuses:
+    - name: RegularSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+    - name: LineClearSpawnEvent
+      preconditionMet: false
+      persistenceMet: false
+  stableBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  gameCurrentType: I
+  gameNextType: J
+  gameScore: 0
+  gameLines: 0
+  gameLevel: 19
+  packets:
+    - GAME_ABBR_BOARD
+  textLogs:
+    - 'Active piece updated: I at I-4567'
+    - 'RegularSpawnEvent: need at least 8 minos, got 4'
+    - 'LineClearSpawnEvent: Need equal or less than 0 minos, got 4'

@@ -1,0 +1,6 @@
+export enum OCRStateID {
+    BEFORE_GAME = "BEFORE_GAME",
+    PIECE_DROPPING = "PIECE_DROPPING",
+    GAME_LIMBO = "GAME_LIMBO",
+    GAME_END = "GAME_END",
+}

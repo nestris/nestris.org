@@ -2,11 +2,11 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { BinaryEncoder } from '../shared/network/binary-codec';
 import { PacketAssembler } from '../shared/network/stream-packets/packet-assembler';
-import { TetrisBoard } from '../shared/tetris/tetris-board';
-import { TetrominoType } from '../shared/tetris/tetromino-type';
 import { WebsocketService } from './websocket.service';
 import { NotificationService } from './notification.service';
 import { NotificationType } from '../shared/models/notifications';
+import { DEFAULT_POLLED_GAME_DATA, GameDisplayData } from '../shared/tetris/game-display-data';
+import { PacketSender } from '../ocr/util/packet-sender';
 
 
 export enum Platform {
@@ -26,28 +26,6 @@ It is not the responsibility of this class to do things like start or stop emula
 polls from emulator class at specified interval.
 */
 
-
-export class PolledGameData {
-  constructor(
-    public readonly board: TetrisBoard,
-    public readonly nextPiece: TetrominoType,
-    public readonly level: number,
-    public readonly lines: number,
-    public readonly score: number,
-    public readonly countdown: number | undefined,
-  ) {}
-}
-
-const DEFAULT_POLLED_GAME_DATA = new PolledGameData(
-  new TetrisBoard(),
-  TetrominoType.ERROR_TYPE,
-  18,
-  0,
-  0,
-  undefined
-);
-
-
 /*
 Routinely polls from either the online platform or the OCR platform, depending on which platform is selected.
 */
@@ -55,10 +33,10 @@ Routinely polls from either the online platform or the OCR platform, depending o
 @Injectable({
   providedIn: 'root'
 })
-export class PlatformInterfaceService {
+export class PlatformInterfaceService extends PacketSender {
 
   private platform$ = new BehaviorSubject<Platform>(Platform.ONLINE);
-  private polledGameData$ = new BehaviorSubject<PolledGameData>(DEFAULT_POLLED_GAME_DATA);
+  private polledGameData$ = new BehaviorSubject<GameDisplayData>(DEFAULT_POLLED_GAME_DATA);
 
 
   private assembler = new PacketAssembler();
@@ -70,6 +48,7 @@ export class PlatformInterfaceService {
     private websocket: WebsocketService,
     private notificationService: NotificationService
   ) {
+    super();
 
     // every second, send all accumulated data to the server
     // batching packets reduces the number of websocket messages sent
@@ -79,15 +58,15 @@ export class PlatformInterfaceService {
 
   }
 
-  getGameData(): PolledGameData | undefined {
+  getGameData(): GameDisplayData | undefined {
     return this.polledGameData$.getValue();
   }
 
-  getGameData$(): Observable<PolledGameData> {
+  getGameData$(): Observable<GameDisplayData> {
     return this.polledGameData$.asObservable();
   }
 
-  getGameEvent$(): Observable<PolledGameData | undefined> {
+  getGameEvent$(): Observable<GameDisplayData | undefined> {
     return this.polledGameData$.asObservable();
   }
 
@@ -103,6 +82,8 @@ export class PlatformInterfaceService {
       return;
     }
 
+    console.log(`Switching to platform: ${platform}`);
+
     this.platform$.next(platform);
   }
 
@@ -116,16 +97,15 @@ export class PlatformInterfaceService {
 
 
   // called by emulator/game-state service to update the game data
-  updateGameData(data: PolledGameData) {
+  updateGameData(data: GameDisplayData) {
     this.polledGameData$.next(data);
   }
 
   // called by emulator/game-state service to send a packet encoded as a BinaryEncoder
   // by default, is not sent immediately, but is batched and sent by sendBatchedPackets() every second
-  sendPacket(packet: BinaryEncoder, sendImmediately: boolean = false) {
+  sendPacket(packet: BinaryEncoder) {
     this.assembler.addPacketContent(packet);
     this.numBatchedPackets++;
-    if (sendImmediately) this.sendBatchedPackets();
   }
 
   // called every second internally to send all accumulated data to the server

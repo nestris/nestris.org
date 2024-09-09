@@ -1,0 +1,850 @@
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.221285431710434
+  nextGrid: '01111110011111100001100000011000'
+  nextType: T
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 1
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.124634300742716
+  nextGrid: '01111110011111100001100000011000'
+  nextType: T
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 2
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.127012470605562
+  nextGrid: '01111110011111100001100000011000'
+  nextType: T
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 3
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.160212638933046
+  nextGrid: '01111110011111100001100000011000'
+  nextType: T
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 4
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.174462044214692
+  nextGrid: '01111110011111100001100000011000'
+  nextType: T
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 5
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.174462044214692
+  nextGrid: '01111110011111100001100000011000'
+  nextType: T
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 6
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.18348125495669
+  nextGrid: '01111110011111100001100000011000'
+  nextType: T
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 7
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.200123413129704
+  nextGrid: '01111110011111100001100000011000'
+  nextType: T
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 8
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00001110000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.006100951302166
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 9
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000111000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.776651829702365
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 10
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000111000000001000000000000000000000000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.992949122606122
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 11
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000010000000001100000000100000000000000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.125814401034415
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 12
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000001000000000110000000010000000000000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.980925348169347
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 13
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000100000000011000000001000000000000000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.893348004267132
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 14
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000010000000001100000000100000000000000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.059439259042138
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 15
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000001000000000110000000010000000000000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.979125988710521
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 16
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000100000000011000000001000000000000000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.009501378231457
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 17
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000001100000000100000001000000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.039249611958653
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 18
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000110000001010000010100000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.01180283674014
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 19
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000001011000010101000001111001100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.993024516088246
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 20
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010000010101100001111101100111101111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.023480715454987
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 21
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.634346435568673
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 22
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.50951880772939
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 23
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.507755569576823
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 24
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.491996341501535
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 25
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.486270808848936
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 26
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.475347716781698
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 27
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.467602854929732
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 28
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.467570902462517
+  nextGrid: '00011110000111100111100001111000'
+  nextType: S
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 29
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000110000000110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.37328491580625
+  nextGrid: '01111000011110000001111000011110'
+  nextType: Z
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 30
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000110000000110000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.29208736605964
+  nextGrid: '01111000011110000001111000011110'
+  nextType: Z
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 31
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000011000000011000000000000000000000000000000000000000000000000000000000000000000000000000001000000010101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.15275815059444
+  nextGrid: '01111000011110000001111000011110'
+  nextType: Z
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 32
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000011000000011000000000000000000000000000000000000000000000000000000000000000000001000000010101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.171748423515462
+  nextGrid: '01111000011110000001111000011110'
+  nextType: Z
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 33
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000011000000011000000000000000000000000000000000000000000000000000000000001000000010101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.432269719712403
+  nextGrid: '01111000011110000001111000011110'
+  nextType: Z
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 34
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000001100000001100000000000000000000000000000000000000000000000001000000010101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.517260466245633
+  nextGrid: '01111000011110000001111000011110'
+  nextType: Z
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 35
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000010000000001100000000010000000000000000000000000000000000000001000000010101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.465453458923687
+  nextGrid: '01111000011110000001111000011110'
+  nextType: Z
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 36
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000010000000001100000000010000000000000000000000000000001000000010101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.805301744866972
+  nextGrid: '01111000011110000001111000011110'
+  nextType: Z
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 37
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000001000000000110000000001000000000000000000001000000010101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.451626167456284
+  nextGrid: '01111000011110000001111000011110'
+  nextType: Z
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 38
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000100000000011000000000100000000001000000010101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.33799520299477
+  nextGrid: '01111000011110000001111000011110'
+  nextType: Z
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 39
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000001100000000011000000010101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.464330285592036
+  nextGrid: '01111000011110000001111000011110'
+  nextType: Z
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 40
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000111000000011101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.34797771011541
+  nextGrid: '01111000011110000001111000011110'
+  nextType: Z
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 41
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000111000000011101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.285496496827323
+  nextGrid: '01111000011110000001111000011110'
+  nextType: Z
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 42
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000111000000011101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.304860513494546
+  nextGrid: '01111000011110000001111000011110'
+  nextType: Z
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 43
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000111000000011101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.308266122731734
+  nextGrid: '01111000011110000001111000011110'
+  nextType: Z
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 44
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000111000000011101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.345299105279137
+  nextGrid: '01111000011110000001111000011110'
+  nextType: Z
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 45
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000111000000011101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.82682071118928
+  nextGrid: '01111000011110000001111000011110'
+  nextType: Z
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 46
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000111000000011101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 12.877440835633825
+  nextGrid: '01111000011110000001111000011110'
+  nextType: Z
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 47
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00001100000000011000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000111000000011101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 13.634679111573782
+  nextGrid: '00000000111111111111111100000000'
+  nextType: I
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 48
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000110000000001100000000000000000000000000000000000000000000000000000000000000000000000001000000000111000000011101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 14.097143050691027
+  nextGrid: '00000000111111111111111100000000'
+  nextType: I
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 49
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'
+- binaryBoard: >-
+    00000000000000010000000011000000001000000000000000000000000000000000000000000000000000000000000000001000000000111000000011101000001111111100111111111011111111101111111110111111111011111111101111111110
+  boardNoise: 14.01325893811869
+  nextGrid: '00000000111111111111111100000000'
+  nextType: I
+  level: 20
+  score: 690000
+  stateID: BEFORE_GAME
+  stateCount: 0
+  stateFrameCount: 50
+  eventStatuses:
+    - name: StartGameEvent
+      preconditionMet: false
+      persistenceMet: false
+  packets: []
+  textLogs:
+    - 'StartGameEvent: Score is not 0: 690000'

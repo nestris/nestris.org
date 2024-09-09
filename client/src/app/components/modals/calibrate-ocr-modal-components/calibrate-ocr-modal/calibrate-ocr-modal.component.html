@@ -25,32 +25,30 @@
                 <app-preview-canvas [showBoundingBoxes]="true" />
             </div>
             <div class="col">
-                <app-nes-board [hide]="!(ocr.getBoard$() | async)"
-                [nextType]="(ocr.getNextPiece$() | async) ?? undefined"
-                [level]="(ocr.getTextboxResult$(TextboxType.LEVEL) | async)?.value ?? 18"
-                [scale]="1.65" [board]="ocr.getBoard$() | async">
+
+                <!-- If OCRFrame, show the current frame's OCR board -->
+                <app-nes-board *ngIf="(videoCapture.getCurrentFrame$() | async)?.ocrFrame as frame"
+                [nextType]="frame.getNextType()"
+                [level]="(ocrLevel$ | async) ?? 18"
+                [scale]="1.65" [board]="frame.getBinaryBoard()">
+                </app-nes-board>
+
+                <!-- If no OCRFrame, show an empty board with text to click on empty part of tetris board -->
+                <app-nes-board *ngIf="!((videoCapture.getCurrentFrame$() | async)?.ocrFrame)" [hide]="true">
                     <h2 class="no-board-text">Click on an empty part of the tetris board!</h2>
                 </app-nes-board>
             </div>
         </div>
 
-        <div class="verify-ocr" *ngIf="currentStep === CalibrationStep.VERIFY_OCR">
-
-            <div class="item" *ngFor="let type of ALL_TEXTBOX_TYPES">
-                <h1>{{type}}</h1>
-                <app-textbox-canvas *ngIf="(ocr.getTextbox$(type) | async) as textbox" [size]="40" 
-                    [textbox]="textbox" [pixels]="(videoCapture.getPixels$() | async)" />
-                <p>{{prettyTextboxResult(ocr.getTextboxResult$(type) | async)}}</p>
-            </div>
-            
-        </div>
+        <!-- <div class="verify-ocr" *ngIf="currentStep === CalibrationStep.VERIFY_OCR"></div> -->
 
     </div>
     <div class="buttons">
         <app-solid-button [color]="ButtonColor.GREY" label="Back"
             [disabled]="!previousAllowed()" (click)="previous()" />
         <app-solid-button [color]="ButtonColor.BLUE" [label]="isLastStep() ? 'Finish' : 'Next'"
-            [tooltip]="nextTooltip()"
-            [disabled]="!nextAllowed()" (click)="next()" />
+            *ngIf="nextAllowed() as allowed"
+            [tooltip]="allowed === true ? '' : allowed"
+            [disabled]="allowed !== true" (click)="next()" />
     </div>
 </div>
