@@ -52,8 +52,10 @@ export class ChallengeManager {
     else text = `${challenge.senderUsername} challenged you to a ${challenge.rated ? 'rated' : 'friendly'} game!`;
 
     receiver?.sendJsonMessage(new SendPushNotificationMessage(NotificationType.SUCCESS, text));
-    receiver?.sendJsonMessage(new UpdateFriendsBadgeMessage()); // update friends badge
     receiver?.sendJsonMessage(new UpdateOnlineFriendsMessage()); // refresh online friends list
+
+    // Show badge notification for challenge if it is not a rematch
+    if (!challenge.isRematch) receiver?.sendJsonMessage(new UpdateFriendsBadgeMessage());
 
     // if either player goes offline, remove the challenge
     [sender, receiver].forEach((player) => player!.subscribe(UserEvent.ON_USER_OFFLINE, () => {
@@ -95,7 +97,7 @@ export class ChallengeManager {
 
     // if rejector was the reciever of the challenge, notify the other player that the challenge was rejected
     if (rejectorid === challenge.receiverid) {
-      const text = `${rejectorid} declined your challenge`;
+      const text = `${challenge.receiverUsername} declined your challenge`;
       const otherUser = this.state.onlineUserManager.getOnlineUserByUserID(
         rejectorid === challenge.senderid ? challenge.receiverid : challenge.senderid
       );

@@ -144,6 +144,8 @@ export class OnlineUserManager {
     // on user disconnect, remove from online pool, and update friends' online friends
     public async onUserDisconnect(userid: string) {
 
+        const username = this.getOnlineUserByUserID(userid)!.username;
+
         // update the online friends of the user's friends
         const friends = await queryFriendUserIDsForUser(userid);
         for (const friend of friends) {
@@ -154,7 +156,7 @@ export class OnlineUserManager {
                 const friendOnlineUser = this.getOnlineUserByUserID(friend)!;
                 friendOnlineUser.sendJsonMessage(new SendPushNotificationMessage(
                     NotificationType.ERROR,
-                    `${userid} went offline.`
+                    `${username} went offline.`
                 ));
                 friendOnlineUser.sendJsonMessage(new UpdateOnlineFriendsMessage());
             }
