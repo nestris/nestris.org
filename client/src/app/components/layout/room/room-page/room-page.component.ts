@@ -90,35 +90,44 @@ export class RoomPageComponent implements OnInit, OnDestroy {
 
     console.log("session:", this.websocket.getSessionID());
 
-    // If not logged in, only thing user can do is play a solo game on the emulator
-    if (!this.websocket.isSignedIn()) {
-      this.notificationService.notify(NotificationType.WARNING, "You are not logged in. Progress will not be saved!");
-
-      this.client$.next({
-        room: {
-          roomID: '',
-          mode: RoomMode.SOLO,
-          players: [{
-            userid: '',
-            username: 'Guest',
-            sessionID: '',
-            role: Role.PLAYER_1
-          }]
-        },
-        role: Role.PLAYER_1
-      });
-
-      this.platform.setPlatform(Platform.ONLINE);
-      this.emulator.startGame(9);
-      return;
-    }
-
     // get room info from roomID
     this.route.queryParams.subscribe(async params => {
       const roomID = params['id'];
+
       if (!roomID) {
-        console.error('No room ID provided');
-        this.redirectHome();
+
+        // If not logged in, play a solo game on the emulator as a guest
+        if (!this.websocket.isSignedIn()) {
+          this.notificationService.notify(NotificationType.WARNING, "You are not logged in. Progress will not be saved!");
+
+          this.client$.next({
+            room: {
+              roomID: '',
+              mode: RoomMode.SOLO,
+              players: [{
+                userid: '',
+                username: 'Guest',
+                sessionID: '',
+                role: Role.PLAYER_1
+              }]
+            },
+            role: Role.PLAYER_1
+          });
+
+          this.platform.setPlatform(Platform.ONLINE);
+          this.emulator.startGame(9);
+
+        } else { // If logged in but no room ID, redirect to home
+          console.error('No room ID provided');
+          this.redirectHome();
+        }
+        return;
+      }
+
+      // If room ID is provided but not logged in, redirect to login
+      if (!this.websocket.isSignedIn()) {
+        this.notificationService.notify(NotificationType.ERROR, "You must be logged in to join a room");
+        this.router.navigate(['/login']);
         return;
       }
 
