@@ -47,16 +47,16 @@ export class ChallengeComponent implements OnInit {
 
   async rejectChallenge() {
 
-    const username = this.websocketService.getUsername();
-    if (!username) {
-      console.error('No username found when rejecting challenge');
+    const userid = this.websocketService.getUserID();
+    if (!userid) {
+      console.error('No userid found when rejecting challenge');
       return; // should not happen
     }
 
     // send a request to the server to reject the challenge
     // server should send a websocket message back to trigger change if the challenge is rejected
     const result = await fetchServer2<{success: boolean}>(Method.POST, '/api/v2/reject-challenge', {
-      username: username,
+      userid: userid,
       challenge: this.challenge
     });
   }

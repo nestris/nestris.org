@@ -31,7 +31,7 @@ export async function rejectChallengeRoute(req: Request, res: Response, state: S
     return;
   }
   if (!userid) {
-    res.status(400).send("Missing 'username' parameter");
+    res.status(400).send("Missing 'userid' parameter");
     return;
   }
 
