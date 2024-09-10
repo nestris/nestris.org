@@ -9,33 +9,33 @@
         <ng-container *ngIf="friendInfo.friendStatus === FriendStatus.INCOMING">
             <app-solid-button class="accept-friend-button"
                 label="Accept" [color]="ButtonColor.GREEN"
-                (click)="acceptFriendRequest()" />
+                (smartClick)="acceptFriendRequest()" />
             <app-solid-button class="decline-friend-button"
                 label="Decline" [color]="ButtonColor.RED"
-                (click)="endFriendship()" />
+                (smartClick)="endFriendship()" />
         </ng-container>
 
         <ng-container *ngIf="friendInfo.friendStatus === FriendStatus.OUTGOING">
-            <app-solid-button icon="./assets/img/puzzle-button-icons/delete.svg" [color]="ButtonColor.GREY" (click)="endFriendship()" tooltip="Cancel friend request" />
+            <app-solid-button icon="./assets/img/puzzle-button-icons/delete.svg" [color]="ButtonColor.GREY" (smartClick)="endFriendship()" tooltip="Cancel friend request" />
         </ng-container>
         
 
         <ng-container *ngIf="friendInfo.friendStatus === FriendStatus.FRIENDS">
 
             <!-- Spectating feature disabled until fixed -->
-            <app-solid-button icon="./assets/img/button-icons/eye.svg" [color]="ButtonColor.GREY" (click)="spectate()"
+            <app-solid-button icon="./assets/img/button-icons/eye.svg" [color]="ButtonColor.GREY" (smartClick)="spectate()"
                 [disabled]="friendInfo.onlineStatus !== OnlineUserStatus.PLAYING"
                 [tooltip]="friendInfo.onlineStatus === OnlineUserStatus.PLAYING ?
                 'Spectate ' + friendInfo.username + '\'s game!' : friendInfo.onlineStatus === OnlineUserStatus.IDLE ?
                 friendInfo.username + ' is not in a game' : friendInfo.username + ' is not online'" />
                     
-            <app-solid-button icon="./assets/img/button-icons/challenge.svg" [color]="ButtonColor.GREY" (click)="sendChallenge()" 
+            <app-solid-button icon="./assets/img/button-icons/challenge.svg" [color]="ButtonColor.GREY" (smartClick)="sendChallenge()" 
                 [disabled]="friendInfo.onlineStatus !== OnlineUserStatus.IDLE"
                 [tooltip]="friendInfo.onlineStatus === OnlineUserStatus.IDLE ? 
                 'Challenge to a 1v1 match' : friendInfo.onlineStatus === OnlineUserStatus.PLAYING ?
                 'Cannot challenge ' + friendInfo.username + ' while they are in a game'
                 : friendInfo.username + ' is not online'" />
-            <app-solid-button icon="./assets/img/puzzle-button-icons/delete.svg" [color]="ButtonColor.GREY" (click)="endFriendship()" tooltip="Remove friend" />
+            <app-solid-button icon="./assets/img/puzzle-button-icons/delete.svg" [color]="ButtonColor.GREY" (smartClick)="endFriendship()" tooltip="Remove friend" />
         </ng-container>
         
         
