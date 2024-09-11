@@ -26,6 +26,7 @@ export class FullscreenExitButtonComponent {
     if (exitRoute) route = decodeURIComponent(exitRoute);
     else route = "/";
 
+    console.log("Exiting fullscreen, navigating to", route);
     this.router.navigate([route]);
 
   }

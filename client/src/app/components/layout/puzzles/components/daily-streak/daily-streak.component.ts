@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { BehaviorSubject, catchError, from, Observable, of, startWith, Subscription, switchMap } from 'rxjs';
 import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
 import { getTimezone } from 'src/app/scripts/get-timezone';
 import { WebsocketService } from 'src/app/services/websocket.service';
@@ -11,15 +11,35 @@ import { DailyStreak } from 'src/app/shared/puzzles/daily-streak';
   styleUrls: ['./daily-streak.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DailyStreakComponent implements OnInit {
+export class DailyStreakComponent {
 
   public readonly PUZZLE_COUNT = 10;
 
-  public streak$ = new BehaviorSubject<DailyStreak>(this.getEmptyStreak());
+  public streak$: Observable<DailyStreak>;
 
-  constructor(
-    private websocketService: WebsocketService,
-  ) {}
+  constructor(private websocketService: WebsocketService) {
+    
+    // Initialize streak$ in the constructor with reactive logic
+    this.streak$ = this.websocketService.onSignIn().pipe(
+      startWith(null), // Emit an initial value (null)
+      switchMap(() => {
+        const userid = this.websocketService.getUserID();
+        if (!userid) {
+          // Return an empty streak observable if no user ID
+          return of(this.getEmptyStreak());
+        }
+
+        // Convert the Promise to an observable and handle errors
+        return from(fetchServer2<DailyStreak>(
+          Method.GET,
+          `/api/v2/daily-streak/${userid}`,
+          { timezone: getTimezone() }
+        )).pipe(
+          catchError(() => of(this.getEmptyStreak())) // Return an empty streak on error
+        );
+      })
+    );
+  }
 
   private getEmptyStreak(): DailyStreak {
 
@@ -35,17 +55,6 @@ export class DailyStreakComponent implements OnInit {
 
     console.log("default streak: ", days);
     return days;
-  }
-
-  async ngOnInit() {
-
-    const userid = this.websocketService.getUserID();
-    if (!userid) return; // no username, no streak
-
-    // fetch streak data
-    this.streak$.next(await fetchServer2<DailyStreak>(Method.GET, `/api/v2/daily-streak/${userid}`, {timezone: getTimezone()}));
-    console.log("streak: ", this.streak$.getValue());
-    
   }
 
   getTodayCount(streak: DailyStreak | null): number {
