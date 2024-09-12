@@ -179,6 +179,47 @@ AFTER INSERT OR UPDATE OR DELETE ON puzzle_attempts
 FOR EACH ROW EXECUTE FUNCTION update_puzzle_cached_data();
 
 
+
+-- GAME TABLE
+DROP TABLE IF EXISTS "public"."games" CASCADE;
+CREATE TABLE "public"."games" (
+    "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+    "created_at" timestamp NOT NULL DEFAULT now(),
+    "userid" text NOT NULL REFERENCES "public"."users"("userid"),
+    PRIMARY KEY ("id")
+);
+
+-- GAME ANALYSIS TABLE
+-- analysis of a game
+DROP TABLE IF EXISTS "public"."game_analysis" CASCADE;
+CREATE TABLE "public"."game_analysis" (
+    "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+    "game_id" uuid NOT NULL REFERENCES "public"."games"("id"),
+    PRIMARY KEY ("id")
+);
+CREATE INDEX game_id_index ON game_analysis (game_id); -- for fetching game analysis by game id
+
+-- MATCH TABLE
+-- match between two users
+DROP TABLE IF EXISTS "public"."matches" CASCADE;
+CREATE TABLE "public"."matches" (
+    "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+    "created_at" timestamp NOT NULL DEFAULT now(),
+    "userid1" text NOT NULL REFERENCES "public"."users"("userid"),
+    "userid2" text NOT NULL REFERENCES "public"."users"("userid"),
+    "rated" boolean NOT NULL,
+    PRIMARY KEY ("id")
+);
+
+-- Table relating a game to a match. 1-to-1 relationship
+DROP TABLE IF EXISTS "public"."match_games" CASCADE;
+CREATE TABLE "public"."match_games" (
+    "match_id" uuid NOT NULL REFERENCES "public"."matches"("id"),
+    "game_id" uuid NOT NULL REFERENCES "public"."games"("id"),
+    PRIMARY KEY ("match_id", "game_id")
+);
+
+
 -- LOG table that logs message with timestamp
 DROP TABLE IF EXISTS "public"."logs" CASCADE;
 CREATE TABLE "public"."logs" (
