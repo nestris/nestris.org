@@ -4,7 +4,7 @@
             <app-solid-button label="Abort" [color]="ButtonColor.RED" (click)="leaveMatch()" />
             <!-- <p>Trophy placeholder</p> -->
             <div class="seed-container">
-                <p>Optional Seed</p>
+                <p>Seed</p>
                 <h1>{{data.match.seed}}</h1>
             </div>
         </div>
@@ -12,7 +12,7 @@
             <div *ngFor="let color of ['blue', 'red']" class="player-card" [ngClass]="color">
                 <div class="info">
                     <h1 class="player">{{data.match.playerInfo[getPlayer(color)].username}}</h1>
-                    <h2 class="trophies">{{data.match.playerInfo[getPlayer(color)].trophiesBeforeMatch}}</h2>
+                    <h2 class="trophies" *ngIf="data.match.isRanked">{{data.match.playerInfo[getPlayer(color)].trophiesBeforeMatch}}</h2>
                 </div>
                 <h1 class="score">{{getPlayerScore(data, getPlayer(color))}}</h1>
             </div>

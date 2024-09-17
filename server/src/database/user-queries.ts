@@ -108,18 +108,20 @@ export async function queryAllUsersMatchingUsernamePattern(pattern: string = "%"
 // return permission if user is created, else return null
 export async function createUser(userid: string, username: string, discordTag: string): Promise<PermissionLevel | null> {
 
-  // Get the permission level of the user
-  const query = `SELECT permission FROM whitelist WHERE discord_tag = $1`;
-  const result = await queryDB(query, [discordTag]);
+  // // Get the permission level of the user
+  // const query = `SELECT permission FROM whitelist WHERE discord_tag = $1`;
+  // const result = await queryDB(query, [discordTag]);
 
-  // If the user is not on the whitelist, return false
-  if (result.rows.length === 0) {
-    console.log(`Failed to create user ${username}, ${discordTag} not on whitelist`);
-    return null;
-  }
+  // // If the user is not on the whitelist, return false
+  // if (result.rows.length === 0) {
+  //   console.log(`Failed to create user ${username}, ${discordTag} not on whitelist`);
+  //   return null;
+  // }
 
-  // Create the user with the permission level
-  const permission = result.rows[0].permission as PermissionLevel;
+  // // Create the user with the permission level
+  // const permission = result.rows[0].permission as PermissionLevel;
+
+  const permission: PermissionLevel = PermissionLevel.DEFAULT;
   const query2 = `INSERT INTO users (userid, username, permission) VALUES ($1, $2, $3)`;
   await queryDB(query2, [userid, username, permission]);
 

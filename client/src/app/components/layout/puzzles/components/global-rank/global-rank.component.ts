@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, catchError, from, Observable, of, startWith, switchMap } from 'rxjs';
 import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { PuzzleRank } from 'src/app/shared/puzzles/puzzle-rank';
@@ -11,21 +11,27 @@ import { PuzzleRank } from 'src/app/shared/puzzles/puzzle-rank';
   styleUrls: ['./global-rank.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GlobalRankComponent implements OnInit {
+export class GlobalRankComponent {
 
-  public rank$ = new BehaviorSubject<PuzzleRank | null>(null);
+  public rank$: Observable<PuzzleRank | null>;
 
-  constructor(
-    private websocketService: WebsocketService,
-  ) {}
+  constructor(private websocketService: WebsocketService) {
+    // Initialize rank$ in the constructor
+    this.rank$ = this.websocketService.onSignIn().pipe(
+      startWith(null),
+      switchMap(() => {
+        const userid = this.websocketService.getUserID();
+        if (!userid) {
+          // Return null if the user is not logged in
+          return of(null);
+        }
 
-  async ngOnInit() {
-
-    const userid = this.websocketService.getUserID();
-    if (!userid) return; // user is not logged in
-
-    this.rank$.next(await fetchServer2<PuzzleRank>(Method.GET, `/api/v2/puzzle-rank/${userid}`));
-
+        // Fetch the puzzle rank and handle errors
+        return from(fetchServer2<PuzzleRank>(Method.GET, `/api/v2/puzzle-rank/${userid}`)).pipe(
+          catchError(() => of(null)) // Handle errors by emitting null
+        );
+      })
+    );
   }
 
   hasRankAbove(rank: PuzzleRank | null): boolean {

@@ -1,7 +1,7 @@
 <div class="main-container">
   <div class="main">
 
-    <a routerLink="/online/puzzle"><div class="begin-button" [class.not-logged-in]="!(websocket.onSignInUpdate() | async)">
+    <a routerLink="/online/puzzle" [queryParams]="{exit: '/puzzles'}"><div class="begin-button" [class.not-logged-in]="!(websocket.onSignInUpdate() | async)">
       <img src="./assets/img/puzzle-button-icons/play.svg" alt="Play" />
       <p>{{(websocket.onSignInUpdate() | async) ? 'Begin' : 'Login to start playing!'}}</p>
     </div></a>

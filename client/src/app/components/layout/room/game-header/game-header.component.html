@@ -1,7 +1,7 @@
 <div class="game-header">
     <div class="profile-container">
         <h1 class="name">{{data.match.playerInfo[role].username}}</h1>
-        <div class="trophies">
+        <div class="trophies" *ngIf="data.match.isRanked">
             <p>{{data.match.playerInfo[role].trophiesBeforeMatch}}</p>
             <img src="./assets/img/components/trophy.svg" height="12.5px" />
         </div>

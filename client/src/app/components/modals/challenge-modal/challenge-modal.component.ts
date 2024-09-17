@@ -25,6 +25,14 @@ export class ChallengeModalComponent {
 
   readonly ButtonColor = ButtonColor;
 
+  winningScore: number = 2;
+  winningScoreTabs = [1, 2, 3];
+  winningScoreStrings = {
+    1: 'First to 1',
+    2: 'First to 2',
+    3: 'First to 3'
+  }
+
   constructor(
     private websocketService: WebsocketService,
     private modalService: ModalManagerService,
@@ -47,6 +55,8 @@ export class ChallengeModalComponent {
       receiverUsername: this.config.opponentUsername,
       startLevel: 18,
       rated: false,
+      winningScore: this.winningScore,
+      isRematch: false
     }
 
     // send challenge to server. if successful, close modal

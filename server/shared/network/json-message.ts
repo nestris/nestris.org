@@ -1,3 +1,4 @@
+import { Challenge } from "../models/challenge"
 import { MatchInfo, MultiplayerData, MultiplayerRoomState } from "../models/multiplayer"
 import { NotificationType } from "../models/notifications"
 
@@ -19,6 +20,7 @@ export enum JsonMessageType {
     START_SOLO_ROOM = 'start_solo_room',
     START_SPECTATE_ROOM = 'start_spectate_room',
     GO_TO_ROOM = 'go_to_room', // sent from server to client to navigate to a room
+    REMATCH_OFFERED = 'rematch_offered', // sent from server to client to offer a rematch
     MULTIPLAYER_ROOM_UPDATE = 'multiplayer_room_update', // sent from server to client to update the multiplayer room
     SOLO_GAME_END = 'solo_game_end', // sent from server to client on solo game end, with game details
 }
@@ -131,6 +133,15 @@ export class GoToRoomMessage extends JsonMessage {
         public readonly roomID: string
     ) {
         super(JsonMessageType.GO_TO_ROOM)
+    }
+}
+
+// sent from server to client to offer a rematch
+export class RematchOfferedMessage extends JsonMessage {
+    constructor(
+        public readonly challenge: Challenge
+    ) {
+        super(JsonMessageType.REMATCH_OFFERED)
     }
 }
 

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, catchError, from, Observable, of, switchMap } from 'rxjs';
 import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
 import { getTimezone } from 'src/app/scripts/get-timezone';
 import { WebsocketService } from 'src/app/services/websocket.service';
@@ -15,7 +15,8 @@ import { PuzzleRating } from 'src/app/shared/puzzles/puzzle-rating';
 export class SummaryComponent implements OnChanges {
   @Input() period!: TimePeriod;
 
-  attemptStats$ = new BehaviorSubject<AttemptStats>({
+  // Default attempt stats
+  private readonly defaultAttemptStats: AttemptStats = {
     puzzlesAttempted: 0,
     puzzlesSolved: 0,
     averageSolveDuration: 0,
@@ -26,27 +27,43 @@ export class SummaryComponent implements OnChanges {
       [PuzzleRating.FOUR_STAR]: null,
       [PuzzleRating.FIVE_STAR]: null,
     }
-  });
+  };
+
+  // Define attemptStats$ as an observable directly
+  public attemptStats$: Observable<AttemptStats>;
 
   constructor(
     private websocket: WebsocketService
-  ) {}
+  ) {
+    this.attemptStats$ = of(this.defaultAttemptStats);
+  }
 
   // whenever the period changes, refresh the stats
-  async ngOnChanges(changes: SimpleChanges) {
+  ngOnChanges(changes: SimpleChanges) {
+    // Whenever `period` changes, fetch new stats
+    if (changes['period'] && this.period) {
+      this.attemptStats$ = this.websocket.onSignIn().pipe(
+        switchMap(() => {
+          const userid = this.websocket.getUserID();
+          if (!userid) {
+            // Return default stats if the user is not logged in
+            return of(this.defaultAttemptStats);
+          }
 
-    // fetch username, but if not logged in, exit
-    const userid = this.websocket.getUserID();
-    if (!userid) return;
+          const params = {
+            period: this.period,
+            timezone: getTimezone()
+          };
 
-    // then, fetch the stats
-    const params = {
-      period: this.period,
-      timezone: getTimezone()
+          // Fetch the attempt stats and handle errors
+          return from(fetchServer2<AttemptStats>(Method.GET, `/api/v2/puzzle-attempt-stats/${userid}`, params)).pipe(
+            catchError(() => of(this.defaultAttemptStats)) // Return default on error
+          );
+        })
+      );
     }
-    this.attemptStats$.next(await fetchServer2<AttemptStats>(Method.GET, `/api/v2/puzzle-attempt-stats/${userid}`, params));
-    console.log("Stats:", this.attemptStats$.getValue());
   }
+
 
   roundPercent(num: number | null | undefined): string {
     if (num === null || num === undefined) return '0%';

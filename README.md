@@ -76,12 +76,24 @@ Client: localhost:4200
 Server: localhost:3000
 ```
 
-### Run docker containers in production mode
+### Run docker containers locally in production mode
 `docker compose -f docker-compose.production.yml up --build`
 Then, you can open it in the browser
 ```
 Client: localhost:80
 Server: localhost:3000
+```
+
+### Run docker containers locally in staging mode
+`docker compose -f docker-compose.staging.yml up --build`
+
+Alternatively, if you can run .sh files, there exists shortcut
+`./staging.sh`
+
+Then, you can open it in the browser
+```
+Client: localhost:81
+Server: localhost:3001
 ```
 
 ### Clean docker containers

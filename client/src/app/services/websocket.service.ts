@@ -73,6 +73,7 @@ export class WebsocketService {
      On ConnectionsSuccessfulMessage, the user is considered signed in.
     */
     this.onEvent(JsonMessageType.CONNECTION_SUCCESSFUL).subscribe((message) => {
+      console.log('Connection successful, signed in.');
       this.signedInSubject$.next(true);
     });
 

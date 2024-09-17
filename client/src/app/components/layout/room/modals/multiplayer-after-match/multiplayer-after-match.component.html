@@ -23,7 +23,7 @@
         </div>
         <div class="buttons">
             <app-solid-button label="Exit" [color]="ButtonColor.RED" (click)="leaveMatch()" />
-            <app-solid-button label="New Match" [color]="ButtonColor.BLUE" (click)="newMatch()" />
+            <app-solid-button [disabled]="!!(sentRematch$ | async)" *ngIf="newMatchInfo(!!(recievedRematchChallenge$ | async)) as info" [label]="info.label" [color]="info.color" (click)="newMatch(info.mode)" />
         </div>
     </div>
 </div>

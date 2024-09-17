@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, HostBinding, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';
 
 export enum ButtonColor {
   GREEN = "#54A165",
@@ -29,5 +29,13 @@ export class SolidButtonComponent {
   @Input() iconHeight?: number;
   @Input() noShadow: boolean = false;
 
+  @Output() smartClick = new EventEmitter<void>();
+
   @HostBinding('class.stretchHost') get stretchHost() { return this.stretch; }
+
+  // Click only if not disabled or loading
+  onClick() {
+    if (!this.disabled && !this.loading) this.smartClick.emit();
+  }
+
 }

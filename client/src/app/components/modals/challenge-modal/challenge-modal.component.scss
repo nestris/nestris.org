@@ -15,6 +15,14 @@ h1 {
   text-wrap: nowrap;
 }
 
+.content {
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+}
+
 .buttons {
   display: flex;
   flex-direction: row;

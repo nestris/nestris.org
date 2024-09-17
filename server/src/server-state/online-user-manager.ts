@@ -5,7 +5,7 @@ import { NotificationType } from "../../shared/models/notifications";
 import { JsonMessage, ConnectionSuccessfulMessage, SendPushNotificationMessage, UpdateOnlineFriendsMessage, JsonMessageType, OnConnectMessage, ErrorHandshakeIncompleteMessage, ErrorMessage } from "../../shared/network/json-message";
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
 import { decodeMessage, MessageType } from "../../shared/network/ws-message";
-import { queryFriendUserIDsForUser, queryUserByUserID, createUser } from "../database/user-queries";
+import { queryFriendUserIDsForUser, queryUserByUserID } from "../database/user-queries";
 import { handleJsonMessage } from "./message-handler";
 import { OnlineUser, UserSession, UserEvent, SocketCloseCode } from "./online-user";
 import { ServerState } from "./server-state";
@@ -144,6 +144,8 @@ export class OnlineUserManager {
     // on user disconnect, remove from online pool, and update friends' online friends
     public async onUserDisconnect(userid: string) {
 
+        const username = this.getOnlineUserByUserID(userid)!.username;
+
         // update the online friends of the user's friends
         const friends = await queryFriendUserIDsForUser(userid);
         for (const friend of friends) {
@@ -154,7 +156,7 @@ export class OnlineUserManager {
                 const friendOnlineUser = this.getOnlineUserByUserID(friend)!;
                 friendOnlineUser.sendJsonMessage(new SendPushNotificationMessage(
                     NotificationType.ERROR,
-                    `${userid} went offline.`
+                    `${username} went offline.`
                 ));
                 friendOnlineUser.sendJsonMessage(new UpdateOnlineFriendsMessage());
             }

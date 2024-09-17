@@ -66,7 +66,7 @@ export async function sendFriendRequest(fromUserID: string, toUserID: string, st
     await queryDB(updateQuery, [userid1, userid2]);
 
     // send notification to the fromUsername user
-    const message = new SendPushNotificationMessage(NotificationType.SUCCESS, `${fromUser?.userid} accepted your friend request!`);
+    const message = new SendPushNotificationMessage(NotificationType.SUCCESS, `${fromUser?.username} accepted your friend request!`);
     toUser?.sendJsonMessage(message);
 
     // update online count for both users, if they are online

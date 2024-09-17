@@ -88,94 +88,93 @@ export class RoomPageComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
 
-    console.log("session:", this.websocket.getSessionID());
+    console.log("New room. session:", this.websocket.getSessionID());    
 
     // get room info from roomID
-    this.route.queryParams.subscribe(async params => {
-      const roomID = params['id'];
+    const params = this.route.snapshot.queryParams;
+    const roomID = params['id'];
 
-      if (!roomID) {
+    if (!roomID) {
 
-        // If not logged in, play a solo game on the emulator as a guest
-        if (!this.websocket.isSignedIn()) {
-          this.notificationService.notify(NotificationType.WARNING, "You are not logged in. Progress will not be saved!");
-
-          this.client$.next({
-            room: {
-              roomID: '',
-              mode: RoomMode.SOLO,
-              players: [{
-                userid: '',
-                username: 'Guest',
-                sessionID: '',
-                role: Role.PLAYER_1
-              }]
-            },
-            role: Role.PLAYER_1
-          });
-
-          this.platform.setPlatform(Platform.ONLINE);
-          this.emulator.startGame(9);
-
-        } else { // If logged in but no room ID, redirect to home
-          console.error('No room ID provided');
-          this.redirectHome();
-        }
-        return;
-      }
-
-      // If room ID is provided but not logged in, redirect to login
+      // If not logged in, play a solo game on the emulator as a guest
       if (!this.websocket.isSignedIn()) {
-        this.notificationService.notify(NotificationType.ERROR, "You must be logged in to join a room");
-        this.router.navigate(['/login']);
-        return;
-      }
+        this.notificationService.notify(NotificationType.WARNING, "You are not logged in. Progress will not be saved!");
 
-      const roomInfo = await fetchServer2<RoomInfo | {error: string}>(Method.GET, `/api/v2/room/${roomID}`);
-      if ('error' in roomInfo) {
-        console.error(roomID, roomInfo.error);
-        this.redirectHome();
-        return;
-      }
-
-      // Initialize the data structures for storing the game state of each player
-      this.roomState = new ClientRoomState(this.cdr, roomInfo.players.length, this.BUFFER_DELAY);
-
-      console.log('room info', roomInfo);
-      this.client$.next({
-        room: roomInfo,
-        role: this.getRole(roomInfo)
-      });
-      console.log('my role:', this.client$.getValue()!.role);
-
-      // start listening for packets from the server
-      this.packetSubscription = this.websocket.onPacketGroup().subscribe(packetGroup => {
-        
-        // for each packet received, queue into the room state's PacketReplayer
-        packetGroup.packets.forEach((packet) => {
-          this.roomState!.onReceivePacket(packetGroup.playerIndex, packet)
+        this.client$.next({
+          room: {
+            roomID: '',
+            mode: RoomMode.SOLO,
+            players: [{
+              userid: '',
+              username: 'Guest',
+              sessionID: '',
+              role: Role.PLAYER_1
+            }]
+          },
+          role: Role.PLAYER_1
         });
-      });
 
-      
-      if (isPlayer(this.client$.getValue()!.role)) {
-        
-        switch (roomInfo.mode) {
-          case RoomMode.SOLO: await this.initSoloRoom(); break;
-          case RoomMode.MULTIPLAYER: await this.initMultiplayerRoom(true); break;
-          default: console.error('Invalid room mode', roomInfo.mode);
-        }
-      } else {
-        // user is a spectator. request to be added to the websocket room
-        console.log('Is spectator, requesting to spectate room');
-        this.websocket.sendJsonMessage(new StartSpectateRoomMessage(roomID));
+        this.platform.setPlatform(Platform.ONLINE);
+        this.emulator.startGame(9);
 
-        // Also subscribe to multiplayer room updates as a spectator
-        if (roomInfo.mode === RoomMode.MULTIPLAYER) {
-          await this.initMultiplayerRoom(false);
-        }
+      } else { // If logged in but no room ID, redirect to home
+        console.error('No room ID provided');
+        this.redirectHome();
       }
+      return;
+    }
+
+    // If room ID is provided but not logged in, redirect to login
+    if (!this.websocket.isSignedIn()) {
+      this.notificationService.notify(NotificationType.ERROR, "You must be logged in to join a room");
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    const roomInfo = await fetchServer2<RoomInfo | {error: string}>(Method.GET, `/api/v2/room/${roomID}`);
+    if ('error' in roomInfo) {
+      console.error(roomID, roomInfo.error);
+      this.redirectHome();
+      return;
+    }
+
+    // Initialize the data structures for storing the game state of each player
+    this.roomState = new ClientRoomState(this.cdr, roomInfo.players.length, this.BUFFER_DELAY);
+
+    console.log('room info', roomInfo);
+    this.client$.next({
+      room: roomInfo,
+      role: this.getRole(roomInfo)
     });
+    console.log('my role:', this.client$.getValue()!.role);
+
+    // start listening for packets from the server
+    this.packetSubscription = this.websocket.onPacketGroup().subscribe(packetGroup => {
+      
+      // for each packet received, queue into the room state's PacketReplayer
+      packetGroup.packets.forEach((packet) => {
+        this.roomState!.onReceivePacket(packetGroup.playerIndex, packet)
+      });
+    });
+
+    
+    if (isPlayer(this.client$.getValue()!.role)) {
+      
+      switch (roomInfo.mode) {
+        case RoomMode.SOLO: await this.initSoloRoom(); break;
+        case RoomMode.MULTIPLAYER: await this.initMultiplayerRoom(true); break;
+        default: console.error('Invalid room mode', roomInfo.mode);
+      }
+    } else {
+      // user is a spectator. request to be added to the websocket room
+      console.log('Is spectator, requesting to spectate room');
+      this.websocket.sendJsonMessage(new StartSpectateRoomMessage(roomID));
+
+      // Also subscribe to multiplayer room updates as a spectator
+      if (roomInfo.mode === RoomMode.MULTIPLAYER) {
+        await this.initMultiplayerRoom(false);
+      }
+    }
   }
 
   redirectHome() {
@@ -236,10 +235,11 @@ export class RoomPageComponent implements OnInit, OnDestroy {
   }
 
   // Start the game, either by starting the emulator or starting OCR
-  private startGame(level: number, mode: RoomMode) {
+  private startGame(level: number, mode: RoomMode, seed?: string) {
+
     if (this.platform.getPlatform() === Platform.ONLINE) {
-      // If online, start emulator game at startLevel
-      this.emulator.startGame(level);
+      // If online, start emulator game at startLevel and given seed
+      this.emulator.startGame(level, seed);
     } else {
       // If OCR, start polling for game data. In solo mode, can start on any level. But on
       // multiplayer mode, needs to match the agreed-upon level
@@ -278,7 +278,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
     // Transition from COUNTDOWN -> PLAYING should trigger game start
     if (old.state.mode === MultiplayerRoomMode.COUNTDOWN && now.state.mode === MultiplayerRoomMode.PLAYING) {
       console.log('countdown ended, starting multiplayer game');
-      this.startGame(now.state.startLevel, RoomMode.MULTIPLAYER);
+      this.startGame(now.state.startLevel, RoomMode.MULTIPLAYER, now.match.seed);
     }
   }
 
@@ -371,9 +371,9 @@ export class RoomPageComponent implements OnInit, OnDestroy {
     this.multiplayerSubscription?.unsubscribe();
     this.soloSubscription?.unsubscribe();
 
-    // Tell server to leave the room
-    console.log('leaving room');
-    await fetchServer2(Method.POST, `/api/v2/leave-room/${this.websocket.getSessionID()}`);
+    // Tell server to leave this room
+    const response = await fetchServer2(Method.POST, `/api/v2/leave-room/${this.websocket.getSessionID()}/${this.client$.getValue()!.room.roomID}`);
+    console.log('leave room response:', response);
   }
 
 }

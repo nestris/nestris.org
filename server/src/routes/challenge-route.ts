@@ -6,7 +6,10 @@ import { ServerState } from '../server-state/server-state';
 export async function sendChallengeRoute(req: Request, res: Response, state: ServerState) {
 
   const challenge: Challenge = req.body.challenge;
-  if (!challenge) res.status(400).send("Missing 'challenge' parameter");
+  if (!challenge) {
+    res.status(400).send("Missing 'challenge' parameter");
+    return;
+  }
 
   try {
     const result = state.challengeManager.createChallenge(challenge);
@@ -23,8 +26,14 @@ export async function rejectChallengeRoute(req: Request, res: Response, state: S
   const challenge: Challenge = req.body.challenge;
   const userid: string = req.body.userid;
   
-  if (!challenge) res.status(400).send("Missing 'challenge' parameter");
-  if (!userid) res.status(400).send("Missing 'username' parameter");
+  if (!challenge) {
+    res.status(400).send("Missing 'challenge' parameter");
+    return;
+  }
+  if (!userid) {
+    res.status(400).send("Missing 'userid' parameter");
+    return;
+  }
 
   try {
     const result = state.challengeManager.rejectChallenge(challenge, userid);
@@ -41,8 +50,14 @@ export async function acceptChallengeRoute(req: Request, res: Response, state: S
   const challenge: Challenge = req.body.challenge;
   const sessionID: string = req.body.sessionID;
   
-  if (!challenge) res.status(400).send("Missing 'challenge' parameter");
-  if (!sessionID) res.status(400).send("Missing 'sessionID' parameter");
+  if (!challenge) {
+    res.status(400).send("Missing 'challenge' parameter");
+    return;
+  }
+  if (!sessionID) {
+    res.status(400).send("Missing 'sessionID' parameter");
+    return;
+  }
 
   try {
     const result = await state.challengeManager.acceptChallenge(challenge, sessionID);
