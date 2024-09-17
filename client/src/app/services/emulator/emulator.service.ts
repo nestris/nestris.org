@@ -1,19 +1,12 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { RandomRNG } from 'src/app/models/piece-sequence-generation/random-rng';
-import { BinaryEncoder } from 'src/app/shared/network/binary-codec';
-import { JsonMessageType } from 'src/app/shared/network/json-message';
 import { GameStartPacket, GameCountdownPacket, GamePlacementPacket, GameAbbrBoardPacket, GameFullBoardPacket, GameEndPacket } from 'src/app/shared/network/stream-packets/packet';
-import { FpsTracker } from 'src/app/shared/scripts/fps-tracker';
-import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
-import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 import { TimeDelta } from 'src/app/util/time-delta';
 import { PlatformInterfaceService, Platform } from '../platform-interface.service';
-import { WebsocketService } from '../websocket.service';
 import { KeyManager } from './currently-pressed-keys';
 import { EmulatorGameState, EMULATOR_FPS } from './emulator-game-state';
 import { Keybinds } from './keybinds';
 import { GameDisplayData } from 'src/app/shared/tetris/game-display-data';
+import { GymRNG } from 'src/app/shared/tetris/piece-sequence-generation/gym-rng';
 
 
 /*
@@ -63,9 +56,9 @@ export class EmulatorService {
 
   // starting game will create a game object and execute game frames at 60fps
   // if slowmode, will execute games at 5ps instead
-  startGame(level: number) {
+  startGame(level: number, seed?: string) {
 
-    console.log("starting game at level", level);
+    console.log("starting game at level", level, "with seed", seed);
 
     // Record initial game start time for deterimining time elapsed between frames
     this.timeDelta.resetDelta();
@@ -77,7 +70,8 @@ export class EmulatorService {
     this.framesDone = 0;
 
     // generate initial game state
-    this.currentState = new EmulatorGameState(level, new RandomRNG());
+    const gymSeed = seed ?? GymRNG.generateRandomSeed();
+    this.currentState = new EmulatorGameState(level, new GymRNG(gymSeed));
 
     // send game start packet
     const current = this.currentState.getCurrentPieceType();

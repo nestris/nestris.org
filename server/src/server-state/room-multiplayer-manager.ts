@@ -3,6 +3,7 @@ import { getMatchWinner, MatchPlayerInfo, MatchPlayerStakes, MatchInfo, Multipla
 import { Role, RoomMode } from "../../shared/models/room-info";
 import { UserSession } from "./online-user";
 import { Challenge } from "../../shared/models/challenge";
+import { GymRNG } from "../../shared/tetris/piece-sequence-generation/gym-rng";
 
 
 const BOTH_READY_COUNTDOWN_SECONDS = 2;
@@ -94,7 +95,7 @@ export class MultiplayerManager {
         this.match = {
             matchID: uuid(),
             isRanked: this.challenge.rated,
-            seed: "6EF248",
+            seed: GymRNG.generateRandomSeed(),
             winningScore: this.challenge.winningScore,
             validStartLevels: validStartLevels,
             points: [],

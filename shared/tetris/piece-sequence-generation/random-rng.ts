@@ -1,4 +1,4 @@
-import { TetrominoType } from "src/app/shared/tetris/tetromino-type";
+import { TetrominoType } from "../tetromino-type";
 import { RNG } from "./rng";
 
 /*

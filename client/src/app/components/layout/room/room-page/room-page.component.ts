@@ -235,10 +235,11 @@ export class RoomPageComponent implements OnInit, OnDestroy {
   }
 
   // Start the game, either by starting the emulator or starting OCR
-  private startGame(level: number, mode: RoomMode) {
+  private startGame(level: number, mode: RoomMode, seed?: string) {
+
     if (this.platform.getPlatform() === Platform.ONLINE) {
-      // If online, start emulator game at startLevel
-      this.emulator.startGame(level);
+      // If online, start emulator game at startLevel and given seed
+      this.emulator.startGame(level, seed);
     } else {
       // If OCR, start polling for game data. In solo mode, can start on any level. But on
       // multiplayer mode, needs to match the agreed-upon level
@@ -277,7 +278,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
     // Transition from COUNTDOWN -> PLAYING should trigger game start
     if (old.state.mode === MultiplayerRoomMode.COUNTDOWN && now.state.mode === MultiplayerRoomMode.PLAYING) {
       console.log('countdown ended, starting multiplayer game');
-      this.startGame(now.state.startLevel, RoomMode.MULTIPLAYER);
+      this.startGame(now.state.startLevel, RoomMode.MULTIPLAYER, now.match.seed);
     }
   }
 

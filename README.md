@@ -86,6 +86,10 @@ Server: localhost:3000
 
 ### Run docker containers locally in staging mode
 `docker compose -f docker-compose.staging.yml up --build`
+
+Alternatively, if you can run .sh files, there exists shortcut
+`./staging.sh`
+
 Then, you can open it in the browser
 ```
 Client: localhost:81
