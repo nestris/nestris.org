@@ -228,3 +228,16 @@ CREATE TABLE "public"."logs" (
     "message" text NOT NULL
 );
 
+-- EVENT table for website analytics
+-- userid can be null if user is not logged in
+DROP TABLE IF EXISTS "public"."events" CASCADE;
+CREATE TABLE "public"."events" (
+    "timestamp" timestamp NOT NULL DEFAULT now(),
+    "userid" text REFERENCES "public"."users"("userid"),
+    "sessionid" text,
+    "event" text NOT NULL
+);
+CREATE INDEX timestamp_index ON events (timestamp DESC); -- for fetching recent events
+CREATE INDEX sessionid_index ON events (sessionid); -- for fetching events by session id
+CREATE INDEX event_index ON events (event); -- for fetching events by event type
+CREATE INDEX userid_index ON events (userid); -- for fetching events by user id
