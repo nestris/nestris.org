@@ -3,7 +3,7 @@ services:
     image: anselchang1/nestris.org:client-production
     build:
       context: .
-      dockerfile: Dockerfile.client
+      dockerfile: Dockerfile.client-prod
     environment:
       - NODE_ENV=production
     ports:
