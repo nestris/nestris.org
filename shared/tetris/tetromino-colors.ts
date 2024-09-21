@@ -28,6 +28,8 @@ export class RGBColor {
 
 }
 
+export const COLOR_WHITE = new RGBColor(255, 255, 255);
+
 export const COLOR_FIRST_COLORS_RGB: {[key: number]: RGBColor } = {
     0: new RGBColor(0,88,248),
     1: new RGBColor(0,168,0),
@@ -94,16 +96,14 @@ function findMostSimilarColor(color1: RGBColor, color2: RGBColor, color3: RGBCol
 
 // given a raw RGB color and a level, find closest color in level that matches
 export function classifyColor(level: number, colorToClassify: RGBColor): ColorType {
-    
     level = level % 10;
 
-    const colorWhite = new RGBColor(255, 255, 255);
     const colorFirst = COLOR_FIRST_COLORS_RGB[level];
     const colorSecond = COLOR_SECOND_COLORS_RGB[level];
 
-    const mostSimilarColor = findMostSimilarColor(colorWhite, colorFirst, colorSecond, colorToClassify);
+    const mostSimilarColor = findMostSimilarColor(COLOR_WHITE, colorFirst, colorSecond, colorToClassify);
 
-    if (mostSimilarColor === colorWhite) return ColorType.WHITE;
+    if (mostSimilarColor === COLOR_WHITE) return ColorType.WHITE;
     else if (mostSimilarColor === colorFirst) return ColorType.PRIMARY;
     else return ColorType.SECONDARY;
 }
