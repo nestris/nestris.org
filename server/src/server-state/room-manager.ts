@@ -129,13 +129,10 @@ export class RoomManager {
     const roomUser = this.getUserBySocket(socket);
     if (!roomUser) return;
 
-    const isEmpty = await roomUser.room.removeUser(roomUser); // remove user from room
+    await roomUser.room.removeUser(roomUser); // remove user from room
     roomUser.session.user.onLeaveRoom();
     console.log(`User ${roomUser.session.user.username} left room ${roomUser.room}`);
-    if (isEmpty) {
-      this.rooms = this.rooms.filter(room => room !== roomUser.room); // remove room if now empty
-      console.log(`Room deleted: ${roomUser.room}`);
-    }
+    this.removeEmptyRooms();
   }
 
   // Delete empty rooms and log wihch rooms were deleted

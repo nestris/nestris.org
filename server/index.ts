@@ -153,7 +153,7 @@ async function main() {
         
     } catch (error) {
         console.error('Error during Discord OAuth:', error);
-        res.status(500).send('An error occurred during authentication');
+        res.status(500).send(`An error occurred during authentication: ${error}`);
     }
   };
 

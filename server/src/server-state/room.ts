@@ -199,7 +199,7 @@ export class Room {
 
     console.log(`User ${roomUser.session.user.username} removed from room ${this.roomID}`);
 
-    // Check if user is still in any other rooms. if not, set user status to IDLE
+    // Set user status to IDLE
     roomUser.session.user.onLeaveRoom();
 
     // return true if the room is now empty
