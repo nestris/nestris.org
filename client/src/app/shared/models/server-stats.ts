@@ -1,4 +1,5 @@
 export enum DeploymentEnvironment {
+    DEV = 'dev',
     STAGING = 'staging',
     PRODUCTION = 'production',
 }

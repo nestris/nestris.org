@@ -25,6 +25,7 @@ import { getPuzzleAggregate } from './src/puzzle-generation/manage-puzzles';
 import { DeploymentEnvironment, ServerStats } from './shared/models/server-stats';
 import { getMultiplayerStateRoute, selectLevelForPlayer, setMultiplayerReadiness, transitionDeadToWaiting } from './src/routes/multiplayer-routes';
 import { leaveRoomRoute } from './src/routes/room-routes';
+import { postEventRoute } from './src/routes/event-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -282,6 +283,7 @@ async function main() {
 
   app.post('/api/v2/leave-room/:sessionID/:roomID', requireAuth, async (req: Request, res: Response) => leaveRoomRoute(req, res, state));
 
+  app.post('/api/v2/event', postEventRoute);
 
   app.get('/api/v2/server-stats', (req: Request, res: Response) => {
     const stats: ServerStats = {

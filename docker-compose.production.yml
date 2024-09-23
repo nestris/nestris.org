@@ -3,11 +3,12 @@ services:
     image: anselchang1/nestris.org:client-production
     build:
       context: .
-      dockerfile: Dockerfile.client
+      dockerfile: Dockerfile.client-prod
     environment:
       - NODE_ENV=production
     ports:
       - "80:80"  # Expose port 80 for production client
+      - "443:443"  # Expose port 443 for production client
     depends_on:
       - server  # Ensure client waits for server to be ready
     command: >

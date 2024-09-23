@@ -1,0 +1,24 @@
+# Base stage
+FROM node:21.7.3 AS base
+
+WORKDIR /app
+
+COPY client/package.json client/package-lock.json ./
+RUN npm install
+
+COPY client ./
+
+
+# Production stage
+FROM base AS prod
+
+RUN npm run build:prod
+
+FROM nginx:alpine AS final
+
+COPY --from=prod /app/dist/client-app /usr/share/nginx/html
+COPY nginx-prod.conf /etc/nginx/nginx.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
