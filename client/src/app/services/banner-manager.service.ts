@@ -3,7 +3,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { ServerStatsService } from './server-stats.service';
 
 export enum BannerType {
-  STAGING_WARNING = "PRODUCTION_WARNING"
+  BETA_WARNING = "BETA_WARNING",
+  STAGING_WARNING = "STAGING_WARNING"
 }
 
 export interface Banner {

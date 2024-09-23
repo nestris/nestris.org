@@ -1,6 +1,6 @@
 # nestris.org
 
-Production (main branch auto-deploy): http://138.197.82.78:80
+Production (main branch auto-deploy): https://www.nestris.org
 
 Staging (dev branch auto-deploy): http://138.197.82.78:81
 
@@ -15,8 +15,8 @@ If you're interested in developing, testing, or running nestris.org locally, fol
 
 ### Clone repository
 ```
-git clone https://github.com/AnselChang/docker-angular-ts-node-postgres-websocket-template.git
-cd docker-angular-ts-node-postgres-websocket-template
+git clone https://github.com/nestris/nestris.org.git
+cd nestris.org
 ```
 
 ### Install npm packages

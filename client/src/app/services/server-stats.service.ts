@@ -20,7 +20,13 @@ export class ServerStatsService {
       const stats = await fetchServer2<ServerStats>(Method.GET, '/api/v2/server-stats');
       this.serverStats$.next(stats);
       
-      if (stats.environment === DeploymentEnvironment.STAGING) {
+      if (stats.environment === DeploymentEnvironment.PRODUCTION) {
+        this.bannerManager.addBanner({
+          id: BannerType.BETA_WARNING,
+          color: "#3C5EB7",
+          message: "nestris.org is in alpha. Progress may be lost at any time."
+        });
+      } else if (stats.environment === DeploymentEnvironment.STAGING) {
         this.bannerManager.addBanner({
           id: BannerType.STAGING_WARNING,
           color: "#B73C3C",
