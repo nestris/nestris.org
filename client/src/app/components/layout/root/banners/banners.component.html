@@ -1,4 +1,4 @@
 <div *ngFor="let banner of (bannerManager.getBanners$() | async)" class="banner" [ngStyle]="{backgroundColor: banner.color}">
-    <p>{{banner.message}}</p>
+    <p [innerHTML]="banner.message"></p>
     <div class="button" *ngIf="banner.button as button" (click)="button.callback()">{{button.text}}</div>
 </div>

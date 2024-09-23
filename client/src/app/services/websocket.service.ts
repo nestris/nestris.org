@@ -95,8 +95,8 @@ export class WebsocketService {
 
     this.onSignOut().subscribe(() => {
       if (this.hasSignedInBefore) {
-        // redirect to home page
-        this.router.navigate(['/']);
+        // redirect to login page
+        this.router.navigate(['/login']);
 
         this.notificationService.notify(NotificationType.ERROR, "You are now signed out");
       }
