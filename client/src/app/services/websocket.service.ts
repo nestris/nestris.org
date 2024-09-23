@@ -78,6 +78,13 @@ export class WebsocketService {
     */
     this.onEvent(JsonMessageType.CONNECTION_SUCCESSFUL).subscribe((message) => {
       console.log('Connection successful, signed in.');
+
+      // If on login page, redirect to home page
+      if (location.pathname === '/login') {
+        console.log('Logged in but on login page. Redirecting to home page...');
+        this.router.navigate(['/']);
+      }
+
       this.signedInSubject$.next(true);
     });
 
