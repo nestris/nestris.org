@@ -13,6 +13,8 @@ services:
       - server  # Ensure client waits for server to be ready
     command: >
       sh -c "nginx -g 'daemon off;';"
+    volume:
+      - ./certs:/etc/ssl/certs
 
   server:
     image: anselchang1/nestris.org:server-production
