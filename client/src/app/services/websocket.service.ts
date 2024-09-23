@@ -10,6 +10,8 @@ import { decodeMessage, MessageType } from '../shared/network/ws-message';
 import { NotificationService } from './notification.service';
 import { fetchServer2, Method } from '../scripts/fetch-server';
 import { DBUser } from '../shared/models/db-user';
+import { ServerStatsService } from './server-stats.service';
+import { DeploymentEnvironment } from '../shared/models/server-stats';
 
 
 /*
@@ -43,19 +45,21 @@ export class WebsocketService {
 
   constructor(
     private notificationService: NotificationService,
+    private serverStats: ServerStatsService,
     private router: Router
   ) {
 
     this.sessionID = uuid();
     
     // Check if logged in. If not, direct to login page
-    fetchServer2<DBUser>(Method.GET, '/api/v2/me').then((response) => {
+    fetchServer2<DBUser>(Method.GET, '/api/v2/me').then(async (response) => {
       this.user$.next(response);
 
       // if the user is already signed in, connect to the websocket
       console.log("Logged in. Connecting to websocket...")
       notificationService.notify(NotificationType.INFO, "Connecting to server...");
-      this.connectWebsocket();
+      
+      await this.connectWebsocket();
     }).catch((error) => {
       // If not signed in, redirect to login page with hard refresh if we were on an authenticated page
       if (!NON_AUTH_WEBPAGES.includes(location.pathname)) location.href = '/login';
@@ -220,7 +224,7 @@ export class WebsocketService {
 
   // called to connect to server
   // if the connection is successful, a ws connection is established and the user is signed in
-  connectWebsocket() {
+  async connectWebsocket() {
 
     // if already signed in, do nothing
     if (this.isSignedIn()) {
@@ -228,7 +232,18 @@ export class WebsocketService {
       return;
     }
 
-    const host = `ws://${location.host}/ws`;
+    const stats = await this.serverStats.waitForServerStats();
+
+    // Production uses HTTPS so we need to use wss://
+    let host;
+    if (stats.environment === DeploymentEnvironment.PRODUCTION) {
+      host = `wss://${location.host}/ws`;
+      console.log("Production environment detected. Using wss://");
+    } else {
+      host = `ws://${location.host}/ws`;
+      console.log("Non-production environment detected. Using ws://");
+    }
+
     console.log("Connecting:", host);
     this.ws = new WebSocket(host);
 

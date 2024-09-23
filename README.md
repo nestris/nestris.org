@@ -67,38 +67,17 @@ https://docs.docker.com/compose/install/linux/#install-using-the-repository
 
 ## Run Application Locally
 
-### ~~Run docker containers in dev mode with live reload~~ NOT WORKING RIGHT NOW
+### Run docker containers in dev mode
 `docker compose -f docker-compose.dev.yml up --build`
 
-Then, you can open it in the browser
-```
-Client: localhost:4200
-Server: localhost:3000
-```
-
-### Run docker containers locally in production mode
-`docker compose -f docker-compose.production.yml up --build`
 Then, you can open it in the browser
 ```
 Client: localhost:80
 Server: localhost:3000
 ```
 
-### Run docker containers locally in staging mode
-`docker compose -f docker-compose.staging.yml up --build`
-
-Alternatively, if you can run .sh files, there exists shortcut
-`./staging.sh`
-
-Then, you can open it in the browser
-```
-Client: localhost:81
-Server: localhost:3001
-```
-
 ### Clean docker containers
 `docker compose down`
-
 
 ### View Postgres Database
 One way I recommend viewing local, staging, and prod databases is through an application called TablePlus. You need to specify your host/socket username, password, and database name, all which should be defined by your environment. The port should be `6543`, which should be defined as the public-facing postgres port in docker-compose.yml.
