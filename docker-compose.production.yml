@@ -13,7 +13,7 @@ services:
       - server  # Ensure client waits for server to be ready
     command: >
       sh -c "nginx -g 'daemon off;';"
-    volume:
+    volumes:
       - ./certs:/etc/ssl/certs
 
   server:
