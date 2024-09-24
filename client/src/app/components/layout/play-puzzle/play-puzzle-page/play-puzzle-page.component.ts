@@ -49,6 +49,7 @@ export class PlayPuzzlePageComponent implements OnInit {
   puzzleSolutionExplanation: string = "";
 
   loadingNextPuzzle$ = new BehaviorSubject<boolean>(false);
+  loadingSubmitPuzzle$ = new BehaviorSubject<boolean>(false);
 
   moveRecommendations$ = new BehaviorSubject<Move[]>([]);
   public hoveredMove$ = new BehaviorSubject<Move | undefined>(undefined);
@@ -178,9 +179,6 @@ export class PlayPuzzlePageComponent implements OnInit {
     if (this.loadingNextPuzzle$.getValue()) return;
     this.loadingNextPuzzle$.next(true);
 
-    // test wait one second
-    await new Promise(f => setTimeout(f, 1000));
-
     const puzzle = await this.puzzleState$.getValue()!.fetchNextPuzzle();
 
     // start fetching move generations. no need to wait for this to finish
@@ -234,6 +232,9 @@ export class PlayPuzzlePageComponent implements OnInit {
   // submit puzzle and go to puzzle solution page
   async submitPuzzle(submission: PuzzleSubmission) {
 
+    // if already loading submit puzzle, return
+    if (this.loadingSubmitPuzzle$.getValue()) return;
+    this.loadingSubmitPuzzle$.next(true);
 
     // stop timer
     clearInterval(this.timerInterval);
@@ -251,7 +252,7 @@ export class PlayPuzzlePageComponent implements OnInit {
 
     // go to puzzle solution page
     this.solvingPuzzle$.next(false);
-
+    this.loadingSubmitPuzzle$.next(false);
   }
   
 
