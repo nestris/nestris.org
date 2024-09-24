@@ -139,6 +139,13 @@ export class WebsocketService {
     );
   }
 
+  // Wait until the user signs in
+  async waitForSignIn() {
+    return new Promise<void>((resolve) => {
+      this.onSignIn().subscribe(() => resolve());
+    });
+  }
+
   // subscribe to this observable when the user signs out
   // ignore first emitted value (false)
   onSignOut(): Observable<void> {

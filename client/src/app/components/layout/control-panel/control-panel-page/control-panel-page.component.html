@@ -13,6 +13,12 @@
             <td>{{rating.totalAttempts}}</td>
             <td>{{rating.totalSolves}}</td>
         </tr>
+        <tr *ngIf="getTotals(aggregate) as totals">
+            <td>Total</td>
+            <td>{{totals.totalPuzzles}}</td>
+            <td>{{totals.totalAttempts}}</td>
+            <td>{{totals.totalSolves}}</td>
+        </tr>
     </table>
 
 </div>

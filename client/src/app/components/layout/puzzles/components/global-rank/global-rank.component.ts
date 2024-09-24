@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { BehaviorSubject, catchError, from, Observable, of, startWith, switchMap } from 'rxjs';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { BehaviorSubject, catchError, from, interval, Observable, of, startWith, switchMap, takeUntil, shareReplay } from 'rxjs';
 import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { PuzzleRank } from 'src/app/shared/puzzles/puzzle-rank';
-
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-global-rank',
@@ -11,27 +11,31 @@ import { PuzzleRank } from 'src/app/shared/puzzles/puzzle-rank';
   styleUrls: ['./global-rank.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GlobalRankComponent {
+export class GlobalRankComponent implements OnInit, OnDestroy {
+  
+  public rank$ = new BehaviorSubject<PuzzleRank | null>(null);
+  private interval: any;
+  private readonly FETCH_INTERVAL = 5000;
 
-  public rank$: Observable<PuzzleRank | null>;
+  constructor(private websocketService: WebsocketService) {}
 
-  constructor(private websocketService: WebsocketService) {
-    // Initialize rank$ in the constructor
-    this.rank$ = this.websocketService.onSignIn().pipe(
-      startWith(null),
-      switchMap(() => {
-        const userid = this.websocketService.getUserID();
-        if (!userid) {
-          // Return null if the user is not logged in
-          return of(null);
-        }
+  async ngOnInit() {
+    await this.websocketService.waitForSignIn();
+    this.updateRank();
+    this.interval = setInterval(() => this.updateRank(), this.FETCH_INTERVAL);
+  }
 
-        // Fetch the puzzle rank and handle errors
-        return from(fetchServer2<PuzzleRank>(Method.GET, `/api/v2/puzzle-rank/${userid}`)).pipe(
-          catchError(() => of(null)) // Handle errors by emitting null
-        );
-      })
-    );
+  private async updateRank() {
+    const userid = this.websocketService.getUserID();
+    if (!userid) {
+      return;
+    }
+    console.log("Updating rank");
+    this.rank$.next(await fetchServer2<PuzzleRank>(Method.GET, `/api/v2/puzzle-rank/${userid}`));
+  }
+
+  ngOnDestroy() {
+    clearInterval(this.interval);
   }
 
   hasRankAbove(rank: PuzzleRank | null): boolean {

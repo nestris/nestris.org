@@ -35,9 +35,6 @@ export async function getTopMovesHybrid(
       'Content-Type': 'application/json'
     }
   });
-  try {
-    return await result.json();
-  } catch (e) {
-    console.log("Error in getTopMovesHybrid: ", result);
-  }
+
+  return await result.json();
 }

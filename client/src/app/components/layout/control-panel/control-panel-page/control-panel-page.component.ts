@@ -22,4 +22,13 @@ export class ControlPanelPageComponent implements OnInit {
     console.log("Puzzle aggregate", this.aggregate$.getValue());
   }
 
+  getTotals(aggregate: PuzzleAggregate) {
+    return aggregate.ratings.reduce((acc, rating) => {
+      acc.totalPuzzles += rating.numPuzzles;
+      acc.totalAttempts += rating.totalAttempts;
+      acc.totalSolves += rating.totalSolves;
+      return acc;
+    }, { totalPuzzles: 0, totalAttempts: 0, totalSolves: 0 });
+  }
+
 }
