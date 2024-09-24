@@ -10,7 +10,6 @@ import { endFriendshipRoute, getAllUsersMatchingUsernamePatternRoute, getFriends
 import { broadcastAnnouncementRoute } from './src/routes/broadcast-route';
 import { getDailyStreakRoute } from './src/puzzle-dashboard/puzzle-streak';
 import { getRelativePuzzleRankRoute } from './src/puzzle-dashboard/relative-puzzle-rank';
-import { generatePuzzlesRoute } from './src/puzzle-generation/generate-puzzles';
 import { getAttemptStatsRoute } from './src/puzzle-generation/get-attempt-stats';
 import { getRandomPuzzleRatingForPlayerElo, selectRandomPuzzleForUserRoute, calculateEloChangeForPuzzle } from './src/puzzle-generation/select-puzzle';
 import { setFeedbackRoute } from './src/puzzle-generation/set-feedback';
@@ -227,7 +226,6 @@ async function main() {
 
   app.get('/api/v2/stackrabbit/get-top-moves-hybrid', getTopMovesHybridRoute);
 
-  app.post('/api/v2/generate-puzzles', requireAdmin, generatePuzzlesRoute);
   app.get('/api/v2/puzzle-aggregate', getPuzzleAggregate);
 
   app.get('/api/v2/random-rating', async (req: Request, res: Response) => {

@@ -94,8 +94,9 @@ export async function selectRandomPuzzleForUser(userid: string): Promise<RatedPu
   // query the database for a random puzzle with the selected rating where the puzzle has not been attempted by the user
   // by ordering by num_attempts_cached and selecting the first puzzle, we prioritize exploration over exploitation
   // ORDER by num_attempts_cached, then randomly
+  // we ignore puzzles with 2 or greater num_dislikes_cached, as they are likely to be bad puzzles
   let result = await queryDB(
-    `SELECT * FROM rated_puzzles WHERE rating = $1 AND id NOT IN (SELECT puzzle_id FROM puzzle_attempts WHERE userid = $2) ORDER BY num_attempts_cached ASC LIMIT 1`,
+    `SELECT * FROM rated_puzzles WHERE rating = $1 AND num_dislikes_cached < 2 AND id NOT IN (SELECT puzzle_id FROM puzzle_attempts WHERE userid = $2) ORDER BY num_attempts_cached ASC LIMIT 1`,
     [rating, userid]
   );
     

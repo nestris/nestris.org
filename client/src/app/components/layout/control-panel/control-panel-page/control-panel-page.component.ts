@@ -11,8 +11,6 @@ import { PuzzleAggregate } from 'src/app/shared/puzzles/puzzle-aggregate';
 export class ControlPanelPageComponent implements OnInit {
   
   public aggregate$ = new BehaviorSubject<PuzzleAggregate | undefined>(undefined);
-  public generating$ = new BehaviorSubject<boolean>(false);
-  public count: number = 100;
 
   async ngOnInit() {
     await this.sync();
@@ -22,15 +20,6 @@ export class ControlPanelPageComponent implements OnInit {
     // fetch the puzzle aggregate from the server
     this.aggregate$.next(await fetchServer2<PuzzleAggregate>(Method.GET, '/api/v2/puzzle-aggregate'));
     console.log("Puzzle aggregate", this.aggregate$.getValue());
-  }
-
-  async generatePuzzles() {
-    console.log("Generating puzzles...");
-    this.generating$.next(true);
-    await fetchServer2(Method.POST, '/api/v2/generate-puzzles', { count: this.count });
-    console.log("Puzzles generated.");
-    await this.sync();
-    this.generating$.next(false);
   }
 
 }

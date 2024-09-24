@@ -5,6 +5,7 @@ DIRS=(
   "shared/ client/src/app/shared"
   "shared/ server/shared"
   "shared/ ocr-library/shared"
+  "shared/ puzzle-generator/shared"
   "ocr-library/ocr client/src/app/ocr"
 )
 
