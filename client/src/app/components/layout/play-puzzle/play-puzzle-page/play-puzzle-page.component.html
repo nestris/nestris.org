@@ -194,7 +194,8 @@
                         icon="./assets/img/button-icons/new-puzzle.svg"
                         [label]="(puzzleState$ | async)?.nextButtonText()" [color]="ButtonColor.GREEN"
                         [stretch]="true"
-                        (click)="startPuzzle()"
+                        [loading]="!!(loadingNextPuzzle$ | async)" [loadingSize]="15"
+                        (smartClick)="startPuzzle()"
                     />
                 </div>
 

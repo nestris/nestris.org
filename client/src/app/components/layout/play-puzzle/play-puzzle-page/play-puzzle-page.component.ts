@@ -48,6 +48,8 @@ export class PlayPuzzlePageComponent implements OnInit {
   puzzleIsCorrect = false;
   puzzleSolutionExplanation: string = "";
 
+  loadingNextPuzzle$ = new BehaviorSubject<boolean>(false);
+
   moveRecommendations$ = new BehaviorSubject<Move[]>([]);
   public hoveredMove$ = new BehaviorSubject<Move | undefined>(undefined);
 
@@ -172,6 +174,12 @@ export class PlayPuzzlePageComponent implements OnInit {
       return;
     }
 
+    // if already loading next puzzle, return
+    if (this.loadingNextPuzzle$.getValue()) return;
+    this.loadingNextPuzzle$.next(true);
+
+    // test wait one second
+    await new Promise(f => setTimeout(f, 1000));
 
     const puzzle = await this.puzzleState$.getValue()!.fetchNextPuzzle();
 
@@ -187,6 +195,7 @@ export class PlayPuzzlePageComponent implements OnInit {
 
     this.isRetry$.next(false);
     this.solvingPuzzle$.next(true);
+    this.loadingNextPuzzle$.next(false);
   }
 
   private startTimer() {

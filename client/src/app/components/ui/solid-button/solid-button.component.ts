@@ -22,6 +22,7 @@ export class SolidButtonComponent {
   @Input() fontSize: number = 16;
   @Input() fontWeight: number = 600;
   @Input() loading: boolean = false;
+  @Input() loadingSize: number = 30;
   @Input() paddingHorizontal: number = 15;
   @Input() paddingVertical: number = 6;
   @Input() borderRadius: number = 5;

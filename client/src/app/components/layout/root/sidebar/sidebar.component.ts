@@ -55,10 +55,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   async syncOnlineFriends() {
 
-    const username = this.websocketService.getUsername();
-    if (!username) return; // if not logged in, do nothing
+    const userid = this.websocketService.getUserID();
+    if (!userid) return; // if not logged in, do nothing
 
-    const result = await fetchServer2<{count: number}>(Method.GET, `/api/v2/num-online-friends/${username}`);
+    const result = await fetchServer2<{count: number}>(Method.GET, `/api/v2/num-online-friends/${userid}`);
     this.numOnlineFriends$.next(result.count);
 
   }
