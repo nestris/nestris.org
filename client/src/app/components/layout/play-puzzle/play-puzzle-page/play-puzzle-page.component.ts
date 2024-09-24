@@ -14,9 +14,12 @@ import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { EloMode } from '../elo-rating/elo-rating.component';
 import { PuzzleState, EloChange } from './puzzle-states/puzzle-state';
 import { RatedPuzzleState } from './puzzle-states/rated-puzzle-state';
+import { SinglePuzzleState } from './puzzle-states/single-puzzle-state';
+import { NotificationType } from 'src/app/shared/models/notifications';
 
 export enum PuzzleMode {
   RATED = "rated",
+  SINGLE = "single",
 }
 
 export interface Move {
@@ -115,7 +118,6 @@ export class PlayPuzzlePageComponent implements OnInit {
         return;
       }
 
-
       // if mode is rated and not logged in, redirect back to puzzles page
       if (mode === PuzzleMode.RATED && !this.websocketService.isSignedIn()) {
         console.log("Not logged in");
@@ -131,6 +133,15 @@ export class PlayPuzzlePageComponent implements OnInit {
           // guaranteed to be logged in
           puzzleState = new RatedPuzzleState(this.websocketService.getUserID()!);
           console.log("Rated puzzle state created");
+          break;
+        case PuzzleMode.SINGLE:
+          if (!id) {
+            console.log("Invalid id");
+            this.redirectToDefaultURL();
+            return;
+          }
+          puzzleState = new SinglePuzzleState(id);
+          console.log("Single puzzle state created");
           break;
       }
 
@@ -180,9 +191,6 @@ export class PlayPuzzlePageComponent implements OnInit {
     this.loadingNextPuzzle$.next(true);
 
     const puzzle = await this.puzzleState$.getValue()!.fetchNextPuzzle();
-
-    // start fetching move generations. no need to wait for this to finish
-    this.generateMoveRecommendations(puzzle);
 
     this.puzzle$.next(puzzle);
     this.eloChange$.next(this.puzzleState$.getValue()!.getEloChange());
@@ -239,6 +247,9 @@ export class PlayPuzzlePageComponent implements OnInit {
     // stop timer
     clearInterval(this.timerInterval);
 
+    // start fetching move generations. no need to wait for this to finish
+    this.generateMoveRecommendations(this.puzzle$.getValue()!);
+
     // if not signed in, redirect back to puzzles page
     if (this.puzzleState$.getValue() instanceof RatedPuzzleState && !this.websocketService.isSignedIn()) {
       this.router.navigate(['/puzzles/']);
@@ -293,7 +304,13 @@ export class PlayPuzzlePageComponent implements OnInit {
     }
 
     this.solvingPuzzle$.next(true);
+  }
 
+  copyPuzzleLink() {
+    const puzzle = this.puzzle$.getValue()!;
+    const url = window.location.origin + `/online/puzzle?mode=single&id=${puzzle.id}`;
+    navigator.clipboard.writeText(url);
+    this.notifier.notify(NotificationType.SUCCESS, "Puzzle link copied to clipboard!");
   }
 
 }

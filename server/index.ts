@@ -25,6 +25,7 @@ import { DeploymentEnvironment, ServerStats } from './shared/models/server-stats
 import { getMultiplayerStateRoute, selectLevelForPlayer, setMultiplayerReadiness, transitionDeadToWaiting } from './src/routes/multiplayer-routes';
 import { leaveRoomRoute } from './src/routes/room-routes';
 import { postEventRoute } from './src/routes/event-route';
+import { getPuzzleRoute } from './src/routes/get-puzzle-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -232,6 +233,9 @@ async function main() {
       const elo = parseInt(req.query['elo'] as string);
       res.status(200).send({rating: getRandomPuzzleRatingForPlayerElo(elo)});
   });
+
+
+  app.get('/api/v2/puzzle/:id', getPuzzleRoute);
 
   app.post('/api/v2/random-rated-puzzle/:userid', requireAuth, selectRandomPuzzleForUserRoute);
 

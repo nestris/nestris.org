@@ -33,6 +33,7 @@ export class RatedPuzzleState extends PuzzleState {
     // if retrying, just evaluate the submission client-side
     if (isRetry) return evaluatePuzzleSubmission(puzzle, submission);
 
+    // otherwise, submit the puzzle attempt to the server
     submission.userid = this.userid;
     const puzzleResult = await fetchServer2<PuzzleResult>(Method.POST, `/api/v2/submit-puzzle-attempt`, submission);
 

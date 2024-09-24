@@ -11,18 +11,13 @@ import { BoardGenerator } from "./board-generator";
 import { getTopMovesHybrid } from "./stackrabbit";
 
 
-export enum GeneratorMode {
-  NB = "NB", // NB mode tends to generate more dependent boards (easier to solve)
-  NNB = "NNB" // NNB mode tends to generate less dependent boards (harder to solve)
-}
-
-export class SequentialBoardGenerator extends BoardGenerator {
+export class EasyBoardGenerator extends BoardGenerator {
 
   board!: TetrisBoard;
   current!: TetrominoType;
   next!: TetrominoType;
 
-  constructor(private readonly mode: GeneratorMode = GeneratorMode.NB) {
+  constructor(private readonly mode: GeneratorMode) {
     super();
     this.getResetBoardState();
   }

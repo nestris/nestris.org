@@ -25,7 +25,7 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
   const MAX_BAD_PUZZLES_IN_A_ROW = 30; // if this many bad puzzles are generated in a row, reset the board
 
   // generator generates realistic board states
-  const generator = new SequentialBoardGenerator(GeneratorMode.NB);
+  const generator = new SequentialBoardGenerator();
   const puzzles: PartialRatedPuzzle[] = [];
 
   let badPuzzlesInARow = 0;
@@ -50,6 +50,7 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
     try {
       ({rating, details, currentSolution, nextSolution} = await ratePuzzle(state.board, current, next));
     } catch (e) { // if something goes wrong with ratePuzzle, reset the board
+      i--;
       badPuzzlesInARow = MAX_BAD_PUZZLES_IN_A_ROW;
       continue;
     }

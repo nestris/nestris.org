@@ -34,7 +34,9 @@ export function equalToSolution(puzzle: FirstSecondPlacements, submission: Seria
 }
 
 const RIGHT_ANSWER_COMMENTS = [
-  "You got it!"
+  "You got it!",
+  "Stack-tastic!",
+  "Superb solving!"
 ]
 
 const WRONG_ANSWER_COMMENTS = [
@@ -46,6 +48,7 @@ const WRONG_ANSWER_COMMENTS = [
   "Was that a wild guess?",
   "If that was a dart, you missed the board.",
   "Try again, Einstein.",
+  "Feeling puzzled?",
 ]
 
 const WRONG_ANSWER_STREAK_COMEMNTS = [
