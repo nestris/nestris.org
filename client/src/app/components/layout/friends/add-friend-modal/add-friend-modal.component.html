@@ -6,10 +6,12 @@
 
       <h2 class="loading" *ngIf="potentialFriends === undefined" >Loading...</h2>
       <div class="usernames" *ngIf="potentialFriends !== undefined">
-         <div class="username" *ngFor="let potentialFriend of potentialFriends">
-            <p class="username-text">{{potentialFriend.username}}</p>
-            <app-friend-icon [status]="potentialFriend.status" (click)="sendFriendRequest(potentialFriend)" />
-         </div>
+         <ng-container *ngFor="let potentialFriend of potentialFriends">
+            <div class="username" *ngIf="userMatchesTypedUsername(potentialFriend)">
+               <p class="username-text">{{potentialFriend.username}}</p>
+               <app-friend-icon [status]="potentialFriend.status" (click)="sendFriendRequest(potentialFriend)" />
+            </div>
+         </ng-container>
       </div>
    </div>   
   </app-modal>
