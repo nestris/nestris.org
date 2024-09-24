@@ -5,8 +5,10 @@ import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.s
 import { NotificationService } from 'src/app/services/notification.service';
 import { VideoCaptureService } from 'src/app/services/ocr/video-capture.service';
 import { Platform, PlatformInterfaceService } from 'src/app/services/platform-interface.service';
+import { ServerStatsService } from 'src/app/services/server-stats.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { NotificationType } from 'src/app/shared/models/notifications';
+import { DeploymentEnvironment } from 'src/app/shared/models/server-stats';
 import { JsonMessageType, StartSoloRoomMessage } from 'src/app/shared/network/json-message';
 import { v4 as uuid } from 'uuid';
 
@@ -26,6 +28,7 @@ export class PlayPageComponent {
     public platformService: PlatformInterfaceService,
     public videoCapture: VideoCaptureService,
     private modalManager: ModalManagerService,
+    private serverStats: ServerStatsService,
     private router: Router,
     private websocket: WebsocketService,
     private notifier: NotificationService
@@ -33,11 +36,29 @@ export class PlayPageComponent {
 
   }
 
-  setupCalibration() {
+  async setupCalibration(event: MouseEvent | undefined = undefined) {
+
+    if (event) event.stopPropagation();
+
+    // TEMPORARY: OCR platform is disabled for production
+    const stats = await this.serverStats.waitForServerStats();
+      if (stats.environment === DeploymentEnvironment.PRODUCTION) {
+      this.notifier.notify(NotificationType.ERROR, "OCR platform is still under development. Please use emulator platform for now.");
+      return;
+    }
+
     this.modalManager.showModal(ModalType.CALIBRATE_OCR);
   }
 
-  onClickOCRPlatform() {
+  async onClickOCRPlatform() {
+
+     // TEMPORARY: OCR platform is disabled for production
+     const stats = await this.serverStats.waitForServerStats();
+     if (stats.environment === DeploymentEnvironment.PRODUCTION) {
+     this.notifier.notify(NotificationType.ERROR, "OCR platform is still under development. Please use emulator platform for now.");
+     return;
+   }
+
     // if calibration is valid, switch to OCR platform
     if (this.videoCapture.getCalibrationValid()) {
       this.platformService.setPlatform(Platform.OCR);

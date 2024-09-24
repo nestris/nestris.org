@@ -24,7 +24,7 @@ export class ServerStatsService {
         this.bannerManager.addBanner({
           id: BannerType.BETA_WARNING,
           color: "#3C5EB7",
-          message: "nestris.org is in alpha, so progress may be lost at any time. Learn more at our <a href='https://discord.gg/4xkBHvGtzp'><u>Discord</u></a> server."
+          message: "nestris.org is in alpha, so progress may be lost at any time. Learn more at our <a href='https://discord.gg/4xkBHvGtzp' target='_blank'><u>Discord</u></a> server."
         });
       } else if (stats.environment === DeploymentEnvironment.STAGING) {
         this.bannerManager.addBanner({
@@ -36,7 +36,7 @@ export class ServerStatsService {
         this.bannerManager.addBanner({
           id: BannerType.DEV_WARNING,
           color: "#6c3cb7",
-          message: "You are running on a local development environment. Learn more at our <a href='https://discord.gg/4xkBHvGtzp'><u>Discord</u></a> server."
+          message: "You are running on a local development environment. Learn more at our <a href='https://discord.gg/4xkBHvGtzp' target='_blank'><u>Discord</u></a> server."
         });
       }
     } catch (error) {
