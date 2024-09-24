@@ -1,7 +1,7 @@
 import { PuzzleRating } from "../shared/puzzles/puzzle-rating";
 import { generatePuzzles } from "./generate-puzzles";
 
-const NUM_PUZZLES = 100;
+const NUM_PUZZLES = 500;
 
 // Store the number of puzzles generated for each rating
 const count: { [key in PuzzleRating]?: number } = {};

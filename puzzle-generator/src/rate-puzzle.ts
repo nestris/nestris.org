@@ -32,20 +32,14 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
 
   const boardString = BinaryTranscoder.encode(board);
 
+  let stackrabbitRaw: any;
   let stackrabbit: TopMovesHybridResponse;
   try {
-    const stackrabbitRaw = await getTopMovesHybrid(boardString, 18, 0, current, next);
+    stackrabbitRaw = await getTopMovesHybrid(boardString, 18, 0, current, next);
     stackrabbit = decodeStackrabbitResponse(stackrabbitRaw, current, next);
   } catch (e) {
-    console.log("Error in ratePuzzle: " + e);
-    return {rating: PuzzleRating.BAD_PUZZLE, details: {
-      bestNB: -1,
-      diff: -1,
-      isAdjustment: false,
-      rating: PuzzleRating.UNRATED,
-      hasBurn: false,
-      hasTuckOrSpin: false
-    }};
+    console.log("Error in ratePuzzle: ", e, stackrabbitRaw);
+    throw new Error(`Error in ratePuzzle: ${e}`);
   }
   
   // get the board after the first move

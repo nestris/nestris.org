@@ -33,10 +33,11 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
   for (let i = 0; i < count; i++) {
 
     let state;
-    if (badPuzzlesInARow > MAX_BAD_PUZZLES_IN_A_ROW) {
+    if (badPuzzlesInARow >= MAX_BAD_PUZZLES_IN_A_ROW) {
       // board is in too messy of a state. Reset.
       state = generator.getResetBoardState();
       badPuzzlesInARow = 0;
+      console.log("Resetting board due to too many bad puzzles in a row");
     } else {
       state = await generator.getNextBoardState();
     }
@@ -48,8 +49,8 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
     let rating, details, currentSolution, nextSolution;
     try {
       ({rating, details, currentSolution, nextSolution} = await ratePuzzle(state.board, current, next));
-    } catch (e) { // if something goes wrong, with ratePuzzle, skip this puzzle
-      badPuzzlesInARow++;
+    } catch (e) { // if something goes wrong with ratePuzzle, reset the board
+      badPuzzlesInARow = MAX_BAD_PUZZLES_IN_A_ROW;
       continue;
     }
     
