@@ -61,9 +61,21 @@ export class WebsocketService {
       
       await this.connectWebsocket();
     }).catch((error) => {
+      
+      // If we are on a non-auth page, do nothing
+      if (NON_AUTH_WEBPAGES.includes(location.pathname)) {
+        console.log("Not signed in but on non-auth page. Doing nothing.");
+        return;
+      }
+
+      // Exception: if we are on puzzles page in single mode, do nothing
+      if (location.pathname === '/puzzles' && location.search.includes('mode=single')) {
+        console.log("Not signed in but on single puzzle page. Doing nothing.");
+        return;
+      }
+      
       // If not signed in, redirect to login page with hard refresh if we were on an authenticated page
-      if (!NON_AUTH_WEBPAGES.includes(location.pathname)) location.href = '/login';
-      console.error('Not signed in:', error);
+      location.href = '/login';
     });
 
     /*

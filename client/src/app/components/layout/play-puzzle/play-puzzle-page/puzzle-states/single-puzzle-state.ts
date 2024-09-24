@@ -16,6 +16,7 @@ export class SinglePuzzleState extends PuzzleState {
   // Fetch the puzzle from puzzleID, or throw an error if the puzzle does not exist
   async init() {
     // This throws an error if the puzzle does not exist
+    console.log("Fetching single puzzle", this.puzzleID);
     this.puzzle = await fetchServer2<GenericPuzzle>(Method.GET, `/api/v2/puzzle/${this.puzzleID}`);
   }
 
