@@ -21,6 +21,29 @@ function hasTuckOrSpin(board: TetrisBoard, placement: MoveableTetromino): boolea
   return oneHigherPlacement.intersectsBoard(board);
 }
 
+// Checks if first and second placements are interchangeable
+function placementsInterchangeable(board: TetrisBoard, first: MoveableTetromino, second: MoveableTetromino): boolean {
+  
+  // Make placements 
+  const board1 = board.copy();
+  first.blitToBoard(board1);
+  board1.processLineClears();
+  second.blitToBoard(board1);
+  board1.processLineClears();
+
+  // Make placements in reverse order, and if illegal, placements are not interchangeable
+  const board2 = board.copy();
+  if (!second.isValidPlacement(board2)) return false;
+  second.blitToBoard(board2);
+  board2.processLineClears();
+  if (!first.isValidPlacement(board2)) return false;
+  first.blitToBoard(board2);
+  board2.processLineClears();
+
+  // If placing the pieces in reverse order results in the same board, placements are interchangeable
+  return board1.equals(board2);
+}
+
 export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, next: TetrominoType):
     Promise<{
       rating: PuzzleRating,

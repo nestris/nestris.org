@@ -1,10 +1,8 @@
 import { Pool, QueryResult, PoolClient } from 'pg';
 
-enum Environment {
-  DEVELOPMENT = "dev",
-  PRODUCTION = "prod",
-}
-const DATABSE_ENVIRONMENT: Environment = Environment.PRODUCTION;
+const [, , ...args] = process.argv;
+const DATABSE_ENVIRONMENT = args.find((arg) => arg.startsWith('--db='))?.split('=')[1];
+console.log(`Database environment: ${DATABSE_ENVIRONMENT}`);
 
 // Load environment variables
 require('dotenv').config({ path: `.env.${DATABSE_ENVIRONMENT}` });

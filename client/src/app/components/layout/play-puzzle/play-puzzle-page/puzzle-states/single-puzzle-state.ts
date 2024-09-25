@@ -25,7 +25,7 @@ export class SinglePuzzleState extends PuzzleState {
   }
 
   getPuzzleName(isRetry: boolean): string {
-    return "Unrated Puzzle";
+    return "Shared Puzzle";
   }
 
   // Single puzzles do not have elo changes
