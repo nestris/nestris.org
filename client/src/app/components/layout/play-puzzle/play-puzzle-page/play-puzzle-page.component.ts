@@ -16,6 +16,8 @@ import { PuzzleState, EloChange } from './puzzle-states/puzzle-state';
 import { RatedPuzzleState } from './puzzle-states/rated-puzzle-state';
 import { SinglePuzzleState } from './puzzle-states/single-puzzle-state';
 import { NotificationType } from 'src/app/shared/models/notifications';
+import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
+import { PuzzleRating } from 'src/app/shared/puzzles/puzzle-rating';
 
 export enum PuzzleMode {
   RATED = "rated",
@@ -191,6 +193,12 @@ export class PlayPuzzlePageComponent implements OnInit {
     this.loadingNextPuzzle$.next(true);
 
     const puzzle = await this.puzzleState$.getValue()!.fetchNextPuzzle();
+
+    // TESTING: get rating of puzzle if adjusted
+    const adjustedRating = await fetchServer2<{rating: PuzzleRating | null}>(
+      Method.GET, `/api/v2/adjust-puzzle-rating/${puzzle.id}`
+    );
+    console.log("ADJUSTED RATING:", adjustedRating);
 
     this.puzzle$.next(puzzle);
     this.eloChange$.next(this.puzzleState$.getValue()!.getEloChange());

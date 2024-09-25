@@ -28,9 +28,9 @@ const ELO_0_499 = getRandomDistribution(80, 20, 0, 0, 0); // mostly solving 1 st
 const ELO_500_999 = getRandomDistribution(40, 60, 0, 0, 0); // mostly solving 1-2 star puzzles
 const ELO_1000_1499 = getRandomDistribution(30, 40, 30, 0, 0); // mostly solving 2-3 star puzzles
 const ELO_1500_1999 = getRandomDistribution(10, 30, 40, 20, 0); // mostly solving 2-4 star puzzles
-const ELO_2000_2499 = getRandomDistribution(5, 10, 35, 30, 20); // mostly solving 2-5 star puzzles
-const ELO_2500_2999 = getRandomDistribution(2, 4, 30, 44, 20); // mostly solving 3-5 star puzzles with lower chance of 5 star
-const ELO_3000_PLUS = getRandomDistribution(2, 2, 32, 32, 32); // mostly solving 3-5 star puzzles
+const ELO_2000_2499 = getRandomDistribution(0, 10, 35, 35, 20); // mostly solving 2-5 star puzzles
+const ELO_2500_2999 = getRandomDistribution(0, 0, 30, 40, 30); // mostly solving 3-5 star puzzles with lower chance of 5 star
+const ELO_3000_PLUS = getRandomDistribution(0, 0, 15, 40, 45); // mostly solving 3-5 star puzzles
 
 // Given a user's elo, probablistically select the rating of the puzzle the user will play next.
 export function getRandomPuzzleRatingForPlayerElo(elo: number): PuzzleRating {

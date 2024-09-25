@@ -11,11 +11,13 @@
   "devDependencies": {
     "@types/node": "^22.6.1",
     "@types/pg": "^8.11.10",
+    "@types/regression": "^2.0.6",
     "typescript": "^5.6.2"
   },
   "dependencies": {
     "d3-shape": "^3.2.0",
     "dotenv": "^16.4.5",
+    "js-regression": "^1.0.10",
     "mathjs": "^13.1.1",
     "pg": "^8.13.0"
   }

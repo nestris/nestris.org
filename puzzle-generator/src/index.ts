@@ -1,5 +1,4 @@
 import { PuzzleRating } from "../shared/puzzles/puzzle-rating";
-import { testLogisticFit } from "./adjust-puzzle-rating/adjust-puzzle-rating";
 import { generatePuzzles } from "./generate-puzzles";
 
 
@@ -28,7 +27,7 @@ function generate() {
 }
 
 function test() {
-    testLogisticFit();
+    console.log("Testing");
 }
 
 const [, , ...args] = process.argv;
