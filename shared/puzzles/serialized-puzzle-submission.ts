@@ -15,6 +15,7 @@ export function isSubmissionComplete(submission: SerializedPuzzleSubmission): bo
   return submission.r1 !== undefined && submission.r2 !== undefined;
 }
 
+
 // whether the user submission is equal to the puzzle solution
 // precondition: submission is complete
 export function equalToSolution(puzzle: FirstSecondPlacements, submission: SerializedPuzzleSubmission): boolean {
@@ -23,18 +24,34 @@ export function equalToSolution(puzzle: FirstSecondPlacements, submission: Seria
       throw new Error("Submission is not complete");
   }
 
-  return (
+  // if equal to solution, return true
+  if (
       submission.r1 === puzzle.r1 &&
       submission.x1 === puzzle.x1 &&
       submission.y1 === puzzle.y1 &&
       submission.r2 === puzzle.r2 &&
       submission.x2 === puzzle.x2 &&
       submission.y2 === puzzle.y2
-  );
+  ) return true;
+
+  // if same piece, and reverse order results in same board, return true
+  if (
+    puzzle.current === puzzle.next &&
+    submission.r1 === puzzle.r2 &&
+    submission.x1 === puzzle.x2 &&
+    submission.y1 === puzzle.y2 &&
+    submission.r2 === puzzle.r1 &&
+    submission.x2 === puzzle.x1 &&
+    submission.y2 === puzzle.y1
+  ) return true;
+
+  return false;
 }
 
 const RIGHT_ANSWER_COMMENTS = [
-  "You got it!"
+  "You got it!",
+  "Stack-tastic!",
+  "Superb solving!"
 ]
 
 const WRONG_ANSWER_COMMENTS = [
@@ -46,9 +63,7 @@ const WRONG_ANSWER_COMMENTS = [
   "Was that a wild guess?",
   "If that was a dart, you missed the board.",
   "Try again, Einstein.",
-]
-
-const WRONG_ANSWER_STREAK_COMEMNTS = [
+  "Feeling puzzled?",
   "Is your GPS off today?",
   "Your accuracy's on vacation.",
   "I guess perfection's too mainstream for you.",

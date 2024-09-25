@@ -7,12 +7,11 @@ export interface FirstSecondPlacements {
   r2: number;
   x2: number;
   y2: number;
-
+  current: TetrominoType;
+  next: TetrominoType;
 }
 
 export interface GenericPuzzle extends FirstSecondPlacements {
   id: string;
   boardString: string;
-  current: TetrominoType;
-  next: TetrominoType;
 }

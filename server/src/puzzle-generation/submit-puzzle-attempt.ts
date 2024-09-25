@@ -3,20 +3,23 @@ import { Request, Response } from "express";
 import { clearActivePuzzle } from "./active-puzzle";
 import { FirstSecondPlacements } from "../../shared/puzzles/generic-puzzle";
 import { SerializedPuzzleSubmission, PuzzleResult, evaluatePuzzleSubmission } from "../../shared/puzzles/serialized-puzzle-submission";
+import { TETROMINO_CHAR_TO_TYPE } from "../../shared/tetris/tetrominos";
 
-interface JoinSchema extends FirstSecondPlacements{
+interface JoinSchema extends FirstSecondPlacements {
   puzzle_id: string;
   elo_gain: number;
   elo_loss: number;
   seconds_since: number;
   puzzle_elo: number;
+  current_piece: string;
+  next_piece: string;
 }
 
 export async function submitPuzzleAttempt(submission: SerializedPuzzleSubmission): Promise<PuzzleResult> {
 
   // get active puzzle joined with rated_puzzles, joined with the users table with the username
   const result = await queryDB(
-    `SELECT puzzle_id, elo_gain, elo_loss, EXTRACT(EPOCH FROM (NOW() - started_at)) AS seconds_since, puzzle_elo, x1, y1, r1, x2, y2, r2
+    `SELECT puzzle_id, elo_gain, elo_loss, EXTRACT(EPOCH FROM (NOW() - started_at)) AS seconds_since, puzzle_elo, x1, y1, r1, x2, y2, r2, current_piece, next_piece
     FROM active_puzzles
     JOIN rated_puzzles ON active_puzzles.puzzle_id = rated_puzzles.id
     JOIN users ON active_puzzles.userid = users.userid
@@ -36,6 +39,9 @@ export async function submitPuzzleAttempt(submission: SerializedPuzzleSubmission
   if (join.puzzle_id !== submission.puzzleID) {
     throw new Error(`Active puzzle ID does not match submission ${join.puzzle_id} ${submission.puzzleID}`);
   }
+
+  join.current = TETROMINO_CHAR_TO_TYPE[join.current_piece];
+  join.next = TETROMINO_CHAR_TO_TYPE[join.next_piece];
 
   const puzzleResult: PuzzleResult = evaluatePuzzleSubmission(join, submission);
 
