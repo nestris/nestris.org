@@ -11,10 +11,17 @@ export async function getPuzzleRoute(req: Request, res: Response) {
         return;
     }
 
-    let result = await queryDB(
-        `SELECT * FROM rated_puzzles WHERE id = $1`,
-        [puzzleID]
-    );
+    let result: any;
+    try {
+        result = await queryDB(
+            `SELECT * FROM rated_puzzles WHERE id = $1`,
+            [puzzleID]
+        );
+    } catch {
+        res.status(404).send("Puzzle not found");
+        return;
+    }
+    
 
     if (result.rows.length === 0) {
         res.status(404).send("Puzzle not found");
