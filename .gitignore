@@ -30,6 +30,7 @@ puzzle-generator/.env.dev
 .env
 .env.development
 .env.production
+.env.staging
 
 # Compiled output
 /dist

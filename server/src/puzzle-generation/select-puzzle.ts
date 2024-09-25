@@ -55,7 +55,7 @@ export function calculateEloChangeForPuzzle(userElo: number, numAttempts: number
 
   if (rating < PuzzleRating.ONE_STAR) throw new Error("Invalid puzzle rating");
 
-  const puzzleEloEquivalent = 400 * rating;
+  const puzzleEloEquivalent = 500 * rating;
   const eloDelta = userElo - puzzleEloEquivalent;
 
   const ELO_SCALAR = 15;

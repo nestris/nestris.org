@@ -17,7 +17,7 @@ start_time=$(date +%s)
 
 # Start the specified number of instances
 for ((i=1; i<=NUM_INSTANCES; i++)); do
-  npm start -- --mode=generate --db=dev &
+  npm start -- --mode=generate --db=staging &
 done
 
 # Wait for all background jobs to finish
