@@ -26,7 +26,6 @@ import { getMultiplayerStateRoute, selectLevelForPlayer, setMultiplayerReadiness
 import { leaveRoomRoute } from './src/routes/room-routes';
 import { postEventRoute } from './src/routes/event-route';
 import { getPuzzleRoute } from './src/routes/get-puzzle-route';
-import { getAdjustedPuzzleRatingRoute } from './src/database/adjust-puzzle-rating';
 import { warnServerRestartRoute } from './src/routes/warn-server-restart-route';
 
 // Load environment variables
@@ -255,8 +254,6 @@ async function main() {
 
   app.get('/api/v2/daily-streak/:userid', getDailyStreakRoute);
   app.get('/api/v2/puzzle-rank/:userid', getRelativePuzzleRankRoute);
-
-  app.get('/api/v2/adjust-puzzle-rating/:puzzleId', getAdjustedPuzzleRatingRoute);
 
   app.post('/api/v2/set-feedback', requireAuth, requireAuth, setFeedbackRoute);
 

@@ -4,6 +4,16 @@ import { clearActivePuzzle } from "./active-puzzle";
 import { FirstSecondPlacements } from "../../shared/puzzles/generic-puzzle";
 import { SerializedPuzzleSubmission, PuzzleResult, evaluatePuzzleSubmission } from "../../shared/puzzles/serialized-puzzle-submission";
 import { TETROMINO_CHAR_TO_TYPE } from "../../shared/tetris/tetrominos";
+import { PuzzleRating } from "../../shared/puzzles/puzzle-rating";
+import { logDatabase } from "../database/log";
+
+export enum PuzzleState {
+  PROVISIONAL = "provisional",
+  ADJUSTED = "adjusted",
+}
+
+// number of attempts needed to convert a provisional puzzle to an adjusted puzzle
+const NUM_ATTEMPTS_NEEDED_TO_ADJUST = 10;
 
 interface JoinSchema extends FirstSecondPlacements {
   puzzle_id: string;
@@ -13,13 +23,18 @@ interface JoinSchema extends FirstSecondPlacements {
   puzzle_elo: number;
   current_piece: string;
   next_piece: string;
+  num_attempts_cached: number;
+  num_solves_cached: number;
+  rating: PuzzleRating,
+  state: PuzzleState;
 }
 
 export async function submitPuzzleAttempt(submission: SerializedPuzzleSubmission): Promise<PuzzleResult> {
 
   // get active puzzle joined with rated_puzzles, joined with the users table with the username
   const result = await queryDB(
-    `SELECT puzzle_id, elo_gain, elo_loss, EXTRACT(EPOCH FROM (NOW() - started_at)) AS seconds_since, puzzle_elo, x1, y1, r1, x2, y2, r2, current_piece, next_piece
+    `SELECT puzzle_id, elo_gain, elo_loss, EXTRACT(EPOCH FROM (NOW() - started_at)) AS seconds_since, puzzle_elo,
+      x1, y1, r1, x2, y2, r2, current_piece, next_piece, num_attempts_cached, num_solves_cached, rating, state
     FROM active_puzzles
     JOIN rated_puzzles ON active_puzzles.puzzle_id = rated_puzzles.id
     JOIN users ON active_puzzles.userid = users.userid
@@ -71,6 +86,14 @@ export async function submitPuzzleAttempt(submission: SerializedPuzzleSubmission
   // remove the active puzzle
   await clearActivePuzzle(submission.userid);
 
+  // Trigger a puzzle rating update to get puzzle from provisional -> adjusted if num required attempts reached
+  join.num_attempts_cached++;
+  if (puzzleResult.isCorrect) join.num_solves_cached++;
+  if (join.num_attempts_cached >= NUM_ATTEMPTS_NEEDED_TO_ADJUST && join.state === PuzzleState.PROVISIONAL) {
+    const successRate = join.num_solves_cached / join.num_attempts_cached;
+    await adjustPuzzleRating(submission.userid, join.puzzle_id, join.rating, successRate);
+  }
+
   return puzzleResult;
 
 }
@@ -87,5 +110,38 @@ export async function submitPuzzleAttemptRoute(req: Request, res: Response) {
     console.error(e);
     res.status(412).send(e.message);
   }
+}
 
+export async function adjustPuzzleRating(userid: string, puzzleID: string, rating: PuzzleRating, successRate: number) {
+
+  let newRating: PuzzleRating;
+  if (successRate >= 0.8) { // Decrease rating if success rate is high
+    // if already 1 or 2 star, don't decrease
+    if (rating <= PuzzleRating.TWO_STAR) return;
+
+    newRating = rating - 1;
+
+  } else if (successRate <= 0.4) { // Increase rating if success rate is low
+    // if already 5 star, don't increase
+    if (rating === PuzzleRating.FIVE_STAR) return;
+
+    newRating = rating + 1;
+  } else {
+    // no change
+    return;
+  }
+
+  // Update the puzzle rating and set state to adjusted
+  const updatePuzzleRating = queryDB(
+    `UPDATE rated_puzzles SET rating = $1, state = $2 WHERE id = $3`,
+    [newRating, PuzzleState.ADJUSTED, puzzleID]
+  );
+
+  // Log the rating change
+  const logAdjustment = logDatabase(userid, `Adjusted puzzle ${puzzleID} rating from ${rating} to ${newRating} with success rate ${successRate}`);
+
+  // Wait for both to complete
+  await Promise.all([updatePuzzleRating, logAdjustment]);
+
+  console.log("Adjusted puzzle rating", puzzleID, "from", rating, "to", newRating, "with success rate", successRate);
 }

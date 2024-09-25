@@ -7,7 +7,7 @@ import { logDatabase } from '../database/log';
 import { queryUserByUserID } from '../database/user-queries';
 import { getActivePuzzle, setActivePuzzle } from './active-puzzle';
 import { decodeRatedPuzzleFromDB } from './decode-rated-puzzle';
-import { submitPuzzleAttempt } from './submit-puzzle-attempt';
+import { PuzzleState, submitPuzzleAttempt } from './submit-puzzle-attempt';
 
 
 // given a weight for each of the five possible ratings, return a random rating
@@ -99,6 +99,12 @@ export async function selectRandomPuzzleForUser(userid: string): Promise<RatedPu
   const elo = user.puzzleElo;
   const rating = getRandomPuzzleRatingForPlayerElo(elo);
   console.log(`Selecting random puzzle rating ${rating} for user ${userid} with elo ${elo} and ${puzzleAttemptsCount} attempts`);
+
+
+  // // We balance exploration (provisional puzzles) with exploitation (adjusted puzzles)
+  // const EXPLORATION_PROBABILITY = 0.66;
+  // const state = Math.random() < EXPLORATION_PROBABILITY ? PuzzleState.PROVISIONAL : PuzzleState.ADJUSTED;
+  // console.log(`Selecting puzzle with state ${state}`);
 
   // query the database for a random puzzle with the selected rating where the puzzle has not been attempted by the user
   // order randomly
