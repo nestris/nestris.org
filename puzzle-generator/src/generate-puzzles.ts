@@ -13,7 +13,7 @@ let puzzlesGenerated: number;
 let puzzlesAddedToDB: number;
 let totalPuzzles: number;
 
-let MAKE_HARDER = false;
+const MAKE_HARDER = true;
 
 // generate count number of puzzles
 // this function takes a long time to run (approx. 2 seconds per puzzle)
@@ -34,19 +34,16 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
   for (let i = 0; i < count; i++) {
 
     let state;
-    if (badPuzzlesInARow >= MAX_BAD_PUZZLES_IN_A_ROW || i % 50 === 0) {
-
-      // alternate MAKE_HARDER
-      if (i % 50 === 0) MAKE_HARDER = !MAKE_HARDER;
+    if (badPuzzlesInARow >= MAX_BAD_PUZZLES_IN_A_ROW) {
 
       // board is in too messy of a state. Reset.
-      generator = new SequentialBoardGenerator(GeneratorMode.NB, MAKE_HARDER);
+      state = generator.getResetBoardState();
       badPuzzlesInARow = 0;
       console.log("Resetting board due to too many bad puzzles in a row or hit 50 puzzles");
-      console.log("MAKE_HARDER is now", MAKE_HARDER);
+      
+    } else {
+      state = await generator.getNextBoardState();
     }
-
-    state = await generator.getNextBoardState();
     
     // randomize current and next pieces for more interesting puzzles
     let current = state.current;

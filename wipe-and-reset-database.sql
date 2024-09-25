@@ -79,6 +79,7 @@ CREATE TABLE "public"."rated_puzzles" (
 
     "rating" int2 NOT NULL CHECK (rating >= 1 AND rating <= 5),
     "theme" text NOT NULL,
+    "state" text NOT NULL DEFAULT 'provisional'::text,
     "num_attempts_cached" int2 NOT NULL DEFAULT 0, -- should be updated by trigger on PuzzleAttempt
     "num_solves_cached" int2 NOT NULL DEFAULT 0, -- should be updated by trigger on PuzzleAttempt
     "num_likes_cached" int2 NOT NULL DEFAULT 0,

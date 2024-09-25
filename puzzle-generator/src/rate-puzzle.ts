@@ -30,6 +30,26 @@ function hasTuckOrSpin(board: TetrisBoard, placement: MoveableTetromino): boolea
   return false;
 }
 
+async function getStackrabbitResponse(
+  board: TetrisBoard,
+  currentPiece: TetrominoType,
+  nextPiece: TetrominoType,
+  inputSpeed: InputSpeed = InputSpeed.HZ_30,
+  playoutCount: number = 343,
+  depth: number = 3
+): Promise<TopMovesHybridResponse> {
+
+  const boardString = BinaryTranscoder.encode(board);
+
+  try {
+    const response = await getTopMovesHybrid(boardString, 18, 0, currentPiece, nextPiece, inputSpeed, playoutCount, depth);
+    return decodeStackrabbitResponse(response, currentPiece, nextPiece);
+  } catch (e) {
+    console.log("Error in getStackrabbitResponse: ", e);
+    throw new Error(`Error in getStackrabbitResponse: ${e}`);
+  }
+}
+
 export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, next: TetrominoType):
     Promise<{
       rating: PuzzleRating,
@@ -39,17 +59,7 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
     }>
   {
 
-  const boardString = BinaryTranscoder.encode(board);
-
-  let stackrabbitRaw: any;
-  let stackrabbit: TopMovesHybridResponse;
-  try {
-    stackrabbitRaw = await getTopMovesHybrid(boardString, 18, 0, current, next);
-    stackrabbit = decodeStackrabbitResponse(stackrabbitRaw, current, next);
-  } catch (e) {
-    console.log("Error in ratePuzzle: ", e, stackrabbitRaw);
-    throw new Error(`Error in ratePuzzle: ${e}`);
-  }
+  const stackrabbit = await getStackrabbitResponse(board, current, next);
   
   // get the board after the first move
   const boardAfterFirst = board.copy();
@@ -88,7 +98,7 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
   if (diff === undefined || diffNNB === undefined) return {rating: PuzzleRating.BAD_PUZZLE, details};
 
   // if diff is too small, zero, or negative, return BAD_PUZZLE
-  if (diff <= 2) return {rating: PuzzleRating.BAD_PUZZLE, details};
+  if (diff <= 1.5) return {rating: PuzzleRating.BAD_PUZZLE, details};
 
   // if bestNB is too low, return BAD_PUZZLE
   if (bestNB < -50) return {rating: PuzzleRating.BAD_PUZZLE, details};
@@ -103,21 +113,23 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
     return {rating: PuzzleRating.BAD_PUZZLE, details};
   }
 
-  // // eliminate puzzles where top two NB moves have the same second placement
-  // if (stackrabbit.nextBox[0].secondPlacement.equals(stackrabbit.nextBox[1].secondPlacement)) return {rating: PuzzleRating.BAD_PUZZLE, details};
+  // Eliminate puzzles where 20hz SR disagrees with 30hz SR
+  const stackrabbit20hz = await getStackrabbitResponse(board, current, next, InputSpeed.HZ_20);
+  if (stackrabbit20hz.nextBox.length === 0) return {rating: PuzzleRating.BAD_PUZZLE, details};
+  if (!(
+    stackrabbit.nextBox[0].firstPlacement.equals(stackrabbit20hz.nextBox[0].firstPlacement) &&
+    stackrabbit.nextBox[0].secondPlacement.equals(stackrabbit20hz.nextBox[0].secondPlacement)
+  )) return {rating: PuzzleRating.BAD_PUZZLE, details};
 
   let rating: PuzzleRating;
   if (diff >= 30 && !isAdjustment && bestNB > 10 && !hasAnyBurn && !hasAnyTuckOrSpin && diffNNB >= 10) rating = PuzzleRating.ONE_STAR;
-  else if (diff >= 15 && !hasAnyTuckOrSpin) rating = PuzzleRating.TWO_STAR;
-  else if (diff >= 4) rating = PuzzleRating.THREE_STAR;
+  else if (diff >= 15 && !hasAnyTuckOrSpin && !isAdjustment) rating = PuzzleRating.TWO_STAR;
   else {
-    // at this point, the puzzle is either 4 or 5 star
+    // at this point, the puzzle is 3-5 star. Use a nerfed version of SR to categorize
     // use a nerfed version of SR to determine if the puzzle is 4 or 5 star
-
-    let babyrabbit: TopMovesHybridResponse; // nerfed version of SR with 1-ply depth
+    
     try {
-      const babyrabbitRaw = await getTopMovesHybrid(boardString, 18, 0, current, next, InputSpeed.HZ_30, 7, 1);
-      babyrabbit = decodeStackrabbitResponse(babyrabbitRaw, current, next);
+      const babyrabbit = await getStackrabbitResponse(board, current, next, InputSpeed.HZ_30, 7, 1);
 
       // find the index of the best move in the babyrabbit response
       const babyRabbitIndex = babyrabbit.nextBox.findIndex(move => (
@@ -125,18 +137,13 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
         && move.secondPlacement.equals(stackrabbit.nextBox[0].secondPlacement)
       ));
 
-      // if the best move is not in the baby rabbit response, means the best move is really hard to find
-      if (babyRabbitIndex === -1) rating = PuzzleRating.FIVE_STAR;
+      // if the best move is not in the baby rabbit response, or babyrabbit thinks the best move is worse by at least 2, then the puzzle is hard
+      const hard = (babyRabbitIndex === -1) || (babyrabbit.nextBox[0].score - babyrabbit.nextBox[babyRabbitIndex].score >= 2);
 
-      else {
-        // get the diff between the baby rabbit best move and the actual best move
-        const babyRabbitDiff = babyrabbit.nextBox[0].score - babyrabbit.nextBox[babyRabbitIndex].score;
+      // If hard flag is set, bump the rating difficulty
+      if (diff >= 3) rating = hard ? PuzzleRating.FOUR_STAR : PuzzleRating.THREE_STAR;
+      else rating = hard ? PuzzleRating.FIVE_STAR : PuzzleRating.FOUR_STAR;
 
-        // if difference is positive, means that the actual best move is not the best move in the baby rabbit response
-        // if the difference is positive enough, assign the puzzle a 5 star rating
-        if (babyRabbitDiff >= 1) rating = PuzzleRating.FIVE_STAR;
-        else rating = PuzzleRating.FOUR_STAR;
-      }
     } catch {
       return {rating: PuzzleRating.BAD_PUZZLE, details};
     }

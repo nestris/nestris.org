@@ -4,7 +4,7 @@ import { generatePuzzles } from "./generate-puzzles";
 
 function generate() {
 
-    const NUM_PUZZLES = 1000;
+    const NUM_PUZZLES = 100;
 
     // Store the number of puzzles generated for each rating
     const count: { [key in PuzzleRating]?: number } = {};
