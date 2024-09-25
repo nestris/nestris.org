@@ -30,7 +30,8 @@ const ELO_1000_1499 = getRandomDistribution(30, 40, 30, 0, 0); // mostly solving
 const ELO_1500_1999 = getRandomDistribution(10, 30, 40, 20, 0); // mostly solving 2-4 star puzzles
 const ELO_2000_2499 = getRandomDistribution(0, 10, 35, 35, 20); // mostly solving 2-5 star puzzles
 const ELO_2500_2999 = getRandomDistribution(0, 0, 30, 40, 30); // mostly solving 3-5 star puzzles with lower chance of 5 star
-const ELO_3000_PLUS = getRandomDistribution(0, 0, 15, 40, 45); // mostly solving 3-5 star puzzles
+const ELO_3000_3500 = getRandomDistribution(0, 0, 15, 40, 45); // mostly solving 3-5 star puzzles
+const ELO_3500_PLUS = getRandomDistribution(0, 0, 0, 30, 70); // mostly solving 5 star puzzles
 
 // Given a user's elo, probablistically select the rating of the puzzle the user will play next.
 export function getRandomPuzzleRatingForPlayerElo(elo: number): PuzzleRating {
@@ -42,7 +43,8 @@ export function getRandomPuzzleRatingForPlayerElo(elo: number): PuzzleRating {
   else if (elo < 2000) distribution = ELO_1500_1999;
   else if (elo < 2500) distribution = ELO_2000_2499;
   else if (elo < 3000) distribution = ELO_2500_2999;
-  else distribution = ELO_3000_PLUS;
+  else if (elo < 3500) distribution = ELO_3000_3500;
+  else distribution = ELO_3500_PLUS;
 
   // pick a random rating from the distribution
   return distribution[Math.floor(Math.random() * distribution.length)];
@@ -53,13 +55,20 @@ export function calculateEloChangeForPuzzle(userElo: number, numAttempts: number
 
   if (rating < PuzzleRating.ONE_STAR) throw new Error("Invalid puzzle rating");
 
-  // based on https://www.desmos.com/calculator/xve7eslecl
-  let eloGain = 70 / Math.pow(1.0005, userElo + 3000 - 500*rating);
-  let eloLoss = 70 / Math.pow(1.0005, 3000 + 500*rating - userElo);
+  const puzzleEloEquivalent = 400 * rating;
+  const eloDelta = userElo - puzzleEloEquivalent;
 
-  // for attempts 0-19, there's a multiplier. At attempt 1, 3x multiplier, at attempt 25+, 1x multiplier
+  const ELO_SCALAR = 15;
+  const ELO_GROWTH = 1.0003;
+
+  // based on https://www.desmos.com/calculator/cae9rqphga
+  let eloGain = ELO_SCALAR / Math.pow(ELO_GROWTH, eloDelta);
+  let eloLoss = ELO_SCALAR / Math.pow(ELO_GROWTH, -eloDelta);
+
+  // Multiplier for first few attempts that scales down to 1 after NUM_BOOSTED_ATTEMPTS attempts
   // https://www.desmos.com/calculator/ys9xtkhdng
-  const attemptMultiplier = 1 + 2 * (25 - Math.min(numAttempts, 25)) / 25;
+  const NUM_BOOSTED_ATTEMPTS = 10;
+  const attemptMultiplier = 1 + 2 * (NUM_BOOSTED_ATTEMPTS - Math.min(numAttempts, NUM_BOOSTED_ATTEMPTS)) / NUM_BOOSTED_ATTEMPTS;
   eloGain *= attemptMultiplier;
   eloLoss *= attemptMultiplier;
 

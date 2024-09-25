@@ -109,7 +109,7 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
   let rating: PuzzleRating;
   if (diff >= 30 && !isAdjustment && bestNB > 10 && !hasAnyBurn && !hasAnyTuckOrSpin && diffNNB >= 10) rating = PuzzleRating.ONE_STAR;
   else if (diff >= 15 && !hasAnyTuckOrSpin) rating = PuzzleRating.TWO_STAR;
-  else if (diff >= 7) rating = PuzzleRating.THREE_STAR;
+  else if (diff >= 4) rating = PuzzleRating.THREE_STAR;
   else {
     // at this point, the puzzle is either 4 or 5 star
     // use a nerfed version of SR to determine if the puzzle is 4 or 5 star
