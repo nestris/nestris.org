@@ -20,6 +20,12 @@ ocr-library/digit-classifier/digit_classifier_venv
 ocr-library/digit-classifier/digit-dataset
 ocr-library/digit-classifier/py11
 
+# puzzle-generator
+puzzle-generator/node_modules
+puzzle-generator/.env
+puzzle-generator/.env-prod
+puzzle-generator/.env-dev
+
 # Environment variables
 .env
 .env.development

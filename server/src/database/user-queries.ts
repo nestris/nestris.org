@@ -30,6 +30,13 @@ export async function queryUserByUserID(userid: string): Promise<DBUser | undefi
   return rowToUser(result.rows[0]);
 }
 
+export async function usernameExists(username: string): Promise<boolean> {
+  const query = `SELECT * FROM users WHERE username = $1`;
+  const result = await queryDB(query, [username]);
+
+  return result.rows.length > 0;
+}
+
 // get the list of friends, pending friends, and incoming friend requests for a user
 // user-relationship table has schema (username1, username2, type = "friends" | "1_send_to_2" | "2_send_to_1")
 // join to get the trophies and xp for each friend
@@ -106,7 +113,7 @@ export async function queryAllUsersMatchingUsernamePattern(pattern: string = "%"
 
 // Creates a user with assigned permission if on the whitelist
 // return permission if user is created, else return null
-export async function createUser(userid: string, username: string, discordTag: string): Promise<PermissionLevel | null> {
+export async function createUser(userid: string, username: string): Promise<PermissionLevel | null> {
 
   // // Get the permission level of the user
   // const query = `SELECT permission FROM whitelist WHERE discord_tag = $1`;
@@ -120,6 +127,20 @@ export async function createUser(userid: string, username: string, discordTag: s
 
   // // Create the user with the permission level
   // const permission = result.rows[0].permission as PermissionLevel;
+
+  // If userid exists, throw error
+  if (await queryUserByUserID(userid)) {
+    throw new Error(`User ${username} already exists`);
+  }
+
+  // If username exists by different player, find the first available username
+  if (await usernameExists(username)) {
+    let i = 1;
+    while (await usernameExists(`${username}${i}`)) {
+      i++;
+    }
+    username = `${username}_${i}`;
+  }
 
   const permission: PermissionLevel = PermissionLevel.DEFAULT;
   const query2 = `INSERT INTO users (userid, username, permission) VALUES ($1, $2, $3)`;

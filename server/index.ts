@@ -123,10 +123,8 @@ async function main() {
           permission = user.permission;
         } else {
           // If user does not exist, create a new user with username from Discord global name
-
-          username = userResponse.data.global_name;
-          let discordTag = userResponse.data.username;
-          permission = await createUser(userID, username, discordTag);
+          username = userResponse.data.global_name ?? userResponse.data.username ?? "Unknown User";
+          permission = await createUser(userID, username);
           if (!permission) {
             res.redirect('/not-on-whitelist');
             return
