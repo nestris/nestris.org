@@ -13,6 +13,7 @@ let puzzlesGenerated: number;
 let puzzlesAddedToDB: number;
 let totalPuzzles: number;
 
+const MAKE_HARDER = false;
 
 // generate count number of puzzles
 // this function takes a long time to run (approx. 2 seconds per puzzle)
@@ -25,7 +26,7 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
   const MAX_BAD_PUZZLES_IN_A_ROW = 30; // if this many bad puzzles are generated in a row, reset the board
 
   // generator generates realistic board states
-  const generator = new SequentialBoardGenerator();
+  const generator = new SequentialBoardGenerator(GeneratorMode.NB, MAKE_HARDER);
   const puzzles: PartialRatedPuzzle[] = [];
 
   let badPuzzlesInARow = 0;
@@ -43,8 +44,13 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
     }
     
     // randomize current and next pieces for more interesting puzzles
-    const current = getRandomTetrominoType();
-    const next = getRandomTetrominoType();
+    let current = state.current;
+    let next = state.next;
+    if (MAKE_HARDER) {
+      current = getRandomTetrominoType();
+      next = getRandomTetrominoType();
+    }
+    
 
     let rating, details, currentSolution, nextSolution;
     try {
@@ -66,11 +72,11 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
     // reset bad puzzle counter
     badPuzzlesInARow = 0;
 
-    // discard a fraction of 3 and 4 star puzzles due to overabundance
-    if ((rating === PuzzleRating.THREE_STAR && Math.random() < 0.6) || (rating === PuzzleRating.FOUR_STAR && Math.random() < 0.3)) {
-      i--;
-      continue;
-    }
+    // // discard a fraction of 3 and 4 star puzzles due to overabundance
+    // if (rating === PuzzleRating.FOUR_STAR && Math.random() < 0.5) {
+    //   i--;
+    //   continue;
+    // }
 
     const theme = classifyPuzzleTheme(state.board, currentSolution!, nextSolution!, details);
 

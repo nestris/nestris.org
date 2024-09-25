@@ -3,7 +3,7 @@ import { BinaryTranscoder } from "../../shared/network/tetris-board-transcoding/
 import { PuzzleRating, PuzzleRatingDetails } from "../../shared/puzzles/puzzle-rating";
 import { TopMovesHybridResponse, decodeStackrabbitResponse } from "../../shared/scripts/stackrabbit-decoder";
 import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
-import { TetrisBoard } from "../../shared/tetris/tetris-board";
+import { ColorType, TetrisBoard } from "../../shared/tetris/tetris-board";
 import { TetrominoType } from "../../shared/tetris/tetromino-type";
 import { getTopMovesHybrid } from "./stackrabbit";
 
@@ -18,7 +18,16 @@ function hasBurn(board: TetrisBoard, placement: MoveableTetromino): boolean {
 // checks if moving the piece up one row would intersect with the board, which means it's a tuck or spin
 function hasTuckOrSpin(board: TetrisBoard, placement: MoveableTetromino): boolean {
   const oneHigherPlacement = new MoveableTetromino(placement.tetrominoType, placement.getRotation(), placement.getTranslateX(), placement.getTranslateY() - 1);
-  return oneHigherPlacement.intersectsBoard(board);
+  if (oneHigherPlacement.intersectsBoard(board)) return true;
+
+  // Check if any of the blocks for the placement does not have a block below it. This means it's a tuck or spin
+  for (const block of placement.getCurrentBlockSet().blocks) {
+    const x = block.x + placement.getTranslateX();
+    const y = block.y + placement.getTranslateY();
+    if (y < 20 && board.getAt(x, y + 1) === ColorType.EMPTY) return true;
+  }
+
+  return false;
 }
 
 export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, next: TetrominoType):
@@ -59,7 +68,7 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
   const isAdjustment = bestMoveNNBIndex === -1 || (bestNNB - stackrabbit.noNextBox[bestMoveNNBIndex].score) >= 4;
 
   // get the diff between the top two moves. If there are less than two moves, return BAD_PUZZLE
-  let diff: number;
+  let diff: number | undefined;
   if (stackrabbit.nextBox.length >= 2) diff = stackrabbit.nextBox[0].score - stackrabbit.nextBox[1].score;
   else diff = -1;
 
@@ -76,8 +85,10 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
       hasTuckOrSpin: hasAnyTuckOrSpin
   };
 
+  if (diff === undefined || diffNNB === undefined) return {rating: PuzzleRating.BAD_PUZZLE, details};
+
   // if diff is too small, zero, or negative, return BAD_PUZZLE
-  if (diff <= 0.5) return {rating: PuzzleRating.BAD_PUZZLE, details};
+  if (diff <= 2) return {rating: PuzzleRating.BAD_PUZZLE, details};
 
   // if bestNB is too low, return BAD_PUZZLE
   if (bestNB < -50) return {rating: PuzzleRating.BAD_PUZZLE, details};
@@ -95,21 +106,10 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
   // // eliminate puzzles where top two NB moves have the same second placement
   // if (stackrabbit.nextBox[0].secondPlacement.equals(stackrabbit.nextBox[1].secondPlacement)) return {rating: PuzzleRating.BAD_PUZZLE, details};
 
-  /*
-  RATING SYSTEM
-
-  1 star: diff 30+ and not adjustment
-  2 star: (diff 30+) or (diff 10-30 and not adjustment and bestNB > 20)
-  3 star: (diff 10-30) or (diff 1-10 and not adjustment and bestNB > 10)
-  4 star: baby rabbit gets the puzzle correct
-  5 star: baby rabbit gets the puzzle wrong
-  else: BAD_PUZZLE
-  */
-
   let rating: PuzzleRating;
-  if (diff >= 20 && !isAdjustment && bestNB > 20 && !hasAnyBurn && !hasAnyTuckOrSpin) rating = PuzzleRating.ONE_STAR;
-  else if ((diff >= 20) || (diff >= 10 && !isAdjustment && bestNB > 20 && !hasAnyBurn && !hasAnyTuckOrSpin)) rating = PuzzleRating.TWO_STAR;
-  else if ((diff >= 10) || (diff >= 3 && !isAdjustment)) rating = PuzzleRating.THREE_STAR;
+  if (diff >= 30 && !isAdjustment && bestNB > 10 && !hasAnyBurn && !hasAnyTuckOrSpin && diffNNB >= 10) rating = PuzzleRating.ONE_STAR;
+  else if (diff >= 15 && !hasAnyTuckOrSpin) rating = PuzzleRating.TWO_STAR;
+  else if (diff >= 7) rating = PuzzleRating.THREE_STAR;
   else {
     // at this point, the puzzle is either 4 or 5 star
     // use a nerfed version of SR to determine if the puzzle is 4 or 5 star

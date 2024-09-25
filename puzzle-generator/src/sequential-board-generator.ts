@@ -22,7 +22,10 @@ export class SequentialBoardGenerator extends BoardGenerator {
   current!: TetrominoType;
   next!: TetrominoType;
 
-  constructor(private readonly mode: GeneratorMode = GeneratorMode.NB) {
+  constructor(
+    private readonly mode: GeneratorMode = GeneratorMode.NB,
+    private readonly inflateSZ: boolean = true,
+  ) {
     super();
     this.getResetBoardState();
   }
@@ -90,9 +93,9 @@ export class SequentialBoardGenerator extends BoardGenerator {
 
     // artificially inflate S and Z pieces to make more interesting puzzles
     const rand = Math.random();
-    if (rand < 0.25) {
+    if (rand < 0.25 && this.inflateSZ) {
       this.next = TetrominoType.Z_TYPE;
-    } else if (rand < 0.5) {
+    } else if (rand < 0.5 && this.inflateSZ) {
       this.next = TetrominoType.S_TYPE;
     } else {
       this.next = getRandomTetrominoType();
