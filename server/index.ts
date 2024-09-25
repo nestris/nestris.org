@@ -27,6 +27,7 @@ import { leaveRoomRoute } from './src/routes/room-routes';
 import { postEventRoute } from './src/routes/event-route';
 import { getPuzzleRoute } from './src/routes/get-puzzle-route';
 import { getAdjustedPuzzleRatingRoute } from './src/database/adjust-puzzle-rating';
+import { warnServerRestartRoute } from './src/routes/warn-server-restart-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -209,6 +210,11 @@ async function main() {
 
   // announce message to all online users. useful for maintenance announcements and the like
   app.post('/api/v2/broadcast-announcement', requireAdmin, async (req: Request, res: Response) => broadcastAnnouncementRoute(req, res, state));
+
+  app.post('/api/v2/server-restart-warning/', requireAdmin, async (req: Request, res: Response) => warnServerRestartRoute(req, res, state));
+  app.get('/api/v2/server-restart-warning/', async (req: Request, res: Response) => {
+    res.status(200).send({warning: state.serverRestartWarning});
+  });
 
   app.get('/api/v2/room/:roomID', (req, res) => {
       const roomID = req.params['roomID'];

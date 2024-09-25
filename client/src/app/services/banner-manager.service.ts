@@ -5,7 +5,8 @@ import { ServerStatsService } from './server-stats.service';
 export enum BannerType {
   BETA_WARNING = "BETA_WARNING",
   STAGING_WARNING = "STAGING_WARNING",
-  DEV_WARNING = "DEV_WARNING"
+  DEV_WARNING = "DEV_WARNING",
+  SERVER_RESTART_WARNING = "SERVER_RESTART_WARNING",
 }
 
 export interface Banner {

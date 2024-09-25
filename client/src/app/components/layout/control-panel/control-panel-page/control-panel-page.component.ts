@@ -31,4 +31,8 @@ export class ControlPanelPageComponent implements OnInit {
     }, { totalPuzzles: 0, totalAttempts: 0, totalSolves: 0 });
   }
 
+  toggleServerRestart() {
+    fetchServer2(Method.POST, '/api/v2/server-restart-warning');
+  }
+
 }

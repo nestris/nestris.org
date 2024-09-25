@@ -13,4 +13,5 @@ export class ServerState {
     public readonly roomManager = new RoomManager(this);
     public readonly challengeManager = new ChallengeManager(this);
     public readonly lessonState = new LessonState();
+    public serverRestartWarning: boolean = false;
 }

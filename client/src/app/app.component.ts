@@ -7,6 +7,7 @@ import { MiscMessageHandlerService } from './services/misc-message-handler.servi
 import { ServerStatsService } from './services/server-stats.service';
 import { BannerManagerService } from './services/banner-manager.service';
 import { Router } from '@angular/router';
+import { ServerRestartWarningService } from './services/server-restart-warning.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
@@ -20,6 +21,7 @@ export class AppComponent implements OnInit {
     private miscMessageHandlerService: MiscMessageHandlerService,
     private serverStatsService: ServerStatsService,
     private bannerManagerService: BannerManagerService,
+    private serverRestartWarningService: ServerRestartWarningService,
     private router: Router,
   ) {
 

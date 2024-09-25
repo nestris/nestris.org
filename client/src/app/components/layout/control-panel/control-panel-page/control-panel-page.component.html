@@ -1,5 +1,7 @@
 <div class="main">
 
+    <button (click)="toggleServerRestart()">Toggle Server Restart Warning</button>
+
     <table *ngIf="(aggregate$ | async) as aggregate">
         <tr>
             <th>Rating</th>
