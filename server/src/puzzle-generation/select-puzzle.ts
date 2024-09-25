@@ -54,12 +54,12 @@ export function calculateEloChangeForPuzzle(userElo: number, numAttempts: number
   if (rating < PuzzleRating.ONE_STAR) throw new Error("Invalid puzzle rating");
 
   // based on https://www.desmos.com/calculator/xve7eslecl
-  let eloGain = 100 / Math.pow(1.0005, userElo + 3000 - 500*rating);
-  let eloLoss = 100 / Math.pow(1.0005, 3000 + 500*rating - userElo);
+  let eloGain = 70 / Math.pow(1.0005, userElo + 3000 - 500*rating);
+  let eloLoss = 70 / Math.pow(1.0005, 3000 + 500*rating - userElo);
 
-  // for attempts 0-19, there's a multiplier. At attempt 0, 4x multiplier, at attempt 25+, 1x multiplier
+  // for attempts 0-19, there's a multiplier. At attempt 1, 3x multiplier, at attempt 25+, 1x multiplier
   // https://www.desmos.com/calculator/ys9xtkhdng
-  const attemptMultiplier = 1 + 3 * (25 - Math.min(numAttempts, 25)) / 25;
+  const attemptMultiplier = 1 + 2 * (25 - Math.min(numAttempts, 25)) / 25;
   eloGain *= attemptMultiplier;
   eloLoss *= attemptMultiplier;
 
