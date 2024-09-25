@@ -13,6 +13,7 @@ import { NotificationAutohide, NotificationType } from '../shared/models/notific
 export class ServerRestartWarningService {
 
   private warning$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private notificationID: string | undefined;
 
   constructor(
     private websocketService: WebsocketService,
@@ -44,7 +45,7 @@ export class ServerRestartWarningService {
     if (warning) {
 
       // Send a notification
-      this.notificationService.notify(
+      this.notificationID = this.notificationService.notify(
         NotificationType.WARNING,
         "The server will restart in a few minutes! Please refrain from starting new games.",
         NotificationAutohide.DISABLED
@@ -54,11 +55,17 @@ export class ServerRestartWarningService {
       this.bannerService.addBanner({
         id: BannerType.SERVER_RESTART_WARNING,
         message: "The server will restart in a few minutes! Please refrain from starting new games.",
-        color: "B73C3C",
+        color: "#B73C3C",
       });
     } else {
       // Remove the banner
       this.bannerService.removeBanner(BannerType.SERVER_RESTART_WARNING);
+
+      // Remove the notification, if it exists
+      if (this.notificationID) {
+        this.notificationService.hide(this.notificationID);
+        this.notificationID = undefined;
+      }
     }
 
     this.warning$.next(warning);

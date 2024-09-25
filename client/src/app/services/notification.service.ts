@@ -50,5 +50,11 @@ export class NotificationService {
       }, durationSeconds * 1000);
     }
     
+    return id;
+  }
+
+  // hide a notification
+  hide(id: string) {
+    this.notifier.hide(id);
   }
 }
