@@ -196,6 +196,9 @@ export class PlayPuzzlePageComponent implements OnInit {
 
     const puzzle = await this.puzzleState$.getValue()!.fetchNextPuzzle();
 
+    // start fetching move generations. no need to wait for this to finish
+    this.generateMoveRecommendations(puzzle);
+
     this.puzzle$.next(puzzle);
     this.eloChange$.next(this.puzzleState$.getValue()!.getEloChange());
     
@@ -250,9 +253,6 @@ export class PlayPuzzlePageComponent implements OnInit {
 
     // stop timer
     clearInterval(this.timerInterval);
-
-    // start fetching move generations. no need to wait for this to finish
-    this.generateMoveRecommendations(this.puzzle$.getValue()!);
 
     // if not signed in, redirect back to puzzles page
     if (this.puzzleState$.getValue() instanceof RatedPuzzleState && !this.websocketService.isSignedIn()) {
