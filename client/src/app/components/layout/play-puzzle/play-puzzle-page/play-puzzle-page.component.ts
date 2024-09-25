@@ -15,7 +15,7 @@ import { EloMode } from '../elo-rating/elo-rating.component';
 import { PuzzleState, EloChange } from './puzzle-states/puzzle-state';
 import { RatedPuzzleState } from './puzzle-states/rated-puzzle-state';
 import { SinglePuzzleState } from './puzzle-states/single-puzzle-state';
-import { NotificationType } from 'src/app/shared/models/notifications';
+import { NotificationAutohide, NotificationType } from 'src/app/shared/models/notifications';
 
 export enum PuzzleMode {
   RATED = "rated",
@@ -152,6 +152,11 @@ export class PlayPuzzlePageComponent implements OnInit {
         this.puzzleState$.next(puzzleState);
         console.log("Puzzle state initialized");
       } catch (e) {
+
+        if (mode === PuzzleMode.SINGLE) {
+          this.notifier.notify(NotificationType.ERROR, "Puzzle not found", NotificationAutohide.LONG);
+        }
+
         console.log("Error initializing puzzle state:", e);
         this.redirectToDefaultURL();
         return;
