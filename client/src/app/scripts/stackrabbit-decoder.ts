@@ -42,7 +42,6 @@ export async function getTopMovesHybrid(
   });
 
   return decodeStackrabbitResponse(response, currentPiece, nextPiece);
-
 }
 
 

@@ -168,10 +168,14 @@ export class PlayPuzzlePageComponent implements OnInit {
     console.log("Generating move recommendations");
 
     const board = BinaryTranscoder.decode(puzzle.boardString);
-    const response = await getTopMovesHybrid(board, 18, 0, puzzle.current, puzzle.next, InputSpeed.HZ_30);
+    try {
+      const response = await getTopMovesHybrid(board, 18, 0, puzzle.current, puzzle.next, InputSpeed.HZ_30);
+      this.moveRecommendations$.next(response.nextBox);
+    } catch (e) {
+      console.error("Error generating move recommendations", e);
+      this.moveRecommendations$.next([]);
+    };
     
-    console.log("GEnerated");
-    this.moveRecommendations$.next(response.nextBox);
   }
 
   hoverEngineMove(move: Move | undefined) {

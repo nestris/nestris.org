@@ -9,7 +9,7 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "@types/node": "^22.6.1",
+    "@types/node": "^22.7.0",
     "@types/pg": "^8.11.10",
     "@types/regression": "^2.0.6",
     "typescript": "^5.6.2"

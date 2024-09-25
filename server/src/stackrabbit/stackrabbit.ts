@@ -67,10 +67,22 @@ export async function getTopMovesHybridRoute(req: Request, res: Response) {
   const playoutCount = parseInt(req.query['playoutCount'] as string) || 343;
   const depth = parseInt(req.query['depth'] as string) || 3;
 
-  try {
-    const result = await getTopMovesHybrid(boardString, level, lines, currentPiece, nextPiece, inputSpeed, playoutCount, depth);
-    res.send(result);
-  } catch (error: any) {
-    res.status(500).send(error.message);
+  // try 3 times before giving up
+  const MAX_TRIES = 3;
+  let errorMessage;
+  for (let i = 0; i < MAX_TRIES; i++) {
+    try {
+      const result = await getTopMovesHybrid(boardString, level, lines, currentPiece, nextPiece, inputSpeed, playoutCount, depth);
+      res.send(result);
+      return;
+    } catch (error: any) {
+      console.error(error.message);
+      errorMessage = error.message;
+    }
+
+    // wait 0.5 second before trying again
+    await new Promise(resolve => setTimeout(resolve, 5000));
   }
+  res.status(500).send(errorMessage);
+  
 }
