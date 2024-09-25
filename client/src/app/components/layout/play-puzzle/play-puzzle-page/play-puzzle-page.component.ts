@@ -169,6 +169,7 @@ export class PlayPuzzlePageComponent implements OnInit {
     try {
       const response = await getTopMovesHybrid(board, 18, 0, puzzle.current, puzzle.next, InputSpeed.HZ_30);
       this.moveRecommendations$.next(response.nextBox);
+      console.log("Move recommendations generated");
     } catch (e) {
       console.error("Error generating move recommendations", e);
       this.moveRecommendations$.next([]);

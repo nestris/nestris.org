@@ -59,6 +59,18 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
     }>
   {
 
+  // There are an excessive number of puzzles with low boards generated. Filter half of them out
+  if (board.getAverageHeight() < 7 && Math.random() < 0.7) {
+    return {rating: PuzzleRating.BAD_PUZZLE, details: {
+      rating: PuzzleRating.BAD_PUZZLE,
+      hasBurn: false,
+      hasTuckOrSpin: false,
+      bestNB: 0,
+      diff: 0,
+      isAdjustment: false
+    }};
+  }
+
   const stackrabbit = await getStackrabbitResponse(board, current, next);
   
   // get the board after the first move
@@ -114,7 +126,7 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
   }
 
   // Eliminate puzzles where 20hz SR disagrees with 30hz SR
-  const stackrabbit20hz = await getStackrabbitResponse(board, current, next, InputSpeed.HZ_20);
+  const stackrabbit20hz = await getStackrabbitResponse(board, current, next, InputSpeed.HZ_25);
   if (stackrabbit20hz.nextBox.length === 0) return {rating: PuzzleRating.BAD_PUZZLE, details};
   if (!(
     stackrabbit.nextBox[0].firstPlacement.equals(stackrabbit20hz.nextBox[0].firstPlacement) &&

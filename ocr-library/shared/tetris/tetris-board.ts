@@ -234,4 +234,17 @@ export class TetrisBoard {
         return components;
     }
 
+    getAverageHeight(): number {
+        let totalHeight = 0;
+        let numMinos = 0;
+        for (let y = 0; y < 20; y++) {
+            for (let x = 0; x < 10; x++) {
+                if (this.exists(x, y)) {
+                    totalHeight += 20 - y;
+                    numMinos++;
+                }
+            }
+        }
+        return totalHeight / numMinos;
+    }
 }
