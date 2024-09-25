@@ -2,6 +2,7 @@ import { InputSpeed, INPUT_SPEED_TO_TIMELINE } from '../../shared/models/input-s
 import { TetrominoType } from '../../shared/tetris/tetromino-type';
 import { TETROMINO_CHAR } from '../../shared/tetris/tetrominos';
 
+const cModule = require("../binaries/cRabbit");
 
 export async function getTopMovesHybrid(
   boardString: string,
@@ -17,7 +18,11 @@ export async function getTopMovesHybrid(
   // for each character of boardString that is '2' or '3', replace with '1'
   boardString = boardString.replace(/2|3/g, '1');
 
+  // Convert input speed to timeline
   const inputTimeline = INPUT_SPEED_TO_TIMELINE[inputSpeed];
+
+  const query = `${boardString}|${level}|${lines}|${currentPiece}|${nextPiece}|${inputTimeline}|${playoutCount}|${depth}`;
+  return cModule.getTopMovesHybrid(query);
 
   const url = new URL("https://stackrabbit.net/engine-movelist-cpp-hybrid");
   url.searchParams.append("board", boardString);

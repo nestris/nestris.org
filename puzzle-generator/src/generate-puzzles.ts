@@ -40,7 +40,7 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
       state = generator.getResetBoardState();
       badPuzzlesInARow = 0;
       console.log("Resetting board due to too many bad puzzles in a row or hit 50 puzzles");
-      
+
     } else {
       state = await generator.getNextBoardState();
     }
@@ -74,11 +74,11 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
     // reset bad puzzle counter
     badPuzzlesInARow = 0;
 
-    // // discard a fraction of 3 and 4 star puzzles due to overabundance
-    // if (rating === PuzzleRating.FOUR_STAR && Math.random() < 0.5) {
-    //   i--;
-    //   continue;
-    // }
+    // discard a fraction of 3 puzzles due to overabundance
+    if (rating === PuzzleRating.THREE_STAR && Math.random() < 0.5) {
+      i--;
+      continue;
+    }
 
     const theme = classifyPuzzleTheme(state.board, currentSolution!, nextSolution!, details);
 
@@ -115,7 +115,10 @@ async function addRatedPuzzleToDatabase(puzzle: PartialRatedPuzzle): Promise<any
     [boardBuffer, currentChar, nextChar, puzzle.rating, puzzle.theme, puzzle.r1, puzzle.x1, puzzle.y1, puzzle.r2, puzzle.x2, puzzle.y2]
   );
 
-  console.log(`Added puzzle ${++puzzlesAddedToDB}/${totalPuzzles} to database`);
+  puzzlesAddedToDB++;
+  if (puzzlesAddedToDB === totalPuzzles) {
+    console.log("All puzzles added to database");
+  }
 
   return result;
 }
