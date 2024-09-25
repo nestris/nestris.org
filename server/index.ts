@@ -242,14 +242,7 @@ async function main() {
   app.get('/api/v2/puzzle/:id', getPuzzleRoute);
 
   app.post('/api/v2/random-rated-puzzle/:userid', requireAuth, selectRandomPuzzleForUserRoute);
-
-  app.get('/api/v2/elo-change', async (req: Request, res: Response) => {
-      const elo = parseInt(req.query['elo'] as string);
-      const attempts = parseInt(req.query['attempts'] as string);
-      const rating = parseInt(req.query['rating'] as string);
-      res.status(200).send({change: calculateEloChangeForPuzzle(elo, attempts, rating)});
-  });
-
+  
   app.post('/api/v2/submit-puzzle-attempt', requireAuth, submitPuzzleAttemptRoute);
 
   app.get('/api/v2/daily-streak/:userid', getDailyStreakRoute);

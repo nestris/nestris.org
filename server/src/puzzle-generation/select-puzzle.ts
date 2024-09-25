@@ -7,7 +7,7 @@ import { logDatabase } from '../database/log';
 import { queryUserByUserID } from '../database/user-queries';
 import { getActivePuzzle, setActivePuzzle } from './active-puzzle';
 import { decodeRatedPuzzleFromDB } from './decode-rated-puzzle';
-import { PuzzleState, submitPuzzleAttempt } from './submit-puzzle-attempt';
+import { submitPuzzleAttempt } from './submit-puzzle-attempt';
 
 
 // given a weight for each of the five possible ratings, return a random rating
@@ -51,7 +51,7 @@ export function getRandomPuzzleRatingForPlayerElo(elo: number): PuzzleRating {
 }
 
 // given the user's elo, the number of total puzzle attempts, and the rating of the puzzle, calculate the elo change for the user
-export function calculateEloChangeForPuzzle(userElo: number, numAttempts: number, rating: PuzzleRating): { eloGain: number, eloLoss: number } {
+export function calculateEloChangeForPuzzle(userElo: number, rating: PuzzleRating): { eloGain: number, eloLoss: number } {
 
   if (rating < PuzzleRating.ONE_STAR) throw new Error("Invalid puzzle rating");
 
@@ -61,16 +61,16 @@ export function calculateEloChangeForPuzzle(userElo: number, numAttempts: number
   const ELO_SCALAR = 15;
   const ELO_GROWTH = 1.0003;
 
-  // based on https://www.desmos.com/calculator/cae9rqphga
+  // based on https://www.desmos.com/calculator/aro3yocury
   let eloGain = ELO_SCALAR / Math.pow(ELO_GROWTH, eloDelta);
   let eloLoss = ELO_SCALAR / Math.pow(ELO_GROWTH, -eloDelta);
 
-  // Multiplier for first few attempts that scales down to 1 after NUM_BOOSTED_ATTEMPTS attempts
-  // https://www.desmos.com/calculator/ys9xtkhdng
-  const NUM_BOOSTED_ATTEMPTS = 10;
-  const attemptMultiplier = 1 + 2 * (NUM_BOOSTED_ATTEMPTS - Math.min(numAttempts, NUM_BOOSTED_ATTEMPTS)) / NUM_BOOSTED_ATTEMPTS;
+  // Multipler of 3x at elo=0 to 1x at elo=1000
+  let attemptMultiplier = 1;
+  if (userElo < 1000) {
+    attemptMultiplier = 3 - 2 * userElo / 1000;
+  }
   eloGain *= attemptMultiplier;
-  eloLoss *= attemptMultiplier;
 
   // round to nearest integer
   eloGain = Math.round(eloGain);
@@ -90,21 +90,11 @@ export async function selectRandomPuzzleForUser(userid: string): Promise<RatedPu
   const user = await queryUserByUserID(userid);
   if (!user) throw new Error("User not found");
 
-  // second, query how many puzzles the user has attempted by counting the number of puzzle_attempts with matching userid
-  const puzzleAttempts = await queryDB(`SELECT COUNT(*) FROM puzzle_attempts WHERE userid = $1`, [userid]);
-  const puzzleAttemptsCount = parseInt(puzzleAttempts.rows[0].count);
-
   // query the database for the user's puzzle elo, as well as the number of puzzles they have attempted
   // counting number of puzzle_attempts with matching userid)
   const elo = user.puzzleElo;
   const rating = getRandomPuzzleRatingForPlayerElo(elo);
-  console.log(`Selecting random puzzle rating ${rating} for user ${userid} with elo ${elo} and ${puzzleAttemptsCount} attempts`);
-
-
-  // // We balance exploration (provisional puzzles) with exploitation (adjusted puzzles)
-  // const EXPLORATION_PROBABILITY = 0.66;
-  // const state = Math.random() < EXPLORATION_PROBABILITY ? PuzzleState.PROVISIONAL : PuzzleState.ADJUSTED;
-  // console.log(`Selecting puzzle with state ${state}`);
+  console.log(`Selecting random puzzle rating ${rating} for user ${userid} with elo ${elo}`);
 
   // query the database for a random puzzle with the selected rating where the puzzle has not been attempted by the user
   // order randomly
@@ -124,7 +114,7 @@ export async function selectRandomPuzzleForUser(userid: string): Promise<RatedPu
   const puzzle = decodeRatedPuzzleFromDB(result.rows[0]);
 
   // calculate the elo gain and loss for the puzzle
-  const { eloGain, eloLoss } = calculateEloChangeForPuzzle(elo, puzzleAttemptsCount, rating);
+  const { eloGain, eloLoss } = calculateEloChangeForPuzzle(elo, rating);
   puzzle.eloGain = eloGain;
   puzzle.eloLoss = eloLoss;
 
