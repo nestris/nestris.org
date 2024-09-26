@@ -1,5 +1,6 @@
 import { PuzzleRating } from "../../shared/puzzles/puzzle-rating";
 import { generatePuzzles } from "./generate-puzzles";
+import { server } from "./server";
 
 
 function generate() {
@@ -35,6 +36,7 @@ const mode = args.find((arg) => arg.startsWith('--mode='))?.split('=')[1];
 
 (() => {switch (mode) {
     case 'generate': return generate();
+    case 'server': return server();
     case 'test': return test();
     default:
         console.error("Invalid mode");

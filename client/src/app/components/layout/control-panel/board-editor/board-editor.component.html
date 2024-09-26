@@ -1,0 +1,17 @@
+<div class="cols">
+    <app-nes-board [scale]="2" [board]="board$ | async"
+        (hoveringBlock)="onHoveringBlock($event)"
+        (click)="onClick()" (mousedown)="onMouseDown()" (mouseup)="onMouseUp()" (mousemove)="onMouseMove()"
+    />
+    <div class="panels">
+        <app-nes-panel class="piece-panel" (click)="onCurrentClick()">
+            <app-nes-piece [scale]="2" [piece]="(current$ | async)!" [level]="18" />
+        </app-nes-panel>
+
+        <app-nes-panel class="piece-panel" (click)="onNextClick()">
+            <app-nes-piece [scale]="2" [piece]="(next$ | async)!" [level]="18" />
+        </app-nes-panel>
+
+        <app-solid-button label="Evaluate" (smartClick)="evaluate()"/>
+    </div>
+</div>

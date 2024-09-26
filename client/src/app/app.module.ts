@@ -82,6 +82,7 @@ import { GenericRoomModalComponent } from './components/layout/room/modals/gener
 import { BannersComponent } from './components/layout/root/banners/banners.component';
 import { GameHeaderComponent } from './components/layout/room/game-header/game-header.component';
 import { GameOverComponent } from './components/nes-layout/game-over/game-over.component';
+import { BoardEditorComponent } from './components/layout/control-panel/board-editor/board-editor.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -203,6 +204,7 @@ const customNotifierOptions: NotifierOptions = {
     BannersComponent,
     GameHeaderComponent,
     GameOverComponent,
+    BoardEditorComponent,
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,47 @@
+.cols {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+}
+
+.panels {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 4px;
+}
+
+
+.piece-panel {
+    width: 80px;
+    height: 60px;
+}
+
+.piece-panel:hover {
+    cursor: pointer;
+}
+
+.piece-panel:hover app-nes-piece {
+    opacity: 0.7;
+}
+
+h1, h2, p {
+    font-family: 'NES';
+    color: white;
+}
+
+h1 {
+    font-size: 35px;
+    margin: -3px 0;
+}
+
+h2 {
+    font-size: 30px;
+    margin: -2px 0;
+}
+
+p {
+    font-size: 20px;
+    margin: 0;
+}
