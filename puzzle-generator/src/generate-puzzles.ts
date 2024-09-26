@@ -52,8 +52,15 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
       current = getRandomTetrominoType();
       next = getRandomTetrominoType();
     }
-    
 
+
+    // There are an excessive number of puzzles with low boards generated. Filter half of them out
+    if (state.board.getAverageHeight() < 7 && Math.random() < 0.7) {
+      i--;
+      badPuzzlesInARow++;
+      continue;
+    }
+    
     let rating, details, currentSolution, nextSolution;
     try {
       ({rating, details, currentSolution, nextSolution} = await ratePuzzle(state.board, current, next));

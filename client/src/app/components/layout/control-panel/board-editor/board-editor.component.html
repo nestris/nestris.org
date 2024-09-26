@@ -1,6 +1,8 @@
 <div class="cols">
     <app-nes-board [scale]="2" [board]="board$ | async"
         (hoveringBlock)="onHoveringBlock($event)"
+        [activePiece]="(currentSolution$ | async)!" [activePieceOpacity]="0.5"
+        [nextPiece]="(nextSolution$ | async)!" [nextPieceOpacity]="0.5"
         (click)="onClick()" (mousedown)="onMouseDown()" (mouseup)="onMouseUp()" (mousemove)="onMouseMove()"
     />
     <div class="panels">

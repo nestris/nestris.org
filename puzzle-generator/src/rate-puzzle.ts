@@ -59,18 +59,6 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
     }>
   {
 
-  // There are an excessive number of puzzles with low boards generated. Filter half of them out
-  if (board.getAverageHeight() < 7 && Math.random() < 0.7) {
-    return {rating: PuzzleRating.BAD_PUZZLE, details: {
-      rating: PuzzleRating.BAD_PUZZLE,
-      hasBurn: false,
-      hasTuckOrSpin: false,
-      bestNB: 0,
-      diff: 0,
-      isAdjustment: false
-    }};
-  }
-
   const stackrabbit = await getStackrabbitResponse(board, current, next);
   
   // get the board after the first move

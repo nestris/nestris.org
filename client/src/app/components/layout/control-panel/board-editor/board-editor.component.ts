@@ -2,6 +2,7 @@ import { Component, HostListener } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
 import { BinaryTranscoder } from 'src/app/shared/network/tetris-board-transcoding/binary-transcoder';
+import MoveableTetromino from 'src/app/shared/tetris/moveable-tetromino';
 import { Point } from 'src/app/shared/tetris/point';
 import { ColorType, TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
@@ -27,6 +28,9 @@ export class BoardEditorComponent {
   current$ = new BehaviorSubject<TetrominoType>(TetrominoType.I_TYPE);
   next$ = new BehaviorSubject<TetrominoType>(TetrominoType.I_TYPE);
 
+  currentSolution$ = new BehaviorSubject<MoveableTetromino | undefined>(undefined);
+  nextSolution$ = new BehaviorSubject<MoveableTetromino | undefined>(undefined);
+
   hoveredBlock$ = new BehaviorSubject<Point | undefined>(undefined);
 
   async evaluate() {
@@ -37,8 +41,28 @@ export class BoardEditorComponent {
 
     const response = await fetchServer2(Method.GET,
       `${BASE_URL}/rate-puzzle/${boardString}/${current}/${next}`
-    );
+    ) as any;
+
     console.log(response);
+
+    const currentSolution = response["currentSolution"];
+    if (currentSolution) this.currentSolution$.next(new MoveableTetromino(
+      currentSolution.tetrominoType,
+      currentSolution.rotation,
+      currentSolution.translateX,
+      currentSolution.translateY
+    ));
+    
+
+    const nextSolution = response["nextSolution"];
+    if (nextSolution) this.nextSolution$.next(new MoveableTetromino(
+      nextSolution.tetrominoType,
+      nextSolution.rotation,
+      nextSolution.translateX,
+      nextSolution.translateY
+    ));
+
+    
   }
 
   private minoAt(block: Point): boolean {
@@ -46,6 +70,11 @@ export class BoardEditorComponent {
   }
 
   private setMinoAt(block: Point, filled: boolean) {
+
+    // Clear current and next solutions
+    this.currentSolution$.next(undefined);
+    this.nextSolution$.next(undefined);
+
     const newBoard = this.board$.getValue().copy();
     newBoard.setAt(block.x, block.y, filled ? ColorType.WHITE : ColorType.EMPTY);
     this.board$.next(newBoard);
