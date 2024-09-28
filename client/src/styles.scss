@@ -1,6 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 @import "node_modules/angular-notifier/styles";
 
+$dark-color: #151515;
 $section-color: #2D2D31;
 $subsection-color: #3B3B40;
 $modal-color: #161517;
@@ -8,6 +9,10 @@ $modal-color: #161517;
 $ui-red-color: #F15757;
 $ui-green-color: #58D774;
 $ui-orange-color: #d79358;
+
+$gold-color: #FFB938;
+$silver-color: #C9C9C9;
+$bronze-color: #E59650;
 
 // legacy colors
 $button-active-color: #3C5EB7;

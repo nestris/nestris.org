@@ -1,0 +1,41 @@
+@import "../../../../../styles.scss";
+
+.stat-panel {
+    background-color: $dark-color;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+
+    width: 200px;
+    height: 65px;
+    border-radius: 10px;;
+}
+
+.stat-panel img {
+    opacity: 0.9;
+    margin-left: 20px;
+    margin-right: 13px;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+h1 {
+    font-family: $main-font;
+    font-weight: 700;
+    font-size: 22px;
+    margin: 0;
+    opacity: 0.9;
+}
+
+p {
+    font-family: $main-font;
+    font-weight: 500;
+    font-size: 11px;
+    margin: 0;
+    opacity: 0.7;
+}

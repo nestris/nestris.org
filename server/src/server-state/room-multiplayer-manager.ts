@@ -238,6 +238,9 @@ export class MultiplayerManager {
                 // Otherwise, reset for next match point
                 this.state.mode = MultiplayerRoomMode.WAITING;
 
+                // Scramble seed
+                this.match.seed = GymRNG.generateRandomSeed();
+
                 // Toggle level picker
                 this.state.levelPicker = this.state.levelPicker === Role.PLAYER_1 ? Role.PLAYER_2 : Role.PLAYER_1;
             }

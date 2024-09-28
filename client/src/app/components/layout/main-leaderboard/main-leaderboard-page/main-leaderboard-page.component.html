@@ -1,1 +1,31 @@
-<p>main-leaderboard-page works!</p>
+<div class="content">
+    <div class="title prevent-select">
+        <img src="./assets/img/tab-icons/leaderboard.svg" width="22px" />
+        <h1 class="prevent-select">Leaderboard</h1>
+    </div>
+    <div class="header">
+        <div class="left prevent-select">
+            <a routerLink="/leaderboard/puzzles" class="tab prevent-select" routerLinkActive="selected">
+                <div class="button prevent-select">
+                    <img src="./assets/img/tab-icons/puzzles.svg" width="22px" class="prevent-select" />
+                    <p class="label prevent-select">Puzzles</p>
+                </div>
+            </a>
+            <a tooltip="Coming soon!" class="tab coming-soon prevent-select">
+                <div class="button prevent-select">
+                    <img src="./assets/img/tab-icons/trophy.svg" width="22px" class="prevent-select" />
+                    <p class="label prevent-select">Ranked</p>
+                </div>
+            </a>
+        </div>
+        <div class="right">
+            <app-stat-panel icon="./assets/img/tab-icons/profile.svg" label="Players" [value]="(numPlayers$ | async) ?? 0" />
+            <app-stat-panel icon="./assets/img/tab-icons/puzzles.svg" label="Puzzles solved" [value]="(puzzlesSolved$ | async) ?? 0" />
+            <app-stat-panel icon="./assets/img/tab-icons/time.svg" label="Hours spent" [value]="(hoursSpent$ | async) ?? 0" />
+        </div>
+    </div>
+
+    <app-table [attributes]="TABLE_ATTRIBUTES" [rows]="(puzzleRows$ | async) ?? []" [myID]="(websocket.getUserID$() | async) ?? undefined"
+        [formatRules]="FORMAT_RULES" [colorRules]="COLOR_RULES" />
+
+</div>

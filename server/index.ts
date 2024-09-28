@@ -27,6 +27,8 @@ import { leaveRoomRoute } from './src/routes/room-routes';
 import { postEventRoute } from './src/routes/event-route';
 import { getPuzzleRoute } from './src/routes/get-puzzle-route';
 import { warnServerRestartRoute } from './src/routes/warn-server-restart-route';
+import { getPuzzlesSolvedRoute, getUserCountRoute } from './src/routes/db-route';
+import { getPuzzleLeaderboard } from './src/database/leaderboard-queries';
 
 // Load environment variables
 require('dotenv').config();
@@ -283,6 +285,11 @@ async function main() {
   app.post('/api/v2/leave-room/:sessionID/:roomID', requireAuth, async (req: Request, res: Response) => leaveRoomRoute(req, res, state));
 
   app.post('/api/v2/event', postEventRoute);
+
+  app.get('/api/v2/user-count', getUserCountRoute);
+  app.get('/api/v2/puzzles-solved', getPuzzlesSolvedRoute);
+
+  state.cache.addQuery(app, '/api/v2/puzzle-leaderboard', getPuzzleLeaderboard, 4);
 
   app.get('/api/v2/server-stats', (req: Request, res: Response) => {
     const stats: ServerStats = {

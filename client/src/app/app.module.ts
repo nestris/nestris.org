@@ -83,6 +83,10 @@ import { BannersComponent } from './components/layout/root/banners/banners.compo
 import { GameHeaderComponent } from './components/layout/room/game-header/game-header.component';
 import { GameOverComponent } from './components/nes-layout/game-over/game-over.component';
 import { BoardEditorComponent } from './components/layout/control-panel/board-editor/board-editor.component';
+import { PuzzleLeaderboardComponent } from './components/layout/main-leaderboard/puzzle-leaderboard/puzzle-leaderboard.component';
+import { RankedLeaderboardComponent } from './components/layout/main-leaderboard/ranked-leaderboard/ranked-leaderboard.component';
+import { StatPanelComponent } from './components/layout/main-leaderboard/stat-panel/stat-panel.component';
+import { TableComponent } from './components/ui/table/table.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -205,6 +209,10 @@ const customNotifierOptions: NotifierOptions = {
     GameHeaderComponent,
     GameOverComponent,
     BoardEditorComponent,
+    PuzzleLeaderboardComponent,
+    RankedLeaderboardComponent,
+    StatPanelComponent,
+    TableComponent,
   ],
   imports: [
     BrowserModule,

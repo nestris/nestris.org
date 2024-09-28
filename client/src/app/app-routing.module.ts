@@ -19,6 +19,8 @@ import { WelcomePageComponent } from './components/layout/welcome/welcome-page/w
 import { NotOnWhitelistPageComponent } from './component/layout/not-on-whitelist/not-on-whitelist-page/not-on-whitelist-page.component';
 import { ControlPanelPageComponent } from './components/layout/control-panel/control-panel-page/control-panel-page.component';
 import { SettingsPageComponent } from './components/layout/settings/settings-page/settings-page.component';
+import { PuzzleLeaderboardComponent } from './components/layout/main-leaderboard/puzzle-leaderboard/puzzle-leaderboard.component';
+import { RankedLeaderboardComponent } from './components/layout/main-leaderboard/ranked-leaderboard/ranked-leaderboard.component';
 
 const routes: Routes = [
 
@@ -60,7 +62,15 @@ const routes: Routes = [
        },
 
       { path: "puzzles", component: PuzzlesPageComponent },
-      { path: "leaderboard", component: MainLeaderboardPageComponent },
+
+      { path: "leaderboard", component: MainLeaderboardPageComponent,
+        children: [
+          { path: "puzzles", component: PuzzleLeaderboardComponent },
+          { path: "ranked", component: RankedLeaderboardComponent },
+          { path: "", redirectTo: "puzzles", pathMatch: "full", },
+          { path: "**", redirectTo: "puzzles", pathMatch: "full", }
+        ]
+       },
 
        { path: "welcome", component: WelcomePageComponent },
 

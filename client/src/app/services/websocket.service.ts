@@ -193,6 +193,12 @@ export class WebsocketService {
     return this.user$.getValue()?.userid;
   }
 
+  getUserID$(): Observable<string | undefined> {
+    return this.user$.asObservable().pipe(
+      map(user => user?.userid)
+    );
+  }
+
   getUser(): DBUser | undefined {
     return this.user$.getValue();
   }

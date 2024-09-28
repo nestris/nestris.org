@@ -1,0 +1,94 @@
+@import "../../../../styles.scss";
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+thead tr {
+    background-color: $dark-color;
+
+    height: 40px;
+}
+
+tbody {
+    background-color: $section-color;
+}
+
+th, td {
+    text-align: center;
+}
+
+th.player, td.player {
+    text-align: left;
+    width: 200px;
+}
+
+th {
+    font-family: $main-font;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+    opacity: 0.8;
+    color: white;
+}
+
+td {
+    font-family: $main-font;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+    color: white;
+}
+
+td:first-child {
+    width: 45px;
+}
+
+// Make four corners round
+th:first-child {
+    border-top-left-radius: 10px;
+}
+th:last-child {
+    border-top-right-radius: 10px;
+}
+tr:last-child td:first-child {
+    border-bottom-left-radius: 10px;
+}
+tr:last-child td:last-child {
+    border-bottom-right-radius: 10px;
+}
+
+.ranking {
+    width: 25px;
+    height: 25px;
+    border-radius: 2px;
+    background-color: $subsection-color;
+    font-size: 12px;
+
+    margin: 2px 10px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+tbody tr:first-child td .ranking {
+    margin-top: 3px;
+}
+
+tr:last-child td .ranking {
+    margin-bottom: 3px;
+}
+
+tbody tr:nth-child(1) td .ranking {
+    background-color: $gold-color;
+}
+
+tbody tr:nth-child(2) td .ranking {
+    background-color: $silver-color;
+}
+
+tbody tr:nth-child(3) td .ranking {
+    background-color: $bronze-color;
+}
