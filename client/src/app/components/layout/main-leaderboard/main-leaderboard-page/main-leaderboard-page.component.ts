@@ -42,7 +42,7 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     await this.sync();
-    this.timer = setInterval(() => this.sync(), 500000);
+    this.timer = setInterval(() => this.sync(), 5000);
   }
 
   ngOnDestroy() {
@@ -78,11 +78,11 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
   }
 
   private solveRateToRating(solveRate: number): EvaluationRating {
-    if (solveRate >= 0.7) return EvaluationRating.BEST;
-    else if (solveRate >= 0.65) return EvaluationRating.GOOD;
-    else if (solveRate >= 0.6) return EvaluationRating.MEDIOCRE;
-    else if (solveRate >= 0.55) return EvaluationRating.INACCURACY;
-    else if (solveRate >= 0.5) return EvaluationRating.MISTAKE;
+    if (solveRate >= 70) return EvaluationRating.BEST;
+    else if (solveRate >= 65) return EvaluationRating.GOOD;
+    else if (solveRate >= 60) return EvaluationRating.MEDIOCRE;
+    else if (solveRate >= 55) return EvaluationRating.INACCURACY;
+    else if (solveRate >= 50) return EvaluationRating.MISTAKE;
     else return EvaluationRating.BLUNDER;
   }
 }
