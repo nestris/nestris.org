@@ -42,7 +42,7 @@ export class Keybinds {
     stringToKeybind(key: string): Keybind | undefined {
         let foundKeybind: Keybind | undefined = undefined;
         ALL_KEYBINDS.forEach((keybind) => {
-            if (this.keybinds[keybind] === key) foundKeybind = keybind;
+            if (this.keybinds[keybind].toLowerCase() === key.toLowerCase()) foundKeybind = keybind;
         });
         return foundKeybind;
     }

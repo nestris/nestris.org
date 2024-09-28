@@ -58,6 +58,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
 
   soloMode$ = new BehaviorSubject<SoloMode | null>(null);
   soloGameEndMessage$ = new BehaviorSubject<SoloGameEndMessage | null>(null);
+  soloSelectedLevel: number = 18;
   
   private packetSubscription?: Subscription;
 

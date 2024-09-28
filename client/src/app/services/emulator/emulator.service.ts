@@ -176,7 +176,7 @@ export class EmulatorService {
 
   // if matching keybind, update currently pressed keys on keydown
   handleKeydown(event: KeyboardEvent) {
-
+    console.log("key down", event.key);
     const keybind = this.keybinds.stringToKeybind(event.key);
     if (keybind) {
       this.keyManager.onPress(keybind);

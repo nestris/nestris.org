@@ -100,7 +100,7 @@
 
 <ng-container *ngIf="(soloMode$ | async) as soloMode">
     <app-generic-room-modal *ngIf="[SoloMode.BEFORE_GAME, SoloMode.AFTER_GAME].includes(soloMode)">
-        <app-solo-before-game *ngIf="soloMode === SoloMode.BEFORE_GAME" (clickPlay)="clickPlaySolo($event)"/>
+        <app-solo-before-game *ngIf="soloMode === SoloMode.BEFORE_GAME" [(selectedLevel)]="soloSelectedLevel" (clickPlay)="clickPlaySolo($event)"/>
         <app-solo-after-game *ngIf="soloMode === SoloMode.AFTER_GAME" [game]="(soloGameEndMessage$ | async)!" (clickNext)="clickSoloAfterToBefore()"/>
     </app-generic-room-modal>
 </ng-container>
