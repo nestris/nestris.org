@@ -47,7 +47,7 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     await this.sync();
-    this.timer = setInterval(() => this.sync(), 500000);
+    this.timer = setInterval(() => this.sync(), 5000);
   }
 
   ngOnDestroy() {
