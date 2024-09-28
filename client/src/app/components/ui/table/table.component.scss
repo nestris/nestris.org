@@ -19,10 +19,7 @@ th, td {
     text-align: center;
 }
 
-th.player, td.player {
-    text-align: left;
-    width: 200px;
-}
+
 
 th {
     font-family: $main-font;
@@ -31,6 +28,12 @@ th {
     margin: 0;
     opacity: 0.8;
     color: white;
+    text-wrap: nowrap;
+    padding-inline: 10px;
+}
+
+.th.player {
+    padding-inline: 0px;
 }
 
 td {
@@ -39,6 +42,12 @@ td {
     font-weight: 600;
     margin: 0;
     color: white;
+    text-wrap: nowrap;
+}
+
+th.player, td.player {
+    text-align: left;
+    width: 40%;
 }
 
 td:first-child {
