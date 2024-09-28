@@ -50,6 +50,18 @@ th.player, td.player {
     width: 40%;
 }
 
+td.player {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    transform: translateY(4px);
+}
+
+app-online-indicator {
+    width: fit-content;
+    margin-left: -2px;
+}
+
 td:first-child {
     width: 45px;
 }

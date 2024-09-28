@@ -1,5 +1,6 @@
 import { KeyValue } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { OnlineUserStatus } from 'src/app/shared/models/friends';
 
 export interface TableRow {
   username: string;
@@ -30,6 +31,9 @@ export class TableComponent {
   // The row to highlight on the table, if it exists
   @Input() myID?: string;
 
+  // Map of online userids to their status
+  @Input() onlineUserIDs: Map<string, OnlineUserStatus> | null = null;
+
   // Preserve original property order
   originalOrder = (a: KeyValue<string,string>, b: KeyValue<string,string>): number => {
     return 0;
@@ -57,6 +61,14 @@ export class TableComponent {
 
     // Otherwise, default to white
     return 'white';
+  }
+
+  getOnlineStatus(userid: string): OnlineUserStatus {
+    if (!this.onlineUserIDs) {
+      return OnlineUserStatus.OFFLINE;
+    }
+
+    return this.onlineUserIDs.has(userid) ? this.onlineUserIDs.get(userid)! : OnlineUserStatus.OFFLINE;
   }
 
 }

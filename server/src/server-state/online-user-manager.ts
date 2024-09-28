@@ -24,6 +24,7 @@ export class OnlineUserManager {
         const onlineUsers = Array.from(this.onlineUsers.values());
         return onlineUsers.map(onlineUser => {
             return {
+                userid: onlineUser.userid,
                 username: onlineUser.username,
                 status: onlineUser.status,
                 onlineDuration: `${Math.floor((Date.now() - onlineUser.connectTime) / 1000)} seconds`

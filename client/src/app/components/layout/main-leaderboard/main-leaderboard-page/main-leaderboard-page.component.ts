@@ -4,6 +4,7 @@ import { TableRow } from 'src/app/components/ui/table/table.component';
 import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { EVALUATION_TO_COLOR, EvaluationRating } from 'src/app/shared/evaluation/evaluation';
+import { OnlineUserStatus } from 'src/app/shared/models/friends';
 import { PuzzleLeaderboard, PuzzleLeaderboardRow } from 'src/app/shared/models/leaderboard';
 
 
@@ -18,6 +19,8 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
   puzzlesSolved$ = new BehaviorSubject<number>(0);
   hoursSpent$ = new BehaviorSubject<number>(0);
   puzzleRows$ = new BehaviorSubject<PuzzleLeaderboardRow[]>([]);
+
+  onlineUserIDs$ = new BehaviorSubject<Map<string, OnlineUserStatus>>(new Map());
 
   TABLE_ATTRIBUTES: { [key: string]: string } = {
     rating: 'Rating',
@@ -62,6 +65,7 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
     this.hoursSpent$.next(Math.round(hoursSpent));
 
     this.puzzleRows$.next(await this.fetchLeaderboard());
+    this.onlineUserIDs$.next(await this.fetchOnlineUsers());
   }
 
   private async pollNumPlayers(): Promise<number> {
@@ -77,6 +81,16 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
   private async fetchLeaderboard(): Promise<PuzzleLeaderboardRow[]> {
     const leaderboard = await fetchServer2<PuzzleLeaderboard>(Method.GET, '/api/v2/puzzle-leaderboard');
     return leaderboard.rows;
+  }
+
+  private async fetchOnlineUsers(): Promise<Map<string, OnlineUserStatus>> {
+    const response = await fetchServer2<{userid: string, status: OnlineUserStatus}[]>(
+      Method.GET, '/api/v2/online-users'
+    );
+    
+    const onlineUserIDs = new Map<string, OnlineUserStatus>();
+    response.forEach(user => onlineUserIDs.set(user.userid, user.status));
+    return onlineUserIDs;
   }
 
   private solveRateToRating(solveRate: number): EvaluationRating {

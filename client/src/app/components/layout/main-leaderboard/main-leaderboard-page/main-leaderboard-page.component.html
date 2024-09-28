@@ -26,6 +26,6 @@
     </div>
 
     <app-table [attributes]="TABLE_ATTRIBUTES" [rows]="(puzzleRows$ | async) ?? []" [myID]="(websocket.getUserID$() | async) ?? undefined"
-        [formatRules]="FORMAT_RULES" [colorRules]="COLOR_RULES" />
+        [formatRules]="FORMAT_RULES" [colorRules]="COLOR_RULES" [onlineUserIDs]="(onlineUserIDs$ | async)" />
 
 </div>
