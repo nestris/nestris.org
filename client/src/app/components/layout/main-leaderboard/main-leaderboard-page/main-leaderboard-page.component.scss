@@ -115,11 +115,6 @@ h1 {
     align-items: center;
 }
 
-.star {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    height: auto;
-
-    transform: translateY(1.2px);
+::ng-deep .star {
+    transform: translateY(0.9px);
 }

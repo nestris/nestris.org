@@ -29,7 +29,7 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
 
   FORMAT_RULES: { [key: string]: (value: any) => string } = {
     solveRate: (value: number) => `${value}%`,
-    avgPuzzleRating: (value: number) => value.toFixed(1) + " <span><img class='star' src='./assets/img/ui-icons/star.svg' width='13px'></span>",
+    avgPuzzleRating: (value: number) => value.toFixed(1) + " <span><img class='star' src='./assets/img/ui-icons/star.svg' width='12px'></span>",
   };
 
   COLOR_RULES: { [key: string]: (value: number) => string } = {
