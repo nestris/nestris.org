@@ -9,45 +9,40 @@ import { getActivePuzzle, setActivePuzzle } from './active-puzzle';
 import { decodeRatedPuzzleFromDB } from './decode-rated-puzzle';
 import { submitPuzzleAttempt } from './submit-puzzle-attempt';
 
+function calculateProbabilities(elo: number): number[] {
+  const minElo = 0;
+  const maxElo = 4000;
+  const normalizedElo = Math.min(Math.max(elo, minElo), maxElo) / maxElo;
+  
+  const oneStar = Math.max(0, 1 - normalizedElo * 3);
+  const twoStar = Math.max(0, 1 - Math.abs(normalizedElo - 0.3) * 3); 
+  const threeStar = Math.max(0, 1 - Math.abs(normalizedElo - 0.5) * 2.5); 
+  const fourStar = Math.max(0, 1 - Math.abs(normalizedElo - 0.75) * 2);
+  const fiveStar = Math.max(0, normalizedElo * 3 - 1.5);
 
-// given a weight for each of the five possible ratings, return a random rating
-// weights must be integers
-function getRandomDistribution(one: number, two: number, three: number, four: number, five: number): PuzzleRating[] {
-  // make a list with each rating repeated the number of times its weight
-  const list: PuzzleRating[] = [];
-  for (let i = 0; i < one; i++) list.push(PuzzleRating.ONE_STAR);
-  for (let i = 0; i < two; i++) list.push(PuzzleRating.TWO_STAR);
-  for (let i = 0; i < three; i++) list.push(PuzzleRating.THREE_STAR);
-  for (let i = 0; i < four; i++) list.push(PuzzleRating.FOUR_STAR);
-  for (let i = 0; i < five; i++) list.push(PuzzleRating.FIVE_STAR);
 
-  return list;
+  const total = oneStar + twoStar + threeStar + fourStar + fiveStar;
+  return [oneStar, twoStar, threeStar, fourStar, fiveStar].map(p => p / total);
 }
 
-const ELO_0_499 = getRandomDistribution(80, 20, 0, 0, 0); // mostly solving 1 star puzzles
-const ELO_500_999 = getRandomDistribution(40, 60, 0, 0, 0); // mostly solving 1-2 star puzzles
-const ELO_1000_1499 = getRandomDistribution(20, 40, 40, 0, 0); // mostly solving 2-3 star puzzles
-const ELO_1500_1999 = getRandomDistribution(0, 20, 50, 30, 0); // mostly solving 2-4 star puzzles
-const ELO_2000_2499 = getRandomDistribution(0, 5, 35, 40, 20); // mostly solving 2-5 star puzzles
-const ELO_2500_2999 = getRandomDistribution(0, 0, 20, 40, 40); // mostly solving 3-5 star puzzles with lower chance of 5 star
-const ELO_3000_3500 = getRandomDistribution(0, 0, 5, 35, 60); // mostly solving 3-5 star puzzles
-const ELO_3500_PLUS = getRandomDistribution(0, 0, 0, 25, 75); // mostly solving 5 star puzzles
-
-// Given a user's elo, probablistically select the rating of the puzzle the user will play next.
 export function getRandomPuzzleRatingForPlayerElo(elo: number): PuzzleRating {
 
-  let distribution: PuzzleRating[];
-  if (elo < 500) distribution = ELO_0_499;
-  else if (elo < 1000) distribution = ELO_500_999;
-  else if (elo < 1500) distribution = ELO_1000_1499;
-  else if (elo < 2000) distribution = ELO_1500_1999;
-  else if (elo < 2500) distribution = ELO_2000_2499;
-  else if (elo < 3000) distribution = ELO_2500_2999;
-  else if (elo < 3500) distribution = ELO_3000_3500;
-  else distribution = ELO_3500_PLUS;
+  // Always return 1-star puzzles for new players
+  if (elo < 200) return PuzzleRating.ONE_STAR;
 
-  // pick a random rating from the distribution
-  return distribution[Math.floor(Math.random() * distribution.length)];
+  const probabilities = calculateProbabilities(elo);
+  const randomValue = Math.random();
+  let cumulativeProbability = 0;
+
+  for (let i = 0; i < probabilities.length; i++) {
+    cumulativeProbability += probabilities[i];
+    if (randomValue <= cumulativeProbability) {
+      return i + 1 as PuzzleRating;
+    }
+  }
+
+  // This should never happen, but TypeScript needs a return statement
+  return PuzzleRating.THREE_STAR;
 }
 
 // given the user's elo, the number of total puzzle attempts, and the rating of the puzzle, calculate the elo change for the user

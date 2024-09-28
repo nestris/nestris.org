@@ -1,6 +1,7 @@
 import { PuzzleRating } from "../../shared/puzzles/puzzle-rating";
 import { generatePuzzles } from "./generate-puzzles";
 import { server } from "./server";
+import { test } from "./test";
 
 
 function generate() {
@@ -25,10 +26,6 @@ function generate() {
             console.log(`${rating}: ${numPuzzles}`);
         }
     });
-}
-
-function test() {
-    console.log("Testing");
 }
 
 const [, , ...args] = process.argv;
