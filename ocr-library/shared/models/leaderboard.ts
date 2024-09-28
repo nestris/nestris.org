@@ -5,6 +5,7 @@ export interface PuzzleLeaderboardRow {
     best: number;
     puzzlesSolved: number;
     solveRate: number;
+    avgPuzzleRating: number;
 }
 
 export interface PuzzleLeaderboard {

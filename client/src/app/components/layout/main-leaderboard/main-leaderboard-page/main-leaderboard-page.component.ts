@@ -23,11 +23,13 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
     rating: 'Rating',
     best: 'Best',
     puzzlesSolved: 'Puzzles solved',
+    avgPuzzleRating: 'Puzzle rating',
     solveRate: 'Solve rate',
   };
 
   FORMAT_RULES: { [key: string]: (value: any) => string } = {
     solveRate: (value: number) => `${value}%`,
+    avgPuzzleRating: (value: number) => value.toFixed(1) + " <span><img class='star' src='./assets/img/ui-icons/star.svg' width='13px'></span>",
   };
 
   COLOR_RULES: { [key: string]: (value: number) => string } = {

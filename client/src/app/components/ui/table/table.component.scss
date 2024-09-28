@@ -8,7 +8,7 @@ table {
 thead tr {
     background-color: $dark-color;
 
-    height: 40px;
+    height: 50px;
 }
 
 tbody {
@@ -18,8 +18,6 @@ tbody {
 th, td {
     text-align: center;
 }
-
-
 
 th {
     font-family: $main-font;
@@ -44,7 +42,7 @@ td {
     color: white;
     text-wrap: nowrap;
 
-    width: 12.5%;
+    width: 13%;
 }
 
 th.player, td.player {
@@ -54,6 +52,10 @@ th.player, td.player {
 
 td:first-child {
     width: 45px;
+}
+
+th:last-child {
+    padding-right: 20px;
 }
 
 // Make four corners round
