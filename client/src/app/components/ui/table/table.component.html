@@ -3,14 +3,14 @@
         <tr>
             <th></th>
             <th class="player">Player</th>
-            <th *ngFor="let item of attributes | keyvalue">{{item.value}}</th>
+            <th *ngFor="let item of attributes | keyvalue: originalOrder">{{item.value}}</th>
         </tr>
     </thead>
     <tbody>
         <tr *ngFor="let row of rows; let i = index" [ngClass]="{'me': row.userid === myID}">
             <td><div class="ranking">#{{ i + 1 }}</div></td>
             <td class="player">{{row.username}}</td>
-            <td *ngFor="let item of attributes | keyvalue" [ngStyle]="{color: getCellColor(row, item.key)}">{{getRowAttribute(row, item.key)}}</td>
+            <td *ngFor="let item of attributes | keyvalue: originalOrder" [ngStyle]="{color: getCellColor(row, item.key)}">{{getRowAttribute(row, item.key)}}</td>
         </tr>
     </tbody>
 </table>

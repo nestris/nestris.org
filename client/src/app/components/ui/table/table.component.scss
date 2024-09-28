@@ -32,7 +32,7 @@ th {
     padding-inline: 10px;
 }
 
-.th.player {
+th.player {
     padding-inline: 0px;
 }
 
@@ -43,6 +43,8 @@ td {
     margin: 0;
     color: white;
     text-wrap: nowrap;
+
+    width: 12.5%;
 }
 
 th.player, td.player {

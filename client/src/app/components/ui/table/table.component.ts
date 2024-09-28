@@ -1,3 +1,4 @@
+import { KeyValue } from '@angular/common';
 import { Component, Input } from '@angular/core';
 
 export interface TableRow {
@@ -28,6 +29,11 @@ export class TableComponent {
 
   // The row to highlight on the table, if it exists
   @Input() myID?: string;
+
+  // Preserve original property order
+  originalOrder = (a: KeyValue<string,string>, b: KeyValue<string,string>): number => {
+    return 0;
+  }
 
   getRowAttribute(row: TableRow, attribute: string): any {
     const value = (row as any)[attribute];
