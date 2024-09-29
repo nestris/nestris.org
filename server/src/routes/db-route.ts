@@ -27,3 +27,16 @@ export async function getPuzzlesSolvedRoute(req: Request, res: Response) {
 
   res.send({ count });
 }
+
+export async function getTotalPuzzleDuration(): Promise<{ total: number }> {
+
+  const query = `
+    SELECT SUM(solve_time) as total_puzzle_duration
+    FROM puzzle_attempts;
+  `;
+
+  const result = await queryDB(query, []);
+  const total = result.rows[0].total_puzzle_duration;
+
+  return { total };
+}

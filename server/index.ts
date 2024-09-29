@@ -27,7 +27,7 @@ import { leaveRoomRoute } from './src/routes/room-routes';
 import { postEventRoute } from './src/routes/event-route';
 import { getPuzzleRoute } from './src/routes/get-puzzle-route';
 import { warnServerRestartRoute } from './src/routes/warn-server-restart-route';
-import { getPuzzlesSolvedRoute, getUserCountRoute } from './src/routes/db-route';
+import { getPuzzlesSolvedRoute, getTotalPuzzleDuration, getUserCountRoute } from './src/routes/db-route';
 import { getPuzzleLeaderboard } from './src/database/leaderboard-queries';
 
 // Load environment variables
@@ -290,6 +290,8 @@ async function main() {
   app.get('/api/v2/puzzles-solved', getPuzzlesSolvedRoute);
 
   state.cache.addQuery(app, '/api/v2/puzzle-leaderboard', getPuzzleLeaderboard, 4);
+
+  state.cache.addQuery(app, '/api/v2/total-puzzle-duration', getTotalPuzzleDuration, 300);
 
   app.get('/api/v2/server-stats', (req: Request, res: Response) => {
     const stats: ServerStats = {

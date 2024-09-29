@@ -21,7 +21,7 @@
         <div class="right">
             <app-stat-panel icon="./assets/img/tab-icons/profile.svg" label="Players" [value]="(numPlayers$ | async) ?? 0" />
             <app-stat-panel icon="./assets/img/tab-icons/puzzles.svg" label="Puzzles solved" [value]="(puzzlesSolved$ | async) ?? 0" />
-            <app-stat-panel icon="./assets/img/tab-icons/time.svg" label="Hours spent" [value]="(hoursSpent$ | async) ?? 0" />
+            <app-stat-panel icon="./assets/img/tab-icons/time.svg" label="Hours played" [value]="(hoursSpent$ | async) ?? 0" />
         </div>
     </div>
 

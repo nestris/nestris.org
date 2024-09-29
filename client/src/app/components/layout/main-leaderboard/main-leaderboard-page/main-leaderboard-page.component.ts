@@ -26,17 +26,17 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
     rating: 'Rating',
     best: 'Best',
     puzzlesSolved: 'Puzzles solved',
-    avgPuzzleRating: 'Puzzle rating',
+    avgSolveTime: 'Average duration',
     solveRate: 'Solve rate',
   };
 
   FORMAT_RULES: { [key: string]: (value: any) => string } = {
+    avgSolveTime: (value: number) => `0:${value.toFixed(0).padStart(2, '0')}`,
     solveRate: (value: number) => `${value}%`,
-    avgPuzzleRating: (value: number) => value.toFixed(1) + " <span><img class='star' src='./assets/img/ui-icons/star.svg' width='12px'></span>",
   };
 
   COLOR_RULES: { [key: string]: (value: number) => string } = {
-    solveRate: (value: number) => EVALUATION_TO_COLOR[this.solveRateToRating(value)],
+
   };
 
   timer: any;
@@ -60,8 +60,7 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
     this.numPlayers$.next(await this.pollNumPlayers());
     this.puzzlesSolved$.next(await this.pollPuzzlesSolved());
 
-    // Fake hours spent by assuming 7 seconds per puzzle
-    const hoursSpent = (this.puzzlesSolved$.getValue() * 7) / 3600;
+    const hoursSpent = Math.round((await this.pollTotalPuzzleDuration()) / 3600);
     this.hoursSpent$.next(Math.round(hoursSpent));
 
     this.puzzleRows$.next(await this.fetchLeaderboard());
@@ -76,6 +75,11 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
   private async pollPuzzlesSolved(): Promise<number> {
     const response = await fetchServer2<{count: number}>(Method.GET, '/api/v2/puzzles-solved');
     return response.count;
+  }
+
+  private async pollTotalPuzzleDuration(): Promise<number> {
+    const response = await fetchServer2<{total: number}>(Method.GET, '/api/v2/total-puzzle-duration');
+    return response.total;
   }
 
   private async fetchLeaderboard(): Promise<PuzzleLeaderboardRow[]> {

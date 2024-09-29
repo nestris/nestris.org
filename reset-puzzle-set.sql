@@ -1,3 +1,6 @@
+-- Clear active_puzzles table
+DELETE FROM public.active_puzzles;
+
 -- Clear puzzle_feedback table
 DELETE FROM public.puzzle_feedback;
 
