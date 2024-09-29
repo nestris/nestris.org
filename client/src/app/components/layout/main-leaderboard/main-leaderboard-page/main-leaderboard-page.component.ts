@@ -31,7 +31,7 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
   };
 
   FORMAT_RULES: { [key: string]: (value: any) => string } = {
-    avgSolveTime: (value: number) => `0:${value.toFixed(0).padStart(2, '0')}`,
+    avgSolveTime: (value: number) => `${value.toFixed(1)}s`,
     solveRate: (value: number) => `${value}%`,
   };
 

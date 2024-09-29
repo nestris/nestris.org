@@ -4,7 +4,7 @@
 NUM_INSTANCES=10
 
 # Number of times each process will run the command
-NUM_RUNS=10
+NUM_RUNS=30
 
 # Function to handle SIGINT (Ctrl+C)
 cleanup() {

@@ -61,7 +61,7 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
     }
 
     // There are an excessive number of puzzles with low boards generated. Filter half of them out
-    if (state.board.getAverageHeight() < 7 && Math.random() < 0.7) {
+    if (state.board.getAverageHeight() < 5 && Math.random() < 0.7) {
       i--;
       badPuzzlesInARow++;
       continue;

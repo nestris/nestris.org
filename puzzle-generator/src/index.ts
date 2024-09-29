@@ -2,7 +2,7 @@ import { PuzzleRating } from "../../shared/puzzles/puzzle-rating";
 import { generatePuzzles } from "./generate-puzzles";
 import { server } from "./server";
 import { calculateProbabilities } from "../../server/src/puzzle-generation/select-puzzle";
-import { test } from "./test";
+import { test, test2 } from "./test";
 
 
 function generate() {
@@ -42,7 +42,7 @@ const mode = args.find((arg) => arg.startsWith('--mode='))?.split('=')[1];
     case 'generate': return generate();
     case 'server': return server();
     case 'elo': return testElo();
-    case 'test': return test();
+    case 'test': return test2();
     default:
         console.error("Invalid mode");
         break;

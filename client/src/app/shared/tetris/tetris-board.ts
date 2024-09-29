@@ -236,15 +236,17 @@ export class TetrisBoard {
 
     getAverageHeight(): number {
         let totalHeight = 0;
-        let numMinos = 0;
-        for (let y = 0; y < 20; y++) {
-            for (let x = 0; x < 10; x++) {
+        const numColumns = 10;
+        
+        for (let x = 0; x < numColumns; x++) {
+            for (let y = 0; y < 20; y++) {
                 if (this.exists(x, y)) {
                     totalHeight += 20 - y;
-                    numMinos++;
+                    break; // Move to the next column once we find the highest block
                 }
             }
         }
-        return totalHeight / numMinos;
+        
+        return totalHeight / numColumns;
     }
 }

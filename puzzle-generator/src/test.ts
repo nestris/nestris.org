@@ -16,3 +16,14 @@ export async function test() {
 
   console.log(response);
 }
+
+export async function test2() {
+
+  const board = new TetrisBoard();
+  board.setAt(5, 18, ColorType.WHITE);
+  board.setAt(6, 19, ColorType.WHITE);
+  board.print();
+
+  console.log(board.getAverageHeight());
+
+}
