@@ -28,14 +28,13 @@ export async function getAttemptStats(userid: string, period: TimePeriod, timezo
     const result = await queryDB(
         `WITH filtered_attempts AS (
             SELECT
-                p.rating,
+                rating,
                 COUNT(*) FILTER (WHERE pa.is_correct = true) AS num_solved,
                 COUNT(*) AS num_attempted,
                 AVG(pa.solve_time) AS avg_solve_time
             FROM puzzle_attempts pa
-            JOIN rated_puzzles p ON pa.puzzle_id = p.id
             WHERE pa.userid = $1 AND pa.timestamp >= $2
-            GROUP BY p.rating
+            GROUP BY rating
         )
         SELECT
             rating,

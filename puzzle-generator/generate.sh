@@ -25,7 +25,7 @@ start_time=$(date +%s)
 # Function to run the command multiple times with a random delay
 run_instance() {
   for ((run=1; run<=NUM_RUNS; run++)); do
-    npm start -- --mode=generate --db=prod
+    npm start -- --mode=generate --db=dev
     # Wait for a random amount of time (between 3 and 5 seconds)
     sleep $((RANDOM % 3 + 3))
   done

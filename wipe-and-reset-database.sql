@@ -142,7 +142,7 @@ CREATE TABLE "public"."puzzle_attempts" (
     "puzzle_id" uuid REFERENCES "public"."rated_puzzles"("id"),
     "userid" text NOT NULL REFERENCES "public"."users"("userid"),
     "timestamp" timestamp NOT NULL DEFAULT now(),
-
+    "rating" int2 NOT NULL CHECK (rating >= 1 AND rating <= 5),
     "is_correct" boolean NOT NULL,
     "elo_before" int2 NOT NULL,
     "elo_change" int2, -- if NULL, then it was an unranked puzzle
