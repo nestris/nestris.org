@@ -55,7 +55,8 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
       rating: PuzzleRating,
       details: PuzzleRatingDetails,
       currentSolution?: MoveableTetromino,
-      nextSolution?: MoveableTetromino
+      nextSolution?: MoveableTetromino,
+      badReason?: string
     }>
   {
 
@@ -86,8 +87,6 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
   if (stackrabbit.noNextBox.length >= 2) diffNNB = stackrabbit.noNextBox[0].score - stackrabbit.noNextBox[1].score;
   else diffNNB = undefined;
 
-  // whether the first move is also best NNB move by far
-  const obviousFirstMove = (bestMoveNNBIndex === 0 && diffNNB !== undefined && diffNNB >= 0.5);
 
   const details: PuzzleRatingDetails = {bestNB, diff, isAdjustment,
      rating: PuzzleRating.UNRATED,
@@ -95,22 +94,22 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
       hasTuckOrSpin: hasAnyTuckOrSpin
   };
 
-  if (diff === undefined || diffNNB === undefined) return {rating: PuzzleRating.BAD_PUZZLE, details};
+  if (diff === undefined || diffNNB === undefined) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "Diff undefined"};
 
   // if diff is too small, zero, or negative, return BAD_PUZZLE
-  if (diff <= 2) return {rating: PuzzleRating.BAD_PUZZLE, details};
+  if (diff <= 2) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "Diff too small"};
 
   // if bestNB is too low, return BAD_PUZZLE
-  if (bestNB < -50) return {rating: PuzzleRating.BAD_PUZZLE, details};
+  if (bestNB < -50) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "BestNB too low"};
 
   // eliminate puzzles where the first placement is I-0
   if (stackrabbit.nextBox[0].firstPlacement.getTetrisNotation() === "I-0") {
-    return {rating: PuzzleRating.BAD_PUZZLE, details};
+    return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "First placement is I-0"};
   }
 
   // eliminate puzzles where the second placement is I-0
   if (stackrabbit.nextBox[0].secondPlacement.getTetrisNotation() === "I-0") {
-    return {rating: PuzzleRating.BAD_PUZZLE, details};
+    return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "Second placement is I-0"};
   }
 
   // Eliminate puzzles where 20hz SR disagrees with 30hz SR
@@ -119,11 +118,12 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
   if (!(
     stackrabbit.nextBox[0].firstPlacement.equals(stackrabbit20hz.nextBox[0].firstPlacement) &&
     stackrabbit.nextBox[0].secondPlacement.equals(stackrabbit20hz.nextBox[0].secondPlacement)
-  )) return {rating: PuzzleRating.BAD_PUZZLE, details};
+  )) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "20hz SR disagrees with 30hz SR"};
 
   let rating: PuzzleRating;
   if (diff >= 30 && !isAdjustment && bestNB > 10 && !hasAnyBurn && !hasAnyTuckOrSpin && diffNNB >= 10) rating = PuzzleRating.ONE_STAR;
   else if (diff >= 15 && !hasAnyTuckOrSpin && !isAdjustment) rating = PuzzleRating.TWO_STAR;
+  else if (diff >= 8) rating = PuzzleRating.THREE_STAR;
   else {
     // at this point, the puzzle is 3-5 star. Use a nerfed version of SR to categorize
     // use a nerfed version of SR to determine if the puzzle is 4 or 5 star
@@ -145,7 +145,7 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
       else rating = hard ? PuzzleRating.FIVE_STAR : PuzzleRating.FOUR_STAR;
 
     } catch {
-      return {rating: PuzzleRating.BAD_PUZZLE, details};
+      return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "Error in babyrabbit"};
     }
   }
 

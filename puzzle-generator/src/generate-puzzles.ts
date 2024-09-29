@@ -55,13 +55,15 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
 
     // Disallow puzzles with extremely low boards
     if (state.board.getAverageHeight() < 0.5) {
+      //console.log("Too low board generated");
       i--;
       badPuzzlesInARow++;
       continue;
     }
 
     // There are an excessive number of puzzles with low boards generated. Filter half of them out
-    if (state.board.getAverageHeight() < 5 && Math.random() < 0.7) {
+    if (state.board.getAverageHeight() < 5 && Math.random() < 0.8) {
+      //console.log("Too low board generated 2");
       i--;
       badPuzzlesInARow++;
       continue;
@@ -69,16 +71,18 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
 
     // Disallow puzzles with high boards
     if (state.board.getAverageHeight() > 12) {
+      //console.log("Too high board generated");
       i--;
       badPuzzlesInARow++;
       continue;
     }
     
-    let rating, details, currentSolution, nextSolution;
+    let rating, details, currentSolution, nextSolution, badReason;
     try {
-      ({rating, details, currentSolution, nextSolution} = await ratePuzzle(state.board, current, next));
+      ({rating, details, currentSolution, nextSolution, badReason} = await ratePuzzle(state.board, current, next));
     } catch (e) { // if something goes wrong with ratePuzzle, reset the board
       i--;
+      badReason = "Error in ratePuzzle: " + e;
       badPuzzlesInARow = MAX_BAD_PUZZLES_IN_A_ROW;
       continue;
     }
@@ -86,6 +90,9 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
 
     // discard bad puzzles
     if (rating === PuzzleRating.BAD_PUZZLE) {
+
+      //console.log("Bad puzzle generated", badReason);
+
       i--;
       badPuzzlesInARow++;
       continue;
