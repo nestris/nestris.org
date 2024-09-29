@@ -53,9 +53,22 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
       next = getRandomTetrominoType();
     }
 
+    // Disallow puzzles with extremely low boards
+    if (state.board.getAverageHeight() < 0.5) {
+      i--;
+      badPuzzlesInARow++;
+      continue;
+    }
 
     // There are an excessive number of puzzles with low boards generated. Filter half of them out
     if (state.board.getAverageHeight() < 7 && Math.random() < 0.7) {
+      i--;
+      badPuzzlesInARow++;
+      continue;
+    }
+
+    // Disallow puzzles with high boards
+    if (state.board.getAverageHeight() > 12) {
       i--;
       badPuzzlesInARow++;
       continue;

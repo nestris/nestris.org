@@ -98,7 +98,7 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
   if (diff === undefined || diffNNB === undefined) return {rating: PuzzleRating.BAD_PUZZLE, details};
 
   // if diff is too small, zero, or negative, return BAD_PUZZLE
-  if (diff <= 1.5) return {rating: PuzzleRating.BAD_PUZZLE, details};
+  if (diff <= 2) return {rating: PuzzleRating.BAD_PUZZLE, details};
 
   // if bestNB is too low, return BAD_PUZZLE
   if (bestNB < -50) return {rating: PuzzleRating.BAD_PUZZLE, details};
@@ -114,7 +114,7 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
   }
 
   // Eliminate puzzles where 20hz SR disagrees with 30hz SR
-  const stackrabbit20hz = await getStackrabbitResponse(board, current, next, InputSpeed.HZ_25);
+  const stackrabbit20hz = await getStackrabbitResponse(board, current, next, InputSpeed.HZ_15);
   if (stackrabbit20hz.nextBox.length === 0) return {rating: PuzzleRating.BAD_PUZZLE, details};
   if (!(
     stackrabbit.nextBox[0].firstPlacement.equals(stackrabbit20hz.nextBox[0].firstPlacement) &&
@@ -141,7 +141,7 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
       const hard = (babyRabbitIndex === -1) || (babyrabbit.nextBox[0].score - babyrabbit.nextBox[babyRabbitIndex].score >= 2);
 
       // If hard flag is set, bump the rating difficulty
-      if (diff >= 3) rating = hard ? PuzzleRating.FOUR_STAR : PuzzleRating.THREE_STAR;
+      if (diff >= 4) rating = hard ? PuzzleRating.FOUR_STAR : PuzzleRating.THREE_STAR;
       else rating = hard ? PuzzleRating.FIVE_STAR : PuzzleRating.FOUR_STAR;
 
     } catch {
