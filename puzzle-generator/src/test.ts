@@ -1,60 +1,18 @@
-import { PuzzleRating } from "../../shared/puzzles/puzzle-rating";
+import { BinaryTranscoder } from "../../shared/network/tetris-board-transcoding/binary-transcoder";
+import { ColorType, TetrisBoard } from "../../shared/tetris/tetris-board";
+import { TetrominoType } from "../../shared/tetris/tetromino-type";
+import { getMove, getTopMovesHybrid } from "./stackrabbit";
 
-function calculateProbabilities(elo: number): number[] {
-  const minElo = 0;
-  const maxElo = 4000;
-  const normalizedElo = Math.min(Math.max(elo, minElo), maxElo) / maxElo;
+export async function test() {
   
-  const oneStar = Math.max(0, 1 - normalizedElo * 3);
-  const twoStar = Math.max(0, 1 - Math.abs(normalizedElo - 0.3) * 3); 
-  const threeStar = Math.max(0, 1 - Math.abs(normalizedElo - 0.5) * 2.5); 
-  const fourStar = Math.max(0, 1 - Math.abs(normalizedElo - 0.75) * 2);
-  const fiveStar = Math.max(0, normalizedElo * 3 - 1.5);
+  const board = new TetrisBoard();
+  const current = TetrominoType.I_TYPE;
+  const next = TetrominoType.J_TYPE;
 
+  board.setAt(0, 0, ColorType.WHITE);
 
-  const total = oneStar + twoStar + threeStar + fourStar + fiveStar;
-  return [oneStar, twoStar, threeStar, fourStar, fiveStar].map(p => p / total);
-}
+  const boardString = BinaryTranscoder.encode(board);
+  const response = await getMove(boardString, 18, 0, current, next);
 
-export function getRandomPuzzleRatingForPlayerElo(elo: number): PuzzleRating {
-
-  // Always return 1-star puzzles for new players
-  if (elo < 200) return PuzzleRating.ONE_STAR;
-
-  const probabilities = calculateProbabilities(elo);
-  const randomValue = Math.random();
-  let cumulativeProbability = 0;
-
-  for (let i = 0; i < probabilities.length; i++) {
-    cumulativeProbability += probabilities[i];
-    if (randomValue <= cumulativeProbability) {
-      return i + 1 as PuzzleRating;
-    }
-  }
-
-  // This should never happen, but TypeScript needs a return statement
-  return PuzzleRating.THREE_STAR;
-}
-
-// Helper function to test the distribution
-function testDistribution(elo: number, iterations: number): void {
-
-  // print the elo distribution neatly
-  //const probabilities = calculateProbabilities(elo);
-  //console.log(`ELO ${elo}:`, probabilities.map(p => (p * 100).toFixed(2) + '%'));
-  //return;
-
-  const counts = [0, 0, 0, 0, 0];
-  for (let i = 0; i < iterations; i++) {
-    const rating = getRandomPuzzleRatingForPlayerElo(elo);
-    counts[rating - 1]++;
-  }
-  console.log(`ELO ${elo}:`, counts.map(c => (c / iterations * 100).toFixed(2) + '%'));
-}
-
-export function test() {
-    // Test the distribution
-    for (let i = 0; i <= 4000; i += 100) {
-        testDistribution(i, 10000);
-    }
+  console.log(response);
 }

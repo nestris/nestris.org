@@ -9,7 +9,10 @@ import { getActivePuzzle, setActivePuzzle } from './active-puzzle';
 import { decodeRatedPuzzleFromDB } from './decode-rated-puzzle';
 import { submitPuzzleAttempt } from './submit-puzzle-attempt';
 
-function calculateProbabilities(elo: number): number[] {
+export function calculateProbabilities(elo: number): number[] {
+
+  if (elo < 200) return [1, 0, 0, 0, 0];
+
   const minElo = 0;
   const maxElo = 4000;
   const normalizedElo = Math.min(Math.max(elo, minElo), maxElo) / maxElo;
@@ -26,9 +29,6 @@ function calculateProbabilities(elo: number): number[] {
 }
 
 export function getRandomPuzzleRatingForPlayerElo(elo: number): PuzzleRating {
-
-  // Always return 1-star puzzles for new players
-  if (elo < 200) return PuzzleRating.ONE_STAR;
 
   const probabilities = calculateProbabilities(elo);
   const randomValue = Math.random();
