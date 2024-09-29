@@ -17,6 +17,10 @@ function calculateProbabilities(elo: number): number[] {
 }
 
 export function getRandomPuzzleRatingForPlayerElo(elo: number): PuzzleRating {
+
+  // Always return 1-star puzzles for new players
+  if (elo < 200) return PuzzleRating.ONE_STAR;
+
   const probabilities = calculateProbabilities(elo);
   const randomValue = Math.random();
   let cumulativeProbability = 0;
