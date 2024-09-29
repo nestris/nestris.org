@@ -49,7 +49,7 @@ const leaderboard: PuzzleLeaderboard = {
         best: row.best,
         puzzlesSolved: parseInt(row.puzzles_solved),
         solveRate: parseFloat(row.solve_rate),
-        avgSolveTime: parseFloat(row.avg_puzzle_rating)
+        avgSolveTime: parseFloat(row.avg_solve_time)
     }))
 };
 

@@ -139,7 +139,7 @@ CREATE TABLE "public"."active_puzzles" (
 DROP TABLE IF EXISTS "public"."puzzle_attempts" CASCADE;
 CREATE TABLE "public"."puzzle_attempts" (
     "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-    "puzzle_id" uuid NOT NULL REFERENCES "public"."rated_puzzles"("id"),
+    "puzzle_id" uuid REFERENCES "public"."rated_puzzles"("id"),
     "userid" text NOT NULL REFERENCES "public"."users"("userid"),
     "timestamp" timestamp NOT NULL DEFAULT now(),
 
