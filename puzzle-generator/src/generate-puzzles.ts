@@ -91,7 +91,7 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
     // discard bad puzzles
     if (rating === PuzzleRating.BAD_PUZZLE) {
 
-      console.log("Bad puzzle generated", badReason);
+      //console.log("Bad puzzle generated", badReason);
 
       i--;
       badPuzzlesInARow++;

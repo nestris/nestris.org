@@ -25,12 +25,10 @@ const leaderboardQuery = `
                 WHEN COUNT(*) = 0 THEN 0
                 ELSE ROUND(COUNT(CASE WHEN pa.is_correct = true THEN 1 END)::numeric / COUNT(*) * 100, 2)
             END as solve_rate,
-            ROUND(AVG(rp.rating)::numeric, 2) as avg_puzzle_rating,
+            ROUND(AVG(rating)::numeric, 2) as avg_puzzle_rating,
             ROUND(AVG(pa.solve_time)::numeric, 2) as avg_solve_time
         FROM 
             puzzle_attempts pa
-        JOIN
-            rated_puzzles rp ON pa.puzzle_id = rp.id
         GROUP BY 
             pa.userid
     ) pa ON u.userid = pa.userid
