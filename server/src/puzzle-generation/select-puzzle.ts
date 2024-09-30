@@ -14,7 +14,7 @@ export function calculateProbabilities(elo: number): number[] {
   if (elo < 200) return [1, 0, 0, 0, 0];
 
   const minElo = 0;
-  const maxElo = 4000;
+  const maxElo = 3700;
   const normalizedElo = Math.min(Math.max(elo, minElo), maxElo) / maxElo;
   
   const oneStar = Math.max(0, 1 - normalizedElo * 3);
