@@ -120,15 +120,18 @@ tr:last-child td .ranking {
     margin-bottom: 8px;
 }
 
-tbody tr:nth-child(1) td .ranking {
+// First place
+tbody tr.first td .ranking {
     background-color: $gold-color;
 }
 
-tbody tr:nth-child(2) td .ranking {
+// Second place
+tbody tr.second td .ranking {
     background-color: $silver-color;
 }
 
-tbody tr:nth-child(3) td .ranking {
+// Third place
+tbody tr.third td .ranking {
     background-color: $bronze-color;
 }
 

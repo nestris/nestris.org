@@ -1,5 +1,5 @@
 import { KeyValue } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { OnlineUserStatus } from 'src/app/shared/models/friends';
 
 export interface TableRow {
@@ -7,14 +7,20 @@ export interface TableRow {
   userid: string;
 }
 
+export interface RankedTableRow extends TableRow {
+  _rank: number;
+}
+
 @Component({
   selector: 'app-table',
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.scss']
 })
-export class TableComponent {
+export class TableComponent implements OnChanges {
   // An ordered list of rows, with each row containing a key for each attribute name
   @Input() rows: TableRow[] = [];
+
+  @Input() sortByAttribute!: string;
 
   // A ordered map of attribute name to display name for each column on the table
   // Each TableRow should contain a key for each attribute name
@@ -33,6 +39,40 @@ export class TableComponent {
 
   // Map of online userids to their status
   @Input() onlineUserIDs: Map<string, OnlineUserStatus> | null = null;
+
+  sortedRows: RankedTableRow[] = [];
+
+  readonly HIGHEST_RANK = 200;
+
+  // On changes, recalculate ranking from rows. If two players have same elo, they will share same rank,
+  // but the next rank will be skipped.
+  ngOnChanges(): void {
+
+    this.sortedRows = [];
+    let currentRank = 1;
+
+    let rows: any[] = this.rows;
+
+    // Sort rows by sortByAttribute, descending
+    rows = rows.sort((a, b) => b[this.sortByAttribute] - a[this.sortByAttribute]);
+
+    // Calculate ranking
+    let duplicateRank = 0;
+    for (let i = 0; i < this.rows.length; i++) {
+      if (i > 0 && rows[i][this.sortByAttribute] !== rows[i - 1][this.sortByAttribute]) {
+        currentRank += 1 + duplicateRank;
+        duplicateRank = 0;
+      } else duplicateRank++;
+
+      if (currentRank > this.HIGHEST_RANK) break;
+
+      this.sortedRows.push({
+        ...rows[i],
+        _rank: currentRank
+      });
+    }
+  }
+
 
   // Preserve original property order
   originalOrder = (a: KeyValue<string,string>, b: KeyValue<string,string>): number => {

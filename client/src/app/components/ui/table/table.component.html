@@ -7,8 +7,8 @@
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let row of rows; let i = index" [ngClass]="{'me': row.userid === myID}">
-            <td><div class="ranking">#{{ i + 1 }}</div></td>
+        <tr *ngFor="let row of sortedRows" [ngClass]="{'me': row.userid === myID, 'first' : row._rank === 1, 'second' : row._rank === 2, 'third' : row._rank === 3}">
+            <td><div class="ranking">#{{ row._rank }}</div></td>
             <td class="player">{{row.username}} <app-online-indicator *ngIf="onlineUserIDs" [status]="getOnlineStatus(row.userid)" /> </td>
             <td *ngFor="let item of attributes | keyvalue: originalOrder" [ngStyle]="{color: getCellColor(row, item.key)}" [innerHTML]="getRowAttribute(row, item.key)"></td>
         </tr>

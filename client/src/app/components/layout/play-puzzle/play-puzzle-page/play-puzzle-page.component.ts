@@ -205,6 +205,7 @@ export class PlayPuzzlePageComponent implements OnInit {
     // start fetching move generations. no need to wait for this to finish
     this.generateMoveRecommendations(puzzle);
 
+    this.canUndo$.next(false);
     this.puzzle$.next(puzzle);
     this.eloChange$.next(this.puzzleState$.getValue()!.getEloChange());
     

@@ -33,8 +33,8 @@ const leaderboardQuery = `
             pa.userid
     ) pa ON u.userid = pa.userid
     ORDER BY 
-        u.puzzle_elo DESC
-    LIMIT 200
+        u.puzzle_elo DESC, puzzles_solved ASC
+    LIMIT 220
 `;
 
 const result = await queryDB(leaderboardQuery, []);
