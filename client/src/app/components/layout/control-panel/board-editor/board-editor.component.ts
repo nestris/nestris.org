@@ -35,6 +35,8 @@ export class BoardEditorComponent {
 
   async evaluate() {
 
+    console.log("Board height:", this.board$.getValue().getAverageHeight());
+
     const boardString = BinaryTranscoder.encode(this.board$.getValue());
     const current = this.current$.getValue();
     const next = this.next$.getValue();

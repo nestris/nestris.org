@@ -70,7 +70,7 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
     }
 
     // Disallow puzzles with high boards
-    if (state.board.getAverageHeight() > 12) {
+    if (state.board.getAverageHeight() > 10) {
       //console.log("Too high board generated");
       i--;
       badPuzzlesInARow++;
