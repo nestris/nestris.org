@@ -59,7 +59,8 @@ export class TableComponent implements OnChanges {
     // Calculate ranking
     let duplicateRank = 0;
     for (let i = 0; i < this.rows.length; i++) {
-      if (i > 0 && rows[i][this.sortByAttribute] !== rows[i - 1][this.sortByAttribute]) {
+      if (i == 0) {}
+      else if (rows[i][this.sortByAttribute] !== rows[i - 1][this.sortByAttribute]) {
         currentRank += 1 + duplicateRank;
         duplicateRank = 0;
       } else duplicateRank++;

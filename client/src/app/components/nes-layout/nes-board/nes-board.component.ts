@@ -28,6 +28,8 @@ export class NesBoardComponent {
   // if true, hovered blocks will dim. hovering over active piece, if it exists, will dim
   @Input() interactable: boolean = false;
 
+  @Input() defaultOpacity: number = 1;
+
   // optional current piece that, if passed in, displays the rest of the board in lower saturation
   @Input() activePiece?: MoveableTetromino;
   @Input() activePieceOpacity: number = 1;
@@ -87,7 +89,7 @@ export class NesBoardComponent {
 
     if (this.activePiece && this.activePiece.contains(x,y)) return this.activePieceOpacity;
     if (this.nextPiece && this.nextPiece.contains(x,y)) return this.nextPieceOpacity;
-    return 1;
+    return this.defaultOpacity;
   }
 
   pointsAreEqual(p1?: Point, p2?: Point): boolean {

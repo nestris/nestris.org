@@ -49,8 +49,9 @@
                 [board]="getBoard()" [level]="18"
                 [activePiece]="(hoveredMove$ | async)?.firstPlacement ?? getCurrentMT()"
                 [nextPiece]="(hoveredMove$ | async)?.secondPlacement ?? getNextMT()"
-                [activePieceOpacity]="(hoveredMove$ | async) ? 0.7 : 1"
-                [nextPieceOpacity]="(hoveredMove$ | async) ? 0.5 : 1"
+                [activePieceOpacity]="1"
+                [nextPieceOpacity]="1"
+                [defaultOpacity]="0.6"
             />
 
             <div class="puzzle-details">
