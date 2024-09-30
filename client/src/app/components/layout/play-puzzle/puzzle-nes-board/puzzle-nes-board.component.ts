@@ -66,10 +66,12 @@ export class PuzzleNesBoardComponent implements OnInit {
   @HostListener('window:keydown', ['$event'])
   handleKeydown(event: KeyboardEvent) {
 
-    if (event.key === 'z') {
+    const key = event.key.toLowerCase();
+
+    if (key === 'z') {
       this.rotation = (this.rotation + 3) % 4;
       this.computeHoveredPiece();
-    } else if (event.key === 'x') {
+    } else if (key === 'x') {
       this.rotation = (this.rotation + 1) % 4;
       this.computeHoveredPiece();
     }
