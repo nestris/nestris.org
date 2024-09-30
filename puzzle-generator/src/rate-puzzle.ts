@@ -96,6 +96,26 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
 
   if (diff === undefined || diffNNB === undefined) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "Diff undefined"};
 
+  // If the any move within 5 elo of best move is opposite burn/no-burn status as best move, return BAD_PUZZLE due to burn/no-burn deciding factor
+  for (let i = 1; i < stackrabbit.nextBox.length; i++) {
+
+    // If diff is greater than 5, then we can stop checking
+    if (bestNB - stackrabbit.nextBox[i].score > 5) break;
+
+    // Get the board after first move
+    const boardAfter = board.copy();
+    stackrabbit.nextBox[i].firstPlacement.blitToBoard(boardAfter);
+    boardAfter.processLineClears();
+
+    // Get the burn status of the moves
+    const hasBurnMove = hasBurn(board, stackrabbit.nextBox[i].firstPlacement) || hasBurn(boardAfter, stackrabbit.nextBox[i].secondPlacement);
+
+    // If the burn status is different, return BAD_PUZZLE
+    if (hasAnyBurn !== hasBurnMove) {
+      return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "Burn/no-burn deciding factor"};
+    }
+  }
+
   // if diff is too small, zero, or negative, return BAD_PUZZLE
   if (diff <= 2) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "Diff too small"};
 
