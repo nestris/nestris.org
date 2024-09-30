@@ -97,10 +97,10 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
   if (diff === undefined || diffNNB === undefined) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "Diff undefined"};
 
   // if diff is too small, zero, or negative, return BAD_PUZZLE
-  if (diff <= 2) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "Diff too small"};
+  if (diff <= 1.5) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "Diff too small"};
 
   // if bestNB is too low, return BAD_PUZZLE
-  if (bestNB < -50) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "BestNB too low"};
+  if (bestNB < 0) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "BestNB too low"};
 
   // eliminate puzzles where the first placement is I-0
   if (stackrabbit.nextBox[0].firstPlacement.getTetrisNotation() === "I-0") {
@@ -121,9 +121,9 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
   )) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "20hz SR disagrees with 30hz SR"};
 
   let rating: PuzzleRating;
-  if (diff >= 30 && !isAdjustment && bestNB > 10 && !hasAnyBurn && !hasAnyTuckOrSpin && diffNNB >= 10) rating = PuzzleRating.ONE_STAR;
+  if (diff >= 30 && !isAdjustment && !hasAnyBurn && !hasAnyTuckOrSpin && diffNNB >= 10) rating = PuzzleRating.ONE_STAR;
   else if (diff >= 15 && !hasAnyTuckOrSpin && !isAdjustment) rating = PuzzleRating.TWO_STAR;
-  else if (diff >= 8) rating = PuzzleRating.THREE_STAR;
+  else if (diff >= 6) rating = PuzzleRating.THREE_STAR;
   else {
     // at this point, the puzzle is 3-5 star. Use a nerfed version of SR to categorize
     // use a nerfed version of SR to determine if the puzzle is 4 or 5 star
@@ -138,16 +138,18 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
       ));
 
       // if the best move is not in the baby rabbit response, or babyrabbit thinks the best move is worse by at least 2, then the puzzle is hard
-      const hard = (babyRabbitIndex === -1) || (babyrabbit.nextBox[0].score - babyrabbit.nextBox[babyRabbitIndex].score >= 2);
+      const hard = (babyRabbitIndex === -1) || (babyrabbit.nextBox[0].score - babyrabbit.nextBox[babyRabbitIndex].score >= 3);
 
       // If hard flag is set, bump the rating difficulty
       if (diff >= 4) rating = hard ? PuzzleRating.FOUR_STAR : PuzzleRating.THREE_STAR;
-      else rating = hard ? PuzzleRating.FIVE_STAR : PuzzleRating.FOUR_STAR;
+      else rating = hard ? PuzzleRating.FIVE_STAR : (diff >= 2.5 ? PuzzleRating.THREE_STAR : PuzzleRating.FOUR_STAR);
 
     } catch {
       return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "Error in babyrabbit"};
     }
   }
+
+  if (rating <= PuzzleRating.TWO_STAR && bestNB < 10) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "BestNB too low for 1-2 star puzzles"};
 
   // If the any move within some elo of best move is opposite burn/no-burn status as best move, return BAD_PUZZLE due to burn/no-burn deciding factor
   const BURN_ELO_DIFF = (rating <= PuzzleRating.THREE_STAR) ? 15 : 5;
