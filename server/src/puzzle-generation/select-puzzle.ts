@@ -14,8 +14,14 @@ export function calculateProbabilities(elo: number): number[] {
   if (elo < 200) return [1, 0, 0, 0, 0];
 
   const minElo = 0;
-  const maxElo = 3700;
-  const normalizedElo = Math.min(Math.max(elo, minElo), maxElo) / maxElo;
+  const maxElo = 3500;
+  const boundedElo = Math.min(Math.max(elo, minElo), maxElo);
+
+  const eloMidpoint = 2000; // At midpoint, normalizedElo = 0.5
+
+  let normalizedElo;
+  if (elo < eloMidpoint) normalizedElo = (boundedElo - minElo) / (eloMidpoint - minElo) * 0.5;
+  else normalizedElo = 0.5 + (boundedElo - eloMidpoint) / (maxElo - eloMidpoint) * 0.5;
   
   const oneStar = Math.max(0, 1 - normalizedElo * 3);
   const twoStar = Math.max(0, 1 - Math.abs(normalizedElo - 0.3) * 3); 
