@@ -92,6 +92,15 @@
                         Hover your mouse on the board to move the piece, or use the arrow keys! Rotate with Z and X.
                     </p>
 
+                    <!-- show "View Solution" button if in puzzle solving mode -->
+                    <app-solid-button *ngIf="(solvingPuzzle$ | async)"
+                        class="view-solution-button"
+                        icon="./assets/img/button-icons/eye.svg"
+                        label="View Solution" [color]="ButtonColor.RED"
+                        [paddingVertical]="10"
+                        (click)="submitPuzzleEarly()"
+                    />
+
                     <!-- all the elements in puzzle solution mode -->
                     <ng-container *ngIf="!(solvingPuzzle$ | async)">
 
@@ -154,21 +163,14 @@
                 <div class="puzzle-details-bottom">
 
 
-                    <!-- show "View Solution" button if in puzzle solving mode -->
-                    <app-solid-button *ngIf="(solvingPuzzle$ | async)"
-                        class="view-solution-button"
-                        icon="./assets/img/button-icons/eye.svg"
-                        label="View Solution" [color]="ButtonColor.RED"
-                        [stretch]="true"
-                        (click)="submitPuzzleEarly()"
-                    />
+                    
 
                     <!-- Show "share" and "retry" buttons if in puzzle solution mode -->
                     <div *ngIf="!(solvingPuzzle$ | async)" class="two-button-container">
                         <app-solid-button class="new-puzzle-button"
                             icon="./assets/img/puzzle-button-icons/link.svg"
-                            label="Share" [color]="ButtonColor.GREY"
-                            [stretch]="true"
+                                label="Share" [color]="ButtonColor.GREY"
+                                [stretch]="true"
                             (smartClick)="copyPuzzleLink()"
                             tooltip="Copy puzzle link to share with friends!"
                         />

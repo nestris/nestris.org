@@ -207,6 +207,7 @@ export class PlayPuzzlePageComponent implements OnInit {
 
     this.canUndo$.next(false);
     this.puzzle$.next(puzzle);
+    this.hoverEngineMove(undefined);
     this.eloChange$.next(this.puzzleState$.getValue()!.getEloChange());
     
     if (this.puzzleState$.getValue()!.isTimed()) {

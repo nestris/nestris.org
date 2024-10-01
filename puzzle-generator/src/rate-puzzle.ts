@@ -97,7 +97,7 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
   if (diff === undefined || diffNNB === undefined) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "Diff undefined"};
 
   // if diff is too small, zero, or negative, return BAD_PUZZLE
-  if (diff <= 1.5) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "Diff too small"};
+  if (diff <= 2) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "Diff too small"};
 
   // if bestNB is too low, return BAD_PUZZLE
   if (bestNB < 0) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "BestNB too low"};
