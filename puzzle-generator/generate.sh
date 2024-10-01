@@ -6,6 +6,15 @@ NUM_INSTANCES=10
 # Number of times each process will run the command
 NUM_RUNS=30
 
+# Check if a database parameter is provided
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <database>"
+    exit 1
+fi
+
+# Store the database parameter
+DB=$1
+
 # Function to handle SIGINT (Ctrl+C)
 cleanup() {
   echo "Caught interrupt signal. Cleaning up..."
@@ -18,6 +27,7 @@ trap cleanup SIGINT
 
 # Echo how many instances will run
 echo "Running $NUM_INSTANCES instances, each will run $NUM_RUNS times..."
+echo "Using database: $DB"
 
 # Record the start time
 start_time=$(date +%s)
@@ -25,7 +35,7 @@ start_time=$(date +%s)
 # Function to run the command multiple times with a random delay
 run_instance() {
   for ((run=1; run<=NUM_RUNS; run++)); do
-    npm start -- --mode=generate --db=prod
+    npm start -- --mode=generate --db=$DB
     # Wait for a random amount of time (between 3 and 5 seconds)
     sleep $((RANDOM % 3 + 3))
   done
