@@ -10,6 +10,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 export class FullscreenExitButtonComponent {
 
   @Input() onExit: () => Promise<void> = async () => {};
+  @Input() confirm?: string;
 
   constructor(
     private route: ActivatedRoute,
@@ -17,6 +18,9 @@ export class FullscreenExitButtonComponent {
   ) {}
 
   async exit() {
+
+    const shouldExit = this.confirm ? confirm(this.confirm) : true;
+    if (!shouldExit) return;
 
     await this.onExit();
 

@@ -166,6 +166,16 @@ export class PlayPuzzlePageComponent implements OnInit {
     });
   }
 
+  confirmString(solvingPuzzle: boolean, isRetry: boolean): string | undefined {
+
+    if (this.puzzleState$.getValue() instanceof RatedPuzzleState) {
+      if (solvingPuzzle && !isRetry) return "Are you sure you want to exit? You will lose elo for this puzzle.";
+      else return undefined;
+    }
+
+    return undefined;
+  }
+
   async generateMoveRecommendations(puzzle: GenericPuzzle) {
 
     console.log("Generating move recommendations");

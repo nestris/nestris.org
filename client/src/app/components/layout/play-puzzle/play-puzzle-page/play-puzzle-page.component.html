@@ -4,7 +4,7 @@
     'incorrect': !(solvingPuzzle$ | async) && !puzzleIsCorrect
 }">
 
-    <app-fullscreen-exit-button />
+    <app-fullscreen-exit-button [confirm]="confirmString(!!(solvingPuzzle$ | async), !!(isRetry$ | async))" />
 
     <div class="content">
 
