@@ -100,7 +100,7 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
   if (diff <= 2) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "Diff too small"};
 
   // if bestNB is too low, return BAD_PUZZLE
-  if (bestNB < 0) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "BestNB too low"};
+  if (bestNB < -10) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "BestNB too low"};
 
   // eliminate puzzles where the first placement is I-0
   if (stackrabbit.nextBox[0].firstPlacement.getTetrisNotation() === "I-0") {
