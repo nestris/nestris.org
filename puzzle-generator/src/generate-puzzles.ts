@@ -106,11 +106,11 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
       i--;
       continue;
     }
-    if (rating === PuzzleRating.THREE_STAR && Math.random() < 0.9) {
+    if (rating === PuzzleRating.THREE_STAR && Math.random() < 0.93) {
       i--;
       continue;
     }
-    if (rating === PuzzleRating.FOUR_STAR && Math.random() < 0.5) {
+    if (rating === PuzzleRating.FOUR_STAR && Math.random() < 0.3) {
       i--;
       continue;
     }
