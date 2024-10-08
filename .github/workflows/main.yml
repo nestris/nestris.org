@@ -62,6 +62,7 @@ jobs:
           POSTGRES_USER: ${{ github.ref == 'refs/heads/main' && secrets.POSTGRES_USER_PROD || secrets.POSTGRES_USER_DEV }}
           POSTGRES_PASSWORD: ${{ github.ref == 'refs/heads/main' && secrets.POSTGRES_PASSWORD_PROD || secrets.POSTGRES_PASSWORD_DEV }}
           POSTGRES_DB: ${{ github.ref == 'refs/heads/main' && secrets.POSTGRES_DB_PROD || secrets.POSTGRES_DB_DEV }}
+          BRANCH: ${{ github.ref == 'refs/heads/main' && 'main' || 'dev' }}
         run: |
           echo "${DO_SSH_KEY}" > key.pem
           chmod 600 key.pem

@@ -70,6 +70,8 @@ https://docs.docker.com/compose/install/linux/#install-using-the-repository
 ### Run docker containers in dev mode
 `docker compose -f docker-compose.dev.yml up --build`
 
+### Stop d
+
 Then, you can open it in the browser
 ```
 Client: localhost:80
