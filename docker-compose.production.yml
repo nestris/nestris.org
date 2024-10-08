@@ -20,7 +20,7 @@ services:
     image: anselchang1/nestris.org:server-production
     build:
       context: .
-      dockerfile: Dockerfile.server
+      dockerfile: Dockerfile.server-prod
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}

@@ -15,3 +15,6 @@ FROM base AS final
 
 # Expose the application port
 EXPOSE 3000
+
+# Start the application
+CMD ["npx", "ts-node", "index.ts"]

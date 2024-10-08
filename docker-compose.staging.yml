@@ -27,8 +27,10 @@ services:
       - NODE_ENV=staging
     ports:
       - "3001:3000" # Expose port 3001 for staging server
+      - "9229:9229"  # Node.js debugger port
     depends_on:
       - postgres
+    command: node --inspect=0.0.0.0:9229 -r ts-node/register index.ts
 
   postgres:
     image: postgres:13

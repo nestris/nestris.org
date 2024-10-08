@@ -14,7 +14,7 @@ services:
       sh -c "nginx -g 'daemon off;';"
 
   server:
-    image: anselchang1/nestris.org:server-dev
+    image: anselchang1/nestris.org:server
     build:
       context: .
       dockerfile: Dockerfile.server
@@ -26,9 +26,11 @@ services:
       - DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
       - NODE_ENV=dev
     ports:
+      - "9229:9229"  # Node.js debugger port
       - "3000:3000" # Expose port 3000 for dev server
     depends_on:
       - postgres
+    command: node --inspect=0.0.0.0:9229 -r ts-node/register index.ts
 
   postgres:
     image: postgres:13
