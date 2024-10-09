@@ -104,8 +104,10 @@ export class PlayPageComponent {
       // TODO: warning that progress will not be saved
       this.router.navigate(['/online/room'], { queryParams: { exit: encodeURIComponent("/play") } });
     }
+  }
 
-    
+  comingSoon() {
+    this.notifier.notify(NotificationType.ERROR, "This feature is currently in development. Coming soon!");
   }
 
 }

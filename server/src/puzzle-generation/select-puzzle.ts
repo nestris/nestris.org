@@ -66,10 +66,11 @@ export function calculateEloChangeForPuzzle(userElo: number, rating: PuzzleRatin
   let eloGain = ELO_SCALAR / Math.pow(ELO_GROWTH, eloDelta);
   let eloLoss = ELO_SCALAR / Math.pow(ELO_GROWTH, -eloDelta);
 
-  // Multipler of 3x at elo=0 to 1x at elo=1000
+  // Multipler of 2x at elo=0 to 1x at elo=BOOST_THRESHOLD
+  const BOOST_THRESHOLD = 500;
   let attemptMultiplier = 1;
-  if (userElo < 1000) {
-    attemptMultiplier = 3 - 2 * userElo / 1000;
+  if (userElo < BOOST_THRESHOLD) {
+    attemptMultiplier = 2 - userElo / BOOST_THRESHOLD;
   }
   eloGain *= attemptMultiplier;
 
