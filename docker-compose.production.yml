@@ -20,7 +20,7 @@ services:
     image: anselchang1/nestris.org:server-production
     build:
       context: .
-      dockerfile: Dockerfile.server-prod
+      dockerfile: Dockerfile.server
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -30,8 +30,10 @@ services:
       - NODE_ENV=production
     ports:
       - "3000:3000" # Expose port 3000 for production server
+      - "9229:9229"  # Node.js debugger port
     depends_on:
       - postgres
+    command: node --inspect=0.0.0.0:9229 -r ts-node/register index.ts
 
   postgres:
     image: postgres:13
