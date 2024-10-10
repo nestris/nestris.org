@@ -1,11 +1,11 @@
 import { fetchServer2, Method } from "src/app/scripts/fetch-server";
 import { GenericPuzzle } from "src/app/shared/puzzles/generic-puzzle";
 import { PuzzleState, EloChange } from "./puzzle-state";
-import { DBUser } from "src/app/shared/models/db-user";
+import { RatedPuzzle } from "src/app/shared/puzzles/rated-puzzle";
 
 export class SinglePuzzleState extends PuzzleState {
   
-  private puzzle!: GenericPuzzle;
+  private puzzle!: RatedPuzzle;
 
   constructor(
     private readonly puzzleID: string,
@@ -17,7 +17,7 @@ export class SinglePuzzleState extends PuzzleState {
   async init() {
     // This throws an error if the puzzle does not exist
     console.log("Fetching single puzzle", this.puzzleID);
-    this.puzzle = await fetchServer2<GenericPuzzle>(Method.GET, `/api/v2/puzzle/${this.puzzleID}`);
+    this.puzzle = await fetchServer2<RatedPuzzle>(Method.GET, `/api/v2/puzzle/${this.puzzleID}`);
   }
 
   protected async _fetchNextPuzzle(): Promise<GenericPuzzle> {
@@ -26,6 +26,10 @@ export class SinglePuzzleState extends PuzzleState {
 
   getPuzzleName(isRetry: boolean): string {
     return "Shared Puzzle";
+  }
+
+  override getPuzzle(): RatedPuzzle {
+    return this.puzzle;
   }
 
   // Single puzzles do not have elo changes

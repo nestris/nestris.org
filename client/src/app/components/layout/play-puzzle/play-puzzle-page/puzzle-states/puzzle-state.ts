@@ -1,6 +1,9 @@
 import { PuzzleSubmission } from "src/app/models/puzzles/puzzle";
 import { GenericPuzzle } from "src/app/shared/puzzles/generic-puzzle";
+import { RatedPuzzle } from "src/app/shared/puzzles/rated-puzzle";
 import { SerializedPuzzleSubmission, PuzzleResult, evaluatePuzzleSubmission } from "src/app/shared/puzzles/serialized-puzzle-submission";
+import { PUZZLE_THEME_TEXT } from "src/app/shared/puzzles/puzzle-theme";
+
 
 export interface EloChange {
   eloGain: number;
@@ -23,6 +26,7 @@ export abstract class PuzzleState {
 
   protected abstract _fetchNextPuzzle(): Promise<GenericPuzzle>;
 
+  abstract getPuzzle(): RatedPuzzle;
   abstract getPuzzleName(isRetry: boolean): string;
   abstract getEloChange(): EloChange | undefined;
   abstract isTimed(): boolean;
@@ -54,5 +58,20 @@ export abstract class PuzzleState {
 
   getSubmission(): PuzzleSubmission | undefined {
     return this.submission;
+  }
+
+  getPuzzleID(): string {
+    return this.getPuzzle().id;
+  }
+
+  getThemeString(): string {
+    const theme = this.getPuzzle().theme;
+    if (theme === undefined) return "Unknown";
+    return PUZZLE_THEME_TEXT[theme];
+  }
+
+  getSuccessRate(): string {
+    if (this.getPuzzle().numAttempts === 0) return "-";
+    return `${(this.getPuzzle().numSolves / this.getPuzzle().numAttempts * 100).toFixed(0)}%`;
   }
 }

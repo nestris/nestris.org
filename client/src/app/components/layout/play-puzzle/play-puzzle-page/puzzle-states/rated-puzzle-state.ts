@@ -1,10 +1,10 @@
 import { fetchServer2, Method } from "src/app/scripts/fetch-server";
 import { GenericPuzzle } from "src/app/shared/puzzles/generic-puzzle";
-import { PUZZLE_THEME_TEXT } from "src/app/shared/puzzles/puzzle-theme";
 import { RatedPuzzle } from "src/app/shared/puzzles/rated-puzzle";
 import { SerializedPuzzleSubmission, PuzzleResult, evaluatePuzzleSubmission } from "src/app/shared/puzzles/serialized-puzzle-submission";
 import { PuzzleState, EloChange } from "./puzzle-state";
 import { DBUser } from "src/app/shared/models/db-user";
+
 
 export class RatedPuzzleState extends PuzzleState {
   
@@ -78,23 +78,8 @@ export class RatedPuzzleState extends PuzzleState {
     return this.eloHistory;
   }
 
-  getPuzzle(): RatedPuzzle {
+  override getPuzzle(): RatedPuzzle {
     return this.currentPuzzle! as RatedPuzzle;
-  }
-
-  getPuzzleID(): string {
-    return this.getPuzzle().id;
-  }
-
-  getThemeString(): string {
-    const theme = this.getPuzzle().theme;
-    if (theme === undefined) return "Unknown";
-    return PUZZLE_THEME_TEXT[theme];
-  }
-
-  getSuccessRate(): string {
-    if (this.getPuzzle().numAttempts === 0) return "-";
-    return `${(this.getPuzzle().numSolves / this.getPuzzle().numAttempts * 100).toFixed(0)}%`;
   }
 
 }

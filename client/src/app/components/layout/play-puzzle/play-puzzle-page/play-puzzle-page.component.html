@@ -106,8 +106,10 @@
 
                         <app-elo-graph *ngIf="(getRatedPuzzleState$() | async) as ratedState" [eloHistory]="ratedState.getEloHistory()"/>
 
-                        <!-- Statisticas for the puzzle -->
-                        <div class="puzzle-stats" *ngIf="(getRatedPuzzleState$() | async) as puzzle">
+                        <div *ngIf="(mode$ | async) === PuzzleMode.SINGLE" class="padding-above-puzzle-stats"></div>
+
+                        <!-- Statistics for the puzzle -->
+                        <div class="puzzle-stats" *ngIf="(puzzleState$ | async) as puzzle">
                             <div class="stat">
                                 <h1>Puzzle Rating</h1>
                                 <app-rating-stars [rating]="puzzle.getPuzzle().rating" [width]="75" />

@@ -37,6 +37,9 @@ export interface Move {
 export class PlayPuzzlePageComponent implements OnInit {
 
   readonly PUZZLE_TIME_LIMIT = 30;
+  readonly PuzzleMode = PuzzleMode;
+
+  mode$ = new BehaviorSubject<PuzzleMode | undefined>(undefined);
 
   puzzleState$ = new BehaviorSubject<PuzzleState | undefined>(undefined);
 
@@ -149,6 +152,7 @@ export class PlayPuzzlePageComponent implements OnInit {
 
       try {
         await puzzleState.init();
+        this.mode$.next(mode);
         this.puzzleState$.next(puzzleState);
         console.log("Puzzle state initialized");
       } catch (e) {
