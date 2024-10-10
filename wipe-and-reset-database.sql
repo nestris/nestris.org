@@ -77,7 +77,7 @@ CREATE TABLE "public"."rated_puzzles" (
     "x2" int2 NOT NULL,
     "y2" int2 NOT NULL,
 
-    "rating" int2 NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    "rating" int2 NOT NULL CHECK (rating >= 1 AND rating <= 6),
     "theme" text NOT NULL,
     "state" text NOT NULL DEFAULT 'provisional'::text,
     "num_attempts_cached" int2 NOT NULL DEFAULT 0, -- should be updated by trigger on PuzzleAttempt
@@ -142,7 +142,7 @@ CREATE TABLE "public"."puzzle_attempts" (
     "puzzle_id" uuid REFERENCES "public"."rated_puzzles"("id"),
     "userid" text NOT NULL REFERENCES "public"."users"("userid"),
     "timestamp" timestamp NOT NULL DEFAULT now(),
-    "rating" int2 NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    "rating" int2 NOT NULL CHECK (rating >= 1 AND rating <= 6),
     "is_correct" boolean NOT NULL,
     "elo_before" int2 NOT NULL,
     "elo_change" int2, -- if NULL, then it was an unranked puzzle
