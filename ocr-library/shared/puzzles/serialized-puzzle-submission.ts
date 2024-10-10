@@ -73,6 +73,7 @@ const WRONG_ANSWER_COMMENTS = [
 export interface PuzzleResult {
   isCorrect: boolean;
   explanation: string;
+  beforeElo?: number;
   resultingElo?: number;
 }
 

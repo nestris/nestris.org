@@ -236,7 +236,7 @@ export class TetrisBoard {
 
     getAverageHeight(): number {
         let totalHeight = 0;
-        const numColumns = 10;
+        const numColumns = 9; // ignore last column
         
         for (let x = 0; x < numColumns; x++) {
             for (let y = 0; y < 20; y++) {

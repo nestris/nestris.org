@@ -20,13 +20,7 @@ export class SummaryComponent implements OnChanges {
     puzzlesAttempted: 0,
     puzzlesSolved: 0,
     averageSolveDuration: 0,
-    successRateForRating: {
-      [PuzzleRating.ONE_STAR]: null,
-      [PuzzleRating.TWO_STAR]: null,
-      [PuzzleRating.THREE_STAR]: null,
-      [PuzzleRating.FOUR_STAR]: null,
-      [PuzzleRating.FIVE_STAR]: null,
-    }
+    attemptStatsForRating: {}
   };
 
   // Define attemptStats$ as an observable directly
@@ -66,7 +60,7 @@ export class SummaryComponent implements OnChanges {
 
 
   roundPercent(num: number | null | undefined): string {
-    if (num === null || num === undefined) return '0%';
+    if (num === null || num === undefined) return '-';
     return (num * 100).toFixed(1) + '%';
   }
 

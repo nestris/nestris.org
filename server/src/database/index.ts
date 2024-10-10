@@ -1,4 +1,5 @@
 import { Pool, QueryResult, PoolClient } from 'pg';
+import { DeploymentEnvironment } from '../../shared/models/server-stats';
 
 // Load environment variables
 require('dotenv').config();
@@ -29,6 +30,13 @@ export const queryDB = async (text: string, params?: any[]): Promise<QueryResult
   const res = await pool.query(text, params);
   const duration = Date.now() - start;
   //console.log('executed query', { text, duration, rows: res.rowCount });
+
+  // If is development, inject lag
+  if (process.env.NODE_ENV === DeploymentEnvironment.DEV) {
+    const ARTIFICIAL_DB_LAG_MS = 100;
+    await new Promise((resolve) => setTimeout(resolve, ARTIFICIAL_DB_LAG_MS));
+  }
+
   return res;
 };
 

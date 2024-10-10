@@ -1,12 +1,17 @@
 import { PuzzleRating } from "./puzzle-rating";
 
+export interface AttemptStatsForRating {
+  attempts: number;
+  successRate: number | null;
+}
+
 // the stats for a player for all the puzzles they have attempted
 export interface AttemptStats {
   puzzlesAttempted: number;
   puzzlesSolved: number;
   averageSolveDuration: number;
 
-  successRateForRating: {[key in PuzzleRating]?: number | null};
+  attemptStatsForRating: {[key in PuzzleRating]?: AttemptStatsForRating};
 }
 
 export enum TimePeriod {

@@ -13,18 +13,18 @@ export interface EloChange {
 
 export abstract class PuzzleState {
 
-  protected currentPuzzle?: GenericPuzzle;
+  protected currentPuzzle?: RatedPuzzle;
   private submission?: PuzzleSubmission;
 
   // should throw an error if not initialized properly
   abstract init(): Promise<void>;
 
-  async fetchNextPuzzle(): Promise<GenericPuzzle> {
+  async fetchNextPuzzle(): Promise<RatedPuzzle> {
     this.currentPuzzle = await this._fetchNextPuzzle();
     return this.currentPuzzle;
   }
 
-  protected abstract _fetchNextPuzzle(): Promise<GenericPuzzle>;
+  protected abstract _fetchNextPuzzle(): Promise<RatedPuzzle>;
 
   abstract getPuzzle(): RatedPuzzle;
   abstract getPuzzleName(isRetry: boolean): string;

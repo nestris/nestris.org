@@ -15,29 +15,21 @@ export class DailyStreakComponent {
 
   public readonly PUZZLE_COUNT = 10;
 
-  public streak$: Observable<DailyStreak>;
+  public streak$: BehaviorSubject<DailyStreak>;
 
   constructor(private websocketService: WebsocketService) {
-    
-    // Initialize streak$ in the constructor with reactive logic
-    this.streak$ = this.websocketService.onSignIn().pipe(
-      startWith(null), // Emit an initial value (null)
-      switchMap(() => {
-        const userid = this.websocketService.getUserID();
-        if (!userid) {
-          // Return an empty streak observable if no user ID
-          return of(this.getEmptyStreak());
-        }
+    this.streak$ = new BehaviorSubject<DailyStreak>(this.getEmptyStreak());
+  }
 
-        // Convert the Promise to an observable and handle errors
-        return from(fetchServer2<DailyStreak>(
-          Method.GET,
-          `/api/v2/daily-streak/${userid}`,
-          { timezone: getTimezone() }
-        )).pipe(
-          catchError(() => of(this.getEmptyStreak())) // Return an empty streak on error
-        );
-      })
+  async ngOnInit() {
+    await this.websocketService.waitForSignIn();
+
+    const userid = this.websocketService.getUserID();
+
+    this.streak$.next(await fetchServer2<DailyStreak>(
+      Method.GET,
+      `/api/v2/daily-streak/${userid}`,
+      { timezone: getTimezone() })
     );
   }
 

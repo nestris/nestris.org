@@ -3,6 +3,8 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { PuzzleSubmission } from 'src/app/models/puzzles/puzzle';
 import { BinaryTranscoder } from 'src/app/shared/network/tetris-board-transcoding/binary-transcoder';
 import { GenericPuzzle } from 'src/app/shared/puzzles/generic-puzzle';
+import { PuzzleRating } from 'src/app/shared/puzzles/puzzle-rating';
+import { RatedPuzzle } from 'src/app/shared/puzzles/rated-puzzle';
 import MoveableTetromino from 'src/app/shared/tetris/moveable-tetromino';
 import { Point } from 'src/app/shared/tetris/point';
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
@@ -24,9 +26,11 @@ Takes in an undo$ subject, and subscribes to it to undo the first piece placemen
 })
 export class PuzzleNesBoardComponent implements OnInit {
 
+  readonly PuzzleRating = PuzzleRating;
+
   @Input() scale: number = 1;
 
-  @Input() puzzle!: GenericPuzzle;
+  @Input() puzzle!: RatedPuzzle;
   @Output() submitPuzzle = new EventEmitter<PuzzleSubmission>();
 
   @Input() undo$?: Subject<void>;

@@ -13,7 +13,7 @@
   <div class="today-container">
     <div class="today">
       <ng-container *ngFor="let index of [1,2,3,4,5]">
-        <img *ngIf="getTodayCount(streak$ | async) >= index" src="./assets/img/misc-icons/streak-on.svg" alt="Today" width="20" />
+        <img *ngIf="(getTodayCount(streak$ | async)) >= index" src="./assets/img/misc-icons/streak-on.svg" alt="Today" width="20" />
         <img *ngIf="getTodayCount(streak$ | async) < index" src="./assets/img/misc-icons/streak-off.svg" alt="Today" width="20" />
       </ng-container>
     </div>

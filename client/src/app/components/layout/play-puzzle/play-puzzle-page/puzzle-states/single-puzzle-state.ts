@@ -20,7 +20,7 @@ export class SinglePuzzleState extends PuzzleState {
     this.puzzle = await fetchServer2<RatedPuzzle>(Method.GET, `/api/v2/puzzle/${this.puzzleID}`);
   }
 
-  protected async _fetchNextPuzzle(): Promise<GenericPuzzle> {
+  protected async _fetchNextPuzzle(): Promise<RatedPuzzle> {
     return this.puzzle;
   }
 

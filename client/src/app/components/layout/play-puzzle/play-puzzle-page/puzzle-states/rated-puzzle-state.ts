@@ -20,12 +20,6 @@ export class RatedPuzzleState extends PuzzleState {
 
   override async init(): Promise<void> {
 
-    const user = await fetchServer2<DBUser>(Method.GET, `/api/v2/user/${this.userid}`);
-    console.log("User", user);
-
-    // TODO: fetch the user's current puzzle elo from the server
-    this.eloHistory.push(user.puzzleElo);
-    console.log("Starting elo", user.puzzleElo);
   }
 
 
@@ -41,7 +35,7 @@ export class RatedPuzzleState extends PuzzleState {
     return puzzleResult;
   }
 
-  override async _fetchNextPuzzle(): Promise<GenericPuzzle> {
+  override async _fetchNextPuzzle(): Promise<RatedPuzzle> {
     
     // fetch a rated puzzle from the server
     const puzzle = await fetchServer2<RatedPuzzle>(Method.POST, `/api/v2/random-rated-puzzle/${this.userid}`);
@@ -49,6 +43,11 @@ export class RatedPuzzleState extends PuzzleState {
     this.eloChange = {
       eloGain: puzzle.eloGain!,
       eloLoss: puzzle.eloLoss!
+    }
+
+    if (this.eloHistory.length === 0) {
+      this.eloHistory.push(puzzle.userElo!);
+      console.log("Starting elo", puzzle.userElo!);
     }
 
     return puzzle;

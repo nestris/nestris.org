@@ -243,9 +243,9 @@ async function main() {
 
   app.get('/api/v2/puzzle/:id', getPuzzleRoute);
 
-  app.post('/api/v2/random-rated-puzzle/:userid', requireAuth, selectRandomPuzzleForUserRoute);
+  app.post('/api/v2/random-rated-puzzle/:userid', requireAuth, async (req: Request, res: Response) => selectRandomPuzzleForUserRoute(req, res, state));
   
-  app.post('/api/v2/submit-puzzle-attempt', requireAuth, submitPuzzleAttemptRoute);
+  app.post('/api/v2/submit-puzzle-attempt', requireAuth, async (req: Request, res: Response) => submitPuzzleAttemptRoute(req, res, state));
 
   app.get('/api/v2/daily-streak/:userid', getDailyStreakRoute);
   app.get('/api/v2/puzzle-rank/:userid', getRelativePuzzleRankRoute);

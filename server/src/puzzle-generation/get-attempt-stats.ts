@@ -1,7 +1,7 @@
 import { queryDB } from "../database";
 import { DateTime, IANAZone } from 'luxon';
 import { Request, Response } from 'express';
-import { AttemptStats, TimePeriod } from "../../shared/puzzles/attempt-stats";
+import { AttemptStats, AttemptStatsForRating, TimePeriod } from "../../shared/puzzles/attempt-stats";
 import { PuzzleRating } from "../../shared/puzzles/puzzle-rating";
 
 
@@ -51,13 +51,7 @@ export async function getAttemptStats(userid: string, period: TimePeriod, timezo
     let totalSolved = 0;
     let totalSolveTime = 0;
 
-    const successRateForRating: {[key in PuzzleRating]?: number | null} = {
-      [PuzzleRating.ONE_STAR]: null,
-      [PuzzleRating.TWO_STAR]: null,
-      [PuzzleRating.THREE_STAR]: null,
-      [PuzzleRating.FOUR_STAR]: null,
-      [PuzzleRating.FIVE_STAR]: null,
-    };
+    const attemptStatsForRating: {[key in PuzzleRating]?: AttemptStatsForRating} = {};
 
     console.log(result.rows);
 
@@ -67,18 +61,24 @@ export async function getAttemptStats(userid: string, period: TimePeriod, timezo
       const numAttempted = parseInt(row.num_attempted);
       const avgSolveTime = parseFloat(row.avg_solve_time);
 
-      successRateForRating[rating] = numAttempted === 0 ? 0 : numSolved / numAttempted;
+      if (rating !== PuzzleRating.SIX_STAR || numAttempted > 0) {
+        attemptStatsForRating[rating] = {
+          attempts: numAttempted,
+          successRate: numSolved / numAttempted
+        }
+      }
 
       totalAttempts += numAttempted;
       totalSolved += numSolved;
       totalSolveTime += avgSolveTime * numAttempted;
     });
 
+
     return {
       puzzlesAttempted: totalAttempts,
       puzzlesSolved: totalSolved,
       averageSolveDuration: totalAttempts === 0 ? 0 : totalSolveTime / totalAttempts,
-      successRateForRating,
+      attemptStatsForRating,
     }
 }
 

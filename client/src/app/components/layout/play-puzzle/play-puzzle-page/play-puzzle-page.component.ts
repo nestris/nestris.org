@@ -16,6 +16,8 @@ import { PuzzleState, EloChange } from './puzzle-states/puzzle-state';
 import { RatedPuzzleState } from './puzzle-states/rated-puzzle-state';
 import { SinglePuzzleState } from './puzzle-states/single-puzzle-state';
 import { NotificationAutohide, NotificationType } from 'src/app/shared/models/notifications';
+import { RatedPuzzle } from 'src/app/shared/puzzles/rated-puzzle';
+import { PuzzleRating } from 'src/app/shared/puzzles/puzzle-rating';
 
 export enum PuzzleMode {
   RATED = "rated",
@@ -38,12 +40,13 @@ export class PlayPuzzlePageComponent implements OnInit {
 
   readonly PUZZLE_TIME_LIMIT = 30;
   readonly PuzzleMode = PuzzleMode;
+  readonly PuzzleRating = PuzzleRating;
 
   mode$ = new BehaviorSubject<PuzzleMode | undefined>(undefined);
 
   puzzleState$ = new BehaviorSubject<PuzzleState | undefined>(undefined);
 
-  puzzle$ = new BehaviorSubject<GenericPuzzle | undefined>(undefined);
+  puzzle$ = new BehaviorSubject<RatedPuzzle | undefined>(undefined);
   eloChange$ = new BehaviorSubject<EloChange | undefined>(undefined);
 
   canUndo$ = new BehaviorSubject<boolean>(false);
@@ -318,7 +321,7 @@ export class PlayPuzzlePageComponent implements OnInit {
   }
 
   exitUnratedPuzzle() {
-    this.router.navigate(["/puzzles/view"]);
+    this.router.navigate(["/puzzles"]);
   }
 
   retryPuzzle() {
@@ -337,6 +340,15 @@ export class PlayPuzzlePageComponent implements OnInit {
     const url = window.location.origin + `/online/puzzle?mode=single&id=${puzzle.id}`;
     navigator.clipboard.writeText(url);
     this.notifier.notify(NotificationType.SUCCESS, "Puzzle link copied to clipboard!");
+  }
+
+  async onExit() {
+    console.log("Exiting puzzle");
+
+    // if in the middle of submitting rated puzzle, submit first 
+    if (this.solvingPuzzle$.getValue() && this.puzzleState$.getValue() instanceof RatedPuzzleState) {
+      await this.submitPuzzleEarly();
+    }
   }
 
 }
