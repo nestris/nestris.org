@@ -1,6 +1,7 @@
 import { PuzzleRating } from "./puzzle-rating";
 
 export interface AttemptStatsForRating {
+  rating: PuzzleRating;
   attempts: number;
   successRate: number | null;
 }

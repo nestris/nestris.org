@@ -63,6 +63,7 @@ export async function getAttemptStats(userid: string, period: TimePeriod, timezo
 
       if (rating !== PuzzleRating.SIX_STAR || numAttempted > 0) {
         attemptStatsForRating[rating] = {
+          rating,
           attempts: numAttempted,
           successRate: numSolved / numAttempted
         }

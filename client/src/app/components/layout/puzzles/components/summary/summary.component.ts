@@ -15,6 +15,8 @@ import { PuzzleRating } from 'src/app/shared/puzzles/puzzle-rating';
 export class SummaryComponent implements OnChanges {
   @Input() period!: TimePeriod;
 
+  readonly PuzzleRating = PuzzleRating;
+
   // Default attempt stats
   private readonly defaultAttemptStats: AttemptStats = {
     puzzlesAttempted: 0,

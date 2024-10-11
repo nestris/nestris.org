@@ -22,7 +22,7 @@
       <p>{{solveDuration(stats)}}</p>
     </div>
 
-    <div class="row" *ngFor="let item of stats.attemptStatsForRating | keyvalue">
+    <div class="row" *ngFor="let item of stats.attemptStatsForRating | keyvalue" [ngClass]="{'six' : item.value?.rating === PuzzleRating.SIX_STAR}">
       <h1><app-rating-stars [rating]="keyAsRating(item.key)" [width]="50" /> success rate ({{item.value?.attempts}})</h1>
       <p>{{roundPercent(item.value?.successRate)}}</p>
     </div>
