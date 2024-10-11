@@ -7,7 +7,7 @@ import { ServerState } from "../server-state/server-state";
 import { PuzzleState } from "../../shared/puzzles/rated-puzzle";
 
 // number of attempts needed to convert a provisional puzzle to an adjusted puzzle
-const NUM_ATTEMPTS_NEEDED_TO_ADJUST = 7;
+const NUM_ATTEMPTS_NEEDED_TO_ADJUST = 8;
 
 
 export async function submitPuzzleAttempt(state: ServerState, submission: SerializedPuzzleSubmission): Promise<PuzzleResult> {
@@ -100,7 +100,7 @@ export async function adjustPuzzleRating(userid: string, puzzleID: string, ratin
     else newRating = rating - 1;
 
   } else if ( // In the special case where a puzzle is really hard, bump to a 6 star
-    (successRate <= 0.2 && rating === PuzzleRating.FIVE_STAR) ||
+    (successRate <= 0.125 && rating === PuzzleRating.FIVE_STAR) ||
     (successRate === 0 && rating === PuzzleRating.FOUR_STAR)
   ) {
     newRating = PuzzleRating.SIX_STAR;

@@ -30,7 +30,7 @@ function generate() {
 }
 
 function testElo() {
-    for (let i = 0; i <= 4000; i += 100) {
+    for (let i = 0; i <= 5000; i += 100) {
         console.log(`Elo ${i}:`, calculateProbabilities(i).map(p => p.toFixed(2)));
     }
 }

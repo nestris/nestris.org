@@ -10,6 +10,10 @@
     width: fit-content;
 }
 
+.board-container.gold {
+    border: solid #FFB938 1.5px;
+}
+
 .board-svg {
     display: block; // prevents the weird space in the bottom of the board
 }

@@ -29,8 +29,8 @@ export function calculateProbabilities(elo: number): number[] {
 
   // From 3000+, if puzzle was 5 star, there is an increasing chance of 6 star
   let sixStar = 0;
-  if (elo >= 3000) {
-    sixStar = Math.min(fiveStar, (elo - 2500) / 3000);
+  if (elo >= 2500) {
+    sixStar = Math.min(fiveStar, (elo - 2500) / 2500);
     fiveStar -= sixStar;
   }
 
@@ -62,7 +62,7 @@ export function calculateEloChangeForPuzzle(userElo: number, rating: PuzzleRatin
 
   // Boost 6 star puzzles to 8 star for elo calculation
   let ratingNum: number = rating;
-  if (rating === PuzzleRating.SIX_STAR) ratingNum = 8;
+  if (rating === PuzzleRating.SIX_STAR) ratingNum = 7;
 
   const puzzleEloEquivalent = 500 * ratingNum;
   const eloDelta = userElo - puzzleEloEquivalent;

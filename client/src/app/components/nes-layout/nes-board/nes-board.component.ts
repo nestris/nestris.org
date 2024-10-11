@@ -18,27 +18,9 @@ export enum GameOverMode {
   selector: 'app-nes-board',
   templateUrl: './nes-board.component.html',
   styleUrls: ['./nes-board.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  animations: [
-    trigger('goldBorder', [
-      state('notgold', style({
-        borderColor: 'white',
-        borderWidth: '1px'
-      })),
-      state('gold', style({
-        borderColor: '#FFB938',
-        borderWidth: '2px'
-      })),
-      transition('notgold => gold', [
-        animate('0.5s ease-in-out')
-      ]),
-      transition('gold => notgold', [
-        animate('0.5s ease-in-out')
-      ])
-    ])
-  ]
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class NesBoardComponent implements OnInit {
+export class NesBoardComponent {
   // by default, each block will take up 8 pixels. scale can adjust, respecting proportions and aspect ratio
   @Input() scale: number = 1;
 
@@ -70,8 +52,7 @@ export class NesBoardComponent implements OnInit {
   
   @Input() animateOpacity: boolean = false;
 
-  @Input() startGold: boolean = false;
-  @Input() endGold: boolean = false;
+  @Input() gold: boolean = false;
 
 
   @Output() hoveringBlock = new EventEmitter<Point | undefined>();
@@ -87,17 +68,7 @@ export class NesBoardComponent implements OnInit {
   public readonly ZERO_TO_NINE: number[] = Array(10).fill(0).map((x, i) => i);
   public readonly ZERO_TO_NINETEEN: number[] = Array(20).fill(0).map((x, i) => i);
 
-  gold$ = new BehaviorSubject<boolean>(this.startGold);
-
   readonly GameOverMode = GameOverMode;
-
-  ngOnInit() {
-    
-    // if there is a difference, animate
-    if (this.startGold !== this.endGold) setTimeout(() => this.gold$.next(this.endGold), 0);
-    console.log(this.startGold, this.endGold);
-
-  }
 
   onMouseEnter(x: number, y: number) {
     this.hoveringBlock.emit({x, y});

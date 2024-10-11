@@ -52,8 +52,7 @@
                 [activePieceOpacity]="1"
                 [nextPieceOpacity]="1"
                 [defaultOpacity]="0.6"
-                [startGold]="(puzzle$ | async)?.rating === PuzzleRating.SIX_STAR"
-                [endGold]="(puzzle$ | async)?.rating === PuzzleRating.SIX_STAR"
+                [gold]="(puzzle$ | async)?.rating === PuzzleRating.SIX_STAR"
             />
 
             <div class="puzzle-details">

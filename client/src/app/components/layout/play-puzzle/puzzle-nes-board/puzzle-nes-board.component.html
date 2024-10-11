@@ -7,6 +7,4 @@
     [activePieceOpacity]="(hoveredPiece$ | async)?.isValidPlacement(currentBoard$.getValue()!) ? 0.7 : 0.35"
     (hoveringBlock)="onHoveringBlock($event)"
     (click)="onClickBoard()"
-    [startGold]="false"
-    [endGold]="puzzle.rating === PuzzleRating.SIX_STAR"
 />

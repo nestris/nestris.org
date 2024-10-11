@@ -1,4 +1,4 @@
-<div class="board-container" [@goldBorder]="{ value: (gold$ | async) ? 'gold' : 'notgold'}">
+<div class="board-container" [ngClass]="{'gold': gold}">
 
     <div class="empty-board" *ngIf="hide"
         [style.width]="(scale*boardWidthPixels) + 'px'"
