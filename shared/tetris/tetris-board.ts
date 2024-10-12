@@ -249,4 +249,13 @@ export class TetrisBoard {
         
         return totalHeight / numColumns;
     }
+
+    isRightWellOpen(): boolean {
+        for (let y = 0; y < 20; y++) {
+            if (this.exists(9, y)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

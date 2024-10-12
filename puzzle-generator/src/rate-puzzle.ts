@@ -8,11 +8,21 @@ import { TetrominoType } from "../../shared/tetris/tetromino-type";
 import { getTopMovesHybrid } from "./stackrabbit";
 
 
-// checks if placing the piece would clear lines and result in a burn
+// checks if placing the piece would clear lines and result in a burn, or if there is a delayed burn
 function hasBurn(board: TetrisBoard, placement: MoveableTetromino): boolean {
+
+  // Place the first piece
+  const rightWellOpenBefore = board.isRightWellOpen();
   const boardCopy = board.copy();
   placement.blitToBoard(boardCopy);
-  return boardCopy.processLineClears() > 0;
+
+  // If any lines were cleared, it is a burn
+  const lineClears = boardCopy.processLineClears();
+  if (lineClears > 0) return true;
+
+  // check if delayed burn
+  const rightWellOpenAfter = boardCopy.isRightWellOpen();
+  return rightWellOpenBefore && !rightWellOpenAfter;
 }
 
 // checks if moving the piece up one row would intersect with the board, which means it's a tuck or spin
@@ -61,6 +71,17 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
   {
 
   const stackrabbit = await getStackrabbitResponse(board, current, next);
+
+  const unknownDetails: PuzzleRatingDetails = {
+    rating: PuzzleRating.UNRATED,
+    hasBurn: false,
+    hasTuckOrSpin: false,
+    bestNB: -1,
+    diff: -1,
+    isAdjustment: false
+  }
+  if (stackrabbit.nextBox.length < 5) return {rating: PuzzleRating.BAD_PUZZLE, details: unknownDetails, badReason : "Less than 5 moves"};
+  if (stackrabbit.noNextBox.length < 5) return {rating: PuzzleRating.BAD_PUZZLE, details: unknownDetails, badReason : "Less than 5 no-next-box moves"};
   
   // get the board after the first move
   const boardAfterFirst = board.copy();
@@ -79,13 +100,12 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
   const isAdjustment = bestMoveNNBIndex === -1 || (bestNNB - stackrabbit.noNextBox[bestMoveNNBIndex].score) >= 4;
 
   // get the diff between the top two moves. If there are less than two moves, return BAD_PUZZLE
-  let diff: number | undefined;
-  if (stackrabbit.nextBox.length >= 2) diff = stackrabbit.nextBox[0].score - stackrabbit.nextBox[1].score;
-  else diff = -1;
+  const diff = stackrabbit.nextBox[0].score - stackrabbit.nextBox[1].score;
+  const diffNNB = stackrabbit.noNextBox[0].score - stackrabbit.noNextBox[1].score;
 
-  let diffNNB: number | undefined;
-  if (stackrabbit.noNextBox.length >= 2) diffNNB = stackrabbit.noNextBox[0].score - stackrabbit.noNextBox[1].score;
-  else diffNNB = undefined;
+  // get the diff between the top and third/fourth moves. Can be used to determine how many close moves there are
+  const diff3 = stackrabbit.nextBox[0].score - stackrabbit.nextBox[2].score;
+  const diff4 = stackrabbit.nextBox[0].score - stackrabbit.nextBox[3].score;
 
 
   const details: PuzzleRatingDetails = {bestNB, diff, isAdjustment,
@@ -93,8 +113,6 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
      hasBurn: hasAnyBurn,
       hasTuckOrSpin: hasAnyTuckOrSpin
   };
-
-  if (diff === undefined || diffNNB === undefined) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "Diff undefined"};
 
   // if diff is too small, zero, or negative, return BAD_PUZZLE
   if (diff <= 2) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "Diff too small"};
@@ -143,6 +161,9 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
       // If hard flag is set, bump the rating difficulty
       if (diff >= 4) rating = hard ? PuzzleRating.FOUR_STAR : PuzzleRating.THREE_STAR;
       else rating = hard ? PuzzleRating.FIVE_STAR : (diff >= 2.5 ? PuzzleRating.THREE_STAR : PuzzleRating.FOUR_STAR);
+
+      // if third move is much worse than first move, bump the rating down
+      if (rating === PuzzleRating.FIVE_STAR && diff3 > 7) rating = PuzzleRating.FOUR_STAR;
 
     } catch {
       return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "Error in babyrabbit"};

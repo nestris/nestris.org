@@ -76,6 +76,14 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
       badPuzzlesInARow++;
       continue;
     }
+
+    // Disallow puzzles with same current and next piece
+    if (current === next) {
+      //console.log("Same current and next piece generated");
+      i--;
+      badPuzzlesInARow++;
+      continue;
+    }
     
     let rating, details, currentSolution, nextSolution, badReason;
     try {
