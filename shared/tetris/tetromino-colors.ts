@@ -76,16 +76,23 @@ export function getColorForTetrominoAndLevel(tetrominoType: TetrominoType, level
     return getColorForLevel(getColorTypeForTetromino(tetrominoType), level);
 }
 
+// Function to calculate the squared Euclidean distance between two colors
+// Why do we want this? Since sqrt is a monotonic function, to find a minima amongst multiple distances, comparing squared distances is equivalent to
+// comparing distances themselves. So unless the distance itself is needed for something, the computational cost of square rooting can often be avoided.
+export function colorSquaredDistance(c1: RGBColor, c2: RGBColor): number {
+    return Math.pow(c2.r - c1.r, 2) + Math.pow(c2.g - c1.g, 2) + Math.pow(c2.b - c1.b, 2);
+}
+
 // Function to calculate the Euclidean distance between two colors
 export function colorDistance(c1: RGBColor, c2: RGBColor): number {
-    return Math.sqrt(Math.pow(c2.r - c1.r, 2) + Math.pow(c2.g - c1.g, 2) + Math.pow(c2.b - c1.b, 2));
+    return Math.sqrt(colorSquaredDistance(c1, c2));
 }
 
 function findMostSimilarColor(color1: RGBColor, color2: RGBColor, color3: RGBColor, targetColor: RGBColor): RGBColor {
     // Calculating the distance of each color to the target color
-    const distance1 = colorDistance(color1, targetColor);
-    const distance2 = colorDistance(color2, targetColor);
-    const distance3 = colorDistance(color3, targetColor);
+    const distance1 = colorSquaredDistance(color1, targetColor);
+    const distance2 = colorSquaredDistance(color2, targetColor);
+    const distance3 = colorSquaredDistance(color3, targetColor);
 
     // Determining the color with the minimum distance
     const minDistance = Math.min(distance1, distance2, distance3);
