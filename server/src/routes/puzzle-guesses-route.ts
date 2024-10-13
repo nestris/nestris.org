@@ -5,7 +5,7 @@ import { PuzzleGuess, PuzzleGuesses } from '../../shared/puzzles/puzzle-guess';
 export async function getPuzzleGuessesRoute(req: Request, res: Response) {
 
     // must re-encode as middleware automatically decodes
-    const puzzleID = encodeURIComponent(req.params['id']);
+    const puzzleID = req.params['id'];
     
     const query = `
         SELECT 

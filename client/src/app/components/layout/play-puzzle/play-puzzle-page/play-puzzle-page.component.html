@@ -113,19 +113,20 @@
                         <div class="puzzle-stats" *ngIf="(puzzleState$ | async) as puzzle">
                             <div class="stat">
                                 <h1>Puzzle Rating</h1>
-                                <app-rating-stars [rating]="puzzle.getPuzzle().rating" [width]="75" />
+                                <app-rating-stars *ngIf="puzzle.getPuzzle().rating as rating" [rating]="rating" [width]="75" />
+                                <p *ngIf="!puzzle.getPuzzle().rating">Unrated</p>
                             </div>
-                            <div class="stat">
+                            <div class="stat" *ngIf="puzzle.getPuzzle().rating != PuzzleRating.UNRATED">
                                 <h1>Success Rate</h1>
                                 <p>{{puzzle.getSuccessRate()}}</p>
                             </div>
-                            <div class="stat">
+                            <div class="stat" *ngIf="puzzle.getPuzzle().rating != PuzzleRating.UNRATED">
                                 <h1>Attempts</h1>
                                 <p>{{puzzle.getPuzzle().numAttempts}}</p>
                             </div>
-                            <div class="stat">
+                            <div class="stat" *ngIf="puzzle.getThemeString() as theme">
                                 <h1>Theme</h1>
-                                <p>{{puzzle.getThemeString()}}</p>
+                                <p>{{theme}}</p>
                             </div>
                         </div>
 

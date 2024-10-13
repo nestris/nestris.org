@@ -5,9 +5,9 @@ import { calculateProbabilities } from "../../server/src/puzzle-generation/selec
 import { test, test2 } from "./test";
 import { TetrisBoard } from "../../shared/tetris/tetris-board";
 import { TetrominoType } from "../../shared/tetris/tetromino-type";
-import { decodePuzzle, encodePuzzle } from "../../shared/puzzles/encode-puzzle";
 import { TETROMINO_CHAR } from "../../shared/tetris/tetrominos";
 import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
+import { decodePuzzle, encodePuzzle } from "../../shared/puzzles/encode-puzzle";
 
 
 function generate() {

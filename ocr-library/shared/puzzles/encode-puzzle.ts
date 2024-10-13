@@ -1,6 +1,8 @@
-import { TetrisBoard } from '../tetris/tetris-board';
-import { TetrominoType } from '../tetris/tetromino-type';
-import { BufferTranscoder } from '../network/tetris-board-transcoding/buffer-transcoder';
+import { BufferTranscoder } from "../../shared/network/tetris-board-transcoding/buffer-transcoder";
+import { TetrisBoard } from "../../shared/tetris/tetris-board";
+import { TetrominoType } from "../../shared/tetris/tetromino-type";
+import { Base62Encoder } from "../scripts/base62-encoder";
+
 
 // Given a board, current piece, and next piece, encode the puzzle as a string that is deterministic and reversible
 export function encodePuzzle(board: TetrisBoard, current: TetrominoType, next: TetrominoType): string {
@@ -14,15 +16,14 @@ export function encodePuzzle(board: TetrisBoard, current: TetrominoType, next: T
     puzzleData[1] = next;
     puzzleData.set(encodedBoard, 2);
 
-    const encodedPuzzle = encodeURIComponent(Buffer.from(puzzleData).toString('base64'));
-    console.log(encodedPuzzle);
+    const encodedPuzzle = Base62Encoder.encode(puzzleData);
 
     return encodedPuzzle;
 }
 
 export function decodePuzzle(encodedPuzzle: string): { board: TetrisBoard, current: TetrominoType, next: TetrominoType } {
     
-        const puzzleData = Buffer.from(decodeURIComponent(encodedPuzzle), 'base64');
+        const puzzleData = Base62Encoder.decode(encodedPuzzle);
         const current = puzzleData[0];
         const next = puzzleData[1];
         const board = BufferTranscoder.decode(puzzleData.subarray(2));
