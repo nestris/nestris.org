@@ -69,7 +69,7 @@ export class WebsocketService {
       }
 
       // Exception: if we are on puzzles page in single mode, do nothing
-      if (location.pathname === '/puzzles' && location.search.includes('mode=single')) {
+      if (location.pathname === '/online/puzzle' && location.search.includes('mode=single')) {
         console.log("Not signed in but on single puzzle page. Doing nothing.");
         return;
       }
@@ -107,6 +107,10 @@ export class WebsocketService {
 
     this.onSignOut().subscribe(() => {
       if (this.hasSignedInBefore) {
+
+        console.log('Signed out. Redirecting to login page...');
+        
+
         // redirect to login page
         this.router.navigate(['/login']);
 

@@ -29,13 +29,8 @@ export class SinglePuzzleState extends PuzzleState {
     try {
       this.puzzle = await fetchServer2<RatedPuzzle>(Method.GET, `/api/v2/puzzle/${this.puzzleID}`);
     } catch (e: any) {
-      // if 404, the puzzle does not exist anymore in the database. but, we can recreate using the puzzleID
-      if (e.status === 404) {
-        this.puzzle = await this.getPuzzleFromID(this.puzzleID);
-      } else {
-        throw e;
-      }
-      
+      console.log("Puzzle not found, recreating from puzzleID");
+      this.puzzle = await this.getPuzzleFromID(this.puzzleID);
     }
   }
 

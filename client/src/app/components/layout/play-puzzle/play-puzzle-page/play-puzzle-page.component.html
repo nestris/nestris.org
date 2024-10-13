@@ -110,25 +110,26 @@
                         <div *ngIf="(mode$ | async) === PuzzleMode.SINGLE" class="padding-above-puzzle-stats"></div>
 
                         <!-- Statistics for the puzzle -->
-                        <div class="puzzle-stats" *ngIf="(puzzleState$ | async) as puzzle">
-                            <div class="stat">
-                                <h1>Puzzle Rating</h1>
-                                <app-rating-stars *ngIf="puzzle.getPuzzle().rating as rating" [rating]="rating" [width]="75" />
-                                <p *ngIf="!puzzle.getPuzzle().rating">Unrated</p>
+                        <ng-container *ngIf="(puzzleState$ | async) as puzzle">
+                            <div class="puzzle-stats" *ngIf="puzzle.getPuzzle().rating as rating">
+                                <div class="stat">
+                                    <h1>Puzzle Rating</h1>
+                                    <app-rating-stars [rating]="rating" [width]="75" />
+                                </div>
+                                <div class="stat" *ngIf="puzzle.getPuzzle().rating != PuzzleRating.UNRATED">
+                                    <h1>Success Rate</h1>
+                                    <p>{{puzzle.getSuccessRate()}}</p>
+                                </div>
+                                <div class="stat" *ngIf="puzzle.getPuzzle().rating != PuzzleRating.UNRATED">
+                                    <h1>Attempts</h1>
+                                    <p>{{puzzle.getPuzzle().numAttempts}}</p>
+                                </div>
+                                <div class="stat" *ngIf="puzzle.getThemeString() as theme">
+                                    <h1>Theme</h1>
+                                    <p>{{theme}}</p>
+                                </div>
                             </div>
-                            <div class="stat" *ngIf="puzzle.getPuzzle().rating != PuzzleRating.UNRATED">
-                                <h1>Success Rate</h1>
-                                <p>{{puzzle.getSuccessRate()}}</p>
-                            </div>
-                            <div class="stat" *ngIf="puzzle.getPuzzle().rating != PuzzleRating.UNRATED">
-                                <h1>Attempts</h1>
-                                <p>{{puzzle.getPuzzle().numAttempts}}</p>
-                            </div>
-                            <div class="stat" *ngIf="puzzle.getThemeString() as theme">
-                                <h1>Theme</h1>
-                                <p>{{theme}}</p>
-                            </div>
-                        </div>
+                        </ng-container>
 
                         <!-- Engine recommendations -->
                         <div class="engine-div">
