@@ -12,7 +12,7 @@ import { decodePuzzle, encodePuzzle } from "../../shared/puzzles/encode-puzzle";
 
 function generate() {
 
-    const NUM_PUZZLES = 2;
+    const NUM_PUZZLES = 100;
 
     // Store the number of puzzles generated for each rating
     const count: { [key in PuzzleRating]?: number } = {};

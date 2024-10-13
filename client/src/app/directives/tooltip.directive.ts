@@ -1,10 +1,10 @@
-import { Directive, ElementRef, HostListener, Input } from '@angular/core';
+import { Directive, ElementRef, HostListener, Input, OnDestroy } from '@angular/core';
 import { TooltipService } from '../services/tooltip.service';
 
 @Directive({
   selector: '[tooltip]'
 })
-export class TooltipDirective {
+export class TooltipDirective implements OnDestroy {
 
   @Input('tooltip') tooltipText: string = '';
 
@@ -25,6 +25,11 @@ export class TooltipDirective {
   }
 
   @HostListener('mouseleave') onMouseLeave() {
+    this.tooltipManager.hide();
+  }
+
+  // This method gets called when the directive/component is destroyed
+  ngOnDestroy() {
     this.tooltipManager.hide();
   }
 
