@@ -5,7 +5,7 @@ import { decodeRatedPuzzleFromDB } from '../puzzle-generation/decode-rated-puzzl
 // GET puzzle from database with matching id, return GenericPuzzle
 export async function getPuzzleRoute(req: Request, res: Response) {
 
-    const puzzleID = req.params['id'];
+    const puzzleID = encodeURIComponent(req.params['id']);
     if (!puzzleID) {
         res.status(400).send("No puzzleID provided");
         return;

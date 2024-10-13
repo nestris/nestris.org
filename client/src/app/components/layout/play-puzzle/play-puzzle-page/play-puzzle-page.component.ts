@@ -149,7 +149,7 @@ export class PlayPuzzlePageComponent implements OnInit {
             this.redirectToDefaultURL();
             return;
           }
-          puzzleState = new SinglePuzzleState(id);
+          puzzleState = new SinglePuzzleState(encodeURIComponent(id));
           console.log("Single puzzle state created");
           break;
       }
