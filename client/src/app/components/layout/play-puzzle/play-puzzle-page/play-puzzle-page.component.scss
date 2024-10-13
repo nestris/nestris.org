@@ -230,6 +230,13 @@ header {
     width: 100%;
     box-sizing: border-box;
   }
+
+  .row-container {
+    display: grid;
+    grid-template-columns: 40px 10px 1fr;
+    width: 100%;
+    box-sizing: border-box;
+  }
   
   .table-rows {
     display: grid;
@@ -266,7 +273,7 @@ header {
     opacity: 0.7;
   }
   
-  .engine-move p {
+  .engine-move p, .guesses p {
     font-family: Montserrat;
     font-size: 12px;
     font-style: normal;
@@ -275,6 +282,10 @@ header {
     text-align: center;
     text-wrap: nowrap;
     margin: 3px;
+  }
+
+  .guesses p {
+    opacity: 0.7;
   }
   
   .left {

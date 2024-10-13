@@ -112,9 +112,13 @@ export async function fetchRandomPuzzleWithRating(rating: PuzzleRating, userid: 
   if (!result.rows[0] && rating === PuzzleRating.SIX_STAR) {
     logDatabase(userid, `No unattempted 6 star puzzles found, selecting 5 star puzzle`);
     console.log(`No unattempted 6 star puzzles found for user ${userid}, selecting 5 star puzzle`);
+
+    // no 6 star puzzles found, select a 5 star puzzle
+    rating = PuzzleRating.FIVE_STAR;
+
     result = await queryDB(
       `SELECT * FROM rated_puzzles WHERE rating = $1 AND num_dislikes_cached < 2 AND id NOT IN (SELECT puzzle_id FROM puzzle_attempts WHERE userid = $2 AND puzzle_id is not NULL) ORDER BY RANDOM() ASC LIMIT 1`,
-      [PuzzleRating.FIVE_STAR, userid]
+      [rating, userid]
     );
   }
     
@@ -123,6 +127,10 @@ export async function fetchRandomPuzzleWithRating(rating: PuzzleRating, userid: 
     logDatabase(userid, `No unattempted puzzles with rating ${rating} found, selecting repeated puzzle`);
     console.log(`No unattempted puzzles with rating ${rating} found for user ${userid}, selecting repeated puzzle`);
     result = await queryDB(`SELECT * FROM rated_puzzles WHERE rating = $1 ORDER BY RANDOM() LIMIT 1`, [rating]);
+  }
+
+  if (result.rows.length === 0) {
+    throw new Error(`No puzzles found with rating ${rating}`);
   }
 
   const puzzle = decodeRatedPuzzleFromDB(result.rows[0]);

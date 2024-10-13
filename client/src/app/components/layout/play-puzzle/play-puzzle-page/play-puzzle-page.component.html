@@ -133,21 +133,34 @@
                         <div class="engine-div">
                             <h2 class="prevent-select">Engine Evaluation</h2>
                             <div class="engine-container">
-                                <div class="labels table-rows">
-                                    <p>Rank</p>
-                                    <p>Score</p>
-                                    <p>Current</p>
-                                    <p>Next</p>
+                                <div class="row-container">
+                                    <div class="labels">
+                                        <p>Guesses</p>
+                                    </div>
+                                    <div></div>
+                                    <div class="labels table-rows">
+                                        <p>Rank</p>
+                                        <p>Score</p>
+                                        <p>Current</p>
+                                        <p>Next</p>
+                                    </div>
                                 </div>
-                    
-                                <div class="engine-move table-rows" *ngFor="let move of (moveRecommendations$ | async); let i=index"
-                                [class.first-move]="i === 0"
-                                (mouseenter)="hoverEngineMove(move)" (mouseleave)="hoverEngineMove(undefined)"
-                                >
-                                    <p><b>#{{ i + 1 }}</b></p>
-                                    <p>{{ (move.score > 0 ? ('+' + move.score) : move.score) }}</p>
-                                    <p>{{ move.firstPlacement.getTetrisNotation() }}</p>
-                                    <p>{{ move.secondPlacement.getTetrisNotation() }}</p>
+                                
+                                <div class="row-container" *ngFor="let move of (moveRecommendations$ | async); let i=index">
+
+                                    <div class="guesses">
+                                        <p>{{ move.guesses ?? 0 }}</p>
+                                    </div>
+                                    <div></div>
+                                    <div class="engine-move table-rows"
+                                    [class.first-move]="i === 0"
+                                    (mouseenter)="hoverEngineMove(move)" (mouseleave)="hoverEngineMove(undefined)"
+                                    >
+                                        <p><b>#{{ i + 1 }}</b></p>
+                                        <p>{{ (move.score > 0 ? ('+' + move.score) : move.score) }}</p>
+                                        <p>{{ move.firstPlacement.getTetrisNotation() }}</p>
+                                        <p>{{ move.secondPlacement.getTetrisNotation() }}</p>
+                                    </div>
                                 </div>
                     
                             </div>

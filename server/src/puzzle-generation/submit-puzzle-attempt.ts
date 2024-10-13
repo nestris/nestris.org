@@ -43,7 +43,7 @@ export async function submitPuzzleAttempt(state: ServerState, submission: Serial
 
   // insert new record to puzzle_attempts
   const puzzleAttemptQuery = queryDB(
-    `INSERT INTO puzzle_attempts (userid, puzzle_id, rating, is_correct, elo_before, elo_change, solve_time, current_placement, next_placemeent)
+    `INSERT INTO puzzle_attempts (userid, puzzle_id, rating, is_correct, elo_before, elo_change, solve_time, current_placement, next_placement)
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
     [submission.userid, submission.puzzleID, activePuzzle.puzzle.rating, puzzleResult.isCorrect, eloBefore, eloChange, timeTakenSeconds, submissionCurrentPlacement.getInt2(), submissionNextPlacement.getInt2()]
   );

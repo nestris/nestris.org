@@ -18,6 +18,8 @@ import { SinglePuzzleState } from './puzzle-states/single-puzzle-state';
 import { NotificationAutohide, NotificationType } from 'src/app/shared/models/notifications';
 import { RatedPuzzle } from 'src/app/shared/puzzles/rated-puzzle';
 import { PuzzleRating } from 'src/app/shared/puzzles/puzzle-rating';
+import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
+import { PuzzleGuesses } from 'src/app/shared/puzzles/puzzle-guess';
 
 export enum PuzzleMode {
   RATED = "rated",
@@ -28,6 +30,7 @@ export interface Move {
   firstPlacement: MoveableTetromino;
   secondPlacement: MoveableTetromino;
   score: number;
+  guesses?: number;
 }
 
 @Component({
@@ -186,11 +189,28 @@ export class PlayPuzzlePageComponent implements OnInit {
   async generateMoveRecommendations(puzzle: GenericPuzzle) {
 
     console.log("Generating move recommendations");
+    this.moveRecommendations$.next([]);
 
     const board = BinaryTranscoder.decode(puzzle.boardString);
     try {
-      const response = await getTopMovesHybrid(board, 18, 0, puzzle.current, puzzle.next, InputSpeed.HZ_30);
-      this.moveRecommendations$.next(response.nextBox);
+
+      // get top moves from stackrabbit, and guesses from server
+      const topMovesHybridPromise = getTopMovesHybrid(board, 18, 0, puzzle.current, puzzle.next, InputSpeed.HZ_30);
+      const guessesPromise = fetchServer2<PuzzleGuesses>(Method.GET, `/api/v2/puzzle-guesses/${puzzle.id}`);
+      const [response, guesses] = await Promise.all([topMovesHybridPromise, guessesPromise]);
+
+      // Calculate the number of guesses for each move
+      const moves: Move[] = response.nextBox;
+      for (let move of moves) {
+        for (let guess of guesses.guesses) {
+          if (move.firstPlacement.getInt2() == guess.currentPlacement && move.secondPlacement.getInt2() == guess.nextPlacement) {
+            move.guesses = guess.numGuesses;
+            break;
+          }
+        }
+      }
+
+      this.moveRecommendations$.next(moves);
       console.log("Move recommendations generated");
     } catch (e) {
       console.error("Error generating move recommendations", e);

@@ -54,9 +54,10 @@ export class ActivePuzzleManager {
         // If the player has no active puzzle, do nothing
         const currentActivePuzzle = this.activePuzzles.get(userid);
         if (currentActivePuzzle === undefined) {
-            console.log("NO ACTIVE PUZZLE TO TIMEOUT");
             return;
         }
+
+        console.log("TIMEOUT ACTIVE PUZZLE", currentActivePuzzle);
 
         // submit the current active puzzle as a timed out attempt
         const submission: SerializedPuzzleSubmission = { // submission with no placements, so it's a timeout
