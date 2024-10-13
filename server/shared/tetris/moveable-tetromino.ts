@@ -152,6 +152,32 @@ export default class MoveableTetromino {
         return { r: this.rotation, x: this.translateX, y: this.translateY };
     }
 
+    // Represent in Postgres-friendly int2 form. 3 bits for piece type, 2 bits for rotation, 5 bits for x, 5 bits for y
+    public getInt2(): number {
+        const type: number = this.tetrominoType; // 3 bits
+        const rotation = this.rotation; // 2 bits
+        const x = this.translateX + 2; // 5 bits, add 2 to make it unsigned
+        const y = this.translateY + 2; // 5 bits, add 2 to make it unsigned
+
+        if (type < 0 || type > 7) throw new Error("Invalid type");
+        if (rotation < 0 || rotation > 3) throw new Error("Invalid rotation");
+        if (x < 0 || x > 31) throw new Error("Invalid x");
+        if (y < 0 || y > 31) throw new Error("Invalid y");
+
+        return (type << 12) | (rotation << 10) | (x << 5) | y;
+    }
+
+    // Convert from Postgres-friendly int2 form into MoveableTetromino
+    public static fromInt2(int2: number): MoveableTetromino {
+        const type = (int2 >> 12) & 0b111;
+        const rotation = (int2 >> 10) & 0b11;
+        const x = (int2 >> 5) & 0b11111;
+        const y = int2 & 0b11111;
+
+        return new MoveableTetromino(type, rotation, x - 2, y - 2);
+    }
+    
+
     public getLowestY(): number {
         return this.getCurrentBlockSet().maxY;
     }

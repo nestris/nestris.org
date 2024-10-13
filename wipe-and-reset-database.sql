@@ -63,19 +63,14 @@ CREATE TABLE "public"."user_relationships" (
 -- rating is between 1 and 5
 DROP TABLE IF EXISTS "public"."rated_puzzles" CASCADE;
 CREATE TABLE "public"."rated_puzzles" (
-    "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+    "id" text NOT NULL,
     "created_at" timestamp NOT NULL DEFAULT now(),
 
-    "board" bytea NOT NULL,
     "current_piece" char(1) NOT NULL,
     "next_piece" char(1) NOT NULL,
     
-    "r1" int2 NOT NULL,
-    "x1" int2 NOT NULL,
-    "y1" int2 NOT NULL,
-    "r2" int2 NOT NULL,
-    "x2" int2 NOT NULL,
-    "y2" int2 NOT NULL,
+    "current_placement" int2 NOT NULL,
+    "next_placement" int2 NOT NULL,
 
     "rating" int2 NOT NULL CHECK (rating >= 1 AND rating <= 6),
     "theme" text NOT NULL,
@@ -93,7 +88,7 @@ CREATE INDEX rating_index ON rated_puzzles (rating DESC); -- for fetching puzzle
 --feedback text can only be "liked", "disliked", or "none"
 DROP TABLE IF EXISTS "public"."puzzle_feedback" CASCADE;
 CREATE TABLE "public"."puzzle_feedback" (
-    "puzzle_id" uuid NOT NULL REFERENCES "public"."rated_puzzles"("id"),
+    "puzzle_id" text NOT NULL REFERENCES "public"."rated_puzzles"("id"),
     "userid" text NOT NULL REFERENCES "public"."users"("userid"),
     "feedback" text NOT NULL CHECK (feedback = ANY (ARRAY['liked'::text, 'disliked'::text, 'none'::text])) DEFAULT 'none'::text,
     PRIMARY KEY ("puzzle_id", "userid")
@@ -119,27 +114,12 @@ AFTER INSERT OR UPDATE OR DELETE ON puzzle_feedback
 FOR EACH ROW EXECUTE FUNCTION update_puzzle_feedback_cached_data();
 
 
--- ACTIVE_PUZZLE TABLE
--- puzzle that was fetched by user, but not yet submitted
--- unique userid, so that only one active puzzle per user
--- table to ensure that user can only have one active puzzle at a time, and to keep track of when the puzzle was started
-DROP TABLE IF EXISTS "public"."active_puzzles" CASCADE;
-CREATE TABLE "public"."active_puzzles" (
-    "userid" text NOT NULL REFERENCES "public"."users"("userid"),
-    "puzzle_id" uuid NOT NULL REFERENCES "public"."rated_puzzles"("id"),
-    "elo_gain" int2 NOT NULL,
-    "elo_loss" int2 NOT NULL,
-    "started_at" timestamp NOT NULL DEFAULT now(),
-    PRIMARY KEY ("userid")
-);
-
-
 -- PUZZLE_ATTEMPT TABLE (for rated puzzles only)
 
 DROP TABLE IF EXISTS "public"."puzzle_attempts" CASCADE;
 CREATE TABLE "public"."puzzle_attempts" (
     "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-    "puzzle_id" uuid REFERENCES "public"."rated_puzzles"("id"),
+    "puzzle_id" text REFERENCES "public"."rated_puzzles"("id"),
     "userid" text NOT NULL REFERENCES "public"."users"("userid"),
     "timestamp" timestamp NOT NULL DEFAULT now(),
     "rating" int2 NOT NULL CHECK (rating >= 1 AND rating <= 6),
@@ -148,12 +128,8 @@ CREATE TABLE "public"."puzzle_attempts" (
     "elo_change" int2, -- if NULL, then it was an unranked puzzle
     "solve_time" int2 NOT NULL,
 
-    "r1" int2,
-    "x1" int2,
-    "y1" int2,
-    "r2" int2,
-    "x2" int2,
-    "y2" int2,
+    "current_placement" int2 NOT NULL,
+    "next_placement" int2 NOT NULL,
 
     PRIMARY KEY ("id")
 );

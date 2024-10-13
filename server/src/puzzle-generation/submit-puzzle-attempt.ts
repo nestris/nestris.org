@@ -5,6 +5,7 @@ import { PuzzleRating } from "../../shared/puzzles/puzzle-rating";
 import { logDatabase } from "../database/log";
 import { ServerState } from "../server-state/server-state";
 import { PuzzleState } from "../../shared/puzzles/rated-puzzle";
+import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
 
 // number of attempts needed to convert a provisional puzzle to an adjusted puzzle
 const NUM_ATTEMPTS_NEEDED_TO_ADJUST = 8;
@@ -37,11 +38,14 @@ export async function submitPuzzleAttempt(state: ServerState, submission: Serial
   let timeTakenSeconds = Math.round(Math.min(activePuzzle.getElapsedTime(), 30)); // cap time taken to 30 seconds
   console.log("Time taken", timeTakenSeconds, "seconds");
 
+  const submissionCurrentPlacement = new MoveableTetromino(activePuzzle.puzzle.current, submission.r1!, submission.x1!, submission.y1!);
+  const submissionNextPlacement = new MoveableTetromino(activePuzzle.puzzle.next, submission.r2!, submission.x2!, submission.y2!);
+
   // insert new record to puzzle_attempts
   const puzzleAttemptQuery = queryDB(
-    `INSERT INTO puzzle_attempts (userid, puzzle_id, rating, is_correct, elo_before, elo_change, solve_time, x1, y1, r1, x2, y2, r2)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
-    [submission.userid, submission.puzzleID, activePuzzle.puzzle.rating, puzzleResult.isCorrect, eloBefore, eloChange, timeTakenSeconds, submission.x1, submission.y1, submission.r1, submission.x2, submission.y2, submission.r2]
+    `INSERT INTO puzzle_attempts (userid, puzzle_id, rating, is_correct, elo_before, elo_change, solve_time, current_placement, next_placemeent)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+    [submission.userid, submission.puzzleID, activePuzzle.puzzle.rating, puzzleResult.isCorrect, eloBefore, eloChange, timeTakenSeconds, submissionCurrentPlacement.getInt2(), submissionNextPlacement.getInt2()]
   );
 
   // update user's puzzle elo

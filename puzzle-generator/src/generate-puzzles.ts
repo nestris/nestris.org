@@ -8,6 +8,7 @@ import { classifyPuzzleTheme } from "./classify-puzzle-theme";
 import { ratePuzzle } from "./rate-puzzle";
 import { SequentialBoardGenerator, GeneratorMode } from "./sequential-board-generator";
 import { PartialRatedPuzzle } from '../../shared/puzzles/partial-rated-puzzle';
+import { encodePuzzle } from "../../shared/puzzles/encode-puzzle";
 
 let puzzlesGenerated: number;
 let puzzlesAddedToDB: number;
@@ -110,15 +111,15 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
     badPuzzlesInARow = 0;
 
     // discard a fraction of rated puzzles due to overabundance
-    if (rating === PuzzleRating.TWO_STAR && Math.random() < 0.7) {
+    if (rating === PuzzleRating.TWO_STAR && Math.random() < 0.8) {
       i--;
       continue;
     }
-    if (rating === PuzzleRating.THREE_STAR && Math.random() < 0.93) {
+    if (rating === PuzzleRating.THREE_STAR && Math.random() < 0.96) {
       i--;
       continue;
     }
-    if (rating === PuzzleRating.FOUR_STAR && Math.random() < 0.3) {
+    if (rating === PuzzleRating.FOUR_STAR && Math.random() < 0.7) {
       i--;
       continue;
     }
@@ -126,17 +127,13 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
     const theme = classifyPuzzleTheme(state.board, currentSolution!, nextSolution!, details);
 
     const puzzle: PartialRatedPuzzle = {
-      boardString: BinaryTranscoder.encode(state.board),
+      board: state.board,
       current: current,
       next: next,
       rating: rating,
       theme: theme,
-      r1: currentSolution!.getRotation(),
-      x1: currentSolution!.getTranslateX(),
-      y1: currentSolution!.getTranslateY(),
-      r2: nextSolution!.getRotation(),
-      x2: nextSolution!.getTranslateX(),
-      y2: nextSolution!.getTranslateY(),
+      currentPlacement: currentSolution!,
+      nextPlacement: nextSolution!,
     };
 
     puzzles.push(puzzle);
@@ -151,11 +148,14 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
 async function addRatedPuzzleToDatabase(puzzle: PartialRatedPuzzle): Promise<any> {
   const currentChar = TETROMINO_CHAR[puzzle.current];
   const nextChar = TETROMINO_CHAR[puzzle.next];
-  const boardBuffer = BufferTranscoder.encode(BinaryTranscoder.decode(puzzle.boardString));
+
+  const puzzleID = encodePuzzle(puzzle.board, puzzle.current, puzzle.next);
+  const currentPlacement = puzzle.currentPlacement.getInt2();
+  const nextPlacement = puzzle.nextPlacement.getInt2();
 
   // add puzzle to database
-  const result = await queryDB("INSERT INTO rated_puzzles (board, current_piece, next_piece, rating, theme, r1, x1, y1, r2, x2, y2) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)",
-    [boardBuffer, currentChar, nextChar, puzzle.rating, puzzle.theme, puzzle.r1, puzzle.x1, puzzle.y1, puzzle.r2, puzzle.x2, puzzle.y2]
+  const result = await queryDB("INSERT INTO rated_puzzles (id, current_piece, next_piece, rating, theme, current_placement, next_placement) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+    [puzzleID, currentChar, nextChar, puzzle.rating, puzzle.theme, currentPlacement, nextPlacement]
   );
 
   puzzlesAddedToDB++;

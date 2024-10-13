@@ -1,26 +1,36 @@
+import { BinaryDecoder } from "../../shared/network/binary-codec";
 import { BinaryTranscoder } from "../../shared/network/tetris-board-transcoding/binary-transcoder";
-import { BufferTranscoder } from "../../shared/network/tetris-board-transcoding/buffer-transcoder";
+import { decodePuzzle } from "../../shared/puzzles/encode-puzzle";
 import { RatedPuzzle } from "../../shared/puzzles/rated-puzzle";
+import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
 import { TETROMINO_CHAR_TO_TYPE } from "../../shared/tetris/tetrominos";
 
 
 export function decodeRatedPuzzleFromDB(puzzle: any): RatedPuzzle {
 
-  const board = BinaryTranscoder.encode(BufferTranscoder.decode(puzzle.board));
+  const decodedPuzzle = decodePuzzle(puzzle.id)
   const currentPiece = TETROMINO_CHAR_TO_TYPE[puzzle.current_piece];
   const nextPiece = TETROMINO_CHAR_TO_TYPE[puzzle.next_piece];
 
+  if (decodedPuzzle.current !== currentPiece || decodedPuzzle.next !== nextPiece) {
+    throw new Error("Decoded puzzle does not match database puzzle");
+  }
+
+  const boardString = BinaryTranscoder.encode(decodedPuzzle.board);
+  const currentPlacement = MoveableTetromino.fromInt2(puzzle.current_placement);
+  const nextPlacement = MoveableTetromino.fromInt2(puzzle.next_placement);
+
   return {
     id: puzzle.id,
-    boardString: board,
+    boardString: boardString,
     current: currentPiece,
     next: nextPiece,
-    r1: puzzle.r1,
-    x1: puzzle.x1,
-    y1: puzzle.y1,
-    r2: puzzle.r2,
-    x2: puzzle.x2,
-    y2: puzzle.y2,
+    r1: currentPlacement.getRotation(),
+    x1: currentPlacement.getTranslateX(),
+    y1: currentPlacement.getTranslateY(),
+    r2: nextPlacement.getRotation(),
+    x2: nextPlacement.getTranslateX(),
+    y2: nextPlacement.getTranslateY(),
     rating: puzzle.rating,
     theme: puzzle.theme,
     numAttempts: puzzle.num_attempts_cached,

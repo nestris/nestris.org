@@ -28,6 +28,16 @@ export class TetrisBoard {
         }
     }
 
+    static random(): TetrisBoard {
+        const board = new TetrisBoard();
+        for (let y = 0; y < 20; y++) {
+            for (let x = 0; x < 10; x++) {
+                if (Math.random() < 0.5) board.setAt(x, y, getRandomColorType());                
+            }
+        }
+        return board;
+    }
+
     // set the color of a cell at a given row and column
     setAt(x: number, y: number, color: ColorType): void {
 

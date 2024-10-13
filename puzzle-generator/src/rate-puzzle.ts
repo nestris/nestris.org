@@ -131,7 +131,7 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
   }
 
   // Eliminate puzzles where 20hz SR disagrees with 30hz SR
-  const stackrabbit20hz = await getStackrabbitResponse(board, current, next, InputSpeed.HZ_15);
+  const stackrabbit20hz = await getStackrabbitResponse(board, current, next, InputSpeed.HZ_13);
   if (stackrabbit20hz.nextBox.length === 0) return {rating: PuzzleRating.BAD_PUZZLE, details};
   if (!(
     stackrabbit.nextBox[0].firstPlacement.equals(stackrabbit20hz.nextBox[0].firstPlacement) &&
