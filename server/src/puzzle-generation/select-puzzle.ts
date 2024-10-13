@@ -24,8 +24,13 @@ export function calculateProbabilities(elo: number): number[] {
   const oneStar = Math.max(0, 1 - normalizedElo * 3);
   const twoStar = Math.max(0, 1 - Math.abs(normalizedElo - 0.3) * 3); 
   const threeStar = Math.max(0, 1 - Math.abs(normalizedElo - 0.5) * 2.5); 
-  const fourStar = Math.max(0, 1 - Math.abs(normalizedElo - 0.75) * 2);
+  let fourStar = Math.max(0, 1 - Math.abs(normalizedElo - 0.8) * 2.4);
   let fiveStar = Math.max(0, normalizedElo * 3 - 1.5);
+
+  // from 3000+, lower chance of 4 star
+  if (elo >= 3000) {
+    fourStar /= elo / 3000 * 1.2;
+  }
 
   // From 3000+, if puzzle was 5 star, there is an increasing chance of 6 star
   let sixStar = 0;

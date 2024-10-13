@@ -128,8 +128,8 @@ CREATE TABLE "public"."puzzle_attempts" (
     "elo_change" int2, -- if NULL, then it was an unranked puzzle
     "solve_time" int2 NOT NULL,
 
-    "current_placement" int2 NOT NULL,
-    "next_placement" int2 NOT NULL,
+    "current_placement" int2,
+    "next_placement" int2,
 
     PRIMARY KEY ("id")
 );

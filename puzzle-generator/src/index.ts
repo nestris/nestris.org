@@ -12,7 +12,7 @@ import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
 
 function generate() {
 
-    const NUM_PUZZLES = 10;
+    const NUM_PUZZLES = 2;
 
     // Store the number of puzzles generated for each rating
     const count: { [key in PuzzleRating]?: number } = {};

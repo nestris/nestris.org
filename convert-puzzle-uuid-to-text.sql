@@ -36,6 +36,27 @@ ALTER TABLE "public"."puzzle_feedback"
 ALTER TABLE "public"."rated_puzzles" 
     ALTER COLUMN "id" DROP DEFAULT;
 
+ALTER TABLE "public"."rated_puzzles" 
+	DROP COLUMN r1,
+	DROP COLUMN x1,
+	DROP COLUMN y1,
+	DROP COLUMN r2,
+	DROP COLUMN x2,
+	DROP COLUMN y2,
+    DROP COLUMN board,
+	ADD COLUMN current_placement int2 NOT NULL,
+	ADD COLUMN next_placement int2 NOT NULL;
+	
+ALTER TABLE "public"."puzzle_attempts" 
+	DROP COLUMN r1,
+	DROP COLUMN x1,
+	DROP COLUMN y1,
+	DROP COLUMN r2,
+	DROP COLUMN x2,
+	DROP COLUMN y2,
+	ADD COLUMN current_placement int2 DEFAULT NULL,
+	ADD COLUMN next_placement int2 DEFAULT NULL;
+
 -- Commit the transaction
 COMMIT;
 
