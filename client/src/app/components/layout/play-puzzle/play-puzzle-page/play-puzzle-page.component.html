@@ -156,6 +156,7 @@
                                     <div></div>
                                     <div class="engine-move table-rows"
                                     [class.first-move]="i === 0"
+                                    [class.player-move]="isPlayerMove(move) && i !== 0"
                                     (mouseenter)="hoverEngineMove(move)" (mouseleave)="hoverEngineMove(undefined)"
                                     >
                                         <p><b>#{{ i + 1 }}</b></p>

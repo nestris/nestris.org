@@ -223,6 +223,20 @@ export class PlayPuzzlePageComponent implements OnInit {
     this.hoveredMove$.next(move);
   }
 
+  isPlayerMove(move: Move): boolean {
+
+    const submission = this.puzzleState$.getValue()!.getSubmission();
+    if (!submission) return false;
+
+    const firstPiece = submission.firstPiece;
+    const secondPiece = submission.secondPiece;
+
+    if (!firstPiece || !secondPiece) return false;
+
+    return firstPiece.equals(move.firstPlacement) && secondPiece.equals(move.secondPlacement);
+
+  }
+
 
   // fetch a new puzzle from the server, start puzzle, and start timer
   async startPuzzle() {
