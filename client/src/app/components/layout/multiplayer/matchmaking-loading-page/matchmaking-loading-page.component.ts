@@ -7,6 +7,14 @@ import { Component } from "@angular/core";
   styleUrls: ['./matchmaking-loading-page.component.scss']
 })
 export class MatchmakingLoadingPageComponent {
-  
+
+    score: number = 0;
+    scoreVisible: boolean = false;
+
+    setScore(score: number) {
+        this.score = score;
+
+        if (score > 0) this.scoreVisible = true;
+    }
 
 }

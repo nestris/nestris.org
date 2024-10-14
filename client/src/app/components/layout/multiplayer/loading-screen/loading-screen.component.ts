@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Output, ViewChild } from '@angular/core';
 
 interface MousePosition {
   x: number;
@@ -35,6 +35,7 @@ interface TetrisBlock {
 })
 export class LoadingScreenComponent {
   @ViewChild('canvasElement') canvasElement!: ElementRef<HTMLCanvasElement>;
+  @Output() score = new EventEmitter<number>();
 
   readonly CIRCLE_PERSISTENCE = 200;
   readonly NUM_CIRCLES = 30;
@@ -53,6 +54,8 @@ export class LoadingScreenComponent {
   private frame = 0;
   private mousePositions: MousePosition[] = [];
 
+  private totalScore: number = 0;
+
   private readonly tetrisShapes = [
     [[1, 1, 1, 1]],  // I
     [[1, 1], [1, 1]],  // O
@@ -64,6 +67,16 @@ export class LoadingScreenComponent {
   ];
 
   private readonly tetrisColors = ['88, 215, 116', '197, 88, 215', '215, 141, 88', '215, 88, 90', '88, 215, 210', '166, 215, 88', '119, 88, 215'];
+
+
+  changeScore(delta: number) {
+    this.totalScore += delta;
+
+    // make sure score is not negative
+    this.totalScore = Math.max(0, this.totalScore);
+
+    this.score.emit(Math.round(this.totalScore));
+  }
 
   ngOnInit() {
     this.initCanvas();
@@ -89,6 +102,8 @@ export class LoadingScreenComponent {
     this.drawLine();
 
     this.checkTetrisBlockMouseover(event.clientX, event.clientY);
+
+    this.changeScore(-0.1);
   }
 
   private updateMousePosition(x: number, y: number) {
@@ -259,6 +274,7 @@ export class LoadingScreenComponent {
       // Mark for deletion if went out of bounds
       if (outOfBounds && block.enteredScreen) {
         block.markForDelete = true;
+        this.changeScore(-20);
       }
     });
 
@@ -306,6 +322,9 @@ export class LoadingScreenComponent {
   }
 
   private explodeTetrisBlock(block: TetrisBlock) {
+
+    this.changeScore(10);
+
     const blockCenterX = block.x;
     const blockCenterY = block.y;
 
@@ -314,9 +333,17 @@ export class LoadingScreenComponent {
         if (block.shape[row][col]) {
           const xOffset = (col - block.shape[row].length / 2) * block.size;
           const yOffset = (row - block.shape.length / 2) * block.size;
+
+          // account for rotation
+          block.angle += block.rotationSpeed; // rotate a bit more
+          const rotatedX = xOffset * Math.cos(block.angle) - yOffset * Math.sin(block.angle);
+          const rotatedY = xOffset * Math.sin(block.angle) + yOffset * Math.cos(block.angle);
+
+          const individualBlockX = blockCenterX + rotatedX;
+          const individualBlockY = blockCenterY + rotatedY;
           
-          const individualBlockX = blockCenterX + xOffset;
-          const individualBlockY = blockCenterY + yOffset;
+          //const individualBlockX = blockCenterX + xOffset;
+          //const individualBlockY = blockCenterY + yOffset;
 
           // Create particles for each individual block
           for (let i = 0; i < 50; i++) { // Reduced number of particles per block
