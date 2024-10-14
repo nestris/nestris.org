@@ -88,6 +88,8 @@ import { PuzzleLeaderboardComponent } from './components/layout/main-leaderboard
 import { RankedLeaderboardComponent } from './components/layout/main-leaderboard/ranked-leaderboard/ranked-leaderboard.component';
 import { StatPanelComponent } from './components/layout/main-leaderboard/stat-panel/stat-panel.component';
 import { TableComponent } from './components/ui/table/table.component';
+import { MatchmakingLoadingPageComponent } from './components/layout/multiplayer/matchmaking-loading-page/matchmaking-loading-page.component';
+import { LoadingScreenComponent } from './components/layout/multiplayer/loading-screen/loading-screen.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -214,6 +216,8 @@ const customNotifierOptions: NotifierOptions = {
     RankedLeaderboardComponent,
     StatPanelComponent,
     TableComponent,
+    MatchmakingLoadingPageComponent,
+    LoadingScreenComponent,
   ],
   imports: [
     BrowserModule,

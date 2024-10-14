@@ -21,6 +21,7 @@ import { ControlPanelPageComponent } from './components/layout/control-panel/con
 import { SettingsPageComponent } from './components/layout/settings/settings-page/settings-page.component';
 import { PuzzleLeaderboardComponent } from './components/layout/main-leaderboard/puzzle-leaderboard/puzzle-leaderboard.component';
 import { RankedLeaderboardComponent } from './components/layout/main-leaderboard/ranked-leaderboard/ranked-leaderboard.component';
+import { MatchmakingLoadingPageComponent } from './components/layout/multiplayer/matchmaking-loading-page/matchmaking-loading-page.component';
 
 const routes: Routes = [
 
@@ -33,6 +34,7 @@ const routes: Routes = [
     children: [
       { path: "room", component: RoomPageComponent, },
       { path: "puzzle", component: PlayPuzzlePageComponent, },
+      { path: "ranked", component: MatchmakingLoadingPageComponent },
       { path: "", redirectTo: "home", pathMatch: "full", },
       { path: "**", redirectTo: "home", pathMatch: "full", }
     ],
