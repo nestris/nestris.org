@@ -14,6 +14,20 @@ interface Line {
   opacity: number;
 }
 
+interface TetrisBlock {
+  shape: number[][];
+  color: string;
+  x: number;
+  y: number;
+  angle: number;
+  rotationSpeed: number;
+  speed: number;
+  direction: number;
+  size: number;
+  enteredScreen: boolean;
+  markForDelete: boolean;
+}
+
 @Component({
   selector: 'app-loading-screen',
   templateUrl: './loading-screen.component.html',
@@ -23,19 +37,37 @@ export class LoadingScreenComponent {
   @ViewChild('canvasElement') canvasElement!: ElementRef<HTMLCanvasElement>;
 
   readonly CIRCLE_PERSISTENCE = 200;
-  readonly NUM_CIRCLES = 20;
+  readonly NUM_CIRCLES = 30;
+  readonly CIRCLE_SPEED = 0.7;
   readonly MOUSE_POSITIONS_TO_TRACK = 5;
-  readonly LINE_PERSISTENCE = 30;
+  readonly LINE_PERSISTENCE = 40;
+  readonly MAX_TETRIS_BLOCKS = 50;
+  readonly TETRIS_BLOCK_SPAWN_INTERVAL = 300; // ms
+  readonly BLOCK_SIZE = 25;
 
   private canvas!: HTMLCanvasElement;
   private c!: CanvasRenderingContext2D;
   private circleArray: Circle[] = [];
   private lineArray: Line[] = [];
+  private tetrisBlocks: TetrisBlock[] = [];
   private frame = 0;
   private mousePositions: MousePosition[] = [];
 
+  private readonly tetrisShapes = [
+    [[1, 1, 1, 1]],  // I
+    [[1, 1], [1, 1]],  // O
+    [[1, 1, 1], [0, 1, 0]],  // T
+    [[1, 1, 1], [1, 0, 0]],  // L
+    [[1, 1, 1], [0, 0, 1]],  // J
+    [[1, 1, 0], [0, 1, 1]],  // S
+    [[0, 1, 1], [1, 1, 0]]   // Z
+  ];
+
+  private readonly tetrisColors = ['88, 215, 116', '197, 88, 215', '215, 141, 88', '215, 88, 90', '88, 215, 210', '166, 215, 88', '119, 88, 215'];
+
   ngOnInit() {
     this.initCanvas();
+    setInterval(() => this.spawnTetrisBlock(), this.TETRIS_BLOCK_SPAWN_INTERVAL);
   }
 
   ngAfterViewInit() {
@@ -55,8 +87,9 @@ export class LoadingScreenComponent {
     this.updateMousePosition(event.clientX, event.clientY);
     this.drawCircles();
     this.drawLine();
-  }
 
+    this.checkTetrisBlockMouseover(event.clientX, event.clientY);
+  }
 
   private updateMousePosition(x: number, y: number) {
     this.mousePositions.push({ x, y, timestamp: Date.now() });
@@ -96,18 +129,17 @@ export class LoadingScreenComponent {
   }
 
   private drawCircles() {
-    const { vx, vy, speed } = this.calculateMouseVelocity();
+    const { vx, vy } = this.calculateMouseVelocity();
     const direction = Math.atan2(vy, vx);
 
     for (let i = 0; i < this.NUM_CIRCLES; i++) {
       const radius = Math.random() * 0.5 + 0.5;
       
       // Add some randomness to the direction and speed
-      const randomAngle = direction + Math.pow(Math.random()*2 - 1, 4) * 2 * Math.PI + Math.PI;
-      const speed = 1;
+      const randomAngle = direction + Math.pow(Math.random()*2 - 1, 7) * Math.PI + Math.PI;
 
-      const circleVx = Math.cos(randomAngle) * speed; // Scale down the speed
-      const circleVy = Math.sin(randomAngle) * speed; // Scale down the speed
+      const circleVx = Math.cos(randomAngle) * this.CIRCLE_SPEED; // Scale down the speed
+      const circleVy = Math.sin(randomAngle) * this.CIRCLE_SPEED; // Scale down the speed
 
       const spawnFrame = this.frame;
       const rgb = '255, 255, 255';
@@ -134,6 +166,179 @@ export class LoadingScreenComponent {
     });
   }
 
+  private spawnTetrisBlock() {
+    if (this.tetrisBlocks.length < this.MAX_TETRIS_BLOCKS) {
+      const index = Math.floor(Math.random() * this.tetrisShapes.length);
+      const shape = this.tetrisShapes[index];
+      const color = this.tetrisColors[index];
+      
+      // Pick a random start side (0 = top, 1 = right, 2 = bottom, 3 = left)
+      const startSide = Math.floor(Math.random() * 4);
+      
+      // Coordinates for block spawn location
+      let x = 0, y = 0;
+  
+      // Set start position just outside the canvas based on the side
+      switch (startSide) {
+        case 0: // top
+          x = Math.random() * this.canvas.width;
+          y = -20; // above the canvas
+          break;
+        case 1: // right
+          x = this.canvas.width + 20; // right side outside
+          y = Math.random() * this.canvas.height;
+          break;
+        case 2: // bottom
+          x = Math.random() * this.canvas.width;
+          y = this.canvas.height + 20; // below the canvas
+          break;
+        case 3: // left
+          x = -20; // left side outside
+          y = Math.random() * this.canvas.height;
+          break;
+      }
+  
+      // Pick an opposite side for the target direction (ensures it's crossing the screen)
+      const endSide = (startSide + 2) % 4;
+      let targetX = 0, targetY = 0;
+  
+      // Set a random point on the opposite side for direction
+      switch (endSide) {
+        case 0: // top
+          targetX = Math.random() * this.canvas.width;
+          targetY = -20;
+          break;
+        case 1: // right
+          targetX = this.canvas.width + 20;
+          targetY = Math.random() * this.canvas.height;
+          break;
+        case 2: // bottom
+          targetX = Math.random() * this.canvas.width;
+          targetY = this.canvas.height + 20;
+          break;
+        case 3: // left
+          targetX = -20;
+          targetY = Math.random() * this.canvas.height;
+          break;
+      }
+  
+      // Calculate direction in radians from start to target
+      const direction = Math.atan2(targetY - y, targetX - x);
+  
+      const block: TetrisBlock = {
+        shape,
+        color,
+        x,  // Starting position outside canvas
+        y,
+        angle: 0,
+        rotationSpeed: (Math.random() - 0.5) * 0.1,
+        speed: Math.random() * 2 + 0.5,
+        direction,  // Calculated direction towards the target
+        size: this.BLOCK_SIZE,
+        enteredScreen: false,
+        markForDelete: false
+      };
+      
+      this.tetrisBlocks.push(block);
+    }
+  }
+
+  private updateTetrisBlocks() {
+    this.tetrisBlocks.forEach(block => {
+      block.x += Math.cos(block.direction) * block.speed;
+      block.y += Math.sin(block.direction) * block.speed;
+      block.angle += block.rotationSpeed;
+
+      const outOfBounds = block.x < 0 || block.x > this.canvas.width || block.y < 0 || block.y > this.canvas.height;
+
+      // block has entered the screen
+      if (!block.enteredScreen && !outOfBounds) {
+        block.enteredScreen = true;
+      }
+
+      // Mark for deletion if went out of bounds
+      if (outOfBounds && block.enteredScreen) {
+        block.markForDelete = true;
+      }
+    });
+
+    // Remove blocks that are out of bounds
+    this.tetrisBlocks = this.tetrisBlocks.filter(block => !block.markForDelete);
+  }
+
+  private drawTetrisBlocks() {
+    this.tetrisBlocks.forEach(block => {
+      this.c.save();
+      this.c.translate(block.x, block.y);
+      this.c.rotate(block.angle);
+
+      this.c.fillStyle = `rgba(${block.color}, 0.3)`;
+
+      this.c.strokeStyle = 'rgba(0, 0, 0, 0)';
+
+      for (let row = 0; row < block.shape.length; row++) {
+        for (let col = 0; col < block.shape[row].length; col++) {
+          if (block.shape[row][col]) {
+            this.c.fillRect(
+              (col - block.shape[row].length / 2) * block.size,
+              (row - block.shape.length / 2) * block.size,
+              block.size - 1,
+              block.size - 1
+            );
+          }
+        }
+      }
+      this.c.restore();
+    });
+  }
+
+  private checkTetrisBlockMouseover(x: number, y: number) {
+    this.tetrisBlocks = this.tetrisBlocks.filter(block => {
+      const dx = x - block.x;
+      const dy = y - block.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      if (distance < block.size * 2) {
+        this.explodeTetrisBlock(block);
+        return false;
+      }
+      return true;
+    });
+  }
+
+  private explodeTetrisBlock(block: TetrisBlock) {
+    const blockCenterX = block.x;
+    const blockCenterY = block.y;
+
+    for (let row = 0; row < block.shape.length; row++) {
+      for (let col = 0; col < block.shape[row].length; col++) {
+        if (block.shape[row][col]) {
+          const xOffset = (col - block.shape[row].length / 2) * block.size;
+          const yOffset = (row - block.shape.length / 2) * block.size;
+          
+          const individualBlockX = blockCenterX + xOffset;
+          const individualBlockY = blockCenterY + yOffset;
+
+          // Create particles for each individual block
+          for (let i = 0; i < 50; i++) { // Reduced number of particles per block
+            this.circleArray.push(
+              new Circle(
+                individualBlockX + (Math.random() - 0.5) * block.size,
+                individualBlockY + (Math.random() - 0.5) * block.size,
+                Math.random() + 0.5,
+                (Math.random() - 0.5) * 1.5,
+                (Math.random() - 0.5) * 1.5,
+                block.color,
+                0.3,
+                this.frame,
+                100
+              )
+            );
+          }
+        }
+      }
+    }
+  }
+
   private animate() {
     requestAnimationFrame(() => this.animate());
     this.frame += 1;
@@ -155,6 +360,10 @@ export class LoadingScreenComponent {
       line.opacity -= 1 / this.LINE_PERSISTENCE;
     }
     this.lineArray = this.lineArray.filter(line => line.opacity > 0);
+
+    // Update and draw Tetris blocks
+    this.updateTetrisBlocks();
+    this.drawTetrisBlocks();
   }
 }
 
