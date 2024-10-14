@@ -23,7 +23,7 @@ Also handles sign in, as the websocket connection is established when the user s
 closed when the user signs out.
 */
 
-const NON_AUTH_WEBPAGES = ['/login', '/not-on-whitelist'];
+const NON_AUTH_WEBPAGES = ['/login'];
 
 @Injectable({
   providedIn: 'root'

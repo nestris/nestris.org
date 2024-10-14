@@ -129,10 +129,6 @@ async function main() {
           // If user does not exist, create a new user with username from Discord global name
           username = userResponse.data.global_name ?? userResponse.data.username ?? "Unknown User";
           permission = await createUser(userID, username);
-          if (!permission) {
-            res.redirect('/not-on-whitelist');
-            return
-          }
         }
 
         // Store the user's session

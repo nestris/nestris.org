@@ -6,4 +6,9 @@
 
     <div class="score"><p *ngIf="scoreVisible">Score: {{score}}</p></div>
 
+    <div class="center-container">
+        <h1>{{getMessage((numPeriods$ | async) ?? 0)}}</h1>
+        <p>0 players in a match</p>
+    </div>
+
 </div>

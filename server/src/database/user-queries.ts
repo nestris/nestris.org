@@ -113,7 +113,7 @@ export async function queryAllUsersMatchingUsernamePattern(pattern: string = "%"
 
 // Creates a user with assigned permission if on the whitelist
 // return permission if user is created, else return null
-export async function createUser(userid: string, username: string): Promise<PermissionLevel | null> {
+export async function createUser(userid: string, username: string): Promise<PermissionLevel> {
 
   // // Get the permission level of the user
   // const query = `SELECT permission FROM whitelist WHERE discord_tag = $1`;
