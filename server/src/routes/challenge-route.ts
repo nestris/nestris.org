@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { Challenge } from '../../shared/models/challenge';
-import { ServerState } from '../server-state/server-state';
+import { ServerState } from '../old/server-state';
 
 // POST request with challenge parameter of type Challenge
 export async function sendChallengeRoute(req: Request, res: Response, state: ServerState) {

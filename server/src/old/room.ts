@@ -21,7 +21,7 @@ import { JsonMessage, MultiplayerRoomUpdateMessage, SoloGameEndMessage } from ".
 import { PacketContent, PacketOpcode, GamePlacementSchema, GameStartSchema, GameRecoveryPacket } from "../../shared/network/stream-packets/packet";
 import { PacketAssembler, MAX_PLAYERS_IN_ROOM, MAX_PLAYER_BITCOUNT } from "../../shared/network/stream-packets/packet-assembler";
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
-import { UserSession } from "./online-user";
+import { OnlineUserSession } from "../server-state/online-user";
 import { MultiplayerManager } from "./room-multiplayer-manager";
 import { MatchInfo, MultiplayerData, MultiplayerRoomState, PlayerRole } from "../../shared/models/multiplayer";
 import { GameState } from "../../shared/game-state-from-packets/game-state";
@@ -40,7 +40,7 @@ export class RoomUser {
 
   constructor(
     public readonly room: Room,
-    public readonly session: UserSession,
+    public readonly session: OnlineUserSession,
     public readonly role: Role,
   ) {
     
@@ -130,7 +130,7 @@ export class Room {
 
   public multiplayer?: MultiplayerManager;
 
-  constructor(playerSessions: UserSession[], private readonly challenge?: Challenge) {
+  constructor(playerSessions: OnlineUserSession[], private readonly challenge?: Challenge) {
     if (playerSessions.length < 1 || playerSessions.length > 2) {
       throw new Error("Room must have 1 or 2 players");
     }
@@ -167,7 +167,7 @@ export class Room {
 
   }
 
-  addSpectator(session: UserSession): RoomUser {
+  addSpectator(session: OnlineUserSession): RoomUser {
 
     if (this.spectators.find(player => player.session.user.username === session.user.username)) {
       throw new Error(`User ${session.user.username} is already in this room`);

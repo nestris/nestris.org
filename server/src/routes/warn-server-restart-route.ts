@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ServerState } from '../server-state/server-state';
+import { ServerState } from '../old/server-state';
 import { ServerRestartWarningMessage } from '../../shared/network/json-message';
 
 export async function warnServerRestartRoute(req: Request, res: Response, state: ServerState) {

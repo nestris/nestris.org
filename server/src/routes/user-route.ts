@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { queryAllUsersMatchingUsernamePattern, queryFriendsAndFriendRequestsForUser, queryUserByUserID } from '../database/user-queries';
 import { endFriendship, sendFriendRequest } from '../database/friendship-updates';
-import { ServerState } from '../server-state/server-state';
+import { ServerState } from '../old/server-state';
 import { FriendInfo, FriendStatusResult } from '../../shared/models/friends';
 
 export async function getAllUsersMatchingUsernamePatternRoute(req: Request, res: Response) {

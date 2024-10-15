@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs";
 import { parseMarkdown } from "../shared/models/lesson";
-import { LessonState } from "../src/server-state/lesson-state";
+import { LessonState } from "../src/old/lesson-state";
 
 
 // Test that all lessons follow markdown rules

@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { SerializedPuzzleSubmission, PuzzleResult, evaluatePuzzleSubmission } from "../../shared/puzzles/serialized-puzzle-submission";
 import { PuzzleRating } from "../../shared/puzzles/puzzle-rating";
 import { logDatabase } from "../database/log";
-import { ServerState } from "../server-state/server-state";
+import { ServerState } from "../old/server-state";
 import { PuzzleState } from "../../shared/puzzles/rated-puzzle";
 import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
 

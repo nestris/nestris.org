@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ServerState } from '../server-state/server-state';
+import { ServerState } from '../old/server-state';
 import { getUserID } from '../util/auth-util';
 import { MultiplayerPlayerMode, MultiplayerRoomMode, PlayerRole } from '../../shared/models/multiplayer';
 import { MultiplayerManager } from '../server-state/room-multiplayer-manager';

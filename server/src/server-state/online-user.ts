@@ -1,156 +1,89 @@
-import { OnlineUserStatus } from "../../shared/models/friends";
-import { OnlineUserInfo } from "../../shared/models/online-user-info";
 import { JsonMessage } from "../../shared/network/json-message";
-import { ServerState } from "./server-state";
 
+export class OnlineUserSession {
 
-// the reason for closing the socket connection for one specific user. will be sent as an error code in close frame
-export enum SocketCloseCode {
-    NORMAL = 1000,
-    ALREADY_LOGGED_IN = 4000,
-    NEW_USER_DUPLICATE_INFO = 4001,
-    EMAIL_MISMATCH = 4002,
-}
-
-// a mapping to text explanation for the SocketCloseCode
-const SocketCloseExplanation: Map<SocketCloseCode, string> = new Map<SocketCloseCode, string>([
-    [SocketCloseCode.NORMAL, "User closed window or logged out normally."],
-    [SocketCloseCode.ALREADY_LOGGED_IN, "User is already logged in; only one session can be active at a time."],
-    [SocketCloseCode.NEW_USER_DUPLICATE_INFO, "User tried to create a new account with an existing username or email."],
-    [SocketCloseCode.EMAIL_MISMATCH, "User tried to login with an incorrect email address."],
-]);
-
-// events that OnlineUsers emit to subscribers
-export enum UserEvent {
-    ON_SOCKET_CONNECT = "SOCKET_CONNECT", // when a new socket connects
-    ON_SOCKET_CLOSE = "SOCKET_CLOSE", // when a socket closes.
-    ON_ENTER_ROOM = "ENTER_ROOM", // when a user enters a room
-    ON_LEAVE_ROOM = "LEAVE_ROOM", // when a user leaves a room
-    ON_USER_OFFLINE = "USER_OFFLINE", // when a user goes offline. OnlineUser is deleted after this event.
-}
-
-export class UserSession {
     constructor(
         public readonly user: OnlineUser,
         public readonly sessionID: string,
         public readonly socket: WebSocket,
     ) { }
 
+    // Sends a JsonMessage to the connected client for this session
+    sendJsonMessage(message: JsonMessage) {
+        this.socket.send(JSON.stringify(message));
+    }
+
+    closeSocket(code?: number, reason?: string) {
+        this.socket.close(code, reason);
+    }
 }
 
 /*
-Represents a singular online user connected through socket. Track user status and socket connection.
+Represents a singular online user connected through socket. Manages all sessions for a user.
 */
 export class OnlineUser {
 
-    public connectTime: number = Date.now();
-    public status: OnlineUserStatus = OnlineUserStatus.IDLE; // status should not be offline as long as object exists
-
-    private sessions: UserSession[] = [];
-
-    private eventSubscribers: Map<UserEvent, Set<Function>> = new Map();
+    // maps sessionID to UserSession
+    private sessions: Map<string, OnlineUserSession> = new Map();
 
     constructor(
-        public readonly state: ServerState,
         public readonly userid: string, // unique identifier for the user
-        public readonly username: string,
-        socket: WebSocket, // live websocket connection
-        public readonly sessionID: string, // unique identifier for the session
-        //public readonly friends: string[], // set of usernames of friends
+        public readonly username: string, // username of the user
+        sessionID: string, // unique identifier for the first session created for the user
+        socket: WebSocket, // websocket connection
     ) {
-        this.sessions.push(new UserSession(this, sessionID, socket));
-
-        // subscribe to each event and log it
-        for (const event of Object.values(UserEvent)) {
-            this.subscribe(event, () => console.log(`User ${this.username} emitted event ${event}`));
-        }
+        this.sessions.set(sessionID, new OnlineUserSession(this, sessionID, socket));
     }
 
     // add a new session to the user
-    addSession(socket: WebSocket, sessionID: string) {
-        this.sessions.push(new UserSession(this, sessionID, socket));
-    }
-
-    // check if the user has an ongoing session with the specified sessionID
-    containsSessionID(sessionID: string): boolean {
-        return this.sessions.some(session => session.sessionID === sessionID);
-    }
-
-    getSessionBySocket(socket: WebSocket): UserSession | undefined {
-        return this.sessions.find(session => session.socket === socket);
-    }
-
-    getSessionByID(sessionID: string): UserSession | undefined {
-        return this.sessions.find(session => session.sessionID === sessionID);
+    addSession(sessionID: string, socket: WebSocket) {
+        this.sessions.set(sessionID, new OnlineUserSession(this, sessionID, socket));
     }
 
     // using the live websocket connection, send a JsonMessage to all the sessions of the client
-    sendJsonMessage(message: JsonMessage) {
-        this.sessions.forEach(session => {
-            console.log(`Sending message to ${this.username}: ${JSON.stringify(message)}`);
-            session.socket.send(JSON.stringify(message));
-        });
+    sendJsonMessageToAllSessions(message: JsonMessage) {
+        console.log(`Sending message to ${this.username}: ${JSON.stringify(message)}`);
+        this.sessions.forEach(session => session.sendJsonMessage(message));
     }
 
-    sendJsonMessageToSocket(message: JsonMessage, socket: WebSocket) {
-        console.log(`Sending message to ${this.username} @socket: ${JSON.stringify(message)}`);
-        socket.send(JSON.stringify(message));
+    // using the live websocket connection, send a JsonMessage to the specified session
+    sendJsonMessageToSession(message: JsonMessage, sessionID: string) {
+        const session = this.getSessionByID(sessionID);
+        if (!session) throw new Error(`Session ${sessionID} not found for user ${this.username}`);
+
+        console.log(`Sending message to ${this.username} on session ${sessionID}: ${JSON.stringify(message)}`);
+        session.sendJsonMessage(message);
     }
 
     // close the websocket connection with the specified close code.
-    // returns true if there are no more open sockets
-    closeSocket(socket: WebSocket, closeCode: SocketCloseCode): boolean {
-        socket.close(closeCode, SocketCloseExplanation.get(closeCode));
-        this.sessions = this.sessions.filter(session => session.socket !== socket);
-        return this.sessions.length === 0;
+    // returns true if there are no more sessions for the user
+    removeSession(sessionID: string, code?: number, reason?: string) {
+        const session = this.getSessionByID(sessionID);
+        if (!session) throw new Error(`Session ${sessionID} not found for user ${this.username}`);
+
+        session.closeSocket(code, reason);
+        
+        // remove the session from the map
+        this.sessions.delete(sessionID);
     }
 
-    // when user starts playing game, update status, and friends should be notified about status change
-    onEnterRoom() {
-        this.status = OnlineUserStatus.PLAYING;
-        this.notify(UserEvent.ON_ENTER_ROOM);
-        this.state.onlineUserManager.updateFriendsOnUserStatusChange(this.userid);
+    // Gets list of all session IDs for this user
+    getAllSessions(): OnlineUserSession[] {
+        return Array.from(this.sessions.values());
     }
 
-    // when user stops playing game, update status, and friends should be notified about status change
-    onLeaveRoom() {
-        this.status = OnlineUserStatus.IDLE;
-        this.notify(UserEvent.ON_LEAVE_ROOM);
-        this.state.onlineUserManager.updateFriendsOnUserStatusChange(this.userid);
+    getSessionByID(sessionID: string): OnlineUserSession | undefined {
+        return this.sessions.get(sessionID);
     }
 
-    getStatus(): OnlineUserStatus {
-        return this.status;
-    }
-
-    hasSocket(socket: WebSocket): boolean {
-        return this.sessions.some(session => session.socket === socket);
-    }
-
-
-    // subscribe to an event
-    subscribe(event: UserEvent, callback: Function) {
-        if (!this.eventSubscribers.has(event)) {
-            this.eventSubscribers.set(event, new Set());
+    // Finds the session ID for the given socket, or undefined if not found
+    getSessionBySocket(socket: WebSocket): OnlineUserSession | undefined {
+        for (const session of this.sessions.values()) {
+            if (session.socket === socket) {
+                return session;
+            }
         }
-        this.eventSubscribers.get(event)?.add(callback);
+        return undefined;
     }
-
-    // notify all subscribers of an event
-    notify(event: UserEvent) {
-        this.eventSubscribers.get(event)?.forEach(callback => callback());
-    }
-
-    getOnlineUserInfo(state: ServerState): OnlineUserInfo {
-        return {
-            userid: this.userid,
-            username: this.username,
-            status: this.status,
-            connectTime: this.connectTime,
-            sessions: this.sessions.map(session => session.sessionID),
-            roomID: state.roomManager.getUserByUserID(this.userid)?.room.roomID
-        }
-    }
-
 
 }

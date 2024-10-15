@@ -5,7 +5,7 @@ import { queryDB } from '../database';
 import { logDatabase } from '../database/log';
 import { queryUserByUserID } from '../database/user-queries';
 import { decodeRatedPuzzleFromDB } from './decode-rated-puzzle';
-import { ServerState } from '../server-state/server-state';
+import { ServerState } from '../old/server-state';
 import { getUserID } from '../util/auth-util';
 
 export function calculateProbabilities(elo: number): number[] {

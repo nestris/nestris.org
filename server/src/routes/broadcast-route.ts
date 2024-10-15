@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ServerState } from '../server-state/server-state';
+import { ServerState } from '../old/server-state';
 import { SendPushNotificationMessage } from '../../shared/network/json-message';
 import { NotificationType } from '../../shared/models/notifications';
 

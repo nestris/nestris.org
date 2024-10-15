@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ServerState } from '../server-state/server-state';
+import { ServerState } from '../old/server-state';
 import { getUserID } from '../util/auth-util';
 
 export async function leaveRoomRoute(req: Request, res: Response, state: ServerState) {

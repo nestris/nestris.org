@@ -2,7 +2,7 @@ import { queryDB } from ".";
 import { FriendStatus } from "../../shared/models/friends";
 import { NotificationType } from "../../shared/models/notifications";
 import { SendPushNotificationMessage, UpdateFriendsBadgeMessage, UpdateOnlineFriendsMessage } from "../../shared/network/json-message";
-import { ServerState } from "../server-state/server-state";
+import { ServerState } from "../old/server-state";
 
 
 // Used to send a friend request from one user to another
