@@ -5,7 +5,6 @@ import { createServer } from 'http';
 import { Server as WebSocketServer } from 'ws';
 import morgan from 'morgan';
 import { ServerState } from './src/server-state/server-state';
-import { getOCRDigits, initOCRDigits } from './src/ocr/digit-reader';
 import { endFriendshipRoute, getAllUsersMatchingUsernamePatternRoute, getFriendsInfoRoute, getUserByUserIDRoute, setFriendRequestRoute } from './src/routes/user-route';
 import { broadcastAnnouncementRoute } from './src/routes/broadcast-route';
 import { getDailyStreakRoute } from './src/puzzle-dashboard/puzzle-streak';
@@ -55,9 +54,6 @@ async function main() {
   // all global state is stored in ServerState
   const state = new ServerState();
 
-  // initialize OCR digits
-  await initOCRDigits();
-
   const NODE_ENV = process.env.NODE_ENV!;
   const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID!;
   const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET!;
@@ -69,7 +65,10 @@ async function main() {
     secret: DISCORD_CLIENT_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false } // Set to true if using HTTPS
+    cookie: {
+      secure: NODE_ENV === DeploymentEnvironment.PRODUCTION,
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    } // Set to true if using HTTPS
   }));
 
 
@@ -176,7 +175,13 @@ async function main() {
 
   app.get('/api/v2/me', requireAuth, async (req, res) => {
     // send the logged in user's username, or null if not logged in
-    const me: DBUser | undefined = await queryUserByUserID(getUserID(req));
+    const userid = getUserID(req);
+    if (!userid) {
+      res.status(401).send({error: "You are not logged in"});
+      return;
+    }
+
+    const me: DBUser | undefined = await queryUserByUserID(userid);
     if (!me) {
       res.status(404).send({error: "User not found"});
       return;
@@ -240,7 +245,7 @@ async function main() {
 
   app.get('/api/v2/puzzle/:id', getPuzzleRoute);
 
-  app.post('/api/v2/random-rated-puzzle/:userid', requireAuth, async (req: Request, res: Response) => selectRandomPuzzleForUserRoute(req, res, state));
+  app.post('/api/v2/random-rated-puzzle', requireAuth, async (req: Request, res: Response) => selectRandomPuzzleForUserRoute(req, res, state));
   
   app.post('/api/v2/submit-puzzle-attempt', requireAuth, async (req: Request, res: Response) => submitPuzzleAttemptRoute(req, res, state));
 
@@ -252,10 +257,6 @@ async function main() {
   app.post('/api/v2/set-feedback', requireAuth, requireAuth, setFeedbackRoute);
 
   app.get('/api/v2/puzzle-attempt-stats/:userid', getAttemptStatsRoute);
-
-  app.get('/api/v2/ocr-digits', (req: Request, res: Response) => {
-      res.status(200).send(getOCRDigits());
-  });
 
   app.get('/api/v2/lesson', (req: Request, res: Response) => {
     res.status(200).send(state.lessonState.getAllLessonHeaders());
