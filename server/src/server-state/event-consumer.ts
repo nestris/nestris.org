@@ -84,13 +84,21 @@ export class EventConsumerManager {
     // Map of consumer class names to consumer instances
     private consumerInstances = new Map<string, EventConsumer>();
 
+    // Must be called before using singleton
+    public static bootstrap(users: OnlineUserManager) {
+        this.instance = new EventConsumerManager(users);
+    }
 
-    // Encapsulates OnlineUserManager. All singletons that want to use OnlineUserManager or
-    // listen to OnlineUserEvents should register as EventConsumers here
-    constructor(
-        private readonly users: OnlineUserManager
-    ) {}
-
+    // Setup singleton instance
+    private static instance: EventConsumerManager;
+    private constructor(private readonly users: OnlineUserManager) {}
+    public static getInstance(): EventConsumerManager {
+        if (!this.instance) {
+            throw new Error("EventConsumerManager has not been bootstrapped");
+        }
+        return this.instance;
+    }
+    
 
     // Register a new online user event consumer
     // Takes in a class that extends EventConsumer, and creates a new instance of it

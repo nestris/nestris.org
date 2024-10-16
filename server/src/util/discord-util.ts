@@ -1,8 +1,8 @@
 import express from 'express';
 import axios from 'axios';
-import { UserSession } from './auth-util';
+import session from 'express-session';
 import { createUser, queryUserByUserID } from '../database/user-queries';
-import { PermissionLevel } from '../../shared/models/db-user';
+import { Authentication } from '../../shared/models/db-user';
 
 require('dotenv').config();
 
@@ -11,6 +11,14 @@ const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID!;
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET!;
 
 let redirectUri: string;
+
+export interface UserSession extends session.Session {
+    userid: string;
+    username: string;
+    permission: Authentication;
+    accessToken: string;
+    refreshToken: string;
+}
 
 export const redirectToDiscord = (req: express.Request, res: express.Response) => {
     redirectUri = req.query.redirectUri as string;
@@ -57,12 +65,12 @@ export const handleDiscordCallback = async (req: express.Request, res: express.R
 
         // Check if the user is already in the database. If not, create a new user.
         let username: string;
-        let permission: PermissionLevel | null;
+        let permission: Authentication;
         const user = await queryUserByUserID(userID);
         if (user) {
             // If user already exists, fetch username from database
             username = user.username;
-            permission = user.permission;
+            permission = user.authentication;
         } else {
             // If user does not exist, create a new user with username from Discord global name
             username = userResponse.data.global_name ?? userResponse.data.username ?? "Unknown User";
@@ -91,4 +99,19 @@ export const handleDiscordCallback = async (req: express.Request, res: express.R
         console.error('Error during Discord OAuth:', error);
         res.status(500).send(`An error occurred during authentication: ${error}`);
     }
+};
+
+export function handleLogout(req: express.Request, res: express.Response) {
+
+    if (!req.session) {
+      return res.status(200).send({msg: 'Logged out'});
+    }
+  
+    console.log("logging out");
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).send({msg: 'Failed to logout'});
+        }
+        res.status(200).send({msg: 'Logged out'});
+    });
 };

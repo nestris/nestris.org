@@ -1,12 +1,12 @@
 import { queryDB } from ".";
-import { DBUser, PermissionLevel } from "../../shared/models/db-user";
+import { Authentication, DBUser } from "../../shared/models/db-user";
 import { FriendStatus } from "../../shared/models/friends";
 
 function rowToUser(row: any): DBUser {
   return {
     userid: row.userid,
     username: row.username,
-    permission: row.permission,
+    authentication: row.permission,
     lastOnline: row.last_online,
     trophies: row.trophies,
     xp: row.xp,
@@ -113,7 +113,7 @@ export async function queryAllUsersMatchingUsernamePattern(pattern: string = "%"
 
 // Creates a user with assigned permission if on the whitelist
 // return permission if user is created, else return null
-export async function createUser(userid: string, username: string): Promise<PermissionLevel> {
+export async function createUser(userid: string, username: string): Promise<Authentication> {
 
   // // Get the permission level of the user
   // const query = `SELECT permission FROM whitelist WHERE discord_tag = $1`;
@@ -142,7 +142,7 @@ export async function createUser(userid: string, username: string): Promise<Perm
     username = `${username}_${i}`;
   }
 
-  const permission: PermissionLevel = PermissionLevel.DEFAULT;
+  const permission: Authentication = Authentication.USER;
   const query2 = `INSERT INTO users (userid, username, permission) VALUES ($1, $2, $3)`;
   await queryDB(query2, [userid, username, permission]);
 

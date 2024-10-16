@@ -15,8 +15,7 @@ import morgan from 'morgan';
 // import { sendChallengeRoute, rejectChallengeRoute, acceptChallengeRoute } from './src/routes/challenge-route';
 // import { getTopMovesHybridRoute } from './src/stackrabbit/stackrabbit';
 import { queryUserByUserID } from './src/database/user-queries';
-import { getUserID, getUsername, handleLogout, requireAdmin, requireAuth, requireTrusted, UserSession } from './src/util/auth-util';
-import { DBUser, PermissionLevel } from './shared/models/db-user';
+import { DBUser } from './shared/models/db-user';
 // import { getPuzzleAggregate } from './src/puzzle-generation/manage-puzzles';
 import { DeploymentEnvironment, ServerStats } from './shared/models/server-stats';
 // import { getMultiplayerStateRoute, selectLevelForPlayer, setMultiplayerReadiness, transitionDeadToWaiting } from './src/routes/multiplayer-routes';
@@ -27,9 +26,12 @@ import { DeploymentEnvironment, ServerStats } from './shared/models/server-stats
 // import { getPuzzlesSolvedRoute, getTotalPuzzleDuration, getUserCountRoute } from './src/routes/db-route';
 // import { getPuzzleLeaderboard } from './src/database/leaderboard-queries';
 // import { getPuzzleGuessesRoute } from './src/routes/puzzle-guesses-route';
-import { handleDiscordCallback, redirectToDiscord } from './src/util/discord-util';
+import { handleDiscordCallback, handleLogout, redirectToDiscord } from './src/util/discord-util';
 import { OnlineUserManager } from './src/server-state/online-user-manager';
 import { EventConsumerManager, TestEventConsumer } from './src/server-state/event-consumer';
+import { Query } from 'pg';
+import { RouteManager } from './src/routes/route';
+import { MeRoute } from './src/routes/me-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -66,35 +68,42 @@ async function main() {
     } // Set to true if using HTTPS
   }));
 
-
+  // Initialize singletons
   const users = new OnlineUserManager(wss);
+  EventConsumerManager.bootstrap(users);
 
-
-  const consumers = new EventConsumerManager(users);
+  const consumers = EventConsumerManager.getInstance();
   consumers.registerConsumer(TestEventConsumer);
 
   consumers.getConsumer(TestEventConsumer).test();
+
+  // initialize routes
+  const routes = new RouteManager(app);
+  routes.registerRoute(MeRoute);
 
 
   app.get('/api/v2/login', redirectToDiscord);
   app.get('/api/v2/callback', handleDiscordCallback);
   app.post('/api/v2/logout', handleLogout);
 
-  app.get('/api/v2/me', requireAuth, async (req, res) => {
-    // send the logged in user's username, or null if not logged in
-    const userid = getUserID(req);
-    if (!userid) {
-      res.status(401).send({error: "You are not logged in"});
-      return;
-    }
+  // app.get('/api/v2/me', requireAuth, async (req, res) => {
+  //   // send the logged in user's username, or null if not logged in
+  //   const userid = getUserID(req);
+  //   if (!userid) {
+  //     res.status(401).send({error: "You are not logged in"});
+  //     return;
+  //   }
 
-    const me: DBUser | undefined = await queryUserByUserID(userid);
-    if (!me) {
-      res.status(404).send({error: "User not found"});
-      return;
-    }
-    res.send(me);
-  });
+  //   const me: DBUser | undefined = await queryUserByUserID(userid);
+  //   if (!me) {
+  //     res.status(404).send({error: "User not found"});
+  //     return;
+  //   }
+  //   res.send(me);
+  // });
+
+  
+
 
 
   // app.get('/api/v2/online-users', (req, res) => {

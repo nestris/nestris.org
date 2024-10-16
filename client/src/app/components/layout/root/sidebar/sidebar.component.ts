@@ -6,7 +6,7 @@ import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
 import { ServerStatsService } from 'src/app/services/server-stats.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
-import { DBUser, PermissionLevel } from 'src/app/shared/models/db-user';
+import { DBUser, Authentication } from 'src/app/shared/models/db-user';
 import { OnlineUserStatus } from 'src/app/shared/models/friends';
 import { DeploymentEnvironment } from 'src/app/shared/models/server-stats';
 import { JsonMessageType } from 'src/app/shared/network/json-message';
@@ -69,7 +69,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   showControlPanel(user: DBUser | undefined | null): boolean {
     if (!user) return false;
-    return (user.permission !== PermissionLevel.DEFAULT);
+    return (user.authentication !== Authentication.USER);
   }
 
   ngOnDestroy() {
