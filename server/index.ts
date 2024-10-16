@@ -28,10 +28,13 @@ import { DeploymentEnvironment, ServerStats } from './shared/models/server-stats
 // import { getPuzzleGuessesRoute } from './src/routes/puzzle-guesses-route';
 import { handleDiscordCallback, handleLogout, redirectToDiscord } from './src/util/discord-util';
 import { OnlineUserManager } from './src/server-state/online-user-manager';
-import { EventConsumerManager, TestEventConsumer } from './src/server-state/event-consumer';
+import { EventConsumerManager } from './src/server-state/event-consumer';
 import { Query } from 'pg';
 import { RouteManager } from './src/routes/route';
-import { MeRoute } from './src/routes/me-route';
+import { GetMeRoute } from './src/routes/online-users/get-me-route';
+import { GetOnlineUsersRoute } from './src/routes/online-users/get-online-users-route';
+import { GetOnlineFriendCountRoute } from './src/routes/friends/get-online-friend-count';
+import { FriendEventConsumer } from './src/server-state/event-consumers/friend-event-consumer';
 
 // Load environment variables
 require('dotenv').config();
@@ -68,40 +71,25 @@ async function main() {
     } // Set to true if using HTTPS
   }));
 
-  // Initialize singletons
-  const users = new OnlineUserManager(wss);
-  EventConsumerManager.bootstrap(users);
-
-  const consumers = EventConsumerManager.getInstance();
-  consumers.registerConsumer(TestEventConsumer);
-
-  consumers.getConsumer(TestEventConsumer).test();
-
-  // initialize routes
-  const routes = new RouteManager(app);
-  routes.registerRoute(MeRoute);
-
-
   // initialize special auth routes
   app.get('/api/v2/login', redirectToDiscord);
   app.get('/api/v2/callback', handleDiscordCallback);
   app.post('/api/v2/logout', handleLogout);
 
 
+  // Initialize singletons
+  const users = new OnlineUserManager(wss);
+  EventConsumerManager.bootstrap(users);
 
-  // app.get('/api/v2/online-users', (req, res) => {
-  //   res.status(200).send(state.onlineUserManager.getOnlineUsersJSON());
-  // });
+  const consumers = EventConsumerManager.getInstance();
+  consumers.registerConsumer(FriendEventConsumer);
 
-  // app.get('/api/v2/online-user/:userid', (req, res) => {
-  //     const userid = req.params['userid'];
-  //     res.status(200).send(state.onlineUserManager.getOnlineUserByUserID(userid)?.getOnlineUserInfo(state) ?? {error : "User not found"});
-  // });
+  // initialize routes
+  const routes = new RouteManager(app);
+  routes.registerRoute(GetMeRoute);
+  routes.registerRoute(GetOnlineUsersRoute);
+  routes.registerRoute(GetOnlineFriendCountRoute);
 
-  // app.get('/api/v2/num-online-friends/:userid', async (req, res) => {
-  //     const numOnlineFriends = await state.onlineUserManager.numOnlineFriends(req.params['userid']);
-  //     res.status(200).send({count: numOnlineFriends});
-  // });
 
   // app.get('/api/v2/users-by-username', getAllUsersMatchingUsernamePatternRoute);
   // app.get('/api/v2/user/:userid', getUserByUserIDRoute);

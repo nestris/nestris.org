@@ -2,6 +2,8 @@ import { JsonMessage } from "../../shared/network/json-message";
 
 export class OnlineUserSession {
 
+    public readonly sessionStart = Date.now();
+
     constructor(
         public readonly user: OnlineUser,
         public readonly sessionID: string,
@@ -18,10 +20,18 @@ export class OnlineUserSession {
     }
 }
 
+export interface OnlineUserInfo {
+    userid: string,
+    username: string,
+    sessions: string[]
+}
+
 /*
 Represents a singular online user connected through socket. Manages all sessions for a user.
 */
 export class OnlineUser {
+
+    private readonly userStart = Date.now();
 
     // maps sessionID to UserSession
     private sessions: Map<string, OnlineUserSession> = new Map();
@@ -33,6 +43,30 @@ export class OnlineUser {
         socket: WebSocket, // websocket connection
     ) {
         this.sessions.set(sessionID, new OnlineUserSession(this, sessionID, socket));
+    }
+
+    // Get debug information about the user
+    getJSON() {
+        return {
+            userid: this.userid,
+            username: this.username,
+            userStart: this.userStart.toString(),
+            sessions: Array.from(this.sessions.keys()).map(sessionID => {
+                const session = this.sessions.get(sessionID)!;
+                return {
+                    sessionID,
+                    sessionStart: session.sessionStart.toString(),
+                };
+            }),
+        };
+    }
+
+    getInfo(): OnlineUserInfo {
+        return {
+            userid: this.userid,
+            username: this.username,
+            sessions: Array.from(this.sessions.keys()),
+        };
     }
 
     // add a new session to the user
@@ -85,5 +119,4 @@ export class OnlineUser {
         }
         return undefined;
     }
-
 }

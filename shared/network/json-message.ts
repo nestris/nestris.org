@@ -15,8 +15,7 @@ export enum JsonMessageType {
     PING = 'ping',
     PONG = 'pong',
     SEND_PUSH_NOTIFICATION = 'send_push_notification',
-    UPDATE_FRIENDS_BADGE = 'update_friends', // adds the red badge to the friends icon
-    UPDATE_ONLINE_FRIENDS = 'update_online_friends', // refreshes friends page
+    FRIEND_ONLINE_STATUS_CHANGE = 'friend_online_status_change',
     START_SOLO_ROOM = 'start_solo_room',
     START_SPECTATE_ROOM = 'start_spectate_room',
     GO_TO_ROOM = 'go_to_room', // sent from server to client to navigate to a room
@@ -91,19 +90,6 @@ export class SendPushNotificationMessage extends JsonMessage {
         public readonly message: string,
     ) {
         super(JsonMessageType.SEND_PUSH_NOTIFICATION)
-    }
-}
-
-// message to client that adds the red badge to the friends icon
-export class UpdateFriendsBadgeMessage extends JsonMessage {
-    constructor() {
-        super(JsonMessageType.UPDATE_FRIENDS_BADGE)
-    }
-}
-
-export class UpdateOnlineFriendsMessage extends JsonMessage {
-    constructor() {
-        super(JsonMessageType.UPDATE_ONLINE_FRIENDS)
     }
 }
 

@@ -1,9 +1,11 @@
-import { Authentication, DBUser } from "../../shared/models/db-user";
-import { queryUserByUserID } from "../database/user-queries";
-import { GetRoute, RouteError, UserInfo } from "./route";
+import { Authentication, DBUser } from "../../../shared/models/db-user";
+import { queryUserByUserID } from "../../database/user-queries";
+import { GetRoute, RouteError, UserInfo } from "../route";
 
-
-export class MeRoute extends GetRoute<DBUser> {
+/**
+ * Route for getting the logged in user's information
+ */
+export class GetMeRoute extends GetRoute<DBUser> {
     route = "/api/v2/me";
     authentication = Authentication.USER;
 

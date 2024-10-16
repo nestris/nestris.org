@@ -50,12 +50,12 @@ export class EventConsumer {
     }
 
     // override methods to handle desired events
-    protected onUserConnect?(event: OnUserConnectEvent) {}
-    protected onUserDisconnect?(event: OnUserDisconnectEvent) {}
-    protected onSessionConnect?(event: OnSessionConnectEvent) {}
-    protected onSessionDisconnect?(event: OnSessionDisconnectEvent) {}
-    protected onSessionJsonMessage?(event: OnSessionJsonMessageEvent) {}
-    protected onSessionBinaryMessage?(event: OnSessionBinaryMessageEvent) {}
+    protected async onUserConnect?(event: OnUserConnectEvent) {}
+    protected async onUserDisconnect?(event: OnUserDisconnectEvent) {}
+    protected async onSessionConnect?(event: OnSessionConnectEvent) {}
+    protected async onSessionDisconnect?(event: OnSessionDisconnectEvent) {}
+    protected async onSessionJsonMessage?(event: OnSessionJsonMessageEvent) {}
+    protected async onSessionBinaryMessage?(event: OnSessionBinaryMessageEvent) {}
 
     // Emit a consumer event to all consumers
     protected emitConsumerEvent(event: ConsumerEvent) {
@@ -127,19 +127,8 @@ export class EventConsumerManager {
 
         return this.consumerInstances.get(consumerClassName) as T;
     }
-}
 
-export class TestEventConsumer extends EventConsumer {
-
-    protected onUserConnect(event: OnUserConnectEvent): void {
-        console.log(`TestEventConsumer: User connected: ${event.username}`);
-    }
-
-    protected onUserDisconnect(event: OnUserDisconnectEvent): void {
-        console.log(`TestEventConsumer: User disconnected: ${event.username}`);
-    }
-
-    public test() {
-        console.log("TestEventConsumer: Test method called");
+    public getUsers(): OnlineUserManager {
+        return this.users;
     }
 }

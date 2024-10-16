@@ -6,7 +6,7 @@ import { PacketDisassembler } from "../../shared/network/stream-packets/packet-d
 import { decodeMessage, MessageType } from "../../shared/network/ws-message";
 import { queryFriendUserIDsForUser } from "../database/user-queries";
 import { OnlineUserEvent, OnlineUserEventType, OnSessionBinaryMessageEvent, OnSessionConnectEvent, OnSessionDisconnectEvent, OnSessionJsonMessageEvent, OnUserConnectEvent, OnUserDisconnectEvent } from "./online-user-events";
-import { OnlineUser, OnlineUserSession } from "./online-user";
+import { OnlineUser, OnlineUserInfo, OnlineUserSession } from "./online-user";
 import { WebSocketServer } from "ws";
 
 /*
@@ -69,10 +69,10 @@ export class OnlineUserManager {
         return this.onlineUsers.size;
     }
 
-    // get the number of friends that are online for a user
-    public async numOnlineFriends(userid: string): Promise<number> {
+    // get userid of all of a person's friends that are online
+    public async getOnlineFriends(userid: string): Promise<string[]> {
         const friends = await queryFriendUserIDsForUser(userid);
-        return friends.filter(friend => this.isUserOnline(friend)).length;
+        return friends.filter(friend => this.isUserOnline(friend));
     }
 
     public isUserOnline(userid: string): boolean {
@@ -81,6 +81,46 @@ export class OnlineUserManager {
 
     public sendToAllOnlineUsers(message: JsonMessage) {
         this.onlineUsers.forEach(onlineUser => onlineUser.sendJsonMessageToAllSessions(message));
+    }
+
+    // Send a message to all sessions of a user. Returns true if the user is online and the message was sent.
+    public sendToUser(userid: string, message: JsonMessage): boolean {
+        const onlineUser = this.onlineUsers.get(userid);
+        if (onlineUser) {
+            onlineUser.sendJsonMessageToAllSessions(message);
+            return true;
+        }
+        return false;
+    }
+
+    // Send a message to a specific session of a user. Returns true if the user session is online and the message was sent.
+    public sendToUserSession(userid: string, sessionID: string, message: JsonMessage): boolean {
+        const onlineUser = this.onlineUsers.get(userid);
+        if (onlineUser) {
+            try {
+                onlineUser.sendJsonMessageToSession(message, sessionID);
+            } catch (error: any) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public getUserJSON(userid: string): any | undefined {
+        const onlineUser = this.onlineUsers.get(userid);
+        if (!onlineUser) return undefined;
+        return onlineUser.getJSON();
+    }
+
+    public getUserInfo(userid: string): OnlineUserInfo | undefined {
+        const onlineUser = this.onlineUsers.get(userid);
+        if (!onlineUser) return undefined;
+        return onlineUser.getInfo();
+    }
+
+    public getAllOnlineUserIDs(): string[] {
+        return Array.from(this.onlineUsers.keys());
     }
 
     // called when a message is received from a client

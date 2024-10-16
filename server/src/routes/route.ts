@@ -89,7 +89,7 @@ abstract class Route {
     }
 }
 
-export abstract class GetRoute<T extends {}> extends Route {
+export abstract class GetRoute<T extends {} = {}> extends Route {
 
     /**
      * Define the get method for the route
@@ -108,7 +108,7 @@ export abstract class GetRoute<T extends {}> extends Route {
     }
 }
 
-export abstract class PostRoute<T extends {}> extends Route {
+export abstract class PostRoute<T extends {} = {}> extends Route {
 
     /**
      * Define the post method for the route
