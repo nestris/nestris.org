@@ -87,8 +87,6 @@ abstract class Route {
             authentication: permission
         };
     }
-       
-
 }
 
 export abstract class GetRoute<T extends {}> extends Route {
@@ -129,7 +127,7 @@ export abstract class PostRoute<T extends {}> extends Route {
     }
 }
 
-// Managers all consumers of OnlineUserManager and OnlineUserEvents
+// Managers registering all routes
 export class RouteManager {
 
     // Map of route class names to consumer instances
@@ -139,8 +137,8 @@ export class RouteManager {
         private readonly app: Express
     ) {}
 
-    // Register a new online user event consumer
-    // Takes in a class that extends EventConsumer, and creates a new instance of it
+    // Register a new route
+    // Takes in a class that extends Route, and creates a new instance of it
     public registerRoute(
         routeClass: new (app: Express) => Route
     ) {

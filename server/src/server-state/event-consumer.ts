@@ -1,8 +1,6 @@
-import { on } from "events";
 import { OnlineUserEventType, OnSessionBinaryMessageEvent, OnSessionConnectEvent, OnSessionDisconnectEvent, OnSessionJsonMessageEvent, OnUserConnectEvent, OnUserDisconnectEvent } from "./online-user-events";
 import { OnlineUserManager } from "./online-user-manager";
 import { filter, map, Observable, Subject } from "rxjs";
-import { WebSocketServer } from "ws";
 
 // Consumer events are events that can be sent across different consumers
 export enum ConsumerEventType {

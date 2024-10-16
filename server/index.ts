@@ -82,27 +82,10 @@ async function main() {
   routes.registerRoute(MeRoute);
 
 
+  // initialize special auth routes
   app.get('/api/v2/login', redirectToDiscord);
   app.get('/api/v2/callback', handleDiscordCallback);
   app.post('/api/v2/logout', handleLogout);
-
-  // app.get('/api/v2/me', requireAuth, async (req, res) => {
-  //   // send the logged in user's username, or null if not logged in
-  //   const userid = getUserID(req);
-  //   if (!userid) {
-  //     res.status(401).send({error: "You are not logged in"});
-  //     return;
-  //   }
-
-  //   const me: DBUser | undefined = await queryUserByUserID(userid);
-  //   if (!me) {
-  //     res.status(404).send({error: "User not found"});
-  //     return;
-  //   }
-  //   res.send(me);
-  // });
-
-  
 
 
 
