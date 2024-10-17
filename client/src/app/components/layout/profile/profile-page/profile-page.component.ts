@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
+import { FetchService, Method } from 'src/app/services/fetch.service';
 
 @Component({
   selector: 'app-profile-page',
@@ -9,11 +9,13 @@ import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
 })
 export class ProfilePageComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    private fetchService: FetchService,
+  ) { }
 
   async ngOnInit() {
 
-    const response = await fetchServer2<{count: number}>(Method.GET, `/api/v2/me`);
+    const response = await this.fetchService.fetch<{count: number}>(Method.GET, `/api/v2/me`);
     console.log(response);
   }
 

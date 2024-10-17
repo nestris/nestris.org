@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
-import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
+import { FetchService, Method } from 'src/app/services/fetch.service';
 import { Lesson } from 'src/app/shared/models/lesson';
 
 @Component({
@@ -14,6 +14,7 @@ export class LessonComponent implements OnInit {
   lesson$ = new BehaviorSubject<Lesson | undefined>(undefined);
 
   constructor(
+    private fetchService: FetchService,
     private route: ActivatedRoute,
     private router: Router
   ) { }
@@ -34,7 +35,7 @@ export class LessonComponent implements OnInit {
 
       // Fetch lesson by ID
       try {
-        this.lesson$.next(await fetchServer2<Lesson>(Method.GET, `/api/v2/lesson/${lessonID}`));
+        this.lesson$.next(await this.fetchService.fetch<Lesson>(Method.GET, `/api/v2/lesson/${lessonID}`));
       } catch (error) {
         console.error("Failed to fetch lesson:", error);
         this.routeToDashboard();

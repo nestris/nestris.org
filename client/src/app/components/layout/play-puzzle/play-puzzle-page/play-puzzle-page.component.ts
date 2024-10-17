@@ -18,8 +18,8 @@ import { SinglePuzzleState } from './puzzle-states/single-puzzle-state';
 import { NotificationAutohide, NotificationType } from 'src/app/shared/models/notifications';
 import { RatedPuzzle } from 'src/app/shared/puzzles/rated-puzzle';
 import { PuzzleRating } from 'src/app/shared/puzzles/puzzle-rating';
-import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
 import { PuzzleGuesses } from 'src/app/shared/puzzles/puzzle-guess';
+import { FetchService, Method } from 'src/app/services/fetch.service';
 
 export enum PuzzleMode {
   RATED = "rated",
@@ -76,6 +76,7 @@ export class PlayPuzzlePageComponent implements OnInit {
   readonly ButtonColor = ButtonColor;
 
   constructor(
+    private fetchService: FetchService,
     private route: ActivatedRoute,
     private router: Router,
     private notifier: NotificationService,
@@ -140,7 +141,7 @@ export class PlayPuzzlePageComponent implements OnInit {
       switch (mode) {
         case PuzzleMode.RATED:
           // guaranteed to be logged in
-          puzzleState = new RatedPuzzleState(this.websocketService.getUserID()!);
+          puzzleState = new RatedPuzzleState(this.fetchService, this.websocketService.getUserID()!);
           console.log("Rated puzzle state created");
           break;
         case PuzzleMode.SINGLE:
@@ -149,7 +150,7 @@ export class PlayPuzzlePageComponent implements OnInit {
             this.redirectToDefaultURL();
             return;
           }
-          puzzleState = new SinglePuzzleState(id, this.notifier);
+          puzzleState = new SinglePuzzleState(this.fetchService, id, this.notifier);
           console.log("Single puzzle state created");
           break;
       }
@@ -196,7 +197,7 @@ export class PlayPuzzlePageComponent implements OnInit {
 
       // get top moves from stackrabbit, and guesses from server
       const topMovesHybridPromise = getTopMovesHybrid(board, 18, 0, puzzle.current, puzzle.next, InputSpeed.HZ_30);
-      const guessesPromise = fetchServer2<PuzzleGuesses>(Method.GET, `/api/v2/puzzle-guesses/${puzzle.id}`);
+      const guessesPromise = this.fetchService.fetch<PuzzleGuesses>(Method.GET, `/api/v2/puzzle-guesses/${puzzle.id}`);
       const [response, guesses] = await Promise.all([topMovesHybridPromise, guessesPromise]);
 
       // Calculate the number of guesses for each move

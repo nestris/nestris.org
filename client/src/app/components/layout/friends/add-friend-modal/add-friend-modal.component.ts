@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { BehaviorSubject, Subscription } from 'rxjs';
-import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
 import { FriendsService } from 'src/app/services/friends.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { FriendStatus, FriendInfo } from 'src/app/shared/models/friends';
 import { sendFriendRequest } from '../friend-util';
 import { DBUser } from 'src/app/shared/models/db-user';
+import { FetchService, Method } from 'src/app/services/fetch.service';
 
 // This is super cursed and definitely not the right way to go about things.
 // But it works for now so whatever.
@@ -34,6 +34,7 @@ export class AddFriendModalComponent implements OnInit, OnChanges, OnDestroy {
   private visibilitySubscription!: Subscription;
 
   constructor(
+    private fetchService: FetchService,
     private websocketService: WebsocketService,
     private friendsService: FriendsService,
     private cdr: ChangeDetectorRef
@@ -48,7 +49,7 @@ export class AddFriendModalComponent implements OnInit, OnChanges, OnDestroy {
     });
     
     // fetch list of all usernames from server
-    this.matchingUsers = await fetchServer2<DBUser[]>(Method.GET, '/api/v2/users-by-username', undefined, this.websocketService);
+    this.matchingUsers = await this.fetchService.fetch<DBUser[]>(Method.GET, '/api/v2/users-by-username', undefined);
   }
 
   /*

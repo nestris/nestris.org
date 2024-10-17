@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { ChallengeModalConfig } from 'src/app/components/modals/challenge-modal/challenge-modal.component';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
-import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
 import { FriendsService } from 'src/app/services/friends.service';
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
 import { NotificationService } from 'src/app/services/notification.service';
@@ -11,6 +10,7 @@ import { FriendInfo, FriendStatus, OnlineUserStatus } from 'src/app/shared/model
 import { NotificationType, NotificationAutohide } from 'src/app/shared/models/notifications';
 import { OnlineUserInfo } from 'src/app/shared/models/online-user-info';
 import { sendFriendRequest, endFriendship } from '../friend-util';
+import { FetchService, Method } from 'src/app/services/fetch.service';
 
 @Component({
   selector: 'app-friend-element',
@@ -26,6 +26,7 @@ export class FriendElementComponent {
   readonly ButtonColor = ButtonColor;
 
   constructor(
+    private fetchService: FetchService,
     private websocketService: WebsocketService,
     private modalService: ModalManagerService,
     private friendsService: FriendsService,
@@ -68,7 +69,7 @@ export class FriendElementComponent {
     
     try {
       // get the friend's room ID, and navigate to the room page
-      const friend = await fetchServer2<OnlineUserInfo>(Method.GET, `/api/v2/online-user/${this.friendInfo.userid}`);
+      const friend = await this.fetchService.fetch<OnlineUserInfo>(Method.GET, `/api/v2/online-user/${this.friendInfo.userid}`);
       if (!friend.roomID) throw new Error();
       this.router.navigate(['/online/room'], { queryParams: { id: friend.roomID } });
     } catch (e) {

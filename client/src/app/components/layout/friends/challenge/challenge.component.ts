@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
-import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
+import { FetchService, Method } from 'src/app/services/fetch.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { Challenge } from 'src/app/shared/models/challenge';
 
@@ -19,6 +19,7 @@ export class ChallengeComponent implements OnInit {
   readonly ButtonColor = ButtonColor;
   
   constructor(
+    private fetchService: FetchService,
     private websocketService: WebsocketService
   ) {
     
@@ -39,7 +40,7 @@ export class ChallengeComponent implements OnInit {
 
     // send a request to the server to accept the challenge
     // server should send a websocket message back to trigger event to go to room if the challenge is accepted
-    await fetchServer2(Method.POST, '/api/v2/accept-challenge', {
+    await this.fetchService.fetch(Method.POST, '/api/v2/accept-challenge', {
       challenge: this.challenge,
       sessionID: sessionID,
     });
@@ -55,7 +56,7 @@ export class ChallengeComponent implements OnInit {
 
     // send a request to the server to reject the challenge
     // server should send a websocket message back to trigger change if the challenge is rejected
-    const result = await fetchServer2<{success: boolean}>(Method.POST, '/api/v2/reject-challenge', {
+    const result = await this.fetchService.fetch<{success: boolean}>(Method.POST, '/api/v2/reject-challenge', {
       userid: userid,
       challenge: this.challenge
     });

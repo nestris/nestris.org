@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { BehaviorSubject, catchError, from, Observable, of, startWith, Subscription, switchMap } from 'rxjs';
-import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
 import { getTimezone } from 'src/app/scripts/get-timezone';
+import { FetchService, Method } from 'src/app/services/fetch.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { DailyStreak } from 'src/app/shared/puzzles/daily-streak';
 
@@ -17,7 +17,10 @@ export class DailyStreakComponent {
 
   public streak$: BehaviorSubject<DailyStreak>;
 
-  constructor(private websocketService: WebsocketService) {
+  constructor(
+    private fetchService: FetchService,
+    private websocketService: WebsocketService
+  ) {
     this.streak$ = new BehaviorSubject<DailyStreak>(this.getEmptyStreak());
   }
 
@@ -26,7 +29,7 @@ export class DailyStreakComponent {
 
     const userid = this.websocketService.getUserID();
 
-    this.streak$.next(await fetchServer2<DailyStreak>(
+    this.streak$.next(await this.fetchService.fetch<DailyStreak>(
       Method.GET,
       `/api/v2/daily-streak/${userid}`,
       { timezone: getTimezone() })

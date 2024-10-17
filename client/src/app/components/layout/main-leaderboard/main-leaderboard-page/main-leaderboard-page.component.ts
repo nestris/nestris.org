@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { TableRow } from 'src/app/components/ui/table/table.component';
-import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
+import { FetchService, Method } from 'src/app/services/fetch.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { EVALUATION_TO_COLOR, EvaluationRating } from 'src/app/shared/evaluation/evaluation';
 import { OnlineUserStatus } from 'src/app/shared/models/friends';
@@ -42,6 +42,7 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
   timer: any;
 
   constructor(
+    private fetchService: FetchService,
     public websocket: WebsocketService,
   ) {}
 
@@ -68,27 +69,27 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
   }
 
   private async pollNumPlayers(): Promise<number> {
-    const response = await fetchServer2<{count: number}>(Method.GET, '/api/v2/user-count');
+    const response = await this.fetchService.fetch<{count: number}>(Method.GET, '/api/v2/user-count');
     return response.count;
   }
 
   private async pollPuzzlesSolved(): Promise<number> {
-    const response = await fetchServer2<{count: number}>(Method.GET, '/api/v2/puzzles-solved');
+    const response = await this.fetchService.fetch<{count: number}>(Method.GET, '/api/v2/puzzles-solved');
     return response.count;
   }
 
   private async pollTotalPuzzleDuration(): Promise<number> {
-    const response = await fetchServer2<{total: number}>(Method.GET, '/api/v2/total-puzzle-duration');
+    const response = await this.fetchService.fetch<{total: number}>(Method.GET, '/api/v2/total-puzzle-duration');
     return response.total;
   }
 
   private async fetchLeaderboard(): Promise<PuzzleLeaderboardRow[]> {
-    const leaderboard = await fetchServer2<PuzzleLeaderboard>(Method.GET, '/api/v2/puzzle-leaderboard');
+    const leaderboard = await this.fetchService.fetch<PuzzleLeaderboard>(Method.GET, '/api/v2/puzzle-leaderboard');
     return leaderboard.rows;
   }
 
   private async fetchOnlineUsers(): Promise<Map<string, OnlineUserStatus>> {
-    const response = await fetchServer2<{userid: string, status: OnlineUserStatus}[]>(
+    const response = await this.fetchService.fetch<{userid: string, status: OnlineUserStatus}[]>(
       Method.GET, '/api/v2/online-users'
     );
     

@@ -1,5 +1,3 @@
-import { fetchServer2, Method } from "src/app/scripts/fetch-server";
-import { GenericPuzzle } from "src/app/shared/puzzles/generic-puzzle";
 import { PuzzleState, EloChange } from "./puzzle-state";
 import { PuzzleState as PuzzleStateEnum } from "src/app/shared/puzzles/rated-puzzle"; 
 import { RatedPuzzle } from "src/app/shared/puzzles/rated-puzzle";
@@ -10,12 +8,14 @@ import { InputSpeed } from "src/app/shared/models/input-speed";
 import { PuzzleRating } from "src/app/shared/puzzles/puzzle-rating";
 import { NotificationService } from "src/app/services/notification.service";
 import { NotificationType } from "src/app/shared/models/notifications";
+import { FetchService, Method } from "src/app/services/fetch.service";
 
 export class SinglePuzzleState extends PuzzleState {
   
   private puzzle!: RatedPuzzle;
 
   constructor(
+    private fetchService: FetchService,
     private readonly puzzleID: string,
     private notificationService: NotificationService,
   ) {
@@ -27,7 +27,7 @@ export class SinglePuzzleState extends PuzzleState {
     // This throws an error if the puzzle does not exist
     console.log("Fetching single puzzle", this.puzzleID);
     try {
-      this.puzzle = await fetchServer2<RatedPuzzle>(Method.GET, `/api/v2/puzzle/${this.puzzleID}`);
+      this.puzzle = await this.fetchService.fetch<RatedPuzzle>(Method.GET, `/api/v2/puzzle/${this.puzzleID}`);
     } catch (e: any) {
       console.log("Puzzle not found, recreating from puzzleID");
       this.puzzle = await this.getPuzzleFromID(this.puzzleID);

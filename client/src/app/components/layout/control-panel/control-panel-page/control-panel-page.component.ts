@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
+import { FetchService, Method } from 'src/app/services/fetch.service';
 import { PuzzleAggregate } from 'src/app/shared/puzzles/puzzle-aggregate';
 
 @Component({
@@ -12,13 +12,15 @@ export class ControlPanelPageComponent implements OnInit {
   
   public aggregate$ = new BehaviorSubject<PuzzleAggregate | undefined>(undefined);
 
+  constructor(private fetchService: FetchService) {}
+
   async ngOnInit() {
     await this.sync();
   }
 
   async sync() {
     // fetch the puzzle aggregate from the server
-    this.aggregate$.next(await fetchServer2<PuzzleAggregate>(Method.GET, '/api/v2/puzzle-aggregate'));
+    this.aggregate$.next(await this.fetchService.fetch<PuzzleAggregate>(Method.GET, '/api/v2/puzzle-aggregate'));
     console.log("Puzzle aggregate", this.aggregate$.getValue());
   }
 
@@ -32,7 +34,7 @@ export class ControlPanelPageComponent implements OnInit {
   }
 
   toggleServerRestart() {
-    fetchServer2(Method.POST, '/api/v2/server-restart-warning');
+    this.fetchService.fetch(Method.POST, '/api/v2/server-restart-warning');
   }
 
 }

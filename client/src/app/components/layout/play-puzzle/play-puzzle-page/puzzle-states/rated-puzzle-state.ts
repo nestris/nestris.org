@@ -1,9 +1,9 @@
-import { fetchServer2, Method } from "src/app/scripts/fetch-server";
 import { GenericPuzzle } from "src/app/shared/puzzles/generic-puzzle";
 import { RatedPuzzle } from "src/app/shared/puzzles/rated-puzzle";
 import { SerializedPuzzleSubmission, PuzzleResult, evaluatePuzzleSubmission } from "src/app/shared/puzzles/serialized-puzzle-submission";
 import { PuzzleState, EloChange } from "./puzzle-state";
 import { DBUser } from "src/app/shared/models/db-user";
+import { FetchService, Method } from "src/app/services/fetch.service";
 
 
 export class RatedPuzzleState extends PuzzleState {
@@ -13,6 +13,7 @@ export class RatedPuzzleState extends PuzzleState {
   private eloHistory: number[] = [];
 
   constructor(
+    private fetchService: FetchService,
     private readonly userid: string,
   ) {
     super();
@@ -29,7 +30,7 @@ export class RatedPuzzleState extends PuzzleState {
 
     // otherwise, submit the puzzle attempt to the server
     submission.userid = this.userid;
-    const puzzleResult = await fetchServer2<PuzzleResult>(Method.POST, `/api/v2/submit-puzzle-attempt`, submission);
+    const puzzleResult = await this.fetchService.fetch<PuzzleResult>(Method.POST, `/api/v2/submit-puzzle-attempt`, submission);
 
     this.eloHistory.push(puzzleResult.resultingElo!);
     return puzzleResult;
@@ -38,7 +39,7 @@ export class RatedPuzzleState extends PuzzleState {
   override async _fetchNextPuzzle(): Promise<RatedPuzzle> {
     
     // fetch a rated puzzle from the server
-    const puzzle = await fetchServer2<RatedPuzzle>(Method.POST, "/api/v2/random-rated-puzzle");
+    const puzzle = await this.fetchService.fetch<RatedPuzzle>(Method.POST, "/api/v2/random-rated-puzzle");
 
     this.eloChange = {
       eloGain: puzzle.eloGain!,

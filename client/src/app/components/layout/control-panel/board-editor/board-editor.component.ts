@@ -1,6 +1,6 @@
 import { Component, HostListener } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
+import { FetchService, Method } from 'src/app/services/fetch.service';
 import { BinaryTranscoder } from 'src/app/shared/network/tetris-board-transcoding/binary-transcoder';
 import MoveableTetromino from 'src/app/shared/tetris/moveable-tetromino';
 import { Point } from 'src/app/shared/tetris/point';
@@ -33,6 +33,8 @@ export class BoardEditorComponent {
 
   hoveredBlock$ = new BehaviorSubject<Point | undefined>(undefined);
 
+  constructor(private fetchService: FetchService) { }
+
   async evaluate() {
 
     console.log("Board height:", this.board$.getValue().getAverageHeight());
@@ -41,7 +43,7 @@ export class BoardEditorComponent {
     const current = this.current$.getValue();
     const next = this.next$.getValue();
 
-    const response = await fetchServer2(Method.GET,
+    const response = await this.fetchService.fetch(Method.GET,
       `${BASE_URL}/rate-puzzle/${boardString}/${current}/${next}`
     ) as any;
 
