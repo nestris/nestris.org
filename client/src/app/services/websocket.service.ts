@@ -177,9 +177,10 @@ export class WebsocketService {
   }
 
   // subscribe to this observable when a message is sent from server to client with matching type
-  onEvent(event: JsonMessageType): Observable<JsonMessage> {
+  onEvent<T extends JsonMessage>(event: JsonMessageType): Observable<T> {
     return this.jsonEvent$.asObservable().pipe(
-      filter((message) => message.type === event)
+      filter((message) => message.type === event),
+      map((message) => message as T)
     );
   }
 

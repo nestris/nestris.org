@@ -27,5 +27,6 @@ export interface FriendInfo {
     onlineStatus: OnlineUserStatus;
     xp: number;
     trophies: number;
+    puzzleElo: number;
     challenge?: Challenge; // if there is a challenge between user and this friend, then it is a Challenge object
 }

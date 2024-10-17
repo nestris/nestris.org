@@ -35,6 +35,7 @@ import { GetMeRoute } from './src/routes/online-users/get-me-route';
 import { GetOnlineUsersRoute } from './src/routes/online-users/get-online-users-route';
 import { GetOnlineFriendCountRoute } from './src/routes/friends/get-online-friend-count';
 import { FriendEventConsumer } from './src/server-state/event-consumers/friend-event-consumer';
+import { GetFriendsInfo } from './src/routes/friends/get-friends-info';
 
 // Load environment variables
 require('dotenv').config();
@@ -89,6 +90,7 @@ async function main() {
   routes.registerRoute(GetMeRoute);
   routes.registerRoute(GetOnlineUsersRoute);
   routes.registerRoute(GetOnlineFriendCountRoute);
+  routes.registerRoute(GetFriendsInfo);
 
 
   // app.get('/api/v2/users-by-username', getAllUsersMatchingUsernamePatternRoute);

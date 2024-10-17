@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { fetchServer2, Method } from '../scripts/fetch-server';
 import { Challenge } from '../shared/models/challenge';
 import { FriendInfo, OnlineUserStatus, FriendStatus } from '../shared/models/friends';
 import { JsonMessageType } from '../shared/network/json-message';
 import { WebsocketService } from './websocket.service';
+import { FetchService, Method } from './fetch.service';
 
 
 @Injectable({
@@ -16,13 +16,11 @@ export class FriendsService {
   private challenges$ = new BehaviorSubject<Challenge[]>([]);
 
   constructor(
+    private fetchService: FetchService,
     private websocketService: WebsocketService,
   ) {
 
-    // whenever receiving an update online friends message, sync with server
-    this.websocketService.onEvent(JsonMessageType.UPDATE_ONLINE_FRIENDS).subscribe(() => {
-      this.syncWithServer();
-    });
+    this.syncWithServer();
 
   }
 
@@ -36,10 +34,7 @@ export class FriendsService {
 
   async syncWithServer() {
 
-    const userid = this.websocketService.getUserID();
-    if (!userid) return; // if not logged in, do nothing
-
-    const friendsInfo = await fetchServer2<FriendInfo[]>(Method.GET, `/api/v2/friends/${userid}`, undefined, this.websocketService);
+    const friendsInfo = await this.fetchService.fetch<FriendInfo[]>(Method.GET, `/api/v2/friends-info`);
     
     // sort friendsInfo and update friendsInfo$
     this.friendsInfo$.next(this.sort(friendsInfo));
@@ -55,7 +50,7 @@ export class FriendsService {
   }
 
   // sort by friend request type, then by online status, then lexigrapically
-  sort(friendsInfo: FriendInfo[]): FriendInfo[] {
+  private sort(friendsInfo: FriendInfo[]): FriendInfo[] {
     
     // sort lexigraphically. A at the top, Z at the bottom
     friendsInfo.sort((a,b) => a.username < b.username ? -1 : 1);
