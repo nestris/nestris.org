@@ -1,5 +1,5 @@
 import { PuzzleRank, Leaderboard } from "../../shared/puzzles/puzzle-rank";
-import { queryDB } from "../database";
+import { queryDB } from "../database-old";
 import { Request, Response } from "express";
 
 

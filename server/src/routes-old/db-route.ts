@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { queryDB } from '../database';
+import { queryDB } from '../database-old';
 
 export async function getUserCountRoute(req: Request, res: Response) {
 

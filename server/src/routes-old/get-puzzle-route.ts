@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { queryDB } from '../database';
+import { queryDB } from '../database-old';
 import { decodeRatedPuzzleFromDB } from '../puzzle-generation/decode-rated-puzzle';
 
 // GET puzzle from database with matching id, return GenericPuzzle

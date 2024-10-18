@@ -17,7 +17,7 @@
  */
 
 import { RatedPuzzle } from "../../shared/puzzles/rated-puzzle";
-import { queryUserByUserID } from "../database/user-queries";
+import { queryUserByUserID } from "../database-old/user-queries";
 import { fetchRandomPuzzleWithRating, getRandomPuzzleRatingForPlayerElo } from "../puzzle-generation/select-puzzle";
 import { ServerState } from "./server-state";
 

@@ -1,5 +1,5 @@
 import { PuzzleFeedback } from "../../shared/puzzles/puzzle-feedback";
-import { queryDB } from "../database";
+import { queryDB } from "../database-old";
 import { Request, Response } from 'express';
 
 // for a user, set feedback (like, un-like, dislike, un-dislike) for a puzzle

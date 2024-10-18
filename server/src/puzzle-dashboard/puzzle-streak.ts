@@ -4,7 +4,7 @@
 // ordered from least recent to most recent
 
 import { DailyStreak } from "../../shared/puzzles/daily-streak";
-import { queryDB } from "../database";
+import { queryDB } from "../database-old";
 import { Request, Response } from "express";
 
 

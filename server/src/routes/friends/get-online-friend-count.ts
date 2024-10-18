@@ -1,5 +1,5 @@
 import { Authentication, DBUser } from "../../../shared/models/db-user";
-import { queryUserByUserID } from "../../database/user-queries";
+import { queryUserByUserID } from "../../database-old/user-queries";
 import { EventConsumerManager } from "../../server-state/event-consumer";
 import { GetRoute, RouteError, UserInfo } from "../route";
 

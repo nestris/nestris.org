@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { queryAllUsersMatchingUsernamePattern, queryFriendsAndFriendRequestsForUser, queryUserByUserID } from '../database/user-queries';
-import { endFriendship, sendFriendRequest } from '../database/friendship-updates';
+import { queryAllUsersMatchingUsernamePattern, queryFriendsAndFriendRequestsForUser, queryUserByUserID } from '../database-old/user-queries';
+import { endFriendship, sendFriendRequest } from '../database-old/friendship-updates';
 import { ServerState } from '../old/server-state';
 import { FriendInfo, FriendStatusResult } from '../../shared/models/friends';
 

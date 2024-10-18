@@ -1,4 +1,4 @@
-import { queryDB } from "../database";
+import { queryDB } from "../database-old";
 import { DateTime, IANAZone } from 'luxon';
 import { Request, Response } from 'express';
 import { AttemptStats, AttemptStatsForRating, TimePeriod } from "../../shared/puzzles/attempt-stats";

@@ -1,8 +1,8 @@
-import { queryDB } from "../database";
+import { queryDB } from "../database-old";
 import { Request, Response } from "express";
 import { SerializedPuzzleSubmission, PuzzleResult, evaluatePuzzleSubmission } from "../../shared/puzzles/serialized-puzzle-submission";
 import { PuzzleRating } from "../../shared/puzzles/puzzle-rating";
-import { logDatabase } from "../database/log";
+import { logDatabase } from "../database-old/log";
 import { ServerState } from "../old/server-state";
 import { PuzzleState } from "../../shared/puzzles/rated-puzzle";
 import MoveableTetromino from "../../shared/tetris/moveable-tetromino";

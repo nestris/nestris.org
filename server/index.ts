@@ -14,7 +14,7 @@ import morgan from 'morgan';
 // import { submitPuzzleAttemptRoute } from './src/puzzle-generation/submit-puzzle-attempt';
 // import { sendChallengeRoute, rejectChallengeRoute, acceptChallengeRoute } from './src/routes/challenge-route';
 // import { getTopMovesHybridRoute } from './src/stackrabbit/stackrabbit';
-import { queryUserByUserID } from './src/database/user-queries';
+import { queryUserByUserID } from './src/database-old/user-queries';
 import { DBUser } from './shared/models/db-user';
 // import { getPuzzleAggregate } from './src/puzzle-generation/manage-puzzles';
 import { DeploymentEnvironment, ServerStats } from './shared/models/server-stats';

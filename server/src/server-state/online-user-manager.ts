@@ -4,7 +4,7 @@ import { filter, map, Observable, Subject } from "rxjs";
 import { JsonMessage, JsonMessageType, OnConnectMessage, ErrorHandshakeIncompleteMessage, ErrorMessage } from "../../shared/network/json-message";
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
 import { decodeMessage, MessageType } from "../../shared/network/ws-message";
-import { queryFriendUserIDsForUser } from "../database/user-queries";
+import { queryFriendUserIDsForUser } from "../database-old/user-queries";
 import { OnlineUserEvent, OnlineUserEventType, OnSessionBinaryMessageEvent, OnSessionConnectEvent, OnSessionDisconnectEvent, OnSessionJsonMessageEvent, OnUserConnectEvent, OnUserDisconnectEvent } from "./online-user-events";
 import { OnlineUser, OnlineUserInfo, OnlineUserSession } from "./online-user";
 import { WebSocketServer } from "ws";

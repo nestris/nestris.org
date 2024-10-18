@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { queryDB } from '../database';
+import { queryDB } from '../database-old';
 import { PuzzleGuess, PuzzleGuesses } from '../../shared/puzzles/puzzle-guess';
 
 export async function getPuzzleGuessesRoute(req: Request, res: Response) {

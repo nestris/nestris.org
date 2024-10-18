@@ -1,6 +1,6 @@
 import { Authentication } from "../../../shared/models/db-user";
 import { FriendInfo, FriendStatus, OnlineUserStatus } from "../../../shared/models/friends";
-import { queryDB } from "../../database";
+import { queryDB } from "../../database-old";
 import { EventConsumerManager } from "../../server-state/event-consumer";
 import { GetRoute, UserInfo } from "../route";
 

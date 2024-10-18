@@ -1,7 +1,7 @@
 import express from 'express';
 import axios from 'axios';
 import session from 'express-session';
-import { createUser, queryUserByUserID } from '../database/user-queries';
+import { createUser, queryUserByUserID } from '../database-old/user-queries';
 import { Authentication } from '../../shared/models/db-user';
 
 require('dotenv').config();

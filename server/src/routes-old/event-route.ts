@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Event } from '../../shared/models/event';
-import { queryUserByUserID } from '../database/user-queries';
-import { queryDB } from '../database';
+import { queryUserByUserID } from '../database-old/user-queries';
+import { queryDB } from '../database-old';
 
 // find a user by matching username and return the user
 export async function postEventToDB(event: Event) {

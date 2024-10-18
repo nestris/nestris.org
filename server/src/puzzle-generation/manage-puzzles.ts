@@ -4,7 +4,7 @@ Routes relevant to puzzle operations in control panel
 
 import { Request, Response } from 'express';
 import { PuzzleAggregate } from '../../shared/puzzles/puzzle-aggregate';
-import { queryDB } from '../database';
+import { queryDB } from '../database-old';
 
 export async function getPuzzleAggregate(req: Request, res: Response) {
 
