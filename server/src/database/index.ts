@@ -29,12 +29,12 @@ export const connectToDB = async (): Promise<void> => {
 export const queryDB = async (text: string, params?: any[]): Promise<QueryResult> => {
   const start = Date.now();
   const uuid = uuidv4();
-  console.log(`[${uuid}] Executing query: ${text} at ${start}`);
+  console.log(`[${uuid}] Start query`);
 
   const res = await pool.query(text, params);
   const duration = Date.now() - start;
   //console.log('executed query', { text, duration, rows: res.rowCount });
-  console.log(`[${uuid}] Query executed in ${duration}ms`);
+  console.log(`[${uuid}] Query ${text} executed in ${duration}ms`);
 
   // If is development, inject lag
   if (process.env.NODE_ENV === DeploymentEnvironment.DEV) {
