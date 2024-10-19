@@ -266,7 +266,7 @@ export class Room {
       const packetContent = packets.nextPacket();
       packetsReceived++;
 
-      console.log(`Received packet ${packetContent.opcode} from player ${roomUser.session.user.username}: ${packetContent.content}`);
+      //console.log(`Received packet ${packetContent.opcode} from player ${roomUser.session.user.username}: ${packetContent.content}`);
 
       if (packetContent.opcode === PacketOpcode.GAME_START) {
         // reset the game packets cache when a new game starts

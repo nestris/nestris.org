@@ -24,9 +24,13 @@ export const connectToDB = async (): Promise<void> => {
 
 export const queryDB = async (text: string, params?: any[]): Promise<QueryResult> => {
   const start = Date.now();
+
+  //console.log(`[${uuid}] Executing query: ${text} at ${start}`);
+
   const res = await pool.query(text, params);
   const duration = Date.now() - start;
   //console.log('executed query', { text, duration, rows: res.rowCount });
+  //console.log(`[${uuid}] Query executed in ${duration}ms`);
   return res;
 };
 
