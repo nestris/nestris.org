@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { TabID } from '../models/tabs';
 import { JsonMessageType } from '../shared/network/json-message';
 import { WebsocketService } from './websocket.service';
+import { FetchService } from './fetch.service';
 
 
 /*
@@ -25,10 +26,6 @@ export class BadgeService {
       this.badgeActive$.set(tabID, new BehaviorSubject(false));
     });
 
-    // if FriendUpdate message is received, set the badge to active
-    this.websocketService.onEvent(JsonMessageType.UPDATE_FRIENDS_BADGE).subscribe(() => {
-      this.setBadgeActive(TabID.FRIENDS);
-    });
 
   }
 

@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { BehaviorSubject, catchError, from, interval, Observable, of, startWith, switchMap, takeUntil, shareReplay } from 'rxjs';
-import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { PuzzleRank } from 'src/app/shared/puzzles/puzzle-rank';
 import { Subject } from 'rxjs';
@@ -31,7 +30,6 @@ export class GlobalRankComponent implements OnInit, OnDestroy {
       return;
     }
     console.log("Updating rank");
-    this.rank$.next(await fetchServer2<PuzzleRank>(Method.GET, `/api/v2/puzzle-rank/${userid}`));
   }
 
   ngOnDestroy() {

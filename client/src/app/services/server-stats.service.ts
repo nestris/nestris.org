@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, filter, firstValueFrom, Observable } from 'rxjs';
 import { DeploymentEnvironment, ServerStats } from '../shared/models/server-stats';
-import { fetchServer2, Method } from '../scripts/fetch-server';
 import { BannerManagerService, BannerType } from './banner-manager.service';
+import { FetchService, Method } from './fetch.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,13 +11,16 @@ export class ServerStatsService {
 
   private serverStats$ = new BehaviorSubject<ServerStats | undefined>(undefined);
 
-  constructor(private readonly bannerManager: BannerManagerService) {
+  constructor(
+    private readonly fetchService: FetchService,
+    private readonly bannerManager: BannerManagerService
+  ) {
     this.fetchServerStats();
   }
 
   private async fetchServerStats(): Promise<void> {
     try {
-      const stats = await fetchServer2<ServerStats>(Method.GET, '/api/v2/server-stats');
+      const stats = await this.fetchService.fetch<ServerStats>(Method.GET, '/api/v2/server-stats');
       this.serverStats$.next(stats);
       
       if (stats.environment === DeploymentEnvironment.PRODUCTION) {

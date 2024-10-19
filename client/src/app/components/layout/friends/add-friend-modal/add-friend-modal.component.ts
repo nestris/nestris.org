@@ -3,7 +3,6 @@ import { BehaviorSubject, Subscription } from 'rxjs';
 import { FriendsService } from 'src/app/services/friends.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { FriendStatus, FriendInfo } from 'src/app/shared/models/friends';
-import { sendFriendRequest } from '../friend-util';
 import { DBUser } from 'src/app/shared/models/db-user';
 import { FetchService, Method } from 'src/app/services/fetch.service';
 
@@ -109,13 +108,6 @@ export class AddFriendModalComponent implements OnInit, OnChanges, OnDestroy {
     // trigger manual change detection to reflect the change in friend status
     this.cdr.detectChanges();
 
-    // send friend request to server
-    sendFriendRequest(userid, potentialFriend.userid).then((result) => {
-      if (result.status === FriendStatus.OUTGOING) potentialFriend.status = FriendStatus.OUTGOING;
-      else if (result.status === FriendStatus.FRIENDS) potentialFriend.status = FriendStatus.FRIENDS;
-      this.cdr.detectChanges();
-      this.friendsService.syncWithServer();
-    });
   }
 
   ngOnDestroy() {

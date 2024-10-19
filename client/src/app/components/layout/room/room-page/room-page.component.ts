@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
-import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
 import { EmulatorService } from 'src/app/services/emulator/emulator.service';
 import { Platform, PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
@@ -14,6 +13,7 @@ import { NotificationType } from 'src/app/shared/models/notifications';
 import { getMatchScore, MultiplayerData, MultiplayerPlayerMode, MultiplayerRoomMode, PlayerRole } from 'src/app/shared/models/multiplayer';
 import { GameOverMode } from 'src/app/components/nes-layout/nes-board/nes-board.component';
 import { OcrGameService } from 'src/app/services/ocr/ocr-game.service';
+import { FetchService, Method } from 'src/app/services/fetch.service';
 
 
 export interface RoomClient {
@@ -69,6 +69,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
   screenWidth$ = new BehaviorSubject<number>(window.innerWidth);
 
   constructor(
+    private fetchService: FetchService,
     public emulator: EmulatorService,
     public ocrGame: OcrGameService,
     public platform: PlatformInterfaceService,
@@ -132,7 +133,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const roomInfo = await fetchServer2<RoomInfo | {error: string}>(Method.GET, `/api/v2/room/${roomID}`);
+    const roomInfo = await this.fetchService.fetch<RoomInfo | {error: string}>(Method.GET, `/api/v2/room/${roomID}`);
     if ('error' in roomInfo) {
       console.error(roomID, roomInfo.error);
       this.redirectHome();
@@ -211,7 +212,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
       // Players also can bind to changes to update player UI
       if (isPlayer) this.onMultiplayerDataChange(old, this.multiplayerData$.getValue());
     });
-    this.multiplayerData$.next(await fetchServer2<MultiplayerData>(Method.GET, `/api/v2/multiplayer-data/${this.client$.getValue()!.room.roomID}`));
+    this.multiplayerData$.next(await this.fetchService.fetch<MultiplayerData>(Method.GET, `/api/v2/multiplayer-data/${this.client$.getValue()!.room.roomID}`));
   }
 
   clickPlaySolo(level: number) {
@@ -350,7 +351,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
     } else {
       // In multiplayer mode, transition from dead to waiting in the server
       const sessionID = this.websocket.getSessionID();
-      await fetchServer2(Method.POST, `/api/v2/multiplayer/transition-dead-to-waiting/${sessionID}`);
+      await this.fetchService.fetch(Method.POST, `/api/v2/multiplayer/transition-dead-to-waiting/${sessionID}`);
     }
     
   }
@@ -373,7 +374,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
     this.soloSubscription?.unsubscribe();
 
     // Tell server to leave this room
-    const response = await fetchServer2(Method.POST, `/api/v2/leave-room/${this.websocket.getSessionID()}/${this.client$.getValue()!.room.roomID}`);
+    const response = await this.fetchService.fetch(Method.POST, `/api/v2/leave-room/${this.websocket.getSessionID()}/${this.client$.getValue()!.room.roomID}`);
     console.log('leave room response:', response);
   }
 

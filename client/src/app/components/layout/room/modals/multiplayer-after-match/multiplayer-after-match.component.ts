@@ -2,7 +2,7 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
-import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
+import { FetchService, Method } from 'src/app/services/fetch.service';
 import { FriendsService } from 'src/app/services/friends.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
@@ -34,6 +34,7 @@ export class MultiplayerAfterMatchComponent implements OnInit, OnDestroy {
   sentRematch$ = new BehaviorSubject<boolean>(false);
 
   constructor(
+    private fetchService: FetchService,
     private router: Router,
     private websocketService: WebsocketService,
     private notificationService: NotificationService,
@@ -158,7 +159,7 @@ export class MultiplayerAfterMatchComponent implements OnInit, OnDestroy {
     console.log('Offering rematch', challenge);
 
     // send challenge to server. if successful, close modal
-    const { success, error } = await fetchServer2<{
+    const { success, error } = await this.fetchService.fetch<{
       success: boolean, error?: string
     }>(Method.POST, '/api/v2/send-challenge', { challenge });
 
@@ -183,7 +184,7 @@ export class MultiplayerAfterMatchComponent implements OnInit, OnDestroy {
 
     // send a request to the server to accept the challenge
     // server should send a websocket message back to trigger event to go to room if the challenge is accepted
-    await fetchServer2(Method.POST, '/api/v2/accept-challenge', {
+    await this.fetchService.fetch(Method.POST, '/api/v2/accept-challenge', {
       challenge: this.recievedRematchChallenge$.getValue()!,
       sessionID: sessionID,
     });

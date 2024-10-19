@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { BehaviorSubject, catchError, from, Observable, of, switchMap } from 'rxjs';
-import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
 import { getTimezone } from 'src/app/scripts/get-timezone';
+import { FetchService, Method } from 'src/app/services/fetch.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { TimePeriod, AttemptStats } from 'src/app/shared/puzzles/attempt-stats';
 import { PuzzleRating } from 'src/app/shared/puzzles/puzzle-rating';
@@ -29,6 +29,7 @@ export class SummaryComponent implements OnChanges {
   public attemptStats$: Observable<AttemptStats>;
 
   constructor(
+    private fetchService: FetchService,
     private websocket: WebsocketService
   ) {
     this.attemptStats$ = of(this.defaultAttemptStats);
@@ -52,7 +53,7 @@ export class SummaryComponent implements OnChanges {
           };
 
           // Fetch the attempt stats and handle errors
-          return from(fetchServer2<AttemptStats>(Method.GET, `/api/v2/puzzle-attempt-stats/${userid}`, params)).pipe(
+          return from(this.fetchService.fetch<AttemptStats>(Method.GET, `/api/v2/puzzle-attempt-stats/${userid}`, params)).pipe(
             catchError(() => of(this.defaultAttemptStats)) // Return default on error
           );
         })

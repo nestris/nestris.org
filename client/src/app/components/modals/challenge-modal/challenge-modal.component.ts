@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { ButtonColor } from '../../ui/solid-button/solid-button.component';
-import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
 import { FriendsService } from 'src/app/services/friends.service';
 import { ModalManagerService } from 'src/app/services/modal-manager.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { Challenge } from 'src/app/shared/models/challenge';
+import { FetchService, Method } from 'src/app/services/fetch.service';
 
 export interface ChallengeModalConfig {
   opponentid: string;
@@ -34,6 +34,7 @@ export class ChallengeModalComponent {
   }
 
   constructor(
+    private fetchService: FetchService,
     private websocketService: WebsocketService,
     private modalService: ModalManagerService,
     private friendsService: FriendsService
@@ -60,7 +61,7 @@ export class ChallengeModalComponent {
     }
 
     // send challenge to server. if successful, close modal
-    const { success, error } = await fetchServer2<{
+    const { success, error } = await this.fetchService.fetch<{
       success: boolean, error?: string
     }>(Method.POST, '/api/v2/send-challenge', { challenge });
 

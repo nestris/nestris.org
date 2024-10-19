@@ -9,7 +9,6 @@ import { WebsocketService } from 'src/app/services/websocket.service';
 import { FriendInfo, FriendStatus, OnlineUserStatus } from 'src/app/shared/models/friends';
 import { NotificationType, NotificationAutohide } from 'src/app/shared/models/notifications';
 import { OnlineUserInfo } from 'src/app/shared/models/online-user-info';
-import { sendFriendRequest, endFriendship } from '../friend-util';
 import { FetchService, Method } from 'src/app/services/fetch.service';
 
 @Component({
@@ -46,14 +45,10 @@ export class FriendElementComponent {
 
   // send a message to server to accept friend request
   async acceptFriendRequest() {
-    await sendFriendRequest(this.websocketService.getUserID()!, this.friendInfo.userid);
-    this.friendsService.syncWithServer();
   }
 
   // send a message to server to declne friend request
   async endFriendship() {
-    await endFriendship(this.websocketService.getUserID()!, this.friendInfo.userid);
-    this.friendsService.syncWithServer();
   }
 
   async sendChallenge() {

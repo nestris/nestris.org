@@ -1,7 +1,7 @@
 import { Component, HostListener, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
-import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
+import { FetchService, Method } from 'src/app/services/fetch.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { getMatchScore, MultiplayerData, MultiplayerPlayerMode, MultiplayerRoomMode, PlayerRole } from 'src/app/shared/models/multiplayer';
 import { isPlayer, Role } from 'src/app/shared/models/room-info';
@@ -20,6 +20,7 @@ export class MultiplayerInMatchComponent {
   readonly MultiplayerRoomMode = MultiplayerRoomMode;
 
   constructor(
+    private fetchService: FetchService,
     private readonly websocket: WebsocketService,
     private readonly router: Router
   ) { }
@@ -42,7 +43,7 @@ export class MultiplayerInMatchComponent {
     }
 
     // Send the request to the server to toggle the ready status
-    await fetchServer2(Method.POST, `/api/v2/multiplayer/set-readiness/${sessionID}/${ready}`);
+    await this.fetchService.fetch(Method.POST, `/api/v2/multiplayer/set-readiness/${sessionID}/${ready}`);
   }
 
   // When space or enter is pressed, toggle the ready status
@@ -119,7 +120,7 @@ export class MultiplayerInMatchComponent {
     if (this.data.state.levelPicker !== this.myRole) return;
 
     // Send the request to the server to select the level
-    await fetchServer2(Method.POST, `/api/v2/multiplayer/select-level/${this.websocket.getSessionID()}/${level}`);
+    await this.fetchService.fetch(Method.POST, `/api/v2/multiplayer/select-level/${this.websocket.getSessionID()}/${level}`);
   }
 
   leaveMatch() {

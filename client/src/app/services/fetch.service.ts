@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { WebsocketService } from './websocket.service';
 
 export enum Method {
@@ -8,13 +8,14 @@ export enum Method {
   PUT = 'PUT',
 }
 
+
 @Injectable({
   providedIn: 'root'
 })
 export class FetchService {
 
   constructor(
-    private websocket: WebsocketService
+    private injector: Injector
   ) { }
 
 
@@ -53,7 +54,7 @@ export class FetchService {
     // if the response is 401, tell the websocket to logout
     if (response.status === 401) {
       console.log(`Logging out due to 401 response from ${urlStr}`);
-      await this.websocket.logout();
+      await this.injector.get(WebsocketService).logout();
     }
 
     if (!response.ok) {
@@ -63,5 +64,8 @@ export class FetchService {
     const result = await response.json();
     return result as ResponseType;
   }
+
+  // fetches from server and returns the response with generic-defined type
+
 
 }

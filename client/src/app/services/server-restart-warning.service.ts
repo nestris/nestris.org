@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { fetchServer2, Method } from '../scripts/fetch-server';
 import { WebsocketService } from './websocket.service';
 import { JsonMessageType, ServerRestartWarningMessage } from '../shared/network/json-message';
 import { BannerManagerService, BannerType } from './banner-manager.service';
 import { NotificationService } from './notification.service';
 import { NotificationAutohide, NotificationType } from '../shared/models/notifications';
+import { FetchService, Method } from './fetch.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,13 +16,14 @@ export class ServerRestartWarningService {
   private notificationID: string | undefined;
 
   constructor(
+    private fetchService: FetchService,
     private websocketService: WebsocketService,
     private bannerService: BannerManagerService,
     private notificationService: NotificationService
   ) {
 
     // get whether the server is currently in a restart warning state
-    fetchServer2(Method.GET, '/api/v2/server-restart-warning').then((response) => {
+    this.fetchService.fetch(Method.GET, '/api/v2/server-restart-warning').then((response) => {
       const warning = (response as any).warning;
       console.log("Server restart warning", warning);
       this.setWarning(warning);

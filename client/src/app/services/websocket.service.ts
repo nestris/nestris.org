@@ -8,10 +8,10 @@ import { PacketGroup, PacketContent } from '../shared/network/stream-packets/pac
 import { PacketDisassembler } from '../shared/network/stream-packets/packet-disassembler';
 import { decodeMessage, MessageType } from '../shared/network/ws-message';
 import { NotificationService } from './notification.service';
-import { fetchServer2, Method } from '../scripts/fetch-server';
 import { DBUser } from '../shared/models/db-user';
 import { ServerStatsService } from './server-stats.service';
 import { DeploymentEnvironment } from '../shared/models/server-stats';
+import { FetchService, Method } from './fetch.service';
 
 
 /*
@@ -44,6 +44,7 @@ export class WebsocketService {
   private isGuest = false;
 
   constructor(
+    private fetchService: FetchService,
     private notificationService: NotificationService,
     private serverStats: ServerStatsService,
     private router: Router
@@ -52,7 +53,7 @@ export class WebsocketService {
     this.sessionID = uuid();
     
     // Check if logged in. If not, direct to login page
-    fetchServer2<DBUser>(Method.GET, '/api/v2/me').then(async (response) => {
+    this.fetchService.fetch<DBUser>(Method.GET, '/api/v2/me').then(async (response) => {
       this.user$.next(response);
 
       // if the user is already signed in, connect to the websocket
@@ -218,7 +219,7 @@ export class WebsocketService {
 
   // call /me endpoint to get and update user info
   async syncMyself() {
-    this.user$.next(await fetchServer2<DBUser>(Method.GET, '/api/v2/me'));
+    this.user$.next(await this.fetchService.fetch<DBUser>(Method.GET, '/api/v2/me'));
     if (!this.user$.getValue()) this.logout();
   }
 
@@ -320,7 +321,7 @@ export class WebsocketService {
     this.notificationService.notify(NotificationType.ERROR, "Logging out..");
 
     // send a request to the server to sign out
-    await fetchServer2(Method.POST, '/api/v2/logout');
+    await this.fetchService.fetch(Method.POST, '/api/v2/logout');
 
     this.ws?.close();
     this.ws = undefined;

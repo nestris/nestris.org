@@ -8,6 +8,7 @@ import { ServerStatsService } from './services/server-stats.service';
 import { BannerManagerService } from './services/banner-manager.service';
 import { Router } from '@angular/router';
 import { ServerRestartWarningService } from './services/server-restart-warning.service';
+import { CacheableRequestService, TestRequest } from './services/cacheable-request.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
@@ -22,6 +23,7 @@ export class AppComponent implements OnInit {
     private serverStatsService: ServerStatsService,
     private bannerManagerService: BannerManagerService,
     private serverRestartWarningService: ServerRestartWarningService,
+    private cacheableRequestService: CacheableRequestService,
     private router: Router,
   ) {
 
@@ -29,9 +31,23 @@ export class AppComponent implements OnInit {
     this.router.routeReuseStrategy.shouldReuseRoute = function () {
       return false;
     };
+
+    
   }
 
   async ngOnInit() {
+
+    // this.cacheableRequestService.get$(TestRequest).subscribe((data) => console.log('data:', data));
+
+    // for (let i = 0; i < 3; i++) {
+    //   console.log(await this.cacheableRequestService.get(TestRequest));
+    // }
+    // await this.cacheableRequestService.refresh(TestRequest);
+    // for (let i = 0; i < 3; i++) {
+    //   console.log(await this.cacheableRequestService.get(TestRequest));
+    // }
+
+
   }
 
 }

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
+import { FetchService, Method } from 'src/app/services/fetch.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { PuzzleFeedback } from 'src/app/shared/puzzles/puzzle-feedback';
 
@@ -18,6 +18,7 @@ export class FeedbackThumbsComponent {
   readonly PuzzleFeedback = PuzzleFeedback;
 
   constructor(
+    private fetchService: FetchService,
     private websocketService: WebsocketService,
   ) {}
 
@@ -36,7 +37,7 @@ export class FeedbackThumbsComponent {
       feedback: feedback,
     };
 
-    const response = await fetchServer2(Method.POST, `/api/v2/set-feedback`, body);
+    const response = await this.fetchService.fetch(Method.POST, `/api/v2/set-feedback`, body);
     console.log("Feedback response:", response);
 
     this.feedback$.next(feedback);

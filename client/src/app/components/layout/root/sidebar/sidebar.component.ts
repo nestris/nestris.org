@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, OnInit, OnDestroy } from '@angular/
 import { BehaviorSubject } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { TabID } from 'src/app/models/tabs';
-import { fetchServer2, Method } from 'src/app/scripts/fetch-server';
+import { FetchService, Method } from 'src/app/services/fetch.service';
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
 import { ServerStatsService } from 'src/app/services/server-stats.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
@@ -32,17 +32,13 @@ export class SidebarComponent implements OnInit, OnDestroy {
   readonly DeploymentEnvironment = DeploymentEnvironment;
 
   constructor(
+    private fetchService: FetchService,
     public websocketService: WebsocketService,
     public modalService: ModalManagerService,
     public serverStatsService: ServerStatsService
   ) {}
 
   async ngOnInit() {
-
-    // on recieved UPDATE_ONLINE_FRIENDS message, sync number of online friends with server
-    this.subscriptionA = this.websocketService.onEvent(JsonMessageType.UPDATE_ONLINE_FRIENDS).subscribe(() => {
-      this.syncOnlineFriends();
-    });
 
     // on sign in, sync number of online friends with server
     this.subscriptionB = this.websocketService.onSignIn().subscribe(() => {
@@ -58,7 +54,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     const userid = this.websocketService.getUserID();
     if (!userid) return; // if not logged in, do nothing
 
-    const result = await fetchServer2<{count: number}>(Method.GET, `/api/v2/num-online-friends/${userid}`);
+    const result = await this.fetchService.fetch<{count: number}>(Method.GET, `/api/v2/num-online-friends/${userid}`);
     this.numOnlineFriends$.next(result.count);
 
   }
