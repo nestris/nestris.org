@@ -70,7 +70,7 @@ async function main() {
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: NODE_ENV === DeploymentEnvironment.PRODUCTION,
+      secure: false,
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     } // Set to true if using HTTPS
   }));
