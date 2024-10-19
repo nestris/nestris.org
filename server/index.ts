@@ -69,7 +69,10 @@ async function main() {
     secret: DISCORD_CLIENT_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false } // Set to true if using HTTPS
+    cookie: {
+      secure: NODE_ENV === DeploymentEnvironment.PRODUCTION,
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    } // Set to true if using HTTPS
   }));
 
 
