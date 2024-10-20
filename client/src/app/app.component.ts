@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, isDevMode, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { NotificationService } from './services/notification.service';
 import { PushNotificationService } from './services/push-notification.service';
@@ -47,6 +47,7 @@ export class AppComponent implements OnInit {
     //   console.log(await this.cacheableRequestService.get(TestRequest));
     // }
 
+    console.log("DEV", isDevMode())
 
   }
 

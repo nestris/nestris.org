@@ -3,15 +3,17 @@ services:
     image: anselchang1/nestris.org:client-dev
     build:
       context: .
-      dockerfile: Dockerfile.client
+      dockerfile: Dockerfile.client-dev  # New Dockerfile for development
     environment:
       - NODE_ENV=dev
     ports:
-      - "80:80"  # Expose port 80 for dev client
+      - "80:4200"  # Map host port 80 to container port 4200 (default Angular dev server port)
     depends_on:
-      - server  # Ensure client waits for server to be ready
-    command: >
-      sh -c "nginx -g 'daemon off;';"
+      - server
+    volumes:
+      - ./client:/app  # Mount the client directory for live reloading
+      - /app/node_modules  # Use container's node_modules
+    command: ng serve --host 0.0.0.0 --port 4200 --poll 500
 
   server:
     image: anselchang1/nestris.org:server
