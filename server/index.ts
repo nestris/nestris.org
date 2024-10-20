@@ -4,6 +4,7 @@ import session from 'express-session';
 import { createServer } from 'http';
 import { Server as WebSocketServer } from 'ws';
 import morgan from 'morgan';
+import cors from 'cors';
 // import { endFriendshipRoute, getAllUsersMatchingUsernamePatternRoute, getFriendsInfoRoute, getUserByUserIDRoute, setFriendRequestRoute } from './src/routes/user-route';
 // import { broadcastAnnouncementRoute } from './src/routes/broadcast-route';
 // import { getDailyStreakRoute } from './src/puzzle-dashboard/puzzle-streak';
@@ -56,6 +57,9 @@ async function main() {
 
   // logging middleware
   app.use(morgan('dev'))
+
+  // cors middleware
+  app.use(cors());
 
   const NODE_ENV = process.env.NODE_ENV!;
   const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET!;

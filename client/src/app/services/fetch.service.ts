@@ -1,4 +1,4 @@
-import { Injectable, Injector } from '@angular/core';
+import { Injectable, Injector, isDevMode } from '@angular/core';
 import { WebsocketService } from './websocket.service';
 
 export enum Method {
@@ -20,7 +20,12 @@ export class FetchService {
 
 
   private getBaseURL(): string {
-    return window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+
+    // In dev mode, force the base URL to be localhost:3000
+    //const port = isDevMode() ? 3000 : window.location.port;
+    const port = window.location.port;
+
+    return window.location.protocol + '//' + window.location.hostname + (port ? (':' + port) : '');
   }
 
   // fetches from server and returns the response with generic-defined type

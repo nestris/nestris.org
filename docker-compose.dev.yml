@@ -13,7 +13,7 @@ services:
     volumes:
       - ./client:/app  # Mount the client directory for live reloading
       - /app/node_modules  # Use container's node_modules
-    command: ng serve --host 0.0.0.0 --port 4200 --poll 500
+    command: ng serve --host 0.0.0.0 --port 4200 --poll 500 --proxy-config src/proxy.conf.json
 
   server:
     image: anselchang1/nestris.org:server

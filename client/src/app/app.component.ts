@@ -47,7 +47,7 @@ export class AppComponent implements OnInit {
     //   console.log(await this.cacheableRequestService.get(TestRequest));
     // }
 
-    console.log("DEV", isDevMode())
+    console.log("DEV MODE", isDevMode())
 
   }
 
