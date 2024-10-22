@@ -20,8 +20,8 @@ export abstract class DBQuery<T> {
     /** The SQL query string. */
     public abstract query: string;
 
-    /** The maximum reasonable time for the query to execute in milliseconds. If exceeded, a warning is thrown */
-    public abstract warningMs: number; 
+    /** The maximum reasonable time for the query to execute in milliseconds. If null, no time set. If exceeded, a warning is thrown */
+    public abstract warningMs: number | null; 
 
     /**
      * Parse the raw database result into the desired output type.
@@ -31,6 +31,13 @@ export abstract class DBQuery<T> {
     public abstract parseResult(resultRows: any[]): T;
 
     constructor(public readonly params: any[]) {}
+}
+
+/**
+ * Abstract base class for database queries that write to the database and do not return a result.
+ */
+export abstract class WriteDBQuery extends DBQuery<void> {
+    public override parseResult(resultRows: any[]): void {}
 }
 
 /**
@@ -78,7 +85,7 @@ export class Database {
             const duration = Date.now() - start;
 
             // log the query and duration
-            if (duration > dbQuery.warningMs) {
+            if (dbQuery.warningMs !== null && duration > dbQuery.warningMs) {
                 console.warn(`WARNING: Query ${dbQuery.query} exceeded reasonable time limit of ${dbQuery.warningMs}ms. Executed in ${duration}ms`);
             } else {
                 console.log(`Query ${dbQuery.query} executed in ${duration}ms`);

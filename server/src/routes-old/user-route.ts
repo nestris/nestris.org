@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { queryAllUsersMatchingUsernamePattern, queryFriendsAndFriendRequestsForUser, queryUserByUserID } from '../database-old/user-queries';
+import { queryAllUsersMatchingUsernamePattern, queryUserByUserID } from '../database-old/user-queries';
 import { endFriendship, sendFriendRequest } from '../database-old/friendship-updates';
 import { ServerState } from '../old/server-state';
 import { FriendInfo, FriendStatusResult } from '../../shared/models/friends';
@@ -20,27 +20,6 @@ export async function getUserByUserIDRoute(req: Request, res: Response) {
   res.status(200).send(response);
 }
 
-// sends FriendInfo[] for all friends and potential friends (incoming/outcoming) for a user
-export async function getFriendsInfoRoute(req: Request, res: Response, state: ServerState) {
-  const userid = req.params['userid'];
-
-  const response = await queryFriendsAndFriendRequestsForUser(userid);
-
-  const friends: FriendInfo[] = response.map((friend) => {
-    
-    return {
-      userid: friend.userid,
-      username: friend.username,
-      friendStatus: friend.type,
-      onlineStatus: state.onlineUserManager.getOnlineStatus(friend.userid),
-      xp: friend.xp,
-      trophies: friend.trophies,
-      challenge: state.challengeManager.getChallenge(userid, friend.userid)
-    }
-  });
-
-  res.status(200).send(friends);
-}
 
 // POST request api/v2/friend-request/:from/:to
 export async function setFriendRequestRoute(req: Request, res: Response, state: ServerState) {

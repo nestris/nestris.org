@@ -12,7 +12,7 @@
  * @template InMemoryObject The schema of the in-memory object
  * @template Event An enum of events that can be emitted to alter the object
  */
-export function DBObject<InMemoryObject, Event>(maxCacheSize: number = 1000) {
+export function DBObject<InMemoryObject, CreateParams, Event>(maxCacheSize: number = 1000) {
     abstract class DBObject {
 
         // A map of all objects, indexed by their ID. It is ordered by the order of creation.
@@ -42,7 +42,7 @@ export function DBObject<InMemoryObject, Event>(maxCacheSize: number = 1000) {
          * Creates a new object, both in-memory and in the database. Blocks until the object is fully created.
          * use like: await CustomDBObject.create(id, newObject);
          */
-        static async create<T extends DBObject>(this: new (id: string) => T, id: string, newInMemoryObject: InMemoryObject) {
+        static async create<T extends DBObject>(this: new (id: string) => T, id: string, params: CreateParams) {
 
             // If the object already exists, throw an error
             if (DBObject.dbObjects.has(id)) {
@@ -53,7 +53,7 @@ export function DBObject<InMemoryObject, Event>(maxCacheSize: number = 1000) {
             const dbObject = new this(id);
 
             // Store the in-memory object into dbObject and create the object in the database. Blocks until the object is created
-            await dbObject.create(newInMemoryObject);
+            await dbObject.create(params);
 
             // Store the object in the map
             DBObject.dbObjects.set(id, dbObject);
@@ -164,9 +164,9 @@ export function DBObject<InMemoryObject, Event>(maxCacheSize: number = 1000) {
          * Creates a new object both in the database and in-memory. Stores the parameter as the in-memory object, and also writes it to the database.
          * @param newObject The new in-memory object to create, which would be used to create the object in the database
          */
-        public async create(newObject: InMemoryObject) {
-            this.inMemoryObject = newObject;
-            await this.createInDatabase(newObject);
+        public async create(params: CreateParams) {
+            this.inMemoryObject = this.createInMemory(params);
+            await this.createInDatabase(this.inMemoryObject);
         }
 
         /**
@@ -184,10 +184,14 @@ export function DBObject<InMemoryObject, Event>(maxCacheSize: number = 1000) {
          * @param waitForDB If true, the method will wait for the database to finish writing before returning. Otherwise, only in-memory alter is guaranteed.
          */
         public async alter(event: Event, waitForDB: boolean) {
+
+            // First, alter the object in-memory
             this.alterInMemory(event);
 
-            const dbAlter = this.alterInDatabase(event);
-            if (waitForDB) await dbAlter;
+            // Second, update database. If waitForDB is true, wait for the database to finish writing before returning
+            const saveToDatabase = this.saveToDatabase();
+            if (waitForDB) await saveToDatabase;
+            else saveToDatabase.catch(console.error);
         }
 
         /**
@@ -201,7 +205,13 @@ export function DBObject<InMemoryObject, Event>(maxCacheSize: number = 1000) {
         // Fetches the object from the database
         protected abstract fetchFromDB(): Promise<InMemoryObject>;
 
-        // Given a new in-memory object, create it in the database
+        // Save updated InMemoryObject to the database. Note that this should not create a new object, but update an existing one.
+        protected abstract saveToDatabase(): Promise<void>;
+
+        // Given parameters, create the object in-memory
+        protected abstract createInMemory(params: CreateParams): InMemoryObject;
+
+        // Given the newly-created in-memory object, create a new entry in the database
         protected abstract createInDatabase(newObject: InMemoryObject): Promise<void>;
 
         // Completely deletes the object from the database
@@ -209,9 +219,7 @@ export function DBObject<InMemoryObject, Event>(maxCacheSize: number = 1000) {
         
         // Given an event, alters the object in-memory
         protected abstract alterInMemory(event: Event): void;
-
-        // Given an event, alters the object in the database
-        protected abstract alterInDatabase(event: Event): Promise<void>;
-
     }
+
+    return DBObject;
 }

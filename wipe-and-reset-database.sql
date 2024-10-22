@@ -3,20 +3,58 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- USER TABLE
+-- highest accuracy stored as percentage * 100 (e.g. 99.5% is stored as 9950)
 DROP TABLE IF EXISTS "public"."users" CASCADE;
 CREATE TABLE "public"."users" (
     "userid" text NOT NULL,
     "username" text NOT NULL UNIQUE,
-    "permission" text NOT NULL DEFAULT 'default'::text,
+    "authentication" text NOT NULL DEFAULT 'user'::text,
+    "created_at" timestamp NOT NULL DEFAULT now(),
     "last_online" timestamp NOT NULL DEFAULT now(),
-    "trophies" int2 NOT NULL DEFAULT 1000,
+    "league" int2 NOT NULL DEFAULT 0,
     "xp" int2 NOT NULL DEFAULT 0,
+
+    "trophies" int2 NOT NULL DEFAULT 0,
+    "highest_trophies" int2 NOT NULL DEFAULT 0,
+    
     "puzzle_elo" int2 NOT NULL DEFAULT 0,
     "highest_puzzle_elo" int2 NOT NULL DEFAULT 0,
+
+    "highest_score" int2 NOT NULL DEFAULT 0,
+    "highest_level" int2 NOT NULL DEFAULT 0,
+    "highest_lines" int2 NOT NULL DEFAULT 0,
+    "highest_accuracy" int2 NOT NULL DEFAULT 0,
+
+    "highest_transition_into_19" int2 NOT NULL DEFAULT 0,
+    "highest_transition_into_29" int2 NOT NULL DEFAULT 0,
+
+    "has_perfect_transition_into_19" boolean NOT NULL DEFAULT FALSE,
+    "has_perfect_transition_into_29" boolean NOT NULL DEFAULT FALSE,
+
     PRIMARY KEY ("userid")
 );
 
-CREATE INDEX puzzle_elo_index ON users (puzzle_elo DESC); -- for leaderboard
+CREATE INDEX trophies_index ON users (trophies DESC);
+CREATE INDEX puzzle_elo_index ON users (puzzle_elo DESC);
+CREATE INDEX highest_score_index ON users (highest_score DESC);
+CREATE INDEX highest_accuracy_index ON users (highest_accuracy DESC);
+
+-- maintain the highest trophies
+CREATE OR REPLACE FUNCTION update_highest_trophies()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.trophies > NEW.highest_trophies THEN
+        NEW.highest_trophies = NEW.trophies;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- trigger to update the highest trophies when the trophies are updated for a user
+DROP TRIGGER IF EXISTS update_highest_trophies_trigger ON users;
+CREATE TRIGGER update_highest_trophies_trigger
+BEFORE UPDATE ON users
+FOR EACH ROW EXECUTE FUNCTION update_highest_trophies();
 
 -- maintain the highest puzzle elo
 CREATE OR REPLACE FUNCTION update_highest_puzzle_elo()
@@ -36,19 +74,6 @@ BEFORE UPDATE ON users
 FOR EACH ROW EXECUTE FUNCTION update_highest_puzzle_elo();
 
 
--- USER_WHITELIST table
-DROP TABLE IF EXISTS "public"."whitelist" CASCADE;
-CREATE TABLE "public"."whitelist" (
-    "discord_tag" text NOT NULL,
-    "permission" text NOT NULL DEFAULT 'default'::text, 
-    PRIMARY KEY ("discord_tag")
-);
-
-
--- hardcode some users to whitelisted
-INSERT INTO whitelist (discord_tag, permission) VALUES ('anselchang', 'admin');
-
-
 -- USER_RELATIONSHIPS table
 DROP TABLE IF EXISTS "public"."user_relationships" CASCADE;
 CREATE TABLE "public"."user_relationships" (
@@ -60,7 +85,8 @@ CREATE TABLE "public"."user_relationships" (
 
 
 -- GENERATED RATED PUZZLE TABLE
--- rating is between 1 and 5
+-- rating is between 1 and t
+-- [current|next|guesses]_N -> N is which solution ranking (1-5), current is current piece, next is next piece, guesses is num guesses to solution
 DROP TABLE IF EXISTS "public"."rated_puzzles" CASCADE;
 CREATE TABLE "public"."rated_puzzles" (
     "id" text NOT NULL,
@@ -69,112 +95,61 @@ CREATE TABLE "public"."rated_puzzles" (
     "current_piece" char(1) NOT NULL,
     "next_piece" char(1) NOT NULL,
     
-    "current_placement" int2 NOT NULL,
-    "next_placement" int2 NOT NULL,
+    "current_1" int2 NOT NULL,
+    "next_1" int2 NOT NULL,
+    "guesses_1" int2 NOT NULL,
+
+    "current_2" int2 NOT NULL,
+    "next_2" int2 NOT NULL,
+    "guesses_2" int2 NOT NULL,
+
+    "current_3" int2 NOT NULL,
+    "next_3" int2 NOT NULL,
+    "guesses_3" int2 NOT NULL,
+
+    "current_4" int2 NOT NULL,
+    "next_4" int2 NOT NULL,
+    "guesses_4" int2 NOT NULL,
+
+    "current_5" int2 NOT NULL,
+    "next_5" int2 NOT NULL,
+    "guesses_5" int2 NOT NULL,
 
     "rating" int2 NOT NULL CHECK (rating >= 1 AND rating <= 6),
     "theme" text NOT NULL,
-    "state" text NOT NULL DEFAULT 'provisional'::text,
-    "num_attempts_cached" int2 NOT NULL DEFAULT 0, -- should be updated by trigger on PuzzleAttempt
-    "num_solves_cached" int2 NOT NULL DEFAULT 0, -- should be updated by trigger on PuzzleAttempt
-    "num_likes_cached" int2 NOT NULL DEFAULT 0,
-    "num_dislikes_cached" int2 NOT NULL DEFAULT 0,
+    "num_attempts" int2 NOT NULL DEFAULT 0,
+    "num_solves" int2 NOT NULL DEFAULT 0,
+    "num_likes" int2 NOT NULL DEFAULT 0,
+    "num_dislikes" int2 NOT NULL DEFAULT 0,
 
     PRIMARY KEY ("id")
 );
-CREATE INDEX rating_index ON rated_puzzles (rating DESC); -- for fetching puzzles to rate
-
--- whether user liked/disliked a puzzle
---feedback text can only be "liked", "disliked", or "none"
-DROP TABLE IF EXISTS "public"."puzzle_feedback" CASCADE;
-CREATE TABLE "public"."puzzle_feedback" (
-    "puzzle_id" text NOT NULL REFERENCES "public"."rated_puzzles"("id"),
-    "userid" text NOT NULL REFERENCES "public"."users"("userid"),
-    "feedback" text NOT NULL CHECK (feedback = ANY (ARRAY['liked'::text, 'disliked'::text, 'none'::text])) DEFAULT 'none'::text,
-    PRIMARY KEY ("puzzle_id", "userid")
-);
-
--- calculate the number of likes and dislikes for a puzzle
--- do not solve dynamically
-CREATE OR REPLACE FUNCTION update_puzzle_feedback_cached_data()
-RETURNS TRIGGER AS $$
-BEGIN
-    UPDATE rated_puzzles
-    SET num_likes_cached = (SELECT COUNT(*) FROM puzzle_feedback WHERE puzzle_id = NEW.puzzle_id AND feedback = 'liked'::text),
-        num_dislikes_cached = (SELECT COUNT(*) FROM puzzle_feedback WHERE puzzle_id = NEW.puzzle_id AND feedback = 'disliked'::text)
-    WHERE id = NEW.puzzle_id;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- trigger to update the number of likes and dislikes for a puzzle
-DROP TRIGGER IF EXISTS update_puzzle_feedback_cached_data_trigger ON puzzle_feedback;
-CREATE TRIGGER update_puzzle_feedback_cached_data_trigger
-AFTER INSERT OR UPDATE OR DELETE ON puzzle_feedback
-FOR EACH ROW EXECUTE FUNCTION update_puzzle_feedback_cached_data();
-
-
--- PUZZLE_ATTEMPT TABLE (for rated puzzles only)
-
-DROP TABLE IF EXISTS "public"."puzzle_attempts" CASCADE;
-CREATE TABLE "public"."puzzle_attempts" (
-    "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-    "puzzle_id" text REFERENCES "public"."rated_puzzles"("id"),
-    "userid" text NOT NULL REFERENCES "public"."users"("userid"),
-    "timestamp" timestamp NOT NULL DEFAULT now(),
-    "rating" int2 NOT NULL CHECK (rating >= 1 AND rating <= 6),
-    "is_correct" boolean NOT NULL,
-    "elo_before" int2 NOT NULL,
-    "elo_change" int2, -- if NULL, then it was an unranked puzzle
-    "solve_time" int2 NOT NULL,
-
-    "current_placement" int2,
-    "next_placement" int2,
-
-    PRIMARY KEY ("id")
-);
-CREATE INDEX timestamp_index ON puzzle_attempts (timestamp DESC); -- for fetching recent puzzle attempts
-
-
--- calculate the number of attempts and solves for a puzzle
--- do not solve dynamically
-CREATE OR REPLACE FUNCTION update_puzzle_cached_data()
-RETURNS TRIGGER AS $$
-BEGIN
-    UPDATE rated_puzzles
-    SET num_attempts_cached = (SELECT COUNT(*) FROM puzzle_attempts WHERE puzzle_id = NEW.puzzle_id),
-        num_solves_cached = (SELECT COUNT(*) FROM puzzle_attempts WHERE puzzle_id = NEW.puzzle_id AND is_correct = TRUE)
-    WHERE id = NEW.puzzle_id;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- trigger to update the number of attempts and solves for a puzzle
-DROP TRIGGER IF EXISTS update_puzzle_cached_data_trigger ON puzzle_attempts;
-CREATE TRIGGER update_puzzle_cached_data_trigger
-AFTER INSERT OR UPDATE OR DELETE ON puzzle_attempts
-FOR EACH ROW EXECUTE FUNCTION update_puzzle_cached_data();
-
+CREATE INDEX rating_index ON rated_puzzles (rating DESC); -- for fetching puzzles by rating
 
 
 -- GAME TABLE
+-- accuracy is stored as percentage * 100 (e.g. 99.5% is stored as 9950)
+-- data is the binary game data, which is nullable for when game expires
 DROP TABLE IF EXISTS "public"."games" CASCADE;
 CREATE TABLE "public"."games" (
     "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
     "created_at" timestamp NOT NULL DEFAULT now(),
     "userid" text NOT NULL REFERENCES "public"."users"("userid"),
+    "start_level" int2 NOT NULL,
+    "end_score" int2 NOT NULL,
+    "end_level" int2 NOT NULL,
+    "end_lines" int2 NOT NULL,
+    "accuracy" int2 NOT NULL,
     PRIMARY KEY ("id")
 );
 
--- GAME ANALYSIS TABLE
--- analysis of a game
-DROP TABLE IF EXISTS "public"."game_analysis" CASCADE;
-CREATE TABLE "public"."game_analysis" (
-    "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+-- GAME DATA, storing the game data for each game
+DROP TABLE IF EXISTS "public"."game_data" CASCADE;
+CREATE TABLE "public"."game_data" (
     "game_id" uuid NOT NULL REFERENCES "public"."games"("id"),
-    PRIMARY KEY ("id")
+    "data" bytea NOT NULL,
+    PRIMARY KEY ("game_id")
 );
-CREATE INDEX game_id_index ON game_analysis (game_id); -- for fetching game analysis by game id
 
 -- MATCH TABLE
 -- match between two users
@@ -184,6 +159,8 @@ CREATE TABLE "public"."matches" (
     "created_at" timestamp NOT NULL DEFAULT now(),
     "userid1" text NOT NULL REFERENCES "public"."users"("userid"),
     "userid2" text NOT NULL REFERENCES "public"."users"("userid"),
+    "userid1_trophies" int2 NOT NULL,
+    "userid2_trophies" int2 NOT NULL,
     "rated" boolean NOT NULL,
     PRIMARY KEY ("id")
 );
@@ -212,7 +189,8 @@ CREATE TABLE "public"."events" (
     "timestamp" timestamp NOT NULL DEFAULT now(),
     "userid" text REFERENCES "public"."users"("userid"),
     "sessionid" text,
-    "event" text NOT NULL
+    "event" text NOT NULL,
+    "json" jsonb DEFAULT NULL
 );
 CREATE INDEX timestamp_index ON events (timestamp DESC); -- for fetching recent events
 CREATE INDEX sessionid_index ON events (sessionid); -- for fetching events by session id
