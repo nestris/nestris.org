@@ -1,30 +1,9 @@
-import { Authentication } from "../../../shared/models/db-user";
+import { Authentication, DBUser } from "../../../shared/models/db-user";
 import { getLeagueFromIndex, updateXP } from "../../../shared/nestris-org/league-system";
 import { DBObject } from "../db-object";
+import { DBObjectNotFoundError } from "../db-object-error";
 import { Database, DBQuery, WriteDBQuery } from "../db-query";
 
-// The user object stored in-memory
-export interface DBUser {
-    userid: string,
-    username: string,
-    authentication: string,
-    created_at: Date,
-    last_online: Date,
-    league: number,
-    xp: number,
-    trophies: number,
-    highest_trophies: number,
-    puzzle_elo: number,
-    highest_puzzle_elo: number,
-    highest_score: number,
-    highest_level: number,
-    highest_lines: number,
-    highest_accuracy: number,
-    highest_transition_into_19: number,
-    highest_transition_into_29: number,
-    has_perfect_transition_into_19: boolean,
-    has_perfect_transition_into_29: boolean,
-}
 
 // The parameters required to create a new user
 export interface DBUserParams {
@@ -88,7 +67,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>() 
         
             public override parseResult(resultRows: any[]): DBUser {
                 if (resultRows.length === 0) {
-                    throw new Error('User not found');
+                    throw new DBObjectNotFoundError('User not found');
                 }
                 return resultRows[0];
             }

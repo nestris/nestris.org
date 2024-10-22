@@ -1,3 +1,5 @@
+import { DBError, DBObjectAlreadyExistsError, DBObjectNotFoundError } from "./db-object-error";
+
 /**
  * A DBObject interfaces in-memory storage of a database object with reading and writing to the database. Subclasses
  * implement how to fetch the object from the database, and how to alter the object both in-memory and in the database. So,
@@ -41,12 +43,13 @@ export function DBObject<InMemoryObject, CreateParams, Event>(maxCacheSize: numb
         /**
          * Creates a new object, both in-memory and in the database. Blocks until the object is fully created.
          * use like: await CustomDBObject.create(id, newObject);
+         * @throws DBError
          */
         static async create<T extends DBObject>(this: new (id: string) => T, id: string, params: CreateParams) {
 
             // If the object already exists, throw an error
             if (DBObject.dbObjects.has(id)) {
-                throw new Error(`Object with ID ${id} already exists`);
+                throw new DBObjectAlreadyExistsError(`Object with ID ${id} already exists`);
             }
 
             // Construct the new DBObject
@@ -65,13 +68,14 @@ export function DBObject<InMemoryObject, CreateParams, Event>(maxCacheSize: numb
 
          /**
          * Completely deletes the object from the database and in-memory. Blocks until the object is fully deleted.
+         * @throws DBError
          */
         static async delete(id: string) {
             
             // First, fetch the object from the map
             const dbObject = DBObject.dbObjects.get(id);
             if (!dbObject) {
-                throw new Error(`Object with ID ${id} does not exist`);
+                throw new DBObjectNotFoundError(`Object with ID ${id} does not exist`);
             }
 
             // Delete the object from the database
@@ -93,7 +97,7 @@ export function DBObject<InMemoryObject, CreateParams, Event>(maxCacheSize: numb
             // Fetch the object from the map
             const dbObject = DBObject.dbObjects.get(id);
             if (!dbObject) {
-                throw new Error(`Object with ID ${id} does not exist`);
+                throw new DBObjectNotFoundError(`Object with ID ${id} does not exist`);
             }
 
             // Alter the object in-memory and in the database. If waitForDB is true, wait for the database to finish writing before returning
@@ -105,17 +109,28 @@ export function DBObject<InMemoryObject, CreateParams, Event>(maxCacheSize: numb
          * cache it in-memory. Blocks until the object is fetched.
          * 
          * This will be fast if the object is already in-memory, but slow if the object is not in-memory.
-         * @param id 
-         * @returns 
+         * @param id The ID of the object to get
+         * @returns The in-memory object, whether it was cached, and the time it took to fetch the object
+         * @throws DBError
          */
-        static async get<T extends DBObject>(this: new (id: string) => T, id: string): Promise<InMemoryObject> {
+        static async get<T extends DBObject>(this: new (id: string) => T, id: string): Promise<{
+            object: InMemoryObject,
+            cached: boolean,
+            ms: number
+        }> {
+
+            const start = Date.now();
 
             // Try to fetch the object from the map, if it exists
             const existingDBObject = DBObject.dbObjects.get(id);
 
             // If the object is in-memory, return the in-memory object
             if (existingDBObject) {
-                return existingDBObject.get();
+                return {
+                    object: existingDBObject.get(),
+                    cached: true,
+                    ms: Date.now() - start
+                }
             }
 
             // We need to fetch the object from the database. Construct the object for the desired id and sync with database to get the data
@@ -130,7 +145,11 @@ export function DBObject<InMemoryObject, CreateParams, Event>(maxCacheSize: numb
             DBObject.evictOldestIfNeeded();
 
             // Return the in-memory object
-            return dbObject.get();
+            return {
+                object: dbObject.get(),
+                cached: false,
+                ms: Date.now() - start
+            }
         }
 
 
@@ -202,7 +221,11 @@ export function DBObject<InMemoryObject, CreateParams, Event>(maxCacheSize: numb
             return this.inMemoryObject;
         }
 
-        // Fetches the object from the database
+        /**
+         * Fetches the object from the database
+         * @returns The object fetched from the database
+         * @throws DBError, will throw an DBObjectNotFoundError if the object does not exist in the database
+         */
         protected abstract fetchFromDB(): Promise<InMemoryObject>;
 
         // Save updated InMemoryObject to the database. Note that this should not create a new object, but update an existing one.

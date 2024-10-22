@@ -1,7 +1,7 @@
 export enum Authentication {
   ADMIN = "admin", // full unrestricted access
   TRUSTED = "trusted",
-  USER = "default",
+  USER = "user",
   NONE = "none",
 }
 
@@ -12,14 +12,25 @@ export const AUTHENTICATION_LEVEL = {
   [Authentication.NONE]: 0,
 }
 
-// MAKE SURE THIS IS 1:1 WITH THE DATABASE TABLE
+
 export interface DBUser {
-  userid: string;
-  username: string;
-  authentication: Authentication;
-  lastOnline: Date;
-  trophies: number;
-  xp: number;
-  puzzleElo: number;
-  highestPuzzleElo: number;
+  userid: string,
+  username: string,
+  authentication: Authentication,
+  created_at: Date,
+  last_online: Date,
+  league: number,
+  xp: number,
+  trophies: number,
+  highest_trophies: number,
+  puzzle_elo: number,
+  highest_puzzle_elo: number,
+  highest_score: number,
+  highest_level: number,
+  highest_lines: number,
+  highest_accuracy: number,
+  highest_transition_into_19: number,
+  highest_transition_into_29: number,
+  has_perfect_transition_into_19: boolean,
+  has_perfect_transition_into_29: boolean,
 }
