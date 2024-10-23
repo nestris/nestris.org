@@ -1,4 +1,5 @@
 import { Challenge } from "../models/challenge"
+import { DBUser } from "../models/db-user"
 import { MatchInfo, MultiplayerData, MultiplayerRoomState } from "../models/multiplayer"
 import { NotificationType } from "../models/notifications"
 
@@ -22,6 +23,7 @@ export enum JsonMessageType {
     MULTIPLAYER_ROOM_UPDATE = 'multiplayer_room_update', // sent from server to client to update the multiplayer room
     SOLO_GAME_END = 'solo_game_end', // sent from server to client on solo game end, with game details
     SERVER_RESTART_WARNING = 'server_restart_warning', // sent from server to client to warn of server restart
+    ME = 'ME'
 }
 
 export abstract class JsonMessage {
@@ -153,5 +155,13 @@ export class ServerRestartWarningMessage extends JsonMessage {
         public readonly warning: boolean // whether enabled or disabled
     ) {
         super(JsonMessageType.SERVER_RESTART_WARNING)
+    }
+}
+
+export class MeMessage extends JsonMessage {
+    constructor(
+        public readonly me: DBUser
+    ) {
+        super(JsonMessageType.ME)
     }
 }

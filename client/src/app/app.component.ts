@@ -8,7 +8,8 @@ import { ServerStatsService } from './services/server-stats.service';
 import { BannerManagerService } from './services/banner-manager.service';
 import { Router } from '@angular/router';
 import { ServerRestartWarningService } from './services/server-restart-warning.service';
-import { CacheableRequestService, TestRequest } from './services/cacheable-request.service';
+import { CacheableRequestService } from './services/cacheable-request.service';
+import { MeService } from './services/state/me.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
@@ -24,6 +25,7 @@ export class AppComponent implements OnInit {
     private bannerManagerService: BannerManagerService,
     private serverRestartWarningService: ServerRestartWarningService,
     private cacheableRequestService: CacheableRequestService,
+    private meService: MeService,
     private router: Router,
   ) {
 
@@ -37,18 +39,14 @@ export class AppComponent implements OnInit {
 
   async ngOnInit() {
 
-    // this.cacheableRequestService.get$(TestRequest).subscribe((data) => console.log('data:', data));
+    console.log("DEV MODE", isDevMode());
 
-    // for (let i = 0; i < 3; i++) {
-    //   console.log(await this.cacheableRequestService.get(TestRequest));
-    // }
-    // await this.cacheableRequestService.refresh(TestRequest);
-    // for (let i = 0; i < 3; i++) {
-    //   console.log(await this.cacheableRequestService.get(TestRequest));
-    // }
+    console.log("gg");
 
-    console.log("DEV MODE", isDevMode())
+    const me = await this.meService.get();
+    console.log("Me", me);
+
+    console.log("asdf");
 
   }
-
 }

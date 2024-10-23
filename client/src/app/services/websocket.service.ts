@@ -23,23 +23,18 @@ Also handles sign in, as the websocket connection is established when the user s
 closed when the user signs out.
 */
 
-const NON_AUTH_WEBPAGES = ['/login'];
-
 @Injectable({
   providedIn: 'root'
 })
 export class WebsocketService {
 
   private ws?: WebSocket;
-  private user$ = new BehaviorSubject<DBUser | undefined>(undefined);
   private sessionID?: string;
 
   private jsonEvent$ = new Subject<JsonMessage>();
   private packetGroup$ = new Subject<PacketGroup>();
 
   private signedInSubject$ = new BehaviorSubject<boolean>(false);
-
-  private hasSignedInBefore = false;
 
   private isGuest = false;
 
@@ -48,36 +43,16 @@ export class WebsocketService {
     private notificationService: NotificationService,
     private serverStats: ServerStatsService,
     private router: Router
-  ) {
+  ) {}
+
+  // Initialize the websocket service with a user id and username, connecting to the websocket
+  public async init(userid: string, username: string) {
 
     this.sessionID = uuid();
-    
-    // Check if logged in. If not, direct to login page
-    this.fetchService.fetch<DBUser>(Method.GET, '/api/v2/me').then(async (response) => {
-      this.user$.next(response);
 
-      // if the user is already signed in, connect to the websocket
-      console.log("Logged in. Connecting to websocket...")
-      notificationService.notify(NotificationType.INFO, "Connecting to server...");
-      
-      await this.connectWebsocket();
-    }).catch((error) => {
-      
-      // If we are on a non-auth page, do nothing
-      if (NON_AUTH_WEBPAGES.includes(location.pathname)) {
-        console.log("Not signed in but on non-auth page. Doing nothing.");
-        return;
-      }
-
-      // Exception: if we are on puzzles page in single mode, do nothing
-      if (location.pathname === '/online/puzzle' && location.search.includes('mode=single')) {
-        console.log("Not signed in but on single puzzle page. Doing nothing.");
-        return;
-      }
-      
-      // If not signed in, redirect to login page with hard refresh if we were on an authenticated page
-      location.href = '/login';
-    });
+    // if the user is already signed in, connect to the websocket
+    console.log("Logged in. Connecting to websocket...")
+    this.notificationService.notify(NotificationType.INFO, "Connecting to server...");
 
     /*
      Sign in requires a handshake that works as follows:
@@ -98,26 +73,14 @@ export class WebsocketService {
         this.router.navigate(['/']);
       }
 
+      // Notify the user that they are signed in
+      this.notificationService.notify(NotificationType.SUCCESS, `Logged in as ${username}`)
       this.signedInSubject$.next(true);
     });
 
-    this.onSignIn().subscribe(() => {
-      this.hasSignedInBefore = true;
-      this.notificationService.notify(NotificationType.SUCCESS, `Logged in as ${this.getUsername()}`)
-    });
 
-    this.onSignOut().subscribe(() => {
-      if (this.hasSignedInBefore) {
-
-        console.log('Signed out. Redirecting to login page...');
-        
-
-        // redirect to login page
-        this.router.navigate(['/login']);
-
-        this.notificationService.notify(NotificationType.ERROR, "You are now signed out");
-      }
-    });
+    // Start websocket handshake
+    await this.connectWebsocket(userid, username);
   }
 
   // Call this function to login with discord
@@ -185,39 +148,11 @@ export class WebsocketService {
     return this.packetGroup$.asObservable();
   }
 
-  // get the username of the signed in user, or undefined if not signed in
-  getUsername(): string | undefined {
-    return this.user$.getValue()?.username;
-  }
-
-  // get the userid of the signed in user, or undefined if not signed in
-  getUserID(): string | undefined {
-    return this.user$.getValue()?.userid;
-  }
-
-  getUserID$(): Observable<string | undefined> {
-    return this.user$.asObservable().pipe(
-      map(user => user?.userid)
-    );
-  }
-
-  getUser(): DBUser | undefined {
-    return this.user$.getValue();
-  }
-
-  getUser$(): Observable<DBUser | undefined> {
-    return this.user$.asObservable();
-  }
 
   getSessionID(): string | undefined {
     return this.sessionID;
   }
 
-  // call /me endpoint to get and update user info
-  async syncMyself() {
-    this.user$.next(await this.fetchService.fetch<DBUser>(Method.GET, '/api/v2/me'));
-    if (!this.user$.getValue()) this.logout();
-  }
 
   // called when server sends a binary or json message to the client
   private async onMessage(message: MessageEvent) {
@@ -258,7 +193,7 @@ export class WebsocketService {
 
   // called to connect to server
   // if the connection is successful, a ws connection is established and the user is signed in
-  async connectWebsocket() {
+  async connectWebsocket(userid: string, username: string) {
 
     // if already signed in, do nothing
     if (this.isSignedIn()) {
@@ -284,7 +219,7 @@ export class WebsocketService {
     // when the websocket connects, send the OnConnectMessage to initiate the handshake
     this.ws.onopen = () => {
       console.log('Connected to the WebSocket server');
-      this.sendJsonMessage(new OnConnectMessage(this.getUserID()!, this.getUsername()!, this.sessionID!));
+      this.sendJsonMessage(new OnConnectMessage(userid, username, this.sessionID!));
     };
     
     // pipe messages to onEvent observables
@@ -321,7 +256,6 @@ export class WebsocketService {
 
     this.ws?.close();
     this.ws = undefined;
-    this.user$.next(undefined);
     this.sessionID = undefined;
 
     // redirect to login page with hard refresh if we're not already there

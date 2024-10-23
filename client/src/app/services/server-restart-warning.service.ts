@@ -23,14 +23,14 @@ export class ServerRestartWarningService {
   ) {
 
     // get whether the server is currently in a restart warning state
-    this.fetchService.fetch(Method.GET, '/api/v2/server-restart-warning').then((response) => {
-      const warning = (response as any).warning;
-      console.log("Server restart warning", warning);
-      this.setWarning(warning);
+    // this.fetchService.fetch(Method.GET, '/api/v2/server-restart-warning').then((response) => {
+    //   const warning = (response as any).warning;
+    //   console.log("Server restart warning", warning);
+    //   this.setWarning(warning);
 
-    }).catch((error) => {
-      console.error("Failed to fetch server restart warning", error);
-    });
+    // }).catch((error) => {
+    //   console.error("Failed to fetch server restart warning", error);
+    // });
 
 
     // Subscribe to changes in server restart warning
