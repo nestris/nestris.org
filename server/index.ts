@@ -15,7 +15,6 @@ import cors from 'cors';
 // import { submitPuzzleAttemptRoute } from './src/puzzle-generation/submit-puzzle-attempt';
 // import { sendChallengeRoute, rejectChallengeRoute, acceptChallengeRoute } from './src/routes/challenge-route';
 // import { getTopMovesHybridRoute } from './src/stackrabbit/stackrabbit';
-import { queryUserByUserID } from './src/database-old/user-queries';
 import { DBUser } from './shared/models/db-user';
 // import { getPuzzleAggregate } from './src/puzzle-generation/manage-puzzles';
 import { DeploymentEnvironment, ServerStats } from './shared/models/server-stats';
@@ -95,7 +94,6 @@ async function main() {
   routes.registerRoute(GetOnlineUsersRoute);
   routes.registerRoute(GetOnlineFriendCountRoute);
   routes.registerRoute(GetFriendsInfo);
-
 
   // app.get('/api/v2/users-by-username', getAllUsersMatchingUsernamePatternRoute);
   // app.get('/api/v2/user/:userid', getUserByUserIDRoute);

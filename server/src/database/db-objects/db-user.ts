@@ -7,7 +7,6 @@ import { Database, DBQuery, WriteDBQuery } from "../db-query";
 
 // The parameters required to create a new user
 export interface DBUserParams {
-    userid: string,
     username: string
 }
 
@@ -79,7 +78,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>() 
     // Given parameters, create the DBUser in-memory with initial values
     protected override createInMemory(params: DBUserParams): DBUser {
         return {
-            userid: params.userid,
+            userid: this.id,
             username: params.username,
             authentication: Authentication.USER,
             created_at: new Date(),

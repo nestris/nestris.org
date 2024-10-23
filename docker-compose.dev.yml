@@ -19,7 +19,8 @@ services:
     image: anselchang1/nestris.org:server
     build:
       context: .
-      dockerfile: Dockerfile.server
+      dockerfile: Dockerfile.server-dev
+      target: base  # Use the base stage instead of final for development
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -32,7 +33,16 @@ services:
       - "3000:3000" # Expose port 3000 for dev server
     depends_on:
       - postgres
-    command: node --inspect=0.0.0.0:9229 -r ts-node/register index.ts
+    volumes:
+      - ./server:/app  # Mount your source code
+      - /app/node_modules  # Anonymous volume to prevent overwriting node_modules
+    command: >
+      npx nodemon
+      --watch "./"
+      --ext "ts,json"
+      --ignore "node_modules/*"
+      --ignore "dist/*"
+      --exec "node --inspect=0.0.0.0:9229 -r ts-node/register index.ts"
 
   postgres:
     image: postgres:13

@@ -24,7 +24,7 @@ export class EloComponent {
   ) {
 
     this.fetchService.fetch<DBUser>(Method.GET, `/api/v2/me`).then(user => {
-      this.eloStats$.next({ elo: user.puzzleElo, highest: user.highestPuzzleElo });
+      this.eloStats$.next({ elo: user.puzzle_elo, highest: user.highest_puzzle_elo });
     });
   }
 }

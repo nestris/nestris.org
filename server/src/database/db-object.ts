@@ -43,9 +43,10 @@ export function DBObject<InMemoryObject, CreateParams, Event>(maxCacheSize: numb
         /**
          * Creates a new object, both in-memory and in the database. Blocks until the object is fully created.
          * use like: await CustomDBObject.create(id, newObject);
+         * @returns The newly created object
          * @throws DBError
          */
-        static async create<T extends DBObject>(this: new (id: string) => T, id: string, params: CreateParams) {
+        static async create<T extends DBObject>(this: new (id: string) => T, id: string, params: CreateParams): Promise<InMemoryObject> {
 
             // If the object already exists, throw an error
             if (DBObject.dbObjects.has(id)) {
@@ -56,7 +57,7 @@ export function DBObject<InMemoryObject, CreateParams, Event>(maxCacheSize: numb
             const dbObject = new this(id);
 
             // Store the in-memory object into dbObject and create the object in the database. Blocks until the object is created
-            await dbObject.create(params);
+            const newObject = await dbObject.create(params);
 
             // Store the object in the map
             DBObject.dbObjects.set(id, dbObject);
@@ -64,6 +65,9 @@ export function DBObject<InMemoryObject, CreateParams, Event>(maxCacheSize: numb
 
             // Evict the oldest object if the cache size exceeds the maximum cache size
             DBObject.evictOldestIfNeeded();
+
+            // Return the in-memory object
+            return newObject;
         }
 
          /**
@@ -182,10 +186,13 @@ export function DBObject<InMemoryObject, CreateParams, Event>(maxCacheSize: numb
         /**
          * Creates a new object both in the database and in-memory. Stores the parameter as the in-memory object, and also writes it to the database.
          * @param newObject The new in-memory object to create, which would be used to create the object in the database
+         * @returns The newly created object
          */
-        public async create(params: CreateParams) {
+        public async create(params: CreateParams): Promise<InMemoryObject> {
             this.inMemoryObject = this.createInMemory(params);
             await this.createInDatabase(this.inMemoryObject);
+
+            return this.inMemoryObject;
         }
 
         /**

@@ -1,5 +1,4 @@
 import { Authentication, DBUser } from "../../../shared/models/db-user";
-import { queryUserByUserID } from "../../database-old/user-queries";
 import { DBObjectNotFoundError } from "../../database/db-object-error";
 import { DBUserObject } from "../../database/db-objects/db-user";
 import { GetRoute, RouteError, UserInfo } from "../route";

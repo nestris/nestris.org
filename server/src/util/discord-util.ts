@@ -1,8 +1,9 @@
 import express from 'express';
 import axios from 'axios';
 import session from 'express-session';
-import { createUser, queryUserByUserID } from '../database-old/user-queries';
-import { Authentication } from '../../shared/models/db-user';
+import { Authentication, DBUser } from '../../shared/models/db-user';
+import { DBUserObject } from '../database/db-objects/db-user';
+import { DBObjectNotFoundError } from '../database/db-object-error';
 
 require('dotenv').config();
 
@@ -63,19 +64,24 @@ export const handleDiscordCallback = async (req: express.Request, res: express.R
         console.log(userResponse.data);
         const userID = userResponse.data.id;
 
-        // Check if the user is already in the database. If not, create a new user.
-        let username: string;
-        let permission: Authentication;
-        const user = await queryUserByUserID(userID);
-        if (user) {
-            // If user already exists, fetch username from database
-            username = user.username;
-            permission = user.authentication;
-        } else {
-            // If user does not exist, create a new user with username from Discord global name
-            username = userResponse.data.global_name ?? userResponse.data.username ?? "Unknown User";
-            permission = await createUser(userID, username);
+        // Check if the user is already in the database. If not, create a new user.        
+        let user: DBUser;
+        try {
+            // Try to get the user from the database
+            user = (await DBUserObject.get(userID)).object;
+        } catch (error: any) {
+
+            if (error instanceof DBObjectNotFoundError) {
+                // If user does not exist, create a new user with username from Discord global name
+                const newUsername = userResponse.data.global_name ?? userResponse.data.username ?? "Unknown User";
+                user = await DBUserObject.create(userID, { username: newUsername });
+            } else {
+                throw error;
+            }
         }
+        
+        const username = user.username;
+        const permission: Authentication = user.authentication;
 
         // Store the user's session
         (req.session as UserSession).accessToken = accessToken;

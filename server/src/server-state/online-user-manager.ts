@@ -4,7 +4,6 @@ import { filter, map, Observable, Subject } from "rxjs";
 import { JsonMessage, JsonMessageType, OnConnectMessage, ErrorHandshakeIncompleteMessage, ErrorMessage } from "../../shared/network/json-message";
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
 import { decodeMessage, MessageType } from "../../shared/network/ws-message";
-import { queryFriendUserIDsForUser } from "../database-old/user-queries";
 import { OnlineUserEvent, OnlineUserEventType, OnSessionBinaryMessageEvent, OnSessionConnectEvent, OnSessionDisconnectEvent, OnSessionJsonMessageEvent, OnUserConnectEvent, OnUserDisconnectEvent } from "./online-user-events";
 import { OnlineUser, OnlineUserInfo, OnlineUserSession } from "./online-user";
 import { WebSocketServer } from "ws";
@@ -71,8 +70,11 @@ export class OnlineUserManager {
 
     // get userid of all of a person's friends that are online
     public async getOnlineFriends(userid: string): Promise<string[]> {
-        const friends = await queryFriendUserIDsForUser(userid);
-        return friends.filter(friend => this.isUserOnline(friend));
+        // const friends = await queryFriendUserIDsForUser(userid);
+        // return friends.filter(friend => this.isUserOnline(friend));
+
+        // TODO
+        return [];
     }
 
     public isUserOnline(userid: string): boolean {
