@@ -81,6 +81,7 @@ export class OnlineUserManager {
         return this.onlineUsers.has(userid);
     }
 
+    // Send a message to all online users
     public sendToAllOnlineUsers(message: JsonMessage) {
         this.onlineUsers.forEach(onlineUser => onlineUser.sendJsonMessageToAllSessions(message));
     }

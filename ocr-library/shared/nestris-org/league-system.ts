@@ -55,9 +55,9 @@ export const LEAGUE_XP_REQUIREMENTS = {
 
 export function getLeagueFromIndex(index: number): League {
 
-    if (index < League.MINO_5 || index > League.RUBY_1) {
-        throw new Error(`Invalid league index ${index}`);
-    }
+    // If the index is out of bounds, return the closest valid league
+    if (index < League.MINO_5) return League.MINO_5;
+    if (index > League.RUBY_1) return League.RUBY_1;
 
     return index as League;
 }

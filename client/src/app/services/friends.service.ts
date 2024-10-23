@@ -39,14 +39,14 @@ export class FriendsService {
     // sort friendsInfo and update friendsInfo$
     this.friendsInfo$.next(this.sort(friendsInfo));
 
-    // extract the list of challenges from this.friendsInfo$ and update this.challenges$
-    this.challenges$.next(
-      this.friendsInfo$.getValue().filter( // get all the FriendInfo with challenges
-        (friendInfo) => friendInfo.challenge !== undefined
-      ).map( // convert to Challenge[]
-        (friendInfo) => friendInfo.challenge!
-      )
-    );
+    // // extract the list of challenges from this.friendsInfo$ and update this.challenges$
+    // this.challenges$.next(
+    //   this.friendsInfo$.getValue().filter( // get all the FriendInfo with challenges
+    //     (friendInfo) => friendInfo.challenge !== undefined
+    //   ).map( // convert to Challenge[]
+    //     (friendInfo) => friendInfo.challenge!
+    //   )
+    // );
   }
 
   // sort by friend request type, then by online status, then lexigrapically

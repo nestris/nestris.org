@@ -1,4 +1,4 @@
-import { Challenge } from "./challenge";
+import { League } from "../nestris-org/league-system";
 
 // the relationship status between one user and another user
 export enum FriendStatus {
@@ -25,8 +25,8 @@ export interface FriendInfo {
     username: string;
     friendStatus: FriendStatus;
     onlineStatus: OnlineUserStatus;
-    xp: number;
+    league: League;
+    highestScore: number;
     trophies: number;
     puzzleElo: number;
-    challenge?: Challenge; // if there is a challenge between user and this friend, then it is a Challenge object
 }

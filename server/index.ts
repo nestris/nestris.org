@@ -5,38 +5,19 @@ import { createServer } from 'http';
 import { Server as WebSocketServer } from 'ws';
 import morgan from 'morgan';
 import cors from 'cors';
-// import { endFriendshipRoute, getAllUsersMatchingUsernamePatternRoute, getFriendsInfoRoute, getUserByUserIDRoute, setFriendRequestRoute } from './src/routes/user-route';
-// import { broadcastAnnouncementRoute } from './src/routes/broadcast-route';
-// import { getDailyStreakRoute } from './src/puzzle-dashboard/puzzle-streak';
-// import { getRelativePuzzleRankRoute } from './src/puzzle-dashboard/relative-puzzle-rank';
-// import { getAttemptStatsRoute } from './src/puzzle-generation/get-attempt-stats';
-// import { getRandomPuzzleRatingForPlayerElo, selectRandomPuzzleForUserRoute, calculateEloChangeForPuzzle } from './src/puzzle-generation/select-puzzle';
-// import { setFeedbackRoute } from './src/puzzle-generation/set-feedback';
-// import { submitPuzzleAttemptRoute } from './src/puzzle-generation/submit-puzzle-attempt';
-// import { sendChallengeRoute, rejectChallengeRoute, acceptChallengeRoute } from './src/routes/challenge-route';
-// import { getTopMovesHybridRoute } from './src/stackrabbit/stackrabbit';
-import { DBUser } from './shared/models/db-user';
-// import { getPuzzleAggregate } from './src/puzzle-generation/manage-puzzles';
+
 import { DeploymentEnvironment, ServerStats } from './shared/models/server-stats';
-// import { getMultiplayerStateRoute, selectLevelForPlayer, setMultiplayerReadiness, transitionDeadToWaiting } from './src/routes/multiplayer-routes';
-// import { leaveRoomRoute } from './src/routes/room-routes';
-// import { postEventRoute } from './src/routes/event-route';
-// import { getPuzzleRoute } from './src/routes/get-puzzle-route';
-// import { warnServerRestartRoute } from './src/routes/warn-server-restart-route';
-// import { getPuzzlesSolvedRoute, getTotalPuzzleDuration, getUserCountRoute } from './src/routes/db-route';
-// import { getPuzzleLeaderboard } from './src/database/leaderboard-queries';
-// import { getPuzzleGuessesRoute } from './src/routes/puzzle-guesses-route';
 import { handleDiscordCallback, handleLogout, redirectToDiscord } from './src/util/discord-util';
 import { OnlineUserManager } from './src/online-users/online-user-manager';
 import { EventConsumerManager } from './src/online-users/event-consumer';
 import { Query } from 'pg';
 import { RouteManager } from './src/routes/route';
-import { GetMeRoute } from './src/routes/online-users/get-me-route';
-import { GetOnlineUsersRoute } from './src/routes/online-users/get-online-users-route';
-import { GetOnlineFriendCountRoute } from './src/routes/friends/get-online-friend-count';
+import { GetMeRoute } from './src/routes/user/get-me-route';
+import { GetOnlineUsersRoute } from './src/routes/user/get-online-users-route';
 import { FriendEventConsumer } from './src/online-users/event-consumers/friend-event-consumer';
-import { GetFriendsInfo } from './src/routes/friends/get-friends-info';
+import { GetFriendsInfoRoute } from './src/routes/user/get-friends-info-route';
 import { PingConsumer } from './src/online-users/event-consumers/ping-consumer';
+import { GetAllUsernamesRoute } from './src/routes/user/get-all-usernames-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -94,8 +75,8 @@ async function main() {
   const routes = new RouteManager(app);
   routes.registerRoute(GetMeRoute);
   routes.registerRoute(GetOnlineUsersRoute);
-  routes.registerRoute(GetOnlineFriendCountRoute);
-  routes.registerRoute(GetFriendsInfo);
+  routes.registerRoute(GetFriendsInfoRoute);
+  routes.registerRoute(GetAllUsernamesRoute);
 
   // app.get('/api/v2/users-by-username', getAllUsersMatchingUsernamePatternRoute);
   // app.get('/api/v2/user/:userid', getUserByUserIDRoute);

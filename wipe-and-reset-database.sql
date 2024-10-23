@@ -128,7 +128,7 @@ CREATE INDEX rating_index ON rated_puzzles (rating DESC); -- for fetching puzzle
 
 
 -- GAME TABLE
--- accuracy is stored as percentage * 100 (e.g. 99.5% is stored as 9950)
+-- accuracy and tetris rate is stored as percentage * 100 (e.g. 99.5% is stored as 9950)
 -- data is the binary game data, which is nullable for when game expires
 DROP TABLE IF EXISTS "public"."games" CASCADE;
 CREATE TABLE "public"."games" (
@@ -140,6 +140,7 @@ CREATE TABLE "public"."games" (
     "end_level" int2 NOT NULL,
     "end_lines" int2 NOT NULL,
     "accuracy" int2 NOT NULL,
+    "tetris_rate" int2 NOT NULL,
     PRIMARY KEY ("id")
 );
 
