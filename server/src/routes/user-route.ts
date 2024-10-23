@@ -3,6 +3,7 @@ import { queryAllUsersMatchingUsernamePattern, queryFriendsAndFriendRequestsForU
 import { endFriendship, sendFriendRequest } from '../database/friendship-updates';
 import { ServerState } from '../server-state/server-state';
 import { FriendInfo, FriendStatusResult } from '../../shared/models/friends';
+import { getUserID } from '../util/auth-util';
 
 export async function getAllUsersMatchingUsernamePatternRoute(req: Request, res: Response) {
 
@@ -42,9 +43,9 @@ export async function getFriendsInfoRoute(req: Request, res: Response, state: Se
   res.status(200).send(friends);
 }
 
-// POST request api/v2/friend-request/:from/:to
+// POST request api/v2/friend-request/:to
 export async function setFriendRequestRoute(req: Request, res: Response, state: ServerState) {
-  const from = req.params['from'];
+  const from = getUserID(req);
   const to = req.params['to'];
 
   if (!from) res.status(400).send("Missing 'from' parameter");
@@ -65,9 +66,9 @@ export async function setFriendRequestRoute(req: Request, res: Response, state: 
   }
 };
 
-// POST request api/v2/end-friendship/:from/:to
+// POST request api/v2/end-friendship/:to
 export async function endFriendshipRoute(req: Request, res: Response, state: ServerState) {
-  const from = req.params['from'];
+  const from = getUserID(req);
   const to = req.params['to'];
 
   if (!from) {

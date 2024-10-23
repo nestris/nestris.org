@@ -210,8 +210,8 @@ async function main() {
   app.get('/api/v2/user/:userid', getUserByUserIDRoute);
   app.get('/api/v2/friends/:userid',  async (req: Request, res: Response) => getFriendsInfoRoute(req, res, state));
 
-  app.post('/api/v2/friend-request/:from/:to', requireAuth, async (req: Request, res: Response) => setFriendRequestRoute(req, res, state)); 
-  app.post('/api/v2/end-friendship/:from/:to', requireAuth, async (req: Request, res: Response) => endFriendshipRoute(req, res, state));
+  app.post('/api/v2/friend-request/:to', requireAuth, async (req: Request, res: Response) => setFriendRequestRoute(req, res, state)); 
+  app.post('/api/v2/end-friendship/:to', requireAuth, async (req: Request, res: Response) => endFriendshipRoute(req, res, state));
 
   // announce message to all online users. useful for maintenance announcements and the like
   app.post('/api/v2/broadcast-announcement', requireAdmin, async (req: Request, res: Response) => broadcastAnnouncementRoute(req, res, state));
@@ -247,7 +247,7 @@ async function main() {
 
   app.get('/api/v2/puzzle/:id', getPuzzleRoute);
 
-  app.post('/api/v2/random-rated-puzzle/:userid', requireAuth, async (req: Request, res: Response) => selectRandomPuzzleForUserRoute(req, res, state));
+  app.post('/api/v2/random-rated-puzzle', requireAuth, async (req: Request, res: Response) => selectRandomPuzzleForUserRoute(req, res, state));
   
   app.post('/api/v2/submit-puzzle-attempt', requireAuth, async (req: Request, res: Response) => submitPuzzleAttemptRoute(req, res, state));
 

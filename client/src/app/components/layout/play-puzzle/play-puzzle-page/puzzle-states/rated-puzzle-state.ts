@@ -38,7 +38,7 @@ export class RatedPuzzleState extends PuzzleState {
   override async _fetchNextPuzzle(): Promise<RatedPuzzle> {
     
     // fetch a rated puzzle from the server
-    const puzzle = await fetchServer2<RatedPuzzle>(Method.POST, `/api/v2/random-rated-puzzle/${this.userid}`);
+    const puzzle = await fetchServer2<RatedPuzzle>(Method.POST, `/api/v2/random-rated-puzzle`);
 
     this.eloChange = {
       eloGain: puzzle.eloGain!,

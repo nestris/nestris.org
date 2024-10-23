@@ -6,6 +6,7 @@ import { logDatabase } from '../database/log';
 import { queryUserByUserID } from '../database/user-queries';
 import { decodeRatedPuzzleFromDB } from './decode-rated-puzzle';
 import { ServerState } from '../server-state/server-state';
+import { getUserID } from '../util/auth-util';
 
 export function calculateProbabilities(elo: number): number[] {
 
@@ -155,7 +156,7 @@ export async function selectRandomPuzzleForUser(state: ServerState, userid: stri
 
 // returns a random RatedPuzzle for the user based on their elo
 export async function selectRandomPuzzleForUserRoute(req: Request, res: Response, state: ServerState) {
-  const userid = req.params['userid'];
+  const userid = getUserID(req);
   console.log("Selecting random puzzle for user", userid);
 
   try {
