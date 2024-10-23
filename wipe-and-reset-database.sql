@@ -31,6 +31,20 @@ CREATE TABLE "public"."users" (
     "has_perfect_transition_into_19" boolean NOT NULL DEFAULT FALSE,
     "has_perfect_transition_into_29" boolean NOT NULL DEFAULT FALSE,
 
+    "enable_receive_friend_requests" boolean NOT NULL DEFAULT TRUE,
+    "notify_on_friend_online" boolean NOT NULL DEFAULT TRUE,
+
+    "solo_chat_permission" text NOT NULL DEFAULT 'everyone'::text,
+    "match_chat_permission" text NOT NULL DEFAULT 'everyone'::text,
+
+    "keybind_emu_move_left" text NOT NULL DEFAULT 'ArrowLeft'::text,
+    "keybind_emu_move_right" text NOT NULL DEFAULT 'ArrowRight'::text,
+    "keybind_emu_rot_left" text NOT NULL DEFAULT 'Z'::text,
+    "keybind_emu_rot_right" text NOT NULL DEFAULT 'X'::text,
+    "keybind_puzzle_rot_left" text NOT NULL DEFAULT 'Z'::text,
+    "keybind_puzzle_rot_right" text NOT NULL DEFAULT 'X'::text,
+
+
     PRIMARY KEY ("userid")
 );
 

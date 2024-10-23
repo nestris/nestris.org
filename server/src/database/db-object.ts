@@ -15,14 +15,29 @@ import { DBError, DBObjectAlreadyExistsError, DBObjectNotFoundError } from "./db
  * @template Event An enum of events that can be emitted to alter the object
  */
 export function DBObject<InMemoryObject, CreateParams, Event>(maxCacheSize: number = 1000) {
+
+    // Ensure maxCacheSize is valid
+    if (maxCacheSize < 0) throw new Error("maxCacheSize must be nonnegative");
+
+    /**
+     * Represents a change to a database object
+     */
+    interface DBObjectChange {
+        id: string;
+        before: InMemoryObject;
+        after: InMemoryObject;
+    }
+
     abstract class DBObject {
 
         // A map of all objects, indexed by their ID. It is ordered by the order of creation.
-        static dbObjects = new Map<string, DBObject>();
+        private static dbObjects = new Map<string, DBObject>();
+
+        // A list of subscribers to changes in the database objects
+        private static changeSubscribers: ((change: DBObjectChange) => void)[] = [];
 
         // The maximum number of objects to cache in-memory. If the number of objects exceeds this, the least recently used object will be removed.
         private static cacheSize = 0;
-
 
         /**
          * Evicts the oldest object from the cache if the cache size exceeds the maximum cache size.
@@ -104,8 +119,21 @@ export function DBObject<InMemoryObject, CreateParams, Event>(maxCacheSize: numb
                 throw new DBObjectNotFoundError(`Object with ID ${id} does not exist`);
             }
 
+            // Get a copy of the in-memory object before altering
+            const before: InMemoryObject = Object.assign({}, dbObject.get());
+
             // Alter the object in-memory and in the database. If waitForDB is true, wait for the database to finish writing before returning
             await dbObject.alter(event, waitForDB);
+
+            // Get a copy of the in-memory object after altering
+            const after: InMemoryObject = Object.assign({}, dbObject.get());
+
+            // Notify all subscribers of the change
+            DBObject.changeSubscribers.forEach(subscriber => subscriber({
+                id: id,
+                before: before,
+                after: after
+            }));
         }
 
         /**
@@ -175,6 +203,14 @@ export function DBObject<InMemoryObject, CreateParams, Event>(maxCacheSize: numb
         static clearCache() {
             DBObject.dbObjects.clear();
             DBObject.cacheSize = 0;
+        }
+
+        /**
+         * Subscribes to changes in the database objects. Whenever an object is altered, all subscribers will be notified.
+         * @param subscriber 
+         */
+        static onChange(subscriber: (change: DBObjectChange) => void) {
+            DBObject.changeSubscribers.push(subscriber);
         }
 
 

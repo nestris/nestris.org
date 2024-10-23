@@ -3,7 +3,6 @@ import { PuzzleRating } from '../../shared/puzzles/puzzle-rating';
 import { RatedPuzzle } from '../../shared/puzzles/rated-puzzle';
 import { queryDB } from '../database-old';
 import { logDatabase } from '../database-old/log';
-import { queryUserByUserID } from '../database-old/user-queries';
 import { decodeRatedPuzzleFromDB } from './decode-rated-puzzle';
 import { ServerState } from '../old/server-state';
 import { getUserID } from '../util/auth-util';
