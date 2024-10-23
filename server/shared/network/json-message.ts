@@ -13,7 +13,6 @@ export enum JsonMessageType {
     CONNECTION_SUCCESSFUL = 'connection_successful',
     ERROR_HANDSHAKE_INCOMPLETE = 'error_handshake_incomplete',
     PING = 'ping',
-    PONG = 'pong',
     SEND_PUSH_NOTIFICATION = 'send_push_notification',
     FRIEND_ONLINE_STATUS_CHANGE = 'friend_online_status_change',
     START_SOLO_ROOM = 'start_solo_room',
@@ -68,20 +67,14 @@ export class ErrorHandshakeIncompleteMessage extends JsonMessage {
     }
 }
 
-// sent by client to server to check if connection is still alive
+// sent by client to server to check if connection is still alive. ms is the time in milliseconds. Server sends back same message with ms
 export class PingMessage extends JsonMessage {
-    constructor() {
+    constructor(
+        public readonly ms: number
+    ) {
         super(JsonMessageType.PING)
     }
 }
-
-// sent by server to client in response to PingMessage
-export class PongMessage extends JsonMessage {
-    constructor() {
-        super(JsonMessageType.PONG)
-    }
-}
-
 
 // sent from server to client to send push notification
 export class SendPushNotificationMessage extends JsonMessage {

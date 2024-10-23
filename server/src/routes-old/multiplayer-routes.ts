@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { ServerState } from '../old/server-state';
 import { getUserID } from '../util/auth-util';
 import { MultiplayerPlayerMode, MultiplayerRoomMode, PlayerRole } from '../../shared/models/multiplayer';
-import { MultiplayerManager } from '../server-state/room-multiplayer-manager';
+import { MultiplayerManager } from '../online-users/room-multiplayer-manager';
 
 export function getMultiplayerStateRoute(req: Request, res: Response, state: ServerState) {
 

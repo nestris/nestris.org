@@ -26,9 +26,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   public numOnlineFriends$ = new BehaviorSubject<number>(0);
 
-  private subscriptionA: any;
-  private subscriptionB: any;
-
   readonly DeploymentEnvironment = DeploymentEnvironment;
 
   constructor(
@@ -40,12 +37,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
 
-    // on sign in, sync number of online friends with server
-    this.subscriptionB = this.websocketService.onSignIn().subscribe(() => {
-      this.syncOnlineFriends();
-    });
-
-    await this.syncOnlineFriends();
     
   }
 
@@ -69,8 +60,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscriptionA.unsubscribe();
-    this.subscriptionB.unsubscribe();
   }
 
 }

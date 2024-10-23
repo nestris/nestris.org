@@ -21,7 +21,7 @@ import { JsonMessage, MultiplayerRoomUpdateMessage, SoloGameEndMessage } from ".
 import { PacketContent, PacketOpcode, GamePlacementSchema, GameStartSchema, GameRecoveryPacket } from "../../shared/network/stream-packets/packet";
 import { PacketAssembler, MAX_PLAYERS_IN_ROOM, MAX_PLAYER_BITCOUNT } from "../../shared/network/stream-packets/packet-assembler";
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
-import { OnlineUserSession } from "../server-state/online-user";
+import { OnlineUserSession } from "../online-users/online-user";
 import { MultiplayerManager } from "./room-multiplayer-manager";
 import { MatchInfo, MultiplayerData, MultiplayerRoomState, PlayerRole } from "../../shared/models/multiplayer";
 import { GameState } from "../../shared/game-state-from-packets/game-state";

@@ -64,7 +64,23 @@ export class PingService {
 
     // when the user signs in, start sending ping messages ever PING_INTERVAL_SECONDS seconds
     this.websocketService.onSignIn().subscribe(() => {
+
+      // send a ping message immediately
       this.sendPingMessage();
+
+      setInterval(() => {
+        this.sendPingMessage();
+      }, this.PING_INTERVAL_SECONDS * 1000);
+    });
+
+    // On receiving a ping message, calculate the ping time and update the ping observable
+    this.websocketService.onEvent(JsonMessageType.PING).subscribe((message) => {
+      const ping = Date.now() - (message as PingMessage).ms;
+      this.pingSubject$.next(new PingData(
+        ping,
+        ping.toFixed(0) + " ms",
+        getPingSpeed(ping),
+      ));
     });
   }
 
@@ -78,35 +94,9 @@ export class PingService {
     return this.pingSubject$.getValue();
   }
 
-  // send ping message, record ping pong time, and schedule next ping message
-  private async sendPingMessage() {
-
-    // only ping if signed in
+  private sendPingMessage() {
     if (!this.websocketService.isSignedIn()) return;
-
-    // start timer
-    const startTime = Date.now();
-
-    // send ping message
-    this.websocketService.sendJsonMessage(new PingMessage());
-
-    // wait for pong message response from server
-    await firstValueFrom(this.websocketService.onEvent(JsonMessageType.PONG));
-
-    // calculate ping pong time
-    const endTime = Date.now();
-    const ping = endTime - startTime;
-
-    this.pingSubject$.next(new PingData(
-      ping,
-      ping.toFixed(0) + " ms",
-      getPingSpeed(ping),
-    ));
-
-    // schedule next ping message
-    setTimeout(() => {
-      this.sendPingMessage();
-    }, this.PING_INTERVAL_SECONDS * 1000);
+    this.websocketService.sendJsonMessage(new PingMessage(Date.now()));
   }
 
 }

@@ -1,7 +1,7 @@
 import { ActivePuzzleManager } from "./active-puzzle-manager";
 import { ChallengeManager } from "./challenge-manager";
 import { LessonState } from "./lesson-state";
-import { OnlineUserManager } from "../server-state/online-user-manager";
+import { OnlineUserManager } from "../online-users/online-user-manager";
 import { PuzzlePrefetchManager } from "./puzzle-prefetch-manager";
 import { QueryCache } from "./query-cache";
 import { RoomManager } from "./room-manager";

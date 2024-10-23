@@ -1,4 +1,4 @@
-import { EventConsumerManager } from "../../server-state/event-consumer";
+import { EventConsumerManager } from "../../online-users/event-consumer";
 import { GetRoute, UserInfo } from "../route";
 
 /**

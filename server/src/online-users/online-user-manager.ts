@@ -1,7 +1,7 @@
 // TODO: probably should refactor this completely to use new event-based OnlineUser observables
 
 import { filter, map, Observable, Subject } from "rxjs";
-import { JsonMessage, JsonMessageType, OnConnectMessage, ErrorHandshakeIncompleteMessage, ErrorMessage } from "../../shared/network/json-message";
+import { JsonMessage, JsonMessageType, OnConnectMessage, ErrorHandshakeIncompleteMessage, ErrorMessage, ConnectionSuccessfulMessage } from "../../shared/network/json-message";
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
 import { decodeMessage, MessageType } from "../../shared/network/ws-message";
 import { OnlineUserEvent, OnlineUserEventType, OnSessionBinaryMessageEvent, OnSessionConnectEvent, OnSessionDisconnectEvent, OnSessionJsonMessageEvent, OnUserConnectEvent, OnUserDisconnectEvent } from "./online-user-events";
@@ -179,6 +179,9 @@ export class OnlineUserManager {
             // Add the new session to the existing OnlineUser
             onlineUser.addSession(sessionID, ws);
         }
+
+        // Finish the handshake by sending a connection successful message
+        this.sendToUserSession(userid, sessionID, new ConnectionSuccessfulMessage());
 
         // Send the session connect event
         this.events$.next(new OnSessionConnectEvent(userid, username, sessionID));

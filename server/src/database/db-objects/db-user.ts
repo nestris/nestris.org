@@ -108,7 +108,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>() 
                 INSERT INTO users (userid, username, authentication, created_at, last_online, league, xp, trophies, highest_trophies,
                     puzzle_elo, highest_puzzle_elo, highest_score, highest_level, highest_lines, highest_accuracy,
                     highest_transition_into_19, highest_transition_into_29, has_perfect_transition_into_19, has_perfect_transition_into_29)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
             `;
             public override warningMs = null;
         

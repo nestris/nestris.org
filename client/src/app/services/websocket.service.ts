@@ -225,7 +225,7 @@ export class WebsocketService {
     const { type, data } = await decodeMessage(message.data, true);
     if (type === MessageType.JSON) {
 
-      if ((data as JsonMessage).type !== JsonMessageType.PONG) console.log('Received JSON message:', data);
+      if ((data as JsonMessage).type !== JsonMessageType.PING) console.log('Received JSON message:', data);
       this.jsonEvent$.next(data as JsonMessage);
 
     } else {

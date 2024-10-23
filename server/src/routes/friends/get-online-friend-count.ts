@@ -1,5 +1,5 @@
 import { Authentication, DBUser } from "../../../shared/models/db-user";
-import { EventConsumerManager } from "../../server-state/event-consumer";
+import { EventConsumerManager } from "../../online-users/event-consumer";
 import { GetRoute, RouteError, UserInfo } from "../route";
 
 interface OnlineFriendCount {

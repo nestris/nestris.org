@@ -27,15 +27,16 @@ import { DeploymentEnvironment, ServerStats } from './shared/models/server-stats
 // import { getPuzzleLeaderboard } from './src/database/leaderboard-queries';
 // import { getPuzzleGuessesRoute } from './src/routes/puzzle-guesses-route';
 import { handleDiscordCallback, handleLogout, redirectToDiscord } from './src/util/discord-util';
-import { OnlineUserManager } from './src/server-state/online-user-manager';
-import { EventConsumerManager } from './src/server-state/event-consumer';
+import { OnlineUserManager } from './src/online-users/online-user-manager';
+import { EventConsumerManager } from './src/online-users/event-consumer';
 import { Query } from 'pg';
 import { RouteManager } from './src/routes/route';
 import { GetMeRoute } from './src/routes/online-users/get-me-route';
 import { GetOnlineUsersRoute } from './src/routes/online-users/get-online-users-route';
 import { GetOnlineFriendCountRoute } from './src/routes/friends/get-online-friend-count';
-import { FriendEventConsumer } from './src/server-state/event-consumers/friend-event-consumer';
+import { FriendEventConsumer } from './src/online-users/event-consumers/friend-event-consumer';
 import { GetFriendsInfo } from './src/routes/friends/get-friends-info';
+import { PingConsumer } from './src/online-users/event-consumers/ping-consumer';
 
 // Load environment variables
 require('dotenv').config();
@@ -87,6 +88,7 @@ async function main() {
 
   const consumers = EventConsumerManager.getInstance();
   consumers.registerConsumer(FriendEventConsumer);
+  consumers.registerConsumer(PingConsumer);
 
   // initialize routes
   const routes = new RouteManager(app);

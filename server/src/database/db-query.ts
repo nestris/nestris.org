@@ -77,33 +77,27 @@ export class Database {
     ): Promise<T> {
         // Create a new instance of the query class
         const dbQuery = new QueryClass(...params);
-        
-        try {
-            // Execute the query, measure the time it takes
-            const start = Date.now();
-            const res = await pool.query(dbQuery.query, dbQuery.params);
-            const duration = Date.now() - start;
 
-            // log the query and duration
-            if (dbQuery.warningMs !== null && duration > dbQuery.warningMs) {
-                console.warn(`WARNING: Query ${dbQuery.query} exceeded reasonable time limit of ${dbQuery.warningMs}ms. Executed in ${duration}ms`);
-            } else {
-                console.log(`Query ${dbQuery.query} executed in ${duration}ms`);
-            }
+        // Execute the query, measure the time it takes
+        const start = Date.now();
+        const res = await pool.query(dbQuery.query, dbQuery.params);
+        const duration = Date.now() - start;
 
-            // If in development, inject artificial lag
-            if (process.env.NODE_ENV === DeploymentEnvironment.DEV) {
-                await new Promise((resolve) => setTimeout(resolve, Database.ARTIFICIAL_DB_LAG_MS));
-            }
-
-            // Convert the raw result into the desired output type
-            return dbQuery.parseResult(res.rows);
-
-        } catch (error) {
-            // If an error occurs, log the query and re-throw the error
-            console.error(`Error executing query: ${dbQuery.query}`, error);
-            throw error;
+        // log the query and duration
+        if (dbQuery.warningMs !== null && duration > dbQuery.warningMs) {
+            console.warn(`WARNING: Query ${dbQuery.query} exceeded reasonable time limit of ${dbQuery.warningMs}ms. Executed in ${duration}ms`);
+        } else {
+            console.log(`Query ${dbQuery.query} executed in ${duration}ms`);
         }
+
+        // If in development, inject artificial lag
+        if (process.env.NODE_ENV === DeploymentEnvironment.DEV) {
+            await new Promise((resolve) => setTimeout(resolve, Database.ARTIFICIAL_DB_LAG_MS));
+        }
+
+        // Convert the raw result into the desired output type
+        return dbQuery.parseResult(res.rows);
+        
     }
 }
 

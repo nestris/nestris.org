@@ -49,6 +49,9 @@ export class EventConsumer {
         }
     }
 
+    // Override to initialize consumer
+    public init() {}
+
     // override methods to handle desired events
     protected async onUserConnect?(event: OnUserConnectEvent) {}
     protected async onUserDisconnect?(event: OnUserDisconnectEvent) {}
@@ -106,6 +109,7 @@ export class EventConsumerManager {
 
         // Instantiate consumer object
         const consumer = new eventConsumerClass(this.users, this.consumerEvent$);
+        consumer.init();
 
         // Assert consumer is not already registered
         if (this.consumerInstances.has(eventConsumerClass.name)) {

@@ -74,6 +74,7 @@ export const handleDiscordCallback = async (req: express.Request, res: express.R
             if (error instanceof DBObjectNotFoundError) {
                 // If user does not exist, create a new user with username from Discord global name
                 const newUsername = userResponse.data.global_name ?? userResponse.data.username ?? "Unknown User";
+                console.log(`Creating new user ${newUsername} with ID ${userID}`);
                 user = await DBUserObject.create(userID, { username: newUsername });
             } else {
                 throw error;
@@ -90,17 +91,9 @@ export const handleDiscordCallback = async (req: express.Request, res: express.R
         (req.session as UserSession).username = username;
         (req.session as UserSession).permission = permission;
 
-        // Check if the user is already in the database. If not, create a new user.
-        if (user) {
-            // User already exists. Go to Play page
-            res.redirect('/play');
-            console.log(`Authenticated returning user ${username}, redirecting to play`);
-        } else {
-            // New User. Go to welcome page
-            console.log(`Authenticated new user ${username}, redirecting to welcome`);
-            res.redirect('/welcome');
-        }
-        
+        console.log(`Authenticated user ${username} with ID ${userID}, redirecting to play`);
+        res.redirect('/play');
+
     } catch (error) {
         console.error('Error during Discord OAuth:', error);
         res.status(500).send(`An error occurred during authentication: ${error}`);
