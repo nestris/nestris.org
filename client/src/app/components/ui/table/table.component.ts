@@ -72,6 +72,8 @@ export class TableComponent implements OnChanges {
         _rank: currentRank
       });
     }
+
+    console.log('TableComponent: ngOnChanges() - sortedRows:', this.sortedRows);
   }
 
 

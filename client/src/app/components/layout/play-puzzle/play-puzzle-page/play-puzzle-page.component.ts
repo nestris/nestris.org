@@ -20,6 +20,7 @@ import { RatedPuzzle } from 'src/app/shared/puzzles/rated-puzzle';
 import { PuzzleRating } from 'src/app/shared/puzzles/puzzle-rating';
 import { PuzzleGuesses } from 'src/app/shared/puzzles/puzzle-guess';
 import { FetchService, Method } from 'src/app/services/fetch.service';
+import { MeService } from 'src/app/services/state/me.service';
 
 export enum PuzzleMode {
   RATED = "rated",
@@ -80,7 +81,8 @@ export class PlayPuzzlePageComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private notifier: NotificationService,
-    private websocketService: WebsocketService
+    private websocketService: WebsocketService,
+    private meService: MeService,
   ) {
   }
 
@@ -141,7 +143,8 @@ export class PlayPuzzlePageComponent implements OnInit {
       switch (mode) {
         case PuzzleMode.RATED:
           // guaranteed to be logged in
-          puzzleState = new RatedPuzzleState(this.fetchService, this.websocketService.getUserID()!);
+          const userid = await this.meService.getUserID();
+          puzzleState = new RatedPuzzleState(this.fetchService, userid);
           console.log("Rated puzzle state created");
           break;
         case PuzzleMode.SINGLE:

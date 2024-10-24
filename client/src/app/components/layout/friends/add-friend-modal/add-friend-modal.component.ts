@@ -5,6 +5,7 @@ import { WebsocketService } from 'src/app/services/websocket.service';
 import { FriendStatus, FriendInfo } from 'src/app/shared/models/friends';
 import { DBUser } from 'src/app/shared/models/db-user';
 import { FetchService, Method } from 'src/app/services/fetch.service';
+import { MeService } from 'src/app/services/state/me.service';
 
 // This is super cursed and definitely not the right way to go about things.
 // But it works for now so whatever.
@@ -36,7 +37,8 @@ export class AddFriendModalComponent implements OnInit, OnChanges, OnDestroy {
     private fetchService: FetchService,
     private websocketService: WebsocketService,
     private friendsService: FriendsService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private meService: MeService
     ) {
 
     }
@@ -48,7 +50,7 @@ export class AddFriendModalComponent implements OnInit, OnChanges, OnDestroy {
     });
     
     // fetch list of all usernames from server
-    this.matchingUsers = await this.fetchService.fetch<DBUser[]>(Method.GET, '/api/v2/users-by-username', undefined);
+    this.matchingUsers = await this.fetchService.fetch<DBUser[]>(Method.GET, '/api/v2/all-usernames', undefined);
   }
 
   /*
@@ -67,7 +69,7 @@ export class AddFriendModalComponent implements OnInit, OnChanges, OnDestroy {
     const friendsInfo = this.friendsInfo;
     
     // compare the list of usernames with the user's friends list
-    const myUserID = this.websocketService.getUserID();
+    const myUserID = await this.meService.getUserID();
     this.potentialFriends = [];
     this.matchingUsers.forEach((user: DBUser) => {
 
@@ -96,9 +98,6 @@ export class AddFriendModalComponent implements OnInit, OnChanges, OnDestroy {
   // called when user clicks on a potential friend "add friend" icon
   sendFriendRequest(potentialFriend: PotentialFriend) {
     
-    const userid = this.websocketService.getUserID();
-    if (userid === undefined) return;
-
     // only send friend request if user isn't already friends or hasn't already sent a friend request
     if (potentialFriend.status !== FriendStatus.NOT_FRIENDS && potentialFriend.status !== FriendStatus.INCOMING) return;
 

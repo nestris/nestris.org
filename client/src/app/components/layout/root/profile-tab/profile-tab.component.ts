@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TabID, getTabIcon } from 'src/app/models/tabs';
 import { PingSpeed, PingService } from 'src/app/services/ping.service';
-import { WebsocketService } from 'src/app/services/websocket.service';
+import { MeService } from 'src/app/services/state/me.service';
 
 @Component({
   selector: 'app-profile-tab',
@@ -17,7 +17,7 @@ export class ProfileTabComponent {
   public tabIcon = getTabIcon(TabID.MY_PROFILE);
 
   constructor(
-    public websocketService: WebsocketService,
+    public meService: MeService,
     public pingService: PingService,
   ) { 
   }

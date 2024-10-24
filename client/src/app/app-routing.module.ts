@@ -12,7 +12,6 @@ import { LearnPageComponent } from './components/layout/learn/learn-page/learn-p
 import { DashboardComponent } from './components/layout/learn/dashboard/dashboard.component';
 import { LessonComponent } from './components/layout/learn/lesson/lesson.component';
 import { LoginPageComponent } from './components/layout/login/login-page/login-page.component';
-import { PuzzlesPageComponent } from './components/layout/puzzles/puzzles-page.component';
 import { MainLeaderboardPageComponent } from './components/layout/main-leaderboard/main-leaderboard-page/main-leaderboard-page.component';
 import { WelcomePageComponent } from './components/layout/welcome/welcome-page/welcome-page.component';
 import { ControlPanelPageComponent } from './components/layout/control-panel/control-panel-page/control-panel-page.component';
@@ -59,8 +58,6 @@ const routes: Routes = [
           { path: "**", redirectTo: "dashboard", pathMatch: "full", }
         ]
        },
-
-      { path: "puzzles", component: PuzzlesPageComponent },
 
       { path: "leaderboard", component: MainLeaderboardPageComponent,
         children: [

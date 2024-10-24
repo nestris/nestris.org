@@ -5,9 +5,9 @@
         <!-- <h1 class="brand-name">nestris.org</h1> -->
 
 
-        <app-profile-tab  class="profile-tab" *ngIf="(websocketService.getUser$() | async)"/>
+        <app-profile-tab  class="profile-tab" *ngIf="(meService.get$() | async)"/>
 
-        <div class="login-container" *ngIf="!(websocketService.getUser$() | async)">
+        <div class="login-container" *ngIf="!(meService.get$() | async)">
             <app-solid-button class="login-button big"
             [stretch]="true"
             [color]="ButtonColor.BLUE" label="Login" (click)="websocketService.login()" />
@@ -16,7 +16,7 @@
             [color]="ButtonColor.BLUE" label="Login" (click)="websocketService.login()" />
         </div>
         
-        <app-sidebar-tab [orange]="true" [tab]="TabID.CONTROL_PANEL" *ngIf="showControlPanel(websocketService.getUser$() | async)"/>
+        <app-sidebar-tab [orange]="true" [tab]="TabID.CONTROL_PANEL" *ngIf="showControlPanel(meService.get$() | async)"/>
 
         <app-sidebar-tab [tab]="TabID.FRIENDS">
             <p class="online-users">{{(numOnlineFriends$ | async)}}</p>
@@ -26,8 +26,7 @@
 
         <app-sidebar-tab class="play-tab" [tab]="TabID.PLAY" />
         <app-sidebar-tab *ngIf="env!==DeploymentEnvironment.PRODUCTION" [tab]="TabID.REVIEW"/>
-        <app-sidebar-tab *ngIf="env!==DeploymentEnvironment.PRODUCTION" [tab]="TabID.LEARN"/>
-        <app-sidebar-tab [tab]="TabID.PUZZLES"/>
+        <!-- <app-sidebar-tab *ngIf="env!==DeploymentEnvironment.PRODUCTION" [tab]="TabID.LEARN"/> -->
         <app-sidebar-tab [tab]="TabID.LEADERBOARD"/>
     </div>
     <div class="sidebar-bottom">

@@ -1,7 +1,7 @@
-<app-solid-button class="add-friend-button" [disabled]="!(websocketService.getUser$() | async)"
+<app-solid-button class="add-friend-button" [disabled]="!(meService.get$() | async)"
     label="Add Friend" [color]="ButtonColor.GREEN"
     icon="./assets/img/friend-status-icons/not-friend.svg"
-    [tooltip]="(websocketService.getUser$() | async) ? '' : 'Login to add friends!'"
+    [tooltip]="(meService.get$() | async) ? '' : 'Login to add friends!'"
     (click)="toggleFriendModal($event)" />
 
 <app-add-friend-modal *ngIf="friendsService.getFriendsInfo$() | async as challenges"

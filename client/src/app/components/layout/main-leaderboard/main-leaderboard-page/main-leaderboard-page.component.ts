@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { TableRow } from 'src/app/components/ui/table/table.component';
 import { FetchService, Method } from 'src/app/services/fetch.service';
+import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { EVALUATION_TO_COLOR, EvaluationRating } from 'src/app/shared/evaluation/evaluation';
 import { OnlineUserStatus } from 'src/app/shared/models/friends';
@@ -44,11 +45,13 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
   constructor(
     private fetchService: FetchService,
     public websocket: WebsocketService,
+    public meService: MeService,
   ) {}
 
   async ngOnInit() {
-    await this.sync();
-    this.timer = setInterval(() => this.sync(), 5000);
+    console.log("MainLeaderboardPageComponent: ngOnInit()");
+    //await this.sync();
+    //this.timer = setInterval(() => this.sync(), 5000);
   }
 
   ngOnDestroy() {

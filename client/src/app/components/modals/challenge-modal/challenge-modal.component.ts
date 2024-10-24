@@ -6,6 +6,7 @@ import { ModalManagerService } from 'src/app/services/modal-manager.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { Challenge } from 'src/app/shared/models/challenge';
 import { FetchService, Method } from 'src/app/services/fetch.service';
+import { MeService } from 'src/app/services/state/me.service';
 
 export interface ChallengeModalConfig {
   opponentid: string;
@@ -37,13 +38,14 @@ export class ChallengeModalComponent {
     private fetchService: FetchService,
     private websocketService: WebsocketService,
     private modalService: ModalManagerService,
-    private friendsService: FriendsService
+    private friendsService: FriendsService,
+    private meService: MeService,
   ) {}
 
   async challenge() {
 
-    const userID = this.websocketService.getUserID();
-    const username = this.websocketService.getUsername();
+    const userID = await this.meService.getUserID();
+    const username = await this.meService.getUsername();
     const sessionID = this.websocketService.getSessionID();
     if (!userID || !username || !sessionID) return; // if not logged in, do nothing
 

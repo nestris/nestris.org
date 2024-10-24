@@ -49,17 +49,10 @@ import { RouterModule } from '@angular/router';
 import { ProfilePageComponent } from './components/layout/profile/profile-page/profile-page.component';
 import { ReviewPageComponent } from './components/layout/review/review-page/review-page.component';
 import { TabSelectorComponent } from './components/ui/tab-selector/tab-selector.component';
-import { PuzzlesPageComponent } from './components/layout/puzzles/puzzles-page.component';
 import { AuthModalComponent } from './components/modals/auth-modal/auth-modal.component';
 import { FullscreenExitButtonComponent } from './components/ui/fullscreen-exit-button/fullscreen-exit-button.component';
 import { RatingStarsComponent } from './components/ui/rating-stars/rating-stars.component';
 import { FeedbackThumbsComponent } from './components/ui/feedback-thumbs/feedback-thumbs.component';
-import { EloComponent } from './components/layout/puzzles/components/elo/elo.component';
-import { DailyStreakComponent } from './components/layout/puzzles/components/daily-streak/daily-streak.component';
-import { GlobalRankComponent } from './components/layout/puzzles/components/global-rank/global-rank.component';
-import { SummaryComponent } from './components/layout/puzzles/components/summary/summary.component';
-import { InsightsComponent } from './components/layout/puzzles/components/insights/insights.component';
-import { ButtonsComponent } from './components/layout/puzzles/components/buttons/buttons.component';
 import { ChallengeModalComponent } from './components/modals/challenge-modal/challenge-modal.component';
 import { ChallengeComponent } from './components/layout/friends/challenge/challenge.component';
 import { NesEmulatorMenuComponent } from './components/nes-layout/nes-emulator-menu/nes-emulator-menu.component';
@@ -153,7 +146,6 @@ const customNotifierOptions: NotifierOptions = {
     NesPanelComponent,
     NesBoardComponent,
     NesBlockComponent,
-    PuzzlesPageComponent,
     RoomPageComponent,
     OutlineButtonComponent,
     LayoutOneComponent,
@@ -181,12 +173,6 @@ const customNotifierOptions: NotifierOptions = {
     FullscreenExitButtonComponent,
     RatingStarsComponent,
     FeedbackThumbsComponent,
-    EloComponent,
-    DailyStreakComponent,
-    GlobalRankComponent,
-    SummaryComponent,
-    InsightsComponent,
-    ButtonsComponent,
     ChallengeModalComponent,
     ChallengeComponent,
     NesEmulatorMenuComponent,

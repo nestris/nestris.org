@@ -12,6 +12,7 @@ import { DBUser } from '../shared/models/db-user';
 import { ServerStatsService } from './server-stats.service';
 import { DeploymentEnvironment } from '../shared/models/server-stats';
 import { FetchService, Method } from './fetch.service';
+import { MeService } from './state/me.service';
 
 
 /*
@@ -42,7 +43,7 @@ export class WebsocketService {
     private fetchService: FetchService,
     private notificationService: NotificationService,
     private serverStats: ServerStatsService,
-    private router: Router
+    private router: Router,
   ) {}
 
   // Initialize the websocket service with a user id and username, connecting to the websocket

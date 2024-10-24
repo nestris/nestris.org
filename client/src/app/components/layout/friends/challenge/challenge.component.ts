@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { FetchService, Method } from 'src/app/services/fetch.service';
+import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { Challenge } from 'src/app/shared/models/challenge';
 
@@ -20,18 +21,19 @@ export class ChallengeComponent implements OnInit {
   
   constructor(
     private fetchService: FetchService,
-    private websocketService: WebsocketService
+    private websocketService: WebsocketService,
+    private meService: MeService
   ) {
     
   }
 
-  ngOnInit() {
-    this.isSender = this.websocketService.getUserID() === this.challenge.senderid;
+  async ngOnInit() {
+    this.isSender = (await this.meService.getUserID()) === this.challenge.senderid;
   }
 
   async acceptChallenge() {
   
-    const username = this.websocketService.getUsername();
+    const username = this.meService.getUsername();
     const sessionID = this.websocketService.getSessionID();
     if (!username || !sessionID) {
       console.error('No username or session ID found when accepting challenge');
@@ -48,16 +50,9 @@ export class ChallengeComponent implements OnInit {
 
   async rejectChallenge() {
 
-    const userid = this.websocketService.getUserID();
-    if (!userid) {
-      console.error('No userid found when rejecting challenge');
-      return; // should not happen
-    }
-
     // send a request to the server to reject the challenge
     // server should send a websocket message back to trigger change if the challenge is rejected
     const result = await this.fetchService.fetch<{success: boolean}>(Method.POST, '/api/v2/reject-challenge', {
-      userid: userid,
       challenge: this.challenge
     });
   }

@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { FriendsService } from 'src/app/services/friends.service';
+import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 
 
@@ -21,7 +22,8 @@ export class FriendPageComponent implements OnDestroy {
 
   constructor(
     public friendsService: FriendsService,
-    public websocketService: WebsocketService
+    public websocketService: WebsocketService,
+    public meService: MeService,
   ) {
 
     // If user logs in while on the friend page, sync the friends list with the server

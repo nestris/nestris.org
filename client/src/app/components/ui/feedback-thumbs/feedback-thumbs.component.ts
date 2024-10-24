@@ -24,23 +24,16 @@ export class FeedbackThumbsComponent {
 
   async setFeedback(feedback: PuzzleFeedback) {
 
-    const userid = this.websocketService.getUserID();
+    // const body = {
+    //   id: this.puzzleID,
+    //   userid: userid,
+    //   feedback: feedback,
+    // };
 
-    if (!userid) {
-      console.error("No userid found");
-      return;
-    }
+    // const response = await this.fetchService.fetch(Method.POST, `/api/v2/set-feedback`, body);
+    // console.log("Feedback response:", response);
 
-    const body = {
-      id: this.puzzleID,
-      userid: userid,
-      feedback: feedback,
-    };
-
-    const response = await this.fetchService.fetch(Method.POST, `/api/v2/set-feedback`, body);
-    console.log("Feedback response:", response);
-
-    this.feedback$.next(feedback);
+    // this.feedback$.next(feedback);
   }
 
 }

@@ -5,6 +5,7 @@ import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.com
 import { FetchService, Method } from 'src/app/services/fetch.service';
 import { FriendsService } from 'src/app/services/friends.service';
 import { NotificationService } from 'src/app/services/notification.service';
+import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { Challenge } from 'src/app/shared/models/challenge';
 import { getMatchScore, MatchPoint, MultiplayerData, PlayerRole } from 'src/app/shared/models/multiplayer';
@@ -38,6 +39,7 @@ export class MultiplayerAfterMatchComponent implements OnInit, OnDestroy {
     private router: Router,
     private websocketService: WebsocketService,
     private notificationService: NotificationService,
+    private meService: MeService,
   ) { }
 
   ngOnInit() {
@@ -133,8 +135,8 @@ export class MultiplayerAfterMatchComponent implements OnInit, OnDestroy {
   }
 
   async offerRematch() {
-    const userID = this.websocketService.getUserID();
-    const username = this.websocketService.getUsername();
+    const userID = await this.meService.getUserID();
+    const username = await this.meService.getUsername();
     const sessionID = this.websocketService.getSessionID();
     if (!userID || !username || !sessionID) {
       this.websocketService.logout();
@@ -173,7 +175,7 @@ export class MultiplayerAfterMatchComponent implements OnInit, OnDestroy {
 
   async acceptRematch() {
   
-    const username = this.websocketService.getUsername();
+    const username = await this.meService.getUsername();
     const sessionID = this.websocketService.getSessionID();
     if (!username || !sessionID) {
       console.error('No username or session ID found when accepting challenge');

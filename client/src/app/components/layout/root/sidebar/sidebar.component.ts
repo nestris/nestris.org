@@ -5,11 +5,11 @@ import { TabID } from 'src/app/models/tabs';
 import { FetchService, Method } from 'src/app/services/fetch.service';
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
 import { ServerStatsService } from 'src/app/services/server-stats.service';
+import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { DBUser, Authentication } from 'src/app/shared/models/db-user';
 import { OnlineUserStatus } from 'src/app/shared/models/friends';
 import { DeploymentEnvironment } from 'src/app/shared/models/server-stats';
-import { JsonMessageType } from 'src/app/shared/network/json-message';
 
 
 @Component({
@@ -32,7 +32,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
     private fetchService: FetchService,
     public websocketService: WebsocketService,
     public modalService: ModalManagerService,
-    public serverStatsService: ServerStatsService
+    public serverStatsService: ServerStatsService,
+    public meService: MeService,
   ) {}
 
   async ngOnInit() {
@@ -41,10 +42,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   async syncOnlineFriends() {
-
-    const userid = this.websocketService.getUserID();
-    if (!userid) return; // if not logged in, do nothing
-
+    const userid = await this.meService.getUserID();
     const result = await this.fetchService.fetch<{count: number}>(Method.GET, `/api/v2/num-online-friends/${userid}`);
     this.numOnlineFriends$.next(result.count);
 
