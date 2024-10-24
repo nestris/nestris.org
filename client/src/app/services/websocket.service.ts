@@ -1,4 +1,4 @@
-import { Injectable, isDevMode } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { v4 as uuid } from 'uuid';
 import { BehaviorSubject, Observable, Subject, filter, map } from 'rxjs';
@@ -8,11 +8,9 @@ import { PacketGroup, PacketContent } from '../shared/network/stream-packets/pac
 import { PacketDisassembler } from '../shared/network/stream-packets/packet-disassembler';
 import { decodeMessage, MessageType } from '../shared/network/ws-message';
 import { NotificationService } from './notification.service';
-import { DBUser } from '../shared/models/db-user';
 import { ServerStatsService } from './server-stats.service';
 import { DeploymentEnvironment } from '../shared/models/server-stats';
 import { FetchService, Method } from './fetch.service';
-import { MeService } from './state/me.service';
 
 
 /*
@@ -36,8 +34,6 @@ export class WebsocketService {
   private packetGroup$ = new Subject<PacketGroup>();
 
   private signedInSubject$ = new BehaviorSubject<boolean>(false);
-
-  private isGuest = false;
 
   constructor(
     private fetchService: FetchService,
@@ -94,14 +90,15 @@ export class WebsocketService {
     location.href = `api/v2/login?redirectUri=${redirectUri}`;
   }
 
-  setGuestUser() {
-    this.isGuest = true;
-    this.router.navigate(['/play']);
+  async registerAsGuest() {
+
+    // First, register as a guest
+    await this.fetchService.fetch(Method.POST, '/api/v2/register-as-guest');
+
+    // Then, go to the play page
+    location.href = '/play';
   }
 
-  isGuestUser() {
-    return this.isGuest;
-  }
 
   // observable emits true when signed in, false when signed out
   onSignInUpdate(): Observable<boolean> {
@@ -246,7 +243,9 @@ export class WebsocketService {
   // and thus sign out the user
   async logout() {
 
+    // If not yet signed in, redirect to login page
     if (!this.isSignedIn()) {
+      if (location.pathname !== '/login') location.href = '/login';
       return;
     }
 

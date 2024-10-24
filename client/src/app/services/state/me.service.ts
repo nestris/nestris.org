@@ -4,18 +4,30 @@ import { DBUser } from 'src/app/shared/models/db-user';
 import { Method } from '../fetch.service';
 import { JsonMessage, JsonMessageType, MeMessage } from 'src/app/shared/network/json-message';
 import { map, Observable } from 'rxjs';
+import { BannerManagerService, BannerType } from '../banner-manager.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MeService extends StateService<DBUser> {
 
-  constructor() {
+  constructor(
+    private readonly bannerManager: BannerManagerService
+  ) {
     super([JsonMessageType.ME]);
   }
 
   protected async fetch(): Promise<DBUser> {
-    const me = await this.fetchService.fetch<DBUser>(Method.GET, '/api/v2/me');
+
+    let me: DBUser;
+    try {
+      // Fetch the user's information
+      me = await this.fetchService.fetch<DBUser>(Method.GET, '/api/v2/me');
+    } catch (e) {
+      // If cannot fetch me, redirect to login
+      if (location.pathname !== '/login') location.href = '/login';
+      throw e;
+    }
 
     // Kickstart the websocket connection
     this.websocketService.init(me.userid, me.username);
@@ -26,6 +38,20 @@ export class MeService extends StateService<DBUser> {
   // ME message contains updated DBUser object
   protected override onEvent(event: JsonMessage, oldState: DBUser): DBUser {
     return (event as MeMessage).me;
+  }
+
+  protected override onFetch(me: DBUser): void {
+
+    // Add banner for guest mode
+    if (me.is_guest) {
+      this.bannerManager.addBanner({
+        id: BannerType.GUEST_WARNING,
+        message: 'You are signed in as a guest. Progress will not be saved - sign in to save your progress!',
+        color: '#B7693C'
+      }) 
+    } else {
+      this.bannerManager.removeBanner(BannerType.GUEST_WARNING);
+    }
   }
 
   public async getUserID(): Promise<string> {

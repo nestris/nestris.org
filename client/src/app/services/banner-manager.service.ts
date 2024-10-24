@@ -7,6 +7,7 @@ export enum BannerType {
   STAGING_WARNING = "STAGING_WARNING",
   DEV_WARNING = "DEV_WARNING",
   SERVER_RESTART_WARNING = "SERVER_RESTART_WARNING",
+  GUEST_WARNING = "GUEST_WARNING",
 }
 
 export interface Banner {
@@ -27,6 +28,13 @@ export class BannerManagerService {
   private banners$ = new BehaviorSubject<Banner[]>([]);
 
   addBanner(banner: Banner) {
+
+    // Prevent duplicate banners
+    if (this.banners$.getValue().find((b) => b.id === banner.id)) {
+      return;
+    }
+
+    // Add the banner
     this.banners$.next([...this.banners$.getValue(), banner]);
   }
 

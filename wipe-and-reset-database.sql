@@ -8,6 +8,7 @@ DROP TABLE IF EXISTS "public"."users" CASCADE;
 CREATE TABLE "public"."users" (
     "userid" text NOT NULL,
     "username" text NOT NULL UNIQUE,
+    "is_guest" boolean NOT NULL DEFAULT FALSE,
     "authentication" text NOT NULL DEFAULT 'user'::text,
     "created_at" timestamp NOT NULL DEFAULT now(),
     "last_online" timestamp NOT NULL DEFAULT now(),

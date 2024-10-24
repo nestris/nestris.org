@@ -7,7 +7,8 @@ import { Database, DBQuery, WriteDBQuery } from "../db-query";
 
 // The parameters required to create a new user
 export interface DBUserParams {
-    username: string
+    username: string,
+    is_guest: boolean
 }
 
 abstract class DBUserEvent {}
@@ -61,14 +62,14 @@ export class DBUpdateSettingsEvent extends DBUserEvent {
 }
 
 
-export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>() {
+export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("DBUser") {
 
     protected override async fetchFromDB(): Promise<DBUser> {
 
         class UserQuery extends DBQuery<DBUser> {
 
             public override query = `
-                SELECT userid, username, authentication, created_at, last_online, league, xp, trophies, highest_trophies,
+                SELECT userid, username, is_guest, authentication, created_at, last_online, league, xp, trophies, highest_trophies,
                     puzzle_elo, highest_puzzle_elo, highest_score, highest_level, highest_lines, highest_accuracy,
                     highest_transition_into_19, highest_transition_into_29, has_perfect_transition_into_19, has_perfect_transition_into_29,
                     enable_receive_friend_requests, notify_on_friend_online, solo_chat_permission, match_chat_permission,
@@ -99,6 +100,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>() 
         return {
             userid: this.id,
             username: params.username,
+            is_guest: params.is_guest,
             authentication: Authentication.USER,
             created_at: new Date(),
             last_online: new Date(),
@@ -134,19 +136,19 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>() 
 
         class CreateUserQuery extends WriteDBQuery {
             public override query = `
-                INSERT INTO users (userid, username, authentication, created_at, last_online, league, xp, trophies, highest_trophies,
+                INSERT INTO users (userid, username, is_guest, authentication, created_at, last_online, league, xp, trophies, highest_trophies,
                     puzzle_elo, highest_puzzle_elo, highest_score, highest_level, highest_lines, highest_accuracy,
                     highest_transition_into_19, highest_transition_into_29, has_perfect_transition_into_19, has_perfect_transition_into_29,
                     enable_receive_friend_requests, notify_on_friend_online, solo_chat_permission, match_chat_permission,
                     keybind_emu_move_left, keybind_emu_move_right, keybind_emu_rot_left, keybind_emu_rot_right,
                     keybind_puzzle_rot_left, keybind_puzzle_rot_right)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30)
             `;
             public override warningMs = null;
         
             constructor(newUser: DBUser) {
                 super([
-                    newUser.userid, newUser.username, newUser.authentication, newUser.created_at, newUser.last_online, newUser.league, newUser.xp, newUser.trophies, newUser.highest_trophies,
+                    newUser.userid, newUser.username, newUser.is_guest, newUser.authentication, newUser.created_at, newUser.last_online, newUser.league, newUser.xp, newUser.trophies, newUser.highest_trophies,
                     newUser.puzzle_elo, newUser.highest_puzzle_elo, newUser.highest_score, newUser.highest_level, newUser.highest_lines, newUser.highest_accuracy,
                     newUser.highest_transition_into_19, newUser.highest_transition_into_29, newUser.has_perfect_transition_into_19, newUser.has_perfect_transition_into_29,
                     newUser.enable_receive_friend_requests, newUser.notify_on_friend_online, newUser.solo_chat_permission, newUser.match_chat_permission,

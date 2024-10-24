@@ -7,10 +7,9 @@ import morgan from 'morgan';
 import cors from 'cors';
 
 import { DeploymentEnvironment, ServerStats } from './shared/models/server-stats';
-import { handleDiscordCallback, handleLogout, redirectToDiscord } from './src/util/discord-util';
+import { handleDiscordCallback, handleLogout, redirectToDiscord, registerAsGuest } from './src/util/discord-util';
 import { OnlineUserManager } from './src/online-users/online-user-manager';
 import { EventConsumerManager } from './src/online-users/event-consumer';
-import { Query } from 'pg';
 import { RouteManager } from './src/routes/route';
 import { GetMeRoute } from './src/routes/user/get-me-route';
 import { GetOnlineUsersRoute } from './src/routes/user/get-online-users-route';
@@ -18,6 +17,7 @@ import { FriendEventConsumer } from './src/online-users/event-consumers/friend-e
 import { GetFriendsInfoRoute } from './src/routes/user/get-friends-info-route';
 import { PingConsumer } from './src/online-users/event-consumers/ping-consumer';
 import { GetAllUsernamesRoute } from './src/routes/user/get-all-usernames-route';
+import { GuestConsumer } from './src/online-users/event-consumers/guest-consumer';
 
 // Load environment variables
 require('dotenv').config();
@@ -60,6 +60,7 @@ async function main() {
   // initialize special auth routes
   app.get('/api/v2/login', redirectToDiscord);
   app.get('/api/v2/callback', handleDiscordCallback);
+  app.post('/api/v2/register-as-guest', registerAsGuest);
   app.post('/api/v2/logout', handleLogout);
 
 
@@ -70,6 +71,7 @@ async function main() {
   const consumers = EventConsumerManager.getInstance();
   consumers.registerConsumer(FriendEventConsumer);
   consumers.registerConsumer(PingConsumer);
+  consumers.registerConsumer(GuestConsumer);
 
   // initialize routes
   const routes = new RouteManager(app);

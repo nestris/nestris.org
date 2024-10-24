@@ -41,6 +41,20 @@ export abstract class StateService<T> {
      */
     protected abstract onEvent(event: JsonMessage, state: T): T;
 
+
+    /**
+     * Codify what should happen when the state is fetched
+     * @param state The current state
+     */
+    protected onFetch(state: T) {};
+
+    /**
+     * Codify what should happen when the state is updated
+     * @param state The current state
+     */
+    protected onUpdate(state: T) {};
+    
+
     /**
      * Start fetching the initial state and subscribe to websocket events
      * @param events The events that the service should listen to in order to update the state
@@ -57,6 +71,9 @@ export abstract class StateService<T> {
 
             // Set the state
             this.state$.next(state);
+
+            // Call the onFetch method
+            this.onFetch(state);
         });
 
         // Subscribe to each event
@@ -70,6 +87,9 @@ export abstract class StateService<T> {
                     let newState: T = Object.assign({}, this.state$.getValue());
                     newState = this.onEvent(message, newState);
                     this.state$.next(newState);
+
+                    // Call the onUpdate method
+                    this.onUpdate(newState);
                 }
             });
         });

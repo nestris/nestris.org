@@ -15,6 +15,7 @@ export const AUTHENTICATION_LEVEL = {
 export interface DBUser {
   userid: string,
   username: string,
+  is_guest: boolean,
   authentication: Authentication,
   created_at: Date,
   last_online: Date,

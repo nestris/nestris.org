@@ -11,10 +11,12 @@ import { DBError, DBObjectAlreadyExistsError, DBObjectNotFoundError } from "./db
  * Subclass DBObject only if database data for the object is modified only through your subclass. If the object is modified in the database
  * by other means, the in-memory object will be out of sync with the database which can lead to undefined behavior.
  * 
+ * @param name The name of the object, used for logging and debugging
+ * @param maxCacheSize The maximum number of objects to cache in-memory. If the number of objects exceeds this, the least recently used object will be removed.
  * @template InMemoryObject The schema of the in-memory object
  * @template Event An enum of events that can be emitted to alter the object
  */
-export function DBObject<InMemoryObject, CreateParams, Event>(maxCacheSize: number = 1000) {
+export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxCacheSize: number = 1000) {
 
     // Ensure maxCacheSize is valid
     if (maxCacheSize < 0) throw new Error("maxCacheSize must be nonnegative");
@@ -52,6 +54,8 @@ export function DBObject<InMemoryObject, CreateParams, Event>(maxCacheSize: numb
                 // Delete the object from the map to free up memory
                 DBObject.dbObjects.delete(oldestID);
                 DBObject.cacheSize--;
+
+                console.log(`Evicted ${name} object with ID ${oldestID} from cache to free up memory`);
             }
         }
 
@@ -78,6 +82,8 @@ export function DBObject<InMemoryObject, CreateParams, Event>(maxCacheSize: numb
             DBObject.dbObjects.set(id, dbObject);
             DBObject.cacheSize++;
 
+            console.log(`Created new ${name} object with ID ${id}`);
+
             // Evict the oldest object if the cache size exceeds the maximum cache size
             DBObject.evictOldestIfNeeded();
 
@@ -103,6 +109,9 @@ export function DBObject<InMemoryObject, CreateParams, Event>(maxCacheSize: numb
             // Delete the in-memory object by deleting the object from the map
             DBObject.dbObjects.delete(id);
             DBObject.cacheSize--;
+
+            console.log(`Deleted ${name} object with ID ${id}`);
+
         }
 
         /**
@@ -127,6 +136,8 @@ export function DBObject<InMemoryObject, CreateParams, Event>(maxCacheSize: numb
 
             // Get a copy of the in-memory object after altering
             const after: InMemoryObject = Object.assign({}, dbObject.get());
+
+            console.log(`Altered ${name} object with ID ${id} with event ${event}`);
 
             // Notify all subscribers of the change
             DBObject.changeSubscribers.forEach(subscriber => subscriber({
@@ -194,6 +205,8 @@ export function DBObject<InMemoryObject, CreateParams, Event>(maxCacheSize: numb
             if (DBObject.dbObjects.delete(id)) {
                 DBObject.cacheSize--;
             }
+
+            console.log(`Forgot ${name} object with ID ${id}`);
         }
 
         /**
@@ -203,6 +216,8 @@ export function DBObject<InMemoryObject, CreateParams, Event>(maxCacheSize: numb
         static clearCache() {
             DBObject.dbObjects.clear();
             DBObject.cacheSize = 0;
+
+            console.log(`Cleared ${name} object cache`);
         }
 
         /**
@@ -211,6 +226,38 @@ export function DBObject<InMemoryObject, CreateParams, Event>(maxCacheSize: numb
          */
         static onChange(subscriber: (change: DBObjectChange) => void) {
             DBObject.changeSubscribers.push(subscriber);
+        }
+
+        /**
+         * Check if the object exists at all, either in-memory or in the database.
+         * @param id The ID of the object to check
+         * @returns True if the object exists, false otherwise
+         */
+        static async exists<T extends DBObject>(this: new (id: string) => T, id: string): Promise<boolean> {
+
+            // Check if the object is in-memory. If so, don't need to check the database
+            if (DBObject.dbObjects.has(id)) return true;
+
+            // Check if the object exists in the database
+            const dbObject = new this(id);
+            try {
+
+                // Attempt to fetch the object from the database. If the object does not exist, DBObjectNotFoundError will be thrown
+                await dbObject.fetchFromDB();
+
+                // If an error is not thrown, the object exists
+                return true;
+
+            } catch (error: any) {
+
+                if (error instanceof DBObjectNotFoundError) {
+                    // If the object does not exist in the database, return false
+                    return false;
+                } else {
+                    // If unknown error, throw it
+                    throw error;
+                }
+            }
         }
 
 

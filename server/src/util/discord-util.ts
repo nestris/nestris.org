@@ -17,8 +17,6 @@ export interface UserSession extends session.Session {
     userid: string;
     username: string;
     permission: Authentication;
-    accessToken: string;
-    refreshToken: string;
 }
 
 export const redirectToDiscord = (req: express.Request, res: express.Response) => {
@@ -28,6 +26,30 @@ export const redirectToDiscord = (req: express.Request, res: express.Response) =
     console.log("redirecting to discord with url", authorizeUrl);
     res.redirect(authorizeUrl);
 };
+
+// Return the first version of the username that doesn't already exist in the database
+async function generateUniqueUsername(username: string) {
+
+    // If the username is already unique, return it
+    if (!(await DBUserObject.exists(username))) {
+        return username;
+    }
+
+    // If the username already exists, add a number to the end of the username
+    let i = 2;
+    while (await DBUserObject.exists(`${username}${i}`)) {
+        i++;
+    }
+    return `${username}${i}`;
+}
+
+function createUserSession(req: express.Request, res: express.Response, userID: string, username: string, permission: Authentication) {
+
+    // Store the user's session
+    (req.session as UserSession).userid = userID;
+    (req.session as UserSession).username = username;
+    (req.session as UserSession).permission = permission;
+}
 
 export const handleDiscordCallback = async (req: express.Request, res: express.Response) => {
     const code = req.query.code as string;
@@ -73,25 +95,23 @@ export const handleDiscordCallback = async (req: express.Request, res: express.R
 
             if (error instanceof DBObjectNotFoundError) {
                 // If user does not exist, create a new user with username from Discord global name
-                const newUsername = userResponse.data.global_name ?? userResponse.data.username ?? "Unknown User";
+                let newUsername = userResponse.data.global_name ?? userResponse.data.username ?? "UnknownUser";
+
+                // Generate a unique username
+                newUsername = await generateUniqueUsername(newUsername);
+
+                // Create the new user with username
                 console.log(`Creating new user ${newUsername} with ID ${userID}`);
-                user = await DBUserObject.create(userID, { username: newUsername });
+                user = await DBUserObject.create(userID, { username: newUsername, is_guest: false });
             } else {
                 throw error;
             }
         }
-        
-        const username = user.username;
-        const permission: Authentication = user.authentication;
 
-        // Store the user's session
-        (req.session as UserSession).accessToken = accessToken;
-        (req.session as UserSession).refreshToken = refreshToken;
-        (req.session as UserSession).userid = userID;
-        (req.session as UserSession).username = username;
-        (req.session as UserSession).permission = permission;
+        createUserSession(req, res, userID, user.username, user.authentication);
 
-        console.log(`Authenticated user ${username} with ID ${userID}, redirecting to play`);
+        // Redirect to play
+        console.log(`Authenticated user ${user.username} with ID ${userID}, redirecting to play`);
         res.redirect('/play');
 
     } catch (error) {
@@ -99,6 +119,36 @@ export const handleDiscordCallback = async (req: express.Request, res: express.R
         res.status(500).send(`An error occurred during authentication: ${error}`);
     }
 };
+
+/**
+ * Register a guest user with a random userid and username. This creates a new user in the database, and sets the session to the new user.
+ * On disconnect, the guest user will be deleted from the database.
+ */
+export async function registerAsGuest(req: express.Request, res: express.Response) {
+
+    // Generates a random username for the guest
+    async function generateRandomGuestUsername() {
+        while (true) {
+            // generate username with random number between 0 and 9999999999
+            const randomUsername = `guest${Math.floor(Math.random() * 10000000000)}`;
+
+            // If the username is unique, return it
+            if (!(await DBUserObject.exists(randomUsername))) {
+                return randomUsername;
+            }
+        }
+    }
+    const username = await generateRandomGuestUsername();
+    
+    // Create the guest user in the database, with equal userid and username
+    const user = await DBUserObject.create(username, { username: username, is_guest: true });
+
+    // Store the user's session and redirect to play
+    createUserSession(req, res, user.userid, user.username, user.authentication);
+
+    res.status(200).send({msg: 'Registered as guest'});
+}
+
 
 export function handleLogout(req: express.Request, res: express.Response) {
 
