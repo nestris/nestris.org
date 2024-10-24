@@ -239,6 +239,16 @@ export class WebsocketService {
     };
   }
 
+  async leaveGuestAndLogin() {
+
+    // First, log out
+    await this.fetchService.fetch(Method.POST, '/api/v2/logout');
+
+    // Then, login
+    await this.login();
+  }
+
+
   // called to disconnect from server. this will trigger the onclose event
   // and thus sign out the user
   async logout() {

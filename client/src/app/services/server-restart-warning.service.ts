@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { WebsocketService } from './websocket.service';
 import { JsonMessageType, ServerRestartWarningMessage } from '../shared/network/json-message';
-import { BannerManagerService, BannerType } from './banner-manager.service';
+import { BannerManagerService, BannerPriority, BannerType } from './banner-manager.service';
 import { NotificationService } from './notification.service';
 import { NotificationAutohide, NotificationType } from '../shared/models/notifications';
 import { FetchService, Method } from './fetch.service';
@@ -55,6 +55,7 @@ export class ServerRestartWarningService {
       // Set a banner
       this.bannerService.addBanner({
         id: BannerType.SERVER_RESTART_WARNING,
+        priority: BannerPriority.HIGH,
         message: "The server will restart in a few minutes! Please refrain from starting new games.",
         color: "#B73C3C",
       });

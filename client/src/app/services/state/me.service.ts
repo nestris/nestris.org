@@ -4,7 +4,7 @@ import { DBUser } from 'src/app/shared/models/db-user';
 import { Method } from '../fetch.service';
 import { JsonMessage, JsonMessageType, MeMessage } from 'src/app/shared/network/json-message';
 import { map, Observable } from 'rxjs';
-import { BannerManagerService, BannerType } from '../banner-manager.service';
+import { BannerManagerService, BannerPriority, BannerType } from '../banner-manager.service';
 
 @Injectable({
   providedIn: 'root'
@@ -46,8 +46,13 @@ export class MeService extends StateService<DBUser> {
     if (me.is_guest) {
       this.bannerManager.addBanner({
         id: BannerType.GUEST_WARNING,
-        message: 'You are signed in as a guest. Progress will not be saved - sign in to save your progress!',
-        color: '#B7693C'
+        priority: BannerPriority.HIGH,
+        message: 'You are signed in as a guest. Progress will not be saved - login to save your progress!',
+        color: '#B7693C',
+        button: {
+          text: 'Login',
+          callback: () => this.websocketService.leaveGuestAndLogin()
+        }
       }) 
     } else {
       this.bannerManager.removeBanner(BannerType.GUEST_WARNING);

@@ -10,8 +10,14 @@ export enum BannerType {
   GUEST_WARNING = "GUEST_WARNING",
 }
 
+export enum BannerPriority {
+  HIGH,
+  LOW
+}
+
 export interface Banner {
   id: string;
+  priority: BannerPriority;
   message: string;
   color: string;
   button?: {
@@ -25,22 +31,38 @@ export interface Banner {
 })
 export class BannerManagerService {
 
+  private allBanners: Banner[] = [];
+
   private banners$ = new BehaviorSubject<Banner[]>([]);
 
   addBanner(banner: Banner) {
 
     // Prevent duplicate banners
-    if (this.banners$.getValue().find((b) => b.id === banner.id)) {
+    if (this.allBanners.find((b) => b.id === banner.id)) {
       return;
     }
 
     // Add the banner
-    this.banners$.next([...this.banners$.getValue(), banner]);
+    this.allBanners.push(banner);
+    this.updateBanners();
   }
 
   removeBanner(id: string) {
-    const banners = this.banners$.getValue().filter((banner) => banner.id !== id);
-    this.banners$.next(banners);
+    this.allBanners = this.allBanners.filter((b) => b.id !== id);
+    this.updateBanners();
+  }
+
+  // Update banners$ with allBanners. If any banners are high priority, show only high-priority banners.
+  updateBanners() {
+
+    const highPriorityBanners = this.allBanners.filter((b) => b.priority === BannerPriority.HIGH);
+
+    if (highPriorityBanners.length > 0) {
+      this.banners$.next(highPriorityBanners);
+    } else {
+      this.banners$.next(this.allBanners);
+    }
+
   }
 
   getBanners$(): Observable<Banner[]> {
