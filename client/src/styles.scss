@@ -47,6 +47,13 @@ body {
     color: white;
 }
 
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow-y: hidden;
+    overflow-x: hidden; 
+}
+
 @font-face {
     font-family: 'NES';
     src: url('assets/fonts/Pixel_NES.otf') format('opentype');
