@@ -1,2 +1,39 @@
+<header>
+    <img class="logo" src="./assets/img/branding/tetrisfish_logo.svg" width="20px" />
+    <p>nestris.org</p>
+</header>
+
+<div class="content">
+    <div class="top-panel">
+        <app-loading-screen [blockSize]="30" [blockSpeed]="0.3" [maxBlocks]="20" [resolution]="2" />
+        <div class="top-panel-content">
+
+            <h1 class="score">35,256,127</h1>
+            <h2 class="label">games played</h2>
+
+            <h3 class="leaderboard-label">Ranked Leaderboard</h3>
+            <div class="leaderboard">
+                <ng-container *ngFor="let i of [0,1,2]">
+                    <div class="leaderboard-item" *ngIf="LEADERBOARD_COLORS[i] as color"
+                    [ngStyle]="{borderColor: color}"
+                    >
+                        <div class="left">
+                            <div class="rank" [ngStyle]="{ color }">#{{i+1}}</div>
+                            <div class="username" [ngStyle]="{ color }">Username</div>
+                        </div>
+
+                        <div class="right">
+                            <div class="trophies" [ngStyle]="{ color }">2984</div>
+                        </div>
+
+                    </div>
+                </ng-container>
+                
+            </div>
+
+        </div>
+    </div>
+</div>
+
 <button (click)="websocketService.login()">Login</button>
 <button (click)="websocketService.registerAsGuest()">Continue as guest</button>

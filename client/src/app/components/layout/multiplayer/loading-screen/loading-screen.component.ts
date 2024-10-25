@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, HostListener, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, Output, ViewChild } from '@angular/core';
 
 interface MousePosition {
   x: number;
@@ -35,6 +35,11 @@ interface TetrisBlock {
 })
 export class LoadingScreenComponent {
   @ViewChild('canvasElement') canvasElement!: ElementRef<HTMLCanvasElement>;
+  @Input() blockSize: number = 25;
+  @Input() scaleCircles: number = 1;
+  @Input() blockSpeed: number = 1;
+  @Input() maxBlocks: number = 50;
+  @Input() resolution: number = 1;
   @Output() score = new EventEmitter<number>();
 
   readonly CIRCLE_PERSISTENCE = 200;
@@ -42,9 +47,7 @@ export class LoadingScreenComponent {
   readonly CIRCLE_SPEED = 0.7;
   readonly MOUSE_POSITIONS_TO_TRACK = 5;
   readonly LINE_PERSISTENCE = 40;
-  readonly MAX_TETRIS_BLOCKS = 50;
   readonly TETRIS_BLOCK_SPAWN_INTERVAL = 300; // ms
-  readonly BLOCK_SIZE = 25;
 
   private canvas!: HTMLCanvasElement;
   private c!: CanvasRenderingContext2D;
@@ -97,11 +100,17 @@ export class LoadingScreenComponent {
 
   @HostListener('mousemove', ['$event'])
   onMouseMove(event: MouseEvent) {
-    this.updateMousePosition(event.clientX, event.clientY);
+
+    const rect = this.canvas.getBoundingClientRect();
+
+    const mouseX = (event.clientX - rect.left) * this.resolution;
+    const mouseY = (event.clientY - rect.top) * this.resolution;
+
+    this.updateMousePosition(mouseX, mouseY);
     this.drawCircles();
     this.drawLine();
 
-    this.checkTetrisBlockMouseover(event.clientX, event.clientY);
+    this.checkTetrisBlockMouseover(mouseX, mouseY);
 
     this.changeScore(-0.1);
   }
@@ -114,8 +123,8 @@ export class LoadingScreenComponent {
   }
 
   private resizeCanvas() {
-    this.canvas.height = window.innerHeight;
-    this.canvas.width = window.innerWidth;
+    this.canvas.width = this.canvas.getBoundingClientRect().width * this.resolution;
+    this.canvas.height = this.canvas.getBoundingClientRect().height * this.resolution;
     this.initCanvas();
   }
 
@@ -161,7 +170,7 @@ export class LoadingScreenComponent {
       const latestPosition = this.mousePositions[this.mousePositions.length - 1];
       
       this.circleArray.push(
-        new Circle(latestPosition.x, latestPosition.y, radius, circleVx, circleVy, rgb, 1, spawnFrame, this.CIRCLE_PERSISTENCE)
+        new Circle(latestPosition.x, latestPosition.y, radius * this.scaleCircles, circleVx, circleVy, rgb, 1, spawnFrame, this.CIRCLE_PERSISTENCE)
       );
     }
   }
@@ -182,7 +191,7 @@ export class LoadingScreenComponent {
   }
 
   private spawnTetrisBlock() {
-    if (this.tetrisBlocks.length < this.MAX_TETRIS_BLOCKS) {
+    if (this.tetrisBlocks.length < this.maxBlocks) {
       const index = Math.floor(Math.random() * this.tetrisShapes.length);
       const shape = this.tetrisShapes[index];
       const color = this.tetrisColors[index];
@@ -246,10 +255,10 @@ export class LoadingScreenComponent {
         x,  // Starting position outside canvas
         y,
         angle: 0,
-        rotationSpeed: (Math.random() - 0.5) * 0.1,
-        speed: Math.random() * 2 + 0.5,
+        rotationSpeed: ((Math.random() - 0.5) * 0.1) * this.blockSpeed,
+        speed: (Math.random() * 2 + 0.5) * this.blockSpeed,
         direction,  // Calculated direction towards the target
-        size: this.BLOCK_SIZE,
+        size: this.blockSize,
         enteredScreen: false,
         markForDelete: false
       };
@@ -351,7 +360,7 @@ export class LoadingScreenComponent {
               new Circle(
                 individualBlockX + (Math.random() - 0.5) * block.size,
                 individualBlockY + (Math.random() - 0.5) * block.size,
-                Math.random() + 0.5,
+                (Math.random() + 0.5) * this.scaleCircles,
                 (Math.random() - 0.5) * 1.5,
                 (Math.random() - 0.5) * 1.5,
                 block.color,

@@ -8,4 +8,6 @@ import { WebsocketService } from 'src/app/services/websocket.service';
 })
 export class LoginPageComponent {
   constructor(public websocketService: WebsocketService) { }
+
+  readonly LEADERBOARD_COLORS = ["#FFB938", "#C9C9C9", "#E59650"];
 }
