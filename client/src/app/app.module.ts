@@ -82,6 +82,8 @@ import { StatPanelComponent } from './components/layout/main-leaderboard/stat-pa
 import { TableComponent } from './components/ui/table/table.component';
 import { MatchmakingLoadingPageComponent } from './components/layout/multiplayer/matchmaking-loading-page/matchmaking-loading-page.component';
 import { LoadingScreenComponent } from './components/layout/multiplayer/loading-screen/loading-screen.component';
+import { SolidSelectorComponent } from './components/ui/solid-selector/solid-selector.component';
+import { NgOptimizedImage } from '@angular/common';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -135,6 +137,7 @@ const customNotifierOptions: NotifierOptions = {
     PingIconComponent,
     GoogleSigninComponent,
     SolidButtonComponent,
+    SolidSelectorComponent,
     FriendPageComponent,
     ModalComponent,
     XComponent,
@@ -210,7 +213,8 @@ const customNotifierOptions: NotifierOptions = {
     FormsModule,
     NotifierModule.withConfig(customNotifierOptions),
     HttpClientModule,
-    RouterModule
+    RouterModule,
+    NgOptimizedImage,
   ],
   providers: [],
   bootstrap: [AppComponent]

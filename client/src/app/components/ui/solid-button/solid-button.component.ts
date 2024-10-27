@@ -4,7 +4,8 @@ export enum ButtonColor {
   GREEN = "#54A165",
   RED = "#B73C3C",
   BLUE = "#3C5EB7",
-  GREY = "#2F3033"
+  GREY = "#2F3033",
+  LIGHT_GREY = "#2D2D31"
 }
 
 @Component({

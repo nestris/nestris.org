@@ -1,0 +1,25 @@
+<div class="button prevent-select" (clickOutside)="collapse()"
+    [ngStyle]="{ borderRadius: borderRadius + 'px' }"
+>
+    <div class="button-row" *ngFor="let item of (iterateIndices(!!(expanded$ | async)))" (click)="clickIndex($event, item.index)"
+        [ngStyle]="{ paddingInline: paddingHorizontal + 'px', paddingBlock: paddingVertical + 'px',
+        width: width + 'px', backgroundColor: color,
+        borderTopLeftRadius: (item.isFirst) ? borderRadius + 'px' : '0px', borderTopRightRadius: (item.isFirst) ? borderRadius + 'px' : '0px',
+        borderBottomLeftRadius: (item.isLast) ? borderRadius + 'px' : '0px', borderBottomRightRadius: (item.isLast) ? borderRadius + 'px' : '0px',
+        }"
+        [ngClass]="{'active' : selected === item.index}"
+    >
+
+        <div class="left" [ngStyle]="{gap : gap + 'px',}">
+            <img class="icon" *ngIf="icons" [src]="icons[item.index]" [width]="iconWidth ?? '18'"
+            [ngStyle]="{opacity: textOpacity}">
+            <h1 class="label" [ngStyle]="{
+                fontSize: fontSize + 'px', fontWeight: fontWeight, opacity: textOpacity,
+            }">{{ labels[item.index] }}</h1>
+        </div>
+
+        <img *ngIf="item.isFirst" src="./assets/img/ui-icons/dropdown.svg" width="15px">
+        
+    </div>
+    
+</div>

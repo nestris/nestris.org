@@ -92,7 +92,8 @@ export class AddFriendModalComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   userMatchesTypedUsername(friend: PotentialFriend) {
-    return friend.username.toLowerCase().includes(this.typedUsername.toLowerCase());
+    return false;
+    //return friend.username.toLowerCase().includes(this.typedUsername.toLowerCase());
   }
 
   // called when user clicks on a potential friend "add friend" icon
