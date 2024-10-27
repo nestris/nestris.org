@@ -18,6 +18,9 @@ export class NesPieceComponent implements OnChanges {
   @Input() piece?: TetrominoType = TetrominoType.ERROR_TYPE;
   @Input() level: number = 18;
 
+  // login page has white style
+  @Input() isLoginPage: boolean = false;
+
   // the smallest grid that can fit the next box piece at first rotation
   // recalculated every time the piece changes
   public nextBox?: ColorType[][];

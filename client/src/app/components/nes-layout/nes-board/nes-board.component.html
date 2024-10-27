@@ -1,4 +1,5 @@
-<div class="board-container" [ngClass]="{'gold': gold}">
+<div class="board-container" [ngClass]="{'gold': gold}"
+[ngStyle]="{'backgroundColor' : isLoginPage ? 'transparent' : 'black', 'borderWidth' : isLoginPage ? '0.5px' : '1px'}">
 
     <div class="empty-board" *ngIf="hide"
         [style.width]="(scale*boardWidthPixels) + 'px'"
@@ -23,7 +24,7 @@
                         [attr.opacity]="getOpacityAt(x,y)"
                         [color]="getBlockAt(x,y)"
                         [level]="level"
-                        [interactable]="interactable"
+                        [isLoginPage]="isLoginPage"
                         [offsetX]="9*x + 1"
                         [offsetY]="9*y + 1"
                         (mouseenter)="onMouseEnter(x,y)"

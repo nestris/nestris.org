@@ -54,6 +54,9 @@ export class NesBoardComponent {
 
   @Input() gold: boolean = false;
 
+  // login page has white style
+  @Input() isLoginPage: boolean = false;
+
 
   @Output() hoveringBlock = new EventEmitter<Point | undefined>();
 
@@ -71,10 +74,16 @@ export class NesBoardComponent {
   readonly GameOverMode = GameOverMode;
 
   onMouseEnter(x: number, y: number) {
+
+    if (!this.interactable) return;
+
     this.hoveringBlock.emit({x, y});
   }
 
   onMouseLeave() {
+
+    if (!this.interactable) return;
+    
     this.hoveringBlock.emit(undefined);
   }
 

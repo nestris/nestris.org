@@ -5,6 +5,9 @@
     flex-direction: column;
     align-items: center;
     width: 100%;
+    height: 100%;
+
+    overflow-y: scroll;
 }
 
 header {
@@ -16,7 +19,6 @@ header {
     background-color: $dark-color;
 
     gap: 3px;
-    height: 30px;
 
     margin-bottom: 30px;
 }
@@ -25,7 +27,7 @@ header p {
     font-family: $main-font;
     font-size: 11px;
     font-weight: 500;
-    margin: 0;
+    margin-block: 7px;
     padding: 0;
 }
 
@@ -39,7 +41,7 @@ header p {
 .top-panel {
     width: 100%;
     background-color: $dark-color;
-    border-radius: 20px;
+    border-radius: 10px;
     height: 270px;
     position: relative;
 }
@@ -75,6 +77,16 @@ app-loading-screen {
     font-weight: 800;
     margin: 0;
     padding: 0;
+
+    text-shadow: 0 0 25px rgba(200, 200, 200, 0.3);
+
+    // animate shadow on hover
+    transition: text-shadow 0.5s;
+}
+
+// on hover, brighter shadow
+.score:hover {
+    text-shadow: 0 0 20px rgba(200, 200, 200, 0.5);
 }
 
 .label {
@@ -85,6 +97,19 @@ app-loading-screen {
     padding: 0;
     margin-top: -3px;
 }
+
+@media only screen and (max-width:600px) {
+    .score {
+        font-size: 45px;
+    }
+
+    .label {
+        font-size: 14px;
+    }
+
+}
+
+
 
 .leaderboard-label {
     font-family: $main-font;
@@ -105,7 +130,7 @@ app-loading-screen {
 
 .leaderboard-item {
     border-radius: 7px;
-    border-width: 1.5px;
+    border-width: 1px;
     border-style: solid;
 
     display: flex;
@@ -151,4 +176,251 @@ app-loading-screen {
     font-weight: 700;
     margin: 0;
     padding: 0;
+}
+
+.bottom-row {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+
+    margin-top: 20px;
+    gap: 20px;
+}
+
+.bottom-row-panel {
+    background-color: $dark-color;
+    border-radius: 10px;
+}
+
+.login-panel {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 3vw;
+    padding-bottom: 2vw;
+}
+
+.login-content {
+    width: 70%;
+    height: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.title-content {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+}
+
+.title-content .logo {
+    margin: -10px;
+}
+
+.title-container {
+    width: 300px;
+}
+
+.title {
+    font-family: $main-font;
+    font-size: 30px;
+    font-weight: 700;
+    margin: 0;
+    padding: 0;
+}
+
+.online-text {
+    font-family: $main-font;
+    font-size: 12px;
+    font-weight: 500;
+    margin: 0;
+    padding: 0;
+    text-wrap: nowrap;
+    color: $ui-green-color;
+
+    margin-top: -0.7vw;
+}
+
+.info-container {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    padding: 15px 20px;
+    width: 100%;
+    box-sizing: border-box;
+
+    margin-top: 1.5vw;
+
+    display: flex;
+    flex-direction: column;
+
+}
+
+.info-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75vw;
+    width: fit-content;
+}
+
+.info-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: center;
+}
+
+.info-row p {
+    font-family: $main-font;
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0;
+    padding: 0;
+    text-wrap: nowrap;
+}
+
+@media only screen and (max-width:1000px) {
+    .title {
+        font-size: 25px;
+    }
+    .title-container {
+        width: 300px;
+    }
+    .info-row p {
+        font-size: 10px;
+    }
+    .info-container {
+        padding-left: 15px;
+    }
+    .info-row {
+        gap: 10px;
+    }
+}
+
+@media only screen and (max-width:600px) {
+    .title {
+        font-size: 20px;
+    }
+    .title-container {
+        width: 250px;
+    }
+}
+
+@media only screen and (max-width:530px) {
+    .title {
+        font-size: 16px;
+    }
+    .title-container {
+        width: 230px;
+    }
+    .info-row p {
+        font-size: 8px;
+    }
+    .online-text {
+        font-size: 10px;
+    }
+}
+
+@media only screen and (max-width:430px) {
+    .info-row p {
+        font-size: 7px;
+    }
+}
+
+
+.play-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1vw;
+}
+
+.instructions {
+    font-family: $main-font;
+    font-size: 0.8vw;
+    font-weight: 500;
+    font-style: italic;
+    margin: 0;
+    padding: 0;
+    margin-top: 0.5vw;
+}
+
+.play-main {
+    display: flex;
+    flex-direction: row;
+    gap: 1vw;
+}
+
+.play-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    width: 7vw;
+}
+
+.game-label {
+    font-family: 'NES';
+    font-size: 0.7vw;
+    font-weight: 500;
+    margin: 0;
+    padding: 0;
+}
+
+.game-score {
+    font-family: 'NES';
+    font-size: 1.3vw;
+    font-weight: 500;
+    margin: 0;
+    padding: 0;
+    margin-bottom: 2vw;
+}
+
+app-nes-piece {
+    margin-top: 1vw;
+}
+
+
+@media only screen and (max-width:800px) {
+    .bottom-row {
+        flex-direction: column;
+    }
+
+    .info-container {
+        align-items: center;
+    }
+
+
+    .play-panel {
+        padding: 3vw;
+    }
+
+    .instructions {
+        font-family: $main-font;
+        font-size: 2.4vw;
+        margin-top: 1.5vw;
+    }
+
+    .play-main {
+        gap: 3vw;
+    }
+
+    .play-details {
+        width: 21vw;
+    }
+
+    .game-label {
+        font-size: 2.1vw;
+    }
+
+    .game-score {
+        font-size: 3.9vw;
+        margin-bottom: 6vw;
+    }
 }

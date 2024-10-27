@@ -5,7 +5,7 @@
 
 <div class="content">
     <div class="top-panel">
-        <app-loading-screen [blockSize]="30" [blockSpeed]="0.3" [maxBlocks]="20" [resolution]="2" />
+        <app-loading-screen [blockSize]="30" [blockSpeed]="0.4" [maxBlocks]="20" [resolution]="2" />
         <div class="top-panel-content">
 
             <h1 class="score">35,256,127</h1>
@@ -30,9 +30,58 @@
                 </ng-container>
                 
             </div>
-
         </div>
     </div>
+
+    <div class="bottom-row">
+
+        <div class="login-panel bottom-row-panel">
+
+            <div class="login-content">
+                <div class="title-content">
+                    <div class="title-container">
+                        <h1 class="title">The classic game, online.</h1>
+                    </div>
+                    <img class="logo" src="./assets/img/branding/tetrisfish_logo.svg" [attr.width]="(reallySmall$ | async) ? '60px' : '100px'" />
+                </div>
+                <p class="online-text">24 players online!</p>
+
+                <div class="info-container">
+                    <div class="info-rows">
+                        <div class="info-row" *ngFor="let text of INFO_TEXT">
+                            <img src="./assets/img/tab-icons/play.svg" [attr.width]="(reallySmall$ | async) ? '10px' : '15px'" />
+                            <p>{{text}}</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        <div class="play-panel bottom-row-panel">
+            <div class="play-main" *ngIf="(platform.getGameData$() | async) as gameData">
+                <app-nes-board [scale]="windowWidth * 0.0014 * ((this.small$ | async) ? 3 : 1)" [isLoginPage]="true"
+                    [board]="gameData.board"
+                    [level]="gameData.level"
+                    [animateOpacity]="true"
+                    [defaultOpacity]="(inGame$ | async) ? 1 : 0.5"
+                />
+                <div class="play-details">
+
+                    <p class="game-label score">Score</p>
+                    <p class="game-score">{{scoreToSixDigits(gameData.score)}}</p>
+
+                    <p class="game-label next">Next</p>
+                    <app-nes-piece [scale]="windowWidth * 0.0014 * ((this.small$ | async) ? 3 : 1)" [isLoginPage]="true" [piece]="gameData.nextPiece" />
+
+                </div>
+            </div>
+            <p class="instructions">Use arrow keys to move and ‘Z’ or ‘X’ to rotate</p>
+            
+        </div>
+
+    </div>
+
 </div>
 
 <button (click)="websocketService.login()">Login</button>

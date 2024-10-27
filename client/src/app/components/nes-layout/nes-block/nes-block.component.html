@@ -23,17 +23,19 @@
         [attr.width]="8"
         [attr.height]="8"
         [attr.opacity]="isHovering ? 0.8 : 1"
+        [attr.rx]="isLoginPage ? 0.5 : 0"
+        [attr.ry]="isLoginPage ? 0.5 : 0"
         [attr.fill]="getBackgroundColor()" />
 
     <!-- draw a white pxiel at the top left corner -->
-    <svg:rect *ngIf="color !== Color.EMPTY"
+    <svg:rect *ngIf="color !== Color.EMPTY && !isLoginPage"
         [attr.x]="offsetX" [attr.y]="offsetY"
         [attr.width]="1"
         [attr.height]="1"
         fill="rgb(255,255,255)" />
 
     <!-- if a white tetromino, draw a a white square over the non-white color excluding 1 pixel of border-->
-    <svg:rect *ngIf="color === Color.WHITE"
+    <svg:rect *ngIf="color === Color.WHITE && !isLoginPage"
         [attr.x]="offsetX+1" [attr.y]="offsetY+1"
         [attr.width]="6"
         [attr.height]="6"

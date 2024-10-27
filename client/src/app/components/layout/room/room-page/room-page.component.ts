@@ -117,7 +117,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
         });
 
         this.platform.setPlatform(Platform.ONLINE);
-        this.emulator.startGame(9);
+        this.emulator.startGame(9, true);
 
       } else { // If logged in but no room ID, redirect to home
         console.error('No room ID provided');
@@ -241,7 +241,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
 
     if (this.platform.getPlatform() === Platform.ONLINE) {
       // If online, start emulator game at startLevel and given seed
-      this.emulator.startGame(level, seed);
+      this.emulator.startGame(level, true, seed);
     } else {
       // If OCR, start polling for game data. In solo mode, can start on any level. But on
       // multiplayer mode, needs to match the agreed-upon level

@@ -11,11 +11,13 @@ import { getColorForLevel } from 'src/app/shared/tetris/tetromino-colors';
 export class NesBlockComponent {
   @Input() color: ColorType = ColorType.EMPTY;
   @Input() level: number = 18;
-  @Input() interactable: boolean = false;
-
+  
   @Input() offsetX: number = 0;
   @Input() offsetY: number = 0;
   @Input() isHovering: boolean = false;
+
+  // if is log in page, white color with rounded corners
+  @Input() isLoginPage: boolean = false;
 
   readonly Color = ColorType;
 
@@ -24,6 +26,10 @@ export class NesBlockComponent {
   getBackgroundColor(): string {
     
     if (this.color === ColorType.EMPTY || this.color === undefined) return "rgb(0,0,0,0)"; // invisible if empty
+
+    // if is login page, force to be white
+    if (this.isLoginPage) return "white";
+
     const colorType = (this.color === ColorType.WHITE) ? ColorType.PRIMARY : this.color;
     return getColorForLevel(colorType, this.level);
   }

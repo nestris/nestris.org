@@ -7,6 +7,8 @@ import { EmulatorGameState, EMULATOR_FPS } from './emulator-game-state';
 import { Keybinds } from './keybinds';
 import { GameDisplayData } from 'src/app/shared/tetris/game-display-data';
 import { GymRNG } from 'src/app/shared/tetris/piece-sequence-generation/gym-rng';
+import { BinaryEncoder } from 'src/app/shared/network/binary-codec';
+import { Observable, Subject } from 'rxjs';
 
 
 /*
@@ -31,6 +33,10 @@ export class EmulatorService {
   // used for calculating time elapsed between frames
   private timeDelta = new TimeDelta();
 
+  private sendPacketsToServer: boolean = false;
+
+  private onTopout$ = new Subject<void>();
+
   constructor(
     private platform: PlatformInterfaceService,
 ) {}
@@ -54,9 +60,16 @@ export class EmulatorService {
     this.framesDone = frames;
   }
 
+  private sendPacket(packet: BinaryEncoder) {
+    if (this.sendPacketsToServer) {
+      this.platform.sendPacket(packet);
+    }
+  }
+
   // starting game will create a game object and execute game frames at 60fps
   // if slowmode, will execute games at 5ps instead
-  startGame(level: number, seed?: string) {
+  startGame(level: number, sendPacketsToServer: boolean, seed?: string) {
+    this.sendPacketsToServer = sendPacketsToServer;
 
     console.log("starting game at level", level, "with seed", seed);
 
@@ -76,7 +89,7 @@ export class EmulatorService {
     // send game start packet
     const current = this.currentState.getCurrentPieceType();
     const next = this.currentState.getNextPieceType();
-    this.platform.sendPacket(new GameStartPacket().toBinaryEncoder({level, current, next}));
+    this.sendPacket(new GameStartPacket().toBinaryEncoder({level, current, next}));
 
     // start game loop
     this.loop = setInterval(() => this.tick(), 0);
@@ -113,7 +126,7 @@ export class EmulatorService {
     // send countdown packet if countdown has changed
     const currentCountdown = this.currentState.getCountdown();
     if (currentCountdown !== previousCountdown) {
-      this.platform.sendPacket(new GameCountdownPacket().toBinaryEncoder({
+      this.sendPacket(new GameCountdownPacket().toBinaryEncoder({
         delta: this.timeDelta.getDelta(),
         countdown: currentCountdown ?? 0,
       }));
@@ -121,7 +134,7 @@ export class EmulatorService {
 
     // send placement packet if piece has been placed
     if (result.newPieceSpawned && !result.toppedOut) {
-      this.platform.sendPacket(new GamePlacementPacket().toBinaryEncoder({
+      this.sendPacket(new GamePlacementPacket().toBinaryEncoder({
         delta: this.timeDelta.getDelta(),
         nextNextType: this.currentState.getNextPieceType(),
         mtPose: result.lockedPiece!.getMTPose(),
@@ -136,14 +149,14 @@ export class EmulatorService {
 
       if (activePiece) {
         // if there's an active piece, send abbreviated packet to save bandwidth
-        this.platform.sendPacket(new GameAbbrBoardPacket().toBinaryEncoder({
+        this.sendPacket(new GameAbbrBoardPacket().toBinaryEncoder({
           delta: this.timeDelta.getDelta(),
           mtPose: activePiece.getMTPose(),
         }));
 
       } else {
         // send full state, since there is no active piece to send abbreviated packet info
-        this.platform.sendPacket(new GameFullBoardPacket().toBinaryEncoder({
+        this.sendPacket(new GameFullBoardPacket().toBinaryEncoder({
           delta: this.timeDelta.getDelta(),
           board: newBoard,
         }));
@@ -152,7 +165,10 @@ export class EmulatorService {
     }
     
     // if topped out, stop game
-    if (this.currentState.isToppedOut()) this.stopGame();
+    if (this.currentState.isToppedOut()) {
+      this.stopGame();
+      this.onTopout$.next();
+    }
 
   }
 
@@ -170,7 +186,7 @@ export class EmulatorService {
     this.currentState = undefined;
     
     // send game end packet
-    this.platform.sendPacket(new GameEndPacket().toBinaryEncoder({}));
+    this.sendPacket(new GameEndPacket().toBinaryEncoder({}));
   }
 
 
@@ -194,5 +210,9 @@ export class EmulatorService {
       event.stopPropagation();
       event.preventDefault();
     }
+  }
+
+  onTopout(): Observable<void> {
+    return this.onTopout$.asObservable();
   }
 }
