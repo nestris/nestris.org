@@ -29,6 +29,7 @@ export class SolidButtonComponent {
   @Input() disableHover: boolean = false;
   @Input() iconHeight?: number;
   @Input() noShadow: boolean = false;
+  @Input() gap: number = 4;
 
   @Output() smartClick = new EventEmitter<void>();
 

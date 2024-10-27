@@ -17,6 +17,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   public inGame$ = new BehaviorSubject<boolean>(true);
   public small$ = new BehaviorSubject<boolean>(false);
   public reallySmall$ = new BehaviorSubject<boolean>(false);
+  public big$ = new BehaviorSubject<boolean>(false);
 
 
   readonly LEADERBOARD_COLORS = ["#FFB938", "#C9C9C9", "#E59650"];
@@ -60,6 +61,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   private calculateSmall() {
     this.small$.next(this.windowWidth <= 800);
     this.reallySmall$.next(this.windowWidth <= 500);
+    this.big$.next(this.windowWidth > 1200);
   }
 
   @HostListener('window:keydown', ['$event'])

@@ -223,6 +223,12 @@ app-loading-screen {
     margin: -10px;
 }
 
+@media only screen and (min-width:1200px) {
+    .title-content .logo {
+        margin: -20px;
+    }
+}
+
 .title-container {
     width: 300px;
 }
@@ -261,6 +267,7 @@ app-loading-screen {
 
 }
 
+
 .info-rows {
     display: flex;
     flex-direction: column;
@@ -285,6 +292,26 @@ app-loading-screen {
     text-wrap: nowrap;
 }
 
+.buttons-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 20px;
+    gap: 20px;
+    padding-inline: 15%;
+
+}
+
+@media only screen and (min-width:1000px) {
+    .buttons-container {
+        padding-inline: 0;
+        width: 500px;
+    }
+
+}
+
 @media only screen and (max-width:1000px) {
     .title {
         font-size: 25px;
@@ -300,6 +327,10 @@ app-loading-screen {
     }
     .info-row {
         gap: 10px;
+    }
+
+    .buttons-container {
+        //transform: scale(0.9);
     }
 }
 
@@ -325,11 +356,18 @@ app-loading-screen {
     .online-text {
         font-size: 10px;
     }
+    .buttons-container {
+        flex-direction: column;
+        gap: 10px;
+    }
 }
 
 @media only screen and (max-width:430px) {
     .info-row p {
         font-size: 7px;
+    }
+    .buttons-container {
+        //transform: scale(0.6);
     }
 }
 
