@@ -35,6 +35,8 @@ export class WebsocketService {
 
   private signedInSubject$ = new BehaviorSubject<boolean>(false);
 
+  private disconnectRetries = 0;
+
   constructor(
     private fetchService: FetchService,
     private notificationService: NotificationService,
@@ -192,13 +194,7 @@ export class WebsocketService {
   // called to connect to server
   // if the connection is successful, a ws connection is established and the user is signed in
   async connectWebsocket(userid: string, username: string) {
-
-    // if already signed in, do nothing
-    if (this.isSignedIn()) {
-      console.error('Cannot connect when already signed in');
-      return;
-    }
-
+    
     const stats = await this.serverStats.waitForServerStats();
 
     // Production uses HTTPS so we need to use wss://
@@ -217,6 +213,7 @@ export class WebsocketService {
     // when the websocket connects, send the OnConnectMessage to initiate the handshake
     this.ws.onopen = () => {
       console.log('Connected to the WebSocket server');
+      this.disconnectRetries = 0;
       this.sendJsonMessage(new OnConnectMessage(userid, username, this.sessionID!));
     };
     
@@ -232,9 +229,17 @@ export class WebsocketService {
     this.ws.onclose = (event) => {
       console.log(`WebSocket closed: ${event.code} ${event.reason}`);
 
-      // if the websocket closes, sign out the user
-      if (this.isSignedIn()) {
-        this.signedInSubject$.next(false);
+      if (event.code === 1006) {
+        this.disconnectRetries++;
+
+        // if route contains /online, redirect to home page
+        if (location.pathname.includes('/online')) this.router.navigate(['/']);
+
+        if (this.disconnectRetries === 1) this.notificationService.notify(NotificationType.ERROR, "Disconnected from server, attempting to reconnect...");
+        
+        setTimeout(() => {
+          this.connectWebsocket(userid, username);
+        }, 500 * this.disconnectRetries);
       }
     };
   }
