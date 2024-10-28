@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { BehaviorSubject, Subscription } from 'rxjs';
-import { FriendsService } from 'src/app/services/friends.service';
+import { FriendsService } from 'src/app/services/state/friends.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { FriendStatus, FriendInfo } from 'src/app/shared/models/friends';
 import { DBUser } from 'src/app/shared/models/db-user';

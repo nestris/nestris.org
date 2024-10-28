@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { ButtonColor } from '../../ui/solid-button/solid-button.component';
-import { FriendsService } from 'src/app/services/friends.service';
+import { FriendsService } from 'src/app/services/state/friends.service';
 import { ModalManagerService } from 'src/app/services/modal-manager.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { Challenge } from 'src/app/shared/models/challenge';
@@ -68,7 +68,6 @@ export class ChallengeModalComponent {
     }>(Method.POST, '/api/v2/send-challenge', { challenge });
 
     if (success) {
-      this.friendsService.syncWithServer();
       this.modalService.hideModal();
     } else {
       this.error$.next(error ?? "Unknown error occured. Please try again later.");

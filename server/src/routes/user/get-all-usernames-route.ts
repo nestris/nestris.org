@@ -29,7 +29,7 @@ class AllUsernamesQuery extends DBQuery<string[]> {
 export class GetAllUsernamesRoute extends GetRoute<string[]> {
   route = "/api/v2/all-usernames";
 
-  async get(userInfo: UserInfo | undefined): Promise<string[]> {
+  override async get(userInfo: UserInfo | undefined): Promise<string[]> {
       
     const allUsernames = await Database.query(AllUsernamesQuery);
     return allUsernames;

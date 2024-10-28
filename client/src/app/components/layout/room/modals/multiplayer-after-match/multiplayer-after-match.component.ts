@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { FetchService, Method } from 'src/app/services/fetch.service';
-import { FriendsService } from 'src/app/services/friends.service';
+import { FriendsService } from 'src/app/services/state/friends.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';

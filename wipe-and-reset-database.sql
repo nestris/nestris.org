@@ -20,11 +20,13 @@ CREATE TABLE "public"."users" (
     
     "puzzle_elo" int2 NOT NULL DEFAULT 0,
     "highest_puzzle_elo" int2 NOT NULL DEFAULT 0,
-
+    "puzzles_attempted" int2 NOT NULL DEFAULT 0,
+    "puzzles_solved" int2 NOT NULL DEFAULT 0,
+    "puzzle_seconds_played" int4 NOT NULL DEFAULT 0,
+    
     "highest_score" int2 NOT NULL DEFAULT 0,
     "highest_level" int2 NOT NULL DEFAULT 0,
     "highest_lines" int2 NOT NULL DEFAULT 0,
-    "highest_accuracy" int2 NOT NULL DEFAULT 0,
 
     "highest_transition_into_19" int2 NOT NULL DEFAULT 0,
     "highest_transition_into_29" int2 NOT NULL DEFAULT 0,

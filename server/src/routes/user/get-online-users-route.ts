@@ -7,7 +7,7 @@ import { GetRoute, UserInfo } from "../route";
 export class GetOnlineUsersRoute extends GetRoute<any[]> {
     route = "/api/v2/online-users";
 
-    async get(userInfo: UserInfo | undefined): Promise<any[]> {
+    override async get(userInfo: UserInfo | undefined): Promise<any[]> {
         const users = EventConsumerManager.getInstance().getUsers();
 
         const userids = users.getAllOnlineUserIDs();

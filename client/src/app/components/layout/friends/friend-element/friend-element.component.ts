@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { ChallengeModalConfig } from 'src/app/components/modals/challenge-modal/challenge-modal.component';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
-import { FriendsService } from 'src/app/services/friends.service';
+import { FriendsService } from 'src/app/services/state/friends.service';
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { WebsocketService } from 'src/app/services/websocket.service';

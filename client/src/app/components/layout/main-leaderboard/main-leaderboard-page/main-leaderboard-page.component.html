@@ -25,7 +25,7 @@
         </div>
     </div>
 
-    <app-table [attributes]="TABLE_ATTRIBUTES" [rows]="(puzzleRows$ | async) ?? []" [myID]="(meService.getUserID$() | async) ?? undefined"
+    <app-table [attributes]="TABLE_ATTRIBUTES" [rows]="[]" [myID]="(meService.getUserID$() | async) ?? undefined"
         sortByAttribute="rating" [formatRules]="FORMAT_RULES" [colorRules]="COLOR_RULES" [onlineUserIDs]="(onlineUserIDs$ | async)" />
 
 </div>

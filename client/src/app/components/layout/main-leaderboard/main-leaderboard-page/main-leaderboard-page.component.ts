@@ -6,7 +6,6 @@ import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { EVALUATION_TO_COLOR, EvaluationRating } from 'src/app/shared/evaluation/evaluation';
 import { OnlineUserStatus } from 'src/app/shared/models/friends';
-import { PuzzleLeaderboard, PuzzleLeaderboardRow } from 'src/app/shared/models/leaderboard';
 
 
 @Component({
@@ -19,7 +18,6 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
   numPlayers$ = new BehaviorSubject<number>(0);
   puzzlesSolved$ = new BehaviorSubject<number>(0);
   hoursSpent$ = new BehaviorSubject<number>(0);
-  puzzleRows$ = new BehaviorSubject<PuzzleLeaderboardRow[]>([]);
 
   onlineUserIDs$ = new BehaviorSubject<Map<string, OnlineUserStatus>>(new Map());
 
@@ -67,7 +65,6 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
     const hoursSpent = Math.round((await this.pollTotalPuzzleDuration()) / 3600);
     this.hoursSpent$.next(Math.round(hoursSpent));
 
-    this.puzzleRows$.next(await this.fetchLeaderboard());
     this.onlineUserIDs$.next(await this.fetchOnlineUsers());
   }
 
@@ -84,11 +81,6 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
   private async pollTotalPuzzleDuration(): Promise<number> {
     const response = await this.fetchService.fetch<{total: number}>(Method.GET, '/api/v2/total-puzzle-duration');
     return response.total;
-  }
-
-  private async fetchLeaderboard(): Promise<PuzzleLeaderboardRow[]> {
-    const leaderboard = await this.fetchService.fetch<PuzzleLeaderboard>(Method.GET, '/api/v2/puzzle-leaderboard');
-    return leaderboard.rows;
   }
 
   private async fetchOnlineUsers(): Promise<Map<string, OnlineUserStatus>> {

@@ -24,13 +24,16 @@ export interface DBUser {
   xp: number,
   trophies: number,
   highest_trophies: number,
+
   puzzle_elo: number,
   highest_puzzle_elo: number,
+  puzzles_attempted: number,
+  puzzles_solved: number,
+  puzzle_seconds_played: number,
 
   highest_score: number,
   highest_level: number,
   highest_lines: number,
-  highest_accuracy: number,
 
   highest_transition_into_19: number,
   highest_transition_into_29: number,
@@ -49,3 +52,47 @@ export interface DBUser {
   keybind_puzzle_rot_left: string,
   keybind_puzzle_rot_right: string,
 }
+
+// list of all DBUser attributes
+export const DBUserAttributes = [
+  "userid",
+  "username",
+  "is_guest",
+  "authentication",
+  "created_at",
+  "last_online",
+
+  "league",
+  "xp",
+  "trophies",
+  "highest_trophies",
+
+  "puzzle_elo",
+  "highest_puzzle_elo",
+  "puzzles_attempted",
+  "puzzles_solved",
+  "puzzle_seconds_played",
+
+  "highest_score",
+  "highest_level",
+  "highest_lines",
+
+  "highest_transition_into_19",
+  "highest_transition_into_29",
+  "has_perfect_transition_into_19",
+  "has_perfect_transition_into_29",
+
+  "enable_receive_friend_requests",
+  "notify_on_friend_online",
+  "solo_chat_permission",
+  "match_chat_permission",
+
+  "keybind_emu_move_left",
+  "keybind_emu_move_right",
+  "keybind_emu_rot_left",
+  "keybind_emu_rot_right",
+  "keybind_puzzle_rot_left",
+  "keybind_puzzle_rot_right",
+];
+
+

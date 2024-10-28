@@ -10,7 +10,7 @@ export class GetMeRoute extends GetRoute<DBUser> {
     route = "/api/v2/me";
     authentication = Authentication.USER;
 
-    async get(userInfo: UserInfo | undefined): Promise<DBUser> {
+    override async get(userInfo: UserInfo | undefined): Promise<DBUser> {
         
         try {
             // get the user object from either the in-memory cache or the database

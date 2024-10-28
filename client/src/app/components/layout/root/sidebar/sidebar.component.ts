@@ -5,6 +5,7 @@ import { TabID } from 'src/app/models/tabs';
 import { FetchService, Method } from 'src/app/services/fetch.service';
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
 import { ServerStatsService } from 'src/app/services/server-stats.service';
+import { FriendsService } from 'src/app/services/state/friends.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { DBUser, Authentication } from 'src/app/shared/models/db-user';
@@ -18,35 +19,23 @@ import { DeploymentEnvironment } from 'src/app/shared/models/server-stats';
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss']
 })
-export class SidebarComponent implements OnInit, OnDestroy {
+export class SidebarComponent {
 
   readonly TabID = TabID;
   readonly OnlineUserStatus = OnlineUserStatus;
   readonly ButtonColor = ButtonColor;
 
-  public numOnlineFriends$ = new BehaviorSubject<number>(0);
-
   readonly DeploymentEnvironment = DeploymentEnvironment;
 
   constructor(
-    private fetchService: FetchService,
+    private friendsService: FriendsService,
     public websocketService: WebsocketService,
     public modalService: ModalManagerService,
     public serverStatsService: ServerStatsService,
     public meService: MeService,
   ) {}
 
-  async ngOnInit() {
-
-    
-  }
-
-  async syncOnlineFriends() {
-    const userid = await this.meService.getUserID();
-    const result = await this.fetchService.fetch<{count: number}>(Method.GET, `/api/v2/num-online-friends/${userid}`);
-    this.numOnlineFriends$.next(result.count);
-
-  }
+  numOnlineFriends$ = this.friendsService.getNumOnlineFriends$();
 
   openAuthModal(): void {
     this.modalService.showModal(ModalType.AUTH);
@@ -57,7 +46,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
     return (user.authentication !== Authentication.USER);
   }
 
-  ngOnDestroy() {
-  }
+  
 
 }

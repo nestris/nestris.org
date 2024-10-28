@@ -57,7 +57,6 @@ export class SolidSelectorComponent {
     if (expanded) indicies = [this.selected, ...Array.from(Array(this.labels.length).keys()).filter(i => i !== this.selected)];
     else indicies = [this.selected];
 
-    console.log("Indices:", indicies);
     //returns enumerted array of tuples (index, isFirst, isLast)
     return indicies.map((index, i) => {
       return {

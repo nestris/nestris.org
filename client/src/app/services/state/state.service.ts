@@ -84,8 +84,7 @@ export abstract class StateService<T> {
                 if (this.state$.value === undefined) this.eventQueue.push(message);
                 
                 else { // Otherwise, process the event and update the state, making a copy to trigger the observable
-                    let newState: T = Object.assign({}, this.state$.getValue());
-                    newState = this.onEvent(message, newState);
+                    const newState = this.onEvent(message, this.state$.getValue()!);
                     this.state$.next(newState);
 
                     // Call the onUpdate method

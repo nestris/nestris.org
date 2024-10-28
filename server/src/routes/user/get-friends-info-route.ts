@@ -81,7 +81,7 @@ export class GetFriendsInfoRoute extends GetRoute<FriendInfo[]> {
   route = "/api/v2/friends-info";
   authentication = Authentication.USER;
 
-  async get(userInfo: UserInfo | undefined): Promise<FriendInfo[]> {
+  override async get(userInfo: UserInfo | undefined): Promise<FriendInfo[]> {
       
     // Get all online users
     const users = EventConsumerManager.getInstance().getUsers();

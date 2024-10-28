@@ -30,13 +30,21 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
         after: InMemoryObject;
     }
 
+    interface DBObjectWithID {
+        id: string;
+        object: InMemoryObject;
+    }
+
     abstract class DBObject {
 
         // A map of all objects, indexed by their ID. It is ordered by the order of creation.
         private static dbObjects = new Map<string, DBObject>();
 
-        // A list of subscribers to changes in the database objects
+        // A list of subscribers to create/delete/changes in the database objects
+        private static createSubscribers: ((object: DBObjectWithID) => void)[] = [];
+        private static deleteSubscribers: ((object: DBObjectWithID) => void)[] = [];
         private static changeSubscribers: ((change: DBObjectChange) => void)[] = [];
+
 
         // The maximum number of objects to cache in-memory. If the number of objects exceeds this, the least recently used object will be removed.
         private static cacheSize = 0;
@@ -87,6 +95,12 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
             // Evict the oldest object if the cache size exceeds the maximum cache size
             DBObject.evictOldestIfNeeded();
 
+            // Notify all subscribers of the creation
+            DBObject.createSubscribers.forEach(subscriber => subscriber({
+                id: id,
+                object: newObject
+            }));
+
             // Return the in-memory object
             return newObject;
         }
@@ -103,12 +117,21 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
                 throw new DBObjectNotFoundError(`Object with ID ${id} does not exist`);
             }
 
+            // Get a copy of the in-memory object before deleting
+            const before: InMemoryObject = Object.assign({}, dbObject.get());
+
             // Delete the object from the database
             await dbObject.deleteFromDatabase();
 
             // Delete the in-memory object by deleting the object from the map
             DBObject.dbObjects.delete(id);
             DBObject.cacheSize--;
+
+            // Notify all subscribers of the deletion
+            DBObject.deleteSubscribers.forEach(subscriber => subscriber({
+                id: id,
+                object: before
+            }));
 
             console.log(`Deleted ${name} object with ID ${id}`);
 
@@ -169,6 +192,7 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
 
             // If the object is in-memory, return the in-memory object
             if (existingDBObject) {
+                console.log(`Got ${name} object with ID ${id} from cache`);
                 return {
                     object: existingDBObject.get(),
                     cached: true,
@@ -188,6 +212,7 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
             DBObject.evictOldestIfNeeded();
 
             // Return the in-memory object
+            console.log(`Got ${name} object with ID ${id} from database`);
             return {
                 object: dbObject.get(),
                 cached: false,
@@ -226,6 +251,22 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
          */
         static onChange(subscriber: (change: DBObjectChange) => void) {
             DBObject.changeSubscribers.push(subscriber);
+        }
+
+        /**
+         * Subscribes to creation of database objects. Whenever an object is created, all subscribers will be notified.
+         * @param subscriber 
+         */
+        static onCreate(subscriber: (object: DBObjectWithID) => void) {
+            DBObject.createSubscribers.push(subscriber);
+        }
+
+        /**
+         * Subscribes to deletion of database objects. Whenever an object is deleted, all subscribers will be notified.
+         * @param subscriber 
+         */
+        static onDelete(subscriber: (object: DBObjectWithID) => void) {
+            DBObject.deleteSubscribers.push(subscriber);
         }
 
         /**

@@ -1,4 +1,4 @@
-import { Authentication, DBUser } from "../../../shared/models/db-user";
+import { Authentication, DBUser, DBUserAttributes } from "../../../shared/models/db-user";
 import { getLeagueFromIndex, updateXP } from "../../../shared/nestris-org/league-system";
 import { DBObject } from "../db-object";
 import { DBObjectNotFoundError } from "../db-object-error";
@@ -26,9 +26,13 @@ export class DBAlterTrophiesEvent extends DBUserEvent {
     constructor(public readonly trophyDelta: number) { super(); }
 }
 
-// Update user's puzzle elo by eloDelta amount
-export class DBAlterPuzzleEloEvent extends DBUserEvent {
-    constructor(public readonly eloDelta: number) { super(); }
+// Update user stats after puzzle submission
+export class DBOnPuzzleSubmitEvent extends DBUserEvent {
+    constructor(
+        public readonly newElo: number, // new elo after puzzle submission
+        public readonly isCorrect: boolean, // whether the puzzle was solved
+        public readonly seconds: number, // seconds taken to solve puzzle
+    ) { super(); }
 }
 
 // Update highest stats on game end
@@ -37,7 +41,6 @@ export class DBOnGameEndEvent extends DBUserEvent {
         public readonly score: number,
         public readonly level: number,
         public readonly lines: number,
-        public readonly accuracy: number,
         public readonly transitionInto19: number,
         public readonly transitionInto29: number,
         public readonly perfectTransitionInto19: boolean,
@@ -69,13 +72,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
         class UserQuery extends DBQuery<DBUser> {
 
             public override query = `
-                SELECT userid, username, is_guest, authentication, created_at, last_online, league, xp, trophies, highest_trophies,
-                    puzzle_elo, highest_puzzle_elo, highest_score, highest_level, highest_lines, highest_accuracy,
-                    highest_transition_into_19, highest_transition_into_29, has_perfect_transition_into_19, has_perfect_transition_into_29,
-                    enable_receive_friend_requests, notify_on_friend_online, solo_chat_permission, match_chat_permission,
-                    keybind_emu_move_left, keybind_emu_move_right, keybind_emu_rot_left, keybind_emu_rot_right,
-                    keybind_puzzle_rot_left, keybind_puzzle_rot_right
-                FROM users WHERE userid = $1
+                SELECT ${DBUserAttributes.join(',')} FROM users WHERE userid = $1
             `;
         
             public override warningMs = null;
@@ -110,10 +107,12 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
             highest_trophies: 0,
             puzzle_elo: 0,
             highest_puzzle_elo: 0,
+            puzzles_attempted: 0,
+            puzzles_solved: 0,
+            puzzle_seconds_played: 0,
             highest_score: 0,
             highest_level: 0,
             highest_lines: 0,
-            highest_accuracy: 0,
             highest_transition_into_19: 0,
             highest_transition_into_29: 0,
             has_perfect_transition_into_19: false,
@@ -136,25 +135,16 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
 
         class CreateUserQuery extends WriteDBQuery {
             public override query = `
-                INSERT INTO users (userid, username, is_guest, authentication, created_at, last_online, league, xp, trophies, highest_trophies,
-                    puzzle_elo, highest_puzzle_elo, highest_score, highest_level, highest_lines, highest_accuracy,
-                    highest_transition_into_19, highest_transition_into_29, has_perfect_transition_into_19, has_perfect_transition_into_29,
-                    enable_receive_friend_requests, notify_on_friend_online, solo_chat_permission, match_chat_permission,
-                    keybind_emu_move_left, keybind_emu_move_right, keybind_emu_rot_left, keybind_emu_rot_right,
-                    keybind_puzzle_rot_left, keybind_puzzle_rot_right)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30)
+                INSERT INTO users (
+                    ${DBUserAttributes.join(',')}
+                ) VALUES (
+                    ${DBUserAttributes.map((_, i) => `$${i + 1}`).join(',')}
+                )
             `;
             public override warningMs = null;
         
             constructor(newUser: DBUser) {
-                super([
-                    newUser.userid, newUser.username, newUser.is_guest, newUser.authentication, newUser.created_at, newUser.last_online, newUser.league, newUser.xp, newUser.trophies, newUser.highest_trophies,
-                    newUser.puzzle_elo, newUser.highest_puzzle_elo, newUser.highest_score, newUser.highest_level, newUser.highest_lines, newUser.highest_accuracy,
-                    newUser.highest_transition_into_19, newUser.highest_transition_into_29, newUser.has_perfect_transition_into_19, newUser.has_perfect_transition_into_29,
-                    newUser.enable_receive_friend_requests, newUser.notify_on_friend_online, newUser.solo_chat_permission, newUser.match_chat_permission,
-                    newUser.keybind_emu_move_left, newUser.keybind_emu_move_right, newUser.keybind_emu_rot_left, newUser.keybind_emu_rot_right,
-                    newUser.keybind_puzzle_rot_left, newUser.keybind_puzzle_rot_right
-                ]);
+                super(DBUserAttributes.map(attr => (newUser as any)[attr]));
             }
         }
 
@@ -201,10 +191,13 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
                 this.inMemoryObject.trophies = Math.max(0, this.inMemoryObject.trophies + trophyEvent.trophyDelta);
                 break;
 
-            // On alter puzzle elo, add eloDelta to puzzle_elo, ensuring puzzle_elo is non-negative
-            case DBAlterPuzzleEloEvent:
-                const eloEvent = event as DBAlterPuzzleEloEvent;
-                this.inMemoryObject.puzzle_elo = Math.max(0, this.inMemoryObject.puzzle_elo + eloEvent.eloDelta);
+            // On alter puzzle elo, update puzzle stats
+            case DBOnPuzzleSubmitEvent:
+                const puzzleEvent = event as DBOnPuzzleSubmitEvent;
+                this.inMemoryObject.puzzle_elo = puzzleEvent.newElo;
+                this.inMemoryObject.puzzles_attempted++;
+                this.inMemoryObject.puzzles_solved += puzzleEvent.isCorrect ? 1 : 0;
+                this.inMemoryObject.puzzle_seconds_played += puzzleEvent.seconds;
                 break;
 
             // On game end, update highest stats
@@ -213,7 +206,6 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
                 this.inMemoryObject.highest_score = Math.max(this.inMemoryObject.highest_score, gameEndEvent.score);
                 this.inMemoryObject.highest_level = Math.max(this.inMemoryObject.highest_level, gameEndEvent.level);
                 this.inMemoryObject.highest_lines = Math.max(this.inMemoryObject.highest_lines, gameEndEvent.lines);
-                this.inMemoryObject.highest_accuracy = Math.max(this.inMemoryObject.highest_accuracy, gameEndEvent.accuracy);
                 this.inMemoryObject.highest_transition_into_19 = Math.max(this.inMemoryObject.highest_transition_into_19, gameEndEvent.transitionInto19);
                 this.inMemoryObject.highest_transition_into_29 = Math.max(this.inMemoryObject.highest_transition_into_29, gameEndEvent.transitionInto29);
                 this.inMemoryObject.has_perfect_transition_into_19 = this.inMemoryObject.has_perfect_transition_into_19 || gameEndEvent.perfectTransitionInto19;
@@ -241,28 +233,20 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
     // Save altered DBUser to the database
     protected override saveToDatabase(): Promise<void> {
 
+        const userid = this.id;
+
         class SaveUserQuery extends WriteDBQuery {
             public override query = `
-                UPDATE users SET last_online = $1, league = $2, xp = $3, trophies = $4, highest_trophies = $5,
-                    puzzle_elo = $6, highest_puzzle_elo = $7, highest_score = $8, highest_level = $9, highest_lines = $10, highest_accuracy = $11,
-                    highest_transition_into_19 = $12, highest_transition_into_29 = $13, has_perfect_transition_into_19 = $14, has_perfect_transition_into_29 = $15,
-                    enable_receive_friend_requests = $16, notify_on_friend_online = $17, solo_chat_permission = $18, match_chat_permission = $19,
-                    keybind_emu_move_left = $20, keybind_emu_move_right = $21, keybind_emu_rot_left = $22, keybind_emu_rot_right = $23,
-                    keybind_puzzle_rot_left = $24, keybind_puzzle_rot_right = $25
-                WHERE userid = $26
+                UPDATE users SET (
+                    ${DBUserAttributes.join(',')}
+                ) = (
+                    ${DBUserAttributes.map((_, i) => `$${i + 1}`).join(',')}
+                ) WHERE userid = $${DBUserAttributes.length + 1}
             `;
             public override warningMs = null;
         
             constructor(user: DBUser) {
-                super([
-                    user.last_online, user.league, user.xp, user.trophies, user.highest_trophies,
-                    user.puzzle_elo, user.highest_puzzle_elo, user.highest_score, user.highest_level, user.highest_lines, user.highest_accuracy,
-                    user.highest_transition_into_19, user.highest_transition_into_29, user.has_perfect_transition_into_19, user.has_perfect_transition_into_29,
-                    user.enable_receive_friend_requests, user.notify_on_friend_online, user.solo_chat_permission, user.match_chat_permission,
-                    user.keybind_emu_move_left, user.keybind_emu_move_right, user.keybind_emu_rot_left, user.keybind_emu_rot_right,
-                    user.keybind_puzzle_rot_left, user.keybind_puzzle_rot_right,
-                    user.userid
-                ]);
+                super(DBUserAttributes.map(attr => (user as any)[attr]).concat([userid]));
             }
         }
 

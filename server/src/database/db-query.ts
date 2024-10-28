@@ -30,7 +30,7 @@ export abstract class DBQuery<T> {
      */
     public abstract parseResult(resultRows: any[]): T;
 
-    constructor(public readonly params: any[]) {}
+    constructor(public readonly params: any[] = []) {}
 }
 
 /**
