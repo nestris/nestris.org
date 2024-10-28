@@ -70,7 +70,6 @@ class FriendsAndPendingInfoQuery extends DBQuery<DBFriend[]> {
       puzzle_elo: row.puzzle_elo
     }));
   }
-  
 }
 
 
@@ -89,7 +88,6 @@ export class GetFriendsInfoRoute extends GetRoute<FriendInfo[]> {
     // Get friend info from the database
     const friendsInfo = await Database.query(FriendsAndPendingInfoQuery, userInfo!.userid);
     
-
     return friendsInfo.map((friend) => ({
         userid: friend.userid,
         username: friend.username,

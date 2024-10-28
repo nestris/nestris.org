@@ -134,8 +134,8 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
             }));
 
             console.log(`Deleted ${name} object with ID ${id}`);
-
         }
+        
 
         /**
          * Alters a specific object given id, both in-memory and in the database.

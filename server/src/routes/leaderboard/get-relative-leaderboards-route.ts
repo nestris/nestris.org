@@ -41,5 +41,4 @@ export class GetRelativeLeaderboardsRoute extends GetRoute<RelativeLeaderboards>
             }
         }
       }
-
 }

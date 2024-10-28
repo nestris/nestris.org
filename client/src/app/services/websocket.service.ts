@@ -11,6 +11,7 @@ import { NotificationService } from './notification.service';
 import { ServerStatsService } from './server-stats.service';
 import { DeploymentEnvironment } from '../shared/models/server-stats';
 import { FetchService, Method } from './fetch.service';
+import { DBUser } from '../shared/models/db-user';
 
 
 /*
@@ -51,7 +52,6 @@ export class WebsocketService {
 
     // if the user is already signed in, connect to the websocket
     console.log("Logged in. Connecting to websocket...")
-    this.notificationService.notify(NotificationType.INFO, "Connecting to server...");
 
     /*
      Sign in requires a handshake that works as follows:
@@ -226,10 +226,23 @@ export class WebsocketService {
       console.error('WebSocket Error:', error);
     };
 
-    this.ws.onclose = (event) => {
+    this.ws.onclose = async (event) => {
       console.log(`WebSocket closed: ${event.code} ${event.reason}`);
 
       if (event.code === 1006) {
+
+        // Make sure user is authenticated, otherwise this will redirect to login page
+        try {
+          await this.fetchService.fetch<DBUser>(Method.GET, '/api/v2/me');
+        } catch (e) {
+          console.log('User not authenticated, redirecting to login page');
+          this.signedInSubject$.next(false);
+          this.notificationService.notify(NotificationType.ERROR, "You have been disconnected from the server. Please log in again.");
+          this.router.navigate(['/login']);
+          return;
+        }
+        
+
         this.disconnectRetries++;
 
         // if route contains /online, redirect to home page
