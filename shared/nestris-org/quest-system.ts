@@ -1,4 +1,4 @@
-import { DBUser } from "src/app/shared/models/db-user";
+import { DBUser } from "../models/db-user";
 
 export enum QuestDifficulty {
     EASY = "Easy",
@@ -16,8 +16,8 @@ export interface QuestDefinition {
 }
 
 export interface QuestResult {
-    quest: QuestDefinition;
-    user: DBUser;
+    name: string;
+    description: string;
     difficulty: QuestDifficulty;
     xp: number;
     currentScore: number;
@@ -47,8 +47,8 @@ export class QuestDefinitions {
         const currentScore = quest.computeScore(user);
 
         return {
-            quest: quest,
-            user: user,
+            name: quest.name,
+            description: quest.description,
             difficulty: quest.difficulty,
             xp: quest.xp,
             currentScore: currentScore,
@@ -90,6 +90,19 @@ export class QuestDefinitions {
     public static getImprovedQuests(oldUser: DBUser, newUser: DBUser): QuestResult[] {
         return this.definitions.filter(
             (quest) => quest.computeScore(newUser) > quest.computeScore(oldUser)
+        ).map(
+            (quest) => this.getQuestResult(quest, newUser)
+        );
+    }
+
+    /**
+     * Get all quests that have just been completed after DBUser changed
+     * @param oldUser The old user
+     * @param newUser The new user
+     */
+    public static getJustCompletedQuests(oldUser: DBUser, newUser: DBUser): QuestResult[] {
+        return this.definitions.filter(
+            (quest) => quest.computeScore(newUser) >= quest.targetScore && quest.computeScore(oldUser) < quest.targetScore
         ).map(
             (quest) => this.getQuestResult(quest, newUser)
         );

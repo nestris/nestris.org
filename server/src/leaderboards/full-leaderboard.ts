@@ -29,7 +29,7 @@ export abstract class FullLeaderboard {
     constructor() {
 
         // Subscribe to DBUser changes to update the leaderboard in real-time
-        DBUserObject.onChange((change: {id: string, before: DBUser, after: DBUser}) => {
+        DBUserObject.onChange().subscribe((change: {id: string, before: DBUser, after: DBUser}) => {
 
             // Check if the user's score has changed
             const scoreBefore = this.getScoreFromUser(change.before);
@@ -51,7 +51,7 @@ export abstract class FullLeaderboard {
         });
 
         // Subscribe to DBUser creation to add new users to the leaderboard
-        DBUserObject.onCreate((create: {id: string, object: DBUser}) => {
+        DBUserObject.onCreate().subscribe((create: {id: string, object: DBUser}) => {
 
             // Add the new user to the leaderboard
             this.leaderboard.push({
@@ -68,7 +68,7 @@ export abstract class FullLeaderboard {
         });
 
         // Subscribe to DBUser deletion to remove users from the leaderboard
-        DBUserObject.onDelete((deleted: {id: string, object: DBUser}) => {
+        DBUserObject.onDelete().subscribe((deleted: {id: string, object: DBUser}) => {
 
             // Remove the user from the leaderboard
             const index = this.leaderboard.findIndex((user) => user.userid === deleted.id);

@@ -1,8 +1,10 @@
+import { Observable, Subject } from "rxjs";
 import { Authentication, DBUser, DBUserAttributes } from "../../../shared/models/db-user";
 import { getLeagueFromIndex, updateXP } from "../../../shared/nestris-org/league-system";
 import { DBObject } from "../db-object";
 import { DBObjectNotFoundError } from "../db-object-error";
 import { Database, DBQuery, WriteDBQuery } from "../db-query";
+import { QuestDefinitions } from "../../../shared/nestris-org/quest-system";
 
 
 // The parameters required to create a new user
@@ -11,33 +13,37 @@ export interface DBUserParams {
     is_guest: boolean
 }
 
-abstract class DBUserEvent {}
+abstract class DBUserEvent {
+    constructor(public readonly sessionid: string) {}
+}
 
 // When user connects to the server, update last_online
 export class DBUserOnlineEvent extends DBUserEvent {}
 
 // Add XP to user, possibly promoting to a new league
 export class DBAlterXPEvent extends DBUserEvent {
-    constructor(public readonly xpDelta: number) { super(); }
+    constructor(sessionid: string, public readonly xpDelta: number) { super(sessionid); }
 }
 
 // Update user's trophies by trophyDelta amount
 export class DBAlterTrophiesEvent extends DBUserEvent {
-    constructor(public readonly trophyDelta: number) { super(); }
+    constructor(sessionid: string, public readonly trophyDelta: number) { super(sessionid); }
 }
 
 // Update user stats after puzzle submission
 export class DBOnPuzzleSubmitEvent extends DBUserEvent {
     constructor(
+        sessionid: string,
         public readonly newElo: number, // new elo after puzzle submission
         public readonly isCorrect: boolean, // whether the puzzle was solved
         public readonly seconds: number, // seconds taken to solve puzzle
-    ) { super(); }
+    ) { super(sessionid); }
 }
 
 // Update highest stats on game end
 export class DBOnGameEndEvent extends DBUserEvent {
     constructor(
+        sessionid: string,
         public readonly score: number,
         public readonly level: number,
         public readonly lines: number,
@@ -45,12 +51,13 @@ export class DBOnGameEndEvent extends DBUserEvent {
         public readonly transitionInto29: number,
         public readonly perfectTransitionInto19: boolean,
         public readonly perfectTransitionInto29: boolean
-    ) { super(); }
+    ) { super(sessionid); }
 }
 
 // Update settings
 export class DBUpdateSettingsEvent extends DBUserEvent {
     constructor(
+        sessionid: string, 
         public readonly enableReceiveFriendRequests: boolean,
         public readonly notifyOnFriendOnline: boolean,
         public readonly soloChatPermission: string,
@@ -61,11 +68,23 @@ export class DBUpdateSettingsEvent extends DBUserEvent {
         public readonly keybindEmuRotRight: string,
         public readonly keybindPuzzleRotLeft: string,
         public readonly keybindPuzzleRotRight: string
-    ) { super(); }
+    ) { super(sessionid); }
+}
+
+export interface JustCompletedQuest {
+    userid: string,
+    sessionid: string,
+    questName: string,
 }
 
 
 export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("DBUser") {
+
+    private static onCompleteQuest$ = new Subject<JustCompletedQuest>();
+
+    public static onCompleteQuest(): Observable<JustCompletedQuest> {
+        return this.onCompleteQuest$.asObservable();
+    }
 
     protected override async fetchFromDB(): Promise<DBUser> {
 
@@ -169,6 +188,8 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
     // Given an event, alters the object in-memory
     protected override alterInMemory(event: DBUserEvent): void {
 
+        const before = Object.assign({}, this.inMemoryObject);
+
         switch (event.constructor) {
 
             // On user online, update last_online to now
@@ -228,6 +249,25 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
                 break;
         }
 
+        // Check if any quests are completed
+        const justCompletedQuests = QuestDefinitions.getJustCompletedQuests(before, this.inMemoryObject);
+
+        if (justCompletedQuests.length > 0) {
+            // First, calculate the xp gained from quests and update the user's xp and league
+            const xpGained = justCompletedQuests.reduce((acc, quest) => acc + quest.xp, 0);
+            const { newXP, newLeague } = updateXP(this.inMemoryObject.xp, getLeagueFromIndex(this.inMemoryObject.league), xpGained);
+            this.inMemoryObject.xp = newXP;
+            this.inMemoryObject.league = newLeague;
+
+            // Next, emit the just completed quests
+            justCompletedQuests.forEach(quest => {
+                DBUserObject.onCompleteQuest$.next({
+                    userid: this.id,
+                    sessionid: event.sessionid,
+                    questName: quest.name
+                });
+            });
+        }
     }
 
     // Save altered DBUser to the database

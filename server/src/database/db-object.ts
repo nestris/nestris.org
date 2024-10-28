@@ -1,3 +1,4 @@
+import { Observable, Subject } from "rxjs";
 import { DBError, DBObjectAlreadyExistsError, DBObjectNotFoundError } from "./db-object-error";
 
 /**
@@ -28,6 +29,7 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
         id: string;
         before: InMemoryObject;
         after: InMemoryObject;
+        event: Event;
     }
 
     interface DBObjectWithID {
@@ -41,9 +43,9 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
         private static dbObjects = new Map<string, DBObject>();
 
         // A list of subscribers to create/delete/changes in the database objects
-        private static createSubscribers: ((object: DBObjectWithID) => void)[] = [];
-        private static deleteSubscribers: ((object: DBObjectWithID) => void)[] = [];
-        private static changeSubscribers: ((change: DBObjectChange) => void)[] = [];
+        private static onCreate$ = new Subject<DBObjectWithID>();
+        private static onDelete$ = new Subject<DBObjectWithID>();
+        private static onChange$ = new Subject<DBObjectChange>();
 
 
         // The maximum number of objects to cache in-memory. If the number of objects exceeds this, the least recently used object will be removed.
@@ -96,10 +98,10 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
             DBObject.evictOldestIfNeeded();
 
             // Notify all subscribers of the creation
-            DBObject.createSubscribers.forEach(subscriber => subscriber({
+            DBObject.onCreate$.next({
                 id: id,
                 object: newObject
-            }));
+            });
 
             // Return the in-memory object
             return newObject;
@@ -128,10 +130,10 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
             DBObject.cacheSize--;
 
             // Notify all subscribers of the deletion
-            DBObject.deleteSubscribers.forEach(subscriber => subscriber({
+            DBObject.onDelete$.next({
                 id: id,
                 object: before
-            }));
+            });
 
             console.log(`Deleted ${name} object with ID ${id}`);
         }
@@ -163,11 +165,12 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
             console.log(`Altered ${name} object with ID ${id} with event ${event}`);
 
             // Notify all subscribers of the change
-            DBObject.changeSubscribers.forEach(subscriber => subscriber({
+            DBObject.onChange$.next({
                 id: id,
                 before: before,
-                after: after
-            }));
+                after: after,
+                event: event
+            });
         }
 
         /**
@@ -249,24 +252,24 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
          * Subscribes to changes in the database objects. Whenever an object is altered, all subscribers will be notified.
          * @param subscriber 
          */
-        static onChange(subscriber: (change: DBObjectChange) => void) {
-            DBObject.changeSubscribers.push(subscriber);
+        static onChange(): Observable<DBObjectChange> {
+            return DBObject.onChange$.asObservable();
         }
 
         /**
          * Subscribes to creation of database objects. Whenever an object is created, all subscribers will be notified.
          * @param subscriber 
          */
-        static onCreate(subscriber: (object: DBObjectWithID) => void) {
-            DBObject.createSubscribers.push(subscriber);
+        static onCreate(): Observable<DBObjectWithID> {
+            return DBObject.onCreate$.asObservable();
         }
 
         /**
          * Subscribes to deletion of database objects. Whenever an object is deleted, all subscribers will be notified.
          * @param subscriber 
          */
-        static onDelete(subscriber: (object: DBObjectWithID) => void) {
-            DBObject.deleteSubscribers.push(subscriber);
+        static onDelete(): Observable<DBObjectWithID> {
+            return DBObject.onDelete$.asObservable();
         }
 
         /**

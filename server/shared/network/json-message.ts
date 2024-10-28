@@ -23,7 +23,8 @@ export enum JsonMessageType {
     MULTIPLAYER_ROOM_UPDATE = 'multiplayer_room_update', // sent from server to client to update the multiplayer room
     SOLO_GAME_END = 'solo_game_end', // sent from server to client on solo game end, with game details
     SERVER_RESTART_WARNING = 'server_restart_warning', // sent from server to client to warn of server restart
-    ME = 'ME'
+    ME = 'ME',
+    QUEST_COMPLETE = 'quest_complete',
 }
 
 export abstract class JsonMessage {
@@ -163,5 +164,13 @@ export class MeMessage extends JsonMessage {
         public readonly me: DBUser
     ) {
         super(JsonMessageType.ME)
+    }
+}
+
+export class QuestCompleteMessage extends JsonMessage {
+    constructor(
+        public readonly questName: string
+    ) {
+        super(JsonMessageType.QUEST_COMPLETE)
     }
 }

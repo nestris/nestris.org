@@ -22,6 +22,7 @@ import { LeaderboardManager } from './src/leaderboards/leaderboard-manager';
 import { FullHighscoreLeaderboard, FullPuzzlesLeaderboard, FullTrophiesLeaderboard } from './src/leaderboards/full-leaderboard';
 import { T200XPLeaderboard } from './src/leaderboards/t200-leaderboard';
 import { GetRelativeLeaderboardsRoute } from './src/routes/leaderboard/get-relative-leaderboards-route';
+import { QuestConsumer } from './src/online-users/event-consumers/quest-consumer';
 
 // Load environment variables
 require('dotenv').config();
@@ -76,6 +77,7 @@ async function main() {
   consumers.registerConsumer(FriendEventConsumer);
   consumers.registerConsumer(PingConsumer);
   consumers.registerConsumer(GuestConsumer);
+  consumers.registerConsumer(QuestConsumer);
 
   // Initialize leaderboards
   LeaderboardManager.registerFullLeaderboard(FullHighscoreLeaderboard);
