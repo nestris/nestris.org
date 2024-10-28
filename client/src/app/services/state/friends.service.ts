@@ -11,7 +11,7 @@ import { StateService } from './state.service';
 @Injectable({
   providedIn: 'root'
 })
-export class FriendsService extends StateService<FriendInfo[]> {
+export class FriendsService extends StateService<FriendInfo[]>() {
 
   constructor() {
     super([]);

@@ -9,7 +9,7 @@ import { BannerManagerService, BannerPriority, BannerType } from '../banner-mana
 @Injectable({
   providedIn: 'root'
 })
-export class MeService extends StateService<DBUser> {
+export class MeService extends StateService<DBUser>() {
 
   constructor(
     private readonly bannerManager: BannerManagerService
