@@ -10,7 +10,7 @@ import { WebsocketService } from 'src/app/services/websocket.service';
 import { Challenge } from 'src/app/shared/models/challenge';
 import { getMatchScore, MatchPoint, MultiplayerData, PlayerRole } from 'src/app/shared/models/multiplayer';
 import { NotificationType } from 'src/app/shared/models/notifications';
-import { Role } from 'src/app/shared/models/room-info';
+import { OldRole } from 'src/app/shared/models/room-info';
 import { JsonMessage, JsonMessageType, RematchOfferedMessage } from 'src/app/shared/network/json-message';
 
 export enum NewMatchMode {
@@ -26,7 +26,7 @@ export enum NewMatchMode {
 })
 export class MultiplayerAfterMatchComponent implements OnInit, OnDestroy {
   @Input() data!: MultiplayerData;
-  @Input() myRole?: Role;
+  @Input() myRole?: OldRole;
 
   readonly ButtonColor = ButtonColor;
 
@@ -51,7 +51,7 @@ export class MultiplayerAfterMatchComponent implements OnInit, OnDestroy {
         console.log('Rematch offered message', rematchMessage);
 
         // check if the opponent is the same as the one who offered the rematch
-        const opponentRole = this.myRole === Role.PLAYER_1 ? Role.PLAYER_2 : Role.PLAYER_1;
+        const opponentRole = this.myRole === OldRole.PLAYER_1 ? OldRole.PLAYER_2 : OldRole.PLAYER_1;
         const thisOpponent = this.data.match.playerInfo[opponentRole].userID;
         const rematchOpponent = rematchMessage.challenge.senderid;
         if (thisOpponent !== rematchOpponent) {
@@ -69,7 +69,7 @@ export class MultiplayerAfterMatchComponent implements OnInit, OnDestroy {
   getScores(): [number, number] {
     const playerScores = getMatchScore(this.data.match);
     const myScore = playerScores[(this.myRole as PlayerRole)];
-    const otherScore = playerScores[(this.myRole === Role.PLAYER_1 ? Role.PLAYER_2 : Role.PLAYER_1)];
+    const otherScore = playerScores[(this.myRole === OldRole.PLAYER_1 ? OldRole.PLAYER_2 : OldRole.PLAYER_1)];
     return [myScore, otherScore];
   }
 
@@ -83,11 +83,11 @@ export class MultiplayerAfterMatchComponent implements OnInit, OnDestroy {
 
   getPlayer(color: string): PlayerRole {
     if (!this.myRole) throw new Error('Internal error: myRole is not set');
-    return color === 'blue' ? (this.myRole as PlayerRole) : (this.myRole === Role.PLAYER_1 ? Role.PLAYER_2 : Role.PLAYER_1);
+    return color === 'blue' ? (this.myRole as PlayerRole) : (this.myRole === OldRole.PLAYER_1 ? OldRole.PLAYER_2 : OldRole.PLAYER_1);
   }
 
   getScoreForPoint(point: MatchPoint, color: 'blue' | 'red') {
-    return ((this.myRole === Role.PLAYER_1) != (color === 'red')) ? point.scorePlayer1 : point.scorePlayer2;
+    return ((this.myRole === OldRole.PLAYER_1) != (color === 'red')) ? point.scorePlayer1 : point.scorePlayer2;
   }
 
   getPointWinnerColor(point: MatchPoint): 'blue' | 'red' | 'tie' {
@@ -143,7 +143,7 @@ export class MultiplayerAfterMatchComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const otherPlayer = this.data.match.playerInfo[(this.myRole === Role.PLAYER_1 ? Role.PLAYER_2 : Role.PLAYER_1)];
+    const otherPlayer = this.data.match.playerInfo[(this.myRole === OldRole.PLAYER_1 ? OldRole.PLAYER_2 : OldRole.PLAYER_1)];
 
     // set challenge parameters
     const challenge: Challenge = {

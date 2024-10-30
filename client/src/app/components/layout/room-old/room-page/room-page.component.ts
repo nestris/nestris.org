@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EmulatorService } from 'src/app/services/emulator/emulator.service';
 import { Platform, PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
-import { Role, RoomInfo, RoomMode, isPlayer } from 'src/app/shared/models/room-info';
+import { OldRole, OldRoomInfo, OldRoomMode, isPlayer } from 'src/app/shared/models/room-info';
 import { StartSpectateRoomMessage, StartSoloRoomMessage, JsonMessageType, MultiplayerRoomUpdateMessage, SoloGameEndMessage } from 'src/app/shared/network/json-message';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 import { ClientRoomState } from './room-state';
@@ -17,8 +17,8 @@ import { FetchService, Method } from 'src/app/services/fetch.service';
 
 
 export interface RoomClient {
-  room: RoomInfo;
-  role: Role;
+  room: OldRoomInfo;
+  role: OldRole;
 }
 
 export enum RoomModalType {
@@ -42,11 +42,11 @@ export enum SoloMode {
   styleUrls: ['./room-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class RoomPageComponent implements OnInit, OnDestroy {
+export class OldRoomPageComponent implements OnInit, OnDestroy {
 
   readonly TetrominoType = TetrominoType;
-  readonly RoomMode = RoomMode;
-  readonly Role = Role;
+  readonly RoomMode = OldRoomMode;
+  readonly Role = OldRole;
   readonly Platform = Platform;
   readonly RoomModalType = RoomModalType;
   readonly SoloMode = SoloMode;
@@ -105,15 +105,15 @@ export class RoomPageComponent implements OnInit, OnDestroy {
         this.client$.next({
           room: {
             roomID: '',
-            mode: RoomMode.SOLO,
+            mode: OldRoomMode.SOLO,
             players: [{
               userid: '',
               username: 'Guest',
               sessionID: '',
-              role: Role.PLAYER_1
+              role: OldRole.PLAYER_1
             }]
           },
-          role: Role.PLAYER_1
+          role: OldRole.PLAYER_1
         });
 
         this.platform.setPlatform(Platform.ONLINE);
@@ -133,7 +133,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const roomInfo = await this.fetchService.fetch<RoomInfo | {error: string}>(Method.GET, `/api/v2/room/${roomID}`);
+    const roomInfo = await this.fetchService.fetch<OldRoomInfo | {error: string}>(Method.GET, `/api/v2/room/${roomID}`);
     if ('error' in roomInfo) {
       console.error(roomID, roomInfo.error);
       this.redirectHome();
@@ -163,8 +163,8 @@ export class RoomPageComponent implements OnInit, OnDestroy {
     if (isPlayer(this.client$.getValue()!.role)) {
       
       switch (roomInfo.mode) {
-        case RoomMode.SOLO: await this.initSoloRoom(); break;
-        case RoomMode.MULTIPLAYER: await this.initMultiplayerRoom(true); break;
+        case OldRoomMode.SOLO: await this.initSoloRoom(); break;
+        case OldRoomMode.MULTIPLAYER: await this.initMultiplayerRoom(true); break;
         default: console.error('Invalid room mode', roomInfo.mode);
       }
     } else {
@@ -173,7 +173,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
       this.websocket.sendJsonMessage(new StartSpectateRoomMessage(roomID));
 
       // Also subscribe to multiplayer room updates as a spectator
-      if (roomInfo.mode === RoomMode.MULTIPLAYER) {
+      if (roomInfo.mode === OldRoomMode.MULTIPLAYER) {
         await this.initMultiplayerRoom(false);
       }
     }
@@ -183,11 +183,11 @@ export class RoomPageComponent implements OnInit, OnDestroy {
     this.router.navigate(['/']);
   }
 
-  private getRole(room: RoomInfo): Role {
+  private getRole(room: OldRoomInfo): OldRole {
     const sessionID = this.websocket.getSessionID();
-    if (room.players[0]?.sessionID === sessionID) return Role.PLAYER_1;
-    if (room.players[1]?.sessionID === sessionID) return Role.PLAYER_2;
-    return Role.SPECTATOR;
+    if (room.players[0]?.sessionID === sessionID) return OldRole.PLAYER_1;
+    if (room.players[1]?.sessionID === sessionID) return OldRole.PLAYER_2;
+    return OldRole.SPECTATOR;
   }
 
   private async initSoloRoom() {
@@ -218,7 +218,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
   clickPlaySolo(level: number) {
     if (this.soloMode$.getValue() === SoloMode.BEFORE_GAME) {
       this.soloMode$.next(SoloMode.IN_GAME);
-      this.startGame(level, RoomMode.SOLO);
+      this.startGame(level, OldRoomMode.SOLO);
     } else {
       console.error(`Must be in BEFORE_GAME mode to transition to IN_GAME mode, but in ${this.soloMode$.getValue()}`);
     }
@@ -237,7 +237,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
   }
 
   // Start the game, either by starting the emulator or starting OCR
-  private startGame(level: number, mode: RoomMode, seed?: string) {
+  private startGame(level: number, mode: OldRoomMode, seed?: string) {
 
     if (this.platform.getPlatform() === Platform.ONLINE) {
       // If online, start emulator game at startLevel and given seed
@@ -245,7 +245,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
     } else {
       // If OCR, start polling for game data. In solo mode, can start on any level. But on
       // multiplayer mode, needs to match the agreed-upon level
-      this.ocrGame.startGame(mode === RoomMode.MULTIPLAYER ? level : null);
+      this.ocrGame.startGame(mode === OldRoomMode.MULTIPLAYER ? level : null);
     }
   }
 
@@ -280,16 +280,16 @@ export class RoomPageComponent implements OnInit, OnDestroy {
     // Transition from COUNTDOWN -> PLAYING should trigger game start
     if (old.state.mode === MultiplayerRoomMode.COUNTDOWN && now.state.mode === MultiplayerRoomMode.PLAYING) {
       console.log('countdown ended, starting multiplayer game');
-      this.startGame(now.state.startLevel, RoomMode.MULTIPLAYER, now.match.seed);
+      this.startGame(now.state.startLevel, OldRoomMode.MULTIPLAYER, now.match.seed);
     }
   }
 
-  rightBoardRole(role: Role): PlayerRole {
+  rightBoardRole(role: OldRole): PlayerRole {
     // if spectator, right side is always player 2's board
-    if (role === Role.SPECTATOR) return Role.PLAYER_2;
+    if (role === OldRole.SPECTATOR) return OldRole.PLAYER_2;
 
     // If player, right side is the other player's board
-    return role === Role.PLAYER_1 ? Role.PLAYER_2 : Role.PLAYER_1;
+    return role === OldRole.PLAYER_1 ? OldRole.PLAYER_2 : OldRole.PLAYER_1;
   }
 
   @HostListener('window:keydown', ['$event'])
@@ -313,7 +313,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
     if (!screenWidth) screenWidth = this.screenWidth$.getValue();
 
     // If multiplayer, scale proportionally so it fills around half the screen width
-    if (client.room.mode === RoomMode.MULTIPLAYER) return screenWidth / 1370;
+    if (client.room.mode === OldRoomMode.MULTIPLAYER) return screenWidth / 1370;
 
     // If solo, scale proportionally so it fills most of the screen width
     else return screenWidth / 1250;
@@ -330,8 +330,8 @@ export class RoomPageComponent implements OnInit, OnDestroy {
     // If in multiplayer mode and game over, determine if win/lose/tie and show that
     if ([MultiplayerRoomMode.WAITING, MultiplayerRoomMode.MATCH_ENDED].includes(data.state.mode)) {
       const endedGame = data.match.points[data.match.points.length - 1];
-      const myScore = role === Role.PLAYER_1 ? endedGame.scorePlayer1 : endedGame.scorePlayer2;
-      const theirScore = role === Role.PLAYER_1 ? endedGame.scorePlayer2 : endedGame.scorePlayer1;
+      const myScore = role === OldRole.PLAYER_1 ? endedGame.scorePlayer1 : endedGame.scorePlayer2;
+      const theirScore = role === OldRole.PLAYER_1 ? endedGame.scorePlayer2 : endedGame.scorePlayer1;
 
       if (myScore > theirScore) return GameOverMode.WIN;
       if (myScore < theirScore) return GameOverMode.LOSE;
@@ -345,7 +345,7 @@ export class RoomPageComponent implements OnInit, OnDestroy {
    */
   async onClickNextAfterGameOver() {
     console.log('click next');
-    if (this.client$.getValue()!.room.mode === RoomMode.SOLO) {
+    if (this.client$.getValue()!.room.mode === OldRoomMode.SOLO) {
       // In solo mode, transition from topout to after game
       this.soloMode$.next(SoloMode.AFTER_GAME);
     } else {

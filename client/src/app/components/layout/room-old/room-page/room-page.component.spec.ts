@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RoomPageComponent } from './room-page.component';
+import { OldRoomPageComponent } from './room-page.component';
 
 describe('SoloPageComponent', () => {
-  let component: RoomPageComponent;
-  let fixture: ComponentFixture<RoomPageComponent>;
+  let component: OldRoomPageComponent;
+  let fixture: ComponentFixture<OldRoomPageComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [RoomPageComponent]
+      declarations: [OldRoomPageComponent]
     });
-    fixture = TestBed.createComponent(RoomPageComponent);
+    fixture = TestBed.createComponent(OldRoomPageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

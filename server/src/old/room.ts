@@ -15,7 +15,7 @@ but the room still tracks the game state and saves it to the database when the g
 */
 
 import { v4 as uuid } from "uuid";
-import { RoomMode, isPlayer, RoomInfo, Role } from "../../shared/models/room-info";
+import { OldRoomMode, isPlayer, OldRoomInfo, OldRole } from "../../shared/models/room-info";
 import { BinaryEncoder, BinaryDecoder } from "../../shared/network/binary-codec";
 import { JsonMessage, MultiplayerRoomUpdateMessage, SoloGameEndMessage } from "../../shared/network/json-message";
 import { PacketContent, PacketOpcode, GamePlacementSchema, GameStartSchema, GameRecoveryPacket } from "../../shared/network/stream-packets/packet";
@@ -41,7 +41,7 @@ export class RoomUser {
   constructor(
     public readonly room: Room,
     public readonly session: OnlineUserSession,
-    public readonly role: Role,
+    public readonly role: OldRole,
   ) {
     
     // add the user's own session ID to the list of sessions that the user has sent packets to
@@ -126,7 +126,7 @@ export class Room {
   private players: RoomUser[] = [];
   private spectators: RoomUser[] = [];
   public readonly roomID: string;
-  public readonly mode: RoomMode;
+  public readonly mode: OldRoomMode;
 
   public multiplayer?: MultiplayerManager;
 
@@ -135,13 +135,13 @@ export class Room {
       throw new Error("Room must have 1 or 2 players");
     }
 
-    this.players.push(new RoomUser(this, playerSessions[0], Role.PLAYER_1));
+    this.players.push(new RoomUser(this, playerSessions[0], OldRole.PLAYER_1));
     
     if (playerSessions.length === 1) {
-      this.mode = RoomMode.SOLO;
+      this.mode = OldRoomMode.SOLO;
     } else { // 2 players
-      this.mode = RoomMode.MULTIPLAYER;
-      this.players.push(new RoomUser(this, playerSessions[1], Role.PLAYER_2));
+      this.mode = OldRoomMode.MULTIPLAYER;
+      this.players.push(new RoomUser(this, playerSessions[1], OldRole.PLAYER_2));
     }
 
     this.roomID = uuid();
@@ -149,7 +149,7 @@ export class Room {
 
   async init() {
 
-    if (this.mode == RoomMode.SOLO) {
+    if (this.mode == OldRoomMode.SOLO) {
 
     } else {
       this.multiplayer = new MultiplayerManager(
@@ -173,7 +173,7 @@ export class Room {
       throw new Error(`User ${session.user.username} is already in this room`);
     }
 
-    const newUser = new RoomUser(this, session, Role.SPECTATOR);
+    const newUser = new RoomUser(this, session, OldRole.SPECTATOR);
     this.spectators.push(newUser);
     return newUser;
   }
@@ -335,7 +335,7 @@ export class Room {
     console.log(`Saving game ${gameID} for player ${roomUser.session.user.username}`);
 
     // For solo games, send the game state to the user
-    if (this.mode === RoomMode.SOLO) {
+    if (this.mode === OldRoomMode.SOLO) {
       roomUser.sendJsonMessage(new SoloGameEndMessage(gameID,
         gameState.getStatus().score,
         gameState.getStatus().lines,
@@ -365,7 +365,7 @@ export class Room {
   }
 
   // get a serialized dict of the room info for sending to clients
-  getRoomInfo(): RoomInfo {
+  getRoomInfo(): OldRoomInfo {
     return {
       roomID: this.roomID,
       mode: this.mode,

@@ -3,7 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { MainLayoutComponent } from './components/layout/root/main-layout/main-layout.component';
 import { PlayPageComponent } from './components/layout/play/play-page/play-page.component';
 import { FullscreenLayoutComponent } from './components/layout/root/fullscreen-layout/fullscreen-layout.component';
-import { RoomPageComponent } from './components/layout/room/room-page/room-page.component';
+import { OldRoomPageComponent } from './components/layout/room-old/room-page/room-page.component';
 import { PlayPuzzlePageComponent } from './components/layout/play-puzzle/play-puzzle-page/play-puzzle-page.component';
 import { ProfilePageComponent } from './components/layout/profile/profile-page/profile-page.component';
 import { FriendPageComponent } from './components/layout/friends/friend-page/friend-page.component';
@@ -19,6 +19,7 @@ import { SettingsPageComponent } from './components/layout/settings/settings-pag
 import { PuzzleLeaderboardComponent } from './components/layout/main-leaderboard/puzzle-leaderboard/puzzle-leaderboard.component';
 import { RankedLeaderboardComponent } from './components/layout/main-leaderboard/ranked-leaderboard/ranked-leaderboard.component';
 import { MatchmakingLoadingPageComponent } from './components/layout/multiplayer/matchmaking-loading-page/matchmaking-loading-page.component';
+import { RoomComponent } from './components/layout/room/room/room.component';
 
 const routes: Routes = [
 
@@ -28,7 +29,7 @@ const routes: Routes = [
     path: 'online',
     component: FullscreenLayoutComponent,
     children: [
-      { path: "room", component: RoomPageComponent, },
+      { path: "room", component: RoomComponent },
       { path: "puzzle", component: PlayPuzzlePageComponent, },
       { path: "ranked", component: MatchmakingLoadingPageComponent },
       { path: "", redirectTo: "home", pathMatch: "full", },

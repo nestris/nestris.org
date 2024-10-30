@@ -2,9 +2,10 @@ import { EventConsumer } from "../event-consumer";
 import { v4 as uuid } from "uuid";
 import { OnSessionBinaryMessageEvent, OnSessionJsonMessageEvent } from "../online-user-events";
 import { PacketDisassembler } from "../../../shared/network/stream-packets/packet-disassembler";
-import { ChatMessage, InRoomStatus, InRoomStatusMessage, JsonMessageType, RoomPresenceMessage } from "../../../shared/network/json-message";
+import { ChatMessage, InRoomStatus, InRoomStatusMessage, JsonMessage, JsonMessageType, RoomEventMessage, RoomPresenceMessage } from "../../../shared/network/json-message";
 import { OnlineUserManager } from "../online-user-manager";
 import { BehaviorSubject, Observable } from "rxjs";
+import { RoomEvent, RoomInfo, RoomInfoManager } from "../../../shared/room/room-models";
 
 export class RoomError extends Error {
     constructor(message: string) {
@@ -62,8 +63,8 @@ export class RoomSpectator {
 
 export abstract class Room {
 
-    // Unique id of the room
-    public readonly id = uuid();
+    // Info for the room, to be implemented by subclasses
+    private readonly roomInfoManager: RoomInfoManager<RoomInfo, RoomEvent>;
     
     // List of players in the room, and whether they are present in the room, with the players initialized in constructor
     protected readonly players: RoomPlayer[];
@@ -73,20 +74,37 @@ export abstract class Room {
 
     constructor(
         protected readonly users: OnlineUserManager,
+        roomInfoManager: RoomInfoManager<RoomInfo, RoomEvent>,
         playerSessionIDs: string[], // A list of session ids of players in the room
     ) {
+
+        // Initialize the room info manager
+        this.roomInfoManager = roomInfoManager;
 
         // Initialize players as RoomPlayer objects that are not present in the room. On ROOM_PRESENCE messages, they will
         // be marked as present in the room.
         this.players = playerSessionIDs.map(sessionID => new RoomPlayer(sessionID, false));
 
-        // Send IN_ROOM_STATUS messages to all players in the room to indicate that they are players in the room
-        this.playerSessionIDs.forEach(sessionID => {
-            this.users.sendToUserSession(sessionID, new InRoomStatusMessage(InRoomStatus.PLAYER, this.id));
-        });
+        // Send IN_ROOM_STATUS messages to all players in the room to indicate that they are players in the room,
+        // including the room info
+        this.sendToAll(new InRoomStatusMessage(InRoomStatus.PLAYER, this.roomInfoManager.get()));
     }
 
     // ======================== PUBLIC GETTERS ========================
+
+    /**
+     * Get the room id
+     */
+    public get id(): string {
+        return this.roomInfoManager.get().id;
+    }
+
+    /**
+     * Get the room info
+     */
+    public get roomInfo(): RoomInfo {
+        return this.roomInfoManager.get();
+    }
 
     /**
      * Get all session ids for players in the room
@@ -140,6 +158,38 @@ export abstract class Room {
         const player = this.players.find(player => player.sessionID === sessionID);
         if (!player) throw new RoomError(`Session ${sessionID} is not a player in room ${this.id}`);
         return player.getPrescence();
+    }
+
+    public getRoomInfo(): RoomInfo {
+        return this.roomInfoManager.get();
+    }
+
+    // ======================== PUBLIC METHODS ========================
+
+
+    /**
+     * Send a JSON message to all players and spectators in the room.
+     * @param message The JSON message to send
+     */
+    public sendToAll(message: JsonMessage) {
+        this.allSessionIDs.forEach(sessionID => {
+            this.users.sendToUserSession(sessionID, message);
+        });
+    }
+
+    /**
+     * Modify the room info based on an event. This will also send the event to all players and spectators in the room,
+     * so that their room info is also updated.
+     * 
+     * @param event The event to modify the room info with
+     */
+    public modifyRoomInfo(event: RoomEvent) {
+
+        // Update server-side room info
+        this.roomInfoManager.onEvent(event);
+
+        // Send the event to all player and spectator clients in the room, to update their room info
+        this.sendToAll(new RoomEventMessage(event));
     }
 
 
@@ -200,9 +250,7 @@ export abstract class Room {
      * @param message The chat message to forward.
      */
     public _onChatMessage(message: ChatMessage) {
-        this.allSessionIDs.forEach(sessionID => {
-            this.users.sendToUserSession(sessionID, message);
-        });
+        this.sendToAll(message);
     }
 
     /**
@@ -229,7 +277,7 @@ export abstract class Room {
         this.spectators.push(new RoomSpectator(sessionID));
 
         // Send a IN_ROOM_STATUS message to the spectator to indicate that they are a spectator in the room
-        this.users.sendToUserSession(sessionID, new InRoomStatusMessage(InRoomStatus.SPECTATOR, this.id));
+        this.users.sendToUserSession(sessionID, new InRoomStatusMessage(InRoomStatus.SPECTATOR, this.roomInfo));
 
         // Call the onSpectatorJoin hook that may be implemented by subclasses
         await this.onSpectatorJoin(sessionID);

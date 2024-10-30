@@ -4,7 +4,7 @@ import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.com
 import { FetchService, Method } from 'src/app/services/fetch.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { getMatchScore, MultiplayerData, MultiplayerPlayerMode, MultiplayerRoomMode, PlayerRole } from 'src/app/shared/models/multiplayer';
-import { isPlayer, Role } from 'src/app/shared/models/room-info';
+import { isPlayer, OldRole } from 'src/app/shared/models/room-info';
 
 @Component({
   selector: 'app-multiplayer-in-match',
@@ -13,10 +13,10 @@ import { isPlayer, Role } from 'src/app/shared/models/room-info';
 })
 export class MultiplayerInMatchComponent {
   @Input() data!: MultiplayerData;
-  @Input() myRole?: Role;
+  @Input() myRole?: OldRole;
 
   readonly ButtonColor = ButtonColor;
-  readonly players: PlayerRole[] = [Role.PLAYER_1, Role.PLAYER_2];
+  readonly players: PlayerRole[] = [OldRole.PLAYER_1, OldRole.PLAYER_2];
   readonly MultiplayerRoomMode = MultiplayerRoomMode;
 
   constructor(
@@ -60,7 +60,7 @@ export class MultiplayerInMatchComponent {
     if (!this.myRole || !isPlayer(this.myRole)) throw new Error('Internal error: myRole is not a player');
 
     if (color === 'blue') return this.myRole as PlayerRole;
-    else if (color === 'red') return this.myRole === Role.PLAYER_1 ? Role.PLAYER_2 : Role.PLAYER_1;
+    else if (color === 'red') return this.myRole === OldRole.PLAYER_1 ? OldRole.PLAYER_2 : OldRole.PLAYER_1;
     else throw new Error(`Invalid color: ${color}`);
 
   }

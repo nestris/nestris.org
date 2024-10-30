@@ -24,7 +24,7 @@ import { OnlineIndicatorComponent } from './components/ui/online-indicator/onlin
 import { NesPanelComponent } from './components/nes-layout/nes-panel/nes-panel.component';
 import { NesBoardComponent } from './components/nes-layout/nes-board/nes-board.component';
 import { NesBlockComponent } from './components/nes-layout/nes-block/nes-block.component';
-import { RoomPageComponent } from './components/layout/room/room-page/room-page.component';
+import { OldRoomPageComponent } from './components/layout/room-old/room-page/room-page.component';
 import { OutlineButtonComponent } from './components/ui/outline-button/outline-button.component';
 import { LayoutOneComponent } from './components/nes-layout/layouts/layout-one/layout-one.component';
 import { NesPieceComponent } from './components/nes-layout/nes-piece/nes-piece.component';
@@ -67,13 +67,13 @@ import { ControlPanelPageComponent } from './components/layout/control-panel/con
 import { SettingsPageComponent } from './components/layout/settings/settings-page/settings-page.component';
 import { ProgressBarComponent } from './components/layout/learn/progress-bar/progress-bar.component';
 import { LessonCardComponent } from './components/layout/learn/lesson-card/lesson-card.component';
-import { SoloBeforeGameComponent } from './components/layout/room/modals/solo-before-game/solo-before-game.component';
-import { SoloAfterGameComponent } from './components/layout/room/modals/solo-after-game/solo-after-game.component';
-import { MultiplayerInMatchComponent } from './components/layout/room/modals/multiplayer-in-match/multiplayer-in-match.component';
-import { MultiplayerAfterMatchComponent } from './components/layout/room/modals/multiplayer-after-match/multiplayer-after-match.component';
-import { GenericRoomModalComponent } from './components/layout/room/modals/generic-room-modal/generic-room-modal.component';
+import { SoloBeforeGameComponent } from './components/layout/room-old/modals/solo-before-game/solo-before-game.component';
+import { SoloAfterGameComponent } from './components/layout/room-old/modals/solo-after-game/solo-after-game.component';
+import { MultiplayerInMatchComponent } from './components/layout/room-old/modals/multiplayer-in-match/multiplayer-in-match.component';
+import { MultiplayerAfterMatchComponent } from './components/layout/room-old/modals/multiplayer-after-match/multiplayer-after-match.component';
+import { GenericRoomModalComponent } from './components/layout/room-old/modals/generic-room-modal/generic-room-modal.component';
 import { BannersComponent } from './components/layout/root/banners/banners.component';
-import { GameHeaderComponent } from './components/layout/room/game-header/game-header.component';
+import { GameHeaderComponent } from './components/layout/room-old/game-header/game-header.component';
 import { GameOverComponent } from './components/nes-layout/game-over/game-over.component';
 import { BoardEditorComponent } from './components/layout/control-panel/board-editor/board-editor.component';
 import { PuzzleLeaderboardComponent } from './components/layout/main-leaderboard/puzzle-leaderboard/puzzle-leaderboard.component';
@@ -84,6 +84,7 @@ import { MatchmakingLoadingPageComponent } from './components/layout/multiplayer
 import { LoadingScreenComponent } from './components/layout/multiplayer/loading-screen/loading-screen.component';
 import { SolidSelectorComponent } from './components/ui/solid-selector/solid-selector.component';
 import { NgOptimizedImage } from '@angular/common';
+import { RoomComponent } from './components/layout/room/room/room.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -149,7 +150,7 @@ const customNotifierOptions: NotifierOptions = {
     NesPanelComponent,
     NesBoardComponent,
     NesBlockComponent,
-    RoomPageComponent,
+    OldRoomPageComponent,
     OutlineButtonComponent,
     LayoutOneComponent,
     NesPieceComponent,
@@ -205,6 +206,7 @@ const customNotifierOptions: NotifierOptions = {
     TableComponent,
     MatchmakingLoadingPageComponent,
     LoadingScreenComponent,
+    RoomComponent,
   ],
   imports: [
     BrowserModule,

@@ -74,4 +74,8 @@ export class MeService extends StateService<DBUser>() {
   public getUsername$(): Observable<string> {
     return this.get$().pipe(map(user => user.username));
   }
+
+  public async waitForAuth(): Promise<void> {
+    await this.get();
+  }
 }

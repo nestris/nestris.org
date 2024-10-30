@@ -49,10 +49,10 @@ export function StateService<T extends {}>() {
         /**
          * Codify how the state should be updated based on each event
          * @param event The event that was received
-         * @param state The current state
+         * @param oldState The state before the event was processed
          * @returns The new state
          */
-        protected abstract onEvent(event: JsonMessage, state: T): T;
+        protected abstract onEvent(event: JsonMessage, oldState: T): T;
 
 
         /**

@@ -2,6 +2,7 @@ import { Challenge } from "../models/challenge"
 import { DBUser } from "../models/db-user"
 import { MatchInfo, MultiplayerData, MultiplayerRoomState } from "../models/multiplayer"
 import { NotificationType } from "../models/notifications"
+import { RoomEvent, RoomInfo } from "../room/room-models"
 
 /*
 Data sent over websocket as JSON. type is the only required field and specifies
@@ -28,6 +29,7 @@ export enum JsonMessageType {
     CHAT = 'chat',
     ROOM_PRESENCE = 'room_presence',
     IN_ROOM_STATUS = 'in_room_status',
+    ROOM_EVENT = 'room_event',
 }
 
 export abstract class JsonMessage {
@@ -208,8 +210,17 @@ export enum InRoomStatus {
 export class InRoomStatusMessage extends JsonMessage {
     constructor(
         public readonly status: InRoomStatus,
-        public readonly roomID: string | null
+        public readonly roomInfo: RoomInfo | null
     ) {
         super(JsonMessageType.IN_ROOM_STATUS)
+    }
+}
+
+// Sent from server to client to update the room info
+export class RoomEventMessage extends JsonMessage {
+    constructor(
+        public readonly event: RoomEvent
+    ) {
+        super(JsonMessageType.ROOM_EVENT)
     }
 }
