@@ -23,6 +23,8 @@ import { FullHighscoreLeaderboard, FullPuzzlesLeaderboard, FullTrophiesLeaderboa
 import { T200XPLeaderboard } from './src/leaderboards/t200-leaderboard';
 import { GetRelativeLeaderboardsRoute } from './src/routes/leaderboard/get-relative-leaderboards-route';
 import { QuestConsumer } from './src/online-users/event-consumers/quest-consumer';
+import { CreateSoloRoomRoute } from './src/routes/room/create-solo-room-route';
+import { RoomConsumer } from './src/online-users/event-consumers/room-consumer';
 
 // Load environment variables
 require('dotenv').config();
@@ -78,6 +80,7 @@ async function main() {
   consumers.registerConsumer(PingConsumer);
   consumers.registerConsumer(GuestConsumer);
   consumers.registerConsumer(QuestConsumer);
+  consumers.registerConsumer(RoomConsumer);
 
   // Initialize leaderboards
   LeaderboardManager.registerFullLeaderboard(FullHighscoreLeaderboard);
@@ -93,6 +96,7 @@ async function main() {
   routes.registerRoute(GetFriendsInfoRoute);
   routes.registerRoute(GetAllUsernamesRoute);
   routes.registerRoute(GetRelativeLeaderboardsRoute);
+  routes.registerRoute(CreateSoloRoomRoute);
 
   // app.get('/api/v2/users-by-username', getAllUsersMatchingUsernamePatternRoute);
   // app.get('/api/v2/user/:userid', getUserByUserIDRoute);

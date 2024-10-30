@@ -1,11 +1,11 @@
 import { EventConsumer } from "../event-consumer";
-import { v4 as uuid } from "uuid";
 import { OnSessionBinaryMessageEvent, OnSessionJsonMessageEvent } from "../online-user-events";
 import { PacketDisassembler } from "../../../shared/network/stream-packets/packet-disassembler";
 import { ChatMessage, InRoomStatus, InRoomStatusMessage, JsonMessage, JsonMessageType, RoomEventMessage, RoomPresenceMessage } from "../../../shared/network/json-message";
 import { OnlineUserManager } from "../online-user-manager";
 import { BehaviorSubject, Observable } from "rxjs";
 import { RoomEvent, RoomInfo, RoomInfoManager } from "../../../shared/room/room-models";
+import { RoomInfoManagerFactory } from "../../../shared/room/room-info-manager-factory";
 
 export class RoomError extends Error {
     constructor(message: string) {
@@ -63,6 +63,12 @@ export class RoomSpectator {
 
 export abstract class Room {
 
+    // Static reference to OnlineUserManager. Must be set before any Room objects are created.
+    private static users: OnlineUserManager;
+    public static bootstrap(users: OnlineUserManager) {
+        Room.users = users;
+    }
+
     // Info for the room, to be implemented by subclasses
     private readonly roomInfoManager: RoomInfoManager<RoomInfo, RoomEvent>;
     
@@ -73,13 +79,12 @@ export abstract class Room {
     protected readonly spectators: RoomSpectator[] = [];
 
     constructor(
-        protected readonly users: OnlineUserManager,
-        roomInfoManager: RoomInfoManager<RoomInfo, RoomEvent>,
+        roomInfo: RoomInfo,
         playerSessionIDs: string[], // A list of session ids of players in the room
     ) {
 
         // Initialize the room info manager
-        this.roomInfoManager = roomInfoManager;
+        this.roomInfoManager = RoomInfoManagerFactory.create(roomInfo);
 
         // Initialize players as RoomPlayer objects that are not present in the room. On ROOM_PRESENCE messages, they will
         // be marked as present in the room.
@@ -173,7 +178,7 @@ export abstract class Room {
      */
     public sendToAll(message: JsonMessage) {
         this.allSessionIDs.forEach(sessionID => {
-            this.users.sendToUserSession(sessionID, message);
+            Room.users.sendToUserSession(sessionID, message);
         });
     }
 
@@ -277,7 +282,7 @@ export abstract class Room {
         this.spectators.push(new RoomSpectator(sessionID));
 
         // Send a IN_ROOM_STATUS message to the spectator to indicate that they are a spectator in the room
-        this.users.sendToUserSession(sessionID, new InRoomStatusMessage(InRoomStatus.SPECTATOR, this.roomInfo));
+        Room.users.sendToUserSession(sessionID, new InRoomStatusMessage(InRoomStatus.SPECTATOR, this.roomInfo));
 
         // Call the onSpectatorJoin hook that may be implemented by subclasses
         await this.onSpectatorJoin(sessionID);
@@ -297,7 +302,7 @@ export abstract class Room {
         this.spectators.splice(index, 1);
 
         // Send a IN_ROOM_STATUS message to the spectator to indicate that they are not in any room
-        this.users.sendToUserSession(sessionID, new InRoomStatusMessage(InRoomStatus.NONE, null));
+        Room.users.sendToUserSession(sessionID, new InRoomStatusMessage(InRoomStatus.NONE, null));
 
         // Call the onSpectatorLeave hook that may be implemented by subclasses
         await this.onSpectatorLeave(sessionID);
@@ -310,7 +315,7 @@ export abstract class Room {
 
         // Send IN_ROOM_STATUS messages to all players and spectators in the room to indicate that they are not in any room anymore
         this.allSessionIDs.forEach(sessionID => {
-            this.users.sendToUserSession(sessionID, new InRoomStatusMessage(InRoomStatus.NONE, null));
+            Room.users.sendToUserSession(sessionID, new InRoomStatusMessage(InRoomStatus.NONE, null));
         });
 
         // Call the onDelete hook that may be implemented by subclasses
@@ -329,6 +334,30 @@ export class RoomConsumer extends EventConsumer {
 
     // Map storing session id to room id
     private sessions: Map<string, string> = new Map();
+
+    // Initialize OnlineUserManager for Room
+    public override init(): void {
+        Room.bootstrap(this.users);
+    }
+
+    /**
+     * Create a room and update the room and session maps.
+     * @param newRoom The newly-constructed room to add
+     */
+    public async createRoom(newRoom: Room) {
+
+        // Initialize the room
+        await newRoom._init();
+
+        // Update room map
+        this.rooms.set(newRoom.id, newRoom);
+
+        // Update session map
+        newRoom.playerSessionIDs.forEach(sessionID => {
+            this.sessions.set(sessionID, newRoom.id);
+        });
+    }
+
 
     /**
      * Given a session id, get the room the user is in.
@@ -427,7 +456,7 @@ export class RoomConsumer extends EventConsumer {
             }
 
         } else { // Leaving a room client-side
-
+            // TODO
         }
 
     }

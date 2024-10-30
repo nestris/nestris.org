@@ -1,8 +1,4 @@
-import { Authentication } from "../../../shared/models/db-user";
-import { FriendInfo, FriendStatus, OnlineUserStatus } from "../../../shared/models/friends";
-import { getLeagueFromIndex, League } from "../../../shared/nestris-org/league-system";
 import { Database, DBQuery } from "../../database/db-query";
-import { EventConsumerManager } from "../../online-users/event-consumer";
 import { GetRoute, UserInfo } from "../route";
 
 

@@ -19,7 +19,6 @@ export enum JsonMessageType {
     FRIEND_ONLINE_STATUS_CHANGE = 'friend_online_status_change',
     START_SOLO_ROOM = 'start_solo_room',
     START_SPECTATE_ROOM = 'start_spectate_room',
-    GO_TO_ROOM = 'go_to_room', // sent from server to client to navigate to a room
     REMATCH_OFFERED = 'rematch_offered', // sent from server to client to offer a rematch
     MULTIPLAYER_ROOM_UPDATE = 'multiplayer_room_update', // sent from server to client to update the multiplayer room
     SOLO_GAME_END = 'solo_game_end', // sent from server to client on solo game end, with game details
@@ -111,16 +110,6 @@ export class StartSpectateRoomMessage extends JsonMessage {
         public readonly roomID: string
     ) {
         super(JsonMessageType.START_SPECTATE_ROOM)
-    }
-}
-
-
-// sent from server to client to navigate to a room
-export class GoToRoomMessage extends JsonMessage {
-    constructor(
-        public readonly roomID: string
-    ) {
-        super(JsonMessageType.GO_TO_ROOM)
     }
 }
 

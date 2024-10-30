@@ -3,6 +3,7 @@ import { ChatMessage, InRoomStatus, InRoomStatusMessage, JsonMessage, JsonMessag
 import { RoomInfo, RoomInfoManager } from 'src/app/shared/room/room-models';
 import { WebsocketService } from '../websocket.service';
 import { RoomInfoManagerFactory } from 'src/app/shared/room/room-info-manager-factory';
+import { Router } from '@angular/router';
 
 
 /**
@@ -21,7 +22,8 @@ export class RoomService {
   private roomInfoManager: RoomInfoManager<RoomInfo, RoomEventMessage> | null = null;
 
   constructor(
-    private websocketService: WebsocketService
+    private websocketService: WebsocketService,
+    private router: Router,
   ) {
 
     this.websocketService.onEvent(JsonMessageType.IN_ROOM_STATUS).subscribe((event: JsonMessage) => {
@@ -63,7 +65,10 @@ export class RoomService {
     this.status = event.status;
     this.roomInfoManager = RoomInfoManagerFactory.create(event.roomInfo);
 
-    console.log(`Updated room status to ${this.status} with room info ${this.roomInfoManager.get()}`);
+    // Navigate to the room
+    this.router.navigate(['/online/room']);
+
+    console.log(`Navigating to room with status ${this.status} and info ${this.roomInfoManager.get()}`);
   }
 
   /**

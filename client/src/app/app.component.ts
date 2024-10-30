@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { ServerRestartWarningService } from './services/server-restart-warning.service';
 import { CacheableRequestService } from './services/cacheable-request.service';
 import { MeService } from './services/state/me.service';
+import { RoomService } from './services/room/room.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
@@ -26,6 +27,7 @@ export class AppComponent implements OnInit {
     private serverRestartWarningService: ServerRestartWarningService,
     private cacheableRequestService: CacheableRequestService,
     private meService: MeService,
+    private roomService: RoomService,
     private router: Router,
   ) {
 

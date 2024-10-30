@@ -1,5 +1,5 @@
 import { Authentication } from "../../../shared/models/db-user";
-import { FriendInfo, FriendStatus, OnlineUserStatus } from "../../../shared/models/friends";
+import { FriendInfo, FriendStatus } from "../../../shared/models/friends";
 import { getLeagueFromIndex, League } from "../../../shared/nestris-org/league-system";
 import { Database, DBQuery } from "../../database/db-query";
 import { EventConsumerManager } from "../../online-users/event-consumer";
@@ -92,10 +92,7 @@ export class GetFriendsInfoRoute extends GetRoute<FriendInfo[]> {
         userid: friend.userid,
         username: friend.username,
         friendStatus: friend.type,
-
-        // TEMPORARY: set status to busy if playing a game
-        onlineStatus: users.isUserOnline(friend.userid) ? OnlineUserStatus.IDLE : OnlineUserStatus.OFFLINE,
-
+        isOnline: users.isUserOnline(friend.userid),
         league: friend.league,
         highestScore: friend.highest_score,
         trophies: friend.trophies,

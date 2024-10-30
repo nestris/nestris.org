@@ -28,7 +28,7 @@ abstract class Route {
     }
 
     protected abstract getExpressMethod(): any;
-    protected abstract run(user: UserInfo | undefined, queryParams: any, bodyParams: any): Promise<any>;
+    protected abstract run(user: UserInfo | undefined, pathParams: any, queryParams: any, bodyParams: any): Promise<any>;
 
     public register() {
 
@@ -52,7 +52,7 @@ abstract class Route {
                 }
 
                 // Run the route
-                const response: any = await this.run(user, req.query, req.body);
+                const response: any = await this.run(user, req.params, req.query, req.body);
                 
                 // Send successful response
                 res.status(200).send(response);
@@ -97,10 +97,10 @@ export abstract class GetRoute<T extends {} = {}> extends Route {
      * @param queryParams The query parameters from the request
      * @throws RouteError if there is an error
      */
-    public abstract get(user: UserInfo | undefined, queryParams: any): Promise<T>;
+    public abstract get(user: UserInfo | undefined, pathParams: any, queryParams: any): Promise<T>;
 
-    protected override async run(user: UserInfo | undefined, queryParams: any, bodyParams: {}): Promise<T> {
-        return await this.get(user, queryParams);
+    protected override async run(user: UserInfo | undefined, pathParams: any, queryParams: any, bodyParams: {}): Promise<T> {
+        return await this.get(user, pathParams, queryParams);
     }
 
     protected override getExpressMethod() {
@@ -116,10 +116,10 @@ export abstract class PostRoute<T extends {} = {}> extends Route {
      * @param queryParams The query parameters from the request
      * @param bodyParams The body parameters from the request
      */
-    public abstract post(user: UserInfo | undefined, queryParams: any, bodyParams: any): Promise<T>;
+    public abstract post(user: UserInfo | undefined, pathParams: any, queryParams: any, bodyParams: any): Promise<T>;
 
-    protected override async run(user: UserInfo | undefined, queryParams: any, bodyParams: any): Promise<T> {
-        return await this.post(user, queryParams, bodyParams);
+    protected override async run(user: UserInfo | undefined, pathParams: any, queryParams: any, bodyParams: any): Promise<T> {
+        return await this.post(user, pathParams, queryParams, bodyParams);
     }
 
     protected override getExpressMethod() {

@@ -1,6 +1,6 @@
-import { Role } from "./room-info";
+import { OldRole } from "./room-info";
 
-export type PlayerRole = Role.PLAYER_1 | Role.PLAYER_2;
+export type PlayerRole = OldRole.PLAYER_1 | OldRole.PLAYER_2;
 
 export enum MultiplayerRoomMode {
     WAITING = "WAITING",
@@ -85,14 +85,14 @@ export function getMatchScore(match: MatchInfo): {[role in PlayerRole]: number} 
         }
     }
     return {
-        [Role.PLAYER_1]: score1,
-        [Role.PLAYER_2]: score2,
+        [OldRole.PLAYER_1]: score1,
+        [OldRole.PLAYER_2]: score2,
     };
 }
 
 export function getMatchWinner(match: MatchInfo): PlayerRole | null {
     const scores = getMatchScore(match);
-    if (scores[Role.PLAYER_1] >= match.winningScore) return Role.PLAYER_1;
-    if (scores[Role.PLAYER_2] >= match.winningScore) return Role.PLAYER_2;
+    if (scores[OldRole.PLAYER_1] >= match.winningScore) return OldRole.PLAYER_1;
+    if (scores[OldRole.PLAYER_2] >= match.winningScore) return OldRole.PLAYER_2;
     return null;
 }

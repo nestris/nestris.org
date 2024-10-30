@@ -1,7 +1,7 @@
-import { RoomEvent, RoomInfo, RoomInfoManager } from "../room-models";
+import { RoomEvent, RoomInfo, RoomInfoManager, RoomType } from "../room-models";
 
 export interface SoloRoomInfo extends RoomInfo {
-
+    type: RoomType.SOLO;
 }
 
 export interface SoloRoomEvent extends RoomEvent {
@@ -9,10 +9,6 @@ export interface SoloRoomEvent extends RoomEvent {
 }
 
 export class SoloRoomInfoManager extends RoomInfoManager<SoloRoomInfo, SoloRoomEvent> {
-
-    constructor(roomInfo: SoloRoomInfo) {
-        super(roomInfo);
-    }
 
     onEvent(event: SoloRoomEvent): void {
         throw new Error("Method not implemented.");

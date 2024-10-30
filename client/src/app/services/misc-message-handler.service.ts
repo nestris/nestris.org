@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { WebsocketService } from './websocket.service';
 import { Router } from '@angular/router';
-import { JsonMessageType, GoToRoomMessage } from '../shared/network/json-message';
 
 /*
 Handles miscellaneous JsonMessages from the server that don't fit into any other service
@@ -17,17 +16,6 @@ export class MiscMessageHandlerService {
     private router: Router
   ) {
 
-    websocket.onEvent(JsonMessageType.GO_TO_ROOM).subscribe((message) => this.goToRoom((message as GoToRoomMessage).roomID));
-
-    // TEMPORARY LOGGING ONLY
-    websocket.onEvent(JsonMessageType.MULTIPLAYER_ROOM_UPDATE).subscribe((message) => {
-      console.log("multiplayer", message);
-    });
-  }
-
-  // go to the room with the given roomID
-  private async goToRoom(roomID: string) {
-    this.router.navigate(['/online/room'], { queryParams: { id: roomID } });
   }
 
 
