@@ -1,6 +1,5 @@
 import { KeyValue } from '@angular/common';
 import { Component, Input, OnChanges } from '@angular/core';
-import { OnlineUserStatus } from 'src/app/shared/models/friends';
 
 export interface TableRow {
   username: string;
@@ -38,7 +37,7 @@ export class TableComponent implements OnChanges {
   @Input() myID?: string;
 
   // Map of online userids to their status
-  @Input() onlineUserIDs: Map<string, OnlineUserStatus> | null = null;
+  //@Input() onlineUserIDs: Map<string, OnlineUserStatus> | null = null;
 
   sortedRows: RankedTableRow[] = [];
 
@@ -106,12 +105,12 @@ export class TableComponent implements OnChanges {
     return 'white';
   }
 
-  getOnlineStatus(userid: string): OnlineUserStatus {
-    if (!this.onlineUserIDs) {
-      return OnlineUserStatus.OFFLINE;
-    }
+  // getOnlineStatus(userid: string): OnlineUserStatus {
+  //   if (!this.onlineUserIDs) {
+  //     return OnlineUserStatus.OFFLINE;
+  //   }
 
-    return this.onlineUserIDs.has(userid) ? this.onlineUserIDs.get(userid)! : OnlineUserStatus.OFFLINE;
-  }
+  //   return this.onlineUserIDs.has(userid) ? this.onlineUserIDs.get(userid)! : OnlineUserStatus.OFFLINE;
+  // }
 
 }

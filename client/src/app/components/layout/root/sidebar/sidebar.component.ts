@@ -9,7 +9,6 @@ import { FriendsService } from 'src/app/services/state/friends.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { DBUser, Authentication } from 'src/app/shared/models/db-user';
-import { OnlineUserStatus } from 'src/app/shared/models/friends';
 import { DeploymentEnvironment } from 'src/app/shared/models/server-stats';
 
 
@@ -22,7 +21,6 @@ import { DeploymentEnvironment } from 'src/app/shared/models/server-stats';
 export class SidebarComponent {
 
   readonly TabID = TabID;
-  readonly OnlineUserStatus = OnlineUserStatus;
   readonly ButtonColor = ButtonColor;
 
   readonly DeploymentEnvironment = DeploymentEnvironment;

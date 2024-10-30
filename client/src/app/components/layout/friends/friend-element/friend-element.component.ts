@@ -6,7 +6,7 @@ import { FriendsService } from 'src/app/services/state/friends.service';
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
-import { FriendInfo, FriendStatus, OnlineUserStatus } from 'src/app/shared/models/friends';
+import { FriendInfo, FriendStatus } from 'src/app/shared/models/friends';
 import { NotificationType, NotificationAutohide } from 'src/app/shared/models/notifications';
 import { OnlineUserInfo } from 'src/app/shared/models/online-user-info';
 import { FetchService, Method } from 'src/app/services/fetch.service';
@@ -21,7 +21,6 @@ export class FriendElementComponent {
   @Input() friendInfo!: FriendInfo;
 
   readonly FriendStatus = FriendStatus;
-  readonly OnlineUserStatus = OnlineUserStatus;
   readonly ButtonColor = ButtonColor;
 
   constructor(

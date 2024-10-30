@@ -25,6 +25,9 @@ export enum JsonMessageType {
     SERVER_RESTART_WARNING = 'server_restart_warning', // sent from server to client to warn of server restart
     ME = 'ME',
     QUEST_COMPLETE = 'quest_complete',
+    CHAT = 'chat',
+    ROOM_PRESENCE = 'room_presence',
+    IN_ROOM_STATUS = 'in_room_status',
 }
 
 export abstract class JsonMessage {
@@ -172,5 +175,41 @@ export class QuestCompleteMessage extends JsonMessage {
         public readonly questName: string
     ) {
         super(JsonMessageType.QUEST_COMPLETE)
+    }
+}
+
+export class ChatMessage extends JsonMessage {
+    constructor(
+        public readonly username: string,
+        public readonly message: string
+    ) {
+        super(JsonMessageType.CHAT)
+    }
+}
+
+// Sent from client to server to indicate a session joining a specific room or leaving one
+// For players, server sends GO_TO_ROOM, client recieves it, joins the room client-side, and sends ROOM_PRESENCE
+// For spectators, join the room client-side and send ROOM_PRESENCE
+export class RoomPresenceMessage extends JsonMessage {
+    constructor(
+        public readonly roomID: string | null, // null if leaving room
+    ) {
+        super(JsonMessageType.ROOM_PRESENCE)
+    }
+}
+
+export enum InRoomStatus {
+    PLAYER = 'player',
+    SPECTATOR = 'spectator',
+    NONE = 'none'
+}
+
+// Sent from server to client to indicate which room the client is in, if any
+export class InRoomStatusMessage extends JsonMessage {
+    constructor(
+        public readonly status: InRoomStatus,
+        public readonly roomID: string | null
+    ) {
+        super(JsonMessageType.IN_ROOM_STATUS)
     }
 }

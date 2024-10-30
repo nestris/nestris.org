@@ -20,7 +20,7 @@
 
         <app-sidebar-tab [tab]="TabID.FRIENDS">
             <p class="online-users">{{(numOnlineFriends$ | async)}}</p>
-            <app-online-indicator [status]="!(numOnlineFriends$ | async) ? OnlineUserStatus.OFFLINE : OnlineUserStatus.IDLE" />
+            <app-online-indicator [isOnline]="((numOnlineFriends$ | async) ?? 0) > 0" />
         </app-sidebar-tab>
         <app-sidebar-tab *ngIf="env!==DeploymentEnvironment.PRODUCTION" [tab]="TabID.SETTINGS"/>
 

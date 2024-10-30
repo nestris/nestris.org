@@ -26,6 +26,6 @@
     </div>
 
     <app-table [attributes]="TABLE_ATTRIBUTES" [rows]="[]" [myID]="(meService.getUserID$() | async) ?? undefined"
-        sortByAttribute="rating" [formatRules]="FORMAT_RULES" [colorRules]="COLOR_RULES" [onlineUserIDs]="(onlineUserIDs$ | async)" />
+        sortByAttribute="rating" [formatRules]="FORMAT_RULES" [colorRules]="COLOR_RULES" />
 
 </div>

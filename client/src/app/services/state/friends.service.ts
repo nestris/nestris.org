@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, map, Observable } from 'rxjs';
 import { Challenge } from '../../shared/models/challenge';
-import { FriendInfo, OnlineUserStatus, FriendStatus } from '../../shared/models/friends';
+import { FriendInfo, FriendStatus } from '../../shared/models/friends';
 import { JsonMessage, JsonMessageType } from '../../shared/network/json-message';
 import { WebsocketService } from '../websocket.service';
 import { FetchService, Method } from '../fetch.service';
@@ -28,7 +28,7 @@ export class FriendsService extends StateService<FriendInfo[]>() {
 
   // get the number of online friends as an observable
   public getNumOnlineFriends$(): Observable<number> {
-    return this.get$().pipe(map(friendsInfo => friendsInfo.filter(friend => friend.onlineStatus !== OnlineUserStatus.OFFLINE).length));
+    return this.get$().pipe(map(friendsInfo => friendsInfo.filter(friend => friend.isOnline).length));
   }
 
   // // sort by friend request type, then by online status, then lexigrapically

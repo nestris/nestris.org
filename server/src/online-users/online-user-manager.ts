@@ -19,6 +19,9 @@ export class OnlineUserManager {
     // map of userid to OnlineUser
     private onlineUsers: Map<string, OnlineUser> = new Map<string, OnlineUser>();
 
+    // map of sessionid to session
+    private sessions = new Map<string, OnlineUserSession>();
+
     // handles subscribable online user events
     private events$ = new Subject<OnlineUserEvent>();
 
@@ -54,6 +57,11 @@ export class OnlineUserManager {
         return undefined;
     }
 
+    // Get the userid associated with a sessionID
+    public getUserIDBySessionID(sessionID: string): string | undefined {
+        return this.sessions.get(sessionID)?.user.userid;
+    }
+
     // Subscribe to a specific OnlineUserEvent type
     // Precondition: ConcreteOnlineUserEvent must match the type of the event.
     // i.e. onEvent$<OnUserConnectEvent>(OnlineUserEventType.ON_USER_CONNECT)
@@ -66,15 +74,6 @@ export class OnlineUserManager {
 
     public numOnlineUsers(): number {
         return this.onlineUsers.size;
-    }
-
-    // get userid of all of a person's friends that are online
-    public async getOnlineFriends(userid: string): Promise<string[]> {
-        // const friends = await queryFriendUserIDsForUser(userid);
-        // return friends.filter(friend => this.isUserOnline(friend));
-
-        // TODO
-        return [];
     }
 
     public isUserOnline(userid: string): boolean {
@@ -97,17 +96,13 @@ export class OnlineUserManager {
     }
 
     // Send a message to a specific session of a user. Returns true if the user session is online and the message was sent.
-    public sendToUserSession(userid: string, sessionID: string, message: JsonMessage): boolean {
-        const onlineUser = this.onlineUsers.get(userid);
-        if (onlineUser) {
-            try {
-                onlineUser.sendJsonMessageToSession(message, sessionID);
-            } catch (error: any) {
-                return false;
-            }
-            return true;
-        }
-        return false;
+    public sendToUserSession(sessionID: string, message: JsonMessage): boolean {
+
+        const session = this.sessions.get(sessionID);
+        if (!session) return false;
+        
+        session.sendJsonMessage(message);
+        return true;
     }
 
     public getUserJSON(userid: string): any | undefined {
@@ -181,8 +176,11 @@ export class OnlineUserManager {
             onlineUser.addSession(sessionID, ws);
         }
 
+        // Map the sessionID to the userid
+        this.sessions.set(sessionID, onlineUser.getSessionByID(sessionID)!);
+
         // Finish the handshake by sending a connection successful message
-        this.sendToUserSession(userid, sessionID, new ConnectionSuccessfulMessage());
+        this.sendToUserSession(sessionID, new ConnectionSuccessfulMessage());
 
         // Send the session connect event
         this.events$.next(new OnSessionConnectEvent(userid, username, sessionID));
@@ -201,8 +199,13 @@ export class OnlineUserManager {
         // get the online user associated with the session
         const onlineUser = session.user;
 
-        // close the session and emit session disconnect event
+        // close the session 
         onlineUser.removeSession(session.sessionID, code, reason);
+
+        // remove the sessionID to userid mapping
+        this.sessions.delete(session.sessionID);
+
+        // Emit session disconnect event
         this.events$.next(new OnSessionDisconnectEvent(session.user.userid, session.user.username, session.sessionID));
 
         // if no more sessions for user, close the user and emit user disconnect event

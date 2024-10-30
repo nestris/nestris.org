@@ -5,7 +5,6 @@ import { FetchService, Method } from 'src/app/services/fetch.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { EVALUATION_TO_COLOR, EvaluationRating } from 'src/app/shared/evaluation/evaluation';
-import { OnlineUserStatus } from 'src/app/shared/models/friends';
 
 
 @Component({
@@ -19,7 +18,7 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
   puzzlesSolved$ = new BehaviorSubject<number>(0);
   hoursSpent$ = new BehaviorSubject<number>(0);
 
-  onlineUserIDs$ = new BehaviorSubject<Map<string, OnlineUserStatus>>(new Map());
+  //onlineUserIDs$ = new BehaviorSubject<Map<string, OnlineUserStatus>>(new Map());
 
   TABLE_ATTRIBUTES: { [key: string]: string } = {
     rating: 'Rating',
@@ -65,7 +64,7 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
     const hoursSpent = Math.round((await this.pollTotalPuzzleDuration()) / 3600);
     this.hoursSpent$.next(Math.round(hoursSpent));
 
-    this.onlineUserIDs$.next(await this.fetchOnlineUsers());
+    //this.onlineUserIDs$.next(await this.fetchOnlineUsers());
   }
 
   private async pollNumPlayers(): Promise<number> {
@@ -83,15 +82,15 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
     return response.total;
   }
 
-  private async fetchOnlineUsers(): Promise<Map<string, OnlineUserStatus>> {
-    const response = await this.fetchService.fetch<{userid: string, status: OnlineUserStatus}[]>(
-      Method.GET, '/api/v2/online-users'
-    );
+  // private async fetchOnlineUsers(): Promise<Map<string, OnlineUserStatus>> {
+  //   const response = await this.fetchService.fetch<{userid: string, status: OnlineUserStatus}[]>(
+  //     Method.GET, '/api/v2/online-users'
+  //   );
     
-    const onlineUserIDs = new Map<string, OnlineUserStatus>();
-    response.forEach(user => onlineUserIDs.set(user.userid, user.status));
-    return onlineUserIDs;
-  }
+  //   const onlineUserIDs = new Map<string, OnlineUserStatus>();
+  //   response.forEach(user => onlineUserIDs.set(user.userid, user.status));
+  //   return onlineUserIDs;
+  // }
 
   private solveRateToRating(solveRate: number): EvaluationRating {
     if (solveRate >= 70) return EvaluationRating.BEST;

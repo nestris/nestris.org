@@ -9,7 +9,7 @@ export class PingConsumer extends EventConsumer {
 
     protected async onSessionJsonMessage(event: OnSessionJsonMessageEvent) {
         if (event.message.type === JsonMessageType.PING) {
-            this.users.sendToUserSession(event.userid, event.sessionID, event.message);
+            this.users.sendToUserSession(event.sessionID, event.message);
         }
     }
 }

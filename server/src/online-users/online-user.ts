@@ -1,5 +1,10 @@
 import { JsonMessage } from "../../shared/network/json-message";
 
+export interface UserSessionID {
+    userid: string,
+    sessionID: string,
+}
+
 export class OnlineUserSession {
 
     public readonly sessionStart = Date.now();
