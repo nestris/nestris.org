@@ -1,17 +1,15 @@
 import { Injectable } from '@angular/core';
-import { ChatMessage, InRoomStatus, InRoomStatusMessage, JsonMessage, JsonMessageType, RoomEventMessage } from 'src/app/shared/network/json-message';
-import { RoomInfo, RoomInfoManager } from 'src/app/shared/room/room-models';
+import { ChatMessage, InRoomStatus, InRoomStatusMessage, JsonMessage, JsonMessageType, LeaveRoomMessage, RoomStateUpdateMessage } from 'src/app/shared/network/json-message';
+import { RoomInfo, RoomState } from 'src/app/shared/room/room-models';
 import { WebsocketService } from '../websocket.service';
-import { RoomInfoManagerFactory } from 'src/app/shared/room/room-info-manager-factory';
 import { Router } from '@angular/router';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 
 /**
  * A service that manages the state of the room the client is in.
  * 
- * IN_ROOM_STATUS messages from the server update the ClientRoom on whether the session is in a room or not. On the other hand,
- * the client can be either present or not present in the room it's in, and sends ROOM_PRESENCE messages to the server to update
- * its presence status.
+ * IN_ROOM_STATUS messages from the server update the ClientRoom on whether the session is in a room or not.
  */
 @Injectable({
   providedIn: 'root'
@@ -19,7 +17,9 @@ import { Router } from '@angular/router';
 export class RoomService {
 
   private status: InRoomStatus = InRoomStatus.NONE;
-  private roomInfoManager: RoomInfoManager<RoomInfo, RoomEventMessage> | null = null;
+
+  private roomInfo: RoomInfo | null = null;
+  private roomState$ = new BehaviorSubject<RoomState | null>(null);
 
   constructor(
     private websocketService: WebsocketService,
@@ -30,8 +30,8 @@ export class RoomService {
       this.onInRoomStatusEvent(event as InRoomStatusMessage);
     });
 
-    this.websocketService.onEvent(JsonMessageType.ROOM_EVENT).subscribe((event: JsonMessage) => {
-      this.onRoomEvent(event as RoomEventMessage);
+    this.websocketService.onEvent(JsonMessageType.ROOM_STATE_UPDATE).subscribe((event: JsonMessage) => {
+      this.onRoomStateUpdate(event as RoomStateUpdateMessage);
     });
 
     this.websocketService.onEvent(JsonMessageType.CHAT).subscribe((event: JsonMessage) => {
@@ -40,6 +40,12 @@ export class RoomService {
 
   }
 
+  /**
+   * Leave the room the client is in, if any.
+   */
+  public leaveRoom() {
+    this.websocketService.sendJsonMessage(new LeaveRoomMessage());
+  }
 
   /**
    * Update the room state based on the IN_ROOM_STATUS message from the server.
@@ -50,39 +56,62 @@ export class RoomService {
     // If the client is not in a room
     if (event.status === InRoomStatus.NONE) {
       this.status = InRoomStatus.NONE;
-      this.roomInfoManager = null;
+      this.roomInfo = null;
+      this.roomState$.next(null);
 
       console.log("Updated room status to NONE");
       return;
     }
 
     // Assert that roomID exists now that the client is in a room
-    if (!event.roomInfo) {
+    if (!event.roomInfo || !event.roomState) {
       throw new Error('Client is in a room but room info is missing');
     }
 
     // Update the room state
     this.status = event.status;
-    this.roomInfoManager = RoomInfoManagerFactory.create(event.roomInfo);
+    this.roomInfo = event.roomInfo;
+    this.roomState$.next(event.roomState);
 
     // Navigate to the room
     this.router.navigate(['/online/room']);
 
-    console.log(`Navigating to room with status ${this.status} and info ${this.roomInfoManager.get()}`);
+
+    console.log(`Navigating to room with status ${this.status}, room info ${this.roomInfo}, and room state ${this.roomState$.getValue()}`);
   }
 
   /**
    * Update the room state based on the ROOM_EVENT message from the server.
    * @param event The ROOM_EVENT message
    */
-  private onRoomEvent(event: RoomEventMessage) {
+  private onRoomStateUpdate(event: RoomStateUpdateMessage) {
 
-    if (!this.roomInfoManager) {
-      throw new Error('Client is not in a room but received a room event');
+    if (!this.roomInfo) {
+      throw new Error('Client is not in a room but received a room state update');
     }
 
-    this.roomInfoManager.onEvent(event);
-    console.log(`From event ${event}, updated room info to ${this.roomInfoManager.get()}`);
+    this.roomState$.next(event.state);
+    console.log('Updated room state', event.state);
   }
 
+  /**
+   * Get the room info.
+   */
+  public getRoomInfo(): RoomInfo | null {
+    return this.roomInfo;
+  }
+
+  /**
+   * Get the room state as an observable.
+   */
+  public getRoomState$(): Observable<RoomState | null> {
+    return this.roomState$.asObservable();
+  }
+
+  /**
+   * Get the room state.
+   */
+  public getRoomState(): RoomState | null {
+    return this.roomState$.getValue();
+  }
 }

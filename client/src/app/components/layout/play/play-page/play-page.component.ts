@@ -10,7 +10,6 @@ import { ServerStatsService } from 'src/app/services/server-stats.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { NotificationType } from 'src/app/shared/models/notifications';
 import { DeploymentEnvironment } from 'src/app/shared/models/server-stats';
-import { JsonMessageType, StartSoloRoomMessage } from 'src/app/shared/network/json-message';
 import { v4 as uuid } from 'uuid';
 
 

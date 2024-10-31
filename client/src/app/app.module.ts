@@ -24,7 +24,6 @@ import { OnlineIndicatorComponent } from './components/ui/online-indicator/onlin
 import { NesPanelComponent } from './components/nes-layout/nes-panel/nes-panel.component';
 import { NesBoardComponent } from './components/nes-layout/nes-board/nes-board.component';
 import { NesBlockComponent } from './components/nes-layout/nes-block/nes-block.component';
-import { OldRoomPageComponent } from './components/layout/room-old/room-page/room-page.component';
 import { OutlineButtonComponent } from './components/ui/outline-button/outline-button.component';
 import { LayoutOneComponent } from './components/nes-layout/layouts/layout-one/layout-one.component';
 import { NesPieceComponent } from './components/nes-layout/nes-piece/nes-piece.component';
@@ -85,6 +84,7 @@ import { LoadingScreenComponent } from './components/layout/multiplayer/loading-
 import { SolidSelectorComponent } from './components/ui/solid-selector/solid-selector.component';
 import { NgOptimizedImage } from '@angular/common';
 import { RoomComponent } from './components/layout/room/room/room.component';
+import { SoloRoomComponent } from './components/layout/room/solo-room/solo-room.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -150,7 +150,6 @@ const customNotifierOptions: NotifierOptions = {
     NesPanelComponent,
     NesBoardComponent,
     NesBlockComponent,
-    OldRoomPageComponent,
     OutlineButtonComponent,
     LayoutOneComponent,
     NesPieceComponent,
@@ -207,6 +206,7 @@ const customNotifierOptions: NotifierOptions = {
     MatchmakingLoadingPageComponent,
     LoadingScreenComponent,
     RoomComponent,
+    SoloRoomComponent,
   ],
   imports: [
     BrowserModule,

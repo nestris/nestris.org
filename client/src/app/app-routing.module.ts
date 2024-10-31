@@ -3,7 +3,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { MainLayoutComponent } from './components/layout/root/main-layout/main-layout.component';
 import { PlayPageComponent } from './components/layout/play/play-page/play-page.component';
 import { FullscreenLayoutComponent } from './components/layout/root/fullscreen-layout/fullscreen-layout.component';
-import { OldRoomPageComponent } from './components/layout/room-old/room-page/room-page.component';
 import { PlayPuzzlePageComponent } from './components/layout/play-puzzle/play-puzzle-page/play-puzzle-page.component';
 import { ProfilePageComponent } from './components/layout/profile/profile-page/profile-page.component';
 import { FriendPageComponent } from './components/layout/friends/friend-page/friend-page.component';

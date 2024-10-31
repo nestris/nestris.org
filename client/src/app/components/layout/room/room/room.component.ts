@@ -1,32 +1,28 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { MeService } from 'src/app/services/state/me.service';
 import { RoomService } from 'src/app/services/room/room.service';
+import { map } from 'rxjs';
+import { RoomType } from 'src/app/shared/room/room-models';
 
 @Component({
   selector: 'app-room',
   templateUrl: './room.component.html',
   styleUrls: ['./room.component.scss']
 })
-export class RoomComponent implements OnInit, OnDestroy {
+export class RoomComponent implements OnDestroy {
 
   constructor(
     public readonly roomService: RoomService,
-    private readonly meService: MeService,
-    private readonly route: ActivatedRoute
   ) {}
 
-  async ngOnInit() {
+  // The type of the room
+  public roomType$ = this.roomService.getRoomState$().pipe(
+    map(roomState => roomState?.type)
+  );
+  readonly RoomType = RoomType;
 
-    // Wait for the user to be authenticated
-    await this.meService.waitForAuth();
-
-    const params = this.route.snapshot.queryParams;
-    
-  }
-
+  // Leave the room when the component is destroyed
   async ngOnDestroy() {
-    
+    this.roomService.leaveRoom();    
   }
 
 }

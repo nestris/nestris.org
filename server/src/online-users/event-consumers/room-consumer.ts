@@ -1,11 +1,10 @@
 import { EventConsumer } from "../event-consumer";
-import { OnSessionBinaryMessageEvent, OnSessionJsonMessageEvent } from "../online-user-events";
+import { OnSessionBinaryMessageEvent, OnSessionDisconnectEvent, OnSessionJsonMessageEvent } from "../online-user-events";
 import { PacketDisassembler } from "../../../shared/network/stream-packets/packet-disassembler";
-import { ChatMessage, InRoomStatus, InRoomStatusMessage, JsonMessage, JsonMessageType, RoomEventMessage, RoomPresenceMessage } from "../../../shared/network/json-message";
+import { ChatMessage, ClientRoomEventMessage, InRoomStatus, InRoomStatusMessage, JsonMessage, JsonMessageType, RoomStateUpdateMessage, SpectatorCountMessage } from "../../../shared/network/json-message";
 import { OnlineUserManager } from "../online-user-manager";
-import { BehaviorSubject, Observable } from "rxjs";
-import { RoomEvent, RoomInfo, RoomInfoManager } from "../../../shared/room/room-models";
-import { RoomInfoManagerFactory } from "../../../shared/room/room-info-manager-factory";
+import { ClientRoomEvent, RoomInfo, RoomState } from "../../../shared/room/room-models";
+import { v4 as uuid } from 'uuid';
 
 export class RoomError extends Error {
     constructor(message: string) {
@@ -23,35 +22,14 @@ export class RoomError extends Error {
  * but it means that the client will be streamed messages from the room. This way, the client can keep track of which room
  * it is in, and whether it is a player or a spectator in the room.
  * 
- * The client sends ROOM_PRESENCE messages to the server to indicate whether the client is actually present and viewing a
- * room. This can be used to indicate to the room server-side that while a player is in a room, they are not actually viewing
- * it. For example, if all players are in the room but not viewing it, room should delete itself.
- * 
  * 
  */
 
 export class RoomPlayer {
-
-    private presentInRoom$: BehaviorSubject<boolean>;
     
     constructor(
         public readonly sessionID: string,
-        presentInRoom: boolean,
-    ) {
-        this.presentInRoom$ = new BehaviorSubject(presentInRoom);
-    }
-
-    public getPrescence$(): Observable<boolean> {
-        return this.presentInRoom$.asObservable();
-    }
-
-    public getPrescence(): boolean {
-        return this.presentInRoom$.getValue();
-    }
-
-    public setPresence(present: boolean) {
-        this.presentInRoom$.next(present);
-    }
+    ) {}
 
 }
 
@@ -61,16 +39,22 @@ export class RoomSpectator {
     ) {}
 }
 
-export abstract class Room {
+export abstract class Room<T extends RoomState = RoomState> {
 
-    // Static reference to OnlineUserManager. Must be set before any Room objects are created.
-    private static users: OnlineUserManager;
-    public static bootstrap(users: OnlineUserManager) {
-        Room.users = users;
+    // Static reference to RoomConsumer and OnlineUserManager that need to be set before any Room objects are created
+    private static Consumer: RoomConsumer;
+    private static Users: OnlineUserManager;
+    public static bootstrap(Consumer: RoomConsumer, Users: OnlineUserManager) {
+        Room.Consumer = Consumer;
+        Room.Users = Users;
     }
 
-    // Info for the room, to be implemented by subclasses
-    private readonly roomInfoManager: RoomInfoManager<RoomInfo, RoomEvent>;
+    // General information about the room, including the room id and the players in the room
+    private roomInfo: RoomInfo;
+
+    // The state of the room, specific to the room type. It is initialized to some initial value that the client receives,
+    // but ROOM_STATE_UDPATE events can be sent to sync the updated state of the room with the client.
+    private roomState: T;
     
     // List of players in the room, and whether they are present in the room, with the players initialized in constructor
     protected readonly players: RoomPlayer[];
@@ -78,21 +62,40 @@ export abstract class Room {
     // List of spectators in the room, with no spectators at the start
     protected readonly spectators: RoomSpectator[] = [];
 
-    constructor(
-        roomInfo: RoomInfo,
-        playerSessionIDs: string[], // A list of session ids of players in the room
-    ) {
 
-        // Initialize the room info manager
-        this.roomInfoManager = RoomInfoManagerFactory.create(roomInfo);
+    constructor(
+        playerSessionIDs: string[], // A list of session ids of players in the room
+        roomState: T, // The state of the room, specific to the room type
+    ) {
 
         // Initialize players as RoomPlayer objects that are not present in the room. On ROOM_PRESENCE messages, they will
         // be marked as present in the room.
-        this.players = playerSessionIDs.map(sessionID => new RoomPlayer(sessionID, false));
+        this.players = playerSessionIDs.map(sessionID => new RoomPlayer(sessionID));
+
+        this.roomInfo = {
+            id: uuid(),
+            players: this.players.map(player => {
+
+                const userid = Room.Users.getUserIDBySessionID(player.sessionID)!;
+                const username = Room.Users.getUserInfo(userid)!.username;
+
+                return {
+                    userid: userid,
+                    sessionID: player.sessionID,
+                    username: username,
+                }
+            }),
+        };
+
+        // Set the room state
+        this.roomState = roomState;
 
         // Send IN_ROOM_STATUS messages to all players in the room to indicate that they are players in the room,
         // including the room info
-        this.sendToAll(new InRoomStatusMessage(InRoomStatus.PLAYER, this.roomInfoManager.get()));
+        this.sendToAll(new InRoomStatusMessage(InRoomStatus.PLAYER, this.roomInfo, this.roomState));
+
+        const playerUsernames = this.roomInfo.players.map(player => player.username).join(", ");
+        console.log(`Created room ${this.id} of type ${this.roomState.type} with players ${playerUsernames}`);
     }
 
     // ======================== PUBLIC GETTERS ========================
@@ -101,14 +104,7 @@ export abstract class Room {
      * Get the room id
      */
     public get id(): string {
-        return this.roomInfoManager.get().id;
-    }
-
-    /**
-     * Get the room info
-     */
-    public get roomInfo(): RoomInfo {
-        return this.roomInfoManager.get();
+        return this.roomInfo.id;
     }
 
     /**
@@ -142,31 +138,19 @@ export abstract class Room {
     }
 
     /**
-     * Get the presence of a player in the room as an observable.
-     * @param sessionID The session id of the player to check
-     * @returns An observable that emits the presence of the player in the room
-     * @throws Error if the session id is not a player in the room
+     * Get the room info
+     * @returns The room info of the room
      */
-    public getPlayerPresence$(sessionID: string): Observable<boolean> {
-        const player = this.players.find(player => player.sessionID === sessionID);
-        if (!player) throw new RoomError(`Session ${sessionID} is not a player in room ${this.id}`);
-        return player.getPrescence$();
+    public getRoomInfo(): RoomInfo {
+        return this.roomInfo;
     }
 
     /**
-     * Get the presence of a player in the room.
-     * @param sessionID The session id of the player to check
-     * @returns The presence of the player in the room
-     * @throws Error if the session id is not a player in the room
+     * Get the room state
+     * @returns The room state of the room
      */
-    public getPlayerPresence(sessionID: string): boolean {
-        const player = this.players.find(player => player.sessionID === sessionID);
-        if (!player) throw new RoomError(`Session ${sessionID} is not a player in room ${this.id}`);
-        return player.getPrescence();
-    }
-
-    public getRoomInfo(): RoomInfo {
-        return this.roomInfoManager.get();
+    public getRoomState(): T {
+        return this.roomState;
     }
 
     // ======================== PUBLIC METHODS ========================
@@ -178,23 +162,17 @@ export abstract class Room {
      */
     public sendToAll(message: JsonMessage) {
         this.allSessionIDs.forEach(sessionID => {
-            Room.users.sendToUserSession(sessionID, message);
+            Room.Users.sendToUserSession(sessionID, message);
         });
     }
 
     /**
-     * Modify the room info based on an event. This will also send the event to all players and spectators in the room,
-     * so that their room info is also updated.
-     * 
-     * @param event The event to modify the room info with
+     * Update the room state and send a ROOM_STATE_UPDATE message to all players and spectators in the room.
+     * @param state The new room state
      */
-    public modifyRoomInfo(event: RoomEvent) {
-
-        // Update server-side room info
-        this.roomInfoManager.onEvent(event);
-
-        // Send the event to all player and spectator clients in the room, to update their room info
-        this.sendToAll(new RoomEventMessage(event));
+    public updateRoomState(state: T) {
+        this.roomState = state;
+        this.sendToAll(new RoomStateUpdateMessage(state));
     }
 
 
@@ -218,17 +196,10 @@ export abstract class Room {
     protected async onPlayerSendBinaryMessage(sessionID: string, message: PacketDisassembler): Promise<void> {}
 
     /**
-     * Override this method to handle when a spectator joins the room.
-     * @param sessionID The session id of the spectator that joined the room.
+     * Overwrite this method to handle when a client room event is received.
+     * @param event The client room event that was received.
      */
-    protected async onSpectatorJoin(sessionID: string): Promise<void> {}
-
-    /**
-     * Override this method to handle when a spectator leaves the room.
-     * @param sessionID The session id of the spectator that left the room.
-     */
-    protected async onSpectatorLeave(sessionID: string): Promise<void> {}
-
+    protected async onClientRoomEvent(event: ClientRoomEvent): Promise<void> {}
 
 
 
@@ -259,16 +230,11 @@ export abstract class Room {
     }
 
     /**
-     * Set the presence of a player in the room. This should only be called by the RoomConsumer, which will set the presence
-     * of the player based on the ROOM_PRESENCE message received from the client.
-     * @param sessionID The session id of the player to set the presence of
-     * @param present Whether the player is present in the room
-     * @throws Error if the session id is not a player in the room
+     * If received a client room event, trigger hook to be implemented by subclasses. This should only be called by the RoomConsumer.
+     * @param event The client room event to handle.
      */
-    public _setPlayerPresence(sessionID: string, present: boolean) {
-        const player = this.players.find(player => player.sessionID === sessionID);
-        if (!player) throw new RoomError(`Session ${sessionID} is not a player in room ${this.id}`);
-        player.setPresence(present);
+    public async _onClientRoomEvent(event: ClientRoomEvent) {
+        await this.onClientRoomEvent(event);
     }
 
     /**
@@ -282,10 +248,10 @@ export abstract class Room {
         this.spectators.push(new RoomSpectator(sessionID));
 
         // Send a IN_ROOM_STATUS message to the spectator to indicate that they are a spectator in the room
-        Room.users.sendToUserSession(sessionID, new InRoomStatusMessage(InRoomStatus.SPECTATOR, this.roomInfo));
+        Room.Users.sendToUserSession(sessionID, new InRoomStatusMessage(InRoomStatus.SPECTATOR, this.roomInfo, this.roomState));
 
-        // Call the onSpectatorJoin hook that may be implemented by subclasses
-        await this.onSpectatorJoin(sessionID);
+        // Update the spectator count for all players in the room
+        this.sendToAll(new SpectatorCountMessage(this.spectators.length));
     }
 
     /**
@@ -302,10 +268,10 @@ export abstract class Room {
         this.spectators.splice(index, 1);
 
         // Send a IN_ROOM_STATUS message to the spectator to indicate that they are not in any room
-        Room.users.sendToUserSession(sessionID, new InRoomStatusMessage(InRoomStatus.NONE, null));
+        Room.Users.sendToUserSession(sessionID, new InRoomStatusMessage(InRoomStatus.NONE, null, null));
 
-        // Call the onSpectatorLeave hook that may be implemented by subclasses
-        await this.onSpectatorLeave(sessionID);
+        // Update the spectator count for all players in the room
+        this.sendToAll(new SpectatorCountMessage(this.spectators.length));
     }
 
     /**
@@ -315,11 +281,15 @@ export abstract class Room {
 
         // Send IN_ROOM_STATUS messages to all players and spectators in the room to indicate that they are not in any room anymore
         this.allSessionIDs.forEach(sessionID => {
-            Room.users.sendToUserSession(sessionID, new InRoomStatusMessage(InRoomStatus.NONE, null));
+            Room.Users.sendToUserSession(sessionID, new InRoomStatusMessage(InRoomStatus.NONE, null, null));
         });
 
         // Call the onDelete hook that may be implemented by subclasses
         await this.onDelete();
+
+        // Log the deletion of the room
+        const playerUsernames = this.roomInfo.players.map(player => player.username).join(", ");
+        console.log(`Deleted ${this.roomState.type} room ${this.id} with players ${playerUsernames}`);
     }
 
 }
@@ -337,7 +307,7 @@ export class RoomConsumer extends EventConsumer {
 
     // Initialize OnlineUserManager for Room
     public override init(): void {
-        Room.bootstrap(this.users);
+        Room.bootstrap(this, this.users);
     }
 
     /**
@@ -393,73 +363,53 @@ export class RoomConsumer extends EventConsumer {
      * @throws RoomError for known errors that should be sent to the client.
      */
     protected override async onSessionJsonMessage(event: OnSessionJsonMessageEvent): Promise<void> {
-        if (event.message.type === JsonMessageType.CHAT) await this.handleChatMessage(event);
-        else if (event.message.type === JsonMessageType.ROOM_PRESENCE) await this.handleRoomPresenceMessage(event);
-    }
 
-    /**
-     * Handles CHAT messages received from the client. Checks that the user is playing in a room, and forwards the
-     */
-    private async handleChatMessage(event: OnSessionJsonMessageEvent) {
+        // Only care about messages from users in a room
         const room = this.getRoomBySessionID(event.sessionID);
-        if (!room) {
-            console.warn(`Received chat message ${event} from session ${event.sessionID}, but is not in any room`);
-            return;
-        }
+        if (!room) return;
 
-        room._onChatMessage(event.message as ChatMessage);
+        if (event.message.type === JsonMessageType.CHAT) 
+            room._onChatMessage(event.message as ChatMessage);
+
+        else if (event.message.type === JsonMessageType.CLIENT_ROOM_EVENT)
+            await room._onClientRoomEvent((event.message as ClientRoomEventMessage).event);
+
+        else if (event.message.type === JsonMessageType.LEAVE_ROOM) 
+            await this.freeSession(event.sessionID);
+        
     }
 
     /**
-     * Handles ROOM_PRESENCE messages received from the client. If a room is specified, it means that the user
-     * joined the room client-side. If no room is specified, it means that the user left the room client-side.
+     * Called when a session disconnects entirely. If the session is in a room, remove the session from the room.
+     * @param event The session disconnect event
      */
-    private async handleRoomPresenceMessage(event: OnSessionJsonMessageEvent) {
-
-        // Check if the session already belongs to a room, and if it is the same room. If the session is trying to join a room
-        // and is already marked a player in the room, then the session is a player. Otherwise, add the session as a spectator.
-        const joinRoomID = (event.message as RoomPresenceMessage).roomID;
-        
-        if (joinRoomID) { // Joining a room client-side
-
-            // Get the room the user is trying to join
-            const joinRoom = this.rooms.get(joinRoomID);
-
-            if (!joinRoom) throw new RoomError(`Room ${joinRoomID} does not exist`);
-
-            // Check if the session is already in this room
-            const sessionCurrentRoom = this.getRoomBySessionID(event.sessionID);
-
-            if (!sessionCurrentRoom) { // (Not in any room -> join room) ==> join room as spectator
-                this.sessions.set(event.sessionID, joinRoomID);
-                await joinRoom._addSpectator(event.sessionID);
-
-            } else if (sessionCurrentRoom.id === joinRoomID) { // (In room -> join room) ==> if player, set presence to true
-                if (joinRoom.isPlayer(event.sessionID)) {
-                    joinRoom._setPlayerPresence(event.sessionID, true);
-                } else {
-                    console.warn(`Redundant ROOM_PRESENCE message: Session ${event.sessionID} is already in room ${joinRoomID}`);
-                }
-            }
-
-            else { // (In another room -> join room) ==> leave current room, join new room as spectator
-                if (sessionCurrentRoom.isPlayer(event.sessionID)) {
-                    // If still a player in a room, set presence to false, but do not join new room and throw error instead
-                    sessionCurrentRoom._setPlayerPresence(event.sessionID, false);
-                    throw new RoomError(`Session ${event.sessionID} is already a player in room ${sessionCurrentRoom.id}`);
-                } else {
-                    // If a spectator in a room, leave room and join new room as spectator
-                    this.sessions.set(event.sessionID, joinRoomID);
-                    await sessionCurrentRoom._removeSpectator(event.sessionID);
-                    await joinRoom._addSpectator(event.sessionID);
-                }
-            }
-
-        } else { // Leaving a room client-side
-            // TODO
-        }
-
+    protected override async onSessionDisconnect(event: OnSessionDisconnectEvent): Promise<void> {
+        await this.freeSession(event.sessionID);
     }
 
+    /**
+     * Free the session from any room. This involves removing the session from the room and the session map. If the session
+     * is a player in the room, delete the room entirely after triggering the room's destructor.
+     * @param sessionID The session id of the user that disconnected
+     */
+    public async freeSession(sessionID: string) {
+
+        // Get the room the session is in. Ignore if the session is not in any room.
+        const room = this.getRoomBySessionID(sessionID);
+        if (!room) return;
+
+        // Remove the session from the room
+        if (room.isPlayer(sessionID)) {
+            // Remove the player from the room
+            await room._destructor();
+            this.rooms.delete(room.id);
+        } else {
+            // Remove the spectator from the room
+            room._removeSpectator(sessionID);
+        }
+
+        // Remove the session from the session map
+        this.sessions.delete(sessionID);
+    }
 
 }

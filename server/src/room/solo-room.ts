@@ -1,8 +1,7 @@
-import { RoomType } from "../../shared/room/room-models";
+import { RoomType, SoloRoomState } from "../../shared/room/room-models";
 import { Room } from "../online-users/event-consumers/room-consumer";
-import { v4 as uuid } from 'uuid';
 
-export class SoloRoom extends Room {
+export class SoloRoom extends Room<SoloRoomState> {
 
     /**
      * Creates a new SoloRoom for the single player with the given playerSessionID
@@ -10,14 +9,8 @@ export class SoloRoom extends Room {
      */
     constructor(playerSessionID: string) {
         super(
-            // SoloRoomInfo
-            {
-                type: RoomType.SOLO,
-                id: uuid(),
-            },
-
-            // playerSessionIDs
             [playerSessionID],
+            { type: RoomType.SOLO, },
         )
     }
     

@@ -2,7 +2,7 @@ import { Challenge } from "../models/challenge"
 import { DBUser } from "../models/db-user"
 import { MatchInfo, MultiplayerData, MultiplayerRoomState } from "../models/multiplayer"
 import { NotificationType } from "../models/notifications"
-import { RoomEvent, RoomInfo } from "../room/room-models"
+import { ClientRoomEvent, RoomInfo, RoomState } from "../room/room-models"
 
 /*
 Data sent over websocket as JSON. type is the only required field and specifies
@@ -17,8 +17,6 @@ export enum JsonMessageType {
     PING = 'ping',
     SEND_PUSH_NOTIFICATION = 'send_push_notification',
     FRIEND_ONLINE_STATUS_CHANGE = 'friend_online_status_change',
-    START_SOLO_ROOM = 'start_solo_room',
-    START_SPECTATE_ROOM = 'start_spectate_room',
     REMATCH_OFFERED = 'rematch_offered', // sent from server to client to offer a rematch
     MULTIPLAYER_ROOM_UPDATE = 'multiplayer_room_update', // sent from server to client to update the multiplayer room
     SOLO_GAME_END = 'solo_game_end', // sent from server to client on solo game end, with game details
@@ -26,9 +24,11 @@ export enum JsonMessageType {
     ME = 'ME',
     QUEST_COMPLETE = 'quest_complete',
     CHAT = 'chat',
-    ROOM_PRESENCE = 'room_presence',
+    SPECTATOR_COUNT = 'spectator_count',
     IN_ROOM_STATUS = 'in_room_status',
-    ROOM_EVENT = 'room_event',
+    ROOM_STATE_UPDATE = 'room_state_update',
+    CLIENT_ROOM_EVENT = 'client_room_event',
+    LEAVE_ROOM = 'leave_room',
 }
 
 export abstract class JsonMessage {
@@ -93,25 +93,6 @@ export class SendPushNotificationMessage extends JsonMessage {
     }
 }
 
-export class StartSoloRoomMessage extends JsonMessage {
-    constructor(
-        public readonly id: string,
-        public readonly success: boolean = true,
-        public readonly roomID?: string
-    ) {
-        super(JsonMessageType.START_SOLO_ROOM)
-    }
-}
-
-// Sent by a client who wants to spectate the room. specify the room id to spectate
-// the socket that sends this message will be added to the room as a spectator
-export class StartSpectateRoomMessage extends JsonMessage {
-    constructor(
-        public readonly roomID: string
-    ) {
-        super(JsonMessageType.START_SPECTATE_ROOM)
-    }
-}
 
 // sent from server to client to offer a rematch
 export class RematchOfferedMessage extends JsonMessage {
@@ -178,16 +159,6 @@ export class ChatMessage extends JsonMessage {
     }
 }
 
-// Sent from client to server to indicate a session joining a specific room or leaving one
-// For players, server sends GO_TO_ROOM, client recieves it, joins the room client-side, and sends ROOM_PRESENCE
-// For spectators, join the room client-side and send ROOM_PRESENCE
-export class RoomPresenceMessage extends JsonMessage {
-    constructor(
-        public readonly roomID: string | null, // null if leaving room
-    ) {
-        super(JsonMessageType.ROOM_PRESENCE)
-    }
-}
 
 export enum InRoomStatus {
     PLAYER = 'player',
@@ -199,17 +170,45 @@ export enum InRoomStatus {
 export class InRoomStatusMessage extends JsonMessage {
     constructor(
         public readonly status: InRoomStatus,
-        public readonly roomInfo: RoomInfo | null
+        public readonly roomInfo: RoomInfo | null,
+        public readonly roomState: RoomState | null
     ) {
         super(JsonMessageType.IN_ROOM_STATUS)
     }
 }
 
-// Sent from server to client to update the room info
-export class RoomEventMessage extends JsonMessage {
+
+// sent from server to client to update the number of spectators in the room
+export class SpectatorCountMessage extends JsonMessage {
     constructor(
-        public readonly event: RoomEvent
+        public readonly count: number
     ) {
-        super(JsonMessageType.ROOM_EVENT)
+        super(JsonMessageType.SPECTATOR_COUNT)
+    }
+}
+
+// sent from server to client to update the type-specific state of a room
+export class RoomStateUpdateMessage extends JsonMessage {
+    constructor(
+        public readonly state: RoomState
+    ) {
+        super(JsonMessageType.ROOM_STATE_UPDATE)
+    }
+}
+
+
+// sent from client to server on a client-triggered room event
+export class ClientRoomEventMessage extends JsonMessage {
+    constructor(
+        public readonly event: ClientRoomEvent
+    ) {
+        super(JsonMessageType.CLIENT_ROOM_EVENT)
+    }
+}
+
+// sent from client to server to leave the room
+export class LeaveRoomMessage extends JsonMessage {
+    constructor() {
+        super(JsonMessageType.LEAVE_ROOM)
     }
 }

@@ -1,0 +1,5 @@
+<ng-container>
+    <app-solo-room *ngIf="(roomType$ | async) === RoomType.SOLO" />
+</ng-container>
+
+<app-fullscreen-exit-button />
