@@ -68,6 +68,13 @@ export abstract class Room<T extends RoomState = RoomState> {
         roomState: T, // The state of the room, specific to the room type
     ) {
 
+        // Check if any of the player session ids are already in a room. If so, throw an error.
+        playerSessionIDs.forEach(sessionID => {
+            if (Room.Consumer.getRoomBySessionID(sessionID)) {
+                throw new RoomError(`Session ${sessionID} is already in a room`);
+            }
+        });
+
         // Initialize players as RoomPlayer objects that are not present in the room. On ROOM_PRESENCE messages, they will
         // be marked as present in the room.
         this.players = playerSessionIDs.map(sessionID => new RoomPlayer(sessionID));
@@ -334,7 +341,7 @@ export class RoomConsumer extends EventConsumer {
      * @param sessionID The session id to check
      * @returns The room the user is in, or undefined if the user is not in any room.
      */
-    private getRoomBySessionID(sessionID: string): Room | undefined {
+    public getRoomBySessionID(sessionID: string): Room | undefined {
         const roomid = this.sessions.get(sessionID);
         if (!roomid) return undefined;
         return this.rooms.get(roomid);

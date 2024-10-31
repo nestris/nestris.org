@@ -1,4 +1,5 @@
 import { FriendOnlineStatusChangeMessage } from "../../../shared/network/json-messages/friend-online-status-change-message";
+import { DBObjectNotFoundError } from "../../database/db-object-error";
 import { Database, DBQuery } from "../../database/db-query";
 import { EventConsumer } from "../event-consumer";
 import { OnUserConnectEvent, OnUserDisconnectEvent } from "../online-user-events";
@@ -44,7 +45,16 @@ export class FriendEventConsumer extends EventConsumer {
     private async updateFriendsOnlineStatus(userid: string, username: string, online: boolean) {
         
         // Get a list of all friend userids for the given user from the database
-        const allFriendUserids = await Database.query(GetFriendsQuery, userid);
+        let allFriendUserids: string[];
+        try {
+            allFriendUserids = await Database.query(GetFriendsQuery, userid);
+        } catch (err: any) {
+            // If user doesn't exist, it means it was a guest account that got deleted
+            if (err instanceof DBObjectNotFoundError) return;
+
+            throw err;
+        }
+        
 
         // For each friend, send a message that the user is now online/offline
         for (const friendID of allFriendUserids) {
