@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { ChatMessage, InRoomStatus, InRoomStatusMessage, JsonMessage, JsonMessageType, LeaveRoomMessage, RoomStateUpdateMessage } from 'src/app/shared/network/json-message';
+import { ChatMessage, InRoomStatus, InRoomStatusMessage, JsonMessage, JsonMessageType, LeaveRoomMessage, RoomStateUpdateMessage, SpectatorCountMessage } from 'src/app/shared/network/json-message';
 import { RoomInfo, RoomState } from 'src/app/shared/room/room-models';
 import { WebsocketService } from '../websocket.service';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { MeService } from '../state/me.service';
 
-const MAX_MESSAGES = 10;
+const MAX_MESSAGES = 15;
 export interface Message {
   username: string;
   message: string;
@@ -26,11 +27,13 @@ export class RoomService {
 
   private roomInfo: RoomInfo | null = null;
   private roomState$ = new BehaviorSubject<RoomState | null>(null);
+  private numSpectators$ = new BehaviorSubject<number>(0);
 
   private messages$ = new BehaviorSubject<Message[]>([]);
 
   constructor(
     private websocketService: WebsocketService,
+    private meService: MeService,
     private router: Router,
   ) {
 
@@ -42,10 +45,14 @@ export class RoomService {
       this.onRoomStateUpdate(event as RoomStateUpdateMessage);
     });
 
-    // Listen for chat messages, and push them to the messages$ observable, limiting 
+    this.websocketService.onEvent(JsonMessageType.SPECTATOR_COUNT).subscribe((event: JsonMessage) => {
+      this.numSpectators$.next((event as SpectatorCountMessage).count);
+    });
+
     this.websocketService.onEvent(JsonMessageType.CHAT).subscribe((event: JsonMessage) => {
       const chatMessage = event as ChatMessage;
-      console.log('Received chat message', chatMessage);
+
+      // Push the message to the messages array, limiting the number of messages
       this.messages$.next([
         ...this.messages$.getValue(), { username: chatMessage.username, message: chatMessage.message }
       ].slice(-MAX_MESSAGES));
@@ -57,6 +64,14 @@ export class RoomService {
    */
   public leaveRoom() {
     this.websocketService.sendJsonMessage(new LeaveRoomMessage());
+  }
+
+  /**
+   * Send a chat message to the server.
+   */
+  public async sendChatMessage(message: string) {
+    const username = await this.meService.getUsername();
+    this.websocketService.sendJsonMessage(new ChatMessage(username, message));
   }
 
   /**
@@ -88,7 +103,6 @@ export class RoomService {
 
     // Navigate to the room
     this.router.navigate(['/online/room']);
-
 
     console.log(`Navigating to room with status ${this.status}, room info ${this.roomInfo}, and room state ${this.roomState$.getValue()}`);
   }
@@ -133,6 +147,13 @@ export class RoomService {
    */
   public getMessages$(): Observable<Message[]> {
     return this.messages$.asObservable();
+  }
+
+  /**
+   * Get the number of spectators as an observable.
+   */
+  public getNumSpectators$(): Observable<number> {
+    return this.numSpectators$.asObservable();
   }
 }
 

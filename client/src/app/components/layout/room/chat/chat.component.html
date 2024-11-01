@@ -1,14 +1,23 @@
-<div class="chat">
+<div class="chat fade">
 
     <div class="num-players">
-        <p>{{3}}</p>
+        <p>{{numSpectators}}</p>
         <img src="assets/img/button-icons/eye.svg" width="14px">
     </div>
 
     <div class="main">
+
+        <div class="message" *ngFor="let message of messages">
+            <h1 class="username">{{message.username}}</h1>
+            <p class="text">{{message.message}}</p>
+        </div>
+
         <div class="text-entry">
-            <textarea #textarea placeholder="Begin the conversation.." [rows]="rows$ | async" (input)="onChange($event)"></textarea>
-            <img src="assets/img/button-icons/submit-chat.svg" width="11px">
+            <textarea #textarea *ngIf="!disabledMessage"
+                [placeholder]="messages.length === 0 ? 'Begin the conversation...' : 'Send a message...'" 
+                [rows]="rows$ | async" (input)="onChange($event)"></textarea>
+            <p class="disabled-message" *ngIf="disabledMessage">{{disabledMessage}}</p>
+            <img class="submit-button" src="assets/img/button-icons/submit-chat.svg" width="11px" [ngClass]="{disabled: !!disabledMessage}">
         </div>
     </div>
 

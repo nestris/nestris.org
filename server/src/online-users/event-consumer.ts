@@ -25,27 +25,27 @@ export class EventConsumer {
         // Only subscribe to events that have been implemented by the subclass
         if (this.onUserConnect) {
             this.users.onEvent$<OnUserConnectEvent>(OnlineUserEventType.ON_USER_CONNECT)
-                .subscribe(event => this.onUserConnect!(event));
+                .subscribe(event => this.onUserConnect!(event).catch(console.error));
         }
         if (this.onUserDisconnect) {
             this.users.onEvent$<OnUserDisconnectEvent>(OnlineUserEventType.ON_USER_DISCONNECT)
-                .subscribe(event => this.onUserDisconnect!(event));
+                .subscribe(event => this.onUserDisconnect!(event).catch(console.error));
         }
         if (this.onSessionConnect) {
             this.users.onEvent$<OnSessionConnectEvent>(OnlineUserEventType.ON_SESSION_CONNECT)
-                .subscribe(event => this.onSessionConnect!(event));
+                .subscribe(event => this.onSessionConnect!(event).catch(console.error));
         }
         if (this.onSessionDisconnect) {
             this.users.onEvent$<OnSessionDisconnectEvent>(OnlineUserEventType.ON_SESSION_DISCONNECT)
-                .subscribe(event => this.onSessionDisconnect!(event));
+                .subscribe(event => this.onSessionDisconnect!(event).catch(console.error));
         }
         if (this.onSessionJsonMessage) {
             this.users.onEvent$<OnSessionJsonMessageEvent>(OnlineUserEventType.ON_SESSION_JSON_MESSAGE)
-                .subscribe(event => this.onSessionJsonMessage!(event));
+                .subscribe(event => this.onSessionJsonMessage!(event).catch(console.error));
         }
         if (this.onSessionBinaryMessage) {
             this.users.onEvent$<OnSessionBinaryMessageEvent>(OnlineUserEventType.ON_SESSION_BINARY_MESSAGE)
-                .subscribe(event => this.onSessionBinaryMessage!(event));
+                .subscribe(event => this.onSessionBinaryMessage!(event).catch(console.error));
         }
     }
 

@@ -20,6 +20,10 @@ export class RoomComponent implements OnDestroy {
   );
   readonly RoomType = RoomType;
 
+  public async sendMessage(message: string) {
+    await this.roomService.sendChatMessage(message);
+  }
+
   // Leave the room when the component is destroyed
   async ngOnDestroy() {
     this.roomService.leaveRoom();    

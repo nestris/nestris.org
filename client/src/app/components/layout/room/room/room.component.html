@@ -3,4 +3,8 @@
 </ng-container>
 
 <app-fullscreen-exit-button />
-<app-chat />
+<app-chat
+    [messages]="(roomService.getMessages$() | async) ?? []"
+    [numSpectators]="(roomService.getNumSpectators$() | async) ?? 0"
+    (sendMessage)="sendMessage($event)"
+/>

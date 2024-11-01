@@ -1,5 +1,6 @@
-import { Component, ElementRef } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { Message } from 'src/app/services/room/room.service';
 
 const MAX_CHARACTERS = 100;
 
@@ -9,6 +10,10 @@ const MAX_CHARACTERS = 100;
   styleUrls: ['./chat.component.scss']
 })
 export class ChatComponent {
+  @Input() disabledMessage?: string;
+  @Input() numSpectators: number = 0;
+  @Input() messages: Message[] = [];
+  @Output() sendMessage = new EventEmitter<string>();
 
   public message: string = "";
   public rows$ = new BehaviorSubject<number>(1);
@@ -18,8 +23,6 @@ export class ChatComponent {
   ) {}
 
   public onChange(event: any) {
-
-    console.log('Event:', event);
 
     let decreased = false;
 
@@ -54,8 +57,6 @@ export class ChatComponent {
 
     }
     else this.updateRowCount();
-    console.log('Message:', this.message);
-    console.log('Rows:', this.rows$.value);
   }
 
   private updateRowCount() {
@@ -66,13 +67,16 @@ export class ChatComponent {
   }
 
   private submitMessage(message: string) {
-    console.log('Submitting message:', message);
+    console.log('Sending message:', message);
 
     // Reset the message
     const textarea = this.elementRef.nativeElement.querySelector('textarea');
     textarea.value = "";
     this.rows$.next(1);
     this.message = "";
+
+    // Emit the message
+    this.sendMessage.emit(message);
   }
 
 }

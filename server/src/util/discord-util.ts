@@ -129,8 +129,8 @@ export async function registerAsGuest(req: express.Request, res: express.Respons
     // Generates a random username for the guest
     async function generateRandomGuestUsername() {
         while (true) {
-            // generate username with random number between 0 and 9999999999
-            const randomUsername = `guest${Math.floor(Math.random() * 10000000000)}`;
+            // generate username with random number
+            const randomUsername = `guest${Math.floor(Math.random() * 1000000)}`;
 
             // If the username is unique, return it
             if (!(await DBUserObject.exists(randomUsername))) {
