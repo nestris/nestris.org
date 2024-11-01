@@ -21,10 +21,6 @@ export interface RoomState {
     type: RoomType;
 }
 
-export interface SoloRoomState extends RoomState {
-    type: RoomType.SOLO;
-}
-
 // A ClientRoomEvent is an clientside-triggered event by a session in a room, to be sent to the server.
 export interface ClientRoomEvent {
     type: string; // The type of the event, to be defined by the specific room type

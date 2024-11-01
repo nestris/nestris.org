@@ -86,6 +86,9 @@ import { NgOptimizedImage } from '@angular/common';
 import { RoomComponent } from './components/layout/room/room/room.component';
 import { SoloRoomComponent } from './components/layout/room/solo-room/solo-room.component';
 import { ChatComponent } from './components/layout/room/chat/chat.component';
+import { RoomModalComponent } from './components/layout/room/modals/room-modal/room-modal.component';
+import { SoloBeforeGameModalComponent } from './components/layout/room/modals/solo-before-game-modal/solo-before-game-modal.component';
+import { SoloAfterGameModalComponent } from './components/layout/room/modals/solo-after-game-modal/solo-after-game-modal.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -209,6 +212,9 @@ const customNotifierOptions: NotifierOptions = {
     RoomComponent,
     SoloRoomComponent,
     ChatComponent,
+    RoomModalComponent,
+    SoloBeforeGameModalComponent,
+    SoloAfterGameModalComponent,
   ],
   imports: [
     BrowserModule,

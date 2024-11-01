@@ -1,7 +1,13 @@
 <div class="left"></div>
 
 <div class="main">
-    <app-layout-one class="game"
+    <app-layout-one class="game" *ngIf="(platform.getGameData$() | async) as data"
+        [board]="data.board"
+        [nextType]="data.nextPiece"
+        [level]="data.level"
+        [lines]="data.lines"
+        [score]="data.score"
+        [countdown]="data.countdown"
 />
 </div>
 <div class="right"></div>

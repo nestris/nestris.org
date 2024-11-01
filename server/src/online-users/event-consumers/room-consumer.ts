@@ -42,8 +42,8 @@ export class RoomSpectator {
 export abstract class Room<T extends RoomState = RoomState> {
 
     // Static reference to RoomConsumer and OnlineUserManager that need to be set before any Room objects are created
-    private static Consumer: RoomConsumer;
-    private static Users: OnlineUserManager;
+    protected static Consumer: RoomConsumer;
+    protected static Users: OnlineUserManager;
     public static bootstrap(Consumer: RoomConsumer, Users: OnlineUserManager) {
         Room.Consumer = Consumer;
         Room.Users = Users;
@@ -197,6 +197,7 @@ export abstract class Room<T extends RoomState = RoomState> {
 
     /**
      * Overwrite this method to handle when a player sends a binary message.
+     * Precondition: The session id is guaranteed to be a player in the room.
      * @param sessionID The session id of the player that sent the message, guaranteed to be a player in the room.
      * @param message The binary message that was sent.
      */
@@ -204,9 +205,11 @@ export abstract class Room<T extends RoomState = RoomState> {
 
     /**
      * Overwrite this method to handle when a client room event is received.
+     * Precondition: The session id is guaranteed to be a player in the room.
+     * @param sessionID The session id of the player that sent the event
      * @param event The client room event that was received.
      */
-    protected async onClientRoomEvent(event: ClientRoomEvent): Promise<void> {}
+    protected async onClientRoomEvent(sessionID: string, event: ClientRoomEvent): Promise<void> {}
 
 
 
@@ -240,8 +243,8 @@ export abstract class Room<T extends RoomState = RoomState> {
      * If received a client room event, trigger hook to be implemented by subclasses. This should only be called by the RoomConsumer.
      * @param event The client room event to handle.
      */
-    public async _onClientRoomEvent(event: ClientRoomEvent) {
-        await this.onClientRoomEvent(event);
+    public async _onClientRoomEvent(sessionID: string, event: ClientRoomEvent) {
+        await this.onClientRoomEvent(sessionID, event);
     }
 
     /**
@@ -379,7 +382,7 @@ export class RoomConsumer extends EventConsumer {
             room._onChatMessage(event.message as ChatMessage);
 
         else if (event.message.type === JsonMessageType.CLIENT_ROOM_EVENT)
-            await room._onClientRoomEvent((event.message as ClientRoomEventMessage).event);
+            await room._onClientRoomEvent(event.sessionID, (event.message as ClientRoomEventMessage).event);
 
         else if (event.message.type === JsonMessageType.LEAVE_ROOM) 
             await this.freeSession(event.sessionID);

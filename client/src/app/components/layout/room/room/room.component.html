@@ -1,10 +1,16 @@
 <ng-container>
-    <app-solo-room *ngIf="(roomType$ | async) === RoomType.SOLO" />
+    <app-solo-room *ngIf="roomType === RoomType.SOLO" />
 </ng-container>
 
 <app-fullscreen-exit-button />
+
 <app-chat
     [messages]="(roomService.getMessages$() | async) ?? []"
     [numSpectators]="(roomService.getNumSpectators$() | async) ?? 0"
-    (sendMessage)="sendMessage($event)"
+    (sendMessage)="sendChatMessage($event)"
 />
+
+<app-generic-room-modal *ngIf="roomService.modal$ | async as modal">
+    <app-solo-before-game-modal *ngIf="modal === RoomModal.SOLO_BEFORE_GAME" />
+    <app-solo-after-game-modal *ngIf="modal === RoomModal.SOLO_AFTER_GAME" />
+</app-generic-room-modal>

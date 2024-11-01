@@ -1,10 +1,15 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { ChatMessage, InRoomStatus, InRoomStatusMessage, JsonMessage, JsonMessageType, LeaveRoomMessage, RoomStateUpdateMessage, SpectatorCountMessage } from 'src/app/shared/network/json-message';
-import { RoomInfo, RoomState } from 'src/app/shared/room/room-models';
+import { RoomInfo, RoomState, RoomType } from 'src/app/shared/room/room-models';
 import { WebsocketService } from '../websocket.service';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { MeService } from '../state/me.service';
+import { ClientRoom } from './client-room';
+import { SoloClientRoom } from './solo-client-room';
+import { RoomModal } from 'src/app/components/layout/room/room/room.component';
+import { EmulatorService } from '../emulator/emulator.service';
+import { PlatformInterfaceService } from '../platform-interface.service';
 
 const MAX_MESSAGES = 15;
 export interface Message {
@@ -25,24 +30,27 @@ export class RoomService {
 
   private status: InRoomStatus = InRoomStatus.NONE;
 
+  private clientRoom: ClientRoom | null = null;
+  public modal$ = new BehaviorSubject<RoomModal | null>(null);
+
   private roomInfo: RoomInfo | null = null;
-  private roomState$ = new BehaviorSubject<RoomState | null>(null);
   private numSpectators$ = new BehaviorSubject<number>(0);
 
   private messages$ = new BehaviorSubject<Message[]>([]);
 
   constructor(
+    private injector: Injector,
     private websocketService: WebsocketService,
     private meService: MeService,
     private router: Router,
   ) {
 
-    this.websocketService.onEvent(JsonMessageType.IN_ROOM_STATUS).subscribe((event: JsonMessage) => {
-      this.onInRoomStatusEvent(event as InRoomStatusMessage);
+    this.websocketService.onEvent(JsonMessageType.IN_ROOM_STATUS).subscribe(async (event: JsonMessage) => {
+      await this.onInRoomStatusEvent(event as InRoomStatusMessage);
     });
 
-    this.websocketService.onEvent(JsonMessageType.ROOM_STATE_UPDATE).subscribe((event: JsonMessage) => {
-      this.onRoomStateUpdate(event as RoomStateUpdateMessage);
+    this.websocketService.onEvent(JsonMessageType.ROOM_STATE_UPDATE).subscribe(async (event: JsonMessage) => {
+      await this.onRoomStateUpdate(event as RoomStateUpdateMessage);
     });
 
     this.websocketService.onEvent(JsonMessageType.SPECTATOR_COUNT).subscribe((event: JsonMessage) => {
@@ -74,17 +82,24 @@ export class RoomService {
     this.websocketService.sendJsonMessage(new ChatMessage(username, message));
   }
 
+  private createClientRoom(roomState: RoomState): ClientRoom {
+    switch (roomState.type) {
+      case RoomType.SOLO: return new SoloClientRoom(this.injector, this.modal$, roomState);
+      default: throw new Error(`Unknown room type ${roomState.type}`);
+    }
+  }
+
   /**
    * Update the room state based on the IN_ROOM_STATUS message from the server.
    * @param event The IN_ROOM_STATUS message
    */
-  private onInRoomStatusEvent(event: InRoomStatusMessage) {
+  private async onInRoomStatusEvent(event: InRoomStatusMessage) {
 
     // If the client is not in a room
     if (event.status === InRoomStatus.NONE) {
       this.status = InRoomStatus.NONE;
       this.roomInfo = null;
-      this.roomState$.next(null);
+      this.clientRoom = null;
       this.messages$.next([]);
 
       console.log("Updated room status to NONE");
@@ -99,25 +114,28 @@ export class RoomService {
     // Update the room state
     this.status = event.status;
     this.roomInfo = event.roomInfo;
-    this.roomState$.next(event.roomState);
+
+    // Create the client room
+    this.clientRoom = this.createClientRoom(event.roomState);
+    await this.clientRoom.init();
 
     // Navigate to the room
     this.router.navigate(['/online/room']);
 
-    console.log(`Navigating to room with status ${this.status}, room info ${this.roomInfo}, and room state ${this.roomState$.getValue()}`);
+    console.log(`Navigating to room with status ${this.status}, room info ${this.roomInfo}, and room state ${this.clientRoom.getState()}`);
   }
 
   /**
    * Update the room state based on the ROOM_EVENT message from the server.
    * @param event The ROOM_EVENT message
    */
-  private onRoomStateUpdate(event: RoomStateUpdateMessage) {
+  private async onRoomStateUpdate(event: RoomStateUpdateMessage) {
 
-    if (!this.roomInfo) {
+    if (!this.clientRoom) {
       throw new Error('Client is not in a room but received a room state update');
     }
 
-    this.roomState$.next(event.state);
+    await this.clientRoom._updateState(event.state);
     console.log('Updated room state', event.state);
   }
 
@@ -129,17 +147,12 @@ export class RoomService {
   }
 
   /**
-   * Get the room state as an observable.
+   * Get the type of the room.
+   * @returns The type of the room, or null if the client is not in a room
    */
-  public getRoomState$(): Observable<RoomState | null> {
-    return this.roomState$.asObservable();
-  }
-
-  /**
-   * Get the room state.
-   */
-  public getRoomState(): RoomState | null {
-    return this.roomState$.getValue();
+  public getRoomType(): RoomType | null {
+    if (!this.clientRoom) return null;
+    return this.clientRoom.getState().type;
   }
 
   /**
@@ -155,5 +168,17 @@ export class RoomService {
   public getNumSpectators$(): Observable<number> {
     return this.numSpectators$.asObservable();
   }
+
+  /**
+   * Get the client room.
+   * @returns The client room
+   */
+  public getClient<T extends ClientRoom = ClientRoom>(): T {
+    if (!this.clientRoom) {
+      throw new Error('Client is not in a room');
+    }
+    return this.clientRoom as T;
+  }
+
 }
 
