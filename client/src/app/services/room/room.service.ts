@@ -5,6 +5,12 @@ import { WebsocketService } from '../websocket.service';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 
+const MAX_MESSAGES = 10;
+export interface Message {
+  username: string;
+  message: string;
+}
+
 
 /**
  * A service that manages the state of the room the client is in.
@@ -21,6 +27,8 @@ export class RoomService {
   private roomInfo: RoomInfo | null = null;
   private roomState$ = new BehaviorSubject<RoomState | null>(null);
 
+  private messages$ = new BehaviorSubject<Message[]>([]);
+
   constructor(
     private websocketService: WebsocketService,
     private router: Router,
@@ -34,10 +42,14 @@ export class RoomService {
       this.onRoomStateUpdate(event as RoomStateUpdateMessage);
     });
 
+    // Listen for chat messages, and push them to the messages$ observable, limiting 
     this.websocketService.onEvent(JsonMessageType.CHAT).subscribe((event: JsonMessage) => {
-      console.log('Received chat message', (event as ChatMessage).message);
+      const chatMessage = event as ChatMessage;
+      console.log('Received chat message', chatMessage);
+      this.messages$.next([
+        ...this.messages$.getValue(), { username: chatMessage.username, message: chatMessage.message }
+      ].slice(-MAX_MESSAGES));
     });
-
   }
 
   /**
@@ -58,6 +70,7 @@ export class RoomService {
       this.status = InRoomStatus.NONE;
       this.roomInfo = null;
       this.roomState$.next(null);
+      this.messages$.next([]);
 
       console.log("Updated room status to NONE");
       return;
@@ -114,4 +127,12 @@ export class RoomService {
   public getRoomState(): RoomState | null {
     return this.roomState$.getValue();
   }
+
+  /**
+   * Get the messages as an observable.
+   */
+  public getMessages$(): Observable<Message[]> {
+    return this.messages$.asObservable();
+  }
 }
+

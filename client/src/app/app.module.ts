@@ -85,6 +85,7 @@ import { SolidSelectorComponent } from './components/ui/solid-selector/solid-sel
 import { NgOptimizedImage } from '@angular/common';
 import { RoomComponent } from './components/layout/room/room/room.component';
 import { SoloRoomComponent } from './components/layout/room/solo-room/solo-room.component';
+import { ChatComponent } from './components/layout/room/chat/chat.component';
 
 const customNotifierOptions: NotifierOptions = {
   position: {
@@ -207,6 +208,7 @@ const customNotifierOptions: NotifierOptions = {
     LoadingScreenComponent,
     RoomComponent,
     SoloRoomComponent,
+    ChatComponent,
   ],
   imports: [
     BrowserModule,

@@ -255,7 +255,7 @@ export class LoadingScreenComponent {
         x,  // Starting position outside canvas
         y,
         angle: 0,
-        rotationSpeed: ((Math.random() - 0.5) * 0.1) * this.blockSpeed,
+        rotationSpeed: ((Math.random() - 0.5) * 0.1),
         speed: (Math.random() * 2 + 0.5) * this.blockSpeed,
         direction,  // Calculated direction towards the target
         size: this.blockSize,

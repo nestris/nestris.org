@@ -2,7 +2,7 @@
 
     <app-fullscreen-exit-button />
 
-    <app-loading-screen (score)="setScore($event)" />
+    <app-loading-screen (score)="setScore($event)" [resolution]="2" [blockSize]="50" [blockSpeed]="1.5" />
 
     <div class="score"><p *ngIf="scoreVisible">Score: {{score}}</p></div>
 

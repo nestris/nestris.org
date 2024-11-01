@@ -289,7 +289,6 @@ export class EmulatorGameState {
             
             if ((this.placementFrameCount+1) % EMULATOR_FPS === 0) {
                 this.countdown--;
-                console.log("countdown", this.countdown);
             }
 
         } else {

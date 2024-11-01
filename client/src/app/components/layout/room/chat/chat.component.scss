@@ -1,0 +1,71 @@
+@import "../../../../../styles.scss";
+
+.chat {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 7px;
+
+
+}
+
+.num-players {
+    display: flex;
+    flex-direction: row;
+    gap: 2.5px;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.num-players p {
+    font-family: $main-font;
+    font-size: 12px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.main {
+    width: 250px;
+}
+
+.text-entry {
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 5px 10px;
+    box-sizing: border-box;
+    gap: 7px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+textarea {
+    font-family: $chat-font;
+    color: white;
+    background: none;
+    border: none;
+    outline: none;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    font-size: 11px;
+    resize: none;
+}
+
+textarea:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+textarea::placeholder {
+    color: white;
+    font-family: $chat-font;
+    opacity: 0.7;
+    font-size: 11px;
+}

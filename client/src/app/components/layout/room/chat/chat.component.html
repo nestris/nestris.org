@@ -1,0 +1,15 @@
+<div class="chat">
+
+    <div class="num-players">
+        <p>{{3}}</p>
+        <img src="assets/img/button-icons/eye.svg" width="14px">
+    </div>
+
+    <div class="main">
+        <div class="text-entry">
+            <textarea #textarea placeholder="Begin the conversation.." [rows]="rows$ | async" (input)="onChange($event)"></textarea>
+            <img src="assets/img/button-icons/submit-chat.svg" width="11px">
+        </div>
+    </div>
+
+</div>
