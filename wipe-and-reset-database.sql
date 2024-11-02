@@ -149,7 +149,7 @@ CREATE INDEX rating_index ON rated_puzzles (rating DESC); -- for fetching puzzle
 -- data is the binary game data, which is nullable for when game expires
 DROP TABLE IF EXISTS "public"."games" CASCADE;
 CREATE TABLE "public"."games" (
-    "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+    "id" text NOT NULL,
     "created_at" timestamp NOT NULL DEFAULT now(),
     "userid" text NOT NULL REFERENCES "public"."users"("userid"),
     "start_level" int2 NOT NULL,
@@ -158,13 +158,14 @@ CREATE TABLE "public"."games" (
     "end_lines" int2 NOT NULL,
     "accuracy" int2,
     "tetris_rate" int2 NOT NULL,
+    "xp_gained" int2 NOT NULL,
     PRIMARY KEY ("id")
 );
 
 -- GAME DATA, storing the game data for each game
 DROP TABLE IF EXISTS "public"."game_data" CASCADE;
 CREATE TABLE "public"."game_data" (
-    "game_id" uuid NOT NULL REFERENCES "public"."games"("id"),
+    "game_id" text NOT NULL REFERENCES "public"."games"("id"),
     "data" bytea NOT NULL,
     PRIMARY KEY ("game_id")
 );
@@ -173,7 +174,7 @@ CREATE TABLE "public"."game_data" (
 -- match between two users
 DROP TABLE IF EXISTS "public"."matches" CASCADE;
 CREATE TABLE "public"."matches" (
-    "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+    "id" text NOT NULL,
     "created_at" timestamp NOT NULL DEFAULT now(),
     "userid1" text NOT NULL REFERENCES "public"."users"("userid"),
     "userid2" text NOT NULL REFERENCES "public"."users"("userid"),
@@ -186,8 +187,8 @@ CREATE TABLE "public"."matches" (
 -- Table relating a game to a match. 1-to-1 relationship
 DROP TABLE IF EXISTS "public"."match_games" CASCADE;
 CREATE TABLE "public"."match_games" (
-    "match_id" uuid NOT NULL REFERENCES "public"."matches"("id"),
-    "game_id" uuid NOT NULL REFERENCES "public"."games"("id"),
+    "match_id" text NOT NULL REFERENCES "public"."matches"("id"),
+    "game_id" text NOT NULL REFERENCES "public"."games"("id"),
     PRIMARY KEY ("match_id", "game_id")
 );
 

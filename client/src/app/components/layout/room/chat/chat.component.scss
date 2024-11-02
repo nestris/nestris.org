@@ -80,6 +80,11 @@ textarea::placeholder {
     font-size: 11px;
 }
 
+.submit-button:hover {
+    opacity: 0.7;
+    cursor: pointer;
+}
+
 .submit-button.disabled {
     opacity: 0.4;
     pointer-events: none;

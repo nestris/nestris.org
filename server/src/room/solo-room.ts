@@ -6,7 +6,9 @@ import { RoomType } from "../../shared/room/room-models";
 import { SoloRoomState } from "../../shared/room/solo-room-models";
 import { CreateGameQuery } from "../database/db-queries/create-game-query";
 import { Database } from "../database/db-query";
+import { DBSoloGamesListAddEvent, DBSoloGamesListView } from "../database/db-views/db-solo-games-list";
 import { Room } from "../online-users/event-consumers/room-consumer";
+import { v4 as uuid } from 'uuid';
 
 export class SoloRoom extends Room<SoloRoomState> {
 
@@ -109,16 +111,28 @@ export class SoloRoom extends Room<SoloRoomState> {
      */
     private async onGameEnd(packets: PacketAssembler, gameState: GameState) {
 
+        const gameID = uuid();
+
+        const score = gameState.getStatus().score;
+        const level = gameState.getStatus().level;
+        const lines = gameState.getStatus().lines;
+        const xpGained = 0; // TODO: calculate XP gained
+
         // Write game to database
         await Database.query(CreateGameQuery, {
+            id: gameID,
             userid: this.userid,
             start_level: gameState.startLevel,
-            end_level: gameState.getStatus().level,
-            end_score: gameState.getStatus().score,
-            end_lines: gameState.getStatus().lines,
+            end_level: level,
+            end_score: score,
+            end_lines: lines,
             accuracy: null, // TODO: calculate accuracy
-            tetris_rate: gameState.getTetrisRate()
+            tetris_rate: gameState.getTetrisRate(),
+            xp_gained: xpGained // TODO: calculate XP gained
         });
+
+        // Add game to list of solo games
+        DBSoloGamesListView.alter(this.userid, new DBSoloGamesListAddEvent(gameID, score, xpGained));
 
         // TODO: write game data to database
 

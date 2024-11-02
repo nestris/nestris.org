@@ -8,3 +8,12 @@ export interface SoloRoomState extends RoomState {
     // serverInGame is false.
     serverInGame: boolean;
 }
+
+// Stores a list of the last N solo games played by a specific user.
+export interface DBSoloGamesList {
+    games: {
+        id: string;
+        score: number;
+        xp: number;
+    }[];
+}

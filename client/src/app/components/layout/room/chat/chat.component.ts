@@ -22,6 +22,10 @@ export class ChatComponent {
     private elementRef: ElementRef
   ) {}
 
+  public clickSubmitButton() {
+    if (this.message) this.submitMessage(this.message);
+  }
+
   public onChange(event: any) {
 
     let decreased = false;
