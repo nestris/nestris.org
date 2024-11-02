@@ -1,3 +1,5 @@
+@import "../../../../../styles.scss";
+
 :host {
     position: absolute;
     width: 100%;
@@ -18,4 +20,70 @@
     .game {
         transform: scale(1.2);
     }
+}
+
+.right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.previous-games-panel {
+    width: 230px;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 5px;
+    margin: 10px;
+}
+
+.previous-games-panel h1 {
+    font-family: $main-font;
+    font-size: 12px;
+    font-weight: 700;
+    margin: 0;
+
+    margin-top: 3px;
+    margin-bottom: 2px;
+}
+
+.previous-game {
+    width: 100%;
+    box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 0.06);
+    border-radius: 5px;
+    padding: 5px 12px;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.score-container {
+    width: 83px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.previous-games-panel.seven-digit .previous-game .score-container {
+    width: 96px;
+}
+
+.score {
+    font-family: "NES";
+    font-size: 18px;
+    margin: 0;
+}
+
+.xp {
+    font-family: $main-font;
+    font-size: 14px;
+    font-style: italic;
+    margin: 0;
+}
+
+.fade {
+    -webkit-mask-image: linear-gradient(180deg, #000 60%, transparent);
 }

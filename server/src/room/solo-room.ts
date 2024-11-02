@@ -1,4 +1,5 @@
 import { GameState } from "../../shared/game-state-from-packets/game-state";
+import { FinishSoloGameMessage } from "../../shared/network/json-message";
 import { GamePlacementSchema, GameStartSchema, PacketContent, PacketOpcode } from "../../shared/network/stream-packets/packet";
 import { PacketAssembler } from "../../shared/network/stream-packets/packet-assembler";
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
@@ -134,8 +135,10 @@ export class SoloRoom extends Room<SoloRoomState> {
         // Add game to list of solo games
         DBSoloGamesListView.alter(this.userid, new DBSoloGamesListAddEvent(gameID, score, xpGained));
 
-        // TODO: write game data to database
+        // Send message to all session of player of a new solo game that was finished
+        SoloRoom.Users.sendToUser(this.userid, new FinishSoloGameMessage(gameID, score, xpGained));
 
+        // TODO: write game data to database
     }
     
 }

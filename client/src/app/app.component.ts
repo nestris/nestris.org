@@ -1,5 +1,4 @@
-import { Component, ElementRef, isDevMode, OnInit, ViewChild } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Component, isDevMode, OnInit } from '@angular/core';
 import { NotificationService } from './services/notification.service';
 import { PushNotificationService } from './services/push-notification.service';
 import { ModalManagerService } from './services/modal-manager.service';
@@ -11,6 +10,7 @@ import { ServerRestartWarningService } from './services/server-restart-warning.s
 import { CacheableRequestService } from './services/cacheable-request.service';
 import { MeService } from './services/state/me.service';
 import { RoomService } from './services/room/room.service';
+import { SoloGamesListService } from './services/state/solo-games-list.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
@@ -28,6 +28,7 @@ export class AppComponent implements OnInit {
     private cacheableRequestService: CacheableRequestService,
     private meService: MeService,
     private roomService: RoomService,
+    private soloGamesListService: SoloGamesListService,
     private router: Router,
   ) {
 

@@ -61,11 +61,17 @@ export class DBSoloGamesListView extends DBView<DBSoloGamesList, DBSoloGamesList
     }
 
     public override alterView(event: DBSoloGamesListAddEvent): void {
+        
+        // insert game to end of list, and remove the first game if the list is too long
         this.view.games.push({
             id: event.gameID,
             score: event.score,
             xp: event.xp
         });
+
+        if (this.view.games.length > 10) {
+            this.view.games.shift();
+        };
     }
 
 }

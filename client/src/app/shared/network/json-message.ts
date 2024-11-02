@@ -19,7 +19,6 @@ export enum JsonMessageType {
     FRIEND_ONLINE_STATUS_CHANGE = 'friend_online_status_change',
     REMATCH_OFFERED = 'rematch_offered', // sent from server to client to offer a rematch
     MULTIPLAYER_ROOM_UPDATE = 'multiplayer_room_update', // sent from server to client to update the multiplayer room
-    SOLO_GAME_END = 'solo_game_end', // sent from server to client on solo game end, with game details
     SERVER_RESTART_WARNING = 'server_restart_warning', // sent from server to client to warn of server restart
     ME = 'ME',
     QUEST_COMPLETE = 'quest_complete',
@@ -29,6 +28,7 @@ export enum JsonMessageType {
     ROOM_STATE_UPDATE = 'room_state_update',
     CLIENT_ROOM_EVENT = 'client_room_event',
     LEAVE_ROOM = 'leave_room',
+    FINISH_SOLO_GAME = 'finish_solo_game',
 }
 
 export abstract class JsonMessage {
@@ -113,17 +113,6 @@ export class MultiplayerRoomUpdateMessage extends JsonMessage {
     }
 }
 
-// sent from server to client on solo game end, with game details
-export class SoloGameEndMessage extends JsonMessage {
-    constructor(
-        public readonly gameID: string,
-        public readonly score: number,
-        public readonly lines: number,
-        public readonly tetrises: number,
-    ) {
-        super(JsonMessageType.SOLO_GAME_END)
-    }
-}
 
 // sent from server to client to warn of server restart
 export class ServerRestartWarningMessage extends JsonMessage {
@@ -210,5 +199,16 @@ export class ClientRoomEventMessage extends JsonMessage {
 export class LeaveRoomMessage extends JsonMessage {
     constructor() {
         super(JsonMessageType.LEAVE_ROOM)
+    }
+}
+
+// sent from server to client to indicate a new solo game has been finished
+export class FinishSoloGameMessage extends JsonMessage {
+    constructor(
+        public readonly id: string,
+        public readonly score: number,
+        public readonly xp: number
+    ) {
+        super(JsonMessageType.FINISH_SOLO_GAME)
     }
 }
