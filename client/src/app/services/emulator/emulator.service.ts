@@ -9,6 +9,7 @@ import { GameDisplayData } from 'src/app/shared/tetris/game-display-data';
 import { GymRNG } from 'src/app/shared/tetris/piece-sequence-generation/gym-rng';
 import { BinaryEncoder } from 'src/app/shared/network/binary-codec';
 import { Observable, Subject } from 'rxjs';
+import { eventIsForInput } from 'src/app/util/misc';
 
 
 /*
@@ -190,9 +191,13 @@ export class EmulatorService {
     this.sendPacket(new GameEndPacket().toBinaryEncoder({}));
   }
 
-
   // if matching keybind, update currently pressed keys on keydown
   handleKeydown(event: KeyboardEvent) {
+
+    if (eventIsForInput(event)) return;
+
+    console.log(event);
+
     const keybind = this.keybinds.stringToKeybind(event.key);
     if (keybind) {
       this.keyManager.onPress(keybind);
@@ -203,6 +208,8 @@ export class EmulatorService {
 
   // if matching keybind, update currently pressed keys on keyup
   handleKeyup(event: KeyboardEvent) {
+
+    if (eventIsForInput(event)) return;
 
     const keybind = this.keybinds.stringToKeybind(event.key);
     if (keybind) {

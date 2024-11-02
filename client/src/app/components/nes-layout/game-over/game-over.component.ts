@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Host, HostListener, Input, Output } from '@angular/core';
 import { GameOverMode } from '../nes-board/nes-board.component';
+import { eventIsForInput } from 'src/app/util/misc';
 
 @Component({
   selector: 'app-game-over',
@@ -30,6 +31,9 @@ export class GameOverComponent {
   // Pressing "space" or "enter" should also trigger the next button
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
+
+    // Ignore if event is for an input
+    if (eventIsForInput(event)) return;
 
     if (this.mode && (event.key === ' ' || event.key === 'Enter')) {
       console.log('click game over');
