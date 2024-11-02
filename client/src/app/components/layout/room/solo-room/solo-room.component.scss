@@ -30,11 +30,15 @@
 
 .previous-games-panel {
     width: 230px;
+    height: 230px;
     display: flex;
     flex-direction: column-reverse;
+    justify-content: flex-end;
     align-items: center;
     gap: 5px;
     margin: 10px;
+
+    overflow: hidden;
 }
 
 .previous-games-panel h1 {
@@ -86,4 +90,23 @@
 
 .fade {
     -webkit-mask-image: linear-gradient(180deg, #000 60%, transparent);
+}
+
+.expanding-div {
+    //max-height: 0;
+    //overflow: hidden;
+    opacity: 0;
+    animation: expand 1s ease-out forwards;
+}
+
+@keyframes expand {
+    from {
+        max-height: 0;
+        opacity: 0;
+    }
+
+    to {
+        max-height: 80px;
+        opacity: 1;
+    }
 }

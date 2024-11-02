@@ -17,7 +17,7 @@
 <div class="right">
     <div class="previous-games-panel fade" [ngClass]="{'seven-digit': hasSevenDigits(soloGamesList$ | async)}">
 
-        <div class="previous-game" *ngFor="let game of (soloGamesList$ | async)?.games; trackBy: soloGameHash">
+        <div class="previous-game" *ngFor="let game of (soloGamesList$ | async)?.games; trackBy: soloGameHash" [ngClass]="{'expanding-div' : !soloGamesListService.isOriginalGame(game.id)}">
             <div class="score-container"><p class="score">{{padScore(game.score)}}</p></div>
             <p class="xp">+{{game.xp}}XP</p>
         </div>

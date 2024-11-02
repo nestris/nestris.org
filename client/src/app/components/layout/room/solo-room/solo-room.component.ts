@@ -25,7 +25,7 @@ export class SoloRoomComponent {
     public readonly platform: PlatformInterfaceService,
     public readonly emulator: EmulatorService,
     private readonly roomService: RoomService,
-    private readonly soloGamesListService: SoloGamesListService
+    public readonly soloGamesListService: SoloGamesListService
   ) {}
 
   @HostListener('window:keydown', ['$event'])

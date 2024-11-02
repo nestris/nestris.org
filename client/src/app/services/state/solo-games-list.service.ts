@@ -4,12 +4,14 @@ import { FinishSoloGameMessage, JsonMessageType } from 'src/app/shared/network/j
 import { Method } from '../fetch.service';
 import { StateService } from './state.service';
 
-const MAX_GAMES = 6;
+const MAX_GAMES = 10;
 
 @Injectable({
   providedIn: 'root'
 })
 export class SoloGamesListService extends StateService<DBSoloGamesList>() {
+
+  private originalGames: string[] = [];
 
   constructor() {
     super([JsonMessageType.FINISH_SOLO_GAME]);
@@ -20,6 +22,8 @@ export class SoloGamesListService extends StateService<DBSoloGamesList>() {
 
     // get the last 6 games
     games.games = games.games.slice(-MAX_GAMES);
+
+    this.originalGames = games.games.map(game => game.id);
 
     return games;
   }
@@ -44,6 +48,10 @@ export class SoloGamesListService extends StateService<DBSoloGamesList>() {
     }
 
     return { games };
+  }
+
+  public isOriginalGame(id: string): boolean {
+    return this.originalGames.includes(id);
   }
 
 
