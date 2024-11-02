@@ -25,6 +25,7 @@ import { GetRelativeLeaderboardsRoute } from './src/routes/leaderboard/get-relat
 import { QuestConsumer } from './src/online-users/event-consumers/quest-consumer';
 import { CreateSoloRoomRoute } from './src/routes/room/create-solo-room-route';
 import { RoomConsumer } from './src/online-users/event-consumers/room-consumer';
+import { GetSoloGamesListRoute } from './src/routes/room/get-solo-games-list-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -97,6 +98,7 @@ async function main() {
   routes.registerRoute(GetAllUsernamesRoute);
   routes.registerRoute(GetRelativeLeaderboardsRoute);
   routes.registerRoute(CreateSoloRoomRoute);
+  routes.registerRoute(GetSoloGamesListRoute);
 
   // app.get('/api/v2/users-by-username', getAllUsersMatchingUsernamePatternRoute);
   // app.get('/api/v2/user/:userid', getUserByUserIDRoute);

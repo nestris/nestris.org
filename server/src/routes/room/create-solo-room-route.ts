@@ -7,7 +7,7 @@ import { SoloRoom } from "../../room/solo-room";
 import { PostRoute, RouteError, UserInfo } from "../route";
 
 /**
- * Route for getting the logged in user's information
+ * Route for creating a solo room
  */
 export class CreateSoloRoomRoute extends PostRoute {
     route = "/api/v2/create-solo-room/:sessionid";
