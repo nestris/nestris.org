@@ -9,6 +9,7 @@ import { ClientRoom } from './client-room';
 import { SoloClientRoom } from './solo-client-room';
 import { RoomModal } from 'src/app/components/layout/room/room/room.component';
 import { v4 as uuid } from 'uuid';
+import { SoloRoomState } from 'src/app/shared/room/solo-room-models';
 
 const MAX_MESSAGES = 15;
 export interface Message {
@@ -71,6 +72,11 @@ export class RoomService {
    * Leave the room the client is in, if any.
    */
   public leaveRoom() {
+
+    // Cleanup the client room
+    this.clientRoom?.destroy();
+
+    // Tell the server to leave the room
     this.websocketService.sendJsonMessage(new LeaveRoomMessage());
   }
 
@@ -84,7 +90,7 @@ export class RoomService {
 
   private createClientRoom(roomState: RoomState): ClientRoom {
     switch (roomState.type) {
-      case RoomType.SOLO: return new SoloClientRoom(this.injector, this.modal$, roomState);
+      case RoomType.SOLO: return new SoloClientRoom(this.injector, this.modal$, roomState as SoloRoomState);
       default: throw new Error(`Unknown room type ${roomState.type}`);
     }
   }

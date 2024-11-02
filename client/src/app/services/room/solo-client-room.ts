@@ -1,18 +1,26 @@
 import { SoloRoomState } from "src/app/shared/room/solo-room-models";
 import { ClientRoom } from "./client-room";
 import { RoomModal } from "src/app/components/layout/room/room/room.component";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Observable } from "rxjs";
 import { EmulatorService } from "../emulator/emulator.service";
 import { PlatformInterfaceService } from "../platform-interface.service";
 
+export enum SoloClientState {
+    BEFORE_GAME_MODAL = 'BEFORE_GAME_MODAL',
+    IN_GAME = 'IN_GAME',
+    TOPOUT = 'TOPOUT',
+    AFTER_GAME_MODAL = 'AFTER_GAME_MODAL',
+}
 
-export class SoloClientRoom extends ClientRoom<SoloRoomState> {
+export class SoloClientRoom extends ClientRoom {
 
     readonly emulator = this.injector.get(EmulatorService);
     readonly platformInterface = this.injector.get(PlatformInterfaceService);
 
     // The level at which the game starts, persisted across games
     public static startLevel$: BehaviorSubject<number> = new BehaviorSubject(18);
+
+    private soloState$ = new BehaviorSubject<SoloClientState>(SoloClientState.BEFORE_GAME_MODAL);
 
     public override async init(): Promise<void> {
 
@@ -22,18 +30,47 @@ export class SoloClientRoom extends ClientRoom<SoloRoomState> {
     }
 
     protected override async onStateUpdate(oldState: SoloRoomState, newState: SoloRoomState): Promise<void> {
-        console.log('SoloClientRoom.onStateUpdate', oldState, newState);
+        
+        // if topout, go to TOPOUT mode
+        if (oldState.serverInGame && !newState.serverInGame) {
+            this.setSoloState(SoloClientState.TOPOUT);
+        }
+
+    }
+
+    public setSoloState(state: SoloClientState) {
+        this.soloState$.next(state);
+
+        // Set the corresponding modal
+        switch (state) {
+            case SoloClientState.BEFORE_GAME_MODAL:
+                this.modal$.next(RoomModal.SOLO_BEFORE_GAME);
+                break;
+            case SoloClientState.AFTER_GAME_MODAL:
+                this.modal$.next(RoomModal.SOLO_AFTER_GAME);
+                break;
+            default:
+                this.modal$.next(null);
+        }
     }
 
     public startGame() {
         const startLevel = SoloClientRoom.startLevel$.getValue();
         console.log('Starting game with start level', startLevel);
 
-        // Hide the modal
-        this.modal$.next(null);
+        // Transition to in-game state
+        this.setSoloState(SoloClientState.IN_GAME);
 
         // Start the game
         this.emulator.startGame(startLevel, true);
+    }
+
+    public getSoloState$(): Observable<SoloClientState> {
+        return this.soloState$.asObservable();
+    }
+
+    public getSoloState(): SoloClientState {
+        return this.soloState$.getValue();
     }
 
 }

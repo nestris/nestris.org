@@ -119,6 +119,7 @@ export class EmulatorService {
       score: this.currentState.getStatus().score,
       lines: this.currentState.getStatus().lines,
       nextPiece: this.currentState.getNextPieceType(),
+      trt: this.currentState.getTetrisRate(),
       countdown: this.currentState.getCountdown(),
     };
     this.platform.updateGameData(data);

@@ -10,6 +10,7 @@ export interface GameStateSnapshot {
   score: number,
   board: TetrisBoard,
   next: TetrominoType,
+  tetrisRate: number,
   countdown: number | undefined,
 }
 
@@ -28,8 +29,9 @@ export class GameState {
   private countdown: number | undefined;
 
   private numTetrises: number = 0;
+  private numLines: number = 0;
 
-  constructor(startLevel: number, current: TetrominoType, next: TetrominoType) {
+  constructor(public readonly startLevel: number, current: TetrominoType, next: TetrominoType) {
     this.status = new SmartGameStatus(startLevel);
     this.isolatedBoard = new TetrisBoard(); // the board without the active piece. updated every placement
     this.current = current;
@@ -85,6 +87,11 @@ export class GameState {
     return this.numTetrises;
   }
 
+  // Get what percentage of lines cleared were tetrises
+  getTetrisRate(): number {
+    return this.numLines === 0 ? 0 : (this.numTetrises * 4) / this.numLines;
+  }
+
   onRecovery(recovery: GameRecoverySchema) {
     this.status = new SmartGameStatus(recovery.startLevel, recovery.lines, recovery.score, recovery.level);
     this.isolatedBoard = recovery.isolatedBoard;
@@ -130,6 +137,7 @@ export class GameState {
     this.status.onLineClear(linesCleared);
 
     // increment tetrises and lines cleared
+    this.numLines += linesCleared;
     if (linesCleared === 4) this.numTetrises++;
 
     // shift current and next pieces
@@ -153,6 +161,7 @@ export class GameState {
       score: this.status.score,
       board: this.currentBoard,
       next: this.next,
+      tetrisRate: this.getTetrisRate(),
       countdown: this.countdown,
     };
   }

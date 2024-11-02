@@ -118,7 +118,7 @@ export class PlatformInterfaceService extends PacketSender {
 
     // encode the packets into Uint8Array, and send it to the server
     const binaryData = this.assembler.encode();
-    console.log(`Sending ${this.numBatchedPackets} batched packets`);
+    //console.log(`Sending ${this.numBatchedPackets} batched packets`);
     this.websocket.sendBinaryMessage(binaryData);
 
     // clear the assembler for the next batch of packets

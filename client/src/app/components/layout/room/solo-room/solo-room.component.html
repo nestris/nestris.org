@@ -8,6 +8,10 @@
         [lines]="data.lines"
         [score]="data.score"
         [countdown]="data.countdown"
+        [trt]="data.trt"
+        [gameOver]="(soloClientRoom.getSoloState$() | async) === SoloClientState.TOPOUT ? GameOverMode.TOPOUT : undefined"
+        [gameOverShowNext]="true"
+        (clickNext)="clickNextOnTopout()"
 />
 </div>
 <div class="right"></div>

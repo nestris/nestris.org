@@ -25,6 +25,8 @@ export class EmulatorGameState {
 
     // current lines/level/score
     private status: SmartGameStatus;
+    private linesCleared: number = 0;
+    private numTetrises: number = 0;
 
 
     // piece shown in next box
@@ -70,6 +72,8 @@ export class EmulatorGameState {
     _setState(
         isolatedBoard: TetrisBoard,
         status: SmartGameStatus,
+        linesCleared: number,
+        numTetrises: number,
         nextPieceType: TetrominoType,
         activePiece: MoveableTetromino,
         countdown: number,
@@ -81,6 +85,8 @@ export class EmulatorGameState {
     ) {
         this.isolatedBoard = isolatedBoard;
         this.status = status;
+        this.linesCleared = linesCleared;
+        this.numTetrises = numTetrises;
         this.nextPieceType = nextPieceType;
         this.activePiece = activePiece;
         this.countdown = countdown;
@@ -97,6 +103,8 @@ export class EmulatorGameState {
         copy._setState(
             this.isolatedBoard.copy(),
             this.status.copy(),
+            this.linesCleared,
+            this.numTetrises,
             this.nextPieceType,
             this.activePiece?.copy(),
             this.countdown,
@@ -147,6 +155,10 @@ export class EmulatorGameState {
 
     getCountdown(): number | undefined {
         return this.countdown > 0 ? this.countdown : undefined;
+    }
+
+    getTetrisRate(): number {
+        return this.linesCleared === 0 ? 0 : (this.numTetrises * 4) / this.linesCleared;
     }
 
     private spawnNewPiece() {
@@ -242,6 +254,8 @@ export class EmulatorGameState {
 
             // FOR NOW: instant lineclears
             const linesCleared = this.isolatedBoard.processLineClears();
+            this.linesCleared += linesCleared;
+            if (linesCleared === 4) this.numTetrises++;
             // console.log("lines cleared", linesCleared);
 
             // update score/line/level count, and update gravity accordingly

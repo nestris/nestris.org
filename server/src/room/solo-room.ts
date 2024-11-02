@@ -4,6 +4,8 @@ import { PacketAssembler } from "../../shared/network/stream-packets/packet-asse
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
 import { RoomType } from "../../shared/room/room-models";
 import { SoloRoomState } from "../../shared/room/solo-room-models";
+import { CreateGameQuery } from "../database/db-queries/create-game-query";
+import { Database } from "../database/db-query";
 import { Room } from "../online-users/event-consumers/room-consumer";
 
 export class SoloRoom extends Room<SoloRoomState> {
@@ -24,7 +26,7 @@ export class SoloRoom extends Room<SoloRoomState> {
     constructor(playerSessionID: string) {
         super(
             [playerSessionID],
-            { type: RoomType.SOLO, },
+            { type: RoomType.SOLO, serverInGame: false },
         )
 
         this.userid = SoloRoom.Users.getUserIDBySessionID(playerSessionID)!;
@@ -41,11 +43,19 @@ export class SoloRoom extends Room<SoloRoomState> {
         // Handle each packet individually
         while (message.hasMorePackets()) {
             const packet = message.nextPacket();
-            this.handlePacket(packet);
+            await this.handlePacket(packet);
         }
     }
 
-    private handlePacket(packet: PacketContent): void {
+    /**
+     * Update the room state to indicate whether the server is in game, and send to client
+     * @param serverInGame 
+     */
+    private updateServerInGame(serverInGame: boolean) {
+        this.updateRoomState(Object.assign({}, this.getRoomState(), { serverInGame }));
+    }
+
+    private async handlePacket(packet: PacketContent) {
 
         // Add packet to the aggregation
         this.packets.addPacketContent(packet.binary);
@@ -57,6 +67,9 @@ export class SoloRoom extends Room<SoloRoomState> {
             const gameStart = (packet.content as GameStartSchema);
             this.gameState = new GameState(gameStart.level, gameStart.current, gameStart.next);
 
+            // Update room state to indicate that the server is now in game
+            this.updateServerInGame(true);
+
         } else if (packet.opcode === PacketOpcode.GAME_PLACEMENT) {
             if (!this.gameState) throw new Error("Cannot add game placement packet without game start packet");
             const gamePlacement = (packet.content as GamePlacementSchema);
@@ -66,9 +79,37 @@ export class SoloRoom extends Room<SoloRoomState> {
 
         else if (packet.opcode === PacketOpcode.GAME_END) {
             console.log(`Received game end packet from player ${this.username}`);
+
+            // Handle the end of the game
+            await this.onGameEnd(this.packets, this.gameState!);
+
+            // Send message to player indicating that the game has ended and server has finished processing
+            this.updateServerInGame(false);
+
             this.gameState = null;
             this.packets = new PacketAssembler();
         }
+    }
+
+    /**
+     * Handle the end of the game, writing the game state to the database and updating XP/quests
+     * @param packets The aggregation of packets for the game
+     * @param gameState The final game state of the player
+     */
+    private async onGameEnd(packets: PacketAssembler, gameState: GameState) {
+
+        // Write game to database
+        await Database.query(CreateGameQuery, {
+            userid: this.userid,
+            start_level: gameState.startLevel,
+            end_level: gameState.getStatus().level,
+            end_score: gameState.getStatus().score,
+            end_lines: gameState.getStatus().lines,
+            accuracy: null, // TODO: calculate accuracy
+            tetris_rate: gameState.getTetrisRate()
+        });
+
+        // TODO: write game data to database
 
     }
     

@@ -7,6 +7,7 @@ export interface GameDisplayData {
     level: number;
     lines: number;
     score: number;
+    trt: number;
     countdown: number | undefined;
 }
 
@@ -16,5 +17,6 @@ export const DEFAULT_POLLED_GAME_DATA: GameDisplayData = {
     level: 18,
     lines: 0,
     score: 0,
+    trt: 0,
     countdown: undefined
 };

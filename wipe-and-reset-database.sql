@@ -153,10 +153,10 @@ CREATE TABLE "public"."games" (
     "created_at" timestamp NOT NULL DEFAULT now(),
     "userid" text NOT NULL REFERENCES "public"."users"("userid"),
     "start_level" int2 NOT NULL,
-    "end_score" int2 NOT NULL,
+    "end_score" int4 NOT NULL,
     "end_level" int2 NOT NULL,
     "end_lines" int2 NOT NULL,
-    "accuracy" int2 NOT NULL,
+    "accuracy" int2,
     "tetris_rate" int2 NOT NULL,
     PRIMARY KEY ("id")
 );
