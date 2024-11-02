@@ -1,10 +1,11 @@
 import { EventConsumer } from "../event-consumer";
 import { OnSessionBinaryMessageEvent, OnSessionDisconnectEvent, OnSessionJsonMessageEvent } from "../online-user-events";
 import { PacketDisassembler } from "../../../shared/network/stream-packets/packet-disassembler";
-import { ChatMessage, ClientRoomEventMessage, InRoomStatus, InRoomStatusMessage, JsonMessage, JsonMessageType, RoomStateUpdateMessage, SpectatorCountMessage } from "../../../shared/network/json-message";
+import { ChatMessage, ClientRoomEventMessage, InRoomStatus, InRoomStatusMessage, JsonMessage, JsonMessageType, RoomStateUpdateMessage, SendPushNotificationMessage, SpectatorCountMessage } from "../../../shared/network/json-message";
 import { OnlineUserManager } from "../online-user-manager";
 import { ClientRoomEvent, RoomInfo, RoomState } from "../../../shared/room/room-models";
 import { v4 as uuid } from 'uuid';
+import { NotificationType } from "../../../shared/models/notifications";
 
 export class RoomError extends Error {
     constructor(message: string) {
@@ -74,6 +75,24 @@ export abstract class Room<T extends RoomState = RoomState> {
                 throw new RoomError(`Session ${sessionID} is already in a room`);
             }
         });
+
+        // Check if each of users have any sessions already playing in a room. If so, throw an error.
+        playerSessionIDs.forEach(sessionID => {
+            const userid = Room.Users.getUserIDBySessionID(sessionID)!;
+            for (const otherSessionID of Room.Users.getUserInfo(userid)!.sessions) {
+                const room = Room.Consumer.getRoomBySessionID(otherSessionID);
+                if (room && room.isPlayer(otherSessionID)) {
+
+                    Room.Users.sendToUserSession(sessionID, new SendPushNotificationMessage(
+                        NotificationType.ERROR,
+                        "You are are already logged in somewhere else playing a game!"
+                    ));
+
+                    throw new RoomError(`User ${userid} is already playing in a room on a different session`);
+                }
+            }
+        });
+
 
         // Initialize players as RoomPlayer objects that are not present in the room. On ROOM_PRESENCE messages, they will
         // be marked as present in the room.
