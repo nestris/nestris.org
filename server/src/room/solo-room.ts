@@ -48,6 +48,17 @@ export class SoloRoom extends Room<SoloRoomState> {
     }
 
     /**
+     * Handle the player leaving the room
+     */
+    protected override async onDelete(): Promise<void> {
+        
+        // If in the middle of a game, handle ending the game and saving the game state
+        if (this.gameState) {
+            await this.onGameEnd(this.packets, this.gameState);
+        }
+    }
+
+    /**
      * Update the room state to indicate whether the server is in game, and send to client
      * @param serverInGame 
      */

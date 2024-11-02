@@ -42,9 +42,9 @@ export class OnlineUserManager {
         });
 
         // Self-subscribe to the events observable to log all events
-        this.events$.subscribe(event => {
-            console.log(`OnlineUserEvent: ${JSON.stringify(event)}`);
-        });
+        // this.events$.subscribe(event => {
+        //     console.log(`OnlineUserEvent: ${JSON.stringify(event)}`);
+        // });
     }
 
     // Given a websocket, get the session object associated with it. Keep private, as external classes
