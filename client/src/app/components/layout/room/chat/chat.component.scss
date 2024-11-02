@@ -113,4 +113,19 @@ textarea::placeholder {
 
 .fade {
     -webkit-mask-image: linear-gradient(0deg, #000 60%, transparent);
-  }
+}
+
+.expanding-div {
+    max-height: 0;
+    overflow: hidden;
+    animation: expand 0.5s ease-out forwards;
+}
+
+@keyframes expand {
+    from {
+        max-height: 0;
+    }
+    to {
+        max-height: 100px;
+    }
+}

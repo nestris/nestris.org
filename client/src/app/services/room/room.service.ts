@@ -8,11 +8,11 @@ import { MeService } from '../state/me.service';
 import { ClientRoom } from './client-room';
 import { SoloClientRoom } from './solo-client-room';
 import { RoomModal } from 'src/app/components/layout/room/room/room.component';
-import { EmulatorService } from '../emulator/emulator.service';
-import { PlatformInterfaceService } from '../platform-interface.service';
+import { v4 as uuid } from 'uuid';
 
 const MAX_MESSAGES = 15;
 export interface Message {
+  id: string;
   username: string;
   message: string;
 }
@@ -62,7 +62,7 @@ export class RoomService {
 
       // Push the message to the messages array, limiting the number of messages
       this.messages$.next([
-        ...this.messages$.getValue(), { username: chatMessage.username, message: chatMessage.message }
+        ...this.messages$.getValue(), { id: uuid(), username: chatMessage.username, message: chatMessage.message }
       ].slice(-MAX_MESSAGES));
     });
   }

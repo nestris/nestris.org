@@ -26,16 +26,19 @@ export class ChatComponent {
 
     let decreased = false;
 
+    const textarea = this.elementRef.nativeElement.querySelector('textarea');
+
     try {
 
+      // submit message if not empty message, and enter key was pressed
       if (event.inputType === 'insertLineBreak') {
-        this.submitMessage(this.message);
+        if (this.message) this.submitMessage(this.message);
+        else textarea.value = "";
         return;
       }
 
       // If exceeds max chars, set to previous value
       if (event.target.value.length > MAX_CHARACTERS) {
-        const textarea = this.elementRef.nativeElement.querySelector('textarea');
         textarea.value = this.message;
         return;
       }
@@ -57,6 +60,10 @@ export class ChatComponent {
 
     }
     else this.updateRowCount();
+  }
+
+  public messageHash(index: number, message: Message) {
+    return message.id;
   }
 
   private updateRowCount() {

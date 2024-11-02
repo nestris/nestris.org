@@ -7,7 +7,7 @@
 
     <div class="main">
 
-        <div class="message" *ngFor="let message of messages">
+        <div class="message expanding-div" *ngFor="let message of messages; trackBy: messageHash">
             <h1 class="username">{{message.username}}</h1>
             <p class="text">{{message.message}}</p>
         </div>
