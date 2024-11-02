@@ -1,5 +1,6 @@
 import { Observable, Subject } from "rxjs";
 import { DBError, DBObjectAlreadyExistsError, DBObjectNotFoundError } from "./db-object-error";
+import { DBCacheMonitor } from "./db-cache-monitor";
 
 /**
  * A DBObject interfaces in-memory storage of a database object with reading and writing to the database. Subclasses
@@ -64,6 +65,7 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
                 // Delete the object from the map to free up memory
                 DBObject.dbObjects.delete(oldestID);
                 DBObject.cacheSize--;
+                DBCacheMonitor.setNumCacheEntries(name, DBObject.cacheSize);
 
                 console.log(`Evicted ${name} object with ID ${oldestID} from cache to free up memory`);
             }
@@ -91,6 +93,7 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
             // Store the object in the map
             DBObject.dbObjects.set(id, dbObject);
             DBObject.cacheSize++;
+            DBCacheMonitor.setNumCacheEntries(name, DBObject.cacheSize);
 
             console.log(`Created new ${name} object with ID ${id}`);
 
@@ -128,6 +131,7 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
             // Delete the in-memory object by deleting the object from the map
             DBObject.dbObjects.delete(id);
             DBObject.cacheSize--;
+            DBCacheMonitor.setNumCacheEntries(name, DBObject.cacheSize);
 
             // Notify all subscribers of the deletion
             DBObject.onDelete$.next({
@@ -196,6 +200,10 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
             // If the object is in-memory, return the in-memory object
             if (existingDBObject) {
                 console.log(`Got ${name} object with ID ${id} from cache`);
+
+                // Notify the cache monitor of the cache hit
+                DBCacheMonitor.recordCacheHit(name);
+
                 return {
                     object: existingDBObject.get(),
                     cached: true,
@@ -210,16 +218,21 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
             // Store the object in the map so that future calls to get() will be fast
             DBObject.dbObjects.set(id, dbObject);
             DBObject.cacheSize++;
+            DBCacheMonitor.setNumCacheEntries(name, DBObject.cacheSize);
 
             // Evict the oldest object if the cache size exceeds the maximum cache size
             DBObject.evictOldestIfNeeded();
+
+            // Notify the cache monitor of the cache miss
+            const ms = Date.now() - start;
+            DBCacheMonitor.recordCacheMiss(name, ms);
 
             // Return the in-memory object
             console.log(`Got ${name} object with ID ${id} from database`);
             return {
                 object: dbObject.get(),
                 cached: false,
-                ms: Date.now() - start
+                ms: ms
             }
         }
 
@@ -232,6 +245,7 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
         static forget(id: string) {
             if (DBObject.dbObjects.delete(id)) {
                 DBObject.cacheSize--;
+                DBCacheMonitor.setNumCacheEntries(name, DBObject.cacheSize);
             }
 
             console.log(`Forgot ${name} object with ID ${id}`);
@@ -244,6 +258,7 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
         static clearCache() {
             DBObject.dbObjects.clear();
             DBObject.cacheSize = 0;
+            DBCacheMonitor.setNumCacheEntries(name, DBObject.cacheSize);
 
             console.log(`Cleared ${name} object cache`);
         }

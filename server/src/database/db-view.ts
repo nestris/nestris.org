@@ -1,3 +1,5 @@
+import { DBCacheMonitor } from "./db-cache-monitor";
+
 /**
  * A DBView manages the caching of readonly queries to the database. It supports events that, presumably when the database
  * is externally modified, will update the in-memory object. This allows for fast lookup for the DBView.
@@ -34,6 +36,7 @@ export function DBView<View, Event>(name: string, maxCacheSize: number = 1000) {
                 // Delete the object from the map to free up memory
                 DBView.dbViews.delete(oldestID);
                 DBView.cacheSize--;
+                DBCacheMonitor.setNumCacheEntries(name, DBView.cacheSize);
 
                 console.log(`Evicted ${name} view with ID ${oldestID} from cache to free up memory`);
             }
@@ -80,6 +83,10 @@ export function DBView<View, Event>(name: string, maxCacheSize: number = 1000) {
 
             // If the object is in-memory, return the in-memory object
             if (existingDBView) {
+
+                // Record the cache hit
+                DBCacheMonitor.recordCacheHit(name);
+
                 console.log(`Got ${name} view with ID ${id} from cache`);
                 return {
                     view: existingDBView.get(),
@@ -95,16 +102,21 @@ export function DBView<View, Event>(name: string, maxCacheSize: number = 1000) {
             // Store the view in the map so that future calls to get() will be fast
             DBView.dbViews.set(id, dbView);
             DBView.cacheSize++;
+            DBCacheMonitor.setNumCacheEntries(name, DBView.cacheSize);
 
             // Evict the oldest view if the cache size exceeds the maximum cache size
             DBView.evictOldestIfNeeded();
+
+            // Record the cache miss
+            const ms = Date.now() - start;
+            DBCacheMonitor.recordCacheMiss(name, ms);
 
             // Return the in-memory view
             console.log(`Got ${name} view with ID ${id} from database`);
             return {
                 view: dbView.get(),
                 cached: false,
-                ms: Date.now() - start
+                ms: ms
             }
         }
 
@@ -117,6 +129,7 @@ export function DBView<View, Event>(name: string, maxCacheSize: number = 1000) {
         static forget(id: string) {
             if (DBView.dbViews.delete(id)) {
                 DBView.cacheSize--;
+                DBCacheMonitor.setNumCacheEntries(name, DBView.cacheSize);
             }
 
             console.log(`Forgot ${name} view with ID ${id}`);
@@ -129,6 +142,7 @@ export function DBView<View, Event>(name: string, maxCacheSize: number = 1000) {
         static clearCache() {
             DBView.dbViews.clear();
             DBView.cacheSize = 0;
+            DBCacheMonitor.setNumCacheEntries(name, DBView.cacheSize);
 
             console.log(`Cleared ${name} view cache`);
         }
