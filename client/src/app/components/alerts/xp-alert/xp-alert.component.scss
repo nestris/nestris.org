@@ -5,19 +5,24 @@
     flex-direction: row;
     align-items: center;
     gap: 10px;
+
+    width: 350px;
+    box-sizing: border-box;
 }
 
 .xp-info {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
 
     padding-inline: 20px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .xp-bar-container {
-    width: 200px;
+    width: 220px;
     height: 12px;
     position: relative;
 

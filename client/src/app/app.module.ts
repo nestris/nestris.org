@@ -88,6 +88,8 @@ import { AlertContainerComponent } from './components/alerts/alert-container/ale
 import { TestAlertComponent } from './components/alerts/test-alert/test-alert.component';
 import { AlertComponent } from './components/alerts/alert/alert.component';
 import { XPAlertComponent } from './components/alerts/xp-alert/xp-alert.component';
+import { QuestAlertComponent } from './components/alerts/quest-alert/quest-alert.component';
+import { QuestComponent } from './components/ui/quest/quest.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -212,6 +214,8 @@ const customNotifierOptions: NotifierOptions = {
     TestAlertComponent,
     AlertComponent,
     XPAlertComponent,
+    QuestAlertComponent,
+    QuestComponent,
   ],
   imports: [
     BrowserModule,

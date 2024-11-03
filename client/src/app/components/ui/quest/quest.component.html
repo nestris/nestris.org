@@ -1,0 +1,12 @@
+<div class="quest" *ngIf="QuestDefinitions.getQuestDefinition(name) as quest">
+    <div class="header">
+        <div class="left">
+            <h1 class="name">{{quest.name}}</h1>
+            <p class="xp">+{{quest.xp}} XP</p>
+        </div>
+
+        <h2 class="complete" *ngIf="status === true" [ngStyle]="{'color' : QUEST_COLORS[quest.difficulty]}">Complete!</h2>
+
+    </div>
+    <div class="definition-container"><p class="definition">{{quest.description}}</p></div>
+</div>

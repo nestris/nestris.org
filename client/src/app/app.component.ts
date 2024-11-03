@@ -16,6 +16,7 @@ import { TestAlertComponent } from './components/alerts/test-alert/test-alert.co
 import { XPAlertComponent } from './components/alerts/xp-alert/xp-alert.component';
 import { League } from './shared/nestris-org/league-system';
 import { XPAlertService } from './services/xp-alert.service';
+import { QuestAlertComponent } from './components/alerts/quest-alert/quest-alert.component';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
@@ -50,5 +51,8 @@ export class AppComponent implements OnInit {
   async ngOnInit() {
 
     console.log("DEV MODE", isDevMode());
+
+    // this.alertService.addAlert(XPAlertComponent, "xpAlert", {league: League.MINO_1, currentXP: 0});
+    // this.alertService.addAlert(QuestAlertComponent, "questAlert", {name : "Ok Noah Dengler"});
   }
 }

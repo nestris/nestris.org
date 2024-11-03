@@ -3,8 +3,16 @@ import { DBUser } from "../models/db-user";
 export enum QuestDifficulty {
     EASY = "Easy",
     MEDIUM = "Medium",
-    HARD = "Hard"
+    HARD = "Hard",
+    IMPOSSIBLE = "Impossible"
 }
+
+export const QUEST_COLORS = {
+    [QuestDifficulty.EASY]: "#58D774",
+    [QuestDifficulty.MEDIUM]: "#5874D7",
+    [QuestDifficulty.HARD]: "#D76758",
+    [QuestDifficulty.IMPOSSIBLE]: "#9F58D7"
+};
 
 export interface QuestDefinition {
     name: string;
@@ -35,6 +43,15 @@ export class QuestDefinitions {
      */
     public static register(definition: QuestDefinition) {
         this.definitions.push(definition);
+    }
+
+    /**
+     * Get the quest definition by name
+     */
+    public static getQuestDefinition(name: string): QuestDefinition {
+        return this.definitions.find(
+            (quest) => quest.name === name
+        )!;
     }
 
     /**
@@ -111,7 +128,7 @@ export class QuestDefinitions {
 }
 
 QuestDefinitions.register({
-    name: "Future world champion",
+    name: "First blood",
     description: "Break the six-figure mark! Reach 100,000 points in a game.",
     difficulty: QuestDifficulty.EASY,
     xp: 100,
@@ -121,11 +138,29 @@ QuestDefinitions.register({
 
 QuestDefinitions.register({
     name: "Making noise",
-    description: "Double your six-figure score with 200,000 points!",
+    description: "Reach a double six-figure score of 200,000 points!",
     difficulty: QuestDifficulty.EASY,
     xp: 200,
     computeScore: (user: DBUser) => user.highest_score,
     targetScore: 200000
+});
+
+QuestDefinitions.register({
+    name: "Rising star",
+    description: "Reach a mighty 300,000 points!",
+    difficulty: QuestDifficulty.EASY,
+    xp: 200,
+    computeScore: (user: DBUser) => user.highest_score,
+    targetScore: 300000
+});
+
+QuestDefinitions.register({
+    name: "Getting serious",
+    description: "Reach 400,000 points in a game.",
+    difficulty: QuestDifficulty.EASY,
+    xp: 200,
+    computeScore: (user: DBUser) => user.highest_score,
+    targetScore: 400000
 });
 
 QuestDefinitions.register({
@@ -138,7 +173,25 @@ QuestDefinitions.register({
 });
 
 QuestDefinitions.register({
-    name: "Okay you maxed out",
+    name: "Novice no more",
+    description: "You're getting there! Reach 600,000 points in a game.",
+    difficulty: QuestDifficulty.EASY,
+    xp: 500,
+    computeScore: (user: DBUser) => user.highest_score,
+    targetScore: 600000
+});
+
+QuestDefinitions.register({
+    name: "Future world champion",
+    description: "Get close to a million with 800,000 points in a game",
+    difficulty: QuestDifficulty.EASY,
+    xp: 500,
+    computeScore: (user: DBUser) => user.highest_score,
+    targetScore: 800000
+});
+
+QuestDefinitions.register({
+    name: "Maxout city",
     description: "Reach 1,000,000 points in a game, known as a 'maxout'",
     difficulty: QuestDifficulty.MEDIUM,
     xp: 1000,
@@ -252,6 +305,15 @@ QuestDefinitions.register({
     xp: 1600,
     computeScore: (user: DBUser) => user.highest_transition_into_29,
     targetScore: 29
+});
+
+QuestDefinitions.register({
+    name: "Brain teaser",
+    description: "Climb up to 1000 elo in rated puzzles",
+    difficulty: QuestDifficulty.EASY,
+    xp: 200,
+    computeScore: (user: DBUser) => user.puzzle_elo,
+    targetScore: 1000
 });
 
 QuestDefinitions.register({
