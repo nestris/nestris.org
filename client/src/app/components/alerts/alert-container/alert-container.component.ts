@@ -1,4 +1,4 @@
-import { Component, ViewContainerRef, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, ViewContainerRef, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy, ComponentRef } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { AlertEntry, AlertService } from 'src/app/services/alert.service';
 
@@ -6,10 +6,11 @@ import { AlertEntry, AlertService } from 'src/app/services/alert.service';
   selector: 'app-alert-container',
   templateUrl: './alert-container.component.html',
   styleUrls: ['./alert-container.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AlertContainerComponent implements OnInit, OnDestroy {
   private subscription?: Subscription;
-  private alertRefs = new Map<string, any>(); // To track alert components by ID
+  private alertRefs = new Map<string, ComponentRef<any>>(); // To track alert components by ID
 
   // Use @ViewChild to capture the alertsHost as a ViewContainerRef
   @ViewChild('alertsHost', { read: ViewContainerRef, static: true })
@@ -29,7 +30,7 @@ export class AlertContainerComponent implements OnInit, OnDestroy {
     // Remove alerts that no longer exist
     Array.from(this.alertRefs.keys()).forEach(alertId => {
       if (!alerts.has(alertId)) {
-        this.alertRefs.get(alertId).destroy();
+        this.alertRefs.get(alertId)!.destroy();
         this.alertRefs.delete(alertId);
       }
     });
@@ -38,12 +39,16 @@ export class AlertContainerComponent implements OnInit, OnDestroy {
     alerts.forEach((entry, alertId) => {
       if (this.alertRefs.has(alertId)) {
         // Update existing alert inputs if necessary
-        const alertRef = this.alertRefs.get(alertId);
+        const alertRef = this.alertRefs.get(alertId)!;
         if (entry.inputs) {
           Object.keys(entry.inputs).forEach(key => {
-            alertRef.instance[key] = entry.inputs![key];
+            alertRef.setInput(key, entry.inputs![key]);
           });
         }
+
+        // Pass the hide parameter
+        alertRef.instance.hide = entry.hide; // Update the hide property
+
         alertRef.changeDetectorRef.detectChanges();
       } else {
         // Create new alert component inside the alertsHost container
@@ -52,9 +57,12 @@ export class AlertContainerComponent implements OnInit, OnDestroy {
         // Set inputs
         if (entry.inputs) {
           Object.keys(entry.inputs).forEach(key => {
-            alertRef.instance[key] = entry.inputs![key];
+            alertRef.setInput(key, entry.inputs![key]);
           });
         }
+
+        // Pass the hide parameter
+        alertRef.instance.hide = entry.hide; // Initialize the hide property
 
         // Save the reference
         this.alertRefs.set(alertId, alertRef);

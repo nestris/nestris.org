@@ -13,6 +13,8 @@ import { RoomService } from './services/room/room.service';
 import { SoloGamesListService } from './services/state/solo-games-list.service';
 import { AlertService } from './services/alert.service';
 import { TestAlertComponent } from './components/alerts/test-alert/test-alert.component';
+import { XPAlertComponent } from './components/alerts/xp-alert/xp-alert.component';
+import { League } from './shared/nestris-org/league-system';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
@@ -47,14 +49,11 @@ export class AppComponent implements OnInit {
 
     console.log("DEV MODE", isDevMode());
 
-    this.alertService.addAlert(TestAlertComponent, "testAlert", {param1: "helo", param2: "b"});
+    await new Promise(resolve => setTimeout(resolve, 500));
+    this.alertService.addAlert(XPAlertComponent, "xpAlert", {league: League.MINO_5, xp: 200});
+
     await new Promise(resolve => setTimeout(resolve, 1000));
-    this.alertService.addAlert(TestAlertComponent, "testAlert2", {param1: "helo", param2: "b"});
-
-    // wait 2 seconds
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    this.alertService.removeAlert("testAlert");
-
+    this.alertService.updateAlert("xpAlert", {xp: 5000});
+    
   }
 }

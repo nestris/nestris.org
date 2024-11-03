@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { RoomService } from 'src/app/services/room/room.service';
 import { BehaviorSubject, map } from 'rxjs';
 import { RoomType } from 'src/app/shared/room/room-models';
@@ -12,7 +12,8 @@ export enum RoomModal {
 @Component({
   selector: 'app-room',
   templateUrl: './room.component.html',
-  styleUrls: ['./room.component.scss']
+  styleUrls: ['./room.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RoomComponent implements OnInit, OnDestroy {
 

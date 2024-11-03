@@ -87,6 +87,7 @@ import { LeagueIconComponent } from './components/ui/league-icon/league-icon.com
 import { AlertContainerComponent } from './components/alerts/alert-container/alert-container.component';
 import { TestAlertComponent } from './components/alerts/test-alert/test-alert.component';
 import { AlertComponent } from './components/alerts/alert/alert.component';
+import { XPAlertComponent } from './components/alerts/xp-alert/xp-alert.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -210,6 +211,7 @@ const customNotifierOptions: NotifierOptions = {
     AlertContainerComponent,
     TestAlertComponent,
     AlertComponent,
+    XPAlertComponent,
   ],
   imports: [
     BrowserModule,

@@ -86,3 +86,9 @@ export function updateXP(xp: number, league: League, xpDelta: number): { newXP: 
 
     return { newXP: xp, newLeague: league };
 }
+
+export function leagueColor(league: League) {
+    if (league <= League.MINO_1) return "#00CAFF";
+    if (league <= League.BETTA_1) return "#F67C1B";
+    else return "#FF354D";
+}

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { Platform, PlatformInterfaceService } from 'src/app/services/platform-interface.service';
@@ -9,7 +9,8 @@ import { RoomType } from 'src/app/shared/room/room-models';
 @Component({
   selector: 'app-solo-before-game-modal',
   templateUrl: './solo-before-game-modal.component.html',
-  styleUrls: ['./solo-before-game-modal.component.scss']
+  styleUrls: ['./solo-before-game-modal.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SoloBeforeGameModalComponent {
 

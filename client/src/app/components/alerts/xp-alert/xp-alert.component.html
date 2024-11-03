@@ -1,0 +1,14 @@
+<app-alert [hide]="hide" [borderColor]="leagueColor(league)">
+    <div class="xp-alert">
+        <app-league-icon [league]="league" [height]="40" />
+        <div class="xp-info">
+            <div class="xp-bar-container prevent-select">
+                <div class="xp-bar-background" [ngStyle]="{'backgroundColor' : leagueColor(league)}"></div>
+                <div class="xp-bar-active"
+                    [ngStyle]="{'backgroundColor' : leagueColor(league), 'width' : getPercent(displayXP$ | async) + '%'}"
+                ></div>
+            </div>
+            <p class="prevent-select">{{((displayXP$ | async) ?? 0).toFixed(0)}} of {{targetXP}} XP</p>
+        </div>
+    </div>
+</app-alert>
