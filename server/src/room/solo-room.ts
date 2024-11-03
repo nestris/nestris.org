@@ -119,7 +119,7 @@ export class SoloRoom extends Room<SoloRoomState> {
         const gameID = uuid();
 
         const state = gameState.getSnapshot();
-        const xpGained = 0; // TODO: calculate XP gained
+        const xpGained = 100; // TODO: calculate XP gained
 
         // Write game to database
         await Database.query(CreateGameQuery, {
@@ -138,7 +138,7 @@ export class SoloRoom extends Room<SoloRoomState> {
         DBSoloGamesListView.alter(this.userid, new DBSoloGamesListAddEvent(gameID, state.score, xpGained));
 
         // get user before updating stats
-        const dbUserBefore = (await DBUserObject.get(this.userid)).object;
+        const dbUserBefore = Object.assign({}, (await DBUserObject.get(this.userid)).object);
 
         // Update user stats from game
         await DBUserObject.alter(this.userid, new DBOnGameEndEvent(
@@ -148,7 +148,8 @@ export class SoloRoom extends Room<SoloRoomState> {
             state.transitionInto19,
             state.transitionInto29,
             state.perfectInto19,
-            state.perfectInto29
+            state.perfectInto29,
+            xpGained
         ), false);
 
         // get user after updating stats
@@ -161,12 +162,14 @@ export class SoloRoom extends Room<SoloRoomState> {
         const completedQuests = QuestDefinitions.getJustCompletedQuests(dbUserBefore, dbUserAfter).map(q => q.name);
 
         // Send the XP gained message, as well as any quests completed, to the specific session of the player that finished the game
-        SoloRoom.Users.sendToUserSession(this.sessionID, new XPGainMessage(
-            dbUserBefore.league,
-            dbUserBefore.xp,
-            xpGained,
-            completedQuests
-        ));
+        if (xpGained > 0 || completedQuests.length > 0) {
+            SoloRoom.Users.sendToUserSession(this.sessionID, new XPGainMessage(
+                dbUserBefore.league,
+                dbUserBefore.xp,
+                xpGained,
+                completedQuests
+            ));
+        }
 
         // Send message to all session of player of a new solo game that was finished
         SoloRoom.Users.sendToUser(this.userid, new FinishSoloGameMessage(gameID, state.score, xpGained));

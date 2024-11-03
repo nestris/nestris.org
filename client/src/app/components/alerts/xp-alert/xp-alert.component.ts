@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, Input, OnChanges, OnInit } from '@a
 import { BehaviorSubject } from 'rxjs';
 import { League, LEAGUE_XP_REQUIREMENTS, leagueColor } from 'src/app/shared/nestris-org/league-system';
 
-const START_APPROACH_RATE = 0.025;
+const START_APPROACH_RATE = 0.02;
 const END_APPROACH_RATE = 0.12;
 
 @Component({
@@ -14,7 +14,7 @@ const END_APPROACH_RATE = 0.12;
 export class XPAlertComponent implements OnInit, OnChanges {
   @Input() hide: boolean = false;
   @Input() league!: League;
-  @Input() xp!: number;
+  @Input() currentXP!: number;
 
   readonly leagueColor = leagueColor;
 
@@ -26,7 +26,7 @@ export class XPAlertComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.targetXP = LEAGUE_XP_REQUIREMENTS[this.league];
-    this.displayXP$.next(this.xp);
+    this.displayXP$.next(this.currentXP);
   }
 
   public getPercent(displayXP: number | null): number {
@@ -35,7 +35,7 @@ export class XPAlertComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges() {
-    this.delta = this.xp - this.displayXP$.getValue();
+    this.delta = this.currentXP - this.displayXP$.getValue();
     this.approachXP();
   }
 
@@ -43,8 +43,7 @@ export class XPAlertComponent implements OnInit, OnChanges {
    * Approach displayXP to xp over time, exiting when displayXP reaches xp
    */
   public approachXP() {
-    const diff = this.xp - this.displayXP$.getValue();
-    console.log(this.delta, diff, this.displayXP$.getValue(), this.xp);
+    const diff = this.currentXP - this.displayXP$.getValue();
     
     let next;
     if (diff / this.delta > 0.3) {
@@ -54,8 +53,8 @@ export class XPAlertComponent implements OnInit, OnChanges {
     }
 
     // if sufficiently close, just set to target
-    if (Math.abs(this.xp - next) < 1) {
-      this.displayXP$.next(this.xp);
+    if (Math.abs(this.currentXP - next) < 1) {
+      this.displayXP$.next(this.currentXP);
       return;
     }
 

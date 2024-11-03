@@ -48,7 +48,8 @@ export class DBOnGameEndEvent extends DBUserEvent {
         public readonly transitionInto19: number | null,
         public readonly transitionInto29: number | null,
         public readonly perfectTransitionInto19: boolean,
-        public readonly perfectTransitionInto29: boolean
+        public readonly perfectTransitionInto29: boolean,
+        public readonly xpGained: number
     ) { super(); }
 }
 
@@ -175,7 +176,14 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
 
         return Database.query(DeleteUserQuery, this.id);
     }
-    
+
+    private updateXPInMemory(xpDelta: number): void {
+        const currentLeague = getLeagueFromIndex(this.inMemoryObject.league);
+        const { newXP, newLeague } = updateXP(this.inMemoryObject.xp, currentLeague, xpDelta);
+        this.inMemoryObject.xp = newXP;
+        this.inMemoryObject.league = newLeague;
+    }
+
     // Given an event, alters the object in-memory
     protected override alterInMemory(event: DBUserEvent): void {
 
@@ -191,10 +199,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
             // On alter XP, add xpDelta to xp. If xp is enough to promote to a new league, promote
             case DBAlterXPEvent:
                 const xpEvent = event as DBAlterXPEvent;
-                const currentLeague = getLeagueFromIndex(this.inMemoryObject.league);
-                const { newXP, newLeague } = updateXP(this.inMemoryObject.xp, currentLeague, xpEvent.xpDelta);
-                this.inMemoryObject.xp = newXP;
-                this.inMemoryObject.league = newLeague;
+                this.updateXPInMemory(xpEvent.xpDelta);
                 break;
             
             // On alter trophies, add trophyDelta to trophies, ensuring trophies is non-negative
@@ -222,6 +227,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
                 this.inMemoryObject.highest_transition_into_29 = Math.max(this.inMemoryObject.highest_transition_into_29, gameEndEvent.transitionInto29 ?? 0);
                 this.inMemoryObject.has_perfect_transition_into_19 = this.inMemoryObject.has_perfect_transition_into_19 || gameEndEvent.perfectTransitionInto19;
                 this.inMemoryObject.has_perfect_transition_into_29 = this.inMemoryObject.has_perfect_transition_into_29 || gameEndEvent.perfectTransitionInto29;
+                this.updateXPInMemory(gameEndEvent.xpGained);
                 break;
 
             // Update settings

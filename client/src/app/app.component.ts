@@ -15,6 +15,7 @@ import { AlertService } from './services/alert.service';
 import { TestAlertComponent } from './components/alerts/test-alert/test-alert.component';
 import { XPAlertComponent } from './components/alerts/xp-alert/xp-alert.component';
 import { League } from './shared/nestris-org/league-system';
+import { XPAlertService } from './services/xp-alert.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
@@ -34,6 +35,7 @@ export class AppComponent implements OnInit {
     private roomService: RoomService,
     private soloGamesListService: SoloGamesListService,
     private alertService: AlertService,
+    private xpAlertService: XPAlertService,
     private router: Router,
   ) {
 
@@ -48,12 +50,5 @@ export class AppComponent implements OnInit {
   async ngOnInit() {
 
     console.log("DEV MODE", isDevMode());
-
-    await new Promise(resolve => setTimeout(resolve, 500));
-    this.alertService.addAlert(XPAlertComponent, "xpAlert", {league: League.MINO_5, xp: 200});
-
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    this.alertService.updateAlert("xpAlert", {xp: 5000});
-    
   }
 }
