@@ -22,7 +22,6 @@ import { LeaderboardManager } from './src/leaderboards/leaderboard-manager';
 import { FullHighscoreLeaderboard, FullPuzzlesLeaderboard, FullTrophiesLeaderboard } from './src/leaderboards/full-leaderboard';
 import { T200XPLeaderboard } from './src/leaderboards/t200-leaderboard';
 import { GetRelativeLeaderboardsRoute } from './src/routes/leaderboard/get-relative-leaderboards-route';
-import { QuestConsumer } from './src/online-users/event-consumers/quest-consumer';
 import { CreateSoloRoomRoute } from './src/routes/room/create-solo-room-route';
 import { RoomConsumer } from './src/online-users/event-consumers/room-consumer';
 import { GetSoloGamesListRoute } from './src/routes/room/get-solo-games-list-route';
@@ -81,7 +80,6 @@ async function main() {
   consumers.registerConsumer(FriendEventConsumer);
   consumers.registerConsumer(PingConsumer);
   consumers.registerConsumer(GuestConsumer);
-  consumers.registerConsumer(QuestConsumer);
   consumers.registerConsumer(RoomConsumer);
 
   // Initialize leaderboards

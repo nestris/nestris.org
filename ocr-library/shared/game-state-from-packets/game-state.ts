@@ -12,6 +12,10 @@ export interface GameStateSnapshot {
   next: TetrominoType,
   tetrisRate: number,
   countdown: number | undefined,
+  transitionInto19: number | null,
+  transitionInto29: number | null,
+  perfectInto19: boolean,
+  perfectInto29: boolean
 }
 
 // Keeps track of state within a legal game
@@ -30,6 +34,11 @@ export class GameState {
 
   private numTetrises: number = 0;
   private numLines: number = 0;
+
+  private transitionInto19: number | null = null;
+  private transitionInto29: number | null = null;
+  private perfectInto19: boolean = false;
+  private perfectInto29: boolean = false
 
   constructor(public readonly startLevel: number, current: TetrominoType, next: TetrominoType) {
     this.status = new SmartGameStatus(startLevel);
@@ -130,6 +139,8 @@ export class GameState {
     if (!placement.isValidPlacement(this.isolatedBoard)) {
       throw new Error("Placement is not legal on the current board");
     }
+    
+    const levelBefore = this.status.level;
 
     // place piece on board and clear lines
     placement.blitToBoard(this.isolatedBoard);
@@ -139,6 +150,17 @@ export class GameState {
     // increment tetrises and lines cleared
     this.numLines += linesCleared;
     if (linesCleared === 4) this.numTetrises++;
+
+    // calculate transitions, if any
+    if (levelBefore === 18 && this.status.level === 19) {
+      this.transitionInto19 = this.status.score;
+      this.perfectInto19 = this.getTetrisRate() === 1;
+    }
+    if (levelBefore === 28 && this.status.level === 29) {
+      this.transitionInto29 = this.status.score;
+      this.perfectInto29 = this.getTetrisRate() === 1;
+    }
+
 
     // shift current and next pieces
     this.current = this.next;
@@ -163,6 +185,10 @@ export class GameState {
       next: this.next,
       tetrisRate: this.getTetrisRate(),
       countdown: this.countdown,
+      transitionInto19: this.transitionInto19,
+      transitionInto29: this.transitionInto29,
+      perfectInto19: this.perfectInto19,
+      perfectInto29: this.perfectInto29
     };
   }
 }

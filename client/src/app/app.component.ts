@@ -11,6 +11,8 @@ import { CacheableRequestService } from './services/cacheable-request.service';
 import { MeService } from './services/state/me.service';
 import { RoomService } from './services/room/room.service';
 import { SoloGamesListService } from './services/state/solo-games-list.service';
+import { AlertService } from './services/alert.service';
+import { TestAlertComponent } from './components/alerts/test-alert/test-alert.component';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
@@ -29,6 +31,7 @@ export class AppComponent implements OnInit {
     private meService: MeService,
     private roomService: RoomService,
     private soloGamesListService: SoloGamesListService,
+    private alertService: AlertService,
     private router: Router,
   ) {
 
@@ -44,12 +47,14 @@ export class AppComponent implements OnInit {
 
     console.log("DEV MODE", isDevMode());
 
-    console.log("gg");
+    this.alertService.addAlert(TestAlertComponent, "testAlert", {param1: "helo", param2: "b"});
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    this.alertService.addAlert(TestAlertComponent, "testAlert2", {param1: "helo", param2: "b"});
 
-    const me = await this.meService.get();
-    console.log("Me", me);
+    // wait 2 seconds
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
-    console.log("asdf");
+    this.alertService.removeAlert("testAlert");
 
   }
 }

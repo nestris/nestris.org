@@ -13,23 +13,23 @@ CREATE TABLE "public"."users" (
     "created_at" timestamp NOT NULL DEFAULT now(),
     "last_online" timestamp NOT NULL DEFAULT now(),
     "league" int2 NOT NULL DEFAULT 0,
-    "xp" int2 NOT NULL DEFAULT 0,
+    "xp" int4 NOT NULL DEFAULT 0,
 
     "trophies" int2 NOT NULL DEFAULT 0,
     "highest_trophies" int2 NOT NULL DEFAULT 0,
     
     "puzzle_elo" int2 NOT NULL DEFAULT 0,
     "highest_puzzle_elo" int2 NOT NULL DEFAULT 0,
-    "puzzles_attempted" int2 NOT NULL DEFAULT 0,
-    "puzzles_solved" int2 NOT NULL DEFAULT 0,
-    "puzzle_seconds_played" int4 NOT NULL DEFAULT 0,
+    "puzzles_attempted" int4 NOT NULL DEFAULT 0,
+    "puzzles_solved" int4 NOT NULL DEFAULT 0,
+    "puzzle_seconds_played" int8 NOT NULL DEFAULT 0,
     
-    "highest_score" int2 NOT NULL DEFAULT 0,
+    "highest_score" int4 NOT NULL DEFAULT 0,
     "highest_level" int2 NOT NULL DEFAULT 0,
     "highest_lines" int2 NOT NULL DEFAULT 0,
 
-    "highest_transition_into_19" int2 NOT NULL DEFAULT 0,
-    "highest_transition_into_29" int2 NOT NULL DEFAULT 0,
+    "highest_transition_into_19" int4 NOT NULL DEFAULT 0,
+    "highest_transition_into_29" int4 NOT NULL DEFAULT 0,
 
     "has_perfect_transition_into_19" boolean NOT NULL DEFAULT FALSE,
     "has_perfect_transition_into_29" boolean NOT NULL DEFAULT FALSE,
@@ -134,10 +134,10 @@ CREATE TABLE "public"."rated_puzzles" (
 
     "rating" int2 NOT NULL CHECK (rating >= 1 AND rating <= 6),
     "theme" text NOT NULL,
-    "num_attempts" int2 NOT NULL DEFAULT 0,
-    "num_solves" int2 NOT NULL DEFAULT 0,
-    "num_likes" int2 NOT NULL DEFAULT 0,
-    "num_dislikes" int2 NOT NULL DEFAULT 0,
+    "num_attempts" int4 NOT NULL DEFAULT 0,
+    "num_solves" int4 NOT NULL DEFAULT 0,
+    "num_likes" int4 NOT NULL DEFAULT 0,
+    "num_dislikes" int4 NOT NULL DEFAULT 0,
 
     PRIMARY KEY ("id")
 );
@@ -158,7 +158,7 @@ CREATE TABLE "public"."games" (
     "end_lines" int2 NOT NULL,
     "accuracy" int2,
     "tetris_rate" int2 NOT NULL,
-    "xp_gained" int2 NOT NULL,
+    "xp_gained" int4 NOT NULL,
     PRIMARY KEY ("id")
 );
 

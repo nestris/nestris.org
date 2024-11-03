@@ -1,10 +1,12 @@
 import { GameState } from "../../shared/game-state-from-packets/game-state";
-import { FinishSoloGameMessage } from "../../shared/network/json-message";
+import { QuestDefinitions } from "../../shared/nestris-org/quest-system";
+import { FinishSoloGameMessage, MeMessage, XPGainMessage } from "../../shared/network/json-message";
 import { GamePlacementSchema, GameStartSchema, PacketContent, PacketOpcode } from "../../shared/network/stream-packets/packet";
 import { PacketAssembler } from "../../shared/network/stream-packets/packet-assembler";
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
 import { RoomType } from "../../shared/room/room-models";
 import { SoloRoomState } from "../../shared/room/solo-room-models";
+import { DBOnGameEndEvent, DBUserObject } from "../database/db-objects/db-user";
 import { CreateGameQuery } from "../database/db-queries/create-game-query";
 import { Database } from "../database/db-query";
 import { DBSoloGamesListAddEvent, DBSoloGamesListView } from "../database/db-views/db-solo-games-list";
@@ -21,6 +23,7 @@ export class SoloRoom extends Room<SoloRoomState> {
 
     private userid: string;
     private username: string;
+    private sessionID: string;
 
     /**
      * Creates a new SoloRoom for the single player with the given playerSessionID
@@ -32,6 +35,7 @@ export class SoloRoom extends Room<SoloRoomState> {
             { type: RoomType.SOLO, serverInGame: false },
         )
 
+        this.sessionID = playerSessionID;
         this.userid = SoloRoom.Users.getUserIDBySessionID(playerSessionID)!;
         this.username = SoloRoom.Users.getUserInfo(this.userid)!.username;
     }
@@ -114,9 +118,7 @@ export class SoloRoom extends Room<SoloRoomState> {
 
         const gameID = uuid();
 
-        const score = gameState.getStatus().score;
-        const level = gameState.getStatus().level;
-        const lines = gameState.getStatus().lines;
+        const state = gameState.getSnapshot();
         const xpGained = 0; // TODO: calculate XP gained
 
         // Write game to database
@@ -124,19 +126,50 @@ export class SoloRoom extends Room<SoloRoomState> {
             id: gameID,
             userid: this.userid,
             start_level: gameState.startLevel,
-            end_level: level,
-            end_score: score,
-            end_lines: lines,
+            end_level: state.level,
+            end_score: state.score,
+            end_lines: state.lines,
             accuracy: null, // TODO: calculate accuracy
-            tetris_rate: gameState.getTetrisRate(),
+            tetris_rate: state.tetrisRate,
             xp_gained: xpGained // TODO: calculate XP gained
         });
 
         // Add game to list of solo games
-        DBSoloGamesListView.alter(this.userid, new DBSoloGamesListAddEvent(gameID, score, xpGained));
+        DBSoloGamesListView.alter(this.userid, new DBSoloGamesListAddEvent(gameID, state.score, xpGained));
+
+        // get user before updating stats
+        const dbUserBefore = (await DBUserObject.get(this.userid)).object;
+
+        // Update user stats from game
+        await DBUserObject.alter(this.userid, new DBOnGameEndEvent(
+            state.score,
+            state.level,
+            state.lines,
+            state.transitionInto19,
+            state.transitionInto29,
+            state.perfectInto19,
+            state.perfectInto29
+        ), false);
+
+        // get user after updating stats
+        const dbUserAfter = (await DBUserObject.get(this.userid)).object;
+
+        // Update the new user stats for each session of the player
+        SoloRoom.Users.sendToUser(this.userid, new MeMessage(dbUserAfter));
+
+        // Get the list of quest names that were just completed
+        const completedQuests = QuestDefinitions.getJustCompletedQuests(dbUserBefore, dbUserAfter).map(q => q.name);
+
+        // Send the XP gained message, as well as any quests completed, to the specific session of the player that finished the game
+        SoloRoom.Users.sendToUserSession(this.sessionID, new XPGainMessage(
+            dbUserBefore.league,
+            dbUserBefore.xp,
+            xpGained,
+            completedQuests
+        ));
 
         // Send message to all session of player of a new solo game that was finished
-        SoloRoom.Users.sendToUser(this.userid, new FinishSoloGameMessage(gameID, score, xpGained));
+        SoloRoom.Users.sendToUser(this.userid, new FinishSoloGameMessage(gameID, state.score, xpGained));
 
         // TODO: write game data to database
     }

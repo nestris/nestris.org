@@ -14,7 +14,7 @@ export interface DBUserParams {
 }
 
 abstract class DBUserEvent {
-    constructor(public readonly sessionid: string) {}
+    constructor() {}
 }
 
 // When user connects to the server, update last_online
@@ -22,42 +22,39 @@ export class DBUserOnlineEvent extends DBUserEvent {}
 
 // Add XP to user, possibly promoting to a new league
 export class DBAlterXPEvent extends DBUserEvent {
-    constructor(sessionid: string, public readonly xpDelta: number) { super(sessionid); }
+    constructor(public readonly xpDelta: number) { super(); }
 }
 
 // Update user's trophies by trophyDelta amount
 export class DBAlterTrophiesEvent extends DBUserEvent {
-    constructor(sessionid: string, public readonly trophyDelta: number) { super(sessionid); }
+    constructor(public readonly trophyDelta: number) { super(); }
 }
 
 // Update user stats after puzzle submission
 export class DBOnPuzzleSubmitEvent extends DBUserEvent {
     constructor(
-        sessionid: string,
         public readonly newElo: number, // new elo after puzzle submission
         public readonly isCorrect: boolean, // whether the puzzle was solved
         public readonly seconds: number, // seconds taken to solve puzzle
-    ) { super(sessionid); }
+    ) { super(); }
 }
 
 // Update highest stats on game end
 export class DBOnGameEndEvent extends DBUserEvent {
     constructor(
-        sessionid: string,
         public readonly score: number,
         public readonly level: number,
         public readonly lines: number,
-        public readonly transitionInto19: number,
-        public readonly transitionInto29: number,
+        public readonly transitionInto19: number | null,
+        public readonly transitionInto29: number | null,
         public readonly perfectTransitionInto19: boolean,
         public readonly perfectTransitionInto29: boolean
-    ) { super(sessionid); }
+    ) { super(); }
 }
 
 // Update settings
 export class DBUpdateSettingsEvent extends DBUserEvent {
     constructor(
-        sessionid: string, 
         public readonly enableReceiveFriendRequests: boolean,
         public readonly notifyOnFriendOnline: boolean,
         public readonly soloChatPermission: string,
@@ -68,7 +65,7 @@ export class DBUpdateSettingsEvent extends DBUserEvent {
         public readonly keybindEmuRotRight: string,
         public readonly keybindPuzzleRotLeft: string,
         public readonly keybindPuzzleRotRight: string
-    ) { super(sessionid); }
+    ) { super(); }
 }
 
 export interface JustCompletedQuest {
@@ -79,12 +76,6 @@ export interface JustCompletedQuest {
 
 
 export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("DBUser") {
-
-    private static onCompleteQuest$ = new Subject<JustCompletedQuest>();
-
-    public static onCompleteQuest(): Observable<JustCompletedQuest> {
-        return this.onCompleteQuest$.asObservable();
-    }
 
     protected override async fetchFromDB(): Promise<DBUser> {
 
@@ -227,8 +218,8 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
                 this.inMemoryObject.highest_score = Math.max(this.inMemoryObject.highest_score, gameEndEvent.score);
                 this.inMemoryObject.highest_level = Math.max(this.inMemoryObject.highest_level, gameEndEvent.level);
                 this.inMemoryObject.highest_lines = Math.max(this.inMemoryObject.highest_lines, gameEndEvent.lines);
-                this.inMemoryObject.highest_transition_into_19 = Math.max(this.inMemoryObject.highest_transition_into_19, gameEndEvent.transitionInto19);
-                this.inMemoryObject.highest_transition_into_29 = Math.max(this.inMemoryObject.highest_transition_into_29, gameEndEvent.transitionInto29);
+                this.inMemoryObject.highest_transition_into_19 = Math.max(this.inMemoryObject.highest_transition_into_19, gameEndEvent.transitionInto19 ?? 0);
+                this.inMemoryObject.highest_transition_into_29 = Math.max(this.inMemoryObject.highest_transition_into_29, gameEndEvent.transitionInto29 ?? 0);
                 this.inMemoryObject.has_perfect_transition_into_19 = this.inMemoryObject.has_perfect_transition_into_19 || gameEndEvent.perfectTransitionInto19;
                 this.inMemoryObject.has_perfect_transition_into_29 = this.inMemoryObject.has_perfect_transition_into_29 || gameEndEvent.perfectTransitionInto29;
                 break;
@@ -247,26 +238,6 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
                 this.inMemoryObject.keybind_puzzle_rot_left = settingsEvent.keybindPuzzleRotLeft;
                 this.inMemoryObject.keybind_puzzle_rot_right = settingsEvent.keybindPuzzleRotRight;
                 break;
-        }
-
-        // Check if any quests are completed
-        const justCompletedQuests = QuestDefinitions.getJustCompletedQuests(before, this.inMemoryObject);
-
-        if (justCompletedQuests.length > 0) {
-            // First, calculate the xp gained from quests and update the user's xp and league
-            const xpGained = justCompletedQuests.reduce((acc, quest) => acc + quest.xp, 0);
-            const { newXP, newLeague } = updateXP(this.inMemoryObject.xp, getLeagueFromIndex(this.inMemoryObject.league), xpGained);
-            this.inMemoryObject.xp = newXP;
-            this.inMemoryObject.league = newLeague;
-
-            // Next, emit the just completed quests
-            justCompletedQuests.forEach(quest => {
-                DBUserObject.onCompleteQuest$.next({
-                    userid: this.id,
-                    sessionid: event.sessionid,
-                    questName: quest.name
-                });
-            });
         }
     }
 

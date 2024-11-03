@@ -1,0 +1,19 @@
+@keyframes slideIn {
+    from {
+      transform: translateX(-150%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  
+  .alert {
+    animation: slideIn 0.5s ease forwards;
+
+    background-color: black;
+    border-radius: 10px;
+    border-width: 2px;
+    border-style: solid;
+
+    padding : 10px 15px;
+  }

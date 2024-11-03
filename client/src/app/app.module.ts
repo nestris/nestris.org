@@ -83,6 +83,10 @@ import { ChatComponent } from './components/layout/room/chat/chat.component';
 import { RoomModalComponent } from './components/layout/room/modals/room-modal/room-modal.component';
 import { SoloBeforeGameModalComponent } from './components/layout/room/modals/solo-before-game-modal/solo-before-game-modal.component';
 import { SoloAfterGameModalComponent } from './components/layout/room/modals/solo-after-game-modal/solo-after-game-modal.component';
+import { LeagueIconComponent } from './components/ui/league-icon/league-icon.component';
+import { AlertContainerComponent } from './components/alerts/alert-container/alert-container.component';
+import { TestAlertComponent } from './components/alerts/test-alert/test-alert.component';
+import { AlertComponent } from './components/alerts/alert/alert.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -202,6 +206,10 @@ const customNotifierOptions: NotifierOptions = {
     RoomModalComponent,
     SoloBeforeGameModalComponent,
     SoloAfterGameModalComponent,
+    LeagueIconComponent,
+    AlertContainerComponent,
+    TestAlertComponent,
+    AlertComponent,
   ],
   imports: [
     BrowserModule,

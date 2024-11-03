@@ -3,6 +3,7 @@ import { DBUser } from "../models/db-user"
 import { MatchInfo, MultiplayerData, MultiplayerRoomState } from "../models/multiplayer"
 import { NotificationType } from "../models/notifications"
 import { ClientRoomEvent, RoomInfo, RoomState } from "../room/room-models"
+import { League } from "../nestris-org/league-system";
 
 /*
 Data sent over websocket as JSON. type is the only required field and specifies
@@ -21,7 +22,6 @@ export enum JsonMessageType {
     MULTIPLAYER_ROOM_UPDATE = 'multiplayer_room_update', // sent from server to client to update the multiplayer room
     SERVER_RESTART_WARNING = 'server_restart_warning', // sent from server to client to warn of server restart
     ME = 'ME',
-    QUEST_COMPLETE = 'quest_complete',
     CHAT = 'chat',
     SPECTATOR_COUNT = 'spectator_count',
     IN_ROOM_STATUS = 'in_room_status',
@@ -29,6 +29,7 @@ export enum JsonMessageType {
     CLIENT_ROOM_EVENT = 'client_room_event',
     LEAVE_ROOM = 'leave_room',
     FINISH_SOLO_GAME = 'finish_solo_game',
+    XP_GAIN = 'xp_gain',
 }
 
 export abstract class JsonMessage {
@@ -131,14 +132,6 @@ export class MeMessage extends JsonMessage {
     }
 }
 
-export class QuestCompleteMessage extends JsonMessage {
-    constructor(
-        public readonly questName: string
-    ) {
-        super(JsonMessageType.QUEST_COMPLETE)
-    }
-}
-
 export class ChatMessage extends JsonMessage {
     constructor(
         public readonly username: string,
@@ -210,5 +203,17 @@ export class FinishSoloGameMessage extends JsonMessage {
         public readonly xp: number
     ) {
         super(JsonMessageType.FINISH_SOLO_GAME)
+    }
+}
+
+// sent from server to client to indicate an amount of XP has been gained, as well as any quests completed, to trigger client-side animation
+export class XPGainMessage extends JsonMessage {
+    constructor(
+        public readonly startLeague: League,
+        public readonly startXP: number,
+        public readonly normalXPGain: number,
+        public readonly completedQuests: string[] // list of quest names that were completed and should have XP added
+    ) {
+        super(JsonMessageType.XP_GAIN)
     }
 }

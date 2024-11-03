@@ -196,8 +196,6 @@ export class EmulatorService {
 
     if (eventIsForInput(event)) return;
 
-    console.log(event);
-
     const keybind = this.keybinds.stringToKeybind(event.key);
     if (keybind) {
       this.keyManager.onPress(keybind);
