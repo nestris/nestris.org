@@ -25,7 +25,7 @@ export class XPAlertService {
       // then, add the inital xp gain
       setTimeout(() => {
         this.alertService.updateAlert("xpAlert", {currentXP: xpGainMessage.startXP + xpGainMessage.normalXPGain});
-      }, 600);
+      }, 800);
 
 
 
