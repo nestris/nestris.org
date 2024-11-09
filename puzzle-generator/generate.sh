@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Number of processes to run (always 10)
-NUM_INSTANCES=10
+# Number of processes to run
+NUM_INSTANCES=15
 
 # Number of times each process will run the command
 NUM_RUNS=30

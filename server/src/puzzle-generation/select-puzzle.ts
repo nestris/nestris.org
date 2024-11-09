@@ -7,6 +7,7 @@ import { queryUserByUserID } from '../database/user-queries';
 import { decodeRatedPuzzleFromDB } from './decode-rated-puzzle';
 import { ServerState } from '../server-state/server-state';
 import { getUserID } from '../util/auth-util';
+import { Query, QueryResult } from 'pg';
 
 export function calculateProbabilities(elo: number): number[] {
 
@@ -104,30 +105,26 @@ export async function fetchRandomPuzzleWithRating(rating: PuzzleRating, userid: 
   // query the database for a random puzzle with the selected rating where the puzzle has not been attempted by the user
   // order randomly
   // we ignore puzzles with 2 or greater num_dislikes_cached, as they are likely to be bad puzzles
-  let result = await queryDB(
-    `SELECT * FROM rated_puzzles WHERE rating = $1 AND num_dislikes_cached < 2 AND id NOT IN (SELECT puzzle_id FROM puzzle_attempts WHERE userid = $2 AND puzzle_id is not NULL) ORDER BY RANDOM() ASC LIMIT 1`,
-    [rating, userid]
-  );
 
   // if trying to select a 6 star puzzle but all solved, return 5 star puzzle where user has not attempted
-  if (!result.rows[0] && rating === PuzzleRating.SIX_STAR) {
-    logDatabase(userid, `No unattempted 6 star puzzles found, selecting 5 star puzzle`);
-    console.log(`No unattempted 6 star puzzles found for user ${userid}, selecting 5 star puzzle`);
-
-    // no 6 star puzzles found, select a 5 star puzzle
-    rating = PuzzleRating.FIVE_STAR;
+  let result: QueryResult | undefined = undefined;
+  if (rating === PuzzleRating.SIX_STAR) {
 
     result = await queryDB(
       `SELECT * FROM rated_puzzles WHERE rating = $1 AND num_dislikes_cached < 2 AND id NOT IN (SELECT puzzle_id FROM puzzle_attempts WHERE userid = $2 AND puzzle_id is not NULL) ORDER BY RANDOM() ASC LIMIT 1`,
       [rating, userid]
     );
+
+    // no 6 star puzzles found, select a 5 star puzzle
+    if (result.rows.length === 0) {
+      rating = PuzzleRating.FIVE_STAR;
+    }
   }
     
   // if there are no puzzles with the selected rating that the user has not attempted, just select a random puzzle with the rating (that the user has alreaddy attempted)
-  if (!result.rows[0]) {
-    logDatabase(userid, `No unattempted puzzles with rating ${rating} found, selecting repeated puzzle`);
+  if (!result || result.rows.length === 0) {
     console.log(`No unattempted puzzles with rating ${rating} found for user ${userid}, selecting repeated puzzle`);
-    result = await queryDB(`SELECT * FROM rated_puzzles WHERE rating = $1 ORDER BY RANDOM() LIMIT 1`, [rating]);
+    result = await queryDB(`SELECT * FROM rated_puzzles WHERE rating = $1 AND num_dislikes_cached < 2 ORDER BY RANDOM() LIMIT 1`, [rating]);
   }
 
   if (result.rows.length === 0) {

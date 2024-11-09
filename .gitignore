@@ -25,6 +25,7 @@ puzzle-generator/node_modules
 puzzle-generator/.env
 puzzle-generator/.env.prod
 puzzle-generator/.env.dev
+puzzle-generator/binaries/cRabbit.node
 
 # Environment variables
 .env

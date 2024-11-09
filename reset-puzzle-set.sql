@@ -8,40 +8,27 @@ DELETE FROM public.puzzle_feedback;
 UPDATE public.puzzle_attempts
 SET puzzle_id = NULL;
 
--- Clear rated_puzzles table
-CREATE OR REPLACE FUNCTION delete_all_rows_in_batches(
-    table_name text,
-    batch_size integer DEFAULT 1000
-)
-RETURNS void AS $$
-DECLARE
-    deleted_count integer;
-    total_deleted integer := 0;
-BEGIN
-    LOOP
-        EXECUTE format('
-            DELETE FROM %I
-            WHERE ctid IN (
-                SELECT ctid
-                FROM %I
-                ORDER BY ctid
-                LIMIT %L
-            )
-        ', table_name, table_name, batch_size);
 
-        GET DIAGNOSTICS deleted_count = ROW_COUNT;
-        total_deleted := total_deleted + deleted_count;
-        
-        RAISE NOTICE 'Deleted % rows. Total rows deleted: %', deleted_count, total_deleted;
-        
-        EXIT WHEN deleted_count = 0;
-        
-        -- Optional: Add a small delay to reduce database load
-        PERFORM pg_sleep(1);
-    END LOOP;
+-- Reset rated_puzzles table
+DROP TABLE IF EXISTS "public"."rated_puzzles" CASCADE;
+CREATE TABLE "public"."rated_puzzles" (
+    "id" text NOT NULL,
+    "created_at" timestamp NOT NULL DEFAULT now(),
 
-    RAISE NOTICE 'Deletion complete. Total rows deleted: %', total_deleted;
-END;
-$$ LANGUAGE plpgsql;
+    "current_piece" char(1) NOT NULL,
+    "next_piece" char(1) NOT NULL,
+    
+    "current_placement" int2 NOT NULL,
+    "next_placement" int2 NOT NULL,
 
-SELECT delete_all_rows_in_batches('rated_puzzles');
+    "rating" int2 NOT NULL CHECK (rating >= 1 AND rating <= 6),
+    "theme" text NOT NULL,
+    "state" text NOT NULL DEFAULT 'provisional'::text,
+    "num_attempts_cached" int2 NOT NULL DEFAULT 0, -- should be updated by trigger on PuzzleAttempt
+    "num_solves_cached" int2 NOT NULL DEFAULT 0, -- should be updated by trigger on PuzzleAttempt
+    "num_likes_cached" int2 NOT NULL DEFAULT 0,
+    "num_dislikes_cached" int2 NOT NULL DEFAULT 0,
+
+    PRIMARY KEY ("id")
+);
+CREATE INDEX rating_index ON rated_puzzles (rating DESC); -- for fetching puzzles to rate

@@ -115,7 +115,7 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
   };
 
   // if diff is too small, zero, or negative, return BAD_PUZZLE
-  if (diff <= 2) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "Diff too small"};
+  if (diff <= 3) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "Diff too small"};
 
   // if bestNB is too low, return BAD_PUZZLE
   if (bestNB < -10) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "BestNB too low"};
@@ -130,24 +130,28 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
     return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "Second placement is I-0"};
   }
 
-  // Eliminate puzzles where 20hz SR disagrees with 30hz SR
-  const stackrabbit20hz = await getStackrabbitResponse(board, current, next, InputSpeed.HZ_13);
+  // Eliminate puzzles where 12hz SR disagrees with 30hz SR
+  const stackrabbit20hz = await getStackrabbitResponse(board, current, next, InputSpeed.HZ_12);
   if (stackrabbit20hz.nextBox.length === 0) return {rating: PuzzleRating.BAD_PUZZLE, details};
   if (!(
     stackrabbit.nextBox[0].firstPlacement.equals(stackrabbit20hz.nextBox[0].firstPlacement) &&
     stackrabbit.nextBox[0].secondPlacement.equals(stackrabbit20hz.nextBox[0].secondPlacement)
-  )) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "20hz SR disagrees with 30hz SR"};
+  )) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "12hz SR disagrees with 30hz SR"};
+
+  // if 12hz diff is less than 2.5, return BAD_PUZZLE
+  const diff12hz = stackrabbit20hz.nextBox[0].score - stackrabbit20hz.nextBox[1].score;
+  if (diff12hz <= 3) return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "12hz diff too small"};
 
   let rating: PuzzleRating;
   if (diff >= 30 && !isAdjustment && !hasAnyBurn && !hasAnyTuckOrSpin && diffNNB >= 10) rating = PuzzleRating.ONE_STAR;
   else if (diff >= 15 && !hasAnyTuckOrSpin && !isAdjustment) rating = PuzzleRating.TWO_STAR;
-  else if (diff >= 6) rating = PuzzleRating.THREE_STAR;
+  else if (diff >= 7) rating = PuzzleRating.THREE_STAR;
   else {
     // at this point, the puzzle is 3-5 star. Use a nerfed version of SR to categorize
     // use a nerfed version of SR to determine if the puzzle is 4 or 5 star
     
     try {
-      const babyrabbit = await getStackrabbitResponse(board, current, next, InputSpeed.HZ_30, 7, 1);
+      const babyrabbit = await getStackrabbitResponse(board, current, next, InputSpeed.HZ_20, 7, 1);
 
       // find the index of the best move in the babyrabbit response
       const babyRabbitIndex = babyrabbit.nextBox.findIndex(move => (
@@ -156,14 +160,15 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
       ));
 
       // if the best move is not in the baby rabbit response, or babyrabbit thinks the best move is worse by at least 2, then the puzzle is hard
-      const hard = (babyRabbitIndex === -1) || (babyrabbit.nextBox[0].score - babyrabbit.nextBox[babyRabbitIndex].score >= 3);
+      const hard = (babyRabbitIndex === -1) || (babyrabbit.nextBox[0].score - babyrabbit.nextBox[babyRabbitIndex].score >= 2);
 
       // If hard flag is set, bump the rating difficulty
-      if (diff >= 4) rating = hard ? PuzzleRating.FOUR_STAR : PuzzleRating.THREE_STAR;
-      else rating = hard ? PuzzleRating.FIVE_STAR : (diff >= 2.5 ? PuzzleRating.THREE_STAR : PuzzleRating.FOUR_STAR);
+      if (diff >= 5) rating = hard ? PuzzleRating.FOUR_STAR : PuzzleRating.THREE_STAR;
+      else rating = hard ? PuzzleRating.FIVE_STAR : (diff >= 4 ? PuzzleRating.THREE_STAR : PuzzleRating.FOUR_STAR);
 
       // if third move is much worse than first move, bump the rating down
-      if (rating === PuzzleRating.FIVE_STAR && diff3 > 7) rating = PuzzleRating.FOUR_STAR;
+      if (rating === PuzzleRating.FIVE_STAR && diff3 > 6) rating = PuzzleRating.FOUR_STAR;
+      else if (rating === PuzzleRating.FOUR_STAR && diff3 > 9) rating = PuzzleRating.THREE_STAR;
 
     } catch {
       return {rating: PuzzleRating.BAD_PUZZLE, details, badReason : "Error in babyrabbit"};

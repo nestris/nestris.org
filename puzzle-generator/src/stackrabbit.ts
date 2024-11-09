@@ -15,6 +15,8 @@ export async function getTopMovesHybrid(
   depth: number = 3
 ) {
 
+  //console.log("getTopMovesHybrid");
+
   // for each character of boardString that is '2' or '3', replace with '1'
   boardString = boardString.replace(/2|3/g, '1');
 

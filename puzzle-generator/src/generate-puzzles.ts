@@ -34,13 +34,15 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
 
   for (let i = 0; i < count; i++) {
 
+    //console.log("starting puzzle", i);
+
     let state;
     if (badPuzzlesInARow >= MAX_BAD_PUZZLES_IN_A_ROW) {
 
       // board is in too messy of a state. Reset.
       state = generator.getResetBoardState();
       badPuzzlesInARow = 0;
-      console.log("Resetting board due to too many bad puzzles in a row or hit 50 puzzles");
+      //console.log("Resetting board due to too many bad puzzles in a row or hit 50 puzzles");
 
     } else {
       state = await generator.getNextBoardState();
@@ -54,6 +56,8 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
       next = getRandomTetrominoType();
     }
 
+    //console.log("Generating puzzle", i);
+
     // Disallow puzzles with extremely low boards
     if (state.board.getAverageHeight() < 0.5) {
       //console.log("Too low board generated");
@@ -63,7 +67,7 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
     }
 
     // There are an excessive number of puzzles with low boards generated. Filter half of them out
-    if (state.board.getAverageHeight() < 5 && Math.random() < 0.8) {
+    if (state.board.getAverageHeight() < 5 && Math.random() < 0.9) {
       //console.log("Too low board generated 2");
       i--;
       badPuzzlesInARow++;
@@ -86,6 +90,7 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
       continue;
     }
     
+    //console.log("rating puzzle", i);
     let rating, details, currentSolution, nextSolution, badReason;
     try {
       ({rating, details, currentSolution, nextSolution, badReason} = await ratePuzzle(state.board, current, next));
@@ -112,19 +117,19 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
 
 
     // discard a fraction of rated puzzles due to overabundance
-    if (rating === PuzzleRating.ONE_STAR && Math.random() < 0.4) {
+    if (rating === PuzzleRating.ONE_STAR && Math.random() < 0.65) {
       i--;
       continue;
     }
-    if (rating === PuzzleRating.TWO_STAR && Math.random() < 0.92) {
+    if (rating === PuzzleRating.TWO_STAR && Math.random() < 0.94) {
       i--;
       continue;
     }
-    if (rating === PuzzleRating.THREE_STAR && Math.random() < 0.98) {
+    if (rating === PuzzleRating.THREE_STAR && Math.random() < 0.99) {
       i--;
       continue;
     }
-    if (rating === PuzzleRating.FOUR_STAR && Math.random() < 0.9) {
+    if (rating === PuzzleRating.FOUR_STAR && Math.random() < 0.94) {
       i--;
       continue;
     }
