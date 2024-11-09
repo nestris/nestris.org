@@ -117,11 +117,11 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
 
 
     // discard a fraction of rated puzzles due to overabundance
-    if (rating === PuzzleRating.ONE_STAR && Math.random() < 0.65) {
+    if (rating === PuzzleRating.ONE_STAR && Math.random() < 0.5) {
       i--;
       continue;
     }
-    if (rating === PuzzleRating.TWO_STAR && Math.random() < 0.94) {
+    if (rating === PuzzleRating.TWO_STAR && Math.random() < 0.95) {
       i--;
       continue;
     }

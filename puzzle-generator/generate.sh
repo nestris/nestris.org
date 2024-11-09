@@ -4,7 +4,7 @@
 NUM_INSTANCES=15
 
 # Number of times each process will run the command
-NUM_RUNS=30
+NUM_RUNS=100
 
 # Check if a database parameter is provided
 if [ $# -eq 0 ]; then
