@@ -103,12 +103,12 @@ export async function adjustPuzzleRating(userid: string, puzzleID: string, ratin
     else newRating = rating - 1;
 
   } else if ( // In the special case where a puzzle is really hard, bump to a 6 star
-    (successRate <= 0.125 && rating === PuzzleRating.FIVE_STAR) ||
-    (successRate === 0 && rating === PuzzleRating.FOUR_STAR)
+    (successRate <= 0.25 && rating === PuzzleRating.FIVE_STAR) ||
+    (successRate <= 0.15 && rating === PuzzleRating.FOUR_STAR)
   ) {
     newRating = PuzzleRating.SIX_STAR;
 
-  } else if (successRate <= 0.4) { // Increase rating if success rate is low
+  } else if (successRate <= 0.5) { // Increase rating if success rate is low
 
     // if already 5 star, don't increase
     if (rating === PuzzleRating.FIVE_STAR) return;
