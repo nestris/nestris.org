@@ -96,11 +96,10 @@ export async function submitPuzzleAttemptRoute(req: Request, res: Response, stat
 export async function adjustPuzzleRating(userid: string, puzzleID: string, rating: PuzzleRating, successRate: number) {
 
   let newRating: PuzzleRating;
-  if (successRate >= 0.8) { // Decrease rating if success rate is high
+  if (successRate >= 0.9) { // Decrease rating if success rate is high
 
     // if already 1 or 2 star, don't decrease
     if (rating <= PuzzleRating.TWO_STAR) return;
-    else if (successRate >= 0.9 && rating === PuzzleRating.FIVE_STAR) newRating = PuzzleRating.THREE_STAR;
     else newRating = rating - 1;
 
   } else if ( // In the special case where a puzzle is really hard, bump to a 6 star
