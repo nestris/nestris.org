@@ -93,9 +93,9 @@ export class SequentialBoardGenerator extends BoardGenerator {
 
     // artificially inflate S and Z pieces to make more interesting puzzles
     const rand = Math.random();
-    if (rand < 0.2 && this.inflateSZ) {
+    if (rand < 0.225 && this.inflateSZ) {
       this.next = TetrominoType.Z_TYPE;
-    } else if (rand < 0.4 && this.inflateSZ) {
+    } else if (rand < 0.45 && this.inflateSZ) {
       this.next = TetrominoType.S_TYPE;
     } else {
       this.next = getRandomTetrominoType();

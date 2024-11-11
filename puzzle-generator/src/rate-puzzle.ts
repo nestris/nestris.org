@@ -159,8 +159,8 @@ export async function ratePuzzle(board: TetrisBoard, current: TetrominoType, nex
         && move.secondPlacement.equals(stackrabbit.nextBox[0].secondPlacement)
       ));
 
-      // if the best move is not in the baby rabbit response, or babyrabbit thinks the best move is worse by at least 2, then the puzzle is hard
-      const hard = (babyRabbitIndex === -1) || (babyrabbit.nextBox[0].score - babyrabbit.nextBox[babyRabbitIndex].score >= 2);
+      // if the best move is not in the baby rabbit response, or babyrabbit thinks the best move is worse by at least 1.5, then the puzzle is hard
+      const hard = (babyRabbitIndex === -1) || (babyrabbit.nextBox[0].score - babyrabbit.nextBox[babyRabbitIndex].score >= 1.5);
 
       // If hard flag is set, bump the rating difficulty
       if (diff >= 5) rating = hard ? PuzzleRating.FOUR_STAR : PuzzleRating.THREE_STAR;

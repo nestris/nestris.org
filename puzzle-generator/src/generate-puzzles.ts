@@ -57,9 +57,11 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
     }
 
     //console.log("Generating puzzle", i);
+    
+    const height = state.board.getAverageHeight();
 
     // Disallow puzzles with extremely low boards
-    if (state.board.getAverageHeight() < 0.5) {
+    if (height < 0.5) {
       //console.log("Too low board generated");
       i--;
       badPuzzlesInARow++;
@@ -67,7 +69,7 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
     }
 
     // There are an excessive number of puzzles with low boards generated. Filter half of them out
-    if (state.board.getAverageHeight() < 5 && Math.random() < 0.9) {
+    if (height > 3 && height < 5 && Math.random() < 0.9) {
       //console.log("Too low board generated 2");
       i--;
       badPuzzlesInARow++;
@@ -75,7 +77,7 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
     }
 
     // Disallow puzzles with high boards
-    if (state.board.getAverageHeight() > 10) {
+    if (height > 10) {
       //console.log("Too high board generated");
       i--;
       badPuzzlesInARow++;
@@ -117,19 +119,19 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
 
 
     // discard a fraction of rated puzzles due to overabundance
-    if (rating === PuzzleRating.ONE_STAR && Math.random() < 0.5) {
+    if (rating === PuzzleRating.ONE_STAR && Math.random() < 0.45) {
       i--;
       continue;
     }
-    if (rating === PuzzleRating.TWO_STAR && Math.random() < 0.95) {
+    if (rating === PuzzleRating.TWO_STAR && Math.random() < 0.92) {
       i--;
       continue;
     }
-    if (rating === PuzzleRating.THREE_STAR && Math.random() < 0.99) {
+    if (rating === PuzzleRating.THREE_STAR && Math.random() < 0.98) {
       i--;
       continue;
     }
-    if (rating === PuzzleRating.FOUR_STAR && Math.random() < 0.94) {
+    if (rating === PuzzleRating.FOUR_STAR && Math.random() < 0.93) {
       i--;
       continue;
     }

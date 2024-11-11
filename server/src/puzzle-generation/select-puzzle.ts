@@ -71,7 +71,7 @@ export function calculateEloChangeForPuzzle(userElo: number, rating: PuzzleRatin
   let ratingNum: number = rating;
   if (rating === PuzzleRating.SIX_STAR) ratingNum = 7;
 
-  const puzzleEloEquivalent = 500 * ratingNum;
+  const puzzleEloEquivalent = 550 * ratingNum;
   const eloDelta = userElo - puzzleEloEquivalent;
 
   const ELO_SCALAR = 15;
