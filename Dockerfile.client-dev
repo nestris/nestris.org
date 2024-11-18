@@ -1,5 +1,5 @@
 # Development stage
-FROM node:21.7.3
+FROM node:22.4.1
 
 WORKDIR /app
 
