@@ -26,6 +26,7 @@ import { CreateSoloRoomRoute } from './src/routes/room/create-solo-room-route';
 import { RoomConsumer } from './src/online-users/event-consumers/room-consumer';
 import { GetSoloGamesListRoute } from './src/routes/room/get-solo-games-list-route';
 import { GetCacheStatsRoute } from './src/routes/stats/get-cache-stats-route';
+import { RankedQueueConsumer } from './src/online-users/event-consumers/ranked-queue-consumer';
 
 // Load environment variables
 require('dotenv').config();
@@ -81,6 +82,7 @@ async function main() {
   consumers.registerConsumer(PingConsumer);
   consumers.registerConsumer(GuestConsumer);
   consumers.registerConsumer(RoomConsumer);
+  consumers.registerConsumer(RankedQueueConsumer);
 
   // Initialize leaderboards
   LeaderboardManager.registerFullLeaderboard(FullHighscoreLeaderboard);

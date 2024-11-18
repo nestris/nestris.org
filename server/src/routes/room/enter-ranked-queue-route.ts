@@ -1,0 +1,38 @@
+import { Authentication, DBUser } from "../../../shared/models/db-user";
+import { DBObjectNotFoundError } from "../../database/db-object-error";
+import { DBUserObject } from "../../database/db-objects/db-user";
+import { EventConsumerManager } from "../../online-users/event-consumer";
+import { RankedQueueConsumer } from "../../online-users/event-consumers/ranked-queue-consumer";
+import { RoomConsumer } from "../../online-users/event-consumers/room-consumer";
+import { SoloRoom } from "../../room/solo-room";
+import { PostRoute, RouteError, UserInfo } from "../route";
+
+/**
+ * Route for joining the ranked queue
+ */
+export class EnterRankedQueueRoute extends PostRoute {
+    route = "/api/v2/enter-ranked-queue/:sessionid";
+    authentication = Authentication.USER;
+
+    override async post(userInfo: UserInfo | undefined, pathParams: any) {
+        
+        const sessionID = pathParams.sessionid as string;
+
+        // Make sure sessionID corresponds to the user
+        if (!sessionID) throw new RouteError(400, "Session ID is required");
+        if (EventConsumerManager.getInstance().getUsers().getUserIDBySessionID(sessionID) !== userInfo!.userid) {
+            throw new RouteError(400, `Session ID ${sessionID} does not correspond to user ${userInfo!.username}`);
+        }
+        
+        // Make sure user is not already in an activity
+        if (EventConsumerManager.getInstance().getUsers().isUserInActivity(userInfo!.userid)) {
+            throw new RouteError(400, `User ${userInfo!.username} is already in an activity`);
+        }
+
+        // Join the ranked queue
+        await EventConsumerManager.getInstance().getConsumer(RankedQueueConsumer)
+
+
+        return {success: true};
+    }
+}
