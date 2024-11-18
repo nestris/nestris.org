@@ -1,4 +1,4 @@
-import { OnlineUserEventType, OnSessionBinaryMessageEvent, OnSessionConnectEvent, OnSessionDisconnectEvent, OnSessionJsonMessageEvent, OnUserConnectEvent, OnUserDisconnectEvent } from "./online-user-events";
+import { OnlineUserEventType, OnSessionBinaryMessageEvent, OnSessionConnectEvent, OnSessionDisconnectEvent, OnSessionJsonMessageEvent, OnUserActivityChangeEvent, OnUserConnectEvent, OnUserDisconnectEvent } from "./online-user-events";
 import { OnlineUserManager } from "./online-user-manager";
 import { filter, map, Observable, Subject } from "rxjs";
 
@@ -31,6 +31,10 @@ export class EventConsumer {
             this.users.onEvent$<OnUserDisconnectEvent>(OnlineUserEventType.ON_USER_DISCONNECT)
                 .subscribe(event => this.onUserDisconnect!(event).catch(console.error));
         }
+        if (this.onUserActivityChange) {
+            this.users.onEvent$<OnUserActivityChangeEvent>(OnlineUserEventType.ON_USER_ACTIVITY_CHANGE)
+                .subscribe(event => this.onUserActivityChange!(event).catch(console.error));
+        }
         if (this.onSessionConnect) {
             this.users.onEvent$<OnSessionConnectEvent>(OnlineUserEventType.ON_SESSION_CONNECT)
                 .subscribe(event => this.onSessionConnect!(event).catch(console.error));
@@ -55,6 +59,7 @@ export class EventConsumer {
     // override methods to handle desired events
     protected async onUserConnect?(event: OnUserConnectEvent) {}
     protected async onUserDisconnect?(event: OnUserDisconnectEvent) {}
+    protected async onUserActivityChange?(event: OnUserActivityChangeEvent) {}
     protected async onSessionConnect?(event: OnSessionConnectEvent) {}
     protected async onSessionDisconnect?(event: OnSessionDisconnectEvent) {}
     protected async onSessionJsonMessage?(event: OnSessionJsonMessageEvent) {}

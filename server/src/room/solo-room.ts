@@ -12,6 +12,7 @@ import { Database } from "../database/db-query";
 import { DBSoloGamesListAddEvent, DBSoloGamesListView } from "../database/db-views/db-solo-games-list";
 import { Room } from "../online-users/event-consumers/room-consumer";
 import { v4 as uuid } from 'uuid';
+import { OnlineUserActivityType } from "../online-users/online-user";
 
 export class SoloRoom extends Room<SoloRoomState> {
 
@@ -31,6 +32,7 @@ export class SoloRoom extends Room<SoloRoomState> {
      */
     constructor(playerSessionID: string) {
         super(
+            OnlineUserActivityType.SOLO,
             [playerSessionID],
             { type: RoomType.SOLO, serverInGame: false },
         )

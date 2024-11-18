@@ -25,10 +25,27 @@ export class OnlineUserSession {
     }
 }
 
+
+// The type of activity the user is currently doing.
+export enum OnlineUserActivityType {
+    SOLO = "SOLO",
+    MULTIPLAYER = "MULTIPLAYER",
+    PUZZLES = "PUZZLES",
+    QUEUEING = "QUEUEING",
+}
+
+// The type of activity the user is currently doing and the sessionID of the session that is doing it
+export interface OnlineUserActivity {
+    type: OnlineUserActivityType,
+    sessionID: string,
+}
+
+// A struct containing all the information about a user that is online
 export interface OnlineUserInfo {
     userid: string,
     username: string,
-    sessions: string[]
+    sessions: string[],
+    activity: OnlineUserActivity | null,
 }
 
 /*
@@ -40,6 +57,9 @@ export class OnlineUser {
 
     // maps sessionID to UserSession
     private sessions: Map<string, OnlineUserSession> = new Map();
+
+    // The activity the user is currently doing. Only one activity can be done at a time by any session.
+    private activity: OnlineUserActivity | null = null;
 
     constructor(
         public readonly userid: string, // unique identifier for the user
@@ -71,6 +91,7 @@ export class OnlineUser {
             userid: this.userid,
             username: this.username,
             sessions: Array.from(this.sessions.keys()),
+            activity: this.activity,
         };
     }
 
@@ -123,5 +144,20 @@ export class OnlineUser {
             }
         }
         return undefined;
+    }
+
+    // Sets the activity of the user
+    setActivity(activity: OnlineUserActivity | null) {
+        this.activity = activity;
+    }
+
+    // Gets the activity of the user
+    getActivity(): OnlineUserActivity | null {
+        return this.activity;
+    }
+
+    // Returns true if the user is currently doing some activity
+    inActivity(): boolean {
+        return this.activity !== null;
     }
 }

@@ -6,6 +6,7 @@ import { OnlineUserManager } from "../online-user-manager";
 import { ClientRoomEvent, RoomInfo, RoomState } from "../../../shared/room/room-models";
 import { v4 as uuid } from 'uuid';
 import { NotificationType } from "../../../shared/models/notifications";
+import { OnlineUserActivity, OnlineUserActivityType } from "../online-user";
 
 export class RoomError extends Error {
     constructor(message: string) {
@@ -29,6 +30,7 @@ export class RoomError extends Error {
 export class RoomPlayer {
     
     constructor(
+        public readonly userid: string,
         public readonly sessionID: string,
     ) {}
 
@@ -65,39 +67,48 @@ export abstract class Room<T extends RoomState = RoomState> {
 
 
     constructor(
+        activity: OnlineUserActivityType, // The type of activity the user is currently doing
         playerSessionIDs: string[], // A list of session ids of players in the room
         roomState: T, // The state of the room, specific to the room type
     ) {
 
-        // Check if any of the player session ids are already in a room. If so, throw an error.
-        playerSessionIDs.forEach(sessionID => {
-            if (Room.Consumer.getRoomBySessionID(sessionID)) {
-                throw new RoomError(`Session ${sessionID} is already in a room`);
-            }
-        });
-
-        // Check if each of users have any sessions already playing in a room. If so, throw an error.
-        playerSessionIDs.forEach(sessionID => {
-            const userid = Room.Users.getUserIDBySessionID(sessionID)!;
-            for (const otherSessionID of Room.Users.getUserInfo(userid)!.sessions) {
-                const room = Room.Consumer.getRoomBySessionID(otherSessionID);
-                if (room && room.isPlayer(otherSessionID)) {
-
-                    Room.Users.sendToUserSession(sessionID, new SendPushNotificationMessage(
-                        NotificationType.ERROR,
-                        "You are are already logged in somewhere else playing a game!"
-                    ));
-
-                    throw new RoomError(`User ${userid} is already playing in a room on a different session`);
-                }
-            }
-        });
-
-
         // Initialize players as RoomPlayer objects that are not present in the room. On ROOM_PRESENCE messages, they will
         // be marked as present in the room.
-        this.players = playerSessionIDs.map(sessionID => new RoomPlayer(sessionID));
+        this.players = playerSessionIDs.map(sessionID => {
+            
+            const userid = Room.Users.getUserIDBySessionID(sessionID);
+            if (!userid) throw new RoomError(`User with session ${sessionID} is not found`);
+            
+            return new RoomPlayer(userid, sessionID);
+        });
 
+        // Check if any of the player session ids are already in a room. If so, throw an error.
+        this.players.forEach(player => {
+            if (Room.Consumer.getRoomBySessionID(player.sessionID)) {
+                throw new RoomError(`Session ${player.sessionID} is already in a room`);
+            }
+        });
+
+        // Check if each of users is already in an activity. If so, throw an error.
+        this.players.forEach(player => {
+
+            if (Room.Users.isUserInActivity(player.userid)) {
+                Room.Users.sendToUserSession(player.sessionID, new SendPushNotificationMessage(
+                    NotificationType.ERROR,
+                    "You are already in an activity!"
+                ));
+
+                throw new RoomError(`User ${player.userid} is already in an activity: ${Room.Users.getUserActivity(player.userid)}`);
+            }
+        });
+
+        // Set the activity of each user to the room
+        this.players.forEach(player => {
+            Room.Users.setUserActivity(player.sessionID, activity);
+        });
+
+
+        // Initialize the room info
         this.roomInfo = {
             id: uuid(),
             players: this.players.map(player => {
@@ -312,6 +323,9 @@ export abstract class Room<T extends RoomState = RoomState> {
         this.allSessionIDs.forEach(sessionID => {
             Room.Users.sendToUserSession(sessionID, new InRoomStatusMessage(InRoomStatus.NONE, null, null));
         });
+
+        // Clear the activity of each user
+        this.players.forEach(player => Room.Users.resetUserActivity(player.userid));
 
         // Call the onDelete hook that may be implemented by subclasses
         await this.onDelete();

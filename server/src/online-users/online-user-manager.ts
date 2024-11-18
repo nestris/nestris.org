@@ -4,8 +4,8 @@ import { filter, map, Observable, Subject } from "rxjs";
 import { JsonMessage, JsonMessageType, OnConnectMessage, ErrorHandshakeIncompleteMessage, ErrorMessage, ConnectionSuccessfulMessage } from "../../shared/network/json-message";
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
 import { decodeMessage, MessageType } from "../../shared/network/ws-message";
-import { OnlineUserEvent, OnlineUserEventType, OnSessionBinaryMessageEvent, OnSessionConnectEvent, OnSessionDisconnectEvent, OnSessionJsonMessageEvent, OnUserConnectEvent, OnUserDisconnectEvent } from "./online-user-events";
-import { OnlineUser, OnlineUserInfo, OnlineUserSession } from "./online-user";
+import { OnlineUserEvent, OnlineUserEventType, OnSessionBinaryMessageEvent, OnSessionConnectEvent, OnSessionDisconnectEvent, OnSessionJsonMessageEvent, OnUserActivityChangeEvent, OnUserConnectEvent, OnUserDisconnectEvent } from "./online-user-events";
+import { OnlineUser, OnlineUserActivity, OnlineUserActivityType, OnlineUserInfo, OnlineUserSession } from "./online-user";
 import { WebSocketServer } from "ws";
 
 /*
@@ -119,6 +119,49 @@ export class OnlineUserManager {
 
     public getAllOnlineUserIDs(): string[] {
         return Array.from(this.onlineUsers.keys());
+    }
+
+    // Get the activity of a user, if the user is online and in an activity
+    public getUserActivity(userid: string): OnlineUserActivity | null {
+        const onlineUser = this.onlineUsers.get(userid);
+        if (!onlineUser) return null;
+        return onlineUser.getActivity();
+    }
+
+    // Get whether a user is in an activity
+    public isUserInActivity(userid: string): boolean {
+        const onlineUser = this.onlineUsers.get(userid);
+        if (!onlineUser) return false;
+        return onlineUser.inActivity();
+    }
+
+    // Reset the activity of a user
+    public resetUserActivity(userid: string) {
+        const onlineUser = this.onlineUsers.get(userid);
+        if (!onlineUser) throw new Error(`User ${userid} not found`);
+
+        // Set the activity to null, and emit the event
+        onlineUser.setActivity(null);
+        this.events$.next(new OnUserActivityChangeEvent(userid, onlineUser.username, null));
+    }
+
+    // Set the activity of a user, if the user is online and not already in an activity
+    public setUserActivity(sessionID: string, activityType: OnlineUserActivityType) {
+
+        // Get the userid from the sessionID
+        const userid = this.getUserIDBySessionID(sessionID);
+        if (!userid) throw new Error(`User with sessionID ${sessionID} not found`);
+
+        const onlineUser = this.onlineUsers.get(userid);
+        if (!onlineUser) throw new Error(`User ${userid} not found`);
+
+        // If already in an activity, throw an error
+        if (onlineUser.getActivity() !== null) throw new Error(`User ${userid} is already in an activity`);
+
+        // Set the activity and emit the event
+        const activity: OnlineUserActivity = { type: activityType, sessionID };
+        onlineUser.setActivity(activity);
+        this.events$.next(new OnUserActivityChangeEvent(userid, onlineUser.username, activity));
     }
 
     // called when a message is received from a client
