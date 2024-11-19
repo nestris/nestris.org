@@ -2,7 +2,7 @@ import { Authentication, DBUser } from "../../../shared/models/db-user";
 import { DBObjectNotFoundError } from "../../database/db-object-error";
 import { DBUserObject } from "../../database/db-objects/db-user";
 import { EventConsumerManager } from "../../online-users/event-consumer";
-import { RankedQueueConsumer } from "../../online-users/event-consumers/ranked-queue-consumer";
+import { RankedQueueConsumer, UserUnavailableToJoinQueueError } from "../../online-users/event-consumers/ranked-queue-consumer";
 import { RoomConsumer } from "../../online-users/event-consumers/room-consumer";
 import { SoloRoom } from "../../room/solo-room";
 import { PostRoute, RouteError, UserInfo } from "../route";
@@ -29,8 +29,18 @@ export class EnterRankedQueueRoute extends PostRoute {
             throw new RouteError(400, `User ${userInfo!.username} is already in an activity`);
         }
 
-        // Join the ranked queue
-        await EventConsumerManager.getInstance().getConsumer(RankedQueueConsumer)
+        try {
+            // Join the ranked queue
+            await EventConsumerManager.getInstance().getConsumer(RankedQueueConsumer).joinRankedQueue(sessionID);
+
+        } catch (error) {
+            if (error instanceof UserUnavailableToJoinQueueError) {
+                throw new RouteError(400, error.message);
+            } else {
+                throw new RouteError(500, `Failed to join ranked queue: ${error}`);
+            }
+        }
+        
 
 
         return {success: true};

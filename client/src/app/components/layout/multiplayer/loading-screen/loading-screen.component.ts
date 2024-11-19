@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, HostListener, Input, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 
 interface MousePosition {
   x: number;
@@ -33,13 +33,14 @@ interface TetrisBlock {
   templateUrl: './loading-screen.component.html',
   styleUrls: ['./loading-screen.component.scss']
 })
-export class LoadingScreenComponent {
+export class LoadingScreenComponent implements OnInit, AfterViewInit, OnChanges {
   @ViewChild('canvasElement') canvasElement!: ElementRef<HTMLCanvasElement>;
   @Input() blockSize: number = 25;
   @Input() scaleCircles: number = 1;
   @Input() blockSpeed: number = 1;
   @Input() maxBlocks: number = 50;
   @Input() resolution: number = 1;
+  @Input() explodeEverything: boolean = false;
   @Output() score = new EventEmitter<number>();
 
   readonly CIRCLE_PERSISTENCE = 200;
@@ -93,6 +94,13 @@ export class LoadingScreenComponent {
     this.animate();
   }
 
+  // If change to explodeEverything, explode all tetris blocks
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['explodeEverything'] && changes['explodeEverything'].currentValue) {
+      this.tetrisBlocks.forEach(block => this.explodeTetrisBlock(block));
+    }
+  }
+
   @HostListener('window:resize')
   onResize() {
     this.resizeCanvas();
@@ -100,6 +108,9 @@ export class LoadingScreenComponent {
 
   @HostListener('mousemove', ['$event'])
   onMouseMove(event: MouseEvent) {
+
+    // Do not draw anything if explodeEverything is true
+    if (this.explodeEverything) return;
 
     const rect = this.canvas.getBoundingClientRect();
 

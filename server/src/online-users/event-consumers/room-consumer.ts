@@ -194,12 +194,25 @@ export abstract class Room<T extends RoomState = RoomState> {
 
 
     /**
-     * Send a JSON message to all players and spectators in the room.
+     * Send a message to all players and spectators in the room.
      * @param message The JSON message to send
      */
-    public sendToAll(message: JsonMessage) {
+    public sendToAll(message: JsonMessage | Uint8Array) {
         this.allSessionIDs.forEach(sessionID => {
             Room.Users.sendToUserSession(sessionID, message);
+        });
+    }
+
+    /**
+     * Send a message to all players in the room except the player with the given session id.
+     * @param sessionID The session id of the player to exclude
+     * @param message The JSON message to send
+     */
+    public sendToAllExcept(sessionID: string, message: JsonMessage | Uint8Array) {
+        this.allSessionIDs.forEach(id => {
+            if (id !== sessionID) {
+                Room.Users.sendToUserSession(id, message);
+            }
         });
     }
 

@@ -2,13 +2,15 @@
 
     <app-fullscreen-exit-button />
 
-    <app-loading-screen (score)="setScore($event)" [resolution]="2" [blockSize]="50" [blockSpeed]="1.5" />
+    <app-loading-screen (score)="setScore($event)" [resolution]="2" [blockSize]="50" [blockSpeed]="1.5"
+        [explodeEverything]="!!(foundOpponent$ | async)"
+    />
 
     <div class="score"><p *ngIf="scoreVisible">Score: {{score}}</p></div>
 
     <div class="center-container">
         <h1>{{getMessage((numPeriods$ | async) ?? 0)}}</h1>
-        <p>0 players in a match</p>
+        <p>{{playersInQueue$ | async}} {{(playersInQueue$ | async) === 1 ? 'player' : 'players'}} in queue</p>
     </div>
 
 </div>

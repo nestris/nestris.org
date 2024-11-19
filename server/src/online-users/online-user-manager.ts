@@ -82,26 +82,26 @@ export class OnlineUserManager {
 
     // Send a message to all online users
     public sendToAllOnlineUsers(message: JsonMessage) {
-        this.onlineUsers.forEach(onlineUser => onlineUser.sendJsonMessageToAllSessions(message));
+        this.onlineUsers.forEach(onlineUser => onlineUser.sendMessageToAllSessions(message));
     }
 
     // Send a message to all sessions of a user. Returns true if the user is online and the message was sent.
-    public sendToUser(userid: string, message: JsonMessage): boolean {
+    public sendToUser(userid: string, message: JsonMessage | Uint8Array): boolean {
         const onlineUser = this.onlineUsers.get(userid);
         if (onlineUser) {
-            onlineUser.sendJsonMessageToAllSessions(message);
+            onlineUser.sendMessageToAllSessions(message);
             return true;
         }
         return false;
     }
 
     // Send a message to a specific session of a user. Returns true if the user session is online and the message was sent.
-    public sendToUserSession(sessionID: string, message: JsonMessage): boolean {
+    public sendToUserSession(sessionID: string, message: JsonMessage | Uint8Array): boolean {
 
         const session = this.sessions.get(sessionID);
         if (!session) return false;
         
-        session.sendJsonMessage(message);
+        session.sendMessage(message);
         return true;
     }
 
@@ -138,7 +138,9 @@ export class OnlineUserManager {
     // Reset the activity of a user
     public resetUserActivity(userid: string) {
         const onlineUser = this.onlineUsers.get(userid);
-        if (!onlineUser) throw new Error(`User ${userid} not found`);
+
+        // If the user is not online, do nothing
+        if (!onlineUser) return;
 
         // Set the activity to null, and emit the event
         onlineUser.setActivity(null);
@@ -198,7 +200,7 @@ export class OnlineUserManager {
                 }
             } catch (error: any) {
                 console.error(error);
-                session.sendJsonMessage(new ErrorMessage(error.toString()));
+                session.sendMessage(new ErrorMessage(error.toString()));
             }
             
         }

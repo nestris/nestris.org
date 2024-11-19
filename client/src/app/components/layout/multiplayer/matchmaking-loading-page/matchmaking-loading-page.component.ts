@@ -1,5 +1,8 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { BehaviorSubject, interval } from "rxjs";
+import { Router } from "@angular/router";
+import { BehaviorSubject, interval, Subscription } from "rxjs";
+import { RankedQueueService } from "src/app/services/room/ranked-queue.service";
+import { FoundOpponentMessage } from "src/app/shared/network/json-message";
 
 
 @Component({
@@ -13,17 +16,37 @@ export class MatchmakingLoadingPageComponent implements OnInit, OnDestroy {
     scoreVisible: boolean = false;
 
     numPeriods$: BehaviorSubject<number> = new BehaviorSubject(0);
-    interval: any;
+    intervalSubscription!: Subscription;
 
-    // rotate between '', '.', '..', '...' for the periods
-    ngOnInit() {
-        this.interval = interval(500).subscribe(() => {
+
+    constructor(
+        private rankedQueueService: RankedQueueService,
+        private router: Router
+    ) {}
+
+    readonly playersInQueue$ = this.rankedQueueService.getNumQueuingPlayers$();
+    readonly foundOpponent$ = this.rankedQueueService.getFoundOpponent$();
+    
+    async ngOnInit() {
+
+        // rotate between '', '.', '..', '...' for the periods
+        this.intervalSubscription = interval(500).subscribe(() => {
             this.numPeriods$.next((this.numPeriods$.value + 1) % 4);
         });
+
+        // Join the ranked queue, if not already in queue
+        const success = await this.rankedQueueService.joinQueue();
+        
+        // If the user was not successfully added to the queue, navigate back to home
+        if (!success) this.router.navigate(['/']);   
     }
 
-    ngOnDestroy() {
-        this.interval.unsubscribe();
+    async ngOnDestroy() {
+
+        // Leave the ranked queue
+        await this.rankedQueueService.leaveQueue();
+
+        this.intervalSubscription.unsubscribe();
     }
 
     getMessage(periods: number) {

@@ -4,6 +4,7 @@ import { MatchInfo, MultiplayerData, MultiplayerRoomState } from "../models/mult
 import { NotificationType } from "../models/notifications"
 import { ClientRoomEvent, RoomInfo, RoomState } from "../room/room-models"
 import { League } from "../nestris-org/league-system";
+import { XPDelta } from "../room/multiplayer-room-models"
 
 /*
 Data sent over websocket as JSON. type is the only required field and specifies
@@ -30,6 +31,8 @@ export enum JsonMessageType {
     LEAVE_ROOM = 'leave_room',
     FINISH_SOLO_GAME = 'finish_solo_game',
     XP_GAIN = 'xp_gain',
+    NUM_QUEUING_PLAYERS = 'num_queuing_players',
+    FOUND_OPPONENT = 'found_opponent',
 }
 
 export abstract class JsonMessage {
@@ -215,5 +218,26 @@ export class XPGainMessage extends JsonMessage {
         public readonly completedQuests: string[] // list of quest names that were completed and should have XP added
     ) {
         super(JsonMessageType.XP_GAIN)
+    }
+}
+
+// sent from server to client to update the number of players queuing for multiplayer
+export class NumQueuingPlayersMessage extends JsonMessage {
+    constructor(
+        public readonly count: number
+    ) {
+        super(JsonMessageType.NUM_QUEUING_PLAYERS)
+    }
+}
+
+// sent from server to client to indicate that a match has been found
+export class FoundOpponentMessage extends JsonMessage {
+    constructor(
+        public readonly opponentName: string,
+        public readonly opponentTrophies: number,
+        public readonly opponentLeague: League,
+        public readonly xpDelta: XPDelta
+    ) {
+        super(JsonMessageType.FOUND_OPPONENT)
     }
 }

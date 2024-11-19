@@ -15,9 +15,11 @@ export class OnlineUserSession {
         public readonly socket: WebSocket,
     ) { }
 
-    // Sends a JsonMessage to the connected client for this session
-    sendJsonMessage(message: JsonMessage) {
-        this.socket.send(JSON.stringify(message));
+    // Sends a binary or JsonMessage to the connected client for this session
+    sendMessage(message: JsonMessage | Uint8Array) {
+        if (message instanceof JsonMessage) this.socket.send(JSON.stringify(message));
+        else if (message instanceof Uint8Array) this.socket.send(message);
+        else throw new Error("Invalid message type");
     }
 
     closeSocket(code?: number, reason?: string) {
@@ -101,18 +103,18 @@ export class OnlineUser {
     }
 
     // using the live websocket connection, send a JsonMessage to all the sessions of the client
-    sendJsonMessageToAllSessions(message: JsonMessage) {
+    sendMessageToAllSessions(message: JsonMessage | Uint8Array) {
         console.log(`Sending message to ${this.username}: ${JSON.stringify(message)}`);
-        this.sessions.forEach(session => session.sendJsonMessage(message));
+        this.sessions.forEach(session => session.sendMessage(message));
     }
 
     // using the live websocket connection, send a JsonMessage to the specified session
-    sendJsonMessageToSession(message: JsonMessage, sessionID: string) {
+    sendMessageToSession(message: JsonMessage | Uint8Array, sessionID: string) {
         const session = this.getSessionByID(sessionID);
         if (!session) throw new Error(`Session ${sessionID} not found for user ${this.username}`);
 
         console.log(`Sending message to ${this.username} on session ${sessionID}: ${JSON.stringify(message)}`);
-        session.sendJsonMessage(message);
+        session.sendMessage(message);
     }
 
     // close the websocket connection with the specified close code.

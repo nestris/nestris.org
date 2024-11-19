@@ -27,6 +27,8 @@ import { RoomConsumer } from './src/online-users/event-consumers/room-consumer';
 import { GetSoloGamesListRoute } from './src/routes/room/get-solo-games-list-route';
 import { GetCacheStatsRoute } from './src/routes/stats/get-cache-stats-route';
 import { RankedQueueConsumer } from './src/online-users/event-consumers/ranked-queue-consumer';
+import { EnterRankedQueueRoute } from './src/routes/room/enter-ranked-queue-route';
+import { LeaveRankedQueueRoute } from './src/routes/room/leave-ranked-queue-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -101,6 +103,8 @@ async function main() {
   routes.registerRoute(CreateSoloRoomRoute);
   routes.registerRoute(GetSoloGamesListRoute);
   routes.registerRoute(GetCacheStatsRoute);
+  routes.registerRoute(EnterRankedQueueRoute);
+  routes.registerRoute(LeaveRankedQueueRoute);
 
   // app.get('/api/v2/users-by-username', getAllUsersMatchingUsernamePatternRoute);
   // app.get('/api/v2/user/:userid', getUserByUserIDRoute);

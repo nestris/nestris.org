@@ -48,7 +48,6 @@ class DBSoloGamesListQuery extends DBQuery<DBSoloGamesList> {
 }
 
 
-
 /**
  * Stores a view of the last N solo games played by each user.
  */

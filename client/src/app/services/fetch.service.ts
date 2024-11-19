@@ -1,6 +1,15 @@
 import { Injectable, Injector, isDevMode } from '@angular/core';
 import { WebsocketService } from './websocket.service';
 
+export class HTTPError extends Error {
+  constructor(
+    public readonly status: number,
+    public readonly statusText: string,
+  ) {
+    super(`HTTP error! status: ${status}, statusText: ${statusText}`);
+  }
+}
+
 export enum Method {
   POST = 'POST',
   GET = 'GET',
@@ -63,7 +72,7 @@ export class FetchService {
     }
 
     if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}, statusText: ${response.statusText}`);
+        throw new HTTPError(response.status, response.statusText);
     }
     
     const result = await response.json();

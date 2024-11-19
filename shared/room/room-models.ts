@@ -1,5 +1,6 @@
 export enum RoomType {
     SOLO = 'SOLO',
+    MULTIPLAYER = 'MULTIPLAYER',
 }
 
 export interface RoomPlayer {

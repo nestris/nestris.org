@@ -1,16 +1,56 @@
+import { getLeagueFromIndex } from "../../../shared/nestris-org/league-system";
+import { FoundOpponentMessage, NumQueuingPlayersMessage } from "../../../shared/network/json-message";
+import { XPDelta } from "../../../shared/room/multiplayer-room-models";
+import { sleep } from "../../../shared/scripts/sleep";
 import { DBUserObject } from "../../database/db-objects/db-user";
-import { EventConsumer } from "../event-consumer";
+import { MultiplayerRoom } from "../../room/multiplayer-room";
+import { RankedMultiplayerRoom } from "../../room/ranked-multiplayer-room";
+import { EventConsumer, EventConsumerManager } from "../event-consumer";
+import { OnlineUserActivityType } from "../online-user";
+import { OnSessionDisconnectEvent } from "../online-user-events";
+import { RoomConsumer } from "./room-consumer";
 
+export class QueueError extends Error {}
+export class UserUnavailableToJoinQueueError extends QueueError {}
 
 /**
- * QUEUE REQUIREMENTS
- * 
- * Expanding trophy range window
- * No rematches for last N opponents
- * Maximum wait threshold to match with anyone (AI?)
- * 
+ * Represents a range of trophies that a user can be matched with
  */
+class TrophyRange {
 
+    /**
+     * Create a trophy range with a delta from the given number of trophies
+     * @param trophies The number of trophies
+     * @param delta The range of trophies to include on either side of the given number of trophies
+     * @returns A trophy range with the given number of trophies and delta
+     */
+    static fromDelta(trophies: number, delta: number): TrophyRange {
+        return new TrophyRange(trophies - delta, trophies + delta);
+    }
+    
+    /**
+     * Create a trophy range with the given min and max values
+     * @param min The minimum number of trophies, or null if there is no minimum
+     * @param max The maximum number of trophies, or null if there is no maximum
+     */
+    constructor(
+        public readonly min: number | null,
+        public readonly max: number | null,
+    ) {}
+
+    /**
+     * Check if the given number of trophies is within the range
+     * @param trophies The number of trophies to check
+     * @returns True if the number of trophies is within the range, false otherwise
+     */
+    public contains(trophies: number): boolean {
+        return (this.min === null || trophies >= this.min) && (this.max === null || trophies <= this.max);
+    }
+}
+
+/**
+ * Represents a user in the ranked queue
+ */
 class QueueUser {
 
     public readonly queueStartTime = Date.now();
@@ -22,10 +62,30 @@ class QueueUser {
         public readonly trophies: number,
     ) {}
 
-    // Returns the time elapsed since the user was added to the queue
-    public queueElapsedTime(): number {
-        return Date.now() - this.queueStartTime;
+    /**
+     * Get the time elapsed since the user was added to the queue in seconds
+     * @returns The time elapsed since the user was added to the queue in seconds
+     */
+    public queueElapsedSeconds(): number {
+        return (Date.now() - this.queueStartTime) / 1000;
     }
+
+    /**
+     * Calculate opponent trophy range for user based on the user's trophies and queue time
+     */
+    public getTrophyRange(): TrophyRange {
+
+        // Time elapsed since user was added to the queue in seconds
+        const queueTime = this.queueElapsedSeconds();
+
+        // Calculate trophy range based on queue time
+        if (queueTime < 5) return TrophyRange.fromDelta(this.trophies, 100);
+        if (queueTime < 10) return TrophyRange.fromDelta(this.trophies, 200);
+        if (queueTime < 15) return TrophyRange.fromDelta(this.trophies, 400);
+        if (queueTime < 20) return TrophyRange.fromDelta(this.trophies, 1000);
+        return new TrophyRange(null, null);
+    }
+
 }
 
 /**
@@ -35,18 +95,216 @@ export class RankedQueueConsumer extends EventConsumer {
 
     private queue: QueueUser[] = [];
 
-    public async joinRankedQueue(sessionid: string) {
+    // Map of previous opponent's userid for each userid, used to discourage rematches     
+    private previousOpponent: Map<string, string> = new Map();
+
+    public override init(): void {
+
+        // Find matches every second
+        setInterval(() => this.findMatches(), 1000);
+    }
+
+    protected override async onSessionDisconnect(event: OnSessionDisconnectEvent): Promise<void> {
+
+        // Get the QueueUser corresponding to the session that disconnected
+        const queueUser = this.getQueueUser(event.userid);
+        if (!queueUser) return;
+        if (queueUser.sessionID !== event.sessionID) return;
+
+        // Remove the user from the queue
+        this.leaveRankedQueue(event.userid);
+    }
+
+    /**
+     * Add a user to the ranked queue
+     * @param sessionID The session ID of the user to add to the queue
+     * @throws UserUnavailableToJoinQueueError if the user is unavailable to join the queue
+     */
+    public async joinRankedQueue(sessionID: string) {
 
         // Get userid from sessionid
-        const userid = this.users.getUserIDBySessionID(sessionid);
-        if (!userid) throw new Error(`Session ID ${sessionid} is not connected to a user`);
+        const userid = this.users.getUserIDBySessionID(sessionID);
+        if (!userid) throw new Error(`Session ID ${sessionID} is not connected to a user`);
+
+        // If user is already in the queue
+        const existingQueueUser = this.getQueueUser(userid);
+        if (existingQueueUser) {
+
+            // If user is already in the queue with the same sessionid, do nothing
+            if (existingQueueUser.sessionID === sessionID) return;
+
+            // If user is trying to join the queue with a different sessionid, throw an error
+            throw new UserUnavailableToJoinQueueError(`User ${userid} is already in the queue with a different session`);
+        }
+
+        // Check that user is available to join the queue
+        if (this.users.isUserInActivity(userid)) throw new UserUnavailableToJoinQueueError(`User ${userid} is already in an activity`);
+
+        // Set user's activity as in the queue
+        this.users.setUserActivity(sessionID, OnlineUserActivityType.QUEUEING);
 
         // Get user object from database
-        const user = (await DBUserObject.get(userid)).object;
+        const dbUser = (await DBUserObject.get(userid)).object;
 
-        // Add user to the queue
-        this.queue.push(new QueueUser(userid, user.username, sessionid, user.trophies));
+        // Add user to the queue, maintaining earliest-joined-first order
+        this.queue.push(new QueueUser(userid, dbUser.username, sessionID, dbUser.trophies));
 
+        // Send the number of players in the queue to all users in the queue
+        this.sendNumQueuingPlayers();
+
+        console.log(`User ${userid} joined the ranked queue`);
+    }
+
+    /**
+     * Remove a user from the ranked queue
+     * @param userid The userid of the user to remove from the queue
+     */
+    public async leaveRankedQueue(userid: string) {
+
+        // Remove user from the queue
+        this.queue = this.queue.filter(user => user.userid !== userid);
+
+        // Reset user's activity
+        this.users.resetUserActivity(userid);
+
+        // Send the number of players in the queue to all users in the queue
+        this.sendNumQueuingPlayers();
+
+        console.log(`User ${userid} left the ranked queue`);
+    }
+
+    /**
+     * Get the QueueUser corresponding to a userid
+     * @param userid The userid to get the QueueUser for
+     * @returns 
+     */
+    private getQueueUser(userid: string): QueueUser | undefined {
+        return this.queue.find(user => user.userid === userid);
+    }
+
+    /**
+     * Find matches between users in the queue
+     */
+    private findMatches() {
+
+        // We find matches by iterating through the queue earliest-joined-first
+        // and trying to match each user with another user in the queue
+        for (let i = 0; i < this.queue.length; i++) {
+            const user1 = this.queue[i];
+            for (let j = i + 1; j < this.queue.length; j++) {
+                const user2 = this.queue[j];
+
+                // Check if the users meet the criteria to be matched
+                if (this.canMatch(user1, user2)) {
+
+                    // if so, match the users. This will also remove the users from the queue
+                    this.match(user1, user2);
+
+                    // Find any other matches that can be made
+                    this.findMatches();
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
+     * Check if two users meet the criteria to be matched
+     * @param user1 The first user in the potential match
+     * @param user2 The second user in the potential match
+     */
+    private canMatch(user1: QueueUser, user2: QueueUser): boolean {
+
+        // Check if the users are not the same
+        if (user1.userid === user2.userid) return false;
+
+        // If either player has not been in the queue for at laest 2 seconds, they cannot be matched
+        if (user1.queueElapsedSeconds() < 2) return false;
+        if (user2.queueElapsedSeconds() < 2) return false;
+
+        // Check if the users have similar trophies
+        if (!user1.getTrophyRange().contains(user2.trophies)) return false;
+        if (!user2.getTrophyRange().contains(user1.trophies)) return false;
+
+        // Check if the users have not played each other before, unless both users have been waiting for a long time
+        const MAX_WAIT_TIME = 20; // If both users have been waiting for more than MAX_WAIT_TIME seconds, they can rematch
+        if (user1.queueElapsedSeconds() < MAX_WAIT_TIME && user2.queueElapsedSeconds() < MAX_WAIT_TIME) {
+            if (this.previousOpponent.get(user1.userid) === user2.userid) return false;
+            if (this.previousOpponent.get(user2.userid) === user1.userid) return false;
+        }
+
+        // If all criteria are met, the users can be matched
+        return true;
+    }
+
+    /**
+     * Calculate the win/loss XP delta for two users after a match
+     * @param user1 The first user in the match
+     * @param user2 The second user in the match
+     */
+    private async calculateXPDelta(user1: QueueUser, user2: QueueUser): Promise<{
+        player1XPDelta: XPDelta,
+        player2XPDelta: XPDelta,
+    }> {
+        return {
+            player1XPDelta: {
+                xpGain: 100,
+                xpLoss: -100,
+            },
+            player2XPDelta: {
+                xpGain: 100,
+                xpLoss: -100,
+            }
+        };
+    }
+
+    /**
+     * Match two users in the queue
+     * @param user1 
+     * @param user2 
+     */
+    private async match(user1: QueueUser, user2: QueueUser) {
+
+        // Remove users from the queue before awaiting the match
+        this.queue = this.queue.filter(user => user !== user1 && user !== user2);
+
+        // Calculate the win/loss XP delta for the users
+        const { player1XPDelta, player2XPDelta } = await this.calculateXPDelta(user1, user2);
+
+        // Send the message that an opponent has been found to both users
+        const player1League = getLeagueFromIndex((await DBUserObject.get(user1.userid)).object.league);
+        const player2League = getLeagueFromIndex((await DBUserObject.get(user2.userid)).object.league);
+        this.users.sendToUserSession(user1.sessionID, new FoundOpponentMessage(
+            user2.username, user2.trophies, player2League, player1XPDelta
+        ));
+        this.users.sendToUserSession(user2.sessionID, new FoundOpponentMessage(
+            user1.username, user1.trophies, player1League, player2XPDelta
+        ));
+
+        // Wait for client-side animations
+        await sleep(2000);
+
+        // Temporarily reset the activities of the users before adding them to the multiplayer room
+        this.users.resetUserActivity(user1.userid);
+        this.users.resetUserActivity(user2.userid);
+
+        // Add the users to the multiplayer room, which will send them to the room
+        const room = new RankedMultiplayerRoom(user1.sessionID, user2.sessionID, player1XPDelta, player2XPDelta);
+        await EventConsumerManager.getInstance().getConsumer(RoomConsumer).createRoom(room);
+
+        console.log(`Matched users ${user1.userid} and ${user2.userid}`);
+    }
+
+    /**
+     * Send the number of players in the queue to all users in the queue
+     */
+    private async sendNumQueuingPlayers() {
+        const numQueuingPlayers = this.queue.length;
+
+        this.queue.forEach(user => this.users.sendToUserSession(
+            user.sessionID,
+            new NumQueuingPlayersMessage(numQueuingPlayers)
+        ));
     }
 
 }

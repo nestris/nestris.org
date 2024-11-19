@@ -6,6 +6,7 @@ import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.s
 import { NotificationService } from 'src/app/services/notification.service';
 import { VideoCaptureService } from 'src/app/services/ocr/video-capture.service';
 import { Platform, PlatformInterfaceService } from 'src/app/services/platform-interface.service';
+import { RankedQueueService } from 'src/app/services/room/ranked-queue.service';
 import { ServerStatsService } from 'src/app/services/server-stats.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { NotificationType } from 'src/app/shared/models/notifications';
@@ -32,7 +33,9 @@ export class PlayPageComponent {
     private serverStats: ServerStatsService,
     private fetchService: FetchService,
     private websocketService: WebsocketService,
-    private notifier: NotificationService
+    private notifier: NotificationService,
+    private rankedQueueService: RankedQueueService,
+    private router: Router
   ) {
 
   }
@@ -71,7 +74,15 @@ export class PlayPageComponent {
   async playSolo() {
     const sessionID = this.websocketService.getSessionID();
     this.fetchService.fetch(Method.POST, `/api/v2/create-solo-room/${sessionID}`);
-    
+  }
+
+  async playRanked() {
+
+    // Attempt to join the ranked queue
+    const success = await this.rankedQueueService.joinQueue();
+
+    // If successful, navigate to the ranked queue
+    if (success) this.router.navigate(['/online/ranked']);
   }
 
 
