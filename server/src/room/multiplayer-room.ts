@@ -2,7 +2,7 @@
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
 import { RoomType } from "../../shared/room/room-models";
 import { Room } from "../online-users/event-consumers/room-consumer";
-import { OnlineUserActivityType } from "../online-users/online-user";
+import { OnlineUserActivityType, UserSessionID } from "../online-users/online-user";
 import { MultiplayerRoomState } from "../../shared/room/multiplayer-room-models";
 import { GamePlayer } from "./game-player";
 
@@ -15,7 +15,7 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
      * Creates a new SoloRoom for the single player with the given playerSessionID
      * @param playerSessionID The playerSessionID of the player in the room
      */
-    constructor(player1SessionID: string, player2SessionID: string) {
+    constructor(player1SessionID: UserSessionID, player2SessionID: UserSessionID) {
         super(
             OnlineUserActivityType.MULTIPLAYER,
             [player1SessionID, player2SessionID],
@@ -23,10 +23,9 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         )
 
         // Create the players in the room
-        this.gamePlayers = [player1SessionID, player2SessionID].map(sessionID => {
-            const userid = MultiplayerRoom.Users.getUserIDBySessionID(sessionID)!;
-            const username = MultiplayerRoom.Users.getUserInfo(userid)!.username;
-            return new GamePlayer(MultiplayerRoom.Users, userid, username, sessionID);
+        this.gamePlayers = [player1SessionID, player2SessionID].map(playerSessionID => {
+            const username = MultiplayerRoom.Users.getUserInfo(playerSessionID.userid)!.username;
+            return new GamePlayer(MultiplayerRoom.Users, playerSessionID.userid, username, playerSessionID.sessionID);
         }) as [GamePlayer, GamePlayer];
     }
 

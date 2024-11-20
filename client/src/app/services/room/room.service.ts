@@ -10,6 +10,7 @@ import { SoloClientRoom } from './solo-client-room';
 import { RoomModal } from 'src/app/components/layout/room/room/room.component';
 import { v4 as uuid } from 'uuid';
 import { SoloRoomState } from 'src/app/shared/room/solo-room-models';
+import { MultiplayerClientRoom } from './multiplayer-client-room';
 
 const MAX_MESSAGES = 15;
 export interface Message {
@@ -91,6 +92,7 @@ export class RoomService {
   private createClientRoom(roomState: RoomState): ClientRoom {
     switch (roomState.type) {
       case RoomType.SOLO: return new SoloClientRoom(this.injector, this.modal$, roomState as SoloRoomState);
+      case RoomType.MULTIPLAYER: return new MultiplayerClientRoom(this.injector, this.modal$, roomState);
       default: throw new Error(`Unknown room type ${roomState.type}`);
     }
   }

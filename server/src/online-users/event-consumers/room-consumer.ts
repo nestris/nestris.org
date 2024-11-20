@@ -6,12 +6,19 @@ import { OnlineUserManager } from "../online-user-manager";
 import { ClientRoomEvent, RoomInfo, RoomState } from "../../../shared/room/room-models";
 import { v4 as uuid } from 'uuid';
 import { NotificationType } from "../../../shared/models/notifications";
-import { OnlineUserActivity, OnlineUserActivityType } from "../online-user";
+import { OnlineUserActivity, OnlineUserActivityType, UserSessionID } from "../online-user";
 
 export class RoomError extends Error {
     constructor(message: string) {
         super(message);
         this.name = "RoomError";
+    }
+}
+
+export class RoomAbortError extends RoomError {
+    constructor(public readonly userid: string, message: string) {
+        super(message);
+        this.name = "RoomAbortError";
     }
 }
 
@@ -68,24 +75,27 @@ export abstract class Room<T extends RoomState = RoomState> {
 
     constructor(
         activity: OnlineUserActivityType, // The type of activity the user is currently doing
-        playerSessionIDs: string[], // A list of session ids of players in the room
+        userSessionIDs: UserSessionID[], // A list of session ids of players in the room
         roomState: T, // The state of the room, specific to the room type
     ) {
 
+        // Assert all sessions are online. Otherwise, throw an abort error.
+        userSessionIDs.forEach(userSessionID => {
+            if (!Room.Users.isSessionOnline(userSessionID.sessionID)) {
+                throw new RoomAbortError(userSessionID.userid, `Session ${userSessionID.sessionID} is not online`);
+            }
+        });
+
         // Initialize players as RoomPlayer objects that are not present in the room. On ROOM_PRESENCE messages, they will
         // be marked as present in the room.
-        this.players = playerSessionIDs.map(sessionID => {
-            
-            const userid = Room.Users.getUserIDBySessionID(sessionID);
-            if (!userid) throw new RoomError(`User with session ${sessionID} is not found`);
-            
-            return new RoomPlayer(userid, sessionID);
+        this.players = userSessionIDs.map(userSessionID => {
+            return new RoomPlayer(userSessionID.userid, userSessionID.sessionID);
         });
 
         // Check if any of the player session ids are already in a room. If so, throw an error.
         this.players.forEach(player => {
             if (Room.Consumer.getRoomBySessionID(player.sessionID)) {
-                throw new RoomError(`Session ${player.sessionID} is already in a room`);
+                throw new RoomAbortError(player.userid, `Session ${player.sessionID} is already in a room`);
             }
         });
 
@@ -98,7 +108,7 @@ export abstract class Room<T extends RoomState = RoomState> {
                     "You are already in an activity!"
                 ));
 
-                throw new RoomError(`User ${player.userid} is already in an activity: ${Room.Users.getUserActivity(player.userid)}`);
+                throw new RoomAbortError(player.userid, `User ${player.userid} is already in an activity: ${Room.Users.getUserActivity(player.userid)}`);
             }
         });
 
@@ -384,7 +394,6 @@ export class RoomConsumer extends EventConsumer {
         });
     }
 
-
     /**
      * Given a session id, get the room the user is in.
      * @param sessionID The session id to check
@@ -424,12 +433,15 @@ export class RoomConsumer extends EventConsumer {
         const room = this.getRoomBySessionID(event.sessionID);
         if (!room) return;
 
+        // Forward chat messages to the room
         if (event.message.type === JsonMessageType.CHAT) 
             room._onChatMessage(event.message as ChatMessage);
 
+        // Forward client room events to the room
         else if (event.message.type === JsonMessageType.CLIENT_ROOM_EVENT)
             await room._onClientRoomEvent(event.sessionID, (event.message as ClientRoomEventMessage).event);
 
+        // Handle when a client session leaves the room
         else if (event.message.type === JsonMessageType.LEAVE_ROOM) 
             await this.freeSession(event.sessionID);
         

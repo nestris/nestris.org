@@ -96,8 +96,11 @@ export class LoadingScreenComponent implements OnInit, AfterViewInit, OnChanges 
 
   // If change to explodeEverything, explode all tetris blocks
   ngOnChanges(changes: SimpleChanges): void {
+    console.log('Changes:', this.explodeEverything);
     if (changes['explodeEverything'] && changes['explodeEverything'].currentValue) {
-      this.tetrisBlocks.forEach(block => this.explodeTetrisBlock(block));
+      console.log('Exploding everything');
+      this.tetrisBlocks.forEach(block => this.explodeTetrisBlock(block, 12, 400));
+      this.tetrisBlocks = [];
     }
   }
 
@@ -202,6 +205,9 @@ export class LoadingScreenComponent implements OnInit, AfterViewInit, OnChanges 
   }
 
   private spawnTetrisBlock() {
+
+    if (this.explodeEverything) return;
+
     if (this.tetrisBlocks.length < this.maxBlocks) {
       const index = Math.floor(Math.random() * this.tetrisShapes.length);
       const shape = this.tetrisShapes[index];
@@ -341,7 +347,7 @@ export class LoadingScreenComponent implements OnInit, AfterViewInit, OnChanges 
     });
   }
 
-  private explodeTetrisBlock(block: TetrisBlock) {
+  private explodeTetrisBlock(block: TetrisBlock, speed: number = 1.5, life: number = 100) {
 
     this.changeScore(10);
 
@@ -372,12 +378,12 @@ export class LoadingScreenComponent implements OnInit, AfterViewInit, OnChanges 
                 individualBlockX + (Math.random() - 0.5) * block.size,
                 individualBlockY + (Math.random() - 0.5) * block.size,
                 (Math.random() + 0.5) * this.scaleCircles,
-                (Math.random() - 0.5) * 1.5,
-                (Math.random() - 0.5) * 1.5,
+                (Math.random() - 0.5) * speed,
+                (Math.random() - 0.5) * speed,
                 block.color,
                 0.3,
                 this.frame,
-                100
+                life
               )
             );
           }

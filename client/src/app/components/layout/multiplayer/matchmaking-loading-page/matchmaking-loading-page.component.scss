@@ -1,5 +1,12 @@
 @import "../../../../../styles.scss";
 
+.center-div {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
 .root {
     display: block;
     background-color: $dark-color;
@@ -38,11 +45,6 @@
 }
 
 .center-container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -50,6 +52,15 @@
     gap: 5px;
 
     pointer-events: none;
+}
+
+.content {
+    opacity: 0;
+    transition: opacity 1s;
+}
+
+.content.visible {
+    opacity: 1;
 }
 
 .center-container h1 {
@@ -69,4 +80,36 @@
     font-size: 18px;
     color: $ui-green-color;
     margin: 0;
+}
+
+.found-opponent {
+    width: 80vw;
+    max-width: 1200px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.player {
+    display: flex;
+    flex-direction: column;
+}
+
+.player.left {
+    align-items: flex-start;
+}
+
+.player.right {
+    align-items: flex-end;
+}
+
+.username {
+    font-family: $main-font;
+    font-weight: 700;
+    font-size: 30px;
+    color: white;
+    margin: 0;
+    margin-bottom: 5px;
 }

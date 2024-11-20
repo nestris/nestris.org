@@ -80,6 +80,10 @@ export class OnlineUserManager {
         return this.onlineUsers.has(userid);
     }
 
+    public isSessionOnline(sessionID: string): boolean {
+        return this.sessions.has(sessionID);
+    }
+
     // Send a message to all online users
     public sendToAllOnlineUsers(message: JsonMessage) {
         this.onlineUsers.forEach(onlineUser => onlineUser.sendMessageToAllSessions(message));
@@ -229,6 +233,8 @@ export class OnlineUserManager {
 
         // Send the session connect event
         this.events$.next(new OnSessionConnectEvent(userid, username, sessionID));
+
+        console.log(`User ${username} connected with sessionID ${sessionID}`);
     }
 
     // called when a socket connection is closed. Close session, and if no more sessions for user, close user.
@@ -252,6 +258,8 @@ export class OnlineUserManager {
 
         // Emit session disconnect event
         this.events$.next(new OnSessionDisconnectEvent(session.user.userid, session.user.username, session.sessionID));
+
+        console.log(`User ${session.user.username} disconnected with sessionID ${session.sessionID}`);
 
         // if no more sessions for user, close the user and emit user disconnect event
         if (onlineUser.getAllSessions().length === 0) {

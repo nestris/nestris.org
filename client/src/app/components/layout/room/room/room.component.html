@@ -1,5 +1,6 @@
 <ng-container>
     <app-solo-room *ngIf="roomType === RoomType.SOLO" />
+    <app-multiplayer-room *ngIf="roomType === RoomType.MULTIPLAYER" />
 </ng-container>
 
 <app-fullscreen-exit-button />

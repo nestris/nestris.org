@@ -1,7 +1,9 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import { BehaviorSubject, interval, Subscription } from "rxjs";
+import { BehaviorSubject, interval, map, Subscription } from "rxjs";
 import { RankedQueueService } from "src/app/services/room/ranked-queue.service";
+import { MeService } from "src/app/services/state/me.service";
+import { getLeagueFromIndex } from "src/app/shared/nestris-org/league-system";
 import { FoundOpponentMessage } from "src/app/shared/network/json-message";
 
 
@@ -20,12 +22,15 @@ export class MatchmakingLoadingPageComponent implements OnInit, OnDestroy {
 
 
     constructor(
+        private meService: MeService,
         private rankedQueueService: RankedQueueService,
-        private router: Router
+        private router: Router,
     ) {}
 
     readonly playersInQueue$ = this.rankedQueueService.getNumQueuingPlayers$();
     readonly foundOpponent$ = this.rankedQueueService.getFoundOpponent$();
+
+    readonly me$ = this.meService.get$();
     
     async ngOnInit() {
 

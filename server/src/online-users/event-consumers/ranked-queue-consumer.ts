@@ -1,5 +1,6 @@
+import session from "express-session";
 import { getLeagueFromIndex } from "../../../shared/nestris-org/league-system";
-import { FoundOpponentMessage, NumQueuingPlayersMessage } from "../../../shared/network/json-message";
+import { FoundOpponentMessage, NumQueuingPlayersMessage, RedirectMessage, SendPushNotificationMessage } from "../../../shared/network/json-message";
 import { XPDelta } from "../../../shared/room/multiplayer-room-models";
 import { sleep } from "../../../shared/scripts/sleep";
 import { DBUserObject } from "../../database/db-objects/db-user";
@@ -8,7 +9,8 @@ import { RankedMultiplayerRoom } from "../../room/ranked-multiplayer-room";
 import { EventConsumer, EventConsumerManager } from "../event-consumer";
 import { OnlineUserActivityType } from "../online-user";
 import { OnSessionDisconnectEvent } from "../online-user-events";
-import { RoomConsumer } from "./room-consumer";
+import { RoomAbortError, RoomConsumer } from "./room-consumer";
+import { NotificationType } from "../../../shared/models/notifications";
 
 export class QueueError extends Error {}
 export class UserUnavailableToJoinQueueError extends QueueError {}
@@ -104,6 +106,10 @@ export class RankedQueueConsumer extends EventConsumer {
         setInterval(() => this.findMatches(), 1000);
     }
 
+    /**
+     * When a session disconnects, remove the user from the queue if the user's session is the one that disconnected
+     * @param event The session disconnect event
+     */
     protected override async onSessionDisconnect(event: OnSessionDisconnectEvent): Promise<void> {
 
         // Get the QueueUser corresponding to the session that disconnected
@@ -160,6 +166,9 @@ export class RankedQueueConsumer extends EventConsumer {
      * @param userid The userid of the user to remove from the queue
      */
     public async leaveRankedQueue(userid: string) {
+
+        // if user is not in the queue, do nothing
+        if (!this.getQueueUser(userid)) return;
 
         // Remove user from the queue
         this.queue = this.queue.filter(user => user.userid !== userid);
@@ -218,9 +227,9 @@ export class RankedQueueConsumer extends EventConsumer {
         // Check if the users are not the same
         if (user1.userid === user2.userid) return false;
 
-        // If either player has not been in the queue for at laest 2 seconds, they cannot be matched
-        if (user1.queueElapsedSeconds() < 2) return false;
-        if (user2.queueElapsedSeconds() < 2) return false;
+        // If either player has not been in the queue for at least one second, they cannot be matched
+        if (user1.queueElapsedSeconds() < 1) return false;
+        if (user2.queueElapsedSeconds() < 1) return false;
 
         // Check if the users have similar trophies
         if (!user1.getTrophyRange().contains(user2.trophies)) return false;
@@ -246,6 +255,9 @@ export class RankedQueueConsumer extends EventConsumer {
         player1XPDelta: XPDelta,
         player2XPDelta: XPDelta,
     }> {
+
+        // TODO: Implement XP calculation
+
         return {
             player1XPDelta: {
                 xpGain: 100,
@@ -268,6 +280,10 @@ export class RankedQueueConsumer extends EventConsumer {
         // Remove users from the queue before awaiting the match
         this.queue = this.queue.filter(user => user !== user1 && user !== user2);
 
+        // Set the previous opponent for each user to the other user
+        this.previousOpponent.set(user1.userid, user2.userid);
+        this.previousOpponent.set(user2.userid, user1.userid);
+
         // Calculate the win/loss XP delta for the users
         const { player1XPDelta, player2XPDelta } = await this.calculateXPDelta(user1, user2);
 
@@ -281,18 +297,40 @@ export class RankedQueueConsumer extends EventConsumer {
             user1.username, user1.trophies, player1League, player2XPDelta
         ));
 
+        console.log(`Matched users ${user1.userid} and ${user2.userid}`);
+
         // Wait for client-side animations
-        await sleep(2000);
+        await sleep(3000);
 
         // Temporarily reset the activities of the users before adding them to the multiplayer room
         this.users.resetUserActivity(user1.userid);
         this.users.resetUserActivity(user2.userid);
 
         // Add the users to the multiplayer room, which will send them to the room
-        const room = new RankedMultiplayerRoom(user1.sessionID, user2.sessionID, player1XPDelta, player2XPDelta);
-        await EventConsumerManager.getInstance().getConsumer(RoomConsumer).createRoom(room);
+        const user1ID = {userid: user1.userid, sessionID: user1.sessionID};
+        const user2ID = {userid: user2.userid, sessionID: user2.sessionID};
 
-        console.log(`Matched users ${user1.userid} and ${user2.userid}`);
+        try {
+            const room = new RankedMultiplayerRoom(user1ID, user2ID, player1XPDelta, player2XPDelta);
+            await EventConsumerManager.getInstance().getConsumer(RoomConsumer).createRoom(room);
+        } catch (error) {
+
+            // If room aborted, send push notification to notify
+            if (error instanceof RoomAbortError) {
+                [user1ID, user2ID].forEach(user => {
+                    this.users.sendToUserSession(user.sessionID, new SendPushNotificationMessage(
+                        NotificationType.ERROR, "Match aborted by opponent"
+                    ));
+                });
+            }
+
+            // Redirect users back to the home page
+            [user1ID, user2ID].forEach(user => {
+                this.users.sendToUserSession(user.sessionID, new RedirectMessage("/"));
+            });
+            
+        }
+        
     }
 
     /**

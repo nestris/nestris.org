@@ -24,7 +24,7 @@ export class CreateSoloRoomRoute extends PostRoute {
         }
         
         // Create a solo room
-        const soloRoom = new SoloRoom(sessionID);
+        const soloRoom = new SoloRoom({userid: userInfo!.userid, sessionID: sessionID});
         await EventConsumerManager.getInstance().getConsumer(RoomConsumer).createRoom(soloRoom);
 
 

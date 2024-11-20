@@ -90,6 +90,8 @@ import { AlertComponent } from './components/alerts/alert/alert.component';
 import { XPAlertComponent } from './components/alerts/xp-alert/xp-alert.component';
 import { QuestAlertComponent } from './components/alerts/quest-alert/quest-alert.component';
 import { QuestComponent } from './components/ui/quest/quest.component';
+import { MultiplayerRoomComponent } from './components/layout/room/multiplayer-room/multiplayer-room.component';
+import { TrophiesComponent } from './components/ui/trophies/trophies.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -216,6 +218,8 @@ const customNotifierOptions: NotifierOptions = {
     XPAlertComponent,
     QuestAlertComponent,
     QuestComponent,
+    MultiplayerRoomComponent,
+    TrophiesComponent,
   ],
   imports: [
     BrowserModule,

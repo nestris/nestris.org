@@ -33,6 +33,7 @@ export enum JsonMessageType {
     XP_GAIN = 'xp_gain',
     NUM_QUEUING_PLAYERS = 'num_queuing_players',
     FOUND_OPPONENT = 'found_opponent',
+    REDIRECT = 'go_to_page',
 }
 
 export abstract class JsonMessage {
@@ -239,5 +240,14 @@ export class FoundOpponentMessage extends JsonMessage {
         public readonly xpDelta: XPDelta
     ) {
         super(JsonMessageType.FOUND_OPPONENT)
+    }
+}
+
+// sent from server to client to navigate to a new page
+export class RedirectMessage extends JsonMessage {
+    constructor(
+        public readonly route: string
+    ) {
+        super(JsonMessageType.REDIRECT)
     }
 }

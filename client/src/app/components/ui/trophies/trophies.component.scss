@@ -1,0 +1,24 @@
+@import "../../../../styles.scss";
+
+.container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.container.reverse {
+    flex-direction: row-reverse;
+}
+
+h1 {
+    background: linear-gradient(to bottom, #FFB837, #FF8E04);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+
+    font-family: $main-font;
+    font-weight: 700;
+    margin: 0;
+
+}

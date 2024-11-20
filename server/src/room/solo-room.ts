@@ -4,7 +4,7 @@ import { RoomType } from "../../shared/room/room-models";
 import { SoloRoomState } from "../../shared/room/solo-room-models";
 import { DBSoloGamesListAddEvent, DBSoloGamesListView } from "../database/db-views/db-solo-games-list";
 import { Room } from "../online-users/event-consumers/room-consumer";
-import { OnlineUserActivityType } from "../online-users/online-user";
+import { OnlineUserActivityType, UserSessionID } from "../online-users/online-user";
 import { GameEndEvent, GamePlayer, GameStartEvent } from "./game-player";
 
 export class SoloRoom extends Room<SoloRoomState> {
@@ -15,17 +15,16 @@ export class SoloRoom extends Room<SoloRoomState> {
      * Creates a new SoloRoom for the single player with the given playerSessionID
      * @param playerSessionID The playerSessionID of the player in the room
      */
-    constructor(playerSessionID: string) {
+    constructor(playerSessionID: UserSessionID) {
         super(
             OnlineUserActivityType.SOLO,
             [playerSessionID],
             { type: RoomType.SOLO, serverInGame: false },
         )
 
-        const userid = SoloRoom.Users.getUserIDBySessionID(playerSessionID)!;
-        const username = SoloRoom.Users.getUserInfo(userid)!.username;
+        const username = SoloRoom.Users.getUserInfo(playerSessionID.userid)!.username;
 
-        this.player = new GamePlayer(SoloRoom.Users, userid, username, playerSessionID);
+        this.player = new GamePlayer(SoloRoom.Users, playerSessionID.userid, username, playerSessionID.sessionID);
         
         // Handle solo-room-specific behavior when the game starts
         this.player.onGameStart$().subscribe(async (event: GameStartEvent) => {

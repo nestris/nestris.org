@@ -6,11 +6,32 @@
         [explodeEverything]="!!(foundOpponent$ | async)"
     />
 
-    <div class="score"><p *ngIf="scoreVisible">Score: {{score}}</p></div>
+    <div class="content" [ngClass]="{visible : !(foundOpponent$ | async)}">
 
-    <div class="center-container">
-        <h1>{{getMessage((numPeriods$ | async) ?? 0)}}</h1>
-        <p>{{playersInQueue$ | async}} {{(playersInQueue$ | async) === 1 ? 'player' : 'players'}} in queue</p>
+        <div class="score"><p *ngIf="scoreVisible">Score: {{score}}</p></div>
+
+        <div class="center-container center-div">
+            <h1>{{getMessage((numPeriods$ | async) ?? 0)}}</h1>
+            <p>{{playersInQueue$ | async}} {{(playersInQueue$ | async) === 1 ? 'player' : 'players'}} in queue</p>
+        </div>
+
     </div>
+
+    <div class="found-opponent center-div" *ngIf="(foundOpponent$ | async) as foundOpponent">
+        <div class="player left" *ngIf="(me$ | async) as me">
+            <app-league-icon [league]="me.league" [height]="250" />
+            <p class="username">{{me.username}}</p>
+            <app-trophies [trophies]="me.trophies" [size]="30" />
+        </div>
+        <div class="versus">
+            <img src="./assets/img/misc-icons/vs.svg" />
+        </div>
+        <div class="player right">
+            <app-league-icon [league]="foundOpponent.opponentLeague" [height]="250" [flipped]="true" />
+            <p class="username">{{foundOpponent.opponentName}}</p>
+            <app-trophies [trophies]="foundOpponent.opponentTrophies" [size]="30" />
+        </div>
+    </div>
+    
 
 </div>
