@@ -17,9 +17,8 @@ export class OnlineUserSession {
 
     // Sends a binary or JsonMessage to the connected client for this session
     sendMessage(message: JsonMessage | Uint8Array) {
-        if (message instanceof JsonMessage) this.socket.send(JSON.stringify(message));
-        else if (message instanceof Uint8Array) this.socket.send(message);
-        else throw new Error("Invalid message type");
+        if (message instanceof Uint8Array) this.socket.send(message);
+        else this.socket.send(JSON.stringify(message));
     }
 
     closeSocket(code?: number, reason?: string) {
