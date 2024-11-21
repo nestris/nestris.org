@@ -19,7 +19,6 @@ export class SoloRoom extends Room<SoloRoomState> {
         super(
             OnlineUserActivityType.SOLO,
             [playerSessionID],
-            { type: RoomType.SOLO, serverInGame: false },
         )
 
         const username = SoloRoom.Users.getUserInfo(playerSessionID.userid)!.username;
@@ -28,7 +27,9 @@ export class SoloRoom extends Room<SoloRoomState> {
         
         // Handle solo-room-specific behavior when the game starts
         this.player.onGameStart$().subscribe(async (event: GameStartEvent) => {
-            this.updateServerInGame(true);
+
+            // Send message to player indicating that the game has started
+            this.updateRoomState(Object.assign({}, this.getRoomState(), { serverInGame: true }));
         });
 
         // Handle solo-room-specific behavior when the game ends
@@ -40,9 +41,22 @@ export class SoloRoom extends Room<SoloRoomState> {
             // Send message to all session of player of a new solo game that was finished
             SoloRoom.Users.sendToUser(this.player.userid, new FinishSoloGameMessage(event.gameID, event.score, event.xpGained));
 
-            // Send message to player indicating that the game has ended and server has finished processing
-            this.updateServerInGame(false);
+            // Send message to player indicating that the game has ended, with updated previous games
+            const updatedPreviousGames = (await DBSoloGamesListView.get(this.player.userid)).view;
+            this.updateRoomState({
+                type: RoomType.SOLO,
+                serverInGame: false,
+                previousGames: updatedPreviousGames
+            });
         });
+    }
+
+    /**
+     * Define the initial state of solo room
+     */
+    protected override async initRoomState(): Promise<SoloRoomState> {
+        const previousGames = (await DBSoloGamesListView.get(this.player.userid)).view;
+        return { type: RoomType.SOLO, serverInGame: false, previousGames };
     }
 
     /**

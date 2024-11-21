@@ -112,9 +112,6 @@ export class LoadingScreenComponent implements OnInit, AfterViewInit, OnChanges 
   @HostListener('mousemove', ['$event'])
   onMouseMove(event: MouseEvent) {
 
-    // Do not draw anything if explodeEverything is true
-    if (this.explodeEverything) return;
-
     const rect = this.canvas.getBoundingClientRect();
 
     const mouseX = (event.clientX - rect.left) * this.resolution;

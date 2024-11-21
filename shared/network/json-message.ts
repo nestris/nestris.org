@@ -1,6 +1,5 @@
 import { Challenge } from "../models/challenge"
 import { DBUser } from "../models/db-user"
-import { MatchInfo, MultiplayerData, MultiplayerRoomState } from "../models/multiplayer"
 import { NotificationType } from "../models/notifications"
 import { ClientRoomEvent, RoomInfo, RoomState } from "../room/room-models"
 import { League } from "../nestris-org/league-system";
@@ -19,8 +18,6 @@ export enum JsonMessageType {
     PING = 'ping',
     SEND_PUSH_NOTIFICATION = 'send_push_notification',
     FRIEND_ONLINE_STATUS_CHANGE = 'friend_online_status_change',
-    REMATCH_OFFERED = 'rematch_offered', // sent from server to client to offer a rematch
-    MULTIPLAYER_ROOM_UPDATE = 'multiplayer_room_update', // sent from server to client to update the multiplayer room
     SERVER_RESTART_WARNING = 'server_restart_warning', // sent from server to client to warn of server restart
     ME = 'ME',
     CHAT = 'chat',
@@ -98,25 +95,6 @@ export class SendPushNotificationMessage extends JsonMessage {
     }
 }
 
-
-// sent from server to client to offer a rematch
-export class RematchOfferedMessage extends JsonMessage {
-    constructor(
-        public readonly challenge: Challenge
-    ) {
-        super(JsonMessageType.REMATCH_OFFERED)
-    }
-}
-
-// sent from server to client to update the multiplayer room
-export class MultiplayerRoomUpdateMessage extends JsonMessage {
-    constructor(
-        public readonly roomID: string,
-        public readonly data: MultiplayerData
-    ) {
-        super(JsonMessageType.MULTIPLAYER_ROOM_UPDATE)
-    }
-}
 
 
 // sent from server to client to warn of server restart

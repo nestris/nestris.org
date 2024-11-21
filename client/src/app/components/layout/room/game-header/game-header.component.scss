@@ -1,0 +1,16 @@
+p.score {
+    font-family: 'NES';
+    font-size: 40px;
+    margin: 0;
+    padding: 0;
+    align-self: flex-start;
+    transform: translateY(-5px);
+}
+
+p.score.blue {
+    color: $multiplayer-blue-color;
+}
+
+p.score.red {
+    color: $multiplayer-red-color;
+}

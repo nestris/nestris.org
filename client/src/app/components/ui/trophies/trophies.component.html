@@ -1,34 +1,36 @@
-<div class="container" [ngClass]="{reverse}" [ngStyle]="{'gap' : (size * 0.2)+'px'}">
-    <svg class="trophies" [attr.width]="size" [attr.height]="size * 24/21" viewBox="0 0 21 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M2.5432 10.3389H1.27148V11.6106H2.5432V10.3389Z" fill="url(#paint0_linear_2037_416)"/>
-        <path d="M1.27172 5.25293H0V10.3398H1.27172V5.25293Z" fill="url(#paint1_linear_2037_416)"/>
-        <path d="M19.5683 10.3389H18.1357V11.6106H19.5683V10.3389Z" fill="url(#paint2_linear_2037_416)"/>
-        <path d="M20.9999 5.25293H19.5674V10.3398H20.9999V5.25293Z" fill="url(#paint3_linear_2037_416)"/>
-        <path d="M15.5917 10.3394V11.616H18.1351V13.0485H14.32V14.1594H13.0434V15.5919H11.6158V20.8445H14.32V23.3879H6.36322V20.8445H9.22824V15.5919H7.79573V14.1594H6.36322V13.0485H2.5432V11.616H5.24743V10.3394H3.97571V5.25253H1.27148V3.82002H3.97571V1.27172H2.5432V0H18.1351V1.27172H17.0242V3.82002H19.5676V5.25253H17.0242V10.3394H15.5917Z" fill="url(#paint4_linear_2037_416)"/>
-        <defs>
-        <linearGradient id="paint0_linear_2037_416" x1="1.90734" y1="10.3389" x2="1.90734" y2="11.6106" gradientUnits="userSpaceOnUse">
-        <stop stop-color="#FFB837"/>
-        <stop offset="1" stop-color="#FF8E04"/>
-        </linearGradient>
-        <linearGradient id="paint1_linear_2037_416" x1="0.635858" y1="5.25293" x2="0.635858" y2="10.3398" gradientUnits="userSpaceOnUse">
-        <stop stop-color="#FFB837"/>
-        <stop offset="1" stop-color="#FF8E04"/>
-        </linearGradient>
-        <linearGradient id="paint2_linear_2037_416" x1="18.852" y1="10.3389" x2="18.852" y2="11.6106" gradientUnits="userSpaceOnUse">
-        <stop stop-color="#FFB837"/>
-        <stop offset="1" stop-color="#FF8E04"/>
-        </linearGradient>
-        <linearGradient id="paint3_linear_2037_416" x1="20.2836" y1="5.25293" x2="20.2836" y2="10.3398" gradientUnits="userSpaceOnUse">
-        <stop stop-color="#FFB837"/>
-        <stop offset="1" stop-color="#FF8E04"/>
-        </linearGradient>
-        <linearGradient id="paint4_linear_2037_416" x1="10.4196" y1="0" x2="10.4196" y2="23.3879" gradientUnits="userSpaceOnUse">
-        <stop stop-color="#FFB837"/>
-        <stop offset="1" stop-color="#FF8E04"/>
-        </linearGradient>
+<div class="container" [ngClass]="{reverse}" [ngStyle]="{'gap' : (size * 0.15)+'px'}">
+    <svg class="trophies" [attr.width]="size * 21/24 * 0.75" [attr.height]="size * 0.75" viewBox="0 0 21 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2.5432 10.3389H1.27148V11.6106H2.5432V10.3389Z" [attr.fill]="color ?? 'url(#paint0_linear_2037_416)'"/>
+        <path d="M1.27172 5.25293H0V10.3398H1.27172V5.25293Z" [attr.fill]="color ?? 'url(#paint1_linear_2037_416)'"/>
+        <path d="M19.5683 10.3389H18.1357V11.6106H19.5683V10.3389Z" [attr.fill]="color ?? 'url(#paint2_linear_2037_416)'"/>
+        <path d="M20.9999 5.25293H19.5674V10.3398H20.9999V5.25293Z" [attr.fill]="color ?? 'url(#paint3_linear_2037_416)'"/>
+        <path d="M15.5917 10.3394V11.616H18.1351V13.0485H14.32V14.1594H13.0434V15.5919H11.6158V20.8445H14.32V23.3879H6.36322V20.8445H9.22824V15.5919H7.79573V14.1594H6.36322V13.0485H2.5432V11.616H5.24743V10.3394H3.97571V5.25253H1.27148V3.82002H3.97571V1.27172H2.5432V0H18.1351V1.27172H17.0242V3.82002H19.5676V5.25253H17.0242V10.3394H15.5917Z" [attr.fill]="color ?? 'url(#paint4_linear_2037_416)'"/>
+        
+        <defs *ngIf="!color">
+            <linearGradient id="paint0_linear_2037_416" x1="1.90734" y1="10.3389" x2="1.90734" y2="11.6106" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#FFB837"/>
+            <stop offset="1" stop-color="#FF8E04"/>
+            </linearGradient>
+            <linearGradient id="paint1_linear_2037_416" x1="0.635858" y1="5.25293" x2="0.635858" y2="10.3398" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#FFB837"/>
+            <stop offset="1" stop-color="#FF8E04"/>
+            </linearGradient>
+            <linearGradient id="paint2_linear_2037_416" x1="18.852" y1="10.3389" x2="18.852" y2="11.6106" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#FFB837"/>
+            <stop offset="1" stop-color="#FF8E04"/>
+            </linearGradient>
+            <linearGradient id="paint3_linear_2037_416" x1="20.2836" y1="5.25293" x2="20.2836" y2="10.3398" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#FFB837"/>
+            <stop offset="1" stop-color="#FF8E04"/>
+            </linearGradient>
+            <linearGradient id="paint4_linear_2037_416" x1="10.4196" y1="0" x2="10.4196" y2="23.3879" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#FFB837"/>
+            <stop offset="1" stop-color="#FF8E04"/>
+            </linearGradient>
         </defs>
     </svg>
 
-    <h1 [ngStyle]="{'fontSize' : size}">{{trophies}}</h1>
+    <h1 *ngIf="!color" class="default-color" [ngStyle]="{'font-size' : size + 'px'}">{{trophies}}</h1>
+    <h1 *ngIf="color" [ngStyle]="{'font-size' : size + 'px', 'color' : color}">{{trophies}}</h1>
         
 </div>

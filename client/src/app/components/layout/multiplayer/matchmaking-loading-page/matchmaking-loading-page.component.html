@@ -25,6 +25,10 @@
         </div>
         <div class="versus">
             <img src="./assets/img/misc-icons/vs.svg" />
+            <div class="versus-trophies">
+                <app-trophies trophies="+30" [size]="30" [reverse]="true" color="#58D774" />
+                <app-trophies trophies="-30" [size]="30" [reverse]="true" color="#F15757" />
+            </div>
         </div>
         <div class="player right">
             <app-league-icon [league]="foundOpponent.opponentLeague" [height]="250" [flipped]="true" />

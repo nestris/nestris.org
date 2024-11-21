@@ -1,4 +1,31 @@
-<div class="multiplayer-background">
-    <div class="left"></div>
-    <div class="right"></div>
+<div class="multiplayer-background" *ngIf="(multiplayerState$ | async) as state">
+    <div class="side" *ngFor="let playerIndex of getPlayerIndices()" [ngClass]="getIndexColor(playerIndex)">
+        <div class="player" *ngIf="state.players[playerIndex] as player">
+            <app-game-header [username]="player.username" [trophies]="player.trophies" [score]="getScore(state, playerIndex)" />
+
+            <!-- Show client gameplay directly if it's the player's board -->
+            <ng-container *ngIf="isMyIndex(playerIndex)">
+                <app-layout-one *ngIf="(platform.getGameData$() | async) as myData"
+                    [board]="myData.board"
+                    [nextType]="myData.nextPiece"
+                    [level]="myData.level"
+                    [lines]="myData.lines"
+                    [score]="myData.score"
+                    [countdown]="myData.countdown" />                    
+            </ng-container>
+
+            <!-- Otherwise, show game data from the server for this player -->
+            <ng-container *ngIf="!isMyIndex(playerIndex)">
+                <app-layout-one *ngIf="(platform.getGameData$() | async) as myData"
+                    [board]="myData.board"
+                    [nextType]="myData.nextPiece"
+                    [level]="myData.level"
+                    [lines]="myData.lines"
+                    [score]="myData.score"
+                    [countdown]="myData.countdown" />                    
+            </ng-container>
+
+        </div>
+    </div>
+
 </div>

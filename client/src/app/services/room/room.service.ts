@@ -125,7 +125,7 @@ export class RoomService {
 
     // Create the client room
     this.clientRoom = this.createClientRoom(event.roomState);
-    await this.clientRoom.init();
+    await this.clientRoom.init(event.roomState);
 
     // Navigate to the room
     this.router.navigate(['/online/room']);

@@ -18,7 +18,7 @@ export abstract class ClientRoom {
     /**
      * Override this method to perform any initialization logic. Should only be called by the RoomService.
      */
-    public async init(): Promise<void> {}
+    public async init(initialState: RoomState): Promise<void> {}
 
     /**
      * Override this method to perform any cleanup logic. Should only be called by the RoomService.

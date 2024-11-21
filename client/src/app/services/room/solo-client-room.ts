@@ -1,4 +1,4 @@
-import { SoloRoomState } from "src/app/shared/room/solo-room-models";
+import { SoloGameInfo, SoloRoomState } from "src/app/shared/room/solo-room-models";
 import { ClientRoom } from "./client-room";
 import { RoomModal } from "src/app/components/layout/room/room/room.component";
 import { BehaviorSubject, Observable } from "rxjs";
@@ -22,7 +22,12 @@ export class SoloClientRoom extends ClientRoom {
 
     private soloState$ = new BehaviorSubject<SoloClientState>(SoloClientState.BEFORE_GAME_MODAL);
 
-    public override async init(): Promise<void> {
+    private originalGames!: SoloGameInfo[];
+
+    public override async init(state: SoloRoomState): Promise<void> {
+
+        // Get the original games already completed in the room
+        this.originalGames = state.previousGames;
 
         // When entering play page, show the before game modal
         this.modal$.next(RoomModal.SOLO_BEFORE_GAME);
@@ -71,6 +76,10 @@ export class SoloClientRoom extends ClientRoom {
 
     public getSoloState(): SoloClientState {
         return this.soloState$.getValue();
+    }
+
+    public isOriginalGame(gameID: string): boolean {
+        return this.originalGames.some(game => game.gameID === gameID);
     }
 
 }

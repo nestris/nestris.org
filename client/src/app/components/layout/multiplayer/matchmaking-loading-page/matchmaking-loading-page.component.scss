@@ -84,12 +84,14 @@
 
 .found-opponent {
     width: 80vw;
-    max-width: 1200px;
+    max-width: 1100px;
 
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+
+    pointer-events: none;
 }
 
 .player {
@@ -112,4 +114,77 @@
     color: white;
     margin: 0;
     margin-bottom: 5px;
+}
+
+.versus {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+
+    transform: translateY(-20px);
+}
+
+.versus-trophies {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-1000px);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(1000px);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes brightnessPulse {
+    0% {
+        filter: brightness(1);
+    }
+    30% {
+        filter: brightness(1.2);
+    }
+    100% {
+        filter: brightness(1);
+    }
+}
+
+@keyframes opacityEnter {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+
+.player.left {
+    transform: translateX(-1000px);
+    animation: slideInLeft 0.5s ease forwards 2s, brightnessPulse 2s ease-out 2.5s;
+}
+
+
+.player.right {
+    transform: translateX(1000px);
+    animation: slideInRight 0.5s ease forwards 2s, brightnessPulse 2s ease-out 2.5s;
+}
+
+.versus {
+    opacity: 0;
+    animation: opacityEnter 1s ease forwards 1.3s;
 }

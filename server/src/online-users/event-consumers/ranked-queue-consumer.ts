@@ -300,7 +300,7 @@ export class RankedQueueConsumer extends EventConsumer {
         console.log(`Matched users ${user1.userid} and ${user2.userid}`);
 
         // Wait for client-side animations
-        await sleep(3000);
+        await sleep(5500);
 
         // Temporarily reset the activities of the users before adding them to the multiplayer room
         this.users.resetUserActivity(user1.userid);

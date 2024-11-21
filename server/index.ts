@@ -24,7 +24,6 @@ import { T200XPLeaderboard } from './src/leaderboards/t200-leaderboard';
 import { GetRelativeLeaderboardsRoute } from './src/routes/leaderboard/get-relative-leaderboards-route';
 import { CreateSoloRoomRoute } from './src/routes/room/create-solo-room-route';
 import { RoomConsumer } from './src/online-users/event-consumers/room-consumer';
-import { GetSoloGamesListRoute } from './src/routes/room/get-solo-games-list-route';
 import { GetCacheStatsRoute } from './src/routes/stats/get-cache-stats-route';
 import { RankedQueueConsumer } from './src/online-users/event-consumers/ranked-queue-consumer';
 import { EnterRankedQueueRoute } from './src/routes/room/enter-ranked-queue-route';
@@ -101,7 +100,6 @@ async function main() {
   routes.registerRoute(GetAllUsernamesRoute);
   routes.registerRoute(GetRelativeLeaderboardsRoute);
   routes.registerRoute(CreateSoloRoomRoute);
-  routes.registerRoute(GetSoloGamesListRoute);
   routes.registerRoute(GetCacheStatsRoute);
   routes.registerRoute(EnterRankedQueueRoute);
   routes.registerRoute(LeaveRankedQueueRoute);

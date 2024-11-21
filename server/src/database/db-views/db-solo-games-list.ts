@@ -1,4 +1,4 @@
-import { DBSoloGamesList } from "../../../shared/room/solo-room-models";
+import { SoloGameInfo } from "../../../shared/room/solo-room-models";
 import { Database, DBQuery } from "../db-query";
 import { DBView } from "../db-view";
 
@@ -14,7 +14,7 @@ export class DBSoloGamesListAddEvent {
 /**
  * Gets the last 10 solo games played by a user.
  */
-class DBSoloGamesListQuery extends DBQuery<DBSoloGamesList> {
+class DBSoloGamesListQuery extends DBQuery<SoloGameInfo[]> {
     public override query = `
         SELECT g.id, g.end_score, g.xp_gained
         FROM games g
@@ -36,14 +36,12 @@ class DBSoloGamesListQuery extends DBQuery<DBSoloGamesList> {
         super([userID]);
     }
 
-    public override parseResult(resultRows: any[]): DBSoloGamesList {
-        return {
-            games: resultRows.map((row: any) => ({
-                id: row.id,
-                score: row.end_score,
-                xp: row.xp_gained
-            }))
-        };
+    public override parseResult(resultRows: any[]): SoloGameInfo[] {
+        return resultRows.map((row: any) => ({
+            gameID: row.id,
+            score: row.end_score,
+            xp: row.xp_gained
+        }));
     }
 }
 
@@ -51,9 +49,9 @@ class DBSoloGamesListQuery extends DBQuery<DBSoloGamesList> {
 /**
  * Stores a view of the last N solo games played by each user.
  */
-export class DBSoloGamesListView extends DBView<DBSoloGamesList, DBSoloGamesListAddEvent>("DBSoloGamesListView") {
+export class DBSoloGamesListView extends DBView<SoloGameInfo[], DBSoloGamesListAddEvent>("DBSoloGamesListView") {
 
-    protected override async fetchViewFromDB(): Promise<DBSoloGamesList> {
+    protected override async fetchViewFromDB(): Promise<SoloGameInfo[]> {
 
         return await Database.query(DBSoloGamesListQuery, this.id);
         
@@ -62,14 +60,14 @@ export class DBSoloGamesListView extends DBView<DBSoloGamesList, DBSoloGamesList
     public override alterView(event: DBSoloGamesListAddEvent): void {
         
         // insert game to end of list, and remove the first game if the list is too long
-        this.view.games.push({
-            id: event.gameID,
+        this.view.push({
+            gameID: event.gameID,
             score: event.score,
             xp: event.xp
         });
 
-        if (this.view.games.length > 10) {
-            this.view.games.shift();
+        if (this.view.length > 10) {
+            this.view.shift();
         };
     }
 

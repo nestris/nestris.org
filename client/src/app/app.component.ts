@@ -10,7 +10,6 @@ import { ServerRestartWarningService } from './services/server-restart-warning.s
 import { CacheableRequestService } from './services/cacheable-request.service';
 import { MeService } from './services/state/me.service';
 import { RoomService } from './services/room/room.service';
-import { SoloGamesListService } from './services/state/solo-games-list.service';
 import { AlertService } from './services/alert.service';
 import { TestAlertComponent } from './components/alerts/test-alert/test-alert.component';
 import { XPAlertComponent } from './components/alerts/xp-alert/xp-alert.component';
@@ -34,7 +33,6 @@ export class AppComponent implements OnInit {
     private cacheableRequestService: CacheableRequestService,
     private meService: MeService,
     private roomService: RoomService,
-    private soloGamesListService: SoloGamesListService,
     private alertService: AlertService,
     private xpAlertService: XPAlertService,
     private router: Router,

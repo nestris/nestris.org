@@ -64,7 +64,7 @@ export abstract class Room<T extends RoomState = RoomState> {
 
     // The state of the room, specific to the room type. It is initialized to some initial value that the client receives,
     // but ROOM_STATE_UDPATE events can be sent to sync the updated state of the room with the client.
-    private roomState: T;
+    private roomState!: T; // initialized on initRoomState()
     
     // List of players in the room, and whether they are present in the room, with the players initialized in constructor
     protected readonly players: RoomPlayer[];
@@ -76,7 +76,6 @@ export abstract class Room<T extends RoomState = RoomState> {
     constructor(
         activity: OnlineUserActivityType, // The type of activity the user is currently doing
         userSessionIDs: UserSessionID[], // A list of session ids of players in the room
-        roomState: T, // The state of the room, specific to the room type
     ) {
 
         // Assert all sessions are online. Otherwise, throw an abort error.
@@ -134,16 +133,11 @@ export abstract class Room<T extends RoomState = RoomState> {
             }),
         };
 
-        // Set the room state
-        this.roomState = roomState;
-
-        // Send IN_ROOM_STATUS messages to all players in the room to indicate that they are players in the room,
-        // including the room info
-        this.sendToAll(new InRoomStatusMessage(InRoomStatus.PLAYER, this.roomInfo, this.roomState));
-
-        const playerUsernames = this.roomInfo.players.map(player => player.username).join(", ");
-        console.log(`Created room ${this.id} of type ${this.roomState.type} with players ${playerUsernames}`);
     }
+
+    // MUST IMPLEMENT
+
+    protected abstract initRoomState(): Promise<T>
 
     // ======================== PUBLIC GETTERS ========================
 
@@ -272,7 +266,20 @@ export abstract class Room<T extends RoomState = RoomState> {
      * Initialize the room. This should only be called by the RoomConsumer right after the room is created.
      */
     public async _init() {
+
+        // Set the room state
+        this.roomState = await this.initRoomState();
+
+        // Send IN_ROOM_STATUS messages to all players in the room to indicate that they are players in the room,
+        // including the room info
+        this.sendToAll(new InRoomStatusMessage(InRoomStatus.PLAYER, this.roomInfo, this.roomState));
+
+        // Trigger the onCreate hook that may be implemented by subclasses
         await this.onCreate();
+
+        // Log the creation of the room
+        const playerUsernames = this.roomInfo.players.map(player => player.username).join(", ");
+        console.log(`Created room ${this.id} of type ${this.roomState.type} with players ${playerUsernames}`);
     }
 
     /**
