@@ -12,6 +12,7 @@ export enum GameOverMode {
   TIE = 'tie',
   LOSE = 'lose',
   TOPOUT = 'topout',
+  READY = 'ready',
 }
 
 @Component({
@@ -39,7 +40,7 @@ export class NesBoardComponent {
   @Input() nextPiece?: MoveableTetromino;
   @Input() nextPieceOpacity: number = 1;
 
-  @Input() countdown?: number; // if defined, will be shown as number in center of board
+  @Input() countdown?: number | string; // if defined, will be shown as number in center of board
 
   // if hidden, <ng-content> will be displayed instead of board
   @Input() hide: boolean = false;
@@ -110,6 +111,10 @@ export class NesBoardComponent {
     if (p1 === undefined || p2 === undefined) return false;
     return p1.x === p2.x && p1.y === p2.y;
   
+  }
+
+  countdownIsString(): boolean {
+    return typeof this.countdown === 'string';
   }
 
 }

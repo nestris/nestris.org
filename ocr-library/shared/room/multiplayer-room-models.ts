@@ -56,6 +56,7 @@ export interface MultiplayerRoomState extends RoomState {
     // Mutable
     points: MatchPoint[];
     currentSeed: string;
+    lastGameWinner: PlayerIndex | null; // null if before first game
     matchWinner: PlayerIndex | null; // null if match is ongoing
     wonByResignation: boolean;
 
@@ -66,4 +67,8 @@ export interface MultiplayerRoomState extends RoomState {
 export interface XPDelta {
     xpGain: number;
     xpLoss: number;
+}
+
+export enum MultiplayerRoomEventType {
+    READY = 'READY',
 }

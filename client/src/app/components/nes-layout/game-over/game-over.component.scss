@@ -9,7 +9,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 5px;
+    gap: 10px;
 
 }
 
@@ -25,6 +25,10 @@
     background-color: rgba(255, 255, 0, 0.4);
 }
 
+.game-over.ready {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
 .game-over h1 {
     font-family: 'NES';
     font-size: 30px;
@@ -35,9 +39,9 @@
 .next-button {
     border: solid white 2px;
     border-radius: 3px;
-    width: 70px;
     height: 30px;
     background-color: rgba(255, 255, 255, 0.2);
+    padding-inline: 5px;
 
     display: flex;
     align-items: center;;

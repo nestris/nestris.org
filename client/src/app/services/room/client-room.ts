@@ -1,7 +1,9 @@
 import { Injector } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
 import { RoomModal } from "src/app/components/layout/room/room/room.component";
-import { RoomState } from "src/app/shared/room/room-models";
+import { ClientRoomEvent, RoomState } from "src/app/shared/room/room-models";
+import { WebsocketService } from "../websocket.service";
+import { ClientRoomEventMessage } from "src/app/shared/network/json-message";
 
 export abstract class ClientRoom {
 
@@ -52,6 +54,14 @@ export abstract class ClientRoom {
         this.state$.next(state);
 
         await this.onStateUpdate(oldState, state);
+    }
+
+    /**
+     * Send a client room event to the server to the corresponding room in the server.
+     * @param event The event to send to the server
+     */
+    protected sendClientRoomEvent(event: ClientRoomEvent) {
+        this.injector.get(WebsocketService).sendJsonMessage(new ClientRoomEventMessage(event));
     }
 
 }

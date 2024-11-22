@@ -1,7 +1,8 @@
 <div class="multiplayer-background" *ngIf="(multiplayerState$ | async) as state">
     <div class="side" *ngFor="let playerIndex of getPlayerIndices()" [ngClass]="getIndexColor(playerIndex)">
         <div class="player" *ngIf="state.players[playerIndex] as player">
-            <app-game-header [username]="player.username" [trophies]="player.trophies" [score]="getScore(state, playerIndex)" />
+            <app-game-header [username]="player.username" [trophies]="player.trophies"
+            [score]="getScore(state, playerIndex)" [color]="getIndexColor(playerIndex)" />
 
             <!-- Show client gameplay directly if it's the player's board -->
             <ng-container *ngIf="isMyIndex(playerIndex)">
@@ -11,18 +12,27 @@
                     [level]="myData.level"
                     [lines]="myData.lines"
                     [score]="myData.score"
-                    [countdown]="myData.countdown" />                    
+                    [trt]="myData.trt"
+                    [countdown]="showReadyCountdown(state, playerIndex) ?? myData.countdown"
+                    [gameOverShowNext]="true"
+                    [gameOver]="getGameOverMode(state, playerIndex)"
+                    (clickNext)="clickNext(state)"
+                    />                    
             </ng-container>
 
             <!-- Otherwise, show game data from the server for this player -->
             <ng-container *ngIf="!isMyIndex(playerIndex)">
-                <app-layout-one *ngIf="(platform.getGameData$() | async) as myData"
-                    [board]="myData.board"
-                    [nextType]="myData.nextPiece"
-                    [level]="myData.level"
-                    [lines]="myData.lines"
-                    [score]="myData.score"
-                    [countdown]="myData.countdown" />                    
+                <app-layout-one *ngIf="(multiplayerClientRoom.getSnapshotForPlayer$(playerIndex) | async) as playerData"
+                    [board]="playerData.board"
+                    [nextType]="playerData.next"
+                    [level]="playerData.level"
+                    [lines]="playerData.lines"
+                    [score]="playerData.score"
+                    [trt]="playerData.tetrisRate"
+                    [countdown]="showReadyCountdown(state, playerIndex) ?? playerData.countdown"
+                    [gameOverShowNext]="false"
+                    [gameOver]="getGameOverMode(state, playerIndex)"
+                    />                    
             </ng-container>
 
         </div>

@@ -6,27 +6,13 @@ import { TetrisBoard } from "src/app/shared/tetris/tetris-board";
 import { TetrominoType } from "src/app/shared/tetris/tetromino-type";
 import { PacketReplayer } from "src/app/util/packet-replayer";
 
-const DEFAULT_STATE: GameStateSnapshot = { 
-    level: 0,
-    lines: 0,
-    score: 0,
-    board: new TetrisBoard(),
-    next: TetrominoType.ERROR_TYPE,
-    countdown: 0,
-    tetrisRate: 0,
-    transitionInto19: null,
-    transitionInto29: null,
-    perfectInto19: false,
-    perfectInto29: false,
-};
-
 /**
  * A ServerPlayer tracks game state of a player based on server-sent packets. It uses lag buffering to
  * smooth out the game state updates, and maintains the current state of the player.
  */
 export class ServerPlayer {
 
-    private snapshot$ = new BehaviorSubject<GameStateSnapshot>(DEFAULT_STATE);
+    private snapshot$ = new BehaviorSubject<GameStateSnapshot>(this.getDefaultSnapshot());
 
     // The current game state of the player, or null if not in a game
     private state: GameState | null;
@@ -38,7 +24,7 @@ export class ServerPlayer {
     private previousSnapshot: GameStateSnapshot | null;
   
     // The constructor initializes the ServerPlayer with a buffer delay (in ms) for the PacketReplayer
-    constructor(bufferDelay: number = 300) {
+    constructor(private readonly defaultLevel: number = 18, bufferDelay: number = 300) {
 
         // No ongoing game at initialization
         this.state = null;
@@ -53,7 +39,6 @@ export class ServerPlayer {
             packets.forEach((packet) => this.processPacket(packet));
 
         }, bufferDelay);
-
     }  
   
     /**
@@ -71,7 +56,7 @@ export class ServerPlayer {
  
       if (packet.opcode === PacketOpcode.GAME_START) {
         const gameStart = packet.content as GameStartSchema;
-        this.state = new GameState(gameStart.level, gameStart.current, gameStart.next);
+        this.state = new GameState(gameStart.level, gameStart.current, gameStart.next, 3);
 
       } else if (packet.opcode === PacketOpcode.GAME_RECOVERY) {
         const gameRecovery = packet.content as GameRecoverySchema;
@@ -103,7 +88,7 @@ export class ServerPlayer {
       }
 
       // Update the snapshot
-      this.snapshot$.next(this.state?.getSnapshot() ?? this.previousSnapshot ?? DEFAULT_STATE);
+      this.snapshot$.next(this.state?.getSnapshot() ?? this.previousSnapshot ?? this.getDefaultSnapshot());
     }
   
     /**
@@ -116,6 +101,13 @@ export class ServerPlayer {
       this.replayer.ingestPacket(packet);
   
     }
+
+    /**
+     * Resets the game state of the player to the default state.
+     */
+    public resetSnapshot() {
+      this.snapshot$.next(this.getDefaultSnapshot());
+    }
   
     /**
      * @returns An observable of the current game state of the player
@@ -123,4 +115,20 @@ export class ServerPlayer {
     public getSnapshot$(): Observable<GameStateSnapshot> {
       return this.snapshot$.asObservable();
     }
+
+    private getDefaultSnapshot(): GameStateSnapshot {
+      return { 
+        level: this.defaultLevel,
+        lines: 0,
+        score: 0,
+        board: new TetrisBoard(),
+        next: TetrominoType.ERROR_TYPE,
+        countdown: 0,
+        tetrisRate: 0,
+        transitionInto19: null,
+        transitionInto29: null,
+        perfectInto19: false,
+        perfectInto29: false,
+      }
+    };
 }

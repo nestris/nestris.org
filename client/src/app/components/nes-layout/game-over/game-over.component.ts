@@ -22,9 +22,18 @@ export class GameOverComponent {
         return 'DEFEAT';
       case GameOverMode.TOPOUT:
         return 'GAME OVER';
+      case GameOverMode.READY:
+        return 'READY?';
       default:
         return '';
     }
+  }
+
+  getButton(mode?: GameOverMode): string {
+    if (mode === GameOverMode.READY) {
+      return 'READY';
+    }
+    return 'NEXT';
   }
 
 

@@ -40,14 +40,14 @@ export class GameState {
   private perfectInto19: boolean = false;
   private perfectInto29: boolean = false
 
-  constructor(public readonly startLevel: number, current: TetrominoType, next: TetrominoType) {
+  constructor(public readonly startLevel: number, current: TetrominoType, next: TetrominoType, initialCountdown: number | undefined = undefined) {
     this.status = new SmartGameStatus(startLevel);
     this.isolatedBoard = new TetrisBoard(); // the board without the active piece. updated every placement
     this.current = current;
     this.next = next;
 
     this.currentBoard = new TetrisBoard();
-    this.countdown = undefined;
+    this.countdown = initialCountdown;
   }
 
   static fromRecovery(recovery: GameRecoverySchema): GameState {

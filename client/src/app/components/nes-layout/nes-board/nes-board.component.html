@@ -35,7 +35,7 @@
         </g>
     </svg>
 
-    <h1 *ngIf="countdown" class="countdown">{{countdown}}</h1>
+    <h1 *ngIf="countdown" class="countdown" [ngClass]="{'small' : countdownIsString()}">{{countdown}}</h1>
 
     <app-game-over class="game-over" [mode]="gameOver" [showNext]="gameOverShowNext"
         (clickNext)="clickNext.emit()" [ngStyle]="{opacity : (gameOver ? 1 : 0), display: (gameOver ? 'block' : 'none')}" />

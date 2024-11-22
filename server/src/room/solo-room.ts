@@ -1,4 +1,5 @@
 import { FinishSoloGameMessage } from "../../shared/network/json-message";
+import { PacketAssembler } from "../../shared/network/stream-packets/packet-assembler";
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
 import { RoomType } from "../../shared/room/room-models";
 import { SoloRoomState } from "../../shared/room/solo-room-models";
@@ -67,7 +68,7 @@ export class SoloRoom extends Room<SoloRoomState> {
     protected async onPlayerSendBinaryMessage(sessionID: string, message: PacketDisassembler): Promise<void> {
 
         // Resend message to all other players in the room
-        this.sendToAllExcept(sessionID, message.stream);
+        this.sendToAllExcept(sessionID, PacketAssembler.encodeIndexFromPacketDisassembler(message, 0));
 
         // Handle each packet individually
         while (message.hasMorePackets()) {

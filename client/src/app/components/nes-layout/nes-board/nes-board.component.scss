@@ -44,6 +44,11 @@
     font-size: 50px;
 }
 
+.countdown.small {
+    font-size: 30px;
+    transform: translateY(-110px);
+}
+
 .game-over {
     transition: opacity 0.5s;
     transition-delay: 1s;

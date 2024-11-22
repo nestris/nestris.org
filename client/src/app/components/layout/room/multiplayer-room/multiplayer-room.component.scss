@@ -12,10 +12,8 @@
     height: 100%;
     top: 0;
     left: 0;
-    z-index: 10;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr)); // force equally spaced columns even if children are bigger
-    z-index: -100; // behind everything else
 }
 
 .multiplayer-background .blue {
@@ -23,4 +21,32 @@
 }
 .multiplayer-background .red {
     background: linear-gradient(350deg,rgba(182, 4, 4, 0.5) 0%,rgba(0,0,0,1) 90%);
+}
+
+.side {
+    position: relative;
+}
+
+// center the player
+.player {
+    width:fit-content;
+    height: fit-content;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@media screen and (max-width: 1200px) {
+    .player {
+        transform: scale(0.8) translate(-60%, -60%);
+    }
+}
+
+@media screen and (max-width: 950px) {
+    .player {
+        transform: scale(0.6) translate(-80%, -80%);
+    }
+    
 }

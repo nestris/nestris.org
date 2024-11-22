@@ -1,9 +1,11 @@
 import { ChangeDetectionStrategy, Component, HostListener } from '@angular/core';
+import { map } from 'rxjs';
+import { GameOverMode } from 'src/app/components/nes-layout/nes-board/nes-board.component';
 import { EmulatorService } from 'src/app/services/emulator/emulator.service';
 import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { MultiplayerClientRoom } from 'src/app/services/room/multiplayer-client-room';
 import { RoomService } from 'src/app/services/room/room.service';
-import { calculateScoreForPlayer, MultiplayerRoomState, PlayerIndex } from 'src/app/shared/room/multiplayer-room-models';
+import { calculateScoreForPlayer, MultiplayerRoomState, MultiplayerRoomStatus, PlayerIndex } from 'src/app/shared/room/multiplayer-room-models';
 
 @Component({
   selector: 'app-multiplayer-room',
@@ -72,4 +74,43 @@ export class MultiplayerRoomComponent {
   getScore(state: MultiplayerRoomState, index: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2) {
     return calculateScoreForPlayer(state.points, index);
   }
+
+  showReadyCountdown(state: MultiplayerRoomState, index: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2): string | undefined {
+    if (state.status === MultiplayerRoomStatus.BEFORE_GAME) {
+      if (state.ready[index]) return 'READY';
+      if (!this.isMyIndex(index) && state.lastGameWinner === null) return 'NOT READY';
+    }
+    
+    return undefined;
+  }
+
+  getGameOverMode(state: MultiplayerRoomState, index: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2): GameOverMode | undefined {
+    if (state.status === MultiplayerRoomStatus.BEFORE_GAME) {
+
+      // if before first game, show ready
+      if (state.lastGameWinner === null) {
+        if (this.isMyIndex(index)) return state.ready[index] ? undefined : GameOverMode.READY;
+        return undefined;
+
+      } else if (state.ready[index]) { // If player is ready after a game, do not show game over mode
+        return undefined;
+
+      } else { // If not ready after a game, show win/lose/tie
+
+        if (state.lastGameWinner === index) return GameOverMode.WIN;
+        if (state.lastGameWinner === PlayerIndex.DRAW) return GameOverMode.TIE;
+        return GameOverMode.LOSE;
+      }
+    }
+
+    return undefined;
+  }
+
+  clickNext(state: MultiplayerRoomState) {
+    if (state.status === MultiplayerRoomStatus.BEFORE_GAME) {
+      console.log('Ready for next game');
+      this.multiplayerClientRoom.sendReadyEvent();
+    }
+  }
+
 }

@@ -1,5 +1,6 @@
-import { BinaryEncoder } from "../binary-codec";
+import { BinaryDecoder, BinaryEncoder } from "../binary-codec";
 import { LastPacket, Packet } from "./packet";
+import { PacketDisassembler } from "./packet-disassembler";
 
 export const MAX_PLAYERS_IN_ROOM = 2;
 export const MAX_PLAYER_BITCOUNT = 8;
@@ -41,6 +42,19 @@ export class PacketAssembler {
     // add last packet to the encoder to signal the end of the stream
     // we can't rely on just checking if there are bits left, because the bits are padded to the nearest byte
     encoder.addBinaryEncoder(new LastPacket().toBinaryEncoder({}));
+
+    return encoder.convertToUInt8Array();
+  }
+
+  static encodeIndexFromPacketDisassembler(disassembler: PacketDisassembler, playerIndex: number): Uint8Array {
+    const encoder = new BinaryEncoder();
+
+    // prefix with the player index
+    encoder.addUnsignedInteger(playerIndex, MAX_PLAYER_BITCOUNT);
+
+    // add all the packets to the encoder
+    const decoder = BinaryDecoder.fromUInt8Array(disassembler.stream);
+    encoder.addBinaryDecoder(decoder);
 
     return encoder.convertToUInt8Array();
   }

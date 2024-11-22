@@ -1,6 +1,6 @@
-<div class="game-over prevent-selectr" [ngClass]="mode">
+<div class="game-over prevent-select" [ngClass]="mode">
     <h1 class="prevent-select">{{getText(mode)}}</h1>
     <div class="next-button prevent-select" [ngClass]="{'no-button': !showNext}" (click)="clickNext.emit()">
-        <p class="prevent-select">NEXT</p>
+        <p class="prevent-select">{{getButton(mode)}}</p>
     </div>
 </div>
