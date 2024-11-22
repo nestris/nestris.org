@@ -1,3 +1,4 @@
+import { OnlineUserActivityType } from "../../shared/models/activity";
 import { JsonMessage } from "../../shared/network/json-message";
 
 export interface UserSessionID {
@@ -26,14 +27,6 @@ export class OnlineUserSession {
     }
 }
 
-
-// The type of activity the user is currently doing.
-export enum OnlineUserActivityType {
-    SOLO = "SOLO",
-    MULTIPLAYER = "MULTIPLAYER",
-    PUZZLES = "PUZZLES",
-    QUEUEING = "QUEUEING",
-}
 
 // The type of activity the user is currently doing and the sessionID of the session that is doing it
 export interface OnlineUserActivity {

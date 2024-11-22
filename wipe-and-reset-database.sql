@@ -92,11 +92,10 @@ FOR EACH ROW EXECUTE FUNCTION update_highest_puzzle_elo();
 
 
 -- USER_RELATIONSHIPS table
-DROP TABLE IF EXISTS "public"."user_relationships" CASCADE;
-CREATE TABLE "public"."user_relationships" (
+DROP TABLE IF EXISTS "public"."friends" CASCADE;
+CREATE TABLE "public"."friends" (
     "userid1" text NOT NULL REFERENCES "public"."users"("userid"),
     "userid2" text NOT NULL REFERENCES "public"."users"("userid"),
-    "type" text CHECK (type = ANY (ARRAY['1_send_to_2'::text, '2_send_to_1'::text, 'friends'::text])),
     PRIMARY KEY ("userid1","userid2")
 );
 

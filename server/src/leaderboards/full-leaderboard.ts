@@ -93,12 +93,17 @@ export abstract class FullLeaderboard {
         this.leaderboard = await this.populateLeaderboard();
         sortLeaderboard(this.leaderboard);
 
-        console.log(`Initialized leaderboard ${this.name}`, this.leaderboard);
+        console.log(`Initialized leaderboard ${this.name}`);
     }
 
     protected abstract populateLeaderboard(): Promise<LeaderboardUser[]>;
     protected abstract getScoreFromUser(user: DBUser): number;
 
+    /**
+     * Get the leaderboard for a user, including the user and the two users above and below them.
+     * @param userid The user to get the leaderboard for
+     * @returns The leaderboard for the user
+     */
     public getLeaderboardForUser(userid: string): RelativeLeaderboard {
         const index = this.leaderboard.findIndex((user) => user.userid === userid);
         if (index === -1) throw new Error(`User ${userid} not found in leaderboard`);
@@ -119,7 +124,22 @@ export abstract class FullLeaderboard {
         }
 
         return leaderboard;
-    }  
+    }
+
+    /**
+     * Get all the usernames in the leaderboard matching a search pattern, in alphabetical order.
+     * @param pattern The search pattern to match usernames against
+     * @param limit The maximum number of usernames to return
+     */
+    public getUsernamesMatchingPattern(pattern: string, limit: number): {userid: string, username: string}[] {
+        return this.leaderboard
+            .filter((user) => user.username.toLowerCase().includes(pattern.toLowerCase()))
+            .slice(0, limit)
+            .map((user) => ({userid: user.userid, username: user.username}))
+            .sort((a, b) => a.username.localeCompare(b.username));
+    }
+
+
 }
 
 class GetAllUsersScoreQuery extends DBQuery<LeaderboardUser[]> {

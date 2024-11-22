@@ -4,6 +4,7 @@ import { NotificationType } from "../models/notifications"
 import { ClientRoomEvent, RoomInfo, RoomState } from "../room/room-models"
 import { League } from "../nestris-org/league-system";
 import { XPDelta } from "../room/multiplayer-room-models"
+import { FriendInfo, FriendInfoUpdate } from "../models/friends";
 
 /*
 Data sent over websocket as JSON. type is the only required field and specifies
@@ -17,7 +18,7 @@ export enum JsonMessageType {
     ERROR_HANDSHAKE_INCOMPLETE = 'error_handshake_incomplete',
     PING = 'ping',
     SEND_PUSH_NOTIFICATION = 'send_push_notification',
-    FRIEND_ONLINE_STATUS_CHANGE = 'friend_online_status_change',
+    FRIEND_UPDATE = 'friend_online_status_change',
     SERVER_RESTART_WARNING = 'server_restart_warning', // sent from server to client to warn of server restart
     ME = 'ME',
     CHAT = 'chat',
@@ -227,5 +228,19 @@ export class RedirectMessage extends JsonMessage {
         public readonly route: string
     ) {
         super(JsonMessageType.REDIRECT)
+    }
+}
+
+export interface FriendUpdateData {
+    create?: FriendInfo, // if defined, creating a new friend
+    update?: FriendInfoUpdate, // if defined, updating an existing friend's properties
+} // if neither create nor update are defined, the friend is being removed
+
+export class FriendUpdateMessage extends JsonMessage {
+    constructor(
+        public readonly userid: string, // userid of friend
+        public readonly data: FriendUpdateData        
+    ) {
+        super(JsonMessageType.FRIEND_UPDATE)
     }
 }

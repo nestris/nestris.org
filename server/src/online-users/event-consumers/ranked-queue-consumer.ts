@@ -7,10 +7,10 @@ import { DBUserObject } from "../../database/db-objects/db-user";
 import { MultiplayerRoom } from "../../room/multiplayer-room";
 import { RankedMultiplayerRoom } from "../../room/ranked-multiplayer-room";
 import { EventConsumer, EventConsumerManager } from "../event-consumer";
-import { OnlineUserActivityType } from "../online-user";
 import { OnSessionDisconnectEvent } from "../online-user-events";
 import { RoomAbortError, RoomConsumer } from "./room-consumer";
 import { NotificationType } from "../../../shared/models/notifications";
+import { OnlineUserActivityType } from "../../../shared/models/activity";
 
 export class QueueError extends Error {}
 export class UserUnavailableToJoinQueueError extends QueueError {}

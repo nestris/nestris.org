@@ -2,14 +2,14 @@
    <div class="container">
       <h1 class="header">Search for players</h1>
       <input type="text" id="username" placeholder="Type a username..."
-      [(ngModel)]="typedUsername" autocomplete="off" autofocus>
+      [ngModel]="pattern" (ngModelChange)="onPatternChange($event)" autocomplete="off" autofocus>
 
-      <h2 class="loading" *ngIf="potentialFriends === undefined" >Loading...</h2>
-      <div class="usernames" *ngIf="potentialFriends !== undefined">
-         <ng-container *ngFor="let potentialFriend of potentialFriends">
-            <div class="username" *ngIf="userMatchesTypedUsername(potentialFriend)">
+      <h2 class="loading" *ngIf="false" >Loading...</h2>
+      <div class="usernames" *ngIf="true">
+         <ng-container *ngFor="let potentialFriend of (potentialFriends$ | async)">
+            <div class="username" *ngIf="true">
                <p class="username-text">{{potentialFriend.username}}</p>
-               <app-friend-icon [status]="potentialFriend.status" (click)="sendFriendRequest(potentialFriend)" />
+               <app-friend-icon [status]="potentialFriend.friendStatus" />
             </div>
          </ng-container>
       </div>

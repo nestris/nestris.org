@@ -87,7 +87,7 @@ export class Database {
         if (dbQuery.warningMs !== null && duration > dbQuery.warningMs) {
             console.warn(`WARNING: Query ${dbQuery.query} exceeded reasonable time limit of ${dbQuery.warningMs}ms. Executed in ${duration}ms`);
         } else {
-            console.log(`Query ${dbQuery.query} executed in ${duration}ms`);
+            //console.log(`Query ${dbQuery.query} executed in ${duration}ms`);
         }
 
         // If in development, inject artificial lag

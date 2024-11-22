@@ -1,3 +1,4 @@
+import { OnlineUserActivityType } from "../../shared/models/activity";
 import { FinishSoloGameMessage } from "../../shared/network/json-message";
 import { PacketAssembler } from "../../shared/network/stream-packets/packet-assembler";
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
@@ -5,7 +6,7 @@ import { RoomType } from "../../shared/room/room-models";
 import { SoloRoomState } from "../../shared/room/solo-room-models";
 import { DBSoloGamesListAddEvent, DBSoloGamesListView } from "../database/db-views/db-solo-games-list";
 import { Room } from "../online-users/event-consumers/room-consumer";
-import { OnlineUserActivityType, UserSessionID } from "../online-users/online-user";
+import { UserSessionID } from "../online-users/online-user";
 import { GameEndEvent, GamePlayer, GameStartEvent } from "./game-player";
 
 export class SoloRoom extends Room<SoloRoomState> {

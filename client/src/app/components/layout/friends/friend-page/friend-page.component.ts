@@ -16,7 +16,7 @@ export class FriendPageComponent {
 
   readonly ButtonColor = ButtonColor;
 
-  public friendModalVisibility$ = new BehaviorSubject<boolean>(false);
+  public showAddFriendDialog$ = new BehaviorSubject(false);
 
   constructor(
     public friendsService: FriendsService,
@@ -27,14 +27,12 @@ export class FriendPageComponent {
 
   }
 
-  // opens the friend modal when the user clicks on the friend button
-  toggleFriendModal(event: MouseEvent) {
+  // toggle the visibility of the add friend dialog
+  toggleFriendDialog(event: MouseEvent) {
 
-    if (!this.websocketService.isSignedIn()) {
-      return;
-    }
 
-    this.friendModalVisibility$.next(!this.friendModalVisibility$.getValue());
+    this.showAddFriendDialog$.next(!this.showAddFriendDialog$.getValue());
+    console.log(this.showAddFriendDialog$.getValue());
     event.stopPropagation(); // prevent the same click from closing the modal
   }
 

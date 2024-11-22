@@ -34,12 +34,8 @@ export class FriendElementComponent {
 
   // get css class for friend status
   getStatusClass(): string {
-    switch (this.friendInfo.friendStatus) {
-      case FriendStatus.FRIENDS: return "status-friend";
-      case FriendStatus.INCOMING: return "status-incoming";
-      case FriendStatus.OUTGOING: return "status-pending"
-      case FriendStatus.NOT_FRIENDS: return "status-not-friends";
-    }
+    // TEMPOARY
+    return "status-friend";
   }
 
   // send a message to server to accept friend request

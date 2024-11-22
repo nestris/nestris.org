@@ -8,7 +8,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ModalComponent {
-  @Input() visibility$!: BehaviorSubject<boolean>;
+  @Input() visibility$: BehaviorSubject<boolean> = new BehaviorSubject(true);
 
   constructor() {
   }

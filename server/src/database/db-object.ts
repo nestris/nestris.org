@@ -16,6 +16,7 @@ import { DBCacheMonitor } from "./db-cache-monitor";
  * @param name The name of the object, used for logging and debugging
  * @param maxCacheSize The maximum number of objects to cache in-memory. If the number of objects exceeds this, the least recently used object will be removed.
  * @template InMemoryObject The schema of the in-memory object
+ * @template CreateParams The parameters needed to create the object
  * @template Event An enum of events that can be emitted to alter the object
  */
 export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxCacheSize: number = 1000) {

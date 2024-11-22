@@ -6,7 +6,8 @@ import { OnlineUserManager } from "../online-user-manager";
 import { ClientRoomEvent, RoomInfo, RoomState } from "../../../shared/room/room-models";
 import { v4 as uuid } from 'uuid';
 import { NotificationType } from "../../../shared/models/notifications";
-import { OnlineUserActivity, OnlineUserActivityType, UserSessionID } from "../online-user";
+import { UserSessionID } from "../online-user";
+import { OnlineUserActivityType } from "../../../shared/models/activity";
 
 export class RoomError extends Error {
     constructor(message: string) {

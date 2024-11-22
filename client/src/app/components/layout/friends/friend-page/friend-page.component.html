@@ -4,7 +4,7 @@
     label="Add Friend" [color]="ButtonColor.GREEN"
     icon="./assets/img/friend-status-icons/not-friend.svg"
     [tooltip]="(meService.get$() | async) ? '' : 'Login to add friends!'"
-    (click)="toggleFriendModal($event)" />
+    (click)="toggleFriendDialog($event)" />
 
     <app-solid-selector
         [labels]="['Sort by highscore', 'Sort by trophies', 'Sort by puzzle elo']"
@@ -18,13 +18,10 @@
     />
 </div>
 
-<!-- 
-<app-add-friend-modal *ngIf="friendsService.getFriendsInfo$() | async as challenges"
-    [visibility$]="friendModalVisibility$" 
-    [friendsInfo]="challenges"
-    />
 
-<div class="friends-list">
+<app-add-friend-modal *ngIf="showAddFriendDialog$ | async" [visibility$]="showAddFriendDialog$" />
+
+<!-- <div class="friends-list">
     <ng-container *ngIf="friendsService.getChallenges$() | async as challenges">
         <app-challenge *ngFor="let challenge of challenges"
             [challenge]="challenge"

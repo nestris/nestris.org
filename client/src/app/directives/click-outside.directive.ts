@@ -16,7 +16,6 @@ export class ClickOutsideDirective {
 
     const clickedInside = this.elementRef.nativeElement.contains(targetElement);
     if (!clickedInside) {
-      console.log("clickOutside", targetElement);
       this.clickOutside.emit(event);
     }
   }

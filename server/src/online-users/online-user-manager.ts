@@ -5,8 +5,9 @@ import { JsonMessage, JsonMessageType, OnConnectMessage, ErrorHandshakeIncomplet
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
 import { decodeMessage, MessageType } from "../../shared/network/ws-message";
 import { OnlineUserEvent, OnlineUserEventType, OnSessionBinaryMessageEvent, OnSessionConnectEvent, OnSessionDisconnectEvent, OnSessionJsonMessageEvent, OnUserActivityChangeEvent, OnUserConnectEvent, OnUserDisconnectEvent } from "./online-user-events";
-import { OnlineUser, OnlineUserActivity, OnlineUserActivityType, OnlineUserInfo, OnlineUserSession } from "./online-user";
+import { OnlineUser, OnlineUserActivity, OnlineUserInfo, OnlineUserSession } from "./online-user";
 import { WebSocketServer } from "ws";
+import { OnlineUserActivityType } from "../../shared/models/activity";
 
 /*
 Manages the users that are online right now and thus are connected to socket with websocket.
@@ -132,6 +133,15 @@ export class OnlineUserManager {
         return onlineUser.getActivity();
     }
 
+    // Get the activity type of a user, if the user is online and in an activity
+    public getUserActivityType(userid: string): OnlineUserActivityType | null {
+        const onlineUser = this.onlineUsers.get(userid);
+        if (!onlineUser) return null;
+        const activity = onlineUser.getActivity();
+        if (!activity) return null;
+        return activity.type;
+    }
+
     // Get whether a user is in an activity
     public isUserInActivity(userid: string): boolean {
         const onlineUser = this.onlineUsers.get(userid);
@@ -167,7 +177,7 @@ export class OnlineUserManager {
         // Set the activity and emit the event
         const activity: OnlineUserActivity = { type: activityType, sessionID };
         onlineUser.setActivity(activity);
-        this.events$.next(new OnUserActivityChangeEvent(userid, onlineUser.username, activity));
+        this.events$.next(new OnUserActivityChangeEvent(userid, onlineUser.username, activityType));
     }
 
     // called when a message is received from a client
