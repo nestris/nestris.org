@@ -7,7 +7,7 @@ import { InvitationManager, InvitationRequirement } from "./invitation";
 export class FriendInvitationManager extends InvitationManager<Invitation> {
 
     // This manager handles friend requests
-    protected readonly invitationType = InvitationType.FRIEND_REQUEST;
+    public readonly invitationType = InvitationType.FRIEND_REQUEST;
 
     // Friend requests can be sent at any time
     protected readonly invitationRequirement = InvitationRequirement.NONE;

@@ -7,7 +7,7 @@ import { OnSessionJsonMessageEvent } from "../online-user-events";
  */
 export class PingConsumer extends EventConsumer {
 
-    protected async onSessionJsonMessage(event: OnSessionJsonMessageEvent) {
+    protected override async onSessionJsonMessage(event: OnSessionJsonMessageEvent) {
         if (event.message.type === JsonMessageType.PING) {
             this.users.sendToUserSession(event.sessionID, event.message);
         }

@@ -126,21 +126,21 @@ export class FriendEventConsumer extends EventConsumer {
 
 
     // On user connect, update the online status of all friends to online
-    protected async onUserConnect(event: OnUserConnectEvent) {
+    protected override async onUserConnect(event: OnUserConnectEvent) {
         await this.updateFriend(event.userid, {
                 update: { isOnline: true }
         });
     }
 
     // On user disconnect, update the online status of all friends to offline
-    protected async onUserDisconnect(event: OnUserDisconnectEvent) {
+    protected override async onUserDisconnect(event: OnUserDisconnectEvent) {
         await this.updateFriend(event.userid, {
             update: { isOnline: false }
         });
     }
 
     // On user activity change, update the activity of all friends
-    protected async onUserActivityChange(event: OnUserActivityChangeEvent): Promise<void> {
+    protected override async onUserActivityChange(event: OnUserActivityChangeEvent): Promise<void> {
         await this.updateFriend(event.userid, {
             update: { activity: event.activity }
         });

@@ -4,7 +4,7 @@ import { OnSessionDisconnectEvent, OnUserActivityChangeEvent, OnUserDisconnectEv
 import { OnlineUserManager } from "../online-users/online-user-manager";
 
 export class InvitationError extends Error {
-    constructor(message: string) {
+    constructor(message: string, public readonly sendError: boolean = false) {
         super(message);
         this.name = "InvitationError";
     }
@@ -34,8 +34,8 @@ export enum InvitationRequirement {
  */
 export abstract class InvitationManager<I extends Invitation = Invitation> {
 
-    // The type of invitation this manager handles.
-    protected abstract readonly invitationType: InvitationType;
+    // The type of invitation this manager handles. There can only be one manager per type.
+    public abstract readonly invitationType: InvitationType;
 
     // The requirement for sending, accepting, and rejecting invitations.
     protected abstract readonly invitationRequirement: InvitationRequirement;
@@ -159,12 +159,12 @@ export abstract class InvitationManager<I extends Invitation = Invitation> {
 
         // Check if the sender is allowed to send an invitation.
         if (!this.eligibleForInvitation(invitation.senderID)) {
-            throw new InvitationError(`User ${invitation.senderUsername} is not eligible to send invitation ${this.invitationType}.`);
+            throw new InvitationError(`${invitation.senderUsername} is busy!`, true);
         }
 
         // Check if the receiver is allowed to receive an invitation.
         if (!this.eligibleForInvitation(invitation.senderID)) {
-            throw new InvitationError(`User ${invitation.senderUsername} is not eligible to receive invitation ${this.invitationType}.`);
+            throw new InvitationError(`${invitation.senderUsername} is busy!`, true);
         }
 
         // Create the invitation.
@@ -245,7 +245,7 @@ export abstract class InvitationManager<I extends Invitation = Invitation> {
      * If a session is closed and requirement SESSION_NOT_IN_ACTIVITY, cancel all open invitations sent BY that session.
      * @param event The event of the session closing. 
      */
-    public async _onSessionClose(event: OnSessionDisconnectEvent): Promise<void> {
+    public async _onSessionDisconnect(event: OnSessionDisconnectEvent): Promise<void> {
 
         // Only cancel invitations if the requirement is SESSION_NOT_IN_ACTIVITY.
         if (this.invitationRequirement !== InvitationRequirement.SESSION_NOT_IN_ACTIVITY) {
@@ -287,7 +287,7 @@ export abstract class InvitationManager<I extends Invitation = Invitation> {
      * If a user starts an activity and requirement SESSION_NOT_IN_ACTIVITY, cancel all open invitations sent BY OR TO that user.
      * @param event The event of the user starting an activity.
      */
-    public async _onActivityChange(event: OnUserActivityChangeEvent): Promise<void> {
+    public async _onUserActivityChange(event: OnUserActivityChangeEvent): Promise<void> {
 
         // Only cancel invitations if the requirement is SESSION_NOT_IN_ACTIVITY.
         if (this.invitationRequirement !== InvitationRequirement.SESSION_NOT_IN_ACTIVITY) {

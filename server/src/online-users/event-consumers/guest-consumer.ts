@@ -7,7 +7,7 @@ import { OnUserDisconnectEvent } from "../online-user-events";
  */
 export class GuestConsumer extends EventConsumer {
 
-    protected async onUserDisconnect(event: OnUserDisconnectEvent) {
+    protected override async onUserDisconnect(event: OnUserDisconnectEvent) {
 
         // Get the user object for the disconnected user
         const user = (await DBUserObject.get(event.userid)).object;
