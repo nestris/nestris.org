@@ -55,6 +55,22 @@ export abstract class InvitationManager<I extends Invitation = Invitation> {
         protected readonly users: OnlineUserManager,
     ) {}
 
+    /**
+     * Get the open invitations sent to or sent by the user with the given userid.
+     * @param userid The userid to get open invitations for.
+     */
+    public getOpenInvitationsForUser(userid: string): I[] {
+
+        // All invitations where the user is the sender.
+        const sentInvitations = this.invitationsBySender.get(userid) ?? [];
+
+        // All invitations where the user is the receiver.
+        const receivedInvitations = this.invitationsByReceiver.get(userid) ?? [];
+
+        // Combine the two lists.
+        return [...sentInvitations, ...receivedInvitations];
+    }
+
     // ------------ Private methods for internal use ------------
 
     /**

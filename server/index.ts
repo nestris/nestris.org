@@ -28,9 +28,10 @@ import { GetCacheStatsRoute } from './src/routes/stats/get-cache-stats-route';
 import { RankedQueueConsumer } from './src/online-users/event-consumers/ranked-queue-consumer';
 import { EnterRankedQueueRoute } from './src/routes/room/enter-ranked-queue-route';
 import { LeaveRankedQueueRoute } from './src/routes/room/leave-ranked-queue-route';
-import { GetUsernamesListRoute } from './src/routes/misc/get-usernames-list';
+import { GetUsernamesListRoute } from './src/routes/misc/get-usernames-list-route';
 import { InvitationConsumer } from './src/online-users/event-consumers/invitation-consumer';
 import { FriendInvitationManager } from './src/invitations/friend-invitation';
+import { GetInvitationsRoute } from './src/routes/invitations/get-invitations-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -113,6 +114,7 @@ async function main() {
   routes.registerRoute(EnterRankedQueueRoute);
   routes.registerRoute(LeaveRankedQueueRoute);
   routes.registerRoute(GetUsernamesListRoute);
+  routes.registerRoute(GetInvitationsRoute);
 
   // app.get('/api/v2/users-by-username', getAllUsersMatchingUsernamePatternRoute);
   // app.get('/api/v2/user/:userid', getUserByUserIDRoute);

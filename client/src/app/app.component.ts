@@ -16,6 +16,7 @@ import { XPAlertComponent } from './components/alerts/xp-alert/xp-alert.componen
 import { League } from './shared/nestris-org/league-system';
 import { XPAlertService } from './services/xp-alert.service';
 import { QuestAlertComponent } from './components/alerts/quest-alert/quest-alert.component';
+import { InvitationsService } from './services/state/invitations.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
@@ -35,6 +36,7 @@ export class AppComponent implements OnInit {
     private roomService: RoomService,
     private alertService: AlertService,
     private xpAlertService: XPAlertService,
+    private invitationsService: InvitationsService,
     private router: Router,
   ) {
 

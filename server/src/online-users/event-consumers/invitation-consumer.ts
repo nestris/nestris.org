@@ -7,7 +7,7 @@ import { OnlineUserActivityType } from "../../../shared/models/activity";
 import { InvitationError, InvitationManager } from "../../invitations/invitation";
 import { OnSessionDisconnectEvent, OnSessionJsonMessageEvent, OnUserActivityChangeEvent, OnUserDisconnectEvent } from "../online-user-events";
 import { InvitationMessage, InvitationMode, JsonMessageType, SendPushNotificationMessage } from "../../../shared/network/json-message";
-import { InvitationCancellationReason, InvitationType } from "../../../shared/models/invitation";
+import { Invitation, InvitationCancellationReason, InvitationType } from "../../../shared/models/invitation";
 
 
 /**
@@ -36,6 +36,20 @@ export class InvitationConsumer extends EventConsumer {
         this.invitationManagers.set(invitationManager.invitationType, invitationManager);
 
         console.log(`Registered InvitationManager: ${invitationManager.invitationType}`);
+    }
+
+    /**
+     * Get the open invitations sent to or sent by the user with the given userid.
+     * @param userid 
+     */
+    public getOpenInvitationsForUser(userid: string): Invitation[] {
+
+        // Iterate through all InvitationManagers to aggregate open invitations
+        const openInvitations: Invitation[] = [];
+        for (const [_, invitationManager] of this.invitationManagers) {
+            openInvitations.push(...invitationManager.getOpenInvitationsForUser(userid));
+        }
+        return openInvitations;
     }
 
     /**

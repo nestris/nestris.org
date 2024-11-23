@@ -15,11 +15,11 @@ class GetFriendsQuery extends DBQuery<string[]> {
     public override readonly query = `
         SELECT userid2 as userid
         FROM friends
-        WHERE userid1 = $1 AND type = 'friends'
+        WHERE userid1 = $1
         UNION
         SELECT userid1 as userid
         FROM friends
-        WHERE userid2 = $1 AND type = 'friends'
+        WHERE userid2 = $1
     `;
 
     public override readonly warningMs = null;
