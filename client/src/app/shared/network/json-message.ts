@@ -5,6 +5,7 @@ import { ClientRoomEvent, RoomInfo, RoomState } from "../room/room-models"
 import { League } from "../nestris-org/league-system";
 import { XPDelta } from "../room/multiplayer-room-models"
 import { FriendInfo, FriendInfoUpdate } from "../models/friends";
+import { Invitation, InvitationCancellationReason } from "../models/invitation";
 
 /*
 Data sent over websocket as JSON. type is the only required field and specifies
@@ -32,6 +33,7 @@ export enum JsonMessageType {
     NUM_QUEUING_PLAYERS = 'num_queuing_players',
     FOUND_OPPONENT = 'found_opponent',
     REDIRECT = 'go_to_page',
+    INVITATION = 'invitation',
 }
 
 export abstract class JsonMessage {
@@ -242,5 +244,21 @@ export class FriendUpdateMessage extends JsonMessage {
         public readonly data: FriendUpdateData        
     ) {
         super(JsonMessageType.FRIEND_UPDATE)
+    }
+}
+
+// Sent to create/accept/cancel a challenge
+export enum InvitationMode {
+    CREATE = 'create',
+    ACCEPT = 'accept',
+    CANCEL = 'cancel'
+}
+export class InvitationMessage extends JsonMessage {
+    constructor(
+        public readonly mode: InvitationMode,
+        public readonly invitation: Invitation,
+        public readonly cancelReason?: InvitationCancellationReason
+    ) {
+        super(JsonMessageType.INVITATION)
     }
 }

@@ -29,6 +29,8 @@ import { RankedQueueConsumer } from './src/online-users/event-consumers/ranked-q
 import { EnterRankedQueueRoute } from './src/routes/room/enter-ranked-queue-route';
 import { LeaveRankedQueueRoute } from './src/routes/room/leave-ranked-queue-route';
 import { GetUsernamesListRoute } from './src/routes/misc/get-usernames-list';
+import { InvitationConsumer } from './src/online-users/event-consumers/invitation-consumer';
+import { FriendInvitationManager } from './src/invitations/friend-invitation';
 
 // Load environment variables
 require('dotenv').config();
@@ -85,6 +87,12 @@ async function main() {
   consumers.registerConsumer(GuestConsumer);
   consumers.registerConsumer(RoomConsumer);
   consumers.registerConsumer(RankedQueueConsumer);
+  consumers.registerConsumer(InvitationConsumer);
+
+  // Initialize InvitationManagers
+  const invitationConsumer = consumers.getConsumer(InvitationConsumer);
+  invitationConsumer.registerInvitationManager(FriendInvitationManager);
+
 
   // Initialize leaderboards
   LeaderboardManager.registerFullLeaderboard(FullHighscoreLeaderboard);

@@ -369,7 +369,7 @@ export abstract class Room<T extends RoomState = RoomState> {
 }
 
 /**
- * Consumer for handling completed quests and notifying the user of it.
+ * Consumer for handling room events. This class is responsible for creating, deleting, and managing rooms.
  */
 export class RoomConsumer extends EventConsumer {
 
