@@ -10,13 +10,16 @@ import { InvitationRelationship, InvitationsService } from 'src/app/services/sta
 import { InvitationType } from 'src/app/shared/models/invitation';
 import { InvitationMode } from 'src/app/shared/network/json-message';
 import { v4 as uuid } from 'uuid';
+import { NotificationService } from 'src/app/services/notification.service';
+import { NotificationType } from 'src/app/shared/models/notifications';
+
+const MAX_OUTGOING_FRIEND_REQUESTS = 5;
 
 interface PotentialFriend {
   userid: string;
   username: string;
   friendStatus: FriendStatus;
 }
-
 
 @Component({
   selector: 'app-add-friend-modal',
@@ -43,6 +46,7 @@ export class AddFriendModalComponent implements OnInit, OnDestroy {
     private fetchService: FetchService,
     private friendsService: FriendsService,
     private invitationsService: InvitationsService,
+    private notificationService: NotificationService,
     ) {
 
       // Recalculate the potential friends list when the invitations change
@@ -103,6 +107,13 @@ export class AddFriendModalComponent implements OnInit, OnDestroy {
 
       // Create a friend request if the user is not friends with the potential friend
       case FriendStatus.NOT_FRIENDS:
+
+        const currentInvitations = await this.invitationsService.getInvitationsBySender(InvitationType.FRIEND_REQUEST, myID);
+        if (currentInvitations.length >= MAX_OUTGOING_FRIEND_REQUESTS) {
+          this.notificationService.notify(NotificationType.ERROR, `You've reached the maximum number of ${MAX_OUTGOING_FRIEND_REQUESTS} outgoing friend requests.`);
+          return;
+        }
+
         this.invitationsService.sendInvitationMessage(InvitationMode.CREATE, {
           type: InvitationType.FRIEND_REQUEST,
           invitationID: uuid(),

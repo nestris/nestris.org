@@ -73,6 +73,16 @@ export class InvitationsService extends StateService<Invitation[]>() {
   }
 
   /**
+   * Get the list of invitations sent by a specific user
+   * @param type The type of invitation to filter by
+   * @param senderID The sender userid to filter by
+   * @returns The list of invitations sent by the specified user
+   */
+  public async getInvitationsBySender(type: InvitationType, senderID: string): Promise<Invitation[]> {
+    return (await this.get()).filter(invitation => invitation.senderID === senderID && invitation.type === type);
+  }
+
+  /**
    * Get the relationship of a given userid with the logged in user for a specific type of invitation
    * @param userid The userid to check the relationship with
    * @returns The relationship of the given userid with the logged in user
