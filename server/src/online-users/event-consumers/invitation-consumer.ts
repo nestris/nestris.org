@@ -73,11 +73,11 @@ export class InvitationConsumer extends EventConsumer {
         try {
             switch (mode) {
                 case InvitationMode.CREATE:
-                    invitationManager.createInvitation(invitation);
+                    await invitationManager.createInvitation(invitation);
                     break;
                 case InvitationMode.ACCEPT:
                     invitation.receiverSessionID = event.sessionID;
-                    invitationManager.acceptInvitation(invitation);
+                    await invitationManager.acceptInvitation(invitation);
                     break;
                 case InvitationMode.CANCEL:
                     let cancelReason: InvitationCancellationReason;
@@ -86,7 +86,7 @@ export class InvitationConsumer extends EventConsumer {
                     } else {
                         cancelReason = InvitationCancellationReason.RECEIVER_DECLINE
                     };
-                    invitationManager.cancelInvitation(invitation, cancelReason);
+                    await invitationManager.cancelInvitation(invitation, cancelReason);
             }
         } catch (error) {
             if (error instanceof InvitationError) {

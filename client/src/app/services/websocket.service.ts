@@ -28,8 +28,8 @@ closed when the user signs out.
 })
 export class WebsocketService {
 
+  private sessionID: string = uuid();
   private ws?: WebSocket;
-  private sessionID?: string;
 
   private jsonEvent$ = new Subject<JsonMessage>();
   private packetGroup$ = new Subject<PacketGroup>();
@@ -48,6 +48,7 @@ export class WebsocketService {
   // Initialize the websocket service with a user id and username, connecting to the websocket
   public async init(userid: string, username: string) {
 
+    // Create new session ID
     this.sessionID = uuid();
 
     // if the user is already signed in, connect to the websocket
@@ -149,7 +150,7 @@ export class WebsocketService {
   }
 
 
-  getSessionID(): string | undefined {
+  getSessionID(): string {
     return this.sessionID;
   }
 
@@ -284,7 +285,6 @@ export class WebsocketService {
 
     this.ws?.close();
     this.ws = undefined;
-    this.sessionID = undefined;
 
     // redirect to login page with hard refresh if we're not already there
     if (location.pathname !== '/login') location.href = '/login';

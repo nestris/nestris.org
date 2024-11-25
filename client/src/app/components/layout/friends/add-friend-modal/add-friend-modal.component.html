@@ -9,7 +9,7 @@
          <ng-container *ngFor="let potentialFriend of (potentialFriends$ | async)">
             <div class="username" *ngIf="true">
                <p class="username-text">{{potentialFriend.username}}</p>
-               <app-friend-icon [status]="potentialFriend.friendStatus" />
+               <app-friend-icon [status]="potentialFriend.friendStatus" (click)="addFriend(potentialFriend)" />
             </div>
          </ng-container>
       </div>
