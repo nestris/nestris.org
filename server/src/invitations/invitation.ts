@@ -111,6 +111,21 @@ export abstract class InvitationManager<I extends Invitation = Invitation> {
     }
 
     /**
+     * Get the invitation where the sender is senderID and the receiver is receiverID.
+     * @param senderID The sender's userid.
+     * @param receiverID The receiver's userid.
+     * @returns The invitation between the sender and receiver, or undefined if there is none.
+     */
+    private getInvitationBySenderReceiver(senderID: string, receiverID: string): I | undefined {
+
+        const senderInvitations = this.invitationsBySender.get(senderID);
+        if (senderInvitations) {
+            return senderInvitations.find(invitation => invitation.receiverID === receiverID);
+        }
+        return undefined;
+    }
+
+    /**
      * Add an invitation to the list of open invitations.
      * @param invitation The invitation to add.
      * @throws InvitationError if the an invitation between the sender and receiver in either direction already exists.
@@ -147,7 +162,7 @@ export abstract class InvitationManager<I extends Invitation = Invitation> {
         if (!senderInvitations) {
             throw new InvitationError(`User ${invitation.senderUsername} has no open invitations.`);
         }
-        const senderIndex = senderInvitations.indexOf(invitation);
+        const senderIndex = senderInvitations.findIndex(openInvitation => openInvitation.invitationID === invitation.invitationID);
         if (senderIndex === -1) {
             throw new InvitationError(`User ${invitation.senderUsername} has not invited ${invitation.receiverUsername}.`);
         }
@@ -158,7 +173,7 @@ export abstract class InvitationManager<I extends Invitation = Invitation> {
         if (!receiverInvitations) {
             throw new InvitationError(`User ${invitation.receiverUsername} has no open invitations.`);
         }
-        const receiverIndex = receiverInvitations.indexOf(invitation);
+        const receiverIndex = receiverInvitations.findIndex(openInvitation => openInvitation.invitationID === invitation.invitationID);
         if (receiverIndex === -1) {
             throw new InvitationError(`User ${invitation.receiverUsername} has not been invited by ${invitation.senderUsername}.`);
         }
@@ -202,8 +217,8 @@ export abstract class InvitationManager<I extends Invitation = Invitation> {
         }
 
         // Assert that the invitation is open.
-        const senderInvitations = this.invitationsBySender.get(invitation.senderID);
-        if (!senderInvitations || !senderInvitations.includes(invitation)) {
+        const foundOpenInvitation = this.getInvitationBySenderReceiver(invitation.senderID, invitation.receiverID);
+        if (!foundOpenInvitation) {
             throw new InvitationError(`User ${invitation.senderUsername} has not invited ${invitation.receiverUsername}.`);
         }
 

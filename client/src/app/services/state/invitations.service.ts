@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
-import { filter, Observable, Subject } from 'rxjs';
+import { filter, map, Observable, Subject } from 'rxjs';
 import { InvitationMessage, InvitationMode, JsonMessageType } from '../../shared/network/json-message';
 import { Method } from '../fetch.service';
 import { StateService } from './state.service';
 import { Invitation, InvitationType } from 'src/app/shared/models/invitation';
 import { MeService } from './me.service';
+import { NotificationService } from '../notification.service';
+import { NotificationType } from 'src/app/shared/models/notifications';
 
 export enum InvitationRelationship {
   NO_ACTIVE_INVITATION = "NO_ACTIVE_INVITATION",
@@ -18,16 +20,30 @@ export enum InvitationRelationship {
 })
 export class InvitationsService extends StateService<Invitation[]>() {
 
-  acceptedInvitation$: Subject<Invitation> = new Subject<Invitation>();
+  invitation$: Subject<{
+    mode: InvitationMode,
+    invitation: Invitation
+  }> = new Subject();
 
   constructor(
     private readonly meService: MeService,
+    private readonly notificationService: NotificationService,
   ) {
     super([JsonMessageType.INVITATION], "Invitations");
 
-    // Log accepted invitations
-    this.onAcceptInvitation().subscribe(invitation => {
-      console.log(`Accepted invitation: ${invitation}`);
+
+    // If user sends me a friend request, notify me
+    this.onInvitation$(InvitationType.FRIEND_REQUEST, InvitationMode.CREATE).subscribe(async invitation => {
+      if (invitation.receiverID === await this.meService.getUserID()) {
+        this.notificationService.notify(NotificationType.SUCCESS, `${invitation.senderUsername} sent you a friend request!`);
+      }
+    });
+
+    // If user accepts my friend request, notify me
+    this.onInvitation$(InvitationType.FRIEND_REQUEST, InvitationMode.ACCEPT).subscribe(async invitation => {
+      if (invitation.senderID === await this.meService.getUserID()) {
+        this.notificationService.notify(NotificationType.SUCCESS, `${invitation.receiverUsername} accepted your friend request!`);
+      }
     });
 
   }
@@ -98,21 +114,15 @@ export class InvitationsService extends StateService<Invitation[]>() {
   }
 
   /**
-   * Get the accepted invitation as an observable
-   * @returns The accepted invitation as an observable
-   */
-  public onAcceptInvitation(): Observable<Invitation> {
-    return this.acceptedInvitation$.asObservable();
-  }
-
-  /**
-   * Filter the accepted invitation by type, only emitting the accepted invitation if it matches the specified type
+   * Subscribe to invitations of a specific type and mode
    * @param type The type of invitation to filter by
-   * @returns 
+   * @param mode The mode of invitation to filter by
+   * @returns An observable that emits when an invitation of the specified type and mode is received
    */
-  public onAcceptInvitationOfType(type: InvitationType): Observable<Invitation> {
-    return this.acceptedInvitation$.asObservable().pipe(
-      filter((invitation: Invitation) => invitation.type === type)
+  public onInvitation$(type: InvitationType, mode: InvitationMode): Observable<Invitation> {
+    return this.invitation$.pipe(
+      filter(invitation => invitation.invitation.type === type && invitation.mode === mode),
+      map(invitation => invitation.invitation)
     );
   }
 
@@ -158,9 +168,12 @@ export class InvitationsService extends StateService<Invitation[]>() {
         break;
       case InvitationMode.ACCEPT: // If an invitation was accepted, remove invitation and emit accepted invitation
         state = state.filter(invitation => invitation.invitationID !== event.invitation.invitationID);
-        this.acceptedInvitation$.next(event.invitation);
         break;
     }
+
+    // Emit the invitation
+    this.invitation$.next({ mode: event.mode, invitation: event.invitation });
+
 
     return state;
   }

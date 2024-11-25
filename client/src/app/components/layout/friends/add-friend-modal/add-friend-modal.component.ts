@@ -49,8 +49,9 @@ export class AddFriendModalComponent implements OnInit, OnDestroy {
     private notificationService: NotificationService,
     ) {
 
-      // Recalculate the potential friends list when the invitations change
+      // Recalculate the potential friends list when the invitations or friends list changes
       invitationsService.onChange(() => this.recalculatePotentialFriendsFromMatchingUsers());
+      friendsService.onChange(() => this.recalculatePotentialFriendsFromMatchingUsers());
     }
 
   async ngOnInit() {
@@ -80,6 +81,10 @@ export class AddFriendModalComponent implements OnInit, OnDestroy {
     // Fetch the users that match the typed username
     this.matchingUsers = await this.fetchService.fetch<{userid: string, username: string}[]>(Method.GET, `/api/v2/usernames-list/${pattern}`);
 
+    // Filter out the user's own username
+    const myID = (await this.meService.get()).userid;
+    this.matchingUsers = this.matchingUsers.filter(user => user.userid !== myID);
+
     // Recalculate the potential friends list
     await this.recalculatePotentialFriendsFromMatchingUsers();
   }
@@ -108,12 +113,14 @@ export class AddFriendModalComponent implements OnInit, OnDestroy {
       // Create a friend request if the user is not friends with the potential friend
       case FriendStatus.NOT_FRIENDS:
 
+        // Check if the user has reached the maximum number of outgoing friend requests
         const currentInvitations = await this.invitationsService.getInvitationsBySender(InvitationType.FRIEND_REQUEST, myID);
         if (currentInvitations.length >= MAX_OUTGOING_FRIEND_REQUESTS) {
           this.notificationService.notify(NotificationType.ERROR, `You've reached the maximum number of ${MAX_OUTGOING_FRIEND_REQUESTS} outgoing friend requests.`);
           return;
         }
 
+        // Create the friend request invitation and send it to the potential friend
         this.invitationsService.sendInvitationMessage(InvitationMode.CREATE, {
           type: InvitationType.FRIEND_REQUEST,
           invitationID: uuid(),
