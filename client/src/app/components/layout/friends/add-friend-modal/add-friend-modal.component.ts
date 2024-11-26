@@ -1,9 +1,8 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { FriendsService } from 'src/app/services/state/friends.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { FriendStatus, FriendInfo } from 'src/app/shared/models/friends';
-import { DBUser } from 'src/app/shared/models/db-user';
 import { FetchService, Method } from 'src/app/services/fetch.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { InvitationRelationship, InvitationsService } from 'src/app/services/state/invitations.service';
@@ -27,7 +26,7 @@ interface PotentialFriend {
   styleUrls: ['./add-friend-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AddFriendModalComponent implements OnInit, OnDestroy {
+export class AddFriendModalComponent implements OnInit {
   @Input() visibility$: BehaviorSubject<boolean> = new BehaviorSubject(true);
 
   public pattern = '';
@@ -55,6 +54,8 @@ export class AddFriendModalComponent implements OnInit, OnDestroy {
     }
 
   async ngOnInit() {
+    
+    // Initially populate the potential friends list with empty pattern
     this.onPatternChange('');
   }
 
@@ -73,7 +74,7 @@ export class AddFriendModalComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * When the user types in the input field, update the potential friends list
+   * When the user types in the input field, refetch the users that match the typed username and update the potential friends list
    * @param event The input event
    */
   public async onPatternChange(pattern: string) {
@@ -89,6 +90,9 @@ export class AddFriendModalComponent implements OnInit, OnDestroy {
     await this.recalculatePotentialFriendsFromMatchingUsers();
   }
 
+  /**
+   * Recalculate the potential friends list based on the matching users
+   */
   private async recalculatePotentialFriendsFromMatchingUsers() {
     const friends = await this.friendsService.get();
 
@@ -102,6 +106,10 @@ export class AddFriendModalComponent implements OnInit, OnDestroy {
     })));
   }
 
+  /**
+   * Add a friend relationship with the potential friend
+   * @param potentialFriend The potential friend to add
+   */
   public async addFriend(potentialFriend: PotentialFriend) {
 
     const myID = (await this.meService.get()).userid;
@@ -144,16 +152,6 @@ export class AddFriendModalComponent implements OnInit, OnDestroy {
       case FriendStatus.FRIENDS:
         // Do nothing
     }
-  }
-
-  
-
-  // userMatchesTypedUsername(friend: PotentialFriend) {
-  //   return false;
-  //   //return friend.username.toLowerCase().includes(this.typedUsername.toLowerCase());
-  // }
-
-  ngOnDestroy() {
   }
 
 }

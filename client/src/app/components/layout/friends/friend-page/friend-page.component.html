@@ -21,15 +21,13 @@
 
 <app-add-friend-modal *ngIf="showAddFriendDialog$ | async" [visibility$]="showAddFriendDialog$" />
 
-<!-- <div class="friends-list">
-    <ng-container *ngIf="friendsService.getChallenges$() | async as challenges">
+<div class="friends-list">
+    <!-- <ng-container *ngIf="friendsService.getChallenges$() | async as challenges">
         <app-challenge *ngFor="let challenge of challenges"
             [challenge]="challenge"
         />
+    </ng-container> -->
+    <ng-container *ngIf="friendsService.get$() | async as friendsInfo">
+        <app-friend-element *ngFor="let friendInfo of friendsInfo" [friendInfo]="friendInfo" />
     </ng-container>
-    <ng-container *ngIf="friendsService.getFriendsInfo$() | async as friendsInfo">
-        <app-friend-element *ngFor="let friendInfo of friendsInfo"
-            [friendInfo]="friendInfo"
-        />
-    </ng-container>
-</div> -->
+</div>

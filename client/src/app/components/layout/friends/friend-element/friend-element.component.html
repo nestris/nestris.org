@@ -1,25 +1,13 @@
 <div class="container" [ngClass]="getStatusClass()">
     <div class="container-left">
-        <app-online-indicator class="online-indicator" [isOnline]="friendInfo.isOnline" />
+        <app-league-icon [league]="friendInfo.league" [height]="27" />
         <p class="username">{{friendInfo.username}}</p>
-        <!-- <p class="status-description pending" *ngIf="friendInfo.friendStatus === FriendStatus.OUTGOING">friend request sent</p>
-        <p class="status-description incoming" *ngIf="friendInfo.friendStatus === FriendStatus.INCOMING">sent you a friend request</p> -->
+        <app-online-indicator class="online-indicator" [isOnline]="friendInfo.isOnline" />
+        <app-trophies [trophies]="friendInfo.trophies" [size]="14" />
+        
+        
     </div>
     <div class="container-right">
-
-        <!-- <ng-container *ngIf="friendInfo.friendStatus === FriendStatus.INCOMING">
-            <app-solid-button class="accept-friend-button"
-                label="Accept" [color]="ButtonColor.GREEN"
-                (smartClick)="acceptFriendRequest()" />
-            <app-solid-button class="decline-friend-button"
-                label="Decline" [color]="ButtonColor.RED"
-                (smartClick)="endFriendship()" />
-        </ng-container> -->
-
-        <!-- <ng-container *ngIf="friendInfo.friendStatus === FriendStatus.OUTGOING">
-            <app-solid-button icon="./assets/img/puzzle-button-icons/delete.svg" [color]="ButtonColor.GREY" (smartClick)="endFriendship()" tooltip="Cancel friend request" />
-        </ng-container> -->
-        
 
         <ng-container>
 

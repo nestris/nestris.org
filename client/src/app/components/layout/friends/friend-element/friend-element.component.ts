@@ -25,7 +25,6 @@ export class FriendElementComponent {
 
   constructor(
     private fetchService: FetchService,
-    private websocketService: WebsocketService,
     private modalService: ModalManagerService,
     private friendsService: FriendsService,
     private router: Router,
@@ -38,12 +37,9 @@ export class FriendElementComponent {
     return "status-friend";
   }
 
-  // send a message to server to accept friend request
-  async acceptFriendRequest() {
-  }
-
-  // send a message to server to declne friend request
+  // send a message to server to end friendship between logged-in user and friend
   async endFriendship() {
+    this.friendsService.removeFriend(this.friendInfo.userid);
   }
 
   async sendChallenge() {
@@ -56,14 +52,6 @@ export class FriendElementComponent {
 
   // get the current room the friend is in and spectate it
   async spectate() {
-    
-    try {
-      // get the friend's room ID, and navigate to the room page
-      const friend = await this.fetchService.fetch<OnlineUserInfo>(Method.GET, `/api/v2/online-user/${this.friendInfo.userid}`);
-      if (!friend.roomID) throw new Error();
-      this.router.navigate(['/online/room'], { queryParams: { id: friend.roomID } });
-    } catch (e) {
-      this.notifier.notify(NotificationType.ERROR, "Unable to spectate this room at this time.", NotificationAutohide.SHORT);
-    }
+    // TODO
   }
 }

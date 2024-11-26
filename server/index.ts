@@ -32,6 +32,7 @@ import { GetUsernamesListRoute } from './src/routes/misc/get-usernames-list-rout
 import { InvitationConsumer } from './src/online-users/event-consumers/invitation-consumer';
 import { FriendInvitationManager } from './src/invitations/friend-invitation';
 import { GetInvitationsRoute } from './src/routes/invitations/get-invitations-route';
+import { RemoveFriendRoute } from './src/routes/user/remove-friend-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -115,95 +116,8 @@ async function main() {
   routes.registerRoute(LeaveRankedQueueRoute);
   routes.registerRoute(GetUsernamesListRoute);
   routes.registerRoute(GetInvitationsRoute);
+  routes.registerRoute(RemoveFriendRoute);
 
-  // app.get('/api/v2/users-by-username', getAllUsersMatchingUsernamePatternRoute);
-  // app.get('/api/v2/user/:userid', getUserByUserIDRoute);
-  // app.get('/api/v2/friends/:userid',  async (req: Request, res: Response) => getFriendsInfoRoute(req, res, state));
-
-  // app.post('/api/v2/friend-request/:from/:to', requireAuth, async (req: Request, res: Response) => setFriendRequestRoute(req, res, state)); 
-  // app.post('/api/v2/end-friendship/:from/:to', requireAuth, async (req: Request, res: Response) => endFriendshipRoute(req, res, state));
-
-  // // announce message to all online users. useful for maintenance announcements and the like
-  // app.post('/api/v2/broadcast-announcement', requireAdmin, async (req: Request, res: Response) => broadcastAnnouncementRoute(req, res, state));
-
-  // app.post('/api/v2/server-restart-warning/', requireAdmin, async (req: Request, res: Response) => warnServerRestartRoute(req, res, state));
-  // app.get('/api/v2/server-restart-warning/', async (req: Request, res: Response) => {
-  //   res.status(200).send({warning: state.serverRestartWarning});
-  // });
-
-  // app.get('/api/v2/room/:roomID', (req, res) => {
-  //     const roomID = req.params['roomID'];
-  //     const room = state.roomManager.getRoomByID(roomID);
-  //     if (!room) {
-  //         res.status(404).send({error: "Room not found"});
-  //         return;
-  //     }
-  //     res.status(200).send(room.getRoomInfo());
-  // });
-
-  // app.post('/api/v2/send-challenge', requireAuth, async (req: Request, res: Response) => sendChallengeRoute(req, res, state));
-  // app.post('/api/v2/reject-challenge', requireAuth, async (req: Request, res: Response) => rejectChallengeRoute(req, res, state));
-  // app.post('/api/v2/accept-challenge', requireAuth, async (req: Request, res: Response) => acceptChallengeRoute(req, res, state));
-
-  // app.get('/api/v2/stackrabbit/get-top-moves-hybrid', getTopMovesHybridRoute);
-
-  // app.get('/api/v2/puzzle-aggregate', getPuzzleAggregate);
-
-  // app.get('/api/v2/random-rating', async (req: Request, res: Response) => {
-  //     const elo = parseInt(req.query['elo'] as string);
-  //     res.status(200).send({rating: getRandomPuzzleRatingForPlayerElo(elo)});
-  // });
-
-
-  // app.get('/api/v2/puzzle/:id', getPuzzleRoute);
-
-  // app.post('/api/v2/random-rated-puzzle', requireAuth, async (req: Request, res: Response) => selectRandomPuzzleForUserRoute(req, res, state));
-  
-  // app.post('/api/v2/submit-puzzle-attempt', requireAuth, async (req: Request, res: Response) => submitPuzzleAttemptRoute(req, res, state));
-
-  // app.get('/api/v2/puzzle-guesses/:id', getPuzzleGuessesRoute);
-
-  // app.get('/api/v2/daily-streak/:userid', getDailyStreakRoute);
-  // app.get('/api/v2/puzzle-rank/:userid', getRelativePuzzleRankRoute);
-
-  // app.post('/api/v2/set-feedback', requireAuth, requireAuth, setFeedbackRoute);
-
-  // app.get('/api/v2/puzzle-attempt-stats/:userid', getAttemptStatsRoute);
-
-  // app.get('/api/v2/lesson', (req: Request, res: Response) => {
-  //   res.status(200).send(state.lessonState.getAllLessonHeaders());
-  // });
-
-  // app.get('/api/v2/lesson/:filename', (req: Request, res: Response) => {
-  //   try {
-  //     const lessonID = req.params['filename'];
-  //     res.status(200).send(state.lessonState.getLessonByFilename(lessonID));
-  //   } catch (e: any) {
-  //     res.status(404).send({error: e.message});
-  //   }
-  // });
-
-  // app.get('/api/v2/multiplayer-data/:roomID', (req: Request, res: Response) => getMultiplayerStateRoute(req, res, state))
-  // app.post('/api/v2/multiplayer/set-readiness/:sessionID/:isReady', requireAuth, 
-  //   (req: Request, res: Response) => setMultiplayerReadiness(req, res, state)
-  // );
-  // app.post('/api/v2/multiplayer/select-level/:sessionID/:level', requireAuth,
-  //   (req: Request, res: Response) => selectLevelForPlayer(req, res, state)
-  // );
-  // app.post('/api/v2/multiplayer/transition-dead-to-waiting/:sessionID', requireAuth,
-  //   (req: Request, res: Response) => transitionDeadToWaiting(req, res, state)
-  // )
-
-  // app.post('/api/v2/leave-room/:sessionID/:roomID', requireAuth, async (req: Request, res: Response) => leaveRoomRoute(req, res, state));
-
-  // app.post('/api/v2/event', postEventRoute);
-
-  // app.get('/api/v2/user-count', getUserCountRoute);
-  // app.get('/api/v2/puzzles-solved', getPuzzlesSolvedRoute);
-
-  // state.cache.addQuery(app, '/api/v2/puzzle-leaderboard', getPuzzleLeaderboard, 4);
-
-  // state.cache.addQuery(app, '/api/v2/total-puzzle-duration', getTotalPuzzleDuration, 300);
 
   app.get('/api/v2/server-stats', (req: Request, res: Response) => {
     const stats: ServerStats = {

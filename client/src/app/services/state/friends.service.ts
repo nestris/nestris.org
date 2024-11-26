@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, map, Observable } from 'rxjs';
-import { Challenge } from '../../shared/models/challenge';
-import { FriendInfo, FriendStatus } from '../../shared/models/friends';
-import { FriendUpdateMessage, JsonMessage, JsonMessageType } from '../../shared/network/json-message';
-import { WebsocketService } from '../websocket.service';
-import { FetchService, Method } from '../fetch.service';
+import { map, Observable } from 'rxjs';
+import { FriendInfo } from '../../shared/models/friends';
+import { FriendUpdateMessage, JsonMessageType } from '../../shared/network/json-message';
+import { Method } from '../fetch.service';
 import { StateService } from './state.service';
 
 
@@ -43,5 +41,13 @@ export class FriendsService extends StateService<FriendInfo[]>() {
   // get the number of online friends as an observable
   public getNumOnlineFriends$(): Observable<number> {
     return this.get$().pipe(map(friendsInfo => friendsInfo.filter(friend => friend.isOnline).length));
+  }
+
+  /**
+   * Remove friend with given userid
+   * @param userid The userid of the friend to remove
+   */
+  public async removeFriend(userid: string) {
+    await this.fetchService.fetch(Method.POST, `/api/v2/remove-friend/${userid}`)
   }
 }
