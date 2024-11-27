@@ -93,6 +93,8 @@ import { QuestComponent } from './components/ui/quest/quest.component';
 import { MultiplayerRoomComponent } from './components/layout/room/multiplayer-room/multiplayer-room.component';
 import { TrophiesComponent } from './components/ui/trophies/trophies.component';
 import { GameHeaderComponent } from './components/layout/room/game-header/game-header.component';
+import { HighestScoreComponent } from './components/ui/highest-score/highest-score.component';
+import { PuzzleEloComponent } from './components/ui/puzzle-elo/puzzle-elo.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -222,6 +224,8 @@ const customNotifierOptions: NotifierOptions = {
     MultiplayerRoomComponent,
     TrophiesComponent,
     GameHeaderComponent,
+    HighestScoreComponent,
+    PuzzleEloComponent,
   ],
   imports: [
     BrowserModule,

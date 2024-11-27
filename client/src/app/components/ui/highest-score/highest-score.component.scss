@@ -1,0 +1,19 @@
+@import "../../../../styles.scss";
+
+.container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+img {
+    display: block;
+}
+
+h1 {
+    font-family: $main-font;
+    font-weight: 700;
+    margin: 0;
+    color: $highest-score-color;
+
+}

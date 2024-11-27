@@ -19,7 +19,7 @@ export enum JsonMessageType {
     ERROR_HANDSHAKE_INCOMPLETE = 'error_handshake_incomplete',
     PING = 'ping',
     SEND_PUSH_NOTIFICATION = 'send_push_notification',
-    FRIEND_UPDATE = 'friend_online_status_change',
+    FRIEND_UPDATE = 'friend_update',
     SERVER_RESTART_WARNING = 'server_restart_warning', // sent from server to client to warn of server restart
     ME = 'ME',
     CHAT = 'chat',

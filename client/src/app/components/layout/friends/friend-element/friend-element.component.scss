@@ -26,6 +26,11 @@
     gap: 5px;
 }
 
+app-online-indicator {
+    margin-left: -7px;
+    margin-right: 2px;
+}
+
 .container-right {
     justify-content: flex-end;
     margin-right: 10px;
@@ -43,4 +48,11 @@ app-league-icon {
     font-style: normal;
     font-weight: 600;
     line-height: normal;
+}
+
+.stats {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 9px;
 }

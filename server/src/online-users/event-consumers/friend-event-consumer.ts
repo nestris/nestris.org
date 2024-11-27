@@ -120,8 +120,8 @@ export class FriendEventConsumer extends EventConsumer {
         await Database.query(RemoveFriendsQuery, userid1, userid2);
 
         // Send friend update messages to both users to remove the friend
-        this.users.sendToUser(userid1, new FriendUpdateMessage(userid1, {} ));
-        this.users.sendToUser(userid2, new FriendUpdateMessage(userid2, {} ));
+        this.users.sendToUser(userid1, new FriendUpdateMessage(userid2, {} ));
+        this.users.sendToUser(userid2, new FriendUpdateMessage(userid1, {} ));
     }
 
 

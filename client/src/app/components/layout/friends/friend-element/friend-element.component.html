@@ -3,7 +3,13 @@
         <app-league-icon [league]="friendInfo.league" [height]="27" />
         <p class="username">{{friendInfo.username}}</p>
         <app-online-indicator class="online-indicator" [isOnline]="friendInfo.isOnline" />
-        <app-trophies [trophies]="friendInfo.trophies" [size]="14" />
+
+        <div class="stats">
+            <app-highest-score [highestScore]="friendInfo.highestScore" [size]="14" />
+            <app-trophies [trophies]="friendInfo.trophies" [size]="14" />
+            <app-puzzle-elo [puzzleElo]="friendInfo.puzzleElo" [size]="14" />
+        </div>
+        
         
         
     </div>
