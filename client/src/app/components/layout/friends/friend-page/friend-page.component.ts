@@ -2,9 +2,11 @@ import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { FriendsService } from 'src/app/services/state/friends.service';
+import { InvitationsService } from 'src/app/services/state/invitations.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { FriendInfo } from 'src/app/shared/models/friends';
+import { Invitation, InvitationType } from 'src/app/shared/models/invitation';
 
 enum FriendSort {
   HIGHSCORE = 0,
@@ -27,10 +29,13 @@ export class FriendPageComponent {
   public showAddFriendDialog$ = new BehaviorSubject(false);
   
   public friendSort$ = new BehaviorSubject<FriendSort>(FriendSort.HIGHSCORE);
+  
+  public requests$ = this.invitationsService.getInvitationsOfType$(InvitationType.FRIEND_REQUEST);
 
   constructor(
     public friendsService: FriendsService,
     public websocketService: WebsocketService,
+    public invitationsService: InvitationsService,
     public meService: MeService,
   ) {
 
@@ -52,10 +57,8 @@ export class FriendPageComponent {
    * @param sort The sort to apply
    * @returns The sorted list of friends
    */
-  sort(friendsInfo: FriendInfo[] | null, sort: FriendSort): FriendInfo[] {
+  sortFriends(friendsInfo: FriendInfo[] | null, sort: FriendSort): FriendInfo[] {
     if (friendsInfo == null) return [];
-
-    console.log("sorting friends", sort);
 
     return friendsInfo.sort((a, b) => {
       switch (sort) {
@@ -67,6 +70,26 @@ export class FriendPageComponent {
           return b.puzzleElo - a.puzzleElo;
       }
     });
+  }
+
+  /**
+   * Sort first by incoming -> outgoing, then by the username
+   * @param requests 
+   */
+  sortFriendRequests(requests: Invitation[] | null): Invitation[] {
+
+    if (requests == null) return [];
+
+    // Sort first by username
+    requests.sort((a, b) => a.senderUsername.localeCompare(b.senderUsername));
+
+    // Sort by incoming -> outgoing
+    return requests.sort((a, b) => {
+      if (a.receiverID === this.meService.getUserIDSync()) return -1;
+      if (b.receiverID === this.meService.getUserIDSync()) return 1;
+      return 0;
+    });
+
   }
 
 }

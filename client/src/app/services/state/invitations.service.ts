@@ -64,7 +64,7 @@ export class InvitationsService extends StateService<Invitation[]>() {
    */
   public getInvitationsOfType$(type: InvitationType): Observable<Invitation[]> {
     return this.get$().pipe(
-      filter(invitations => invitations.some(invitation => invitation.type === type))
+      map(invitations => invitations.filter(invitation => invitation.type === type))
     );
   }
 

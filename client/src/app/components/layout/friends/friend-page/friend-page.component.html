@@ -29,7 +29,10 @@
             [challenge]="challenge"
         />
     </ng-container> -->
-    <ng-container *ngIf="sort(friendsService.get$() | async, (friendSort$ | async) ?? FriendSort.HIGHSCORE) as friendsInfo">
+    <ng-container *ngIf="sortFriendRequests(requests$ | async) as requests">
+        <app-friend-request *ngFor="let request of requests" [request]="request" [myID]="(meService.getUserID$() | async)!" />
+    </ng-container>
+    <ng-container *ngIf="sortFriends(friendsService.get$() | async, (friendSort$ | async) ?? FriendSort.HIGHSCORE) as friendsInfo">
         <app-friend-element *ngFor="let friendInfo of friendsInfo" [friendInfo]="friendInfo" />
     </ng-container>
 </div>

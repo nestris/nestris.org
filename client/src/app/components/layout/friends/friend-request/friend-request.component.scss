@@ -1,0 +1,62 @@
+@import "../../../../../styles.scss";
+
+.container {
+    background-color: $section-color;
+    border-radius: 5px;
+
+    box-sizing: border-box;
+    width: 100%;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.container.incoming {
+    background-color: $transparent-green-color;
+}
+
+.container.outgoing {
+    background-color: $transparent-orange-color;
+}
+
+.container-left, .container-right {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.container-left {
+    justify-content: flex-start;
+}
+
+.container-right {
+    justify-content: flex-end;
+    margin-right: 10px;
+    gap: 7px;
+    align-items: center;
+}
+
+.username {
+    font-family: $main-font;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+
+    margin: 12px;
+    margin-right: 20px;
+    
+}
+
+.status-description {
+    font-family: $main-font;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.status-description.pending, .status-description.incoming {
+    font-style: italic;
+}

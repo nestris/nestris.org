@@ -151,6 +151,14 @@ export function StateService<T extends {}>() {
         }
 
         /**
+         * Get the current state synchronously if it exists
+         * @returns The current state
+         */
+        public getSync(): T | undefined {
+            return this.state$.getValue();
+        }
+
+        /**
          * Subscribe to changes in the state
          * @param callback The function to call when the state changes
          */

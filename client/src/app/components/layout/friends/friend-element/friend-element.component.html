@@ -1,4 +1,4 @@
-<div class="container" [ngClass]="getStatusClass()">
+<div class="container">
     <div class="container-left">
         <app-league-icon [league]="friendInfo.league" [height]="27" />
         <p class="username">{{friendInfo.username}}</p>
@@ -9,7 +9,6 @@
             <app-trophies [trophies]="friendInfo.trophies" [size]="14" />
             <app-puzzle-elo [puzzleElo]="friendInfo.puzzleElo" [size]="14" />
         </div>
-        
         
         
     </div>

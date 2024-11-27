@@ -1,0 +1,26 @@
+<div class="container" *ngIf="getMode() as mode" [ngClass]="mode">
+    <div class="container-left">
+
+        <p class="username">{{getUsername(mode)}}</p>
+
+        <p class="status-description pending" *ngIf="mode === FriendRequestMode.OUTGOING">friend request sent</p>
+        <p class="status-description incoming" *ngIf="mode === FriendRequestMode.INCOMING">sent you a friend request</p>
+        
+    </div>
+    <div class="container-right">
+
+        <ng-container *ngIf="mode === FriendRequestMode.OUTGOING">
+            <app-solid-button (click)="cancelFriendRequest()"
+                icon="./assets/img/puzzle-button-icons/delete.svg" [color]="ButtonColor.GREY" tooltip="Cancel friend request" />
+        </ng-container>
+
+        <ng-container *ngIf="mode === FriendRequestMode.INCOMING">
+            <app-solid-button class="accept-friend-button" (click)="acceptFriendRequest()"
+                icon="./assets/img/ui-icons/checkmark.svg" [color]="ButtonColor.GREY" />
+            <app-solid-button class="decline-friend-button" (click)="cancelFriendRequest()"
+                icon="./assets/img/ui-icons/x.svg" [color]="ButtonColor.GREY" [iconHeight]="20" />
+        </ng-container>
+
+        
+    </div>
+</div>

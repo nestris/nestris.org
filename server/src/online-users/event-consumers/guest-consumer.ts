@@ -9,13 +9,13 @@ export class GuestConsumer extends EventConsumer {
 
     protected override async onUserDisconnect(event: OnUserDisconnectEvent) {
 
-        // Get the user object for the disconnected user
-        const user = (await DBUserObject.get(event.userid)).object;
+        // // Get the user object for the disconnected user
+        // const user = (await DBUserObject.get(event.userid)).object;
 
-        // Ignore if user is not a guest
-        if (!user.is_guest) return;
+        // // Ignore if user is not a guest
+        // if (!user.is_guest) return;
 
-        // Delete the user from the database
-        await DBUserObject.delete(event.userid);
+        // // Delete the user from the database
+        // await DBUserObject.delete(event.userid);
     }
 }

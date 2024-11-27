@@ -63,6 +63,10 @@ export class MeService extends StateService<DBUser>() {
     return (await this.get()).userid;
   }
 
+  public getUserIDSync(): string | undefined {
+    return this.getSync()?.userid;
+  }
+
   public async getUsername(): Promise<string> {
     return (await this.get()).username;
   }
