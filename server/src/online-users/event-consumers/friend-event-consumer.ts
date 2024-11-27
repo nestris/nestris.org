@@ -71,6 +71,42 @@ class RemoveFriendsQuery extends WriteDBQuery {
 // Event consumer that handles friend events
 export class FriendEventConsumer extends EventConsumer {
 
+    public override init() {
+
+        // When a user's stat changes that is visible on the friends page, update all friends
+        DBUserObject.onChange().subscribe(async ({ id: userid, before: beforeUser, after: afterUser, event }) => {
+
+            // If the change is not relevant to friends, ignore
+            if (!this.isvisibleFriendStatChange(beforeUser, afterUser)) return;
+
+            // Send friend update messages to all friends
+            await this.updateFriend(userid, {
+                update: this.getFriendInfoForUser(afterUser)
+            });
+        });
+
+    }
+
+    /**
+     * Whether at least one visible friend stat has changed for the given user
+     * @param beforeUser The user object before the change
+     * @param afterUser The user object after the change
+     * @returns Whether at least one visible friend stat has changed
+     */
+    private isvisibleFriendStatChange(beforeUser: DBUser, afterUser: DBUser): boolean {
+
+        // Relevant changes are league, highest_score, trophies, and puzzle_elo
+        return beforeUser.league !== afterUser.league
+            || beforeUser.highest_score !== afterUser.highest_score
+            || beforeUser.trophies !== afterUser.trophies
+            || beforeUser.puzzle_elo !== afterUser.puzzle_elo;
+    }
+
+    /**
+     * Get the friend info for a user given their DBUser object
+     * @param user The DBUser object
+     * @returns The friend info for the user
+     */
     private getFriendInfoForUser(user: DBUser): FriendInfo {
         return {
             userid: user.userid,

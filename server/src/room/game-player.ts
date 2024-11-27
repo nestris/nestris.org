@@ -101,7 +101,6 @@ export class GamePlayer {
             if (!this.gameState) throw new Error("Cannot add game placement packet without game start packet");
             const gamePlacement = (packet.content as GamePlacementSchema);
             this.gameState.onPlacement(gamePlacement.mtPose, gamePlacement.nextNextType, gamePlacement.pushdown);
-            console.log(`Player ${this.username} now has score: ${this.gameState.getStatus().score}`);
         }
 
         else if (packet.opcode === PacketOpcode.GAME_END) {
