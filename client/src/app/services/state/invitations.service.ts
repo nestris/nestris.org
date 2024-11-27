@@ -7,6 +7,8 @@ import { Invitation, InvitationType } from 'src/app/shared/models/invitation';
 import { MeService } from './me.service';
 import { NotificationService } from '../notification.service';
 import { NotificationType } from 'src/app/shared/models/notifications';
+import { BadgeService } from '../badge.service';
+import { TabID } from 'src/app/models/tabs';
 
 export enum InvitationRelationship {
   NO_ACTIVE_INVITATION = "NO_ACTIVE_INVITATION",
@@ -28,8 +30,17 @@ export class InvitationsService extends StateService<Invitation[]>() {
   constructor(
     private readonly meService: MeService,
     private readonly notificationService: NotificationService,
+    private readonly badgeService: BadgeService
   ) {
     super([JsonMessageType.INVITATION], "Invitations");
+
+    // Set the badge to active if there are any incoming invitations, inactive otherwise
+    this.get$().subscribe(invitations => {
+
+      const incomingInvitations = invitations.filter(invitation => invitation.receiverID === this.meService.getUserIDSync());
+      if (incomingInvitations.length > 0) this.badgeService.setBadgeActive(TabID.FRIENDS);
+      else this.badgeService.setBadgeInactive(TabID.FRIENDS);
+    });
 
 
     // If user sends me a friend request, notify me
@@ -45,7 +56,6 @@ export class InvitationsService extends StateService<Invitation[]>() {
         this.notificationService.notify(NotificationType.SUCCESS, `${invitation.receiverUsername} accepted your friend request!`);
       }
     });
-
   }
 
   /**

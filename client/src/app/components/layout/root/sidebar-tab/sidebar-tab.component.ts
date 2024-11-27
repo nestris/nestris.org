@@ -25,9 +25,7 @@ export class SidebarTabComponent {
   public getBadgeIcon = getTabBadgeIcon;
 
   onTabClick(): void {
-    
-    // clear any badge when tab is clicked
-    this.badgeService.setBadgeInactive(this.tab);
+
 
   }
 
