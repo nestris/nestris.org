@@ -149,8 +149,10 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
          * @param id The ID of the object to alter
          * @param event The event to alter the object with
          * @param waitForDB If true, the method will wait for the database to finish writing before returning. Otherwise, only in-memory alter is guaranteed.
+         * @returns The altered object
+         * @throws DBError if the object does not exist
          */
-        static async alter(id: string, event: Event, waitForDB: boolean) {
+        static async alter(id: string, event: Event, waitForDB: boolean): Promise<InMemoryObject> {
 
             // Fetch the object from the map
             const dbObject = DBObject.dbObjects.get(id);
@@ -176,6 +178,9 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
                 after: after,
                 event: event
             });
+
+            // Return the altered object
+            return after;
         }
 
         /**

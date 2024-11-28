@@ -170,7 +170,7 @@ CREATE TABLE "public"."game_data" (
 );
 
 -- MATCH TABLE
--- match between two users
+-- ranked match between two users
 DROP TABLE IF EXISTS "public"."matches" CASCADE;
 CREATE TABLE "public"."matches" (
     "id" text NOT NULL,
@@ -179,7 +179,6 @@ CREATE TABLE "public"."matches" (
     "userid2" text NOT NULL REFERENCES "public"."users"("userid"),
     "userid1_trophies" int2 NOT NULL,
     "userid2_trophies" int2 NOT NULL,
-    "rated" boolean NOT NULL,
     PRIMARY KEY ("id")
 );
 

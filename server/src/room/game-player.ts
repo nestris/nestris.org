@@ -1,10 +1,9 @@
 import { Subject, Observable } from "rxjs";
 import { GameState } from "../../shared/game-state-from-packets/game-state";
-import { QuestDefinitions } from "../../shared/nestris-org/quest-system";
-import { MeMessage, XPGainMessage } from "../../shared/network/json-message";
+import { MeMessage } from "../../shared/network/json-message";
 import { PacketContent, PacketOpcode, GameStartSchema, GamePlacementSchema } from "../../shared/network/stream-packets/packet";
 import { PacketAssembler } from "../../shared/network/stream-packets/packet-assembler";
-import { DBUserObject, DBOnGameEndEvent } from "../database/db-objects/db-user";
+import { DBUserObject, DBGameEndEvent } from "../database/db-objects/db-user";
 import { CreateGameQuery } from "../database/db-queries/create-game-query";
 import { Database } from "../database/db-query";
 import { OnlineUserManager } from "../online-users/online-user-manager";
@@ -25,6 +24,14 @@ export interface GameEndEvent {
     lines: number;
     xpGained: number;
 }
+
+// Strategy for calculating XP gained for a game
+export interface XPStrategy {
+    (score: number): number;
+}
+
+// By default, no XP is gained
+export const NO_XP_STRATEGY: XPStrategy = (score: number) => 0;
 
 /**
  * Represents a player in a game room. Handles server-side logic of a player playing games
@@ -47,7 +54,8 @@ export class GamePlayer {
         private readonly Users: OnlineUserManager,
         public readonly userid: string,
         public readonly username: string,
-        public readonly sessionID: string
+        public readonly sessionID: string,
+        private readonly xpStrategy: XPStrategy = NO_XP_STRATEGY
     ) {}
 
     /**
@@ -123,10 +131,14 @@ export class GamePlayer {
      */
     private async onGameEnd(packets: PacketAssembler, gameState: GameState): Promise<string> {
 
+        // Get the final game state
+        const state = gameState.getSnapshot();
+
+        // Assign a unique game ID
         const gameID = uuid();
 
-        const state = gameState.getSnapshot();
-        const xpGained = 100; // TODO: calculate XP gained
+        // Calculate XP gained based on injected strategy
+        const xpGained = this.xpStrategy(state.score);
 
         // Write game to database
         await Database.query(CreateGameQuery, {
@@ -138,42 +150,25 @@ export class GamePlayer {
             end_lines: state.lines,
             accuracy: null, // TODO: calculate accuracy
             tetris_rate: state.tetrisRate,
-            xp_gained: xpGained // TODO: calculate XP gained
+            xp_gained: xpGained
         });
 
-        // get user before updating stats
-        const dbUserBefore = Object.assign({}, (await DBUserObject.get(this.userid)).object);
 
         // Update user stats from game
-        await DBUserObject.alter(this.userid, new DBOnGameEndEvent(
-            state.score,
-            state.level,
-            state.lines,
-            state.transitionInto19,
-            state.transitionInto29,
-            state.perfectInto19,
-            state.perfectInto29,
-            xpGained
-        ), false);
-
-        // get user after updating stats
-        const dbUserAfter = (await DBUserObject.get(this.userid)).object;
-
-        // Update the new user stats for each session of the player
-        this.Users.sendToUser(this.userid, new MeMessage(dbUserAfter));
-
-        // Get the list of quest names that were just completed
-        const completedQuests = QuestDefinitions.getJustCompletedQuests(dbUserBefore, dbUserAfter).map(q => q.name);
-
-        // Send the XP gained message, as well as any quests completed, to the specific session of the player that finished the game
-        if (xpGained > 0 || completedQuests.length > 0) {
-            this.Users.sendToUserSession(this.sessionID, new XPGainMessage(
-                dbUserBefore.league,
-                dbUserBefore.xp,
-                xpGained,
-                completedQuests
-            ));
-        }
+        await DBUserObject.alter(this.userid, new DBGameEndEvent({
+            users: this.Users,
+            sessionID: this.sessionID,
+            xpGained: xpGained,
+            score: state.score,
+            level: state.level,
+            lines: state.lines,
+            transitionInto19: state.transitionInto19,
+            transitionInto29: state.transitionInto29,
+            perfectTransitionInto19: state.perfectInto19,
+            perfectTransitionInto29: state.perfectInto29,
+        }), false);
+        
+        
 
         // TODO: write game data to database
 

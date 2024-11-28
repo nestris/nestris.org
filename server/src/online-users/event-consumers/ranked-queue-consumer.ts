@@ -1,7 +1,7 @@
 import session from "express-session";
 import { getLeagueFromIndex } from "../../../shared/nestris-org/league-system";
 import { FoundOpponentMessage, NumQueuingPlayersMessage, RedirectMessage, SendPushNotificationMessage } from "../../../shared/network/json-message";
-import { XPDelta } from "../../../shared/room/multiplayer-room-models";
+import { TrophyDelta, XPDelta } from "../../../shared/room/multiplayer-room-models";
 import { sleep } from "../../../shared/scripts/sleep";
 import { DBUserObject } from "../../database/db-objects/db-user";
 import { MultiplayerRoom } from "../../room/multiplayer-room";
@@ -247,25 +247,25 @@ export class RankedQueueConsumer extends EventConsumer {
     }
 
     /**
-     * Calculate the win/loss XP delta for two users after a match
+     * Calculate the win/loss trophy delta for two users after a match
      * @param user1 The first user in the match
      * @param user2 The second user in the match
      */
-    private async calculateXPDelta(user1: QueueUser, user2: QueueUser): Promise<{
-        player1XPDelta: XPDelta,
-        player2XPDelta: XPDelta,
+    private async calculateTrophyDelta(user1: QueueUser, user2: QueueUser): Promise<{
+        player1TrophyDelta: TrophyDelta,
+        player2TrophyDelta: TrophyDelta,
     }> {
 
-        // TODO: Implement XP calculation
+        // TODO: Implement trophy calculation
 
         return {
-            player1XPDelta: {
-                xpGain: 100,
-                xpLoss: -100,
+            player1TrophyDelta: {
+                trophyGain: 100,
+                trophyLoss: -100,
             },
-            player2XPDelta: {
-                xpGain: 100,
-                xpLoss: -100,
+            player2TrophyDelta: {
+                trophyGain: 100,
+                trophyLoss: -100,
             }
         };
     }
@@ -285,16 +285,16 @@ export class RankedQueueConsumer extends EventConsumer {
         this.previousOpponent.set(user2.userid, user1.userid);
 
         // Calculate the win/loss XP delta for the users
-        const { player1XPDelta, player2XPDelta } = await this.calculateXPDelta(user1, user2);
+        const { player1TrophyDelta, player2TrophyDelta } = await this.calculateTrophyDelta(user1, user2);
 
         // Send the message that an opponent has been found to both users
         const player1League = getLeagueFromIndex((await DBUserObject.get(user1.userid)).object.league);
         const player2League = getLeagueFromIndex((await DBUserObject.get(user2.userid)).object.league);
         this.users.sendToUserSession(user1.sessionID, new FoundOpponentMessage(
-            user2.username, user2.trophies, player2League, player1XPDelta
+            user2.username, user2.trophies, player2League, player1TrophyDelta
         ));
         this.users.sendToUserSession(user2.sessionID, new FoundOpponentMessage(
-            user1.username, user1.trophies, player1League, player2XPDelta
+            user1.username, user1.trophies, player1League, player2TrophyDelta
         ));
 
         console.log(`Matched users ${user1.userid} and ${user2.userid}`);
@@ -311,7 +311,7 @@ export class RankedQueueConsumer extends EventConsumer {
         const user2ID = {userid: user2.userid, sessionID: user2.sessionID};
 
         try {
-            const room = new RankedMultiplayerRoom(user1ID, user2ID, player1XPDelta, player2XPDelta);
+            const room = new RankedMultiplayerRoom(user1ID, user2ID, player1TrophyDelta, player2TrophyDelta);
             await EventConsumerManager.getInstance().getConsumer(RoomConsumer).createRoom(room);
         } catch (error) {
 

@@ -402,8 +402,6 @@ export class EmulatorGameState {
         // increment placement frame counter
         this.placementFrameCount++;
 
-        console.log("pushdown points", this.pushDownPoints);
-
         return {
             toppedOut: false,
             newPieceSpawned: newPieceSpawned,

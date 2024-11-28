@@ -33,6 +33,7 @@ import { InvitationConsumer } from './src/online-users/event-consumers/invitatio
 import { FriendInvitationManager } from './src/invitations/friend-invitation';
 import { GetInvitationsRoute } from './src/routes/invitations/get-invitations-route';
 import { RemoveFriendRoute } from './src/routes/user/remove-friend-route';
+import { MeConsumer } from './src/online-users/event-consumers/me-consumer';
 
 // Load environment variables
 require('dotenv').config();
@@ -84,6 +85,7 @@ async function main() {
   EventConsumerManager.bootstrap(users);
 
   const consumers = EventConsumerManager.getInstance();
+  consumers.registerConsumer(MeConsumer);
   consumers.registerConsumer(FriendEventConsumer);
   consumers.registerConsumer(PingConsumer);
   consumers.registerConsumer(GuestConsumer);

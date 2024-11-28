@@ -14,7 +14,7 @@ export class MeService extends StateService<DBUser>() {
   constructor(
     private readonly bannerManager: BannerManagerService
   ) {
-    super([JsonMessageType.ME]);
+    super([JsonMessageType.ME], "Me");
   }
 
   protected async fetch(): Promise<DBUser> {

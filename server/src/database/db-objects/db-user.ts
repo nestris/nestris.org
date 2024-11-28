@@ -1,10 +1,11 @@
-import { Observable, Subject } from "rxjs";
 import { Authentication, DBUser, DBUserAttributes } from "../../../shared/models/db-user";
 import { getLeagueFromIndex, updateXP } from "../../../shared/nestris-org/league-system";
 import { DBObject } from "../db-object";
 import { DBObjectNotFoundError } from "../db-object-error";
 import { Database, DBQuery, WriteDBQuery } from "../db-query";
 import { QuestDefinitions } from "../../../shared/nestris-org/quest-system";
+import { XPGainMessage } from "../../../shared/network/json-message";
+import { OnlineUserManager } from "../../online-users/online-user-manager";
 
 
 // The parameters required to create a new user
@@ -17,63 +18,54 @@ abstract class DBUserEvent {
     constructor() {}
 }
 
+class GenericEvent<T> extends DBUserEvent {
+    constructor(public readonly args: T) { super(); }
+}
+
 // When user connects to the server, update last_online
 export class DBUserOnlineEvent extends DBUserEvent {}
 
-// Add XP to user, possibly promoting to a new league
-export class DBAlterXPEvent extends DBUserEvent {
-    constructor(public readonly xpDelta: number) { super(); }
+// Update settings
+interface UpdateSettingsArgs {
+    enableReceiveFriendRequests: boolean,
+    notifyOnFriendOnline: boolean,
+    soloChatPermission: string,
+    matchChatPermission: string,
+    keybindEmuMoveLeft: string,
+    keybindEmuMoveRight: string,
+    keybindEmuRotLeft: string,
+    keybindEmuRotRight: string,
+    keybindPuzzleRotLeft: string,
+    keybindPuzzleRotRight: string
 }
+export class DBUpdateSettingsEvent extends GenericEvent<UpdateSettingsArgs> {}
 
-// Update user's trophies by trophyDelta amount
-export class DBAlterTrophiesEvent extends DBUserEvent {
-    constructor(public readonly trophyDelta: number) { super(); }
-}
+
+// An XP event advances the user's XP and possibly their league. In addition, DBUser will check for quest update
+// changes and trigger additional XP increases if necessary.
+interface XPArgs { users: OnlineUserManager, xpGained: number, sessionID: string }
+export class XPEvent<T extends XPArgs = XPArgs> extends GenericEvent<T> {}
 
 // Update user stats after puzzle submission
-export class DBOnPuzzleSubmitEvent extends DBUserEvent {
-    constructor(
-        public readonly newElo: number, // new elo after puzzle submission
-        public readonly isCorrect: boolean, // whether the puzzle was solved
-        public readonly seconds: number, // seconds taken to solve puzzle
-    ) { super(); }
-}
+interface PuzzleSubmitArgs extends XPArgs { newElo: number, isCorrect: boolean, seconds: number }
+export class DBPuzzleSubmitEvent extends XPEvent<PuzzleSubmitArgs> {}
 
 // Update highest stats on game end
-export class DBOnGameEndEvent extends DBUserEvent {
-    constructor(
-        public readonly score: number,
-        public readonly level: number,
-        public readonly lines: number,
-        public readonly transitionInto19: number | null,
-        public readonly transitionInto29: number | null,
-        public readonly perfectTransitionInto19: boolean,
-        public readonly perfectTransitionInto29: boolean,
-        public readonly xpGained: number
-    ) { super(); }
+interface GameEndArgs extends XPArgs {
+    score: number,
+    level: number,
+    lines: number,
+    transitionInto19: number | null,
+    transitionInto29: number | null,
+    perfectTransitionInto19: boolean,
+    perfectTransitionInto29: boolean,
 }
+export class DBGameEndEvent extends XPEvent<GameEndArgs> {}
 
-// Update settings
-export class DBUpdateSettingsEvent extends DBUserEvent {
-    constructor(
-        public readonly enableReceiveFriendRequests: boolean,
-        public readonly notifyOnFriendOnline: boolean,
-        public readonly soloChatPermission: string,
-        public readonly matchChatPermission: string,
-        public readonly keybindEmuMoveLeft: string,
-        public readonly keybindEmuMoveRight: string,
-        public readonly keybindEmuRotLeft: string,
-        public readonly keybindEmuRotRight: string,
-        public readonly keybindPuzzleRotLeft: string,
-        public readonly keybindPuzzleRotRight: string
-    ) { super(); }
-}
 
-export interface JustCompletedQuest {
-    userid: string,
-    sessionid: string,
-    questName: string,
-}
+// Update user's trophies by trophyDelta amount
+interface MatchEndArgs extends XPArgs { trophyChange: number }
+export class DBMatchEndEvent extends XPEvent<MatchEndArgs> {}
 
 
 export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("DBUser") {
@@ -187,7 +179,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
     // Given an event, alters the object in-memory
     protected override alterInMemory(event: DBUserEvent): void {
 
-        const before = Object.assign({}, this.inMemoryObject);
+        const dbUserBefore = Object.assign({}, this.inMemoryObject);
 
         switch (event.constructor) {
 
@@ -196,54 +188,79 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
                 this.inMemoryObject.last_online = new Date();
                 break;
 
-            // On alter XP, add xpDelta to xp. If xp is enough to promote to a new league, promote
-            case DBAlterXPEvent:
-                const xpEvent = event as DBAlterXPEvent;
-                this.updateXPInMemory(xpEvent.xpDelta);
-                break;
             
             // On alter trophies, add trophyDelta to trophies, ensuring trophies is non-negative
-            case DBAlterTrophiesEvent:
-                const trophyEvent = event as DBAlterTrophiesEvent;
-                this.inMemoryObject.trophies = Math.max(0, this.inMemoryObject.trophies + trophyEvent.trophyDelta);
+            case DBMatchEndEvent:
+                const trophyArg = (event as DBMatchEndEvent).args;
+                this.inMemoryObject.trophies = Math.max(0, this.inMemoryObject.trophies + trophyArg.trophyChange);
+                this.inMemoryObject.highest_trophies = Math.max(this.inMemoryObject.highest_trophies, this.inMemoryObject.trophies);
                 break;
 
             // On alter puzzle elo, update puzzle stats
-            case DBOnPuzzleSubmitEvent:
-                const puzzleEvent = event as DBOnPuzzleSubmitEvent;
-                this.inMemoryObject.puzzle_elo = puzzleEvent.newElo;
+            case DBPuzzleSubmitEvent:
+                const puzzleArgs = (event as DBPuzzleSubmitEvent).args;
+                this.inMemoryObject.puzzle_elo = puzzleArgs.newElo;
                 this.inMemoryObject.puzzles_attempted++;
-                this.inMemoryObject.puzzles_solved += puzzleEvent.isCorrect ? 1 : 0;
-                this.inMemoryObject.puzzle_seconds_played += puzzleEvent.seconds;
+                this.inMemoryObject.puzzles_solved += puzzleArgs.isCorrect ? 1 : 0;
+                this.inMemoryObject.puzzle_seconds_played += puzzleArgs.seconds;
                 break;
 
             // On game end, update highest stats
-            case DBOnGameEndEvent:
-                const gameEndEvent = event as DBOnGameEndEvent;
-                this.inMemoryObject.highest_score = Math.max(this.inMemoryObject.highest_score, gameEndEvent.score);
-                this.inMemoryObject.highest_level = Math.max(this.inMemoryObject.highest_level, gameEndEvent.level);
-                this.inMemoryObject.highest_lines = Math.max(this.inMemoryObject.highest_lines, gameEndEvent.lines);
-                this.inMemoryObject.highest_transition_into_19 = Math.max(this.inMemoryObject.highest_transition_into_19, gameEndEvent.transitionInto19 ?? 0);
-                this.inMemoryObject.highest_transition_into_29 = Math.max(this.inMemoryObject.highest_transition_into_29, gameEndEvent.transitionInto29 ?? 0);
-                this.inMemoryObject.has_perfect_transition_into_19 = this.inMemoryObject.has_perfect_transition_into_19 || gameEndEvent.perfectTransitionInto19;
-                this.inMemoryObject.has_perfect_transition_into_29 = this.inMemoryObject.has_perfect_transition_into_29 || gameEndEvent.perfectTransitionInto29;
-                this.updateXPInMemory(gameEndEvent.xpGained);
+            case DBGameEndEvent:
+                const gameEndArgs = (event as DBGameEndEvent).args;
+                this.inMemoryObject.highest_score = Math.max(this.inMemoryObject.highest_score, gameEndArgs.score);
+                this.inMemoryObject.highest_level = Math.max(this.inMemoryObject.highest_level, gameEndArgs.level);
+                this.inMemoryObject.highest_lines = Math.max(this.inMemoryObject.highest_lines, gameEndArgs.lines);
+                this.inMemoryObject.highest_transition_into_19 = Math.max(this.inMemoryObject.highest_transition_into_19, gameEndArgs.transitionInto19 ?? 0);
+                this.inMemoryObject.highest_transition_into_29 = Math.max(this.inMemoryObject.highest_transition_into_29, gameEndArgs.transitionInto29 ?? 0);
+                this.inMemoryObject.has_perfect_transition_into_19 = this.inMemoryObject.has_perfect_transition_into_19 || gameEndArgs.perfectTransitionInto19;
+                this.inMemoryObject.has_perfect_transition_into_29 = this.inMemoryObject.has_perfect_transition_into_29 || gameEndArgs.perfectTransitionInto29;
                 break;
 
             // Update settings
             case DBUpdateSettingsEvent:
-                const settingsEvent = event as DBUpdateSettingsEvent;
-                this.inMemoryObject.enable_receive_friend_requests = settingsEvent.enableReceiveFriendRequests;
-                this.inMemoryObject.notify_on_friend_online = settingsEvent.notifyOnFriendOnline;
-                this.inMemoryObject.solo_chat_permission = settingsEvent.soloChatPermission;
-                this.inMemoryObject.match_chat_permission = settingsEvent.matchChatPermission;
-                this.inMemoryObject.keybind_emu_move_left = settingsEvent.keybindEmuMoveLeft;
-                this.inMemoryObject.keybind_emu_move_right = settingsEvent.keybindEmuMoveRight;
-                this.inMemoryObject.keybind_emu_rot_left = settingsEvent.keybindEmuRotLeft;
-                this.inMemoryObject.keybind_emu_rot_right = settingsEvent.keybindEmuRotRight;
-                this.inMemoryObject.keybind_puzzle_rot_left = settingsEvent.keybindPuzzleRotLeft;
-                this.inMemoryObject.keybind_puzzle_rot_right = settingsEvent.keybindPuzzleRotRight;
+                const settingsArgs = (event as DBUpdateSettingsEvent).args;
+                this.inMemoryObject.enable_receive_friend_requests = settingsArgs.enableReceiveFriendRequests;
+                this.inMemoryObject.notify_on_friend_online = settingsArgs.notifyOnFriendOnline;
+                this.inMemoryObject.solo_chat_permission = settingsArgs.soloChatPermission;
+                this.inMemoryObject.match_chat_permission = settingsArgs.matchChatPermission;
+                this.inMemoryObject.keybind_emu_move_left = settingsArgs.keybindEmuMoveLeft;
+                this.inMemoryObject.keybind_emu_move_right = settingsArgs.keybindEmuMoveRight;
+                this.inMemoryObject.keybind_emu_rot_left = settingsArgs.keybindEmuRotLeft;
+                this.inMemoryObject.keybind_emu_rot_right = settingsArgs.keybindEmuRotRight;
+                this.inMemoryObject.keybind_puzzle_rot_left = settingsArgs.keybindPuzzleRotLeft;
+                this.inMemoryObject.keybind_puzzle_rot_right = settingsArgs.keybindPuzzleRotRight;
                 break;
+        }
+
+        // Update XP, league, and quests
+        if (event instanceof XPEvent) {
+            const xpArgs = (event as XPEvent).args;
+
+            // The db user after the XP event is simply the updated in-memory object
+            const dbUserAfter = this.inMemoryObject;
+
+            // Get the list of quest names that were just completed
+            const completedQuests = QuestDefinitions.getJustCompletedQuests(dbUserBefore, dbUserAfter).map(q => q.name);
+
+            // Calculate the total XP gained from both the normal XP gain and the quest completions
+            const totalXPGained = completedQuests.reduce((acc, questName) => acc + QuestDefinitions.getQuestDefinition(questName).xp, xpArgs.xpGained);
+
+            // Send the XP gained message, as well as any quests completed, to the specific session of the player that finished the game
+            if (totalXPGained > 0 || completedQuests.length > 0) {
+
+                console.log(`Sending XP gain message to user ${this.id} for ${totalXPGained} XP gained and ${completedQuests.length} quests completed`);
+                
+                xpArgs.users.sendToUserSession(xpArgs.sessionID, new XPGainMessage(
+                    dbUserBefore.league,
+                    dbUserBefore.xp,
+                    xpArgs.xpGained,
+                    completedQuests
+                ));
+            }
+
+            // Update the user's XP and league for the aggregate XP gain
+            this.updateXPInMemory(totalXPGained);
         }
     }
 

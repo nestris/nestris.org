@@ -7,7 +7,16 @@ import { SoloRoomState } from "../../shared/room/solo-room-models";
 import { DBSoloGamesListAddEvent, DBSoloGamesListView } from "../database/db-views/db-solo-games-list";
 import { Room } from "../online-users/event-consumers/room-consumer";
 import { UserSessionID } from "../online-users/online-user";
-import { GameEndEvent, GamePlayer, GameStartEvent } from "./game-player";
+import { GameEndEvent, GamePlayer, GameStartEvent, XPStrategy } from "./game-player";
+
+/**
+ * Strategy for calculating XP gained for a solo game
+ * @param score 
+ * @returns 
+ */
+const soloXPStrategy: XPStrategy = (score: number) => {
+    return 100;
+};
 
 export class SoloRoom extends Room<SoloRoomState> {
 
@@ -25,7 +34,7 @@ export class SoloRoom extends Room<SoloRoomState> {
 
         const username = SoloRoom.Users.getUserInfo(playerSessionID.userid)!.username;
 
-        this.player = new GamePlayer(SoloRoom.Users, playerSessionID.userid, username, playerSessionID.sessionID);
+        this.player = new GamePlayer(SoloRoom.Users, playerSessionID.userid, username, playerSessionID.sessionID, soloXPStrategy);
         
         // Handle solo-room-specific behavior when the game starts
         this.player.onGameStart$().subscribe(async (event: GameStartEvent) => {

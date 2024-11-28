@@ -4,29 +4,35 @@ import { ClientRoomEvent, RoomType } from "../../shared/room/room-models";
 import { Room } from "../online-users/event-consumers/room-consumer";
 import { UserSessionID } from "../online-users/online-user";
 import { calculateScoreForPlayer, MatchPoint, MultiplayerRoomEventType, MultiplayerRoomState, MultiplayerRoomStatus, PlayerIndex, PlayerInfo } from "../../shared/room/multiplayer-room-models";
-import { GameEndEvent, GamePlayer, GameStartEvent } from "./game-player";
+import { GameEndEvent, GamePlayer, GameStartEvent, NO_XP_STRATEGY } from "./game-player";
 import { GymRNG } from "../../shared/tetris/piece-sequence-generation/gym-rng";
 import { DBUserObject } from "../database/db-objects/db-user";
-import { BinaryEncoder } from "../../shared/network/binary-codec";
-import { MAX_PLAYER_BITCOUNT, PacketAssembler } from "../../shared/network/stream-packets/packet-assembler";
-import { stat } from "fs";
+import { PacketAssembler } from "../../shared/network/stream-packets/packet-assembler";
 import { OnlineUserActivityType } from "../../shared/models/activity";
 
 export class MultiplayerRoom extends Room<MultiplayerRoomState> {
 
     // The two players in the room
-    private gamePlayers: {[PlayerIndex.PLAYER_1]: GamePlayer, [PlayerIndex.PLAYER_2]: GamePlayer};
+    protected gamePlayers: {[PlayerIndex.PLAYER_1]: GamePlayer, [PlayerIndex.PLAYER_2]: GamePlayer};
 
     private previousGame: {[PlayerIndex.PLAYER_1]: GameEndEvent | null, [PlayerIndex.PLAYER_2]: GameEndEvent | null} = {
         [PlayerIndex.PLAYER_1]: null,
         [PlayerIndex.PLAYER_2]: null,
     };
 
+    // If the match was ended due to a player resigning, this flag is set
+    private playerResigned: boolean = false;
+
     /**
      * Creates a new SoloRoom for the single player with the given playerSessionID
      * @param playerSessionID The playerSessionID of the player in the room
      */
-    constructor(player1SessionID: UserSessionID, player2SessionID: UserSessionID) {
+    constructor(
+        player1SessionID: UserSessionID,
+        player2SessionID: UserSessionID,
+        private readonly ranked: boolean,
+        private readonly startLevel: number,
+    ) {
 
         super(
             OnlineUserActivityType.MULTIPLAYER,
@@ -50,8 +56,9 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         this.iterateGamePlayers((player, index) => player.onGameEnd$().subscribe(async (event: GameEndEvent) => {
             this.previousGame[index] = event;
 
-            if (this.previousGame[PlayerIndex.PLAYER_1] && this.previousGame[PlayerIndex.PLAYER_2]) {
-                this.onBothPlayersEndGame(
+            // Only trigger onBothPlayersEndGame if both players have ended the game and neither player has resigned
+            if (this.previousGame[PlayerIndex.PLAYER_1] && this.previousGame[PlayerIndex.PLAYER_2] && !this.playerResigned) {
+                await this.onBothPlayersEndGame(
                     this.previousGame[PlayerIndex.PLAYER_1],
                     this.previousGame[PlayerIndex.PLAYER_2]
                 );
@@ -63,11 +70,11 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
      * Iterate over each GamePlayer in the room
      * @param callback The callback to execute for each player
      */
-    private iterateGamePlayers(callback: (player: GamePlayer, index: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2) => void): void {
-        for (const playerIndex of [PlayerIndex.PLAYER_1, PlayerIndex.PLAYER_2]) {
+    protected iterateGamePlayers<T>(callback: (player: GamePlayer, index: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2) => T): T[] {
+        return [PlayerIndex.PLAYER_1, PlayerIndex.PLAYER_2].map(playerIndex => {
             const pi = playerIndex as (PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2);
-            callback(this.gamePlayers[pi], pi);
-        }
+            return callback(this.gamePlayers[pi], pi);
+        });
     }
 
     /**
@@ -95,8 +102,8 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
 
         return {
             type: RoomType.MULTIPLAYER,
-            startLevel: 18,
-            ranked: true,
+            startLevel: this.startLevel,
+            ranked: this.ranked,
             winningScore: 2,
             players: {
                 [PlayerIndex.PLAYER_1]: await this.getInfoForPlayer(PlayerIndex.PLAYER_1),
@@ -205,6 +212,8 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         }
         state.points.push(point);
 
+        // TODO: add database logic to save the match point
+
         // Reset ready status for both players for next game
         state.ready = { [PlayerIndex.PLAYER_1]: false, [PlayerIndex.PLAYER_2]: false };
 
@@ -218,6 +227,9 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
             else state.matchWinner = PlayerIndex.DRAW;
 
             state.status = MultiplayerRoomStatus.AFTER_MATCH;
+
+            // End the match
+            await this.onMatchEnd(state);
         } else {
             // Match is ongoing
             state.currentSeed = GymRNG.generateRandomSeed();
@@ -229,9 +241,35 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
     }
 
     /**
-     * Cleanup logic for all players in the room when the room is about to be deleted
+     * On room deletion by player leaving, if match still ongoing, end ongoing games and end match early by resignation
+     * @param playerLeftID The sessionID of the player that left the room
      */
-    protected override async onDelete(): Promise<void> {        
+    protected override async onDelete(playerLeftID: string): Promise<void> { 
+
+        // If match already ended, do nothing
+        if (this.getRoomState().status === MultiplayerRoomStatus.AFTER_MATCH) return;
+        
+        // Set resignation flag
+        this.playerResigned = true;
+        
+        // End ongoing games for both players and save them
         await Promise.all(Object.values(this.gamePlayers).map(player => player.onDelete()));
+
+        // Mark match as won by resignation, where the player that left the room loses
+        const state = this.getRoomState();
+        state.wonByResignation = true;
+        state.matchWinner = this.getPlayerIndex(playerLeftID) === PlayerIndex.PLAYER_1 ? PlayerIndex.PLAYER_2 : PlayerIndex.PLAYER_1;
+
+        // End the match
+        await this.onMatchEnd(state);
+
+        // Update the room state with resignation flag and match winner
+        this.updateRoomState(state);
     }
+
+    /**
+     * Override to handle the end of the match
+     * @param state The state of the room
+     */
+    protected async onMatchEnd(state: MultiplayerRoomState): Promise<void> {}
 }

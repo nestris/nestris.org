@@ -240,8 +240,9 @@ export abstract class Room<T extends RoomState = RoomState> {
 
     /**
      * Overwrite this method to handle when the room is deleted.
+     * @param playerLeftID The userid of the player that left the room
      */
-    protected async onDelete(): Promise<void> {}
+    protected async onDelete(playerLeftID: string): Promise<void> {}
 
     /**
      * Overwrite this method to handle when a player sends a binary message.
@@ -271,12 +272,12 @@ export abstract class Room<T extends RoomState = RoomState> {
         // Set the room state
         this.roomState = await this.initRoomState();
 
+        // Trigger the onCreate hook that may be implemented by subclasses
+        await this.onCreate();
+
         // Send IN_ROOM_STATUS messages to all players in the room to indicate that they are players in the room,
         // including the room info
         this.sendToAll(new InRoomStatusMessage(InRoomStatus.PLAYER, this.roomInfo, this.roomState));
-
-        // Trigger the onCreate hook that may be implemented by subclasses
-        await this.onCreate();
 
         // Log the creation of the room
         const playerUsernames = this.roomInfo.players.map(player => player.username).join(", ");
@@ -346,9 +347,10 @@ export abstract class Room<T extends RoomState = RoomState> {
     }
 
     /**
-     * Destructor for the room. This must be called ONLY by the RoomConsumer when the room is to be deleted.
+     * Destructor for the room. This must be called ONLY by the RoomConsumer when the room is to be deleted because a player left the room.
+     * @param userid The userid of the player that left the room
      */
-    async _destructor() {
+    async _destroyAfterPlayerLeft(userid: string) {
 
         // Send IN_ROOM_STATUS messages to all players and spectators in the room to indicate that they are not in any room anymore
         this.allSessionIDs.forEach(sessionID => {
@@ -359,11 +361,11 @@ export abstract class Room<T extends RoomState = RoomState> {
         this.players.forEach(player => Room.Users.resetUserActivity(player.userid));
 
         // Call the onDelete hook that may be implemented by subclasses
-        await this.onDelete();
+        await this.onDelete(userid);
 
         // Log the deletion of the room
         const playerUsernames = this.roomInfo.players.map(player => player.username).join(", ");
-        console.log(`Deleted ${this.roomState.type} room ${this.id} with players ${playerUsernames}`);
+        console.log(`Deleted ${this.roomState.type} room ${this.id} with players ${playerUsernames} after player ${userid} left`);
     }
 
 }
@@ -451,7 +453,7 @@ export class RoomConsumer extends EventConsumer {
 
         // Handle when a client session leaves the room
         else if (event.message.type === JsonMessageType.LEAVE_ROOM) 
-            await this.freeSession(event.sessionID);
+            await this.freeSession(event.userid, event.sessionID);
         
     }
 
@@ -460,7 +462,7 @@ export class RoomConsumer extends EventConsumer {
      * @param event The session disconnect event
      */
     protected override async onSessionDisconnect(event: OnSessionDisconnectEvent): Promise<void> {
-        await this.freeSession(event.sessionID);
+        await this.freeSession(event.userid, event.sessionID);
     }
 
     /**
@@ -468,7 +470,7 @@ export class RoomConsumer extends EventConsumer {
      * is a player in the room, delete the room entirely after triggering the room's destructor.
      * @param sessionID The session id of the user that disconnected
      */
-    public async freeSession(sessionID: string) {
+    public async freeSession(userid: string, sessionID: string) {
 
         // Get the room the session is in. Ignore if the session is not in any room.
         const room = this.getRoomBySessionID(sessionID);
@@ -476,16 +478,16 @@ export class RoomConsumer extends EventConsumer {
 
         // Remove the session from the room
         if (room.isPlayer(sessionID)) {
-            // Remove the player from the room
-            await room._destructor();
+            // If the session is for a player, delete the room entirely
+            await room._destroyAfterPlayerLeft(userid);
+            room.playerSessionIDs.forEach(sessionID => this.sessions.delete(sessionID));
             this.rooms.delete(room.id);
         } else {
             // Remove the spectator from the room
             room._removeSpectator(sessionID);
+            this.sessions.delete(sessionID);
         }
-
-        // Remove the session from the session map
-        this.sessions.delete(sessionID);
+        
     }
 
 }

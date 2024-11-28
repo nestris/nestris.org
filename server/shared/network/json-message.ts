@@ -3,7 +3,7 @@ import { DBUser } from "../models/db-user"
 import { NotificationType } from "../models/notifications"
 import { ClientRoomEvent, RoomInfo, RoomState } from "../room/room-models"
 import { League } from "../nestris-org/league-system";
-import { XPDelta } from "../room/multiplayer-room-models"
+import { TrophyDelta, XPDelta } from "../room/multiplayer-room-models"
 import { FriendInfo, FriendInfoUpdate } from "../models/friends";
 import { Invitation, InvitationCancellationReason } from "../models/invitation";
 
@@ -218,7 +218,7 @@ export class FoundOpponentMessage extends JsonMessage {
         public readonly opponentName: string,
         public readonly opponentTrophies: number,
         public readonly opponentLeague: League,
-        public readonly xpDelta: XPDelta
+        public readonly trophyDelta: TrophyDelta,
     ) {
         super(JsonMessageType.FOUND_OPPONENT)
     }

@@ -79,6 +79,11 @@ export interface XPDelta {
     xpLoss: number;
 }
 
+export interface TrophyDelta {
+    trophyGain: number;
+    trophyLoss: number;
+}
+
 export enum MultiplayerRoomEventType {
     READY = 'READY',
 }
