@@ -84,6 +84,7 @@ async function main() {
   const users = new OnlineUserManager(wss);
   EventConsumerManager.bootstrap(users);
 
+  // Register consumers
   const consumers = EventConsumerManager.getInstance();
   consumers.registerConsumer(MeConsumer);
   consumers.registerConsumer(FriendEventConsumer);
