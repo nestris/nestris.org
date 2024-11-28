@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 export enum RoomModal {
   SOLO_BEFORE_GAME = 'SOLO_BEFORE_GAME',
   SOLO_AFTER_GAME = 'SOLO_AFTER_GAME',
+  MULTIPLAYER_AFTER_MATCH = 'MULTIPLAYER_AFTER_MATCH',
 }
 
 @Component({

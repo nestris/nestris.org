@@ -96,6 +96,7 @@ import { GameHeaderComponent } from './components/layout/room/game-header/game-h
 import { HighestScoreComponent } from './components/ui/highest-score/highest-score.component';
 import { PuzzleEloComponent } from './components/ui/puzzle-elo/puzzle-elo.component';
 import { FriendRequestComponent } from './components/layout/friends/friend-request/friend-request.component';
+import { MultiplayerAfterMatchModalComponent } from './components/layout/room/modals/multiplayer-after-match-modal/multiplayer-after-match-modal.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -228,6 +229,7 @@ const customNotifierOptions: NotifierOptions = {
     HighestScoreComponent,
     PuzzleEloComponent,
     FriendRequestComponent,
+    MultiplayerAfterMatchModalComponent,
   ],
   imports: [
     BrowserModule,

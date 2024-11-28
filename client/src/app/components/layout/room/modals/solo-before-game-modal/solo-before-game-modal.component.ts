@@ -19,8 +19,6 @@ export class SoloBeforeGameModalComponent {
 
   readonly VALID_START_LEVELS = [0, 5, 9, 12, 15, 18, 19, 29]
 
-  //selectedLevel$ = new BehaviorSubject<number>(18);
-
   constructor(
     private readonly roomService: RoomService,
     private readonly router: Router,

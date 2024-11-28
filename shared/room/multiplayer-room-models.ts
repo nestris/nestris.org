@@ -31,6 +31,16 @@ export function calculateScoreForPlayer(points: MatchPoint[], player: PlayerInde
     }, 0);
 }
 
+export function pointWinner(point: MatchPoint): PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2 | PlayerIndex.DRAW {
+    if (point.game[PlayerIndex.PLAYER_1].score > point.game[PlayerIndex.PLAYER_2].score) {
+        return PlayerIndex.PLAYER_1;
+    } else if (point.game[PlayerIndex.PLAYER_1].score < point.game[PlayerIndex.PLAYER_2].score) {
+        return PlayerIndex.PLAYER_2;
+    } else {
+        return PlayerIndex.DRAW;
+    }
+}
+
 export enum MultiplayerRoomStatus {
     BEFORE_GAME = 'BEFORE_GAME',
     IN_GAME = 'IN_GAME',

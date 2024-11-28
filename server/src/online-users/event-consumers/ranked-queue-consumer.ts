@@ -236,7 +236,7 @@ export class RankedQueueConsumer extends EventConsumer {
         if (!user2.getTrophyRange().contains(user1.trophies)) return false;
 
         // Check if the users have not played each other before, unless both users have been waiting for a long time
-        const MAX_WAIT_TIME = 20; // If both users have been waiting for more than MAX_WAIT_TIME seconds, they can rematch
+        const MAX_WAIT_TIME = 0; // If both users have been waiting for more than MAX_WAIT_TIME seconds, they can rematch
         if (user1.queueElapsedSeconds() < MAX_WAIT_TIME && user2.queueElapsedSeconds() < MAX_WAIT_TIME) {
             if (this.previousOpponent.get(user1.userid) === user2.userid) return false;
             if (this.previousOpponent.get(user2.userid) === user1.userid) return false;

@@ -1,0 +1,173 @@
+@import "../../../../../../styles.scss";
+
+.modal {
+    background-color: $modal-color;
+    border-radius: 20px;
+    position: relative;
+
+    width: 800px;
+    height: 500px;
+
+    display: flex;
+    flex-direction: column;
+    padding-top: 20px;
+}
+
+.banner-container {
+    width: 100%;
+    height: 60px;
+    box-sizing: border-box;
+    border-radius: 2px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.banner-container.blue {
+    background-color: $multiplayer-blue-color;
+}
+
+.banner-container.red {
+    background-color: $multiplayer-red-color;
+}
+
+.banner-container h1 {
+    font-family: 'NES';
+    font-size: 30px;
+    margin: 0;
+    padding: 0;
+}
+
+.body {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 15px;
+}
+
+.content {
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+    padding-inline: 30px;
+}
+
+.players {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.player h1 {
+    font-family: $main-font;
+    font-size: 25px;
+    font-weight: 700;
+    margin: 0;
+    padding: 0;
+}
+
+.player.blue {
+    color: $multiplayer-blue-color;
+}
+
+.player.red {
+    color: $multiplayer-red-color;
+}
+
+.game-container {
+    border-style: solid;
+    border-width: 3px;
+    border-radius: 10px;
+    background-color: rgb(255, 255, 255, 0.02);
+
+    width: 100%;
+    height: 55px;
+    box-sizing: border-box;
+    padding-inline: 10px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    position: relative;
+}
+
+.game-container.blue {
+    border-color: $multiplayer-blue-color;
+    background-color: rgba($multiplayer-blue-color, 0.1);
+}
+
+.game-container.blue .result-text {
+    color: $multiplayer-blue-color;
+}
+
+.game-container.red {
+    border-color: $multiplayer-red-color;
+    background-color: rgba($multiplayer-red-color, 0.1);
+}
+
+.game-container.red .result-text {
+    color: $multiplayer-red-color;
+}
+
+.game-container.tie {
+    border-color: $multiplayer-orange-color;
+    background-color: rgba($multiplayer-orange-color, 0.1);
+}
+
+.game-container.tie .result-text {
+    color: $multiplayer-orange-color;
+}
+
+.point {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+
+.point.blue {
+    color: $multiplayer-blue-color;
+}
+
+.point.red {
+    color: $multiplayer-red-color;
+}
+
+.score {
+    font-family: 'NES';
+    font-size: 25px;
+    margin: 0;
+    padding: 0;
+}
+
+.result-text {
+    font-family: $main-font;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    padding: 0;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}

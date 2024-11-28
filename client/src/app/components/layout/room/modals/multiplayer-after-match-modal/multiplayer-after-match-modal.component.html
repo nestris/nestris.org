@@ -1,0 +1,33 @@
+<div class="modal" *ngIf="multiplayerState$ | async as state">
+    <div class="banner-container" [ngClass]="getIndexColorWithTie(state.matchWinner!)">
+        <h1>{{
+            calculateScoreForPlayer(state.points, getColorIndex("blue"))
+            }}-{{
+            calculateScoreForPlayer(state.points, getColorIndex("red"))
+            }} {{getMatchText(state)}}</h1>
+    </div>
+    <div class="body">
+        <div class="content">
+            <div class="players">
+                <div class="player" *ngFor="let playerIndex of getPlayerIndices()" [ngClass]="getIndexColor(playerIndex)">
+                    <h1>{{state.players[playerIndex].username}}</h1>
+                </div>
+            </div>
+            <div class="game-container" *ngFor="let point of state.points" [ngClass]="getIndexColorWithTie(pointWinner(point))">
+                <div class="point blue">
+                    <app-solid-button icon="./assets/img/button-icons/analyze-blue.svg" [color]="ButtonColor.GREY" />
+                    <p class="score">{{point.game[getColorIndex("blue")].score}}</p>
+                </div>
+                <p class="result-text">{{getPointText(pointWinner(point))}}</p>
+                <div class="point red">
+                    <p class="score">{{point.game[getColorIndex("red")].score}}</p>
+                    <app-solid-button icon="./assets/img/button-icons/analyze-red.svg" [color]="ButtonColor.GREY" />
+                </div>
+            </div>
+        </div>
+        <div class="buttons">
+            <app-solid-button label="Exit" [color]="ButtonColor.RED" (click)="exit()" />
+            <app-solid-button label="Rematch" />
+        </div>
+    </div>
+</div>

@@ -27,6 +27,17 @@ export class MultiplayerClientRoom extends ClientRoom {
 
     public override async init(state: MultiplayerRoomState): Promise<void> {
 
+        // Reset game data
+        this.platform.updateGameData({
+            board: new TetrisBoard(),
+            level: state.startLevel,
+            lines: 0,
+            score: 0,
+            nextPiece: TetrominoType.ERROR_TYPE,
+            trt: 0,
+            countdown: undefined
+        })
+
         // Derive the index of the client in the room, or null if the client is a spectator
         const myID = await this.me.getUserID();
         if (state.players[PlayerIndex.PLAYER_1].userid === myID) this.myIndex = PlayerIndex.PLAYER_1;
@@ -97,6 +108,13 @@ export class MultiplayerClientRoom extends ClientRoom {
      */
     public sendReadyEvent() {
         this.sendClientRoomEvent({type: MultiplayerRoomEventType.READY });
+    }
+
+    /**
+     * Sent to show the after match modal
+     */
+    public showAfterMatchModal() {
+        this.modal$.next(RoomModal.MULTIPLAYER_AFTER_MATCH);
     }
 
 }

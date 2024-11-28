@@ -90,6 +90,11 @@ export class RoomService {
   }
 
   private createClientRoom(roomState: RoomState): ClientRoom {
+
+    // Reset modal
+    this.modal$.next(null);
+
+    // Create the client room based on the room type
     switch (roomState.type) {
       case RoomType.SOLO: return new SoloClientRoom(this.injector, this.modal$, roomState as SoloRoomState);
       case RoomType.MULTIPLAYER: return new MultiplayerClientRoom(this.injector, this.modal$, roomState);
