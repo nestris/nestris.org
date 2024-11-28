@@ -1,10 +1,12 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import { Router } from '@angular/router';
+import { map } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { Platform, PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { RoomService } from 'src/app/services/room/room.service';
-import { SoloClientRoom } from 'src/app/services/room/solo-client-room';
+import { SoloClientRoom, SoloClientState } from 'src/app/services/room/solo-client-room';
 import { RoomType } from 'src/app/shared/room/room-models';
+import { SoloRoomState } from 'src/app/shared/room/solo-room-models';
 
 @Component({
   selector: 'app-solo-before-game-modal',
@@ -28,6 +30,10 @@ export class SoloBeforeGameModalComponent {
   public soloClientRoom = this.roomService.getClient<SoloClientRoom>();
   public startLevel$ = SoloClientRoom.startLevel$;
 
+  public lastGameSummary$ = this.soloClientRoom.getState$<SoloRoomState>().pipe(
+    map(state => state.lastGameSummary)
+  );
+
   public get startLevel(): number {
     return this.startLevel$.getValue();
   }
@@ -37,7 +43,11 @@ export class SoloBeforeGameModalComponent {
   }
 
   public startGame() {
-      this.soloClientRoom.startGame();
+    this.soloClientRoom.startGame();
+  }
+
+  public backToSummary() {
+    this.soloClientRoom.setSoloState(SoloClientState.AFTER_GAME_MODAL);
   }
 
   // Pressing "space" or "enter" should also trigger the next button

@@ -4,7 +4,7 @@ import { filter, map, Observable } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { EmulatorService } from 'src/app/services/emulator/emulator.service';
 import { RoomService } from 'src/app/services/room/room.service';
-import { SoloClientRoom } from 'src/app/services/room/solo-client-room';
+import { SoloClientRoom, SoloClientState } from 'src/app/services/room/solo-client-room';
 import { GameSummary, SoloRoomState } from 'src/app/shared/room/solo-room-models';
 import { numberWithCommas } from 'src/app/util/misc';
 
@@ -46,8 +46,9 @@ export class SoloAfterGameModalComponent {
     this.router.navigate(['/']);
   }
 
+  // go from after game modal to before game modal
   public next() {
-    this.soloClientRoom.goToNextGame();
+    this.soloClientRoom.setSoloState(SoloClientState.BEFORE_GAME_MODAL);
   }
 
   // Pressing "space" or "enter" should also trigger the next button

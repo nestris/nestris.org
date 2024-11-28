@@ -18,6 +18,7 @@
     <div class="buttons">
         <app-solid-button label="Exit" [color]="ButtonColor.RED" (click)="exit()" />
         <div class="buttons-right">
+            <app-solid-button *ngIf="lastGameSummary$ | async" label="Back" [color]="ButtonColor.GREY" (click)="backToSummary()" />
             <app-solid-button label="Play" [color]="ButtonColor.BLUE" (click)="startGame()" />
             <!-- TODO: keybinds button here -->
         </div>
