@@ -29,7 +29,7 @@ export class SoloAfterGameModalComponent {
 
   constructor(
     private readonly roomService: RoomService,
-    private readonly emulatorService: EmulatorService,
+    public readonly emulatorService: EmulatorService,
     private readonly router: Router,
   ) {
     const history = this.emulatorService.getLastGameSnapshotHistory()!;

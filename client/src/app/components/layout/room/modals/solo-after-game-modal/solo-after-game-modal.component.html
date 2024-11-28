@@ -1,9 +1,9 @@
 <div class="modal" *ngIf="summary$ | async as summary">
     <div class="content">
-        <p class="phrase">That was a wild game!</p>
+        <p class="phrase">{{emulatorService.getLastGameFeedback()}}</p>
 
         <div class="group">
-            <p class="score">{{summary.score}}</p>
+            <p class="score">{{numberWithCommas(summary.score)}}</p>
             <p class="score-label" [ngClass]="{ 'pb' : summary.isPersonalBest}">{{summary.isPersonalBest ? 'New personal best!' : 'Your score'}}</p>
             
         </div>

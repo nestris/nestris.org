@@ -11,6 +11,8 @@ import { BinaryEncoder } from 'src/app/shared/network/binary-codec';
 import { Observable, Subject } from 'rxjs';
 import { eventIsForInput } from 'src/app/util/misc';
 import { StatusHistory, StatusSnapshot } from 'src/app/shared/tetris/memory-game-status';
+import { getFeedback } from 'src/app/util/game-feedback';
+import { MeService } from '../state/me.service';
 
 
 /*
@@ -40,9 +42,11 @@ export class EmulatorService {
   private onTopout$ = new Subject<void>();
 
   private lastGameHistory: StatusHistory | null = null;
+  private lastGameFeedback: string | null = null;
 
   constructor(
     private platform: PlatformInterfaceService,
+    private meService: MeService
 ) {}
 
   // tick function that advances the emulator state during the game loop
@@ -188,7 +192,12 @@ export class EmulatorService {
     this.loop = undefined;
 
     // Set last game snapshots
-    this.lastGameHistory = this.currentState.getStatusHistory();
+    const highscore = this.meService.getSync()?.highest_score;
+    if (this.sendPacketsToServer && highscore != undefined) {
+      this.lastGameHistory = this.currentState.getStatusHistory();
+      this.lastGameFeedback = getFeedback(this.currentState.getStatus().score, highscore, this.lastGameHistory);
+    }
+    
 
     // Reset game state
     this.currentState = undefined;
@@ -229,5 +238,9 @@ export class EmulatorService {
 
   getLastGameSnapshotHistory(): StatusHistory | null {
     return this.lastGameHistory;
+  }
+
+  getLastGameFeedback(): string | null {
+    return this.lastGameFeedback;
   }
 }
