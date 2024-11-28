@@ -1,4 +1,3 @@
-import { on } from "events";
 import { FriendUpdateData, FriendUpdateMessage } from "../../../shared/network/json-message";
 import { DBObjectNotFoundError } from "../../database/db-object-error";
 import { Database, DBQuery, WriteDBQuery } from "../../database/db-query";

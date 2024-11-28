@@ -1,10 +1,8 @@
-import session from "express-session";
 import { getLeagueFromIndex } from "../../../shared/nestris-org/league-system";
 import { FoundOpponentMessage, NumQueuingPlayersMessage, RedirectMessage, SendPushNotificationMessage } from "../../../shared/network/json-message";
-import { TrophyDelta, XPDelta } from "../../../shared/room/multiplayer-room-models";
+import { TrophyDelta } from "../../../shared/room/multiplayer-room-models";
 import { sleep } from "../../../shared/scripts/sleep";
 import { DBUserObject } from "../../database/db-objects/db-user";
-import { MultiplayerRoom } from "../../room/multiplayer-room";
 import { RankedMultiplayerRoom } from "../../room/ranked-multiplayer-room";
 import { EventConsumer, EventConsumerManager } from "../event-consumer";
 import { OnSessionDisconnectEvent } from "../online-user-events";

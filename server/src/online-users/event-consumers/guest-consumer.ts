@@ -1,4 +1,3 @@
-import { DBUserObject } from "../../database/db-objects/db-user";
 import { EventConsumer } from "../event-consumer";
 import { OnUserDisconnectEvent } from "../online-user-events";
 

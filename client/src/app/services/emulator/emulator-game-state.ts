@@ -8,6 +8,7 @@ import { getLockDelay } from "./spawn-delay";
 import { SmartGameStatus } from "src/app/shared/tetris/smart-game-status";
 import { IGameStatus } from "src/app/shared/tetris/game-status";
 import { RNG } from "src/app/shared/tetris/piece-sequence-generation/rng";
+import { MemoryGameStatus, StatusHistory, StatusSnapshot } from "src/app/shared/tetris/memory-game-status";
 
 
 export const EMULATOR_FPS = 60;
@@ -24,11 +25,12 @@ export class EmulatorGameState {
     // board without active piece
     private isolatedBoard: TetrisBoard = new TetrisBoard();
 
-    // current lines/level/score
-    private status: SmartGameStatus;
-    private linesCleared: number = 0;
-    private numTetrises: number = 0;
-
+    /**
+     * The current status of the game
+     * Use MemoryGameStatus to keep track of snapshots of the game status at each line clear, for
+     * displaying the game summary graph at the end of the game
+     */
+    private status: MemoryGameStatus;
 
     // piece shown in next box
     private nextPieceType!: TetrominoType;
@@ -36,7 +38,6 @@ export class EmulatorGameState {
     // the pose of the moveable active piece
     private activePiece: MoveableTetromino;
     private pieceLocked: boolean = false;
-
 
     // whether game is over
     private toppedOut = false;
@@ -68,7 +69,7 @@ export class EmulatorGameState {
         private readonly rng: RNG,
         private countdown: number = 3, // how many seconds of countdown before game starts
     ) {
-        this.status = new SmartGameStatus(startLevel);
+        this.status = new MemoryGameStatus(startLevel);
         this.gravity = getGravity(this.status.level);
 
         // generate current piece
@@ -150,7 +151,12 @@ export class EmulatorGameState {
     }
 
     getTetrisRate(): number {
-        return this.linesCleared === 0 ? 0 : (this.numTetrises * 4) / this.linesCleared;
+        return this.status.getTetrisRate();
+    }
+
+    // Get the snapshots of the game status at each line clear
+    getStatusHistory(): StatusHistory {
+        return this.status.getHistory();
     }
 
     private calculatePushdown(currentScore: number, pushdownPoints: number): number {
@@ -342,11 +348,8 @@ export class EmulatorGameState {
                 }
             } else {
 
-                // Line clear
+                // Count the number of line clears, and remove them from the board
                 const linesCleared = this.isolatedBoard.processLineClears();
-                this.linesCleared += linesCleared;
-                if (linesCleared === 4) this.numTetrises++;
-                // console.log("lines cleared", linesCleared);
 
                 // update score/line/level count, and update gravity accordingly
                 if (linesCleared > 0) {

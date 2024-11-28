@@ -59,6 +59,12 @@ export class SoloClientRoom extends ClientRoom {
         }
     }
 
+    // Go from after-game modal to before-game modal
+    public goToNextGame() {
+        this.setSoloState(SoloClientState.BEFORE_GAME_MODAL);
+    }
+
+
     public startGame() {
         const startLevel = SoloClientRoom.startLevel$.getValue();
         console.log('Starting game with start level', startLevel);

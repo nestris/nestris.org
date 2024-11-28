@@ -1,9 +1,6 @@
 import { EventConsumer } from "../event-consumer";
 import { OnlineUserManager } from "../online-user-manager";
-import { v4 as uuid } from 'uuid';
 import { NotificationType } from "../../../shared/models/notifications";
-import { UserSessionID } from "../online-user";
-import { OnlineUserActivityType } from "../../../shared/models/activity";
 import { InvitationError, InvitationManager } from "../../invitations/invitation";
 import { OnSessionDisconnectEvent, OnSessionJsonMessageEvent, OnUserActivityChangeEvent, OnUserDisconnectEvent } from "../online-user-events";
 import { InvitationMessage, InvitationMode, JsonMessageType, SendPushNotificationMessage } from "../../../shared/network/json-message";

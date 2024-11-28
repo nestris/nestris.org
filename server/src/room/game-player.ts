@@ -19,10 +19,10 @@ export interface GameStartEvent {
 // Event that is emitted when a game ends
 export interface GameEndEvent {
     gameID: string;
-    score: number;
-    level: number;
-    lines: number;
+    state: GameState,
+    packets: PacketAssembler;
     xpGained: number;
+    isPersonalBest: boolean;
 }
 
 // Strategy for calculating XP gained for a game
@@ -140,6 +140,9 @@ export class GamePlayer {
         // Calculate XP gained based on injected strategy
         const xpGained = this.xpStrategy(state.score);
 
+        // Get previous highscore
+        const previousHighscore = (await DBUserObject.get(this.userid)).object.highest_score;
+
         // Write game to database
         await Database.query(CreateGameQuery, {
             id: gameID,
@@ -176,10 +179,10 @@ export class GamePlayer {
         this.gameEnd$.next(
             {
                 gameID,
-                score: state.score,
-                level: state.level,
-                lines: state.lines,
-                xpGained
+                state: gameState,
+                packets,
+                xpGained,
+                isPersonalBest: state.score > previousHighscore
             }
         );
 

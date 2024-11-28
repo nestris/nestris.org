@@ -1,1 +1,40 @@
-<p>solo-after-game-modal works!</p>
+<div class="modal" *ngIf="summary$ | async as summary">
+    <div class="content">
+        <p class="phrase">That was a wild game!</p>
+
+        <div class="group">
+            <p class="score">{{summary.score}}</p>
+            <p class="score-label" [ngClass]="{ 'pb' : summary.isPersonalBest}">{{summary.isPersonalBest ? 'New personal best!' : 'Your score'}}</p>
+            
+        </div>
+
+        <div class="cols">
+
+            <div class="group stat">
+                <h1>{{summary.linesCleared}}</h1>
+                <p>Lines cleared</p>
+            </div>
+
+            <div class="group stat">
+                <h1>{{summary.tetrisCount}}</h1>
+                <p>Tetrises Scored</p>
+            </div>
+
+            <div class="group stat">
+                <h1>-</h1>
+                <p>Game Accuracy</p>
+            </div>
+
+        </div>
+        
+    <div></div>
+
+    </div>
+    <div class="buttons">
+        <app-solid-button label="Exit" [color]="ButtonColor.RED" (click)="exit()" />
+        <div class="buttons-right">
+            <app-solid-button label="Next" [color]="ButtonColor.BLUE" (click)="next()" />
+            <!-- TODO: keybinds button here -->
+        </div>
+    </div>
+</div>

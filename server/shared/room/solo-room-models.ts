@@ -6,6 +6,16 @@ export interface SoloGameInfo {
     xp: number;
 }
 
+export interface GameSummary {
+    gameID: string;
+    score: number;
+    isPersonalBest: boolean;
+    linesCleared: number;
+    tetrisCount: number;
+    accuracy: number | null;
+
+}
+
 export interface SoloRoomState extends RoomState {
     type: RoomType.SOLO;
 
@@ -15,4 +25,5 @@ export interface SoloRoomState extends RoomState {
     serverInGame: boolean;
 
     previousGames: SoloGameInfo[];
+    lastGameSummary: GameSummary | null;
 }

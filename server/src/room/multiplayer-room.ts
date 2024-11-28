@@ -196,8 +196,10 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
 
         // Calculate the winner
         let winner: PlayerIndex;
-        if (player1Game.score > player2Game.score) winner = PlayerIndex.PLAYER_1;
-        else if (player1Game.score < player2Game.score) winner = PlayerIndex.PLAYER_2;
+        const player1Score = player1Game.state.getStatus().score;
+        const player2Score = player2Game.state.getStatus().score;
+        if (player1Score > player2Score) winner = PlayerIndex.PLAYER_1;
+        else if (player1Score < player2Score) winner = PlayerIndex.PLAYER_2;
         else winner = PlayerIndex.DRAW;
         state.lastGameWinner = winner;
 
@@ -206,8 +208,8 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
             seed: state.currentSeed,
             winner: winner,
             game: {
-                [PlayerIndex.PLAYER_1]: { gameID: player1Game.gameID, score: player1Game.score },
-                [PlayerIndex.PLAYER_2]: { gameID: player2Game.gameID, score: player2Game.score },
+                [PlayerIndex.PLAYER_1]: { gameID: player1Game.gameID, score: player1Score },
+                [PlayerIndex.PLAYER_2]: { gameID: player2Game.gameID, score: player2Score },
             }
         }
         state.points.push(point);
@@ -218,12 +220,12 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         state.ready = { [PlayerIndex.PLAYER_1]: false, [PlayerIndex.PLAYER_2]: false };
 
         // Check if the match is over
-        const player1Score = calculateScoreForPlayer(state.points, PlayerIndex.PLAYER_1);
-        const player2Score = calculateScoreForPlayer(state.points, PlayerIndex.PLAYER_2);
-        if (player1Score >= state.winningScore || player2Score >= state.winningScore) {
+        const player1Points = calculateScoreForPlayer(state.points, PlayerIndex.PLAYER_1);
+        const player2Points = calculateScoreForPlayer(state.points, PlayerIndex.PLAYER_2);
+        if (player1Points >= state.winningScore || player2Points >= state.winningScore) {
             // Match is over
-            if (player1Score > player2Score) state.matchWinner = PlayerIndex.PLAYER_1;
-            else if (player1Score < player2Score) state.matchWinner = PlayerIndex.PLAYER_2;
+            if (player1Points > player2Points) state.matchWinner = PlayerIndex.PLAYER_1;
+            else if (player1Points < player2Points) state.matchWinner = PlayerIndex.PLAYER_2;
             else state.matchWinner = PlayerIndex.DRAW;
 
             state.status = MultiplayerRoomStatus.AFTER_MATCH;

@@ -10,6 +10,7 @@ import { GymRNG } from 'src/app/shared/tetris/piece-sequence-generation/gym-rng'
 import { BinaryEncoder } from 'src/app/shared/network/binary-codec';
 import { Observable, Subject } from 'rxjs';
 import { eventIsForInput } from 'src/app/util/misc';
+import { StatusHistory, StatusSnapshot } from 'src/app/shared/tetris/memory-game-status';
 
 
 /*
@@ -37,6 +38,8 @@ export class EmulatorService {
   private sendPacketsToServer: boolean = false;
 
   private onTopout$ = new Subject<void>();
+
+  private lastGameHistory: StatusHistory | null = null;
 
   constructor(
     private platform: PlatformInterfaceService,
@@ -184,6 +187,9 @@ export class EmulatorService {
     clearInterval(this.loop);
     this.loop = undefined;
 
+    // Set last game snapshots
+    this.lastGameHistory = this.currentState.getStatusHistory();
+
     // Reset game state
     this.currentState = undefined;
     
@@ -219,5 +225,9 @@ export class EmulatorService {
 
   onTopout(): Observable<void> {
     return this.onTopout$.asObservable();
+  }
+
+  getLastGameSnapshotHistory(): StatusHistory | null {
+    return this.lastGameHistory;
   }
 }
