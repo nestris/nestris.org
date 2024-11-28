@@ -101,6 +101,16 @@ export class TetrisBoard {
         return numLinesCleared;
     }
 
+    public getLineClearRows(): number[] {
+        const rows: number[] = [];
+        for (let y = 0; y < 20; y++) {
+            if (this.isRowFull(y)) {
+                rows.push(y);
+            }
+        }
+        return rows;
+    }
+
     // make a copy of the grid
     copy(): TetrisBoard {
         const grid = new TetrisBoard();

@@ -66,7 +66,7 @@ export class ServerPlayer {
       } else if (packet.opcode === PacketOpcode.GAME_PLACEMENT) {
         const placement = (packet.content as GamePlacementSchema);
         const activePiece = MoveableTetromino.fromMTPose(this.state!.getCurrentType(), placement.mtPose);
-        this.state!.onPlacement(activePiece.getMTPose(), placement.nextNextType);
+        this.state!.onPlacement(activePiece.getMTPose(), placement.nextNextType, placement.pushdown);
 
       } else if (packet.opcode === PacketOpcode.GAME_COUNTDOWN) {
         this.state!.setCountdown((packet.content as GameCountdownSchema).countdown);

@@ -23,4 +23,9 @@ export class LayoutOneComponent extends AbstractNesLayoutComponent {
   @Input() gameOver? : GameOverMode;
   @Input() gameOverShowNext: boolean = false;
   @Output() clickNext = new EventEmitter<void>();
+
+  padScore(score: number): string {
+    return score.toString().padStart(6, '0');
+  }
+
 }

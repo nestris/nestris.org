@@ -16,6 +16,7 @@ export interface EmulatorFrameInfo {
     toppedOut: boolean;
     newPieceSpawned: boolean;
     lockedPiece?: MoveableTetromino;
+    pushdownPoints: number;
 }
 
 export class EmulatorGameState {
@@ -43,15 +44,24 @@ export class EmulatorGameState {
     // current DAS charge
     private currentDAS = 0;
 
-    // DAS settings
-    private MAX_DAS = 16;
-    private RESET_DAS = 10;
-
     // Number of frames since piece spawn
     private placementFrameCount: number = 0;
 
     private gravity: number;
     private gravityCounter = 1;
+
+    private pushingDown = false;
+    private pushDownPoints = 0;
+    private oldPushDownPoints = 0;
+
+    private lineClearDelay = 0;
+    private lineClearRows: number[] = [];
+
+    // DAS settings
+    private readonly MAX_DAS = 16;
+    private readonly RESET_DAS = 10;
+    private readonly FRAMES_PER_LINE_CLEAR_STEP = 4;
+    private readonly MAX_LINE_CLEAR_DELAY = 5 * this.FRAMES_PER_LINE_CLEAR_STEP;
 
     constructor(
         public readonly startLevel: number,
@@ -68,58 +78,40 @@ export class EmulatorGameState {
         this.nextPieceType = this.rng.getNextPiece();
     }
 
-    // used only for copy() operation. should not be used otherwise
-    _setState(
-        isolatedBoard: TetrisBoard,
-        status: SmartGameStatus,
-        linesCleared: number,
-        numTetrises: number,
-        nextPieceType: TetrominoType,
-        activePiece: MoveableTetromino,
-        countdown: number,
-        toppedOut: boolean = false,
-        currentDAS: number = 0,
-        placementFrameCount: number = 0,
-        gravityCounter: number = 1,
-        pieceLocked: boolean = false,
-    ) {
-        this.isolatedBoard = isolatedBoard;
-        this.status = status;
-        this.linesCleared = linesCleared;
-        this.numTetrises = numTetrises;
-        this.nextPieceType = nextPieceType;
-        this.activePiece = activePiece;
-        this.countdown = countdown;
-        this.toppedOut = toppedOut;
-        this.currentDAS = currentDAS;
-        this.placementFrameCount = placementFrameCount;
-        this.gravityCounter = gravityCounter;
-        this.pieceLocked = pieceLocked;
-    }
+    private getMidLineClearBoard(): TetrisBoard {
 
-    // generate a deep copy of full game state
-    copy(): EmulatorGameState {
-        const copy = new EmulatorGameState(this.startLevel, this.rng);
-        copy._setState(
-            this.isolatedBoard.copy(),
-            this.status.copy(),
-            this.linesCleared,
-            this.numTetrises,
-            this.nextPieceType,
-            this.activePiece?.copy(),
-            this.countdown,
-            this.toppedOut,
-            this.currentDAS,
-            this.placementFrameCount,
-            this.gravityCounter,
-            this.pieceLocked,
-        );
-        return copy;
-    }
+        const displayBoard = this.isolatedBoard.copy();
 
+        if (this.lineClearDelay <= 2) {
+            displayBoard.processLineClears();
+            return displayBoard;
+        }
+
+        // goes from 1 mino disappear to 5 minos disappear
+        const minos = Math.floor(6 - this.lineClearDelay / this.FRAMES_PER_LINE_CLEAR_STEP);
+
+        
+        for (let row of this.lineClearRows) {
+            // if minos === 1, clear col 4 and 5
+            // if minos === 2, clear col 3, 4, 5, 6
+            // if minos === 3, clear col 2, 3, 4, 5, 6, 7
+            // if minos === 4, clear col 1, 2, 3, 4, 5, 6, 7, 8
+            // if minos === 5, clear all
+            for (let x = 0; x < 10; x++) {
+                if (x >= 5 - minos && x < 5 + minos) {
+                    displayBoard.setAt(x, row, 0);
+                }
+            }
+        }
+
+        return displayBoard;
+    }
 
     getDisplayBoard(): TetrisBoard {
-        if (this.pieceLocked) return this.isolatedBoard;
+        if (this.pieceLocked) {
+            if (this.lineClearRows.length === 0 || this.placementFrameCount !== 0) return this.isolatedBoard;
+            return this.getMidLineClearBoard();
+        }
         
         const displayBoard = this.isolatedBoard.copy();
         this.activePiece.blitToBoard(displayBoard);
@@ -161,10 +153,62 @@ export class EmulatorGameState {
         return this.linesCleared === 0 ? 0 : (this.numTetrises * 4) / this.linesCleared;
     }
 
+    private calculatePushdown(currentScore: number, pushdownPoints: number): number {
+        // Helper to convert to BCD
+        function toBCD(value: number): number {
+            let result = 0;
+            let multiplier = 1;
+            while (value > 0) {
+                result += (value % 10) * multiplier;
+                value = Math.floor(value / 10);
+                multiplier *= 16;
+            }
+            return result;
+        }
+    
+        // Helper to convert from BCD
+        function fromBCD(bcd: number): number {
+            let result = 0;
+            let multiplier = 1;
+            while (bcd > 0) {
+                result += (bcd % 16) * multiplier;
+                bcd = Math.floor(bcd / 16);
+                multiplier *= 10;
+            }
+            return result;
+        }
+
+        const originalScore = currentScore;
+    
+        if (pushdownPoints >= 2) {
+            // Extract the last two digits of the score
+            const lowDigits = fromBCD(
+                toBCD(currentScore % 100) + pushdownPoints - 1
+            );
+    
+            // Round down score to the nearest hundred
+            currentScore = Math.floor(currentScore / 100) * 100;
+    
+            // Add the modified low digits back to the score
+            currentScore += lowDigits;
+    
+            // If lowDigits overflows (>= 100), round down to the nearest ten
+            if (lowDigits >= 100) {
+                currentScore = Math.floor(currentScore / 10) * 10;
+            }
+        }
+    
+        return currentScore - originalScore;
+    }
+
     private spawnNewPiece() {
 
         // reset gravity counter. not 0 because gravity is not applied on first frame
         this.gravityCounter = 1;
+
+        // reset pushdown flag
+        this.pushingDown = false;
+        this.pushDownPoints = 0;
 
         // set active piece to spawn location of next piece
         this.activePiece = MoveableTetromino.fromSpawnPose(this.nextPieceType);
@@ -252,20 +296,17 @@ export class EmulatorGameState {
 
             this.pieceLocked = true; // clear active piece
 
-            // FOR NOW: instant lineclears
-            const linesCleared = this.isolatedBoard.processLineClears();
-            this.linesCleared += linesCleared;
-            if (linesCleared === 4) this.numTetrises++;
-            // console.log("lines cleared", linesCleared);
+            this.oldPushDownPoints = this.calculatePushdown(this.status.score, this.pushDownPoints);
 
-            // update score/line/level count, and update gravity accordingly
-            if (linesCleared > 0) {
-                this.status.onLineClear(linesCleared);
-                this.gravity = getGravity(this.status.level);
+            this.lineClearRows = this.isolatedBoard.getLineClearRows();
+            if (this.lineClearRows.length > 0) {
+                this.lineClearDelay = this.MAX_LINE_CLEAR_DELAY;
+                this.placementFrameCount = -4;
             }
             
         } else {
-            // console.log("drop piece");
+            // successful piece drop, add pushdown points if pushing down
+            if (this.pushingDown) this.pushDownPoints++;
         }
     }
 
@@ -276,19 +317,57 @@ export class EmulatorGameState {
         if (this.toppedOut) return {
             toppedOut: true,
             newPieceSpawned: false,
+            pushdownPoints: 0,
         }
 
         let newPieceSpawned = false;
         const oldActivePiece = this.activePiece;
 
+        if (pressedKeys.isJustPressed(Keybind.PUSHDOWN)) this.pushingDown = true;
+        if (pressedKeys.isJustReleased(Keybind.PUSHDOWN)) {
+            this.pushingDown = false;
+            this.pushDownPoints = 0;
+        }
+
         // on first frame, spawn piece
         if (this.placementFrameCount === 0 && this.pieceLocked) {
-            this.spawnNewPiece();
-            newPieceSpawned = true;
-            if (this.toppedOut) return {
-                toppedOut: true,
-                newPieceSpawned: true,
-            }; // if piece spawn causes topout, exit
+
+            if (this.lineClearDelay > 0) {
+                this.lineClearDelay--;
+
+                return {
+                    toppedOut: false,
+                    newPieceSpawned: false,
+                    pushdownPoints: 0,
+                }
+            } else {
+
+                // Line clear
+                const linesCleared = this.isolatedBoard.processLineClears();
+                this.linesCleared += linesCleared;
+                if (linesCleared === 4) this.numTetrises++;
+                // console.log("lines cleared", linesCleared);
+
+                // update score/line/level count, and update gravity accordingly
+                if (linesCleared > 0) {
+                    this.status.onLineClear(linesCleared);
+                    this.gravity = getGravity(this.status.level);
+                }
+
+                // update pushdown
+                this.status.onPushdown(this.oldPushDownPoints);
+
+
+                this.spawnNewPiece();
+                newPieceSpawned = true;
+                if (this.toppedOut) return {
+                    toppedOut: true,
+                    newPieceSpawned: true,
+                    pushdownPoints: 0,
+                }; // if piece spawn causes topout, exit
+
+            }
+
         }
 
         // only update DAS/translation/rotation if piece is active (not during lock)
@@ -315,7 +394,7 @@ export class EmulatorGameState {
 
             // increment gravity counter. if pushdown, gravity is bounded at 2
             let gravity = this.gravity;
-            if (pressedKeys.isPressed(Keybind.PUSHDOWN)) gravity = Math.min(2, gravity);
+            if (this.pushingDown) gravity = Math.min(2, gravity);
             this.gravityCounter = (this.gravityCounter + 1) % gravity;
     
         }
@@ -323,10 +402,13 @@ export class EmulatorGameState {
         // increment placement frame counter
         this.placementFrameCount++;
 
+        console.log("pushdown points", this.pushDownPoints);
+
         return {
             toppedOut: false,
             newPieceSpawned: newPieceSpawned,
             lockedPiece: newPieceSpawned ? oldActivePiece : undefined,
+            pushdownPoints: this.oldPushDownPoints,
         }
         
     }

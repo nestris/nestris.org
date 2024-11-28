@@ -140,7 +140,7 @@ export class EmulatorService {
         delta: this.timeDelta.getDelta(),
         nextNextType: this.currentState.getNextPieceType(),
         mtPose: result.lockedPiece!.getMTPose(),
-        pushdown: 0 // TODO: calculate pushdown
+        pushdown: result.pushdownPoints,
       }));
     }
 
