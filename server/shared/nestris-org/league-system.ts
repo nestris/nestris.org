@@ -80,8 +80,8 @@ export function updateXP(xp: number, league: League, xpDelta: number): { newXP: 
 
     // Keep promoting the player to the next league until they don't have enough xp to advance
     while (xp >= LEAGUE_XP_REQUIREMENTS[league] && league < League.RUBY_1) {
-        league++;
         xp -= LEAGUE_XP_REQUIREMENTS[league];
+        league++;
     }
 
     return { newXP: xp, newLeague: league };
