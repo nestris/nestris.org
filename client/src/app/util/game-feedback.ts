@@ -8,11 +8,22 @@ const GREAT_GAME = [
     "Flawless – pure perfection.",
 ]
 
+const GOOD_GAME = [
+    "A solid performance with flashes of brilliance.",
+    "A clean and well-executed game.",
+    "A balanced game with some great moves.",
+    
+]
+
 const DECENT_GAME = [
     "A respectable performance – keep stacking!",
     "A solid game from start to finish.",
     "Solid stacking! You’re getting better.",
+    "Good job! You’ve got the basics down.",
+    "That was a smooth game – keep it up!",
+    "Well done! A steady and solid game.",
 ]
+
 
 const ROLLERCOASTER = [
     "What a rollercoaster of a game!",
@@ -24,6 +35,8 @@ const ROLLERCOASTER = [
 const BAD_TO_GOOD = [
     "It started rough, but you clutched it in the end!",
     "A shaky start, but what a comeback!",
+    "You clawed your way back!",
+
 ]
   
 const BAD_ENDING = [
@@ -40,6 +53,13 @@ const BAD_GAME = [
     "You played Tetris. That’s all we can really say.",
 ]
 
+const REALLY_BAD_GAME = [
+    "That game felt like a cry for help.",
+    "I’d say ‘nice try,’ but was it really?",
+    "Are you sure you weren’t trying to lose?",
+    "That wasn’t a topout – that was a mercy ending."
+]
+
   
 const EARLY_TOPOUT = [
     "Well, that escalated quickly.",
@@ -48,7 +68,37 @@ const EARLY_TOPOUT = [
     "Did you even try?",
     "Well, that was embarrassing.",
     "Shortest game in history!",
+    "Let’s just pretend this one didn’t happen.",
+    "Good effort! Just kidding.",
 ]
+
+const BAD_29 = [
+    "You managed to hang on for a moment.",
+    "A fair attempt at such a brutal speed.",
+    "Not quite a long run, but still a decent effort!",
+    "You held on for a bit!",
+]
+
+const MID_29 = [
+    "Not bad! You held on longer than most.",
+    "You did well to survive that long.",
+    "You’re getting the hang of this!",  
+]
+
+const GOOD_29 = [
+    "You’re a natural at this!",
+    "You made it look easy!",
+]
+
+const GREAT_29 = [
+    "Are you an auto-clicker?",
+    "Perfection from start to finish.",
+    "Is this worth a broken keyboard?",
+]
+
+
+// Helper function to get a random element from an array
+const random = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
 
 /**
  * Get feedback based on how the player performed in the game
@@ -57,6 +107,17 @@ const EARLY_TOPOUT = [
  * @param history History of the game status across the game
  */
 export function getFeedback(status: MemoryGameStatus, previousBestLines: number): string {
+
+
+    // level 29 start is a special case
+    if (status.startLevel >= 29) {
+
+        if (status.lines < 3) return random(EARLY_TOPOUT);
+        if (status.lines < 5) return random(BAD_29);
+        if (status.lines < 10) return random(MID_29);
+        if (status.lines < 30) return random(GOOD_29);
+        return random(GREAT_29);
+    }
 
     const history = status.getHistory();
 
@@ -82,19 +143,21 @@ export function getFeedback(status: MemoryGameStatus, previousBestLines: number)
     console.log("highest lines", previousBestLines);
     console.log("trt", status.getTetrisRate());
 
-    // Helper function to get a random element from an array
-    const random = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
-
     // If lines is too low, it's an early topout
     if (status.lines < Math.max(Math.min(previousBestLines, 200) / 3, 30)) return random(EARLY_TOPOUT);
 
     // Games are guaranteed to have at least 30 lines
 
     // If score is close to previous best lines and good TRT, it's a great game
-    if (status.lines >= Math.max(previousBestLines, 50) * 0.8 && status.getTetrisRate() >= 0.75) return random(GREAT_GAME);
+    if (status.lines >= Math.max(previousBestLines, 50) * 0.8) {
+        if (status.getTetrisRate() >= 0.75) return random(GREAT_GAME);
+        if (status.getTetrisRate() >= 0.5) return random(GOOD_GAME);
+    }
 
 
-    if (status.getTetrisRate() < 0.35) return random(BAD_GAME);
+    const fullTetrisRate = status.getTetrisRate();
+    if (fullTetrisRate < 0.2) return random(REALLY_BAD_GAME);
+    if (fullTetrisRate < 0.35) return random(BAD_GAME);
 
     
     if (status.lines > 50) {
@@ -131,6 +194,7 @@ export function getFeedback(status: MemoryGameStatus, previousBestLines: number)
     console.log("Bounce count", bounceCount);
     if (bounceCount >= 5) return random(ROLLERCOASTER);
 
+    if (fullTetrisRate > 0.6) return random(GOOD_GAME);
     return random(DECENT_GAME);
 }
 
