@@ -38,14 +38,20 @@ export async function submitPuzzleAttempt(state: ServerState, submission: Serial
   let timeTakenSeconds = Math.round(Math.min(activePuzzle.getElapsedTime(), 30)); // cap time taken to 30 seconds
   console.log("Time taken", timeTakenSeconds, "seconds");
 
-  const submissionCurrentPlacement = new MoveableTetromino(activePuzzle.puzzle.current, submission.r1!, submission.x1!, submission.y1!);
-  const submissionNextPlacement = new MoveableTetromino(activePuzzle.puzzle.next, submission.r2!, submission.x2!, submission.y2!);
+  let submissionCurrentPlacement: number | null = null;
+  let submissionNextPlacement: number | null = null;
+  if (submission.r1 !== undefined && submission.x1 !== undefined && submission.y1 !== undefined) {
+    submissionCurrentPlacement = (new MoveableTetromino(activePuzzle.puzzle.current, submission.r1, submission.x1, submission.y1)).getInt2();
+  }
+  if (submission.r2 !== undefined && submission.x2 !== undefined && submission.y2 !== undefined) {
+    submissionNextPlacement = (new MoveableTetromino(activePuzzle.puzzle.next, submission.r2, submission.x2, submission.y2)).getInt2();
+  }
 
   // insert new record to puzzle_attempts
   const puzzleAttemptQuery = queryDB(
     `INSERT INTO puzzle_attempts (userid, puzzle_id, rating, is_correct, elo_before, elo_change, solve_time, current_placement, next_placement)
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-    [submission.userid, submission.puzzleID, activePuzzle.puzzle.rating, puzzleResult.isCorrect, eloBefore, eloChange, timeTakenSeconds, submissionCurrentPlacement.getInt2(), submissionNextPlacement.getInt2()]
+    [submission.userid, submission.puzzleID, activePuzzle.puzzle.rating, puzzleResult.isCorrect, eloBefore, eloChange, timeTakenSeconds, submissionCurrentPlacement, submissionNextPlacement]
   );
 
   // update user's puzzle elo
