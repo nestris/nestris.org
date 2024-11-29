@@ -101,6 +101,12 @@ export class MultiplayerClientRoom extends ClientRoom {
         if (this.myIndex !== null && oldState.status === MultiplayerRoomStatus.BEFORE_GAME && newState.status === MultiplayerRoomStatus.IN_GAME) {
             this.emulator.startGame(newState.startLevel, true, newState.currentSeed);
         }
+
+        // if going to AFTER_MATCH and resigned, show after match modal
+        if (oldState.status !== MultiplayerRoomStatus.AFTER_MATCH && newState.status === MultiplayerRoomStatus.AFTER_MATCH) {
+            if (newState.wonByResignation) this.showAfterMatchModal();
+        }
+
     }
 
     /**

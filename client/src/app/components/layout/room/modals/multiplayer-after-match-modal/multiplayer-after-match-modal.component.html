@@ -10,7 +10,7 @@
         <div class="content">
             <div class="players">
                 <div class="player" *ngFor="let playerIndex of getPlayerIndices()" [ngClass]="getIndexColor(playerIndex)">
-                    <h1>{{state.players[playerIndex].username}}</h1>
+                    <h1>{{state.players[playerIndex].username + ((state.wonByResignation && state.matchWinner !== playerIndex) ? ' (Aborted)' : '')}}</h1>
                 </div>
             </div>
             <div class="game-container" *ngFor="let point of state.points" [ngClass]="getIndexColorWithTie(pointWinner(point))">

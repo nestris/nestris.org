@@ -240,9 +240,10 @@ export abstract class Room<T extends RoomState = RoomState> {
 
     /**
      * Overwrite this method to handle when the room is deleted.
-     * @param playerLeftID The userid of the player that left the room
+     * @param userid The userid of the player that left the room
+     * @param sessionID The session id of the player that left the room
      */
-    protected async onDelete(playerLeftID: string): Promise<void> {}
+    protected async onDelete(userid: string, sessionID: string): Promise<void> {}
 
     /**
      * Overwrite this method to handle when a player sends a binary message.
@@ -349,8 +350,12 @@ export abstract class Room<T extends RoomState = RoomState> {
     /**
      * Destructor for the room. This must be called ONLY by the RoomConsumer when the room is to be deleted because a player left the room.
      * @param userid The userid of the player that left the room
+     * @param sessionID The session id of the player that left the room
      */
-    async _destroyAfterPlayerLeft(userid: string) {
+    async _destroyAfterPlayerLeft(userid: string, sessionID: string) {
+
+        // Call the onDelete hook that may be implemented by subclasses
+        await this.onDelete(userid, sessionID);
 
         // Send IN_ROOM_STATUS messages to all players and spectators in the room to indicate that they are not in any room anymore
         this.allSessionIDs.forEach(sessionID => {
@@ -359,9 +364,6 @@ export abstract class Room<T extends RoomState = RoomState> {
 
         // Clear the activity of each user
         this.players.forEach(player => Room.Users.resetUserActivity(player.userid));
-
-        // Call the onDelete hook that may be implemented by subclasses
-        await this.onDelete(userid);
 
         // Log the deletion of the room
         const playerUsernames = this.roomInfo.players.map(player => player.username).join(", ");
@@ -479,7 +481,7 @@ export class RoomConsumer extends EventConsumer {
         // Remove the session from the room
         if (room.isPlayer(sessionID)) {
             // If the session is for a player, delete the room entirely
-            await room._destroyAfterPlayerLeft(userid);
+            await room._destroyAfterPlayerLeft(userid, sessionID);
             room.playerSessionIDs.forEach(sessionID => this.sessions.delete(sessionID));
             this.rooms.delete(room.id);
         } else {

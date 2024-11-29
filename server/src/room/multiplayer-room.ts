@@ -244,9 +244,10 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
 
     /**
      * On room deletion by player leaving, if match still ongoing, end ongoing games and end match early by resignation
-     * @param playerLeftID The sessionID of the player that left the room
+     * @param userid The userid of the player that left the room
+     * @param sessionID The sessionID of the player that left the room
      */
-    protected override async onDelete(playerLeftID: string): Promise<void> { 
+    protected override async onDelete(userid: string, sessionID: string): Promise<void> { 
 
         // If match already ended, do nothing
         if (this.getRoomState().status === MultiplayerRoomStatus.AFTER_MATCH) return;
@@ -259,8 +260,9 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
 
         // Mark match as won by resignation, where the player that left the room loses
         const state = this.getRoomState();
+        state.status = MultiplayerRoomStatus.AFTER_MATCH;
         state.wonByResignation = true;
-        state.matchWinner = this.getPlayerIndex(playerLeftID) === PlayerIndex.PLAYER_1 ? PlayerIndex.PLAYER_2 : PlayerIndex.PLAYER_1;
+        state.matchWinner = this.getPlayerIndex(sessionID) === PlayerIndex.PLAYER_1 ? PlayerIndex.PLAYER_2 : PlayerIndex.PLAYER_1;
 
         // End the match
         await this.onMatchEnd(state);

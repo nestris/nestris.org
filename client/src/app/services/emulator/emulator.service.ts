@@ -99,6 +99,12 @@ export class EmulatorService {
     const next = this.currentState.getNextPieceType();
     this.sendPacket(new GameStartPacket().toBinaryEncoder({level, current, next}));
 
+    // send initial board state
+    this.sendPacket(new GameAbbrBoardPacket().toBinaryEncoder({
+      delta: this.timeDelta.getDelta(),
+      mtPose: this.currentState.getActivePiece()!.getMTPose(),
+    }));
+
     // start game loop
     this.loop = setInterval(() => this.tick(), 0);
 }
