@@ -137,10 +137,10 @@ export class FriendEventConsumer extends EventConsumer {
 
         // Send friend update messages to both users to add the friend
         this.users.sendToUser(userid1, new FriendUpdateMessage(userid1, {
-            create: this.getFriendInfoForUser(user2Request.object)
+            create: this.getFriendInfoForUser(user2Request)
         }));
         this.users.sendToUser(userid2, new FriendUpdateMessage(userid2, {
-            create: this.getFriendInfoForUser(user1Request.object)
+            create: this.getFriendInfoForUser(user1Request)
         }));
     }
 

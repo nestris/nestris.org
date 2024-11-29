@@ -90,7 +90,7 @@ export const handleDiscordCallback = async (req: express.Request, res: express.R
         let user: DBUser;
         try {
             // Try to get the user from the database
-            user = (await DBUserObject.get(userID)).object;
+            user = await DBUserObject.get(userID);
         } catch (error: any) {
 
             if (error instanceof DBObjectNotFoundError) {

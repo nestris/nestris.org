@@ -14,10 +14,7 @@ export class GetMeRoute extends GetRoute<DBUser> {
         
         try {
             // get the user object from either the in-memory cache or the database
-            const {object, cached, ms} = await DBUserObject.get(userInfo!.userid);
-
-            // return DBUser with cached and ms properties
-            return Object.assign({}, object, {cached, ms});
+            return await DBUserObject.get(userInfo!.userid);
 
         } catch (error: any) {
             // if the user is not found, return a 404 error

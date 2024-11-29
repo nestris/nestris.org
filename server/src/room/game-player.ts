@@ -141,7 +141,7 @@ export class GamePlayer {
         const xpGained = this.xpStrategy(state.score);
 
         // Get previous highscore
-        const previousHighscore = (await DBUserObject.get(this.userid)).object.highest_score;
+        const previousHighscore = (await DBUserObject.get(this.userid)).highest_score;
 
         // Write game to database
         await Database.query(CreateGameQuery, {

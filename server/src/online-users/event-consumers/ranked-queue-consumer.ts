@@ -148,7 +148,7 @@ export class RankedQueueConsumer extends EventConsumer {
         this.users.setUserActivity(sessionID, OnlineUserActivityType.QUEUEING);
 
         // Get user object from database
-        const dbUser = (await DBUserObject.get(userid)).object;
+        const dbUser = await DBUserObject.get(userid);
 
         // Add user to the queue, maintaining earliest-joined-first order
         this.queue.push(new QueueUser(userid, dbUser.username, sessionID, dbUser.trophies));
@@ -286,8 +286,8 @@ export class RankedQueueConsumer extends EventConsumer {
         const { player1TrophyDelta, player2TrophyDelta } = await this.calculateTrophyDelta(user1, user2);
 
         // Send the message that an opponent has been found to both users
-        const player1League = getLeagueFromIndex((await DBUserObject.get(user1.userid)).object.league);
-        const player2League = getLeagueFromIndex((await DBUserObject.get(user2.userid)).object.league);
+        const player1League = getLeagueFromIndex((await DBUserObject.get(user1.userid)).league);
+        const player2League = getLeagueFromIndex((await DBUserObject.get(user2.userid)).league);
         this.users.sendToUserSession(user1.sessionID, new FoundOpponentMessage(
             user2.username, user2.trophies, player2League, player1TrophyDelta
         ));

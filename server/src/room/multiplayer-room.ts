@@ -85,7 +85,7 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
     private async getInfoForPlayer(playerIndex: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2): Promise<PlayerInfo> {
 
         const userid = this.gamePlayers[playerIndex].userid;
-        const trophies = (await DBUserObject.get(userid)).object.trophies;
+        const trophies = (await DBUserObject.get(userid)).trophies;
 
         return {
             userid: this.gamePlayers[playerIndex].userid,

@@ -113,21 +113,21 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
 
          /**
          * Completely deletes the object from the database and in-memory. Blocks until the object is fully deleted.
+         * @param id The ID of the object to delete
+         * @param waitForDB If true, the method will wait for the database to finish writing before returning. Otherwise, only in-memory delete is guaranteed.
          * @throws DBError
          */
-        static async delete(id: string) {
+        static async delete<T extends DBObject>(this: new (id: string) => T, id: string, waitForDB: boolean): Promise<void> {
             
-            // First, fetch the object from the map
-            const dbObject = DBObject.dbObjects.get(id);
-            if (!dbObject) {
-                throw new DBObjectNotFoundError(`Object with ID ${id} does not exist`);
-            }
+            // First, fetch the object
+            const dbObject = await DBObject.getDBObject.call(this, id);
 
             // Get a copy of the in-memory object before deleting
             const before: InMemoryObject = Object.assign({}, dbObject.get());
 
             // Delete the object from the database
-            await dbObject.deleteFromDatabase();
+            if (waitForDB) await dbObject.deleteFromDatabase(id);
+            else dbObject.deleteFromDatabase(id).catch(console.error);
 
             // Delete the in-memory object by deleting the object from the map
             DBObject.dbObjects.delete(id);
@@ -152,13 +152,10 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
          * @returns The altered object
          * @throws DBError if the object does not exist
          */
-        static async alter(id: string, event: Event, waitForDB: boolean): Promise<InMemoryObject> {
+        static async alter<T extends DBObject>(this: new (id: string) => T, id: string, event: Event, waitForDB: boolean): Promise<InMemoryObject> {
 
-            // Fetch the object from the map
-            const dbObject = DBObject.dbObjects.get(id);
-            if (!dbObject) {
-                throw new DBObjectNotFoundError(`Object with ID ${id} does not exist`);
-            }
+            // Fetch the object
+            const dbObject = await DBObject.getDBObject.call(this, id);
 
             // Get a copy of the in-memory object before altering
             const before: InMemoryObject = Object.assign({}, dbObject.get());
@@ -184,7 +181,7 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
         }
 
         /**
-         * Gets the in-memory object for a given id. However, if the object is not in-memory, it will fetch the object from the database, then
+         * Gets the in-memory DBObject for a given id. However, if the object is not in-memory, it will fetch the object from the database, then
          * cache it in-memory. Blocks until the object is fetched.
          * 
          * This will be fast if the object is already in-memory, but slow if the object is not in-memory.
@@ -192,11 +189,7 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
          * @returns The in-memory object, whether it was cached, and the time it took to fetch the object
          * @throws DBError
          */
-        static async get<T extends DBObject>(this: new (id: string) => T, id: string): Promise<{
-            object: InMemoryObject,
-            cached: boolean,
-            ms: number
-        }> {
+        private static async getDBObject<T extends DBObject>(this: new (id: string) => T, id: string): Promise<DBObject> {
 
             const start = Date.now();
 
@@ -210,11 +203,7 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
                 // Notify the cache monitor of the cache hit
                 DBCacheMonitor.recordCacheHit(name);
 
-                return {
-                    object: existingDBObject.get(),
-                    cached: true,
-                    ms: Date.now() - start
-                }
+                return existingDBObject;
             }
 
             // We need to fetch the object from the database. Construct the object for the desired id and sync with database to get the data
@@ -235,13 +224,22 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
 
             // Return the in-memory object
             console.log(`Got ${name} object with ID ${id} from database`);
-            return {
-                object: dbObject.get(),
-                cached: false,
-                ms: ms
-            }
+            return dbObject;
         }
 
+        /**
+         * Gets the in-memory InMemoryObject for a given id. However, if the object is not in-memory, it will fetch the object from the database, then
+         * cache it in-memory. Blocks until the object is fetched.
+         * 
+         * This will be fast if the object is already in-memory, but slow if the object is not in-memory.
+         * @param id The ID of the object to get
+         * @returns The in-memory object, whether it was cached, and the time it took to fetch the object
+         * @throws DBError
+         */
+        static async get<T extends DBObject>(this: new (id: string) => T, id: string): Promise<InMemoryObject> {
+            const dbObject = await DBObject.getDBObject.call(this, id);
+            return dbObject.get();
+        }
 
         /**
          * "Forget" the object by removing it from the map, and thus removing it from in-memory. The object will still exist in the database. This
@@ -392,8 +390,8 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
         // Given the newly-created in-memory object, create a new entry in the database
         protected abstract createInDatabase(newObject: InMemoryObject): Promise<void>;
 
-        // Completely deletes the object from the database
-        protected abstract deleteFromDatabase(): Promise<void>;
+        // Completely deletes the object with given id from the database
+        protected abstract deleteFromDatabase(id: string): Promise<void>;
         
         // Given an event, alters the object in-memory
         protected abstract alterInMemory(event: Event): void;

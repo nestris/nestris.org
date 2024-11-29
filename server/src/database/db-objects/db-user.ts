@@ -155,7 +155,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
     }
 
     // Completely deletes the object from the database
-    protected override deleteFromDatabase(): Promise<void> {
+    protected override deleteFromDatabase(userid: string): Promise<void> {
 
         class DeleteUserQuery extends WriteDBQuery {
             public override query = `DELETE FROM users WHERE userid = $1`;
@@ -166,7 +166,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
             }
         }
 
-        return Database.query(DeleteUserQuery, this.id);
+        return Database.query(DeleteUserQuery, userid);
     }
 
     private updateXPInMemory(xpDelta: number): void {
