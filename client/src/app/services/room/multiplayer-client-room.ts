@@ -117,4 +117,8 @@ export class MultiplayerClientRoom extends ClientRoom {
         this.modal$.next(RoomModal.MULTIPLAYER_AFTER_MATCH);
     }
 
+    public override destroy(): void {
+        this.emulator.stopGame(true);
+    }
+
 }

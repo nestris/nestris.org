@@ -132,7 +132,7 @@ export class EmulatorGameState {
         return this.nextPieceType;
     }
 
-    getStatus(): IGameStatus {
+    getStatus(): MemoryGameStatus {
         return this.status;
     }
 

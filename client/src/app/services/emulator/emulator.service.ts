@@ -181,7 +181,7 @@ export class EmulatorService {
 
   }
 
-  stopGame() {
+  stopGame(force: boolean = false) {
 
     // if game is already stopped, do nothing
     if (this.currentState === undefined) return;
@@ -192,10 +192,10 @@ export class EmulatorService {
     this.loop = undefined;
 
     // Set last game snapshots
-    const highscore = this.meService.getSync()?.highest_score;
-    if (this.sendPacketsToServer && highscore != undefined) {
+    const highestLines = this.meService.getSync()?.highest_lines;
+    if (this.sendPacketsToServer && highestLines != undefined && !force) {
       this.lastGameHistory = this.currentState.getStatusHistory();
-      this.lastGameFeedback = getFeedback(this.currentState.getStatus().score, highscore, this.lastGameHistory);
+      this.lastGameFeedback = getFeedback(this.currentState.getStatus(), highestLines);
     }
     
 
@@ -203,7 +203,7 @@ export class EmulatorService {
     this.currentState = undefined;
     
     // send game end packet
-    this.sendPacket(new GameEndPacket().toBinaryEncoder({}));
+    if (!force) this.sendPacket(new GameEndPacket().toBinaryEncoder({}));
   }
 
   // if matching keybind, update currently pressed keys on keydown

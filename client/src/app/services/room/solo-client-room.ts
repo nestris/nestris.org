@@ -83,4 +83,8 @@ export class SoloClientRoom extends ClientRoom {
         return this.originalGames.some(game => game.gameID === gameID);
     }
 
+    public override destroy(): void {
+        this.emulator.stopGame(true);
+    }
+
 }

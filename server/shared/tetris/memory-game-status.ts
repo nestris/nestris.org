@@ -1,3 +1,4 @@
+import { RollingAverage, RollingAverageStrategy } from "../scripts/rolling-average";
 import { SmartGameStatus } from "./smart-game-status";
 
 export interface StatusSnapshot {
@@ -70,6 +71,8 @@ export class MemoryGameStatus extends SmartGameStatus {
     private linesCleared = 0;
     private numTetrises = 0;
 
+    private rollingTetrisRate = new RollingAverage(14, RollingAverageStrategy.DELTA);
+
     public override onLineClear(numLines: number): void {
 
         // If no lines were cleared, do nothing
@@ -82,12 +85,17 @@ export class MemoryGameStatus extends SmartGameStatus {
         this.linesCleared += numLines;
         if (numLines === 4) this.numTetrises++;
 
+        // Update the rolling tetris rate, with 1 for tetrises and 0 for other line clears
+        for (let i = 0; i < numLines; i++) {
+            this.rollingTetrisRate.push(numLines === 4 ? 1 : 0);
+        }
+
         // Capture a snapshot of the game status
         this.history.addSnapshot({
             level: this.level,
             lines: this.lines,
             score: this.score,
-            tetrisRate: this.getTetrisRate()
+            tetrisRate: this.getRollingTetrisRate()
         });   
     }
 
@@ -114,6 +122,13 @@ export class MemoryGameStatus extends SmartGameStatus {
     public getTetrisRate(): number {
         if (this.linesCleared === 0) return 0;
         return (this.numTetrises * 4) / this.linesCleared;
+    }
+
+    /**
+     * Get the rolling average of the tetris rate
+     */
+    public getRollingTetrisRate(): number {
+        return this.rollingTetrisRate.get();
     }
 
     /**
