@@ -50,7 +50,6 @@ const BAD_ENDING = [
 const BAD_GAME = [
     "Blocks just weren’t your friends today.",
     "Hey, even the pros have bad games sometimes!",
-    "You played Tetris. That’s all we can really say.",
 ]
 
 const REALLY_BAD_GAME = [
@@ -70,6 +69,11 @@ const EARLY_TOPOUT = [
     "Shortest game in history!",
     "Let’s just pretend this one didn’t happen.",
     "Good effort! Just kidding.",
+]
+
+const ONE_LINE_29 = [
+    "You cleared one line. Are you proud of yourself?",
+    "It's better than club zero, I guess.",
 ]
 
 const BAD_29 = [
@@ -112,6 +116,7 @@ export function getFeedback(status: MemoryGameStatus, previousBestLines: number)
     // level 29 start is a special case
     if (status.startLevel >= 29) {
 
+        if (status.lines === 1 && Math.random() < 0.5) return random(ONE_LINE_29);
         if (status.lines < 3) return random(EARLY_TOPOUT);
         if (status.lines < 5) return random(BAD_29);
         if (status.lines < 10) return random(MID_29);
