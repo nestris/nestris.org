@@ -1,8 +1,11 @@
-import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Host, HostListener, Input, OnInit, ViewChild } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+import { Rectangle } from 'src/app/ocr/util/rectangle';
 import { getGravity } from 'src/app/shared/tetris/gravity';
 import { MemoryGameStatus, StatusHistory } from 'src/app/shared/tetris/memory-game-status';
 import { ColorType } from 'src/app/shared/tetris/tetris-board';
 import { COLOR_FIRST_COLORS_RGB, COLOR_SECOND_COLORS_RGB, getColorForLevel, RGBColor } from 'src/app/shared/tetris/tetromino-colors';
+import { numberWithCommas } from 'src/app/util/misc';
 
 
 interface LevelSection {
@@ -25,8 +28,11 @@ interface Annotation {
   styleUrls: ['./game-summary-graph.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GameSummaryGraphComponent implements OnInit {
+export class GameSummaryGraphComponent implements OnInit, AfterViewInit {
+  @ViewChild('graph') graph!: ElementRef;
   @Input() game!: MemoryGameStatus;
+
+  mouseX$ = new BehaviorSubject<number | null>(null);
 
   // Chart dimensions
   readonly WIDTH = 600;
@@ -40,12 +46,15 @@ export class GameSummaryGraphComponent implements OnInit {
   readonly GRID_LINE_PADDING_BOTTOM = 0.5;
   readonly GRID_LINE_Y = [0, 0.25, 0.5, 0.75, 1].map(i => this.trtToY(i));
 
+  svgRect$ = new BehaviorSubject<Rectangle | null>(null);
+
   TOTAL_LINES!: number;
   history!: StatusHistory;
   levelSections!: LevelSection[];
   annotations: Annotation[] = [];
   polygon: string = '';
-  polylineInterpolate: string = '';
+  points!: [number, number][];
+  polylineString!: string;
 
   GRAVITY_COLOR_MAP: { [key: number]: RGBColor } = {
     1: COLOR_FIRST_COLORS_RGB[9], // red for 29
@@ -82,9 +91,28 @@ export class GameSummaryGraphComponent implements OnInit {
     this.annotations = this.getAnnotations();
     
     const points = this.getGraphPoints();
-    this.polylineInterpolate = this.polylinePoints(points, true);
-    this.polygon = this.makePolygon(this.polylineInterpolate);
+    this.points = this.polylinePoints(points, true);
+
+    this.polylineString = this.points.map(([x, y]) => `${x},${y}`).join(' ');
+    this.polygon = this.makePolygon(this.polylineString);
   }
+
+  ngAfterViewInit(): void {
+    this.onResize();
+  }
+
+  // on window resize, update the svgRect
+  @HostListener('window:resize')
+  onResize(): void {
+    const rect = this.graph.nativeElement.getBoundingClientRect();
+    this.svgRect$.next({
+      top: rect.top,
+      bottom: rect.bottom,
+      left: rect.left,
+      right: rect.right
+    });
+  }
+  
 
   private trtToY(trt: number): number {
     return this.ANNOTATION_HEIGHT + this.GRID_LINE_PADDING_TOP + ((1 - trt) * (this.CONTENT_HEIGHT - this.GRID_LINE_PADDING_TOP - this.GRID_LINE_PADDING_BOTTOM));
@@ -150,20 +178,16 @@ export class GameSummaryGraphComponent implements OnInit {
   private getAnnotations(): Annotation[] {
     const annotations: Annotation[] = [];
 
-    let previousGravity = getGravity(this.game.startLevel);
+    // Determine score milestones based on the total score
+    let SCORE_MILESTONES: number[];
+    if (this.game.score < 100000) SCORE_MILESTONES = [50000];
+    else if (this.game.score < 500000) SCORE_MILESTONES = [100000, 200000, 300000, 400000];
+    else if (this.game.score < 1000000) SCORE_MILESTONES = [200000, 400000, 600000, 800000];
+    else SCORE_MILESTONES = [500000, 1000000, 1100000, 1200000, 1300000, 1400000, 1500000, 1600000, 1700000, 1800000];
 
-    const SCORE_MILESTONES = [
-      100000,
-      500000,
-      1000000,
-      1100000,
-      1200000,
-      1300000,
-      1400000,
-      1500000,
-      1600000,
-    ]
     let nextMilestoneIndex = 0;
+
+    let previousGravity = getGravity(this.game.startLevel);
 
     for (let i = 0; i < this.history.length(); i++) {
       const snapshot = this.history.getSnapshot(i);
@@ -199,7 +223,6 @@ export class GameSummaryGraphComponent implements OnInit {
 
     // First, get raw points
     const points: [number, number][] = [];
-    points.push([0, 0]);
     for (let i = 0; i < this.history.length(); i++) {
       const snapshot = this.history.getSnapshot(i);
       const lines = snapshot.lines;
@@ -240,7 +263,7 @@ export class GameSummaryGraphComponent implements OnInit {
   }
 
   // given points in form (lines, trt), return a string for a polyline converted into (x, y) coordinates
-  private polylinePoints(points: [number, number][], interpolate: boolean): string {
+  private polylinePoints(points: [number, number][], interpolate: boolean): [number, number][] {
 
     // First, convert points to (x, y) coordinates
     let coordinates: [number, number][] = points.map(([lines, trt]) => {
@@ -255,16 +278,7 @@ export class GameSummaryGraphComponent implements OnInit {
 
       if (coordinates.length > 20) {
         // Keep only every nth point, and the last point
-        coordinates = coordinates.filter(([lines, trt], i) => (
-          (
-            (i % 3 === 0 || i === coordinates.length - 1) && // keep every 3rd point and the last point
-            !this.annotations.some(annotation => Math.abs(annotation.lines - lines) < 4) // do not keep points around annotations
-          )
-          || 
-          ( 
-            this.annotations.some(annotation => annotation.lines === lines) // keep points exactly at annotations
-          )
-        ));
+        coordinates = coordinates.filter((_, i) => (i % 3 === 0 || i === coordinates.length - 1));
       }
 
       const resolution = Math.ceil(500 / coordinates.length);
@@ -276,7 +290,7 @@ export class GameSummaryGraphComponent implements OnInit {
     console.log("Smoothed coordinates", coordinates);
 
     // Finally, onvert coordinates to a string
-    return coordinates.map(([x, y]) => `${x},${y}`).join(' ');
+    return coordinates;
   }
 
   // add the bottom left and bottom right corners to the polyline to close the shape
@@ -353,8 +367,53 @@ export class GameSummaryGraphComponent implements OnInit {
   }
 
   annotationY(annotation: Annotation): number {
-    return this.trtToY(annotation.trt);
+    const x = this.annotationX(annotation);
+    return this.getHoverY(x);
   }
 
-  
+  onMouseMove(event: MouseEvent): void {
+    const x = event.clientX - this.svgRect$.getValue()!.left;
+    this.mouseX$.next(x);
+    console.log("Mouse X", x);
+  }
+
+  onMouseLeave(): void {
+    this.mouseX$.next(null);
+    console.log("Mouse X", null);
+  }
+
+  getHoverY(mouseX: number): number {
+
+    // interpolate between the two closest points to get the y value
+    const points = this.points;
+    for (let i = 1; i < points.length; i++) {
+      const [x1, y1] = points[i - 1];
+      const [x2, y2] = points[i];
+      if (x1 <= mouseX && mouseX <= x2) {
+        const t = (mouseX - x1) / (x2 - x1);
+        return y1 + t * (y2 - y1);
+      }
+    }
+    return 0;
+  }
+
+  getScoreAtX(x: number): string {
+    const lines = x / this.WIDTH * this.TOTAL_LINES;
+    const snapshot = this.history.getSnapshotAtLines(lines);
+    if (!snapshot) return '0';
+    return numberWithCommas(snapshot.score);
+  }
+
+  getAnnotationLabels(mouseX: number | null): {text: string, x: number}[] {
+
+    const labels: {text: string, x: number}[] = [];
+
+    if (mouseX !== null) labels.push({ text: this.getScoreAtX(mouseX), x: mouseX });
+
+    for (const annotation of this.annotations) {
+      labels.push({ text: annotation.text, x: this.annotationX(annotation) });
+    }
+
+    return labels;
+  }
 }

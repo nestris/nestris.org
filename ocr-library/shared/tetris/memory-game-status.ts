@@ -58,6 +58,30 @@ export class StatusHistory {
         }
     }
 
+    /**
+     * Get a snapshot closest to a given number of lines cleared
+     * @param lines The number of lines cleared
+     * @returns The snapshot
+     */
+    public getSnapshotAtLines(lines: number): StatusSnapshot | null {
+
+        if (this.snapshots.length === 0) return null;
+        
+        // Find the closest snapshot to the number of lines cleared
+        let closestIndex = 0;
+        let closestDiff = Math.abs(this.snapshots[0][1] - lines);
+        for (let i = 1; i < this.snapshots.length; i++) {
+            const diff = Math.abs(this.snapshots[i][1] - lines);
+            if (diff < closestDiff) {
+                closestIndex = i;
+                closestDiff = diff;
+            }
+        }
+
+        // Get the snapshot at the closest index
+        return this.getSnapshot(closestIndex);
+    }
+
 
 }
 
@@ -72,6 +96,17 @@ export class MemoryGameStatus extends SmartGameStatus {
     private numTetrises = 0;
 
     private rollingTetrisRate = new RollingAverage(14, RollingAverageStrategy.DELTA);
+
+    constructor(startLevel: number) {
+        super(startLevel);
+
+        this.history.addSnapshot({
+            level: this.level,
+            lines: this.lines,
+            score: this.score,
+            tetrisRate: 0
+        });
+    }
 
     public override onLineClear(numLines: number): void {
 

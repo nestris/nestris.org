@@ -1,4 +1,4 @@
-<svg [attr.width]="WIDTH" [attr.height]="HEIGHT" xmlns="http://www.w3.org/2000/svg">
+<svg #graph [attr.width]="WIDTH" [attr.height]="HEIGHT" xmlns="http://www.w3.org/2000/svg" (mousemove)="onMouseMove($event)" (mouseleave)="onMouseLeave()">
 
     <!-- Level section backgrounds -->
     <g *ngFor="let section of levelSections">
@@ -24,11 +24,11 @@
     <g *ngFor="let annotation of annotations">
 
         <!-- Annotation line to label -->
-        <line
+        <!-- <line
             [attr.x1]="annotationX(annotation)" [attr.y1]="annotationY(annotation)"
             [attr.x2]="annotationX(annotation)" [attr.y2]="ANNOTATION_HEIGHT / 2"
             stroke="#FFFFFF" stroke-width="0.5"
-        ></line>
+        ></line> -->
 
         <!-- Annotation dot on plotted line -->
         <circle
@@ -44,8 +44,23 @@
     ></polygon>
 
     <polyline
-        [attr.points]="polylineInterpolate"
+        [attr.points]="polylineString"
         stroke="#FFFFFF" stroke-width="1" fill="none"
     ></polyline>
 
+    <g *ngIf="(mouseX$ | async) as mouseX">
+        <!-- Hover line -->
+        <line
+            [attr.x1]="mouseX" [attr.y1]="ANNOTATION_HEIGHT"
+            [attr.x2]="mouseX" [attr.y2]="ANNOTATION_HEIGHT + CONTENT_HEIGHT"
+            stroke="#FFFFFF" stroke-width="0.5"
+        ></line>
+
+        <!-- Hover dot -->
+        <circle
+            [attr.cx]="mouseX" [attr.cy]="getHoverY(mouseX)"
+            r="2" fill="#FFFFFF"
+        ></circle>
+
+    </g>
 </svg>

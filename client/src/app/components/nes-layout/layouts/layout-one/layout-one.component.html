@@ -3,7 +3,7 @@
         <app-nes-board [scale]="3" [board]="board" [level]="level" [countdown]="countdown" (clickNext)="clickNext.emit()"
             [gameOver]="gameOver" [gameOverShowNext]="gameOverShowNext" [animateOpacity]="true" />
         <div class="keybinds-container">
-            <p class="keybinds">TODO: Keybinds here (Z X Left Right)</p>
+            <p class="keybinds prevent-select">TODO: Keybinds here (Z X Left Right)</p>
         </div>
     </div>
     
@@ -12,18 +12,18 @@
     <div class="panels">
 
         <app-nes-panel class="score-panel">
-            <p>Score</p>
-            <h1>{{padScore(score)}}</h1>
+            <p class="prevent-select">Score</p>
+            <h1 class="prevent-select">{{padScore(score)}}</h1>
         </app-nes-panel>
 
         <div class="level-lines">
             <app-nes-panel class="level-panel">
-                <p>Level</p>
-                <h1>{{level}}</h1>
+                <p class="prevent-select">Level</p>
+                <h1 class="prevent-select">{{level}}</h1>
             </app-nes-panel>
             <app-nes-panel class="lines-panel">
-                <p>Lines</p>
-                <h1>{{lines}}</h1>
+                <p class="prevent-select">Lines</p>
+                <h1 class="prevent-select">{{lines}}</h1>
             </app-nes-panel>
         </div>
 
@@ -32,13 +32,13 @@
         </app-nes-panel>
 
         <app-nes-panel class="trt-panel">
-            <p>TRT</p>
-            <h2>{{(trt*100).toFixed(0)}}%</h2>
+            <p class="prevent-select">TRT</p>
+            <h2 class="prevent-select">{{(trt*100).toFixed(0)}}%</h2>
         </app-nes-panel>
 
         <app-nes-panel class="das-panel" *ngIf="das !== undefined">
-            <p>DAS</p>
-            <h2>{{das}}</h2>
+            <p class="prevent-select">DAS</p>
+            <h2 class="prevent-select">{{das}}</h2>
         </app-nes-panel>
 
 

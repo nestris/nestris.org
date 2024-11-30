@@ -1,0 +1,21 @@
+@import "../../../../styles.scss";
+
+svg {
+    cursor: none;
+}
+
+.label {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    background-color: #242325;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.label p {
+    font-family: $main-font;
+    font-size: 10px;
+    font-weight: 600;
+    margin: 0;
+    padding: 0;
+}

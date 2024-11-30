@@ -29,7 +29,7 @@ p {
     flex-direction: column;
     justify-content: space-around;
     align-items: center;
-    padding-bottom: 50px;
+    padding-bottom: 30px;
 }
 
 .buttons {
@@ -86,7 +86,8 @@ p {
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
-    width: 85%
+    width: 85%;
+    margin-bottom: -10px;
 }
 
 .stat h1 {

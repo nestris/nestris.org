@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { Point } from '../shared/tetris/point';
 
 /*
 In conjunction with TooltipDirective and TooltipComponent, this service
@@ -12,7 +13,7 @@ call these functions when necessary.
 
 export interface TooltipInfo {
   text: string;
-  position: { x: number, y: number };
+  position: Point;
 }
 
 @Injectable({
