@@ -1,0 +1,51 @@
+<svg [attr.width]="WIDTH" [attr.height]="HEIGHT" xmlns="http://www.w3.org/2000/svg">
+
+    <!-- Level section backgrounds -->
+    <g *ngFor="let section of levelSections">
+        <rect
+            [attr.x]="getSectionStartX(section)" [attr.width]="getSectionWidth(section)"
+            [attr.y]="ANNOTATION_HEIGHT" [attr.height]="CONTENT_HEIGHT"
+            [attr.fill]="section.color" [attr.opacity]="0.1"
+        ></rect>
+        <rect
+            [attr.x]="getSectionStartX(section)" [attr.width]="getSectionWidth(section)"
+            [attr.y]="ANNOTATION_HEIGHT + CONTENT_HEIGHT" [attr.height]="LABEL_HEIGHT"
+            [attr.fill]="section.color"
+        ></rect>
+    </g>
+
+    <!-- Horizontal grid lines for tetris rate -->
+    <line *ngFor="let y of GRID_LINE_Y"
+        [attr.x1]="0" [attr.y1]="y" [attr.x2]="WIDTH" [attr.y2]="y"
+        stroke="#FFFFFF" stroke-width="0.08" [attr.opacity]="0.75"
+    ></line>
+
+    <!-- Annotations -->
+    <g *ngFor="let annotation of annotations">
+
+        <!-- Annotation line to label -->
+        <line
+            [attr.x1]="annotationX(annotation)" [attr.y1]="annotationY(annotation)"
+            [attr.x2]="annotationX(annotation)" [attr.y2]="ANNOTATION_HEIGHT / 2"
+            stroke="#FFFFFF" stroke-width="0.5"
+        ></line>
+
+        <!-- Annotation dot on plotted line -->
+        <circle
+            [attr.cx]="annotationX(annotation)" [attr.cy]="annotationY(annotation)"
+            r="2" fill="#FFFFFF"
+        ></circle>
+    </g>
+
+    <!-- TRT polyline -->
+    <polygon
+        [attr.points]="polygon"
+        stroke="none" fill="white" [attr.opacity]="0.1"
+    ></polygon>
+
+    <polyline
+        [attr.points]="polylineInterpolate"
+        stroke="#FFFFFF" stroke-width="1" fill="none"
+    ></polyline>
+
+</svg>

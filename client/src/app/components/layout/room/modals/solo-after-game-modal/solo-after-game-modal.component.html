@@ -26,10 +26,11 @@
             </div>
 
         </div>
-        
-    <div></div>
+
+        <app-game-summary-graph [game]="emulatorService.getLastGameStatus()!" />
 
     </div>
+
     <div class="buttons">
         <app-solid-button label="Exit" [color]="ButtonColor.RED" (click)="exit()" />
         <div class="buttons-right">

@@ -10,7 +10,7 @@ import { GymRNG } from 'src/app/shared/tetris/piece-sequence-generation/gym-rng'
 import { BinaryEncoder } from 'src/app/shared/network/binary-codec';
 import { Observable, Subject } from 'rxjs';
 import { eventIsForInput } from 'src/app/util/misc';
-import { StatusHistory, StatusSnapshot } from 'src/app/shared/tetris/memory-game-status';
+import { MemoryGameStatus, StatusHistory, StatusSnapshot } from 'src/app/shared/tetris/memory-game-status';
 import { getFeedback } from 'src/app/util/game-feedback';
 import { MeService } from '../state/me.service';
 
@@ -41,7 +41,7 @@ export class EmulatorService {
 
   private onTopout$ = new Subject<void>();
 
-  private lastGameHistory: StatusHistory | null = null;
+  private lastGameStatus: MemoryGameStatus | null = null;
   private lastGameFeedback: string | null = null;
 
   constructor(
@@ -200,7 +200,7 @@ export class EmulatorService {
     // Set last game snapshots
     const highestLines = this.meService.getSync()?.highest_lines;
     if (this.sendPacketsToServer && highestLines != undefined && !force) {
-      this.lastGameHistory = this.currentState.getStatusHistory();
+      this.lastGameStatus = this.currentState.getStatus();
       this.lastGameFeedback = getFeedback(this.currentState.getStatus(), highestLines);
     }
     
@@ -242,8 +242,8 @@ export class EmulatorService {
     return this.onTopout$.asObservable();
   }
 
-  getLastGameSnapshotHistory(): StatusHistory | null {
-    return this.lastGameHistory;
+  getLastGameStatus(): MemoryGameStatus | null {
+    return this.lastGameStatus;
   }
 
   getLastGameFeedback(): string | null {

@@ -154,10 +154,6 @@ export class EmulatorGameState {
         return this.status.getTetrisRate();
     }
 
-    // Get the snapshots of the game status at each line clear
-    getStatusHistory(): StatusHistory {
-        return this.status.getHistory();
-    }
 
     private calculatePushdown(currentScore: number, pushdownPoints: number): number {
         // Helper to convert to BCD

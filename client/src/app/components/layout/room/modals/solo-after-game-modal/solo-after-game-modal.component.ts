@@ -32,7 +32,7 @@ export class SoloAfterGameModalComponent {
     public readonly emulatorService: EmulatorService,
     private readonly router: Router,
   ) {
-    const history = this.emulatorService.getLastGameSnapshotHistory()!;
+    const history = this.emulatorService.getLastGameStatus()!.getHistory();
 
     const snapshots = [];
     for (let i = 0; i < history.length(); i++) {
