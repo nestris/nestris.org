@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Host, Ho
 import { BehaviorSubject } from 'rxjs';
 import { Rectangle } from 'src/app/ocr/util/rectangle';
 import { getGravity } from 'src/app/shared/tetris/gravity';
-import { MemoryGameStatus, StatusHistory } from 'src/app/shared/tetris/memory-game-status';
+import { MemoryGameStatus, StatusHistory, StatusSnapshot } from 'src/app/shared/tetris/memory-game-status';
 import { ColorType } from 'src/app/shared/tetris/tetris-board';
 import { COLOR_FIRST_COLORS_RGB, COLOR_SECOND_COLORS_RGB, getColorForLevel, RGBColor } from 'src/app/shared/tetris/tetromino-colors';
 import { numberWithCommas } from 'src/app/util/misc';
@@ -18,8 +18,9 @@ interface LevelSection {
 
 interface Annotation {
   text: string;
-  trt: number;
   lines: number;
+  x: number;
+  y: number;
 }
 
 @Component({
@@ -36,7 +37,7 @@ export class GameSummaryGraphComponent implements OnInit, AfterViewInit {
 
   // Chart dimensions
   readonly WIDTH = 600;
-  readonly ANNOTATION_HEIGHT = 40;
+  readonly ANNOTATION_HEIGHT = 30;
   readonly CONTENT_HEIGHT = 70;
   readonly LABEL_HEIGHT = 15;
   readonly HEIGHT = this.ANNOTATION_HEIGHT + this.CONTENT_HEIGHT + this.LABEL_HEIGHT;
@@ -87,18 +88,23 @@ export class GameSummaryGraphComponent implements OnInit, AfterViewInit {
     this.TOTAL_LINES = Math.max(1, this.game.lines);
 
     this.levelSections = this.getLevelSections();
-
-    this.annotations = this.getAnnotations();
     
     const points = this.getGraphPoints();
     this.points = this.polylinePoints(points, true);
 
     this.polylineString = this.points.map(([x, y]) => `${x},${y}`).join(' ');
     this.polygon = this.makePolygon(this.polylineString);
+
+    this.annotations = this.generateAnnotations();
   }
 
   ngAfterViewInit(): void {
     this.onResize();
+    setInterval(() => {
+      this.mouseX$.next(0);
+      this.mouseX$.next(null);
+    }, 1000);
+    
   }
 
   // on window resize, update the svgRect
@@ -111,6 +117,7 @@ export class GameSummaryGraphComponent implements OnInit, AfterViewInit {
       left: rect.left,
       right: rect.right
     });
+    console.log("SVG rect", this.svgRect$.getValue());
   }
   
 
@@ -175,7 +182,7 @@ export class GameSummaryGraphComponent implements OnInit, AfterViewInit {
     return section.fraction * this.WIDTH;
   }
 
-  private getAnnotations(): Annotation[] {
+  private generateAnnotations(): Annotation[] {
     const annotations: Annotation[] = [];
 
     // Determine score milestones based on the total score
@@ -184,32 +191,40 @@ export class GameSummaryGraphComponent implements OnInit, AfterViewInit {
     else if (this.game.score < 500000) SCORE_MILESTONES = [100000, 200000, 300000, 400000];
     else if (this.game.score < 1000000) SCORE_MILESTONES = [200000, 400000, 600000, 800000];
     else SCORE_MILESTONES = [500000, 1000000, 1100000, 1200000, 1300000, 1400000, 1500000, 1600000, 1700000, 1800000];
+  
+    const addAnnotation = (snapshot: StatusSnapshot, score: number) => {
+      const x = this.getXFromLines(snapshot.lines);
+      annotations.push({
+        text: this.condenseScore(score),
+        lines: snapshot.lines,
+        x: x,
+        y: this.getHoverY(x)
+      });
+    }
 
-    let nextMilestoneIndex = 0;
-
+    // Annotate on transitions to new gravity levels
     let previousGravity = getGravity(this.game.startLevel);
-
     for (let i = 0; i < this.history.length(); i++) {
       const snapshot = this.history.getSnapshot(i);
 
-      // Annotate on score milestones
-      if (snapshot.score >= SCORE_MILESTONES[nextMilestoneIndex]) {
-        annotations.push({
-          text: `${snapshot.score}`,
-          trt: snapshot.tetrisRate,
-          lines: snapshot.lines
-        });
-        nextMilestoneIndex++;
-      }
-      
-      // Annotate on transitions to new gravity levels
       if (getGravity(snapshot.level) !== previousGravity) {
-        annotations.push({
-          text: `${snapshot.score}`,
-          trt: snapshot.tetrisRate,
-          lines: snapshot.lines
-        });
+        addAnnotation(snapshot, snapshot.score);
         previousGravity = getGravity(snapshot.level);
+      }
+    }
+
+    // Annotate on score milestones
+    let nextMilestoneIndex = 0;
+    for (let i = 0; i < this.history.length(); i++) {
+      const snapshot = this.history.getSnapshot(i);
+
+      if (snapshot.score >= SCORE_MILESTONES[nextMilestoneIndex]) {
+
+        // if score lines is not close to existing annotation, add a new annotation
+        if (!annotations.find(annotation => Math.abs(annotation.lines - snapshot.lines) < 20)) {
+          addAnnotation(snapshot, snapshot.score);
+        }
+        nextMilestoneIndex++;
       }
     }
 
@@ -362,24 +377,17 @@ export class GameSummaryGraphComponent implements OnInit, AfterViewInit {
     return smoothPoints;
   }
 
-  annotationX(annotation: Annotation): number {
-    return this.WIDTH * (annotation.lines / this.TOTAL_LINES);
-  }
-
-  annotationY(annotation: Annotation): number {
-    const x = this.annotationX(annotation);
-    return this.getHoverY(x);
+  getXFromLines(lines: number) {
+    return this.WIDTH * (lines / this.TOTAL_LINES);
   }
 
   onMouseMove(event: MouseEvent): void {
     const x = event.clientX - this.svgRect$.getValue()!.left;
     this.mouseX$.next(x);
-    console.log("Mouse X", x);
   }
 
   onMouseLeave(): void {
     this.mouseX$.next(null);
-    console.log("Mouse X", null);
   }
 
   getHoverY(mouseX: number): number {
@@ -397,21 +405,40 @@ export class GameSummaryGraphComponent implements OnInit, AfterViewInit {
     return 0;
   }
 
-  getScoreAtX(x: number): string {
+  getScoreAtX(x: number): number {
     const lines = x / this.WIDTH * this.TOTAL_LINES;
     const snapshot = this.history.getSnapshotAtLines(lines);
-    if (!snapshot) return '0';
-    return numberWithCommas(snapshot.score);
+    if (!snapshot) return 0;
+    return snapshot.score;
   }
 
-  getAnnotationLabels(mouseX: number | null): {text: string, x: number}[] {
+  condenseScore(score: number): string {
+    if (score < 1000000) return `${Math.floor(score / 1000)}k`;
+    return `${Math.floor(score / 10000) / 100}m`
+  }
 
-    const labels: {text: string, x: number}[] = [];
 
-    if (mouseX !== null) labels.push({ text: this.getScoreAtX(mouseX), x: mouseX });
+  getAnnotations(mouseX: number | null): Annotation[] {
+    if (mouseX === null) return this.annotations;
+    return [...this.annotations, {
+      text: this.condenseScore(this.getScoreAtX(mouseX)),
+      x: mouseX,
+      y: this.getHoverY(mouseX),
+      lines: -1 // doesn't matter
+    }];
+  }
 
-    for (const annotation of this.annotations) {
-      labels.push({ text: annotation.text, x: this.annotationX(annotation) });
+  // Return an array of lines at which to add a label for x = line in lines 
+  getLineLabels(): number[] {
+
+    let interval: number; // interval between labels
+    if (this.TOTAL_LINES < 40) interval = 10;
+    else if (this.TOTAL_LINES < 110) interval = 20;
+    else interval = 50;
+
+    const labels: number[] = [];
+    for (let i = 0; i <= this.TOTAL_LINES; i += interval) {
+      labels.push(i);
     }
 
     return labels;

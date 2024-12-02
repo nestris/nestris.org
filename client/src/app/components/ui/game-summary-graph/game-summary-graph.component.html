@@ -14,6 +14,14 @@
         ></rect>
     </g>
 
+    <!-- Line labels -->
+    <g *ngFor="let line of getLineLabels()">
+        <text text-anchor="start" alignment-baseline="central"
+            [attr.x]="getXFromLines(line) + 1"
+            [attr.y]="ANNOTATION_HEIGHT + CONTENT_HEIGHT + LABEL_HEIGHT / 2"
+        >{{line}}</text>
+    </g>
+
     <!-- Horizontal grid lines for tetris rate -->
     <line *ngFor="let y of GRID_LINE_Y"
         [attr.x1]="0" [attr.y1]="y" [attr.x2]="WIDTH" [attr.y2]="y"
@@ -21,20 +29,26 @@
     ></line>
 
     <!-- Annotations -->
-    <g *ngFor="let annotation of annotations">
+    <g *ngFor="let annotation of getAnnotations(mouseX$ | async)">
 
         <!-- Annotation line to label -->
-        <!-- <line
-            [attr.x1]="annotationX(annotation)" [attr.y1]="annotationY(annotation)"
-            [attr.x2]="annotationX(annotation)" [attr.y2]="ANNOTATION_HEIGHT / 2"
+        <line
+            [attr.x1]="annotation.x" [attr.y1]="annotation.y"
+            [attr.x2]="annotation.x" [attr.y2]="ANNOTATION_HEIGHT / 2"
             stroke="#FFFFFF" stroke-width="0.5"
-        ></line> -->
+        ></line>
 
         <!-- Annotation dot on plotted line -->
         <circle
-            [attr.cx]="annotationX(annotation)" [attr.cy]="annotationY(annotation)"
+            [attr.cx]="annotation.x" [attr.cy]="annotation.y"
             r="2" fill="#FFFFFF"
         ></circle>
+
+        <!-- Annotation text -->
+        <text text-anchor="middle"
+            [attr.x]="annotation.x" [attr.y]="ANNOTATION_HEIGHT / 2"
+        >{{annotation.text}}</text>
+
     </g>
 
     <!-- TRT polyline -->
@@ -48,19 +62,5 @@
         stroke="#FFFFFF" stroke-width="1" fill="none"
     ></polyline>
 
-    <g *ngIf="(mouseX$ | async) as mouseX">
-        <!-- Hover line -->
-        <line
-            [attr.x1]="mouseX" [attr.y1]="ANNOTATION_HEIGHT"
-            [attr.x2]="mouseX" [attr.y2]="ANNOTATION_HEIGHT + CONTENT_HEIGHT"
-            stroke="#FFFFFF" stroke-width="0.5"
-        ></line>
 
-        <!-- Hover dot -->
-        <circle
-            [attr.cx]="mouseX" [attr.cy]="getHoverY(mouseX)"
-            r="2" fill="#FFFFFF"
-        ></circle>
-
-    </g>
 </svg>

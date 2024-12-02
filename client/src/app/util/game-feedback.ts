@@ -162,19 +162,19 @@ export function getFeedback(status: MemoryGameStatus, previousBestLines: number)
 
     const fullTetrisRate = status.getTetrisRate();
     if (fullTetrisRate < 0.2) return random(REALLY_BAD_GAME);
-    if (fullTetrisRate < 0.35) return random(BAD_GAME);
+    if (fullTetrisRate < 0.35 || status.lines < previousBestLines / 2) return random(BAD_GAME);
 
     
     if (status.lines > 50) {
 
         // Calculate early and late tetris rate by averaging early snapshots
-        const earlyTetrisRate = getTetrisRateWithCondition(snapshot => snapshot.lines < status.lines / 3);
+        const earlyTetrisRate = getTetrisRateWithCondition(snapshot => snapshot.lines < Math.min(status.lines / 4, 30));
         const midTetrisRate = getTetrisRateWithCondition(snapshot => snapshot.lines > status.lines / 3 && snapshot.lines < status.lines * 2 / 3);
-        const lateTetrisRate = getTetrisRateWithCondition(snapshot => snapshot.lines > status.lines * 2 / 3);
+        const lateTetrisRate = getTetrisRateWithCondition(snapshot => snapshot.lines > Math.max(status.lines * 3 / 4, status.lines - 30));
         console.log("Early, mid, late TRT", earlyTetrisRate, midTetrisRate, lateTetrisRate);
 
-        if (earlyTetrisRate < 0.3 && lateTetrisRate > 0.6) return random(BAD_TO_GOOD);
-        if (earlyTetrisRate > 0.6 && midTetrisRate > 0.6 && lateTetrisRate < 0.3) return random(BAD_ENDING);
+        if (earlyTetrisRate < 0.2 && midTetrisRate > 0.4 && lateTetrisRate > 0.4) return random(BAD_TO_GOOD);
+        if (earlyTetrisRate > 0.4 && midTetrisRate > 0.4 && lateTetrisRate < 0.2) return random(BAD_ENDING);
     }
 
     // Check if tetris rates bounce between high and low many times, iterating over allTetrisRates
@@ -199,7 +199,7 @@ export function getFeedback(status: MemoryGameStatus, previousBestLines: number)
     console.log("Bounce count", bounceCount);
     if (bounceCount >= 5) return random(ROLLERCOASTER);
 
-    if (fullTetrisRate > 0.6) return random(GOOD_GAME);
+    if (fullTetrisRate > 0.5 && status.lines > previousBestLines * 2/3) return random(GOOD_GAME);
     return random(DECENT_GAME);
 }
 

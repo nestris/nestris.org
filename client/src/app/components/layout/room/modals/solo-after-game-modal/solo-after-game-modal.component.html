@@ -17,7 +17,7 @@
 
             <div class="group stat">
                 <h1>{{summary.tetrisCount}}</h1>
-                <p>Tetrises Scored</p>
+                <p>Quads Scored</p>
             </div>
 
             <div class="group stat">
@@ -34,6 +34,7 @@
     <div class="buttons">
         <app-solid-button label="Exit" [color]="ButtonColor.RED" (click)="exit()" />
         <div class="buttons-right">
+            <app-solid-button icon="./assets/img/button-icons/analyze.svg" [color]="ButtonColor.GREY" [disabled]="true" tooltip="Analysis coming soon!" />
             <app-solid-button label="Next" [color]="ButtonColor.BLUE" (click)="next()" />
             <!-- TODO: keybinds button here -->
         </div>
