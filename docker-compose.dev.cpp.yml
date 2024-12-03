@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  cpp-service:
+    image: cpp-service:1.0
+    build:
+      context: .
+      dockerfile: Dockerfile.cpp
+    ports:
+      - "4500:4500"  # Expose the C++ service on localhost:4500

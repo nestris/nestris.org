@@ -44,6 +44,16 @@ services:
       --ignore "dist/*"
       --exec "node --inspect=0.0.0.0:9229 -r ts-node/register index.ts"
 
+  cpp-service:
+    image: cpp-service:1.0
+    build:
+      context: .
+      dockerfile: Dockerfile.cpp
+    expose:
+      - "4500"
+    ports:
+      - "4500:4500"
+
   postgres:
     image: postgres:13
     environment:

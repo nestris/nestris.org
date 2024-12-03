@@ -1,0 +1,3 @@
+[submodule "StackRabbit"]
+	path = StackRabbit
+	url = https://github.com/GregoryCannon/StackRabbit.git
