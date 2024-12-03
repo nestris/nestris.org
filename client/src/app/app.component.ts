@@ -18,6 +18,7 @@ import { XPAlertService } from './services/xp-alert.service';
 import { QuestAlertComponent } from './components/alerts/quest-alert/quest-alert.component';
 import { InvitationsService } from './services/state/invitations.service';
 import { StackrabbitService } from './services/stackrabbit/stackrabbit.service';
+import { sleep } from './util/misc';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
@@ -57,10 +58,16 @@ export class AppComponent implements OnInit {
     // this.alertService.addAlert(XPAlertComponent, "xpAlert", {league: League.MINO_1, currentXP: 0});
     // this.alertService.addAlert(QuestAlertComponent, "questAlert", {name : "Ok Noah Dengler"});
 
-  
+
+    // wait 3 seconds before making the test request
+    await sleep(3);
 
     for (let i = 0; i < 10; i++) {
-      this.stackrabbitService.makeTestRequest().then((response) => console.log(i, response));
+      const startTime = Date.now();
+      this.stackrabbitService.makeTestRequest().then((response) => {
+        const delta = Date.now() - startTime;
+        console.log(i, delta, response);
+    });
     }
   }
 }
