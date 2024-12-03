@@ -17,6 +17,7 @@ import { League } from './shared/nestris-org/league-system';
 import { XPAlertService } from './services/xp-alert.service';
 import { QuestAlertComponent } from './components/alerts/quest-alert/quest-alert.component';
 import { InvitationsService } from './services/state/invitations.service';
+import { StackrabbitService } from './services/stackrabbit/stackrabbit.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
@@ -37,6 +38,7 @@ export class AppComponent implements OnInit {
     private alertService: AlertService,
     private xpAlertService: XPAlertService,
     private invitationsService: InvitationsService,
+    private stackrabbitService: StackrabbitService,
     private router: Router,
   ) {
 
@@ -54,5 +56,11 @@ export class AppComponent implements OnInit {
 
     // this.alertService.addAlert(XPAlertComponent, "xpAlert", {league: League.MINO_1, currentXP: 0});
     // this.alertService.addAlert(QuestAlertComponent, "questAlert", {name : "Ok Noah Dengler"});
+
+  
+
+    for (let i = 0; i < 10; i++) {
+      this.stackrabbitService.makeTestRequest().then((response) => console.log(i, response));
+    }
   }
 }
