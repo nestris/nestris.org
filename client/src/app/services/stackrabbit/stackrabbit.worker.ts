@@ -30,10 +30,9 @@ addEventListener('message', (event: MessageEvent<{id: number, endpoint: string, 
 console.log('Importing Emscripten module...');
 importScripts('./assets/stackrabbit/wasmRabbit.js');
 
+// Load the Emscripten module and store it in the API variable
 Module().then((wasm: any) => {
   API = wasm;
-  console.log('Emscripten module imported', API);
-
   postMessage("INIT"); // Notify the main thread of worker initialization
 });
 
