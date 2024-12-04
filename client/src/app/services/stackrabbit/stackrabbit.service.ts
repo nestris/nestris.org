@@ -187,8 +187,15 @@ export class StackrabbitService {
     return response
   }
 
+  /**
+   * Get the top moves for a given board state, current piece, and next piece. If the next piece is null, only noNextBox
+   * moves are returned. Otherwise, both noNextBox and nextBox moves are returned.
+   * @param optionalParams The board state to get the top moves for
+   * @returns The top moves for the given board state
+   */
   public async getTopMovesHybrid(optionalParams: OptionalStackrabbitParams): Promise<TopMovesHybridResponse> {
 
+    // Merge the optional parameters with the default parameters
     const params: StackrabbitParams = Object.assign(
     { // Default parameters
       level: 18,
@@ -203,10 +210,10 @@ export class StackrabbitService {
     // Playout count is 7^depth
     const playoutCount = Math.pow(7, params.playoutDepth);
 
+    // Check for invalid parameters
     if (params.currentPiece === TetrominoType.ERROR_TYPE) {
       throw new StackrabbitError("Invalid current piece");
     }
-
     if (params.nextPiece === TetrominoType.ERROR_TYPE) {
       throw new StackrabbitError("Invalid next piece");
     }
@@ -219,13 +226,11 @@ export class StackrabbitService {
     // Construct the parameters string
     const parameters = `${boardString}|${params.level}|${params.lines}|${currentPiece}|${nextPiece}|${inputFrameTimeline}|${playoutCount}|${params.playoutDepth}|`;
 
-    // Make the request
+    // Make the request using nonblocking web workers
     const response = await this.makeRequest("getTopMovesHybrid", parameters);
 
     // Decode the response, and if it is invalid, throw an error
-
     try {
-      
       const noNextBox = (response['noNextBox'] as any[]).map((move: any) => { return {
         firstPlacement: MoveableTetromino.fromStackRabbitPose(params.currentPiece, move['firstPlacement'][0], move['firstPlacement'][1], move['firstPlacement'][2]),
         score: move['playoutScore'] as number
