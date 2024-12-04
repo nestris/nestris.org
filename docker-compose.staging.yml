@@ -33,7 +33,7 @@ services:
     command: node --inspect=0.0.0.0:9229 -r ts-node/register index.ts
 
   cpp-service:
-    image: cpp-service:1.0
+    image: anselchang1/nestris.org:cpp-staging
     build:
       context: .
       dockerfile: Dockerfile.cpp
