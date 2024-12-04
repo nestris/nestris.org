@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          submodules: recursive  # Ensure submodules are checked out
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -67,17 +69,32 @@ jobs:
           echo "${DO_SSH_KEY}" > key.pem
           chmod 600 key.pem
           ssh -o StrictHostKeyChecking=no -i key.pem root@${DO_HOST} << EOF
+
+            # Pull the latest changes from the GitHub repository
             cd nestris.org
             git checkout ${BRANCH}
             git pull origin ${BRANCH}
+
+            # Initialize and update the StackRabbit submodule
+            git submodule init
+            git submodule update --remote --merge
+            cd StackRabbit
+            git checkout ansel-http  # Ensure the correct branch
+            cd ..
+
+            # Set environment variables
             export NODE_ENV=${NODE_ENV}
             export POSTGRES_USER=${POSTGRES_USER}
             export POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
             export POSTGRES_DB=${POSTGRES_DB}
             export DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
             export DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
+
+            # Build StackRabbit and WASM assets
             mkdir -p client/src/assets/stackrabbit
             emcc -O3 StackRabbit/src/cpp_modules/src/wasm.cpp --bind -lembind -g0 --pre-js StackRabbit/src/cpp_modules/locateFile.js -s MODULARIZE=1 -s EXPORT_NAME="Module" -o client/src/assets/stackrabbit/wasmRabbit.js
+            
+            # Build and run the Docker containers
             docker compose -p ${NODE_ENV} -f docker-compose.${NODE_ENV}.yml pull
             docker compose -p ${NODE_ENV} -f docker-compose.${NODE_ENV}.yml up -d
 
