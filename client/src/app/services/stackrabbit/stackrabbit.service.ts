@@ -1,5 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
+import { INPUT_SPEED_TO_TIMELINE, InputSpeed } from 'src/app/shared/models/input-speed';
+import { BinaryTranscoder } from 'src/app/shared/network/tetris-board-transcoding/binary-transcoder';
+import MoveableTetromino from 'src/app/shared/tetris/moveable-tetromino';
+import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
+import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 
 // Number of web workers to create, to be used for parallel processing round-robin style
 const NUM_WORKERS = 2;
@@ -15,6 +20,45 @@ interface WorkerRequest {
 interface WorkerResponse {
   id: number;
   result: any;
+}
+
+export interface StackrabbitParams {
+  board: TetrisBoard;
+  level: number;
+  lines: number;
+  currentPiece: TetrominoType;
+  nextPiece: TetrominoType | null;
+  inputSpeed: InputSpeed;
+  playoutDepth: number;
+}
+
+export interface OptionalStackrabbitParams {
+  board: TetrisBoard;
+  level?: number;
+  lines?: number;
+  currentPiece: TetrominoType;
+  nextPiece: TetrominoType | null;
+  inputSpeed?: InputSpeed;
+  playoutDepth?: number;
+}
+
+export interface TopMovesHybridResponse {
+  nextBox?: {
+    firstPlacement: MoveableTetromino,
+    secondPlacement: MoveableTetromino,
+    score: number
+  }[],
+  noNextBox: {
+    firstPlacement: MoveableTetromino,
+    score: number
+  }[]
+}
+
+export class StackrabbitError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "StackrabbitError";
+  }
 }
 
 /**
@@ -99,7 +143,7 @@ export class StackrabbitService {
             next: (value) => {
                 if (value.id === id) {
                     subscription.unsubscribe(); // Stop listening
-                    resolve(value); // Resolve the promise
+                    resolve(value.result); // Resolve the promise
                 }
             },
             error: (err) => {
@@ -116,6 +160,7 @@ export class StackrabbitService {
    * @param endpoint The name of the function to call. This must be bound in wasm.cpp
    * @param parameters The parameters in Stackrabbit string format
    * @returns A promise that resolves with the raw Stackrabbit response
+   * @throws StackrabbitError if the request is invalid
    */
   private async makeRequest(endpoint: string, parameters: string): Promise<any> {
 
@@ -136,18 +181,78 @@ export class StackrabbitService {
     // Send the request to the worker
     const message: WorkerRequest = { id, endpoint, parameters };
     this.workers[workerIndex].postMessage(message);
-    console.log(`Sent message with ID: ${id}, endpoint: ${endpoint}, parameters: ${parameters}`);
 
     const response = await awaitingResponse;
-    console.log(`Received response for request with ID: ${id}`, response);
   
-    return response;
+    return response
+  }
+
+  public async getTopMovesHybrid(optionalParams: OptionalStackrabbitParams): Promise<TopMovesHybridResponse> {
+
+    const params: StackrabbitParams = Object.assign(
+    { // Default parameters
+      level: 18,
+      lines: 0,
+      inputSpeed: InputSpeed.HZ_30,
+      playoutDepth: 3
+    }, optionalParams);
+
+    // Encode the board to a string of 1s and 0s
+    let boardString = BinaryTranscoder.encode(params.board, true);
+
+    // Playout count is 7^depth
+    const playoutCount = Math.pow(7, params.playoutDepth);
+
+    if (params.currentPiece === TetrominoType.ERROR_TYPE) {
+      throw new StackrabbitError("Invalid current piece");
+    }
+
+    if (params.nextPiece === TetrominoType.ERROR_TYPE) {
+      throw new StackrabbitError("Invalid next piece");
+    }
+
+    // Convert the parameters to a string
+    const currentPiece: number = params.currentPiece;
+    const nextPiece: number = (params.nextPiece === null) ? -1 : params.nextPiece;
+    const inputFrameTimeline = INPUT_SPEED_TO_TIMELINE[params.inputSpeed];
+
+    // Construct the parameters string
+    const parameters = `${boardString}|${params.level}|${params.lines}|${currentPiece}|${nextPiece}|${inputFrameTimeline}|${playoutCount}|${params.playoutDepth}|`;
+
+    // Make the request
+    const response = await this.makeRequest("getTopMovesHybrid", parameters);
+
+    // Decode the response, and if it is invalid, throw an error
+
+    try {
+      
+      const noNextBox = (response['noNextBox'] as any[]).map((move: any) => { return {
+        firstPlacement: MoveableTetromino.fromStackRabbitPose(params.currentPiece, move['firstPlacement'][0], move['firstPlacement'][1], move['firstPlacement'][2]),
+        score: move['playoutScore'] as number
+      }});
+
+      const nextPiece = params.nextPiece;
+      const nextBox = nextPiece === null ? [] : (response['nextBox'] as any[]).map((move: any) => { return {
+        firstPlacement: MoveableTetromino.fromStackRabbitPose(params.currentPiece, move['firstPlacement'][0] as number, move['firstPlacement'][1] as number, move['firstPlacement'][2] as number),
+        secondPlacement: MoveableTetromino.fromStackRabbitPose(nextPiece, move['secondPlacement'][0] as number, move['secondPlacement'][1] as number, move['secondPlacement'][2] as number),
+        score: move['playoutScore'] as number
+      }});
+
+      return { nextBox, noNextBox };
+
+    } catch (e) {
+      throw new StackrabbitError(`Invalid Stackrabbit response: ${e}`);
+    }
+
   }
 
   // Example function that makes a test request
   public async makeTestRequest() {
-    const msg = "00000000000000000000000000000000000000000000000000000000000000000011100000001110000000111100000111110000011110000011111100011101110011101110001111111000111111100111111110011111111001111111101111111110|18|2|5|0|X...|343|3|";
-    return await this.makeRequest("getTopMovesHybrid", msg);
+    return await this.getTopMovesHybrid({
+      board: new TetrisBoard(),
+      currentPiece: TetrominoType.I_TYPE,
+      nextPiece: TetrominoType.J_TYPE
+    });
   }
 }
 

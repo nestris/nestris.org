@@ -4,12 +4,13 @@ import { TetrisBoard, ColorType } from "../../tetris/tetris-board";
 export class BinaryTranscoder {
 
   // return a 200-char string of 0-3
-  static encode(board: TetrisBoard): string {
+  static encode(board: TetrisBoard, binary: boolean = false): string {
     let binaryString = '';
 
     for (let y = 0; y < 20; y++) {
         for (let x = 0; x < 10; x++) {
-            binaryString += board.getAt(x,y);
+          if (binary) binaryString += board.exists(x,y) ? '1' : '0';
+          else binaryString += board.getAt(x,y);
         }
     }
 
