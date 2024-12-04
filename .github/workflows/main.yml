@@ -76,7 +76,8 @@ jobs:
             export POSTGRES_DB=${POSTGRES_DB}
             export DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
             export DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
-            ./generate-wasm.sh
+            mkdir -p client/src/assets/stackrabbit
+            emcc -O3 StackRabbit/src/cpp_modules/src/wasm.cpp --bind -lembind -g0 --pre-js StackRabbit/src/cpp_modules/locateFile.js -s MODULARIZE=1 -s EXPORT_NAME="Module" -o client/src/assets/stackrabbit/wasmRabbit.js
             docker compose -p ${NODE_ENV} -f docker-compose.${NODE_ENV}.yml pull
             docker compose -p ${NODE_ENV} -f docker-compose.${NODE_ENV}.yml up -d
 
