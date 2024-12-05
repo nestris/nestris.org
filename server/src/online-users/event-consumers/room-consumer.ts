@@ -492,4 +492,13 @@ export class RoomConsumer extends EventConsumer {
         
     }
 
+    /**
+     * Get the number of rooms that satisfy the given filter.
+     * @param filter The filter to apply to the rooms
+     * @returns The number of rooms that satisfy the filter
+     */
+    public getRoomCount(filter: (room: Room) => boolean = (_) => true): number {
+        return Array.from(this.rooms.values()).filter(filter).length;
+    }
+
 }

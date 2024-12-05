@@ -8,17 +8,31 @@
         </div>
     </section>
 
-    <section class="mode-select">
+    <section class="mode-select" *ngIf="leaderboards$ | async as leaderboards">
         <h1 class="label">Select mode</h1>
         <div class="mode border-color" *ngFor="let mode of modes" [ngClass]="mode" (click)="onClickMode(mode)">
             <div class="left">
                 <app-mode-icon [mode]="mode" [width]="100" />
                 <div class="text prevent-select">
                     <h1 class="color prevent-select" [ngClass]="mode">{{capitalize(mode)}}</h1>
-                    <p class="color prevent-select" [ngClass]="mode">235 playing now</p>
+                    <p class="color prevent-select" [ngClass]="mode">{{leaderboards[mode].playingNow}} playing now</p>
                 </div>
             </div>
             <div class="right">
+                <div class="leaderboard">
+                    <div class="row" *ngFor="let i of [0,1,2]">
+                        <div class="row-content border-color background-color"
+                            *ngIf="leaderboards[mode].leaderboard[i] as player" [ngClass]="[mode, isMe(player.userid) ? 'me' : '']">
+                            <div class="row-left">
+                                <p class="rank color" [ngClass]="mode">#{{player.rank}}</p>
+                                <p class="username color" [ngClass]="mode">{{player.username}}</p>
+                            </div>
+                            <app-highest-score *ngIf="mode === Mode.SOLO" [highestScore]="player.score" [size]="13"  />
+                            <app-trophies *ngIf="mode === Mode.RANKED" [trophies]="player.score" [size]="13" color="#FF4C4C" />
+                            <app-puzzle-elo *ngIf="mode === Mode.PUZZLES" [puzzleElo]="player.score" [size]="13" />
+                        </div>
+                    </div>
+                </div>
             </div>
             
         </div>

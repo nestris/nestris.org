@@ -30,8 +30,8 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
     constructor(
         player1SessionID: UserSessionID,
         player2SessionID: UserSessionID,
-        private readonly ranked: boolean,
-        private readonly startLevel: number,
+        public readonly ranked: boolean,
+        public readonly startLevel: number,
     ) {
 
         super(

@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+import { BehaviorSubject} from 'rxjs';
 import { Mode } from 'src/app/components/ui/mode-icon/mode-icon.component';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { FetchService, Method } from 'src/app/services/fetch.service';
@@ -11,6 +12,7 @@ import { RankedQueueService } from 'src/app/services/room/ranked-queue.service';
 import { ServerStatsService } from 'src/app/services/server-stats.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
+import { RelativeLeaderboards } from 'src/app/shared/models/leaderboard';
 import { NotificationType } from 'src/app/shared/models/notifications';
 import { DeploymentEnvironment } from 'src/app/shared/models/server-stats';
 
@@ -21,15 +23,21 @@ import { DeploymentEnvironment } from 'src/app/shared/models/server-stats';
   styleUrls: ['./play-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PlayPageComponent {
+export class PlayPageComponent implements OnDestroy{
 
   readonly ButtonColor = ButtonColor;
   readonly Platform = Platform;
 
+  readonly Mode = Mode;
   readonly modes = Object.values(Mode);
 
   public me$ = this.meService.get$();
-
+  public leaderboards$ = new BehaviorSubject<RelativeLeaderboards>({
+    solo: { playingNow: 0, leaderboard: [null, null, null] },
+    ranked: { playingNow: 0, leaderboard: [null, null, null] },
+    puzzles: { playingNow: 0, leaderboard: [null, null, null] }
+  });
+  private leaderboardInterval: any;
   
   constructor(
     public platformService: PlatformInterfaceService,
@@ -44,6 +52,14 @@ export class PlayPageComponent {
     private router: Router
   ) {
 
+    const updateLeaderboards = async () => {
+      const leaderboards = await this.fetchService.fetch<RelativeLeaderboards>(Method.GET, '/api/v2/leaderboard/relative');
+      this.leaderboards$.next(leaderboards);
+    }
+
+    // Update leaderboards every 5 seconds
+    this.leaderboardInterval = setInterval(updateLeaderboards, 5000);
+    updateLeaderboards();
   }
 
   async setupCalibration(event: MouseEvent | undefined = undefined) {
@@ -106,6 +122,14 @@ export class PlayPageComponent {
 
   comingSoon() {
     this.notifier.notify(NotificationType.ERROR, "This feature is currently in development. Coming soon!");
+  }
+
+  ngOnDestroy() {
+    clearInterval(this.leaderboardInterval);
+  }
+
+  isMe(userid: string) {
+    return this.meService.getUserIDSync() === userid;
   }
 
 }
