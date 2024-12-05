@@ -23,6 +23,7 @@ export class SolidSelectorComponent {
   @Input() paddingHorizontal: number = 15;
   @Input() paddingVertical: number = 6;
   @Input() width: number = 100;
+  @Input() height: number = 30;
   @Input() borderRadius: number = 5;
   @Input() iconWidth?: number;
   @Input() gap: number = 4;

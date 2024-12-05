@@ -1,4 +1,4 @@
-import { T200LeaderboardRow } from "../../shared/models/leaderboard";
+import { T200LeaderboardData, T200LeaderboardRow, T200LeaderboardType } from "../../shared/models/leaderboard";
 import { FullLeaderboard } from "./full-leaderboard";
 import { T200Leaderboard } from "./t200-leaderboard";
 
@@ -12,8 +12,8 @@ export class LeaderboardManager {
     // map from full leaderboard name to full leaderboard
     private static readonly fullLeaderboards: Map<string, FullLeaderboard> = new Map();
 
-    // map from t200 leaderboard name to t200 leaderboard
-    private static readonly t200Leaderboards: Map<string, T200Leaderboard<T200LeaderboardRow>> = new Map();
+    // map from T200LeaderboardType to t200 leaderboard
+    private static readonly t200Leaderboards: Map<T200LeaderboardType, T200Leaderboard<T200LeaderboardRow>> = new Map();
 
     private static initialized = false;
 
@@ -92,38 +92,38 @@ export class LeaderboardManager {
      */
     public static async registerT200Leaderboard(t200LeaderboardClass: new () => T200Leaderboard<T200LeaderboardRow>) {
 
+        // Initialize the leaderboard
+        const t200Leaderboard = new t200LeaderboardClass();
+
         // Must be registered before initialization
         if (LeaderboardManager.initialized) {
             throw new Error("LeaderboardManager already initialized");
         }
 
         // Assert leaderboard is not already registered
-        if (LeaderboardManager.t200Leaderboards.has(t200LeaderboardClass.name)) {
-            throw new Error(`T200 leaderboard ${t200LeaderboardClass.name} is already registered`);
+        if (LeaderboardManager.t200Leaderboards.has(t200Leaderboard.type)) {
+            throw new Error(`T200 leaderboard ${t200Leaderboard.type} is already registered`);
         }
-
-        // Initialize the leaderboard
-        const t200Leaderboard = new t200LeaderboardClass();
-
+        
         // Register leaderboard
-        LeaderboardManager.t200Leaderboards.set(t200LeaderboardClass.name, t200Leaderboard);
+        LeaderboardManager.t200Leaderboards.set(t200Leaderboard.type, t200Leaderboard);
     }
 
     /**
-     * Get a t200 leaderboard by class
-     * @param t200LeaderboardClass The class of the t200
+     * Get the data for a t200 leaderboard by type
+     * @param type The type of the t200 leaderboard to get
      */
-    public static getT200Leaderboard(t200LeaderboardClass: new () => T200Leaderboard<T200LeaderboardRow>): T200Leaderboard<T200LeaderboardRow> {
+    public static getT200Leaderboard(type: T200LeaderboardType): T200LeaderboardData {
 
         if (!LeaderboardManager.initialized) {
             throw new Error("LeaderboardManager not initialized");
         }
 
-        const t200Leaderboard = LeaderboardManager.t200Leaderboards.get(t200LeaderboardClass.name);
+        const t200Leaderboard = LeaderboardManager.t200Leaderboards.get(type);
         if (!t200Leaderboard) {
-            throw new Error(`T200 leaderboard ${t200LeaderboardClass.name} is not registered`);
+            throw new Error(`T200 leaderboard ${type} is not registered`);
         }
-        return t200Leaderboard;
+        return t200Leaderboard.get();
     }
 
 }

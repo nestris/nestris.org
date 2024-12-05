@@ -19,6 +19,7 @@ import { PuzzleLeaderboardComponent } from './components/layout/main-leaderboard
 import { RankedLeaderboardComponent } from './components/layout/main-leaderboard/ranked-leaderboard/ranked-leaderboard.component';
 import { MatchmakingLoadingPageComponent } from './components/layout/multiplayer/matchmaking-loading-page/matchmaking-loading-page.component';
 import { RoomComponent } from './components/layout/room/room/room.component';
+import { SoloLeaderboardComponent } from './components/layout/main-leaderboard/solo-leaderboard/solo-leaderboard.component';
 
 const routes: Routes = [
 
@@ -59,14 +60,7 @@ const routes: Routes = [
         ]
        },
 
-      { path: "leaderboard", component: MainLeaderboardPageComponent,
-        children: [
-          { path: "puzzles", component: PuzzleLeaderboardComponent },
-          { path: "ranked", component: RankedLeaderboardComponent },
-          { path: "", redirectTo: "puzzles", pathMatch: "full", },
-          { path: "**", redirectTo: "puzzles", pathMatch: "full", }
-        ]
-       },
+      { path: "leaderboard", component: MainLeaderboardPageComponent },
 
        { path: "welcome", component: WelcomePageComponent },
 

@@ -20,3 +20,7 @@ export function numberWithCommas(x: number): string {
 export const hexWithAlpha = (hex: string, alpha: number) => {
   return hex + Math.round(alpha * 255).toString(16).padStart(2, '0');
 }
+
+export function capitalize(string: string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}

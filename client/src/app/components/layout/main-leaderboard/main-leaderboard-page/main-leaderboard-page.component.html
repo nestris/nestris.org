@@ -5,18 +5,20 @@
     </div>
     <div class="header">
         <div class="left prevent-select">
-            <a routerLink="/leaderboard/puzzles" class="tab prevent-select" routerLinkActive="selected">
-                <div class="button prevent-select">
-                    <img src="./assets/img/tab-icons/puzzles.svg" width="25px" class="prevent-select" />
-                    <p class="label prevent-select">Puzzles</p>
+
+            <div class="tabs">
+
+                <div *ngFor="let mode of modes"  class="tab prevent-select"
+                    [ngClass]="[mode, (currentMode$ | async) === mode ? 'selected' : '']" (click)="setMode(mode)">
+                    <app-mode-icon [mode]="mode" [width]="85" />
                 </div>
-            </a>
-            <a tooltip="Coming soon!" class="tab coming-soon prevent-select">
-                <div class="button prevent-select">
-                    <img src="./assets/img/tab-icons/trophy.svg" width="25px" class="prevent-select" />
-                    <p class="label prevent-select">Ranked</p>
-                </div>
-            </a>
+
+            </div>
+
+            <app-solid-selector *ngIf="currentMode$ | async as mode"
+                [labels]="getLabelsForMode(mode)" [icons]="getIconsForMode(mode)" [color]="ButtonColor.GREY" [selected]="getIndexForType(mode, currentType$ | async)"
+                [gap]="10" [textOpacity]="0.8" [width]="160" (selectedChange)="setType(mode, $event)" />
+
         </div>
         <div class="right">
             <app-stat-panel icon="./assets/img/tab-icons/profile.svg" label="Players" [value]="(numPlayers$ | async) ?? 0" />

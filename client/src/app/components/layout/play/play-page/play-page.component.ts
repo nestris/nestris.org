@@ -16,7 +16,7 @@ import { RelativeLeaderboards } from 'src/app/shared/models/leaderboard';
 import { NotificationType } from 'src/app/shared/models/notifications';
 import { DeploymentEnvironment } from 'src/app/shared/models/server-stats';
 import { QUEST_COLORS, QuestDefinitions, QuestResult } from 'src/app/shared/nestris-org/quest-system';
-import { hexWithAlpha } from 'src/app/util/misc';
+import { capitalize, hexWithAlpha } from 'src/app/util/misc';
 
 @Component({
   selector: 'app-play-page',
@@ -32,6 +32,7 @@ export class PlayPageComponent implements OnDestroy{
   readonly Mode = Mode;
   readonly modes = Object.values(Mode);
   readonly hexWithAlpha = hexWithAlpha;
+  readonly capitalize = capitalize;
 
   public me$ = this.meService.get$();
   public leaderboards$ = new BehaviorSubject<RelativeLeaderboards>({
@@ -123,9 +124,6 @@ export class PlayPageComponent implements OnDestroy{
     }
   }
 
-  capitalize(string: string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-  }
 
 
   comingSoon() {

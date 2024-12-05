@@ -1,10 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, map } from 'rxjs';
+import { Mode } from 'src/app/components/ui/mode-icon/mode-icon.component';
+import { ButtonColor } from 'src/app/components/ui/solid-selector/solid-selector.component';
 import { TableRow } from 'src/app/components/ui/table/table.component';
 import { FetchService, Method } from 'src/app/services/fetch.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { EVALUATION_TO_COLOR, EvaluationRating } from 'src/app/shared/evaluation/evaluation';
+import { T200LeaderboardData, T200LeaderboardType } from 'src/app/shared/models/leaderboard';
+import { capitalize } from 'src/app/util/misc';
 
 
 @Component({
@@ -14,11 +18,55 @@ import { EVALUATION_TO_COLOR, EvaluationRating } from 'src/app/shared/evaluation
 })
 export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
 
+  readonly Mode = Mode;
+  readonly modes = [Mode.SOLO, Mode.RANKED, Mode.PUZZLES];
+
+  readonly ButtonColor = ButtonColor;
+
+  readonly leaderboardTypes: { [key in Mode]: T200LeaderboardType[] } = {
+    [Mode.SOLO]: [T200LeaderboardType.SOLO_XP, T200LeaderboardType.SOLO_HIGHSCORE],
+    [Mode.RANKED]: [T200LeaderboardType.RANKED],
+    [Mode.PUZZLES]: [T200LeaderboardType.PUZZLES],
+  };
+
+  readonly leaderboardTypeLabels: { [key in T200LeaderboardType]: string } = {
+    [T200LeaderboardType.SOLO_XP]: 'League',
+    [T200LeaderboardType.SOLO_HIGHSCORE]: 'Highscore',
+    [T200LeaderboardType.RANKED]: 'Trophies',
+    [T200LeaderboardType.PUZZLES]: 'Puzzle Elo',
+  };
+
+  readonly leaderboardTypeIcon: { [key in T200LeaderboardType]: string } = {
+    [T200LeaderboardType.SOLO_XP]: './assets/img/tab-icons/play.svg',
+    [T200LeaderboardType.SOLO_HIGHSCORE]: './assets/img/tab-icons/play.svg',
+    [T200LeaderboardType.RANKED]: './assets/img/tab-icons/play.svg',
+    [T200LeaderboardType.PUZZLES]: './assets/img/tab-icons/puzzles.svg',
+  }
+
+  readonly getLabelsForMode = (mode: Mode) => this.leaderboardTypes[mode].map(type => this.leaderboardTypeLabels[type]);
+  readonly getIconsForMode = (mode: Mode) => this.leaderboardTypes[mode].map(type => this.leaderboardTypeIcon[type]);
+
+
+
+  // The current leaderboard type
+  currentType$ = new BehaviorSubject<T200LeaderboardType>(T200LeaderboardType.SOLO_XP);
+
+  // The current mode based on the current type
+  currentMode$ = this.currentType$.pipe(
+    map(type => {
+      for (const mode of this.modes) {
+        if (this.leaderboardTypes[mode].includes(type)) return mode;
+      }
+      return Mode.SOLO;
+    })
+  );
+
+
   numPlayers$ = new BehaviorSubject<number>(0);
   puzzlesSolved$ = new BehaviorSubject<number>(0);
   hoursSpent$ = new BehaviorSubject<number>(0);
 
-  //onlineUserIDs$ = new BehaviorSubject<Map<string, OnlineUserStatus>>(new Map());
+  leaderboard$ = new BehaviorSubject<T200LeaderboardData | null>(null);
 
   TABLE_ATTRIBUTES: { [key: string]: string } = {
     rating: 'Rating',
@@ -43,7 +91,12 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
     private fetchService: FetchService,
     public websocket: WebsocketService,
     public meService: MeService,
-  ) {}
+  ) {
+
+    // print on currentType$ change
+    this.currentType$.subscribe(type => console.log('currentType$', type));
+
+  }
 
   async ngOnInit() {
     console.log("MainLeaderboardPageComponent: ngOnInit()");
@@ -53,6 +106,25 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     clearInterval(this.timer);
+  }
+
+  setMode(mode: Mode) {
+    const newType = this.leaderboardTypes[mode][0];
+    if (newType !== this.currentType$.getValue()) {
+      this.currentType$.next(newType);
+    }
+  }
+
+  setType(mode: Mode, typeIndex: number) {
+    const newType = this.leaderboardTypes[mode][typeIndex];
+    if (newType !== this.currentType$.getValue()) {
+      this.currentType$.next(newType);
+    }
+  }
+
+  getIndexForType(mode: Mode, type: T200LeaderboardType | null): number {
+    if (type === null) return 0;
+    return this.leaderboardTypes[mode].indexOf(type);
   }
 
   // Regularly poll the server for the number of players and puzzles solved

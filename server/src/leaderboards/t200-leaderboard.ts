@@ -1,4 +1,4 @@
-import { T200LeaderboardRow, T200SoloXPLeaderboardRow } from "../../shared/models/leaderboard";
+import { T200LeaderboardData, T200LeaderboardRow, T200LeaderboardType, T200SoloXPLeaderboardRow } from "../../shared/models/leaderboard";
 import { getLeagueFromIndex, LEAGUE_XP_REQUIREMENTS } from "../../shared/nestris-org/league-system";
 import { Database, DBQuery } from "../database/db-query";
 import { sortLeaderboard } from "./sort-leaderboard";
@@ -10,6 +10,12 @@ import { sortLeaderboard } from "./sort-leaderboard";
  */
 export abstract class T200Leaderboard<row extends T200LeaderboardRow> {
 
+    // The type of T200 leaderboard
+    public abstract readonly type: T200LeaderboardType;
+
+    // A map of attribute keys to their display names
+    public abstract readonly attributes: { [key: string]: string };
+
     /**
      * The top 200 leaderboard rows, ordered by rank
      */
@@ -20,8 +26,12 @@ export abstract class T200Leaderboard<row extends T200LeaderboardRow> {
         sortLeaderboard(this.leaderboard);
     }
 
-    public get() {
-        return this.leaderboard;
+    public get(): T200LeaderboardData {
+        return {
+            type: this.type,
+            attributes: this.attributes,
+            leaderboard: this.leaderboard,
+        }
     }
 
     /**
@@ -31,6 +41,14 @@ export abstract class T200Leaderboard<row extends T200LeaderboardRow> {
 }
 
 export class T200XPLeaderboard extends T200Leaderboard<T200SoloXPLeaderboardRow> {
+
+    public override readonly type = T200LeaderboardType.SOLO_XP;
+    public override readonly attributes = {
+        xp: 'XP',
+        highscore: 'Highscore',
+        trophies: 'Trophies',
+        puzzle_elo: 'Puzzle elo',
+    };
 
     protected async populateLeaderboard(): Promise<T200SoloXPLeaderboardRow[]> {
 

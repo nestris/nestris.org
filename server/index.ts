@@ -34,6 +34,7 @@ import { FriendInvitationManager } from './src/invitations/friend-invitation';
 import { GetInvitationsRoute } from './src/routes/invitations/get-invitations-route';
 import { RemoveFriendRoute } from './src/routes/user/remove-friend-route';
 import { MeConsumer } from './src/online-users/event-consumers/me-consumer';
+import { GetT200LeaderboardRoute } from './src/routes/leaderboard/get-t200-leaderboard-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -113,6 +114,7 @@ async function main() {
   routes.registerRoute(GetFriendsInfoRoute);
   routes.registerRoute(GetAllUsernamesRoute);
   routes.registerRoute(GetRelativeLeaderboardsRoute);
+  routes.registerRoute(GetT200LeaderboardRoute);
   routes.registerRoute(CreateSoloRoomRoute);
   routes.registerRoute(GetCacheStatsRoute);
   routes.registerRoute(EnterRankedQueueRoute);

@@ -3,6 +3,7 @@
 >
     <div class="button-row" *ngFor="let item of (iterateIndices(!!(expanded$ | async)))" (click)="clickIndex($event, item.index)"
         [ngStyle]="{ paddingInline: paddingHorizontal + 'px', paddingBlock: paddingVertical + 'px',
+        height: height + 'px',
         width: width + 'px', backgroundColor: color,
         borderTopLeftRadius: (item.isFirst) ? borderRadius + 'px' : '0px', borderTopRightRadius: (item.isFirst) ? borderRadius + 'px' : '0px',
         borderBottomLeftRadius: (item.isLast) ? borderRadius + 'px' : '0px', borderBottomRightRadius: (item.isLast) ? borderRadius + 'px' : '0px',

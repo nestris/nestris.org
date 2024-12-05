@@ -23,6 +23,18 @@ export interface RelativeLeaderboards {
     puzzles: RelativeLeaderboardInfo;
 }
 
+export enum T200LeaderboardType {
+    SOLO_XP = 'solo',
+    SOLO_HIGHSCORE = 'highscore',
+    RANKED = 'ranked',
+    PUZZLES = 'puzzles',
+}
+
+export interface T200LeaderboardData {
+    type: T200LeaderboardType;
+    leaderboard: T200LeaderboardRow[];
+    attributes: { [key: string]: string };
+}
 
 export interface T200LeaderboardRow {
     rank: number;
