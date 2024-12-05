@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { Mode } from 'src/app/components/ui/mode-icon/mode-icon.component';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { FetchService, Method } from 'src/app/services/fetch.service';
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
@@ -8,11 +9,10 @@ import { VideoCaptureService } from 'src/app/services/ocr/video-capture.service'
 import { Platform, PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { RankedQueueService } from 'src/app/services/room/ranked-queue.service';
 import { ServerStatsService } from 'src/app/services/server-stats.service';
+import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { NotificationType } from 'src/app/shared/models/notifications';
 import { DeploymentEnvironment } from 'src/app/shared/models/server-stats';
-import { v4 as uuid } from 'uuid';
-
 
 
 @Component({
@@ -25,10 +25,16 @@ export class PlayPageComponent {
 
   readonly ButtonColor = ButtonColor;
   readonly Platform = Platform;
+
+  readonly modes = Object.values(Mode);
+
+  public me$ = this.meService.get$();
+
   
   constructor(
     public platformService: PlatformInterfaceService,
     public videoCapture: VideoCaptureService,
+    private meService: MeService,
     private modalManager: ModalManagerService,
     private serverStats: ServerStatsService,
     private fetchService: FetchService,
@@ -83,6 +89,18 @@ export class PlayPageComponent {
 
     // If successful, navigate to the ranked queue
     if (success) this.router.navigate(['/online/ranked']);
+  }
+
+  onClickMode(mode: Mode) {
+    switch (mode) {
+      case Mode.SOLO: return this.playSolo();
+      case Mode.RANKED: return this.playRanked();
+      case Mode.PUZZLES: return undefined;
+    }
+  }
+
+  capitalize(string: string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
   }
 
 

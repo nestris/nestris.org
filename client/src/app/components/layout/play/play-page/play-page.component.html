@@ -1,57 +1,27 @@
-<h1 class="header">Select Platform</h1>
+<div class="main">
+    <h1 class="header">Welcome back, Ansel!</h1>
 
-<section class="platform-section">
-    <div class="platform online" [ngClass]="(platformService.onPlatformChange() | async) === Platform.ONLINE ? 'selected' : ''" (click)="platformService.setPlatform(Platform.ONLINE)" >
-        <h1 class="platform-label">Play Online</h1>
-        <img class="platform-icon" height="110px" src="./assets/img/button-icons/platform-icons/online-platform.png">
-        <p class="platform-description">
-            Just playing on your computer? Select this option!
-        </p>
-        <app-solid-button [color]="ButtonColor.BLUE" class="platform-button" (click)="comingSoon()"
-            label="Edit keybindings"
-            icon="./assets/img/button-icons/calibrate.svg"
-            />
-    </div>
-    <div class="platform ocr" (click)="onClickOCRPlatform()" [ngClass]="{
-        'selected' : (platformService.onPlatformChange() | async) === Platform.OCR,
-        'calibrated' : (videoCapture.getCalibrationValid$() | async)
-    }">
-        <h1 class="platform-label">OCR Capture</h1>
-        <img class="platform-icon" height="78px" src="./assets/img/button-icons/platform-icons/ocr-platform.png">
-        <p class="platform-description">
-            Have an actual NES console? You can capture gameplay through capture card!
-        </p>
-        <app-solid-button [color]="ButtonColor.BLUE" class="platform-button"
-            label="Setup Calibration"
-            icon="./assets/img/button-icons/calibrate.svg"
-            (click)="setupCalibration($event)"
-             />
-        <p class="platform-error">Calibration not yet set</p>
-    </div>
-</section>
+    <section class="profile" *ngIf="me$ | async as me">
+        <div class="league-container">
+            <app-league-icon [league]="me.league" [height]="150" />
+            <app-xp-info [league]="me.league" [xp]="me.xp" barWidth="180px" />
+        </div>
+    </section>
 
-<h1 class="header">Select Gamemode</h1>
+    <section class="mode-select">
+        <h1 class="label">Select mode</h1>
+        <div class="mode border-color" *ngFor="let mode of modes" [ngClass]="mode" (click)="onClickMode(mode)">
+            <div class="left">
+                <app-mode-icon [mode]="mode" [width]="100" />
+                <div class="text prevent-select">
+                    <h1 class="color prevent-select" [ngClass]="mode">{{capitalize(mode)}}</h1>
+                    <p class="color prevent-select" [ngClass]="mode">235 playing now</p>
+                </div>
+            </div>
+            <div class="right">
+            </div>
+            
+        </div>
 
-<section class="play-section">
-
-    <div class="play-container hoverable" (click)="playSolo()">
-        <h1>Solo</h1>
-        <img src="./assets/img/button-icons/play-icons/solo.svg" width="220px">
-        <p>
-            Improve your stacking skills and gain XP in solo mode!
-        </p>
-    </div>
-    <a (click)="playRanked()"><div class="play-container hoverable">
-        <h1>Versus</h1>
-        <img src="./assets/img/button-icons/play-icons/versus.svg" width="220px">
-        <p>
-            Gain trophies and move up the leagues by winning matches!
-        </p>
-    </div></a>
-    <a (click)="comingSoon()"><div class="play-container hoverable">
-        <h1>Sandbox</h1>
-        <img src="./assets/img/button-icons/play-icons/sandbox.svg" width="220px">
-        <p>
-            Create rooms to play unranked games with friends!
-        </p>
-    </div></a>
+    </section>
+</div>

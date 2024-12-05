@@ -1,0 +1,9 @@
+<div class="xp-info">
+    <div class="xp-bar-container prevent-select" [ngStyle]="{'width' : barWidth, 'height' : barHeight}">
+        <div class="xp-bar-background" [ngStyle]="{'backgroundColor' : leagueColor(league)}"></div>
+        <div class="xp-bar-active"
+            [ngStyle]="{'backgroundColor' : leagueColor(league), 'width' : getPercent(xp) + '%'}"
+        ></div>
+    </div>
+    <p class="prevent-select">{{xp.toFixed(0)}} of {{getTargetXP(league)}} XP</p>
+</div>

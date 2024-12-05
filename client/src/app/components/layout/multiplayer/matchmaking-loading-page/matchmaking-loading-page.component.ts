@@ -3,8 +3,6 @@ import { Router } from "@angular/router";
 import { BehaviorSubject, interval, map, Subscription } from "rxjs";
 import { RankedQueueService } from "src/app/services/room/ranked-queue.service";
 import { MeService } from "src/app/services/state/me.service";
-import { getLeagueFromIndex } from "src/app/shared/nestris-org/league-system";
-import { FoundOpponentMessage } from "src/app/shared/network/json-message";
 
 
 @Component({

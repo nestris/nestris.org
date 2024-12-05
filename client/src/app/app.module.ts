@@ -98,6 +98,8 @@ import { PuzzleEloComponent } from './components/ui/puzzle-elo/puzzle-elo.compon
 import { FriendRequestComponent } from './components/layout/friends/friend-request/friend-request.component';
 import { MultiplayerAfterMatchModalComponent } from './components/layout/room/modals/multiplayer-after-match-modal/multiplayer-after-match-modal.component';
 import { GameSummaryGraphComponent } from './components/ui/game-summary-graph/game-summary-graph.component';
+import { XpInfoComponent } from './components/ui/xp-info/xp-info.component';
+import { ModeIconComponent } from './components/ui/mode-icon/mode-icon.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -232,6 +234,8 @@ const customNotifierOptions: NotifierOptions = {
     FriendRequestComponent,
     MultiplayerAfterMatchModalComponent,
     GameSummaryGraphComponent,
+    XpInfoComponent,
+    ModeIconComponent,
   ],
   imports: [
     BrowserModule,
