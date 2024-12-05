@@ -15,3 +15,8 @@ export async function sleep(ms: number) {
 export function numberWithCommas(x: number): string {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+
+// Convert a hex color to an rgba color with the specified alpha
+export const hexWithAlpha = (hex: string, alpha: number) => {
+  return hex + Math.round(alpha * 255).toString(16).padStart(2, '0');
+}

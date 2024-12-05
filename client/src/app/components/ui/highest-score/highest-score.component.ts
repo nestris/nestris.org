@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { numberWithCommas } from 'src/app/util/misc';
 
 @Component({
   selector: 'app-highest-score',
@@ -9,5 +10,8 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 export class HighestScoreComponent {
   @Input() highestScore!: number;
   @Input() size!: number;
+  @Input() commas: boolean = true;
+
+  readonly numberWithCommas = numberWithCommas;
 
 }

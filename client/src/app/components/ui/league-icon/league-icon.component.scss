@@ -2,4 +2,11 @@
 
 img {
     display: block;
+
+    transition: transform 0.2s, filter 0.2s;
+}
+
+img:hover {
+    transform: scale(1.03);
+    filter: brightness(1.1) contrast(1.05);
 }

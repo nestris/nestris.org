@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject} from 'rxjs';
+import { BehaviorSubject, map} from 'rxjs';
 import { Mode } from 'src/app/components/ui/mode-icon/mode-icon.component';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { FetchService, Method } from 'src/app/services/fetch.service';
@@ -15,7 +15,8 @@ import { WebsocketService } from 'src/app/services/websocket.service';
 import { RelativeLeaderboards } from 'src/app/shared/models/leaderboard';
 import { NotificationType } from 'src/app/shared/models/notifications';
 import { DeploymentEnvironment } from 'src/app/shared/models/server-stats';
-
+import { QUEST_COLORS, QuestDefinitions, QuestResult } from 'src/app/shared/nestris-org/quest-system';
+import { hexWithAlpha } from 'src/app/util/misc';
 
 @Component({
   selector: 'app-play-page',
@@ -30,6 +31,7 @@ export class PlayPageComponent implements OnDestroy{
 
   readonly Mode = Mode;
   readonly modes = Object.values(Mode);
+  readonly hexWithAlpha = hexWithAlpha;
 
   public me$ = this.meService.get$();
   public leaderboards$ = new BehaviorSubject<RelativeLeaderboards>({
@@ -38,6 +40,10 @@ export class PlayPageComponent implements OnDestroy{
     puzzles: { playingNow: 0, leaderboard: [null, null, null] }
   });
   private leaderboardInterval: any;
+
+  public quests$ = this.me$.pipe(
+    map(me => QuestDefinitions.getClosestIncompleteQuests(me, 2))
+  );
   
   constructor(
     public platformService: PlatformInterfaceService,
@@ -96,6 +102,8 @@ export class PlayPageComponent implements OnDestroy{
   async playSolo() {
     const sessionID = this.websocketService.getSessionID();
     this.fetchService.fetch(Method.POST, `/api/v2/create-solo-room/${sessionID}`);
+
+    console.log(QuestDefinitions.getClosestIncompleteQuests(this.meService.getSync()!, 20));
   }
 
   async playRanked() {
@@ -130,6 +138,10 @@ export class PlayPageComponent implements OnDestroy{
 
   isMe(userid: string) {
     return this.meService.getUserIDSync() === userid;
+  }
+
+  questColor(quest: QuestResult): string {
+    return QUEST_COLORS[quest.difficulty];
   }
 
 }

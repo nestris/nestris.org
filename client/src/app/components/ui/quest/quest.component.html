@@ -1,12 +1,12 @@
-<div class="quest" *ngIf="QuestDefinitions.getQuestDefinition(name) as quest">
-    <div class="header">
-        <div class="left">
-            <h1 class="name">{{quest.name}}</h1>
-            <p class="xp">+{{quest.xp}} XP</p>
+<div class="quest prevent-select" *ngIf="QuestDefinitions.getQuestDefinition(name) as quest">
+    <div class="header prevent-select">
+        <div class="left prevent-select">
+            <h1 class="name prevent-select">{{quest.name}}</h1>
+            <p class="xp prevent-select">+{{quest.xp}} XP</p>
         </div>
 
-        <h2 class="complete" *ngIf="status === true" [ngStyle]="{'color' : QUEST_COLORS[quest.difficulty]}">Complete!</h2>
+        <h2 class="complete prevent-select" *ngIf="status === true" [ngStyle]="{'color' : QUEST_COLORS[quest.difficulty]}">Complete!</h2>
 
     </div>
-    <div class="definition-container"><p class="definition">{{quest.description}}</p></div>
+    <div class="definition-container prevent-select"><p class="definition prevent-select">{{quest.description}}</p></div>
 </div>

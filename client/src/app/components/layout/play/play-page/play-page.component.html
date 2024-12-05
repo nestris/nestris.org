@@ -6,6 +6,15 @@
             <app-league-icon [league]="me.league" [height]="150" />
             <app-xp-info [league]="me.league" [xp]="me.xp" barWidth="180px" />
         </div>
+        <div class="quest-container">
+            <div class="quest-header">
+                <h1>Ongoing quests</h1>
+            </div>
+            <div class="quest" *ngFor="let quest of (quests$ | async)"
+                [ngStyle]="{'borderColor' : questColor(quest) , 'backgroundColor': hexWithAlpha(questColor(quest), 0.03) }">
+                <app-quest [name]="quest.name" [status]="quest.currentScore" />
+            </div>
+        </div>
     </section>
 
     <section class="mode-select" *ngIf="leaderboards$ | async as leaderboards">

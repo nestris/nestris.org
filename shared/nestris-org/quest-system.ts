@@ -85,7 +85,7 @@ export class QuestDefinitions {
         ).filter(
             quest => !quest.complete
         ).sort(
-            (a, b) => (a.currentScore / a.targetScore) - (b.currentScore / b.targetScore)
+            (a, b) => (b.currentScore / b.targetScore) - (a.currentScore / a.targetScore)
         ).slice(0, limit);
     }
 
