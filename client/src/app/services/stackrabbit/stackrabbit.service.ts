@@ -24,6 +24,7 @@ interface WorkerResponse {
 
 export interface StackrabbitParams {
   board: TetrisBoard;
+  secondBoard: TetrisBoard | null;
   level: number;
   lines: number;
   currentPiece: TetrominoType;
@@ -34,20 +35,30 @@ export interface StackrabbitParams {
 
 export interface OptionalStackrabbitParams {
   board: TetrisBoard;
-  level?: number;
-  lines?: number;
   currentPiece: TetrominoType;
   nextPiece: TetrominoType | null;
+
+  secondBoard?: TetrisBoard | null;
+  level?: number;
+  lines?: number;
   inputSpeed?: InputSpeed;
   playoutDepth?: number;
 }
 
+const DEFAULT_PARAMS = {
+  secondBoard: null,
+  level: 18,
+  lines: 0,
+  inputSpeed: InputSpeed.HZ_30,
+  playoutDepth: 3
+}
+
 export interface TopMovesHybridResponse {
-  nextBox?: {
+  nextBox: {
     firstPlacement: MoveableTetromino,
     secondPlacement: MoveableTetromino,
     score: number
-  }[],
+  }[] | null,
   noNextBox: {
     firstPlacement: MoveableTetromino,
     score: number
@@ -196,50 +207,83 @@ export class StackrabbitService {
   public async getTopMovesHybrid(optionalParams: OptionalStackrabbitParams): Promise<TopMovesHybridResponse> {
 
     // Merge the optional parameters with the default parameters
-    const params: StackrabbitParams = Object.assign(
-    { // Default parameters
-      level: 18,
-      lines: 0,
-      inputSpeed: InputSpeed.HZ_30,
-      playoutDepth: 3
-    }, optionalParams);
+    const params: StackrabbitParams = Object.assign(DEFAULT_PARAMS, optionalParams);
 
     // Encode the board to a string of 1s and 0s
     let boardString = BinaryTranscoder.encode(params.board, true);
 
-    // Playout count is 7^depth
+    // Convert the parameters to a string
+    const { current, next } = this.validateCurrentNext(params.currentPiece, params.nextPiece);
+    const inputFrameTimeline = INPUT_SPEED_TO_TIMELINE[params.inputSpeed];
     const playoutCount = Math.pow(7, params.playoutDepth);
 
-    // Check for invalid parameters
-    if (params.currentPiece === TetrominoType.ERROR_TYPE) {
-      throw new StackrabbitError("Invalid current piece");
-    }
-    if (params.nextPiece === TetrominoType.ERROR_TYPE) {
-      throw new StackrabbitError("Invalid next piece");
-    }
-
-    // Convert the parameters to a string
-    const currentPiece: number = params.currentPiece;
-    const nextPiece: number = (params.nextPiece === null) ? -1 : params.nextPiece;
-    const inputFrameTimeline = INPUT_SPEED_TO_TIMELINE[params.inputSpeed];
-
     // Construct the parameters string
-    const parameters = `${boardString}|${params.level}|${params.lines}|${currentPiece}|${nextPiece}|${inputFrameTimeline}|${playoutCount}|${params.playoutDepth}|`;
+    const parameters = `${boardString}|${params.level}|${params.lines}|${current}|${next}|${inputFrameTimeline}|${playoutCount}|${params.playoutDepth}|`;
 
     // Make the request using nonblocking web workers
     const response = await this.makeRequest("getTopMovesHybrid", parameters);
 
+    return this.decodeTopMovesHybridResponse(response, params.currentPiece, params.nextPiece);
+  }
+
+  /**
+   * Rate the player move based on the current board state, current piece, next piece, and the move to rate.
+   * NoNextBox rating is not supported.
+   * @param optionalParams The board state to get the top moves for
+   * @returns The top moves for the given board state
+   */
+  public async rateMove(optionalParams: OptionalStackrabbitParams): Promise<any> {
+
+    // Merge the optional parameters with the default parameters
+    const params: StackrabbitParams = Object.assign(DEFAULT_PARAMS, optionalParams);
+
+    if (params.secondBoard === null) {
+      throw new StackrabbitError("Second board is required for rating moves");
+    }
+
+    // Encode the board to a string of 1s and 0s
+    let boardString = BinaryTranscoder.encode(params.board, true);
+    let secondBoardString = BinaryTranscoder.encode(params.secondBoard, true);
+
+    // Convert the parameters to a string
+    const { current, next } = this.validateCurrentNext(params.currentPiece, params.nextPiece);
+    const inputFrameTimeline = INPUT_SPEED_TO_TIMELINE[params.inputSpeed];
+    const playoutCount = Math.pow(7, params.playoutDepth);
+
+    // Construct the parameters string
+    const parameters = `${boardString}|${secondBoardString}|${params.level}|${params.lines}|${current}|${next}|${inputFrameTimeline}|${playoutCount}|${params.playoutDepth}|`;
+
+    // Make the request using nonblocking web workers
+    const response = await this.makeRequest("rateMove", parameters);
+    return response;
+
+    //return this.decodeTopMovesHybridResponse(response, params.currentPiece, params.nextPiece);
+  }
+
+  private validateCurrentNext(current: TetrominoType, next: TetrominoType | null): { current: number, next: number } {
+    if (current === TetrominoType.ERROR_TYPE) {
+      throw new StackrabbitError("Invalid current piece");
+    }
+    if (next === null) {
+      return { current: current, next: -1 };
+    }
+    if (next === TetrominoType.ERROR_TYPE) {
+      throw new StackrabbitError("Invalid next piece");
+    }
+    return { current: current, next: next };
+  }
+
+  private decodeTopMovesHybridResponse(response: any, current: TetrominoType, next: TetrominoType | null): TopMovesHybridResponse {
     // Decode the response, and if it is invalid, throw an error
     try {
       const noNextBox = (response['noNextBox'] as any[]).map((move: any) => { return {
-        firstPlacement: MoveableTetromino.fromStackRabbitPose(params.currentPiece, move['firstPlacement'][0], move['firstPlacement'][1], move['firstPlacement'][2]),
+        firstPlacement: MoveableTetromino.fromStackRabbitPose(current, move['firstPlacement'][0], move['firstPlacement'][1], move['firstPlacement'][2]),
         score: move['playoutScore'] as number
       }});
 
-      const nextPiece = params.nextPiece;
-      const nextBox = nextPiece === null ? [] : (response['nextBox'] as any[]).map((move: any) => { return {
-        firstPlacement: MoveableTetromino.fromStackRabbitPose(params.currentPiece, move['firstPlacement'][0] as number, move['firstPlacement'][1] as number, move['firstPlacement'][2] as number),
-        secondPlacement: MoveableTetromino.fromStackRabbitPose(nextPiece, move['secondPlacement'][0] as number, move['secondPlacement'][1] as number, move['secondPlacement'][2] as number),
+      const nextBox = next === null ? null : (response['nextBox'] as any[]).map((move: any) => { return {
+        firstPlacement: MoveableTetromino.fromStackRabbitPose(current, move['firstPlacement'][0] as number, move['firstPlacement'][1] as number, move['firstPlacement'][2] as number),
+        secondPlacement: MoveableTetromino.fromStackRabbitPose(next, move['secondPlacement'][0] as number, move['secondPlacement'][1] as number, move['secondPlacement'][2] as number),
         score: move['playoutScore'] as number
       }});
 
@@ -248,7 +292,6 @@ export class StackrabbitService {
     } catch (e) {
       throw new StackrabbitError(`Invalid Stackrabbit response: ${e}`);
     }
-
   }
 
   // Example function that makes a test request

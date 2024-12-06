@@ -60,14 +60,10 @@ export class AppComponent implements OnInit {
 
 
     // wait 3 seconds before making the test request
-    await sleep(3);
-
-    for (let i = 0; i < 10; i++) {
-      const startTime = Date.now();
-      this.stackrabbitService.makeTestRequest().then((response) => {
-        const delta = Date.now() - startTime;
-        console.log(i, delta, response);
-    });
-    }
+    const start = Date.now();
+    const response = await this.stackrabbitService.makeTestRequest();
+    console.log(response, Date.now() - start);
+3
+    
   }
 }

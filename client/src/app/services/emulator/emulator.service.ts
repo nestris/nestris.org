@@ -13,6 +13,7 @@ import { eventIsForInput } from 'src/app/util/misc';
 import { MemoryGameStatus, StatusHistory, StatusSnapshot } from 'src/app/shared/tetris/memory-game-status';
 import { getFeedback } from 'src/app/util/game-feedback';
 import { MeService } from '../state/me.service';
+import { StackrabbitService } from '../stackrabbit/stackrabbit.service';
 
 
 /*
@@ -46,7 +47,8 @@ export class EmulatorService {
 
   constructor(
     private platform: PlatformInterfaceService,
-    private meService: MeService
+    private meService: MeService,
+    private stackrabbitService: StackrabbitService,
 ) {}
 
   // tick function that advances the emulator state during the game loop
@@ -93,6 +95,7 @@ export class EmulatorService {
     // generate initial game state
     const gymSeed = seed ?? GymRNG.generateRandomSeed();
     this.currentState = new EmulatorGameState(level, new GymRNG(gymSeed));
+    this.analyzePosition(this.currentState);
 
     // send game start packet
     const current = this.currentState.getCurrentPieceType();
@@ -155,6 +158,8 @@ export class EmulatorService {
         mtPose: result.lockedPiece!.getMTPose(),
         pushdown: result.pushdownPoints,
       }));
+
+      this.analyzePosition(this.currentState);
     }
 
     // send packet with board info if board has changed
@@ -184,6 +189,22 @@ export class EmulatorService {
       this.stopGame();
       this.onTopout$.next();
     }
+
+  }
+
+  private async analyzePosition(state: EmulatorGameState) {
+    const board = state.getIsolatedBoard();
+    const currentPiece = state.getCurrentPieceType();
+    const nextPiece = state.getNextPieceType();
+    const level = state.getStatus().level;
+    const lines = state.getStatus().lines;
+    console.log("analyzing position");
+
+    const response = await this.stackrabbitService.getTopMovesHybrid({
+      board, currentPiece, nextPiece, level, lines
+    });
+    board.print();
+    console.log(response);
 
   }
 
