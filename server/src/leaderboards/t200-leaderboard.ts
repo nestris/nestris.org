@@ -34,14 +34,10 @@ export abstract class T200Leaderboard {
         this.leaderboard = await this.populateLeaderboard();
         sortLeaderboard(this.leaderboard);
 
-        console.log("before", [...this.leaderboard]);
-
         // Update whether users are online
         for (const user of this.leaderboard) {
             user.isOnline = this.users.isUserOnline(user.userid);
         }
-
-        console.log("after", [...this.leaderboard]);
     }
 
     public get(): T200LeaderboardData {

@@ -232,7 +232,10 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
                 this.inMemoryObject.has_perfect_transition_into_29 = this.inMemoryObject.has_perfect_transition_into_29 || gameEndArgs.perfectTransitionInto29;
 
                 // If highscore, start query to update the highscore game
-                if (isHighscore) Database.query(SetHighscoreGameQuery, this.inMemoryObject.userid, gameEndArgs.gameID);
+                if (isHighscore) {
+                    console.log(`Updating highscore game for user ${this.id} with gameID ${gameEndArgs.gameID} and score ${gameEndArgs.score}`);
+                    Database.query(SetHighscoreGameQuery, this.inMemoryObject.userid, gameEndArgs.gameID);
+                }
                 break;
 
             // Update settings

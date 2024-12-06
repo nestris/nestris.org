@@ -96,7 +96,7 @@ export class OnlineUser {
 
     // using the live websocket connection, send a JsonMessage to all the sessions of the client
     sendMessageToAllSessions(message: JsonMessage | Uint8Array) {
-        console.log(`Sending message to ${this.username}: ${JSON.stringify(message)}`);
+        //console.log(`Sending message to ${this.username}: ${JSON.stringify(message)}`);
         this.sessions.forEach(session => session.sendMessage(message));
     }
 
@@ -105,7 +105,7 @@ export class OnlineUser {
         const session = this.getSessionByID(sessionID);
         if (!session) throw new Error(`Session ${sessionID} not found for user ${this.username}`);
 
-        console.log(`Sending message to ${this.username} on session ${sessionID}: ${JSON.stringify(message)}`);
+        //console.log(`Sending message to ${this.username} on session ${sessionID}: ${JSON.stringify(message)}`);
         session.sendMessage(message);
     }
 
