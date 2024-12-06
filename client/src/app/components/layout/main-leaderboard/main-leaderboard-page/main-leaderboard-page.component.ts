@@ -2,13 +2,11 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BehaviorSubject, catchError, distinctUntilChanged, from, map, of, switchMap } from 'rxjs';
 import { Mode } from 'src/app/components/ui/mode-icon/mode-icon.component';
 import { ButtonColor } from 'src/app/components/ui/solid-selector/solid-selector.component';
-import { TableRow } from 'src/app/components/ui/table/table.component';
 import { FetchService, Method } from 'src/app/services/fetch.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
-import { EVALUATION_TO_COLOR, EvaluationRating } from 'src/app/shared/evaluation/evaluation';
+import { EvaluationRating } from 'src/app/shared/evaluation/evaluation';
 import { T200LeaderboardData, T200LeaderboardType } from 'src/app/shared/models/leaderboard';
-import { capitalize } from 'src/app/util/misc';
 
 
 @Component({
@@ -76,7 +74,6 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
   );
 
 
-
   numPlayers$ = new BehaviorSubject<number>(0);
   puzzlesSolved$ = new BehaviorSubject<number>(0);
   hoursSpent$ = new BehaviorSubject<number>(0);
@@ -90,8 +87,6 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
   };
 
   FORMAT_RULES: { [key: string]: (value: any) => string } = {
-    avgSolveTime: (value: number) => `${value.toFixed(1)}s`,
-    solveRate: (value: number) => `${value}%`,
   };
 
   COLOR_RULES: { [key: string]: (value: number) => string } = {

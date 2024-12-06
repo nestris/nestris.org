@@ -1,20 +1,33 @@
 <table>
     <thead>
         <tr>
-            <th></th>
-            <th class="player">Player</th>
-            <th *ngFor="let item of attributes | keyvalue: originalOrder">{{item.value}}</th>
+            <th class="player"><p class="prevent-select">Player</p></th>
+            <th *ngFor="let item of attributes | keyvalue: originalOrder" class="prevent-select">{{item.value}}</th>
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let row of rows" [ngClass]="{'me': row.userid === myID, 'first' : row.rank === 1, 'second' : row.rank === 2, 'third' : row.rank === 3}">
-            <td><div class="ranking">#{{ row.rank }}</div></td>
+        <tr *ngFor="let row of rows" [ngClass]="{'me': row.userid === myID, 'first' : row.rank === 1, 'second' : row.rank === 2, 'third' : row.rank === 3, 'click' : !!resourceIDType}"
+            [tooltip]="resourceIDType ? 'Click to open ' + resourceIDType + '...' : ''">
             <td><div class="player">
+                <div class="ranking prevent-select">#{{ row.rank }}</div>
                 <app-league-icon [league]="row.league" [height]="22" />
-                <p>{{row.username}}</p>
-                <app-online-indicator [isOnline]="row.isOnline || row.userid === myID" />
+                <p class="prevent-select">{{row.username}}</p>
+                <app-online-indicator [isOnline]="row.isOnline || row.userid === myID || ((onlineFriends$ | async) ?? []).includes(row.userid)" />
             </div> </td>
-            <td *ngFor="let item of attributes | keyvalue: originalOrder" [ngStyle]="{color: getCellColor(row, item.key)}" [innerHTML]="getRowAttribute(row, item.key)"></td>
+            <ng-container *ngFor="let item of attributes | keyvalue: originalOrder">
+
+                <td *ngIf="item.key === 'highest_score'; else trophies"><app-highest-score class="td-content" [size]="14" [highestScore]="getRowAttribute(row, item.key)" /></td>
+                <ng-template #trophies>
+                    <td *ngIf="['trophies', 'highest_trophies'].includes(item.key); else puzzle_elo"><app-trophies class="td-content" [size]="14" [trophies]="getRowAttribute(row, item.key)" /></td>
+                </ng-template>
+                <ng-template #puzzle_elo>
+                    <td *ngIf="['puzzle_elo', 'highest_puzzle_elo'].includes(item.key); else default"><app-puzzle-elo class="td-content" [size]="14" [puzzleElo]="getRowAttribute(row, item.key)" /></td>
+                </ng-template>
+                <ng-template #default>
+                    <td class="prevent-select" [ngStyle]="{color: getCellColor(row, item.key)}">{{getRowAttribute(row, item.key)}}</td>
+                </ng-template>
+            </ng-container>
+            
         </tr>
     </tbody>
 </table>

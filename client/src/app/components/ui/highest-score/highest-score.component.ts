@@ -8,7 +8,7 @@ import { numberWithCommas } from 'src/app/util/misc';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HighestScoreComponent {
-  @Input() highestScore!: number;
+  @Input() highestScore!: number | string;
   @Input() size!: number;
   @Input() commas: boolean = true;
 

@@ -1,14 +1,9 @@
 import { KeyValue } from '@angular/common';
 import { Component, Input, OnChanges } from '@angular/core';
+import { ResourceIDType, T200LeaderboardRow } from 'src/app/shared/models/leaderboard';
 import { League } from 'src/app/shared/nestris-org/league-system';
-
-export interface TableRow {
-  rank: number;
-  username: string;
-  userid: string;
-  league: League;
-  isOnline: boolean;
-}
+import { ButtonColor } from '../solid-button/solid-button.component';
+import { FriendsService } from 'src/app/services/state/friends.service';
 
 
 @Component({
@@ -18,7 +13,9 @@ export interface TableRow {
 })
 export class TableComponent {
   // An ordered list of rows, with each row containing a key for each attribute name
-  @Input() rows: TableRow[] = [];
+  @Input() rows: T200LeaderboardRow[] = [];
+
+  @Input() resourceIDType: ResourceIDType | null = null;
 
   @Input() sortByAttribute!: string;
 
@@ -37,17 +34,23 @@ export class TableComponent {
   // The row to highlight on the table, if it exists
   @Input() myID?: string;
 
-  // Map of online userids to their status
-  //@Input() onlineUserIDs: Map<string, OnlineUserStatus> | null = null;
-
   readonly HIGHEST_RANK = 200;
+
+  readonly parseInt = parseInt;
+  readonly ButtonColor = ButtonColor;
+
+  readonly onlineFriends$ = this.friendService.onlineFriends$;
+
+  constructor(
+    private readonly friendService: FriendsService,
+  ) {}
 
   // Preserve original property order
   originalOrder = (a: KeyValue<string,string>, b: KeyValue<string,string>): number => {
     return 0;
   }
 
-  getRowAttribute(row: TableRow, attribute: string): any {
+  getRowAttribute(row: T200LeaderboardRow, attribute: string): any {
     const value = (row as any)[attribute];
 
     // Return formatted value if a format rule exists
@@ -59,7 +62,7 @@ export class TableComponent {
     return value;
   }
 
-  getCellColor(row: TableRow, attribute: string): string {
+  getCellColor(row: T200LeaderboardRow, attribute: string): string {
     const value = (row as any)[attribute];
 
     // Return color if a color rule exists

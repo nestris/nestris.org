@@ -14,7 +14,7 @@ export class LeaderboardManager {
     private static readonly fullLeaderboards: Map<string, FullLeaderboard> = new Map();
 
     // map from T200LeaderboardType to t200 leaderboard
-    private static readonly t200Leaderboards: Map<T200LeaderboardType, T200Leaderboard<T200LeaderboardRow>> = new Map();
+    private static readonly t200Leaderboards: Map<T200LeaderboardType, T200Leaderboard> = new Map();
 
     private static initialized = false;
 
@@ -92,7 +92,7 @@ export class LeaderboardManager {
      * Register and initialize a t200 leaderboard
      * @param t200LeaderboardClass The class of the t200 leaderboard to register
      */
-    public static async registerT200Leaderboard(t200LeaderboardClass: new () => T200Leaderboard<T200LeaderboardRow>) {
+    public static async registerT200Leaderboard(t200LeaderboardClass: new () => T200Leaderboard) {
 
         // Initialize the leaderboard
         const t200Leaderboard = new t200LeaderboardClass();

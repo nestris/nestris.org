@@ -12,7 +12,7 @@ export async function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export function numberWithCommas(x: number): string {
+export function numberWithCommas(x: number | string): string {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 

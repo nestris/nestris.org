@@ -28,6 +28,6 @@
     </div>
 
     <app-table *ngIf="leaderboard$ | async as leaderboard" [attributes]="leaderboard.attributes" [rows]="leaderboard.leaderboard" [myID]="(meService.getUserID$() | async) ?? undefined"
-        sortByAttribute="rating" [formatRules]="FORMAT_RULES" [colorRules]="COLOR_RULES" />
+        sortByAttribute="rating" [formatRules]="FORMAT_RULES" [colorRules]="COLOR_RULES" [resourceIDType]="leaderboard.resourceIDType" />
 
 </div>

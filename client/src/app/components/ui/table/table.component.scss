@@ -53,11 +53,21 @@ td .player {
 
 app-league-icon {
     margin-right: 7px;
+    margin-left: 5px;
 }
 
 th.player, td .player {
     text-align: left;
-    width: 40%;
+    // width: 40%;
+    // min-width: 100px;
+}
+
+th.player p {
+    margin-left: 53px;
+}
+
+td.resource {
+    padding-inline: 10px;
 }
 
 td.player {
@@ -150,9 +160,25 @@ tbody tr.third td .ranking {
 }
 
 tbody tr:hover {
-    background-color: #303034;
+    background-color: #323237;
 }
+
+tbody tr:active {
+    background-color: #37373d;
+}
+
 
 tbody tr.me {
     background-color: #264D2A;
+}
+
+tbody tr.click {
+    cursor: pointer;
+}
+
+.td-content {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

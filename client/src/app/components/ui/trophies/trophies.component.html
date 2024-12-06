@@ -30,7 +30,7 @@
         </defs>
     </svg>
 
-    <h1 *ngIf="!color" class="default-color" [ngStyle]="{'font-size' : size + 'px'}">{{trophies}}</h1>
-    <h1 *ngIf="color" [ngStyle]="{'font-size' : size + 'px', 'color' : color}">{{trophies}}</h1>
+    <h1 *ngIf="!color" class="default-color prevent-select" [ngStyle]="{'font-size' : size + 'px'}">{{trophies}}</h1>
+    <h1 *ngIf="color" class="prevent-select" [ngStyle]="{'font-size' : size + 'px', 'color' : color}">{{trophies}}</h1>
         
 </div>

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { distinctUntilChanged, filter, map, Observable } from 'rxjs';
 import { FriendInfo } from '../../shared/models/friends';
 import { FriendUpdateMessage, JsonMessageType } from '../../shared/network/json-message';
 import { Method } from '../fetch.service';
@@ -10,6 +10,16 @@ import { StateService } from './state.service';
   providedIn: 'root'
 })
 export class FriendsService extends StateService<FriendInfo[]>() {
+
+  private arraysEqual(a: any[], b: any[]): boolean {
+    return a.length === b.length && a.every((value, index) => value === b[index]);
+  }
+
+  // Get the list of online friends as an observable
+  public onlineFriends$ = this.get$().pipe(
+    map(friendsInfo => friendsInfo.filter(friend => friend.isOnline).map(friend => friend.userid)),
+    distinctUntilChanged(this.arraysEqual)
+  );
 
   constructor() {
     super([JsonMessageType.FRIEND_UPDATE], "Friends");
