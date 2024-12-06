@@ -69,8 +69,6 @@ import { LessonCardComponent } from './components/layout/learn/lesson-card/lesso
 import { BannersComponent } from './components/layout/root/banners/banners.component';
 import { GameOverComponent } from './components/nes-layout/game-over/game-over.component';
 import { BoardEditorComponent } from './components/layout/control-panel/board-editor/board-editor.component';
-import { PuzzleLeaderboardComponent } from './components/layout/main-leaderboard/puzzle-leaderboard/puzzle-leaderboard.component';
-import { RankedLeaderboardComponent } from './components/layout/main-leaderboard/ranked-leaderboard/ranked-leaderboard.component';
 import { StatPanelComponent } from './components/layout/main-leaderboard/stat-panel/stat-panel.component';
 import { TableComponent } from './components/ui/table/table.component';
 import { MatchmakingLoadingPageComponent } from './components/layout/multiplayer/matchmaking-loading-page/matchmaking-loading-page.component';
@@ -100,7 +98,6 @@ import { MultiplayerAfterMatchModalComponent } from './components/layout/room/mo
 import { GameSummaryGraphComponent } from './components/ui/game-summary-graph/game-summary-graph.component';
 import { XpInfoComponent } from './components/ui/xp-info/xp-info.component';
 import { ModeIconComponent } from './components/ui/mode-icon/mode-icon.component';
-import { SoloLeaderboardComponent } from './components/layout/main-leaderboard/solo-leaderboard/solo-leaderboard.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -208,8 +205,6 @@ const customNotifierOptions: NotifierOptions = {
     BannersComponent,
     GameOverComponent,
     BoardEditorComponent,
-    PuzzleLeaderboardComponent,
-    RankedLeaderboardComponent,
     StatPanelComponent,
     TableComponent,
     MatchmakingLoadingPageComponent,
@@ -237,7 +232,6 @@ const customNotifierOptions: NotifierOptions = {
     GameSummaryGraphComponent,
     XpInfoComponent,
     ModeIconComponent,
-    SoloLeaderboardComponent,
   ],
   imports: [
     BrowserModule,

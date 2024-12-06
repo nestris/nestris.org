@@ -1,4 +1,5 @@
 import { T200LeaderboardData, T200LeaderboardRow, T200LeaderboardType } from "../../shared/models/leaderboard";
+import { OnlineUserManager } from "../online-users/online-user-manager";
 import { FullLeaderboard } from "./full-leaderboard";
 import { T200Leaderboard } from "./t200-leaderboard";
 
@@ -20,7 +21,7 @@ export class LeaderboardManager {
     /**
      * Initialize all leaderboards and trigger periodic update of T200 leaderboards
      */
-    public static async init() {
+    public static async init(users: OnlineUserManager) {
 
         // Initialize full leaderboards
         for (const fullLeaderboard of LeaderboardManager.fullLeaderboards.values()) {
@@ -28,8 +29,9 @@ export class LeaderboardManager {
             console.log(`Initialized full leaderboard: ${fullLeaderboard.constructor.name}`);
         }
 
-        // Initialize t200 leaderboards
+        // Initialize and update t200 leaderboards
         for (const t200Leaderboard of LeaderboardManager.t200Leaderboards.values()) {
+            t200Leaderboard.init(users)
             await t200Leaderboard.updateLeaderboard();
             console.log(`Initialized t200 leaderboard: ${t200Leaderboard.constructor.name}`);
         }

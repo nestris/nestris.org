@@ -30,18 +30,29 @@ export enum T200LeaderboardType {
     PUZZLES = 'puzzles',
 }
 
+// what the type of resource ID is
+export enum ResourceIDType {
+    GAME = 'game',
+    MATCH = 'match',
+    USER = 'user',
+}
+
 export interface T200LeaderboardData {
     type: T200LeaderboardType;
-    leaderboard: T200LeaderboardRow[];
+    resourceIDType: ResourceIDType | null;
     attributes: { [key: string]: string };
+    leaderboard: T200LeaderboardRow[];
+    
 }
 
 export interface T200LeaderboardRow {
     rank: number;
     userid: string;
     username: string;
+    isOnline: boolean;
     league: League;
     score: number;
+    resourceID: string | null;
 }
 
 export interface T200SoloXPLeaderboardRow extends T200LeaderboardRow {
@@ -53,10 +64,12 @@ export interface T200SoloXPLeaderboardRow extends T200LeaderboardRow {
 
 export interface T200SoloHighscoreLeaderboardRow extends T200LeaderboardRow {
     highscore: number;
-    highest_level: number;
-    highest_lines: number;
-    games_played: number;
+    highscore_level: number;
+    highscore_lines: number;
+    highscore_start_level: number;
+    highscore_accuracy: number | null;
 }
+
 
 export interface T200RankedLeaderboardRow extends T200LeaderboardRow {
     trophies: number;

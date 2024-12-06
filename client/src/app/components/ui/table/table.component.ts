@@ -1,21 +1,22 @@
 import { KeyValue } from '@angular/common';
 import { Component, Input, OnChanges } from '@angular/core';
+import { League } from 'src/app/shared/nestris-org/league-system';
 
 export interface TableRow {
+  rank: number;
   username: string;
   userid: string;
+  league: League;
+  isOnline: boolean;
 }
 
-export interface RankedTableRow extends TableRow {
-  _rank: number;
-}
 
 @Component({
   selector: 'app-table',
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.scss']
 })
-export class TableComponent implements OnChanges {
+export class TableComponent {
   // An ordered list of rows, with each row containing a key for each attribute name
   @Input() rows: TableRow[] = [];
 
@@ -39,42 +40,7 @@ export class TableComponent implements OnChanges {
   // Map of online userids to their status
   //@Input() onlineUserIDs: Map<string, OnlineUserStatus> | null = null;
 
-  sortedRows: RankedTableRow[] = [];
-
   readonly HIGHEST_RANK = 200;
-
-  // On changes, recalculate ranking from rows. If two players have same elo, they will share same rank,
-  // but the next rank will be skipped.
-  ngOnChanges(): void {
-
-    this.sortedRows = [];
-    let currentRank = 1;
-
-    let rows: any[] = this.rows;
-
-    // Sort rows by sortByAttribute, descending
-    rows = rows.sort((a, b) => b[this.sortByAttribute] - a[this.sortByAttribute]);
-
-    // Calculate ranking
-    let duplicateRank = 0;
-    for (let i = 0; i < this.rows.length; i++) {
-      if (i == 0) {}
-      else if (rows[i][this.sortByAttribute] !== rows[i - 1][this.sortByAttribute]) {
-        currentRank += 1 + duplicateRank;
-        duplicateRank = 0;
-      } else duplicateRank++;
-
-      if (currentRank > this.HIGHEST_RANK) break;
-
-      this.sortedRows.push({
-        ...rows[i],
-        _rank: currentRank
-      });
-    }
-
-    console.log('TableComponent: ngOnChanges() - sortedRows:', this.sortedRows);
-  }
-
 
   // Preserve original property order
   originalOrder = (a: KeyValue<string,string>, b: KeyValue<string,string>): number => {
@@ -105,12 +71,5 @@ export class TableComponent implements OnChanges {
     return 'white';
   }
 
-  // getOnlineStatus(userid: string): OnlineUserStatus {
-  //   if (!this.onlineUserIDs) {
-  //     return OnlineUserStatus.OFFLINE;
-  //   }
-
-  //   return this.onlineUserIDs.has(userid) ? this.onlineUserIDs.get(userid)! : OnlineUserStatus.OFFLINE;
-  // }
 
 }

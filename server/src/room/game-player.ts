@@ -162,6 +162,7 @@ export class GamePlayer {
             users: this.Users,
             sessionID: this.sessionID,
             xpGained: xpGained,
+            gameID: gameID,
             score: state.score,
             level: state.level,
             lines: state.lines,

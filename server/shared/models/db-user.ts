@@ -19,9 +19,12 @@ export interface DBUser {
   authentication: Authentication,
   created_at: Date,
   last_online: Date,
-
   league: number,
   xp: number,
+
+  matches_played: number,
+  wins: number,
+  losses: number,
   trophies: number,
   highest_trophies: number,
 
@@ -31,6 +34,7 @@ export interface DBUser {
   puzzles_solved: number,
   puzzle_seconds_played: number,
 
+  games_played: number,
   highest_score: number,
   highest_level: number,
   highest_lines: number,
@@ -55,44 +59,46 @@ export interface DBUser {
 
 // list of all DBUser attributes
 export const DBUserAttributes = [
-  "userid",
-  "username",
-  "is_guest",
-  "authentication",
-  "created_at",
-  "last_online",
+  'userid',
+  'username',
+  'is_guest',
+  'authentication',
+  'created_at',
+  'last_online',
+  'league',
+  'xp',
 
-  "league",
-  "xp",
-  "trophies",
-  "highest_trophies",
+  'matches_played',
+  'wins',
+  'losses',
+  'trophies',
+  'highest_trophies',
 
-  "puzzle_elo",
-  "highest_puzzle_elo",
-  "puzzles_attempted",
-  "puzzles_solved",
-  "puzzle_seconds_played",
+  'puzzle_elo',
+  'highest_puzzle_elo',
+  'puzzles_attempted',
+  'puzzles_solved',
+  'puzzle_seconds_played',
 
-  "highest_score",
-  "highest_level",
-  "highest_lines",
+  'games_played',
+  'highest_score',
+  'highest_level',
+  'highest_lines',
 
-  "highest_transition_into_19",
-  "highest_transition_into_29",
-  "has_perfect_transition_into_19",
-  "has_perfect_transition_into_29",
+  'highest_transition_into_19',
+  'highest_transition_into_29',
+  'has_perfect_transition_into_19',
+  'has_perfect_transition_into_29',
 
-  "enable_receive_friend_requests",
-  "notify_on_friend_online",
-  "solo_chat_permission",
-  "match_chat_permission",
-
-  "keybind_emu_move_left",
-  "keybind_emu_move_right",
-  "keybind_emu_rot_left",
-  "keybind_emu_rot_right",
-  "keybind_puzzle_rot_left",
-  "keybind_puzzle_rot_right",
-];
-
-
+  'enable_receive_friend_requests',
+  'notify_on_friend_online',
+  'solo_chat_permission',
+  'match_chat_permission',
+  
+  'keybind_emu_move_left',
+  'keybind_emu_move_right',
+  'keybind_emu_rot_left',
+  'keybind_emu_rot_right',
+  'keybind_puzzle_rot_left',
+  'keybind_puzzle_rot_right',
+]

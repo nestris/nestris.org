@@ -6,6 +6,7 @@ import { Database, DBQuery, WriteDBQuery } from "../db-query";
 import { QuestDefinitions } from "../../../shared/nestris-org/quest-system";
 import { XPGainMessage } from "../../../shared/network/json-message";
 import { OnlineUserManager } from "../../online-users/online-user-manager";
+import { SetHighscoreGameQuery } from "../db-queries/set-highscore-game-query";
 
 
 // The parameters required to create a new user
@@ -52,6 +53,7 @@ export class DBPuzzleSubmitEvent extends XPEvent<PuzzleSubmitArgs> {}
 
 // Update highest stats on game end
 interface GameEndArgs extends XPArgs {
+    gameID: string,
     score: number,
     level: number,
     lines: number,
@@ -64,8 +66,8 @@ export class DBGameEndEvent extends XPEvent<GameEndArgs> {}
 
 
 // Update user's trophies by trophyDelta amount
-interface MatchEndArgs extends XPArgs { trophyChange: number }
-export class DBMatchEndEvent extends XPEvent<MatchEndArgs> {}
+interface RankedMatchEndArgs extends XPArgs { win: boolean, lose: boolean, trophyChange: number }
+export class DBRankedMatchEndEvent extends XPEvent<RankedMatchEndArgs> {}
 
 
 export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("DBUser") {
@@ -106,22 +108,31 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
             last_online: new Date(),
             league: 0,
             xp: 0,
+
+            matches_played: 0,
+            wins: 0,
+            losses: 0,
             trophies: 0,
             highest_trophies: 0,
+
             puzzle_elo: 0,
             highest_puzzle_elo: 0,
             puzzles_attempted: 0,
             puzzles_solved: 0,
             puzzle_seconds_played: 0,
+
+            games_played: 0,
             highest_score: 0,
             highest_level: 0,
             highest_lines: 0,
+
             highest_transition_into_19: 0,
             highest_transition_into_29: 0,
             has_perfect_transition_into_19: false,
             has_perfect_transition_into_29: false,
             enable_receive_friend_requests: true,
             notify_on_friend_online: true,
+
             solo_chat_permission: 'everyone',
             match_chat_permission: 'everyone',
             keybind_emu_move_left: 'ArrowLeft',
@@ -190,9 +201,12 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
 
             
             // On alter trophies, add trophyDelta to trophies, ensuring trophies is non-negative
-            case DBMatchEndEvent:
-                const trophyArg = (event as DBMatchEndEvent).args;
-                this.inMemoryObject.trophies = Math.max(0, this.inMemoryObject.trophies + trophyArg.trophyChange);
+            case DBRankedMatchEndEvent:
+                const matchArg = (event as DBRankedMatchEndEvent).args;
+                this.inMemoryObject.matches_played++;
+                if (matchArg.win) this.inMemoryObject.wins++;
+                if (matchArg.lose) this.inMemoryObject.losses++;
+                this.inMemoryObject.trophies = Math.max(0, this.inMemoryObject.trophies + matchArg.trophyChange);
                 this.inMemoryObject.highest_trophies = Math.max(this.inMemoryObject.highest_trophies, this.inMemoryObject.trophies);
                 break;
 
@@ -208,6 +222,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
             // On game end, update highest stats
             case DBGameEndEvent:
                 const gameEndArgs = (event as DBGameEndEvent).args;
+                const isHighscore = gameEndArgs.score > this.inMemoryObject.highest_score;
                 this.inMemoryObject.highest_score = Math.max(this.inMemoryObject.highest_score, gameEndArgs.score);
                 this.inMemoryObject.highest_level = Math.max(this.inMemoryObject.highest_level, gameEndArgs.level);
                 this.inMemoryObject.highest_lines = Math.max(this.inMemoryObject.highest_lines, gameEndArgs.lines);
@@ -215,6 +230,9 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
                 this.inMemoryObject.highest_transition_into_29 = Math.max(this.inMemoryObject.highest_transition_into_29, gameEndArgs.transitionInto29 ?? 0);
                 this.inMemoryObject.has_perfect_transition_into_19 = this.inMemoryObject.has_perfect_transition_into_19 || gameEndArgs.perfectTransitionInto19;
                 this.inMemoryObject.has_perfect_transition_into_29 = this.inMemoryObject.has_perfect_transition_into_29 || gameEndArgs.perfectTransitionInto29;
+
+                // If highscore, start query to update the highscore game
+                if (isHighscore) Database.query(SetHighscoreGameQuery, this.inMemoryObject.userid, gameEndArgs.gameID);
                 break;
 
             // Update settings

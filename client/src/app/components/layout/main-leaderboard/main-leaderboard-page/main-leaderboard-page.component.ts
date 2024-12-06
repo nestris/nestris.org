@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { BehaviorSubject, map } from 'rxjs';
+import { BehaviorSubject, catchError, distinctUntilChanged, from, map, of, switchMap } from 'rxjs';
 import { Mode } from 'src/app/components/ui/mode-icon/mode-icon.component';
 import { ButtonColor } from 'src/app/components/ui/solid-selector/solid-selector.component';
 import { TableRow } from 'src/app/components/ui/table/table.component';
@@ -24,7 +24,7 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
   readonly ButtonColor = ButtonColor;
 
   readonly leaderboardTypes: { [key in Mode]: T200LeaderboardType[] } = {
-    [Mode.SOLO]: [T200LeaderboardType.SOLO_XP, T200LeaderboardType.SOLO_HIGHSCORE],
+    [Mode.SOLO]: [T200LeaderboardType.SOLO_HIGHSCORE, T200LeaderboardType.SOLO_XP],
     [Mode.RANKED]: [T200LeaderboardType.RANKED],
     [Mode.PUZZLES]: [T200LeaderboardType.PUZZLES],
   };
@@ -49,7 +49,7 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
 
 
   // The current leaderboard type
-  currentType$ = new BehaviorSubject<T200LeaderboardType>(T200LeaderboardType.SOLO_XP);
+  currentType$ = new BehaviorSubject<T200LeaderboardType>(T200LeaderboardType.SOLO_HIGHSCORE);
 
   // The current mode based on the current type
   currentMode$ = this.currentType$.pipe(
@@ -61,12 +61,25 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
     })
   );
 
+  private readonly fetchLeaderboard = (type: T200LeaderboardType) => this.fetchService.fetch<T200LeaderboardData>(Method.GET, `/api/v2/leaderboard/top/${type}`);
+
+  leaderboard$ = this.currentType$.pipe(
+    distinctUntilChanged(), // Avoid unnecessary calls for the same type
+    switchMap(type =>
+      from(this.fetchLeaderboard(type)).pipe(
+        catchError(error => {
+          console.error('Failed to fetch leaderboard:', error);
+          return of(null); // Fallback to null or an appropriate default value
+        })
+      )
+    )
+  );
+
+
 
   numPlayers$ = new BehaviorSubject<number>(0);
   puzzlesSolved$ = new BehaviorSubject<number>(0);
   hoursSpent$ = new BehaviorSubject<number>(0);
-
-  leaderboard$ = new BehaviorSubject<T200LeaderboardData | null>(null);
 
   TABLE_ATTRIBUTES: { [key: string]: string } = {
     rating: 'Rating',
@@ -96,6 +109,9 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
     // print on currentType$ change
     this.currentType$.subscribe(type => console.log('currentType$', type));
 
+    // print on leaderboard$ change
+    this.leaderboard$.subscribe(leaderboard => console.log('leaderboard$', leaderboard));
+
   }
 
   async ngOnInit() {
@@ -109,17 +125,15 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
   }
 
   setMode(mode: Mode) {
-    const newType = this.leaderboardTypes[mode][0];
-    if (newType !== this.currentType$.getValue()) {
-      this.currentType$.next(newType);
-    }
+    // If current type's mode is the same, do nothing
+    if (this.leaderboardTypes[mode].includes(this.currentType$.getValue())) return;
+    
+    this.currentType$.next(this.leaderboardTypes[mode][0]);
+
   }
 
   setType(mode: Mode, typeIndex: number) {
-    const newType = this.leaderboardTypes[mode][typeIndex];
-    if (newType !== this.currentType$.getValue()) {
-      this.currentType$.next(newType);
-    }
+    this.currentType$.next(this.leaderboardTypes[mode][typeIndex]);
   }
 
   getIndexForType(mode: Mode, type: T200LeaderboardType | null): number {

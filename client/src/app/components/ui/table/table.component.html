@@ -7,9 +7,13 @@
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let row of sortedRows" [ngClass]="{'me': row.userid === myID, 'first' : row._rank === 1, 'second' : row._rank === 2, 'third' : row._rank === 3}">
-            <td><div class="ranking">#{{ row._rank }}</div></td>
-            <td class="player">{{row.username}} <app-online-indicator /> </td>
+        <tr *ngFor="let row of rows" [ngClass]="{'me': row.userid === myID, 'first' : row.rank === 1, 'second' : row.rank === 2, 'third' : row.rank === 3}">
+            <td><div class="ranking">#{{ row.rank }}</div></td>
+            <td><div class="player">
+                <app-league-icon [league]="row.league" [height]="22" />
+                <p>{{row.username}}</p>
+                <app-online-indicator [isOnline]="row.isOnline || row.userid === myID" />
+            </div> </td>
             <td *ngFor="let item of attributes | keyvalue: originalOrder" [ngStyle]="{color: getCellColor(row, item.key)}" [innerHTML]="getRowAttribute(row, item.key)"></td>
         </tr>
     </tbody>

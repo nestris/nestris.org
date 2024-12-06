@@ -20,7 +20,7 @@ import { GetAllUsernamesRoute } from './src/routes/user/get-all-usernames-route'
 import { GuestConsumer } from './src/online-users/event-consumers/guest-consumer';
 import { LeaderboardManager } from './src/leaderboards/leaderboard-manager';
 import { FullHighscoreLeaderboard, FullPuzzlesLeaderboard, FullTrophiesLeaderboard } from './src/leaderboards/full-leaderboard';
-import { T200XPLeaderboard } from './src/leaderboards/t200-leaderboard';
+import { T200HighscoreLeaderboard, T200XPLeaderboard } from './src/leaderboards/t200-leaderboard';
 import { GetRelativeLeaderboardsRoute } from './src/routes/leaderboard/get-relative-leaderboards-route';
 import { CreateSoloRoomRoute } from './src/routes/room/create-solo-room-route';
 import { RoomConsumer } from './src/online-users/event-consumers/room-consumer';
@@ -105,7 +105,8 @@ async function main() {
   LeaderboardManager.registerFullLeaderboard(FullTrophiesLeaderboard);
   LeaderboardManager.registerFullLeaderboard(FullPuzzlesLeaderboard);
   LeaderboardManager.registerT200Leaderboard(T200XPLeaderboard);
-  await LeaderboardManager.init();
+  LeaderboardManager.registerT200Leaderboard(T200HighscoreLeaderboard);
+  await LeaderboardManager.init(users);
 
   // initialize routes
   const routes = new RouteManager(app);

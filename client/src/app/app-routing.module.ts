@@ -15,11 +15,8 @@ import { MainLeaderboardPageComponent } from './components/layout/main-leaderboa
 import { WelcomePageComponent } from './components/layout/welcome/welcome-page/welcome-page.component';
 import { ControlPanelPageComponent } from './components/layout/control-panel/control-panel-page/control-panel-page.component';
 import { SettingsPageComponent } from './components/layout/settings/settings-page/settings-page.component';
-import { PuzzleLeaderboardComponent } from './components/layout/main-leaderboard/puzzle-leaderboard/puzzle-leaderboard.component';
-import { RankedLeaderboardComponent } from './components/layout/main-leaderboard/ranked-leaderboard/ranked-leaderboard.component';
 import { MatchmakingLoadingPageComponent } from './components/layout/multiplayer/matchmaking-loading-page/matchmaking-loading-page.component';
 import { RoomComponent } from './components/layout/room/room/room.component';
-import { SoloLeaderboardComponent } from './components/layout/main-leaderboard/solo-leaderboard/solo-leaderboard.component';
 
 const routes: Routes = [
 

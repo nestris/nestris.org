@@ -45,7 +45,17 @@ td {
     width: 13%;
 }
 
-th.player, td.player {
+td .player {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+app-league-icon {
+    margin-right: 7px;
+}
+
+th.player, td .player {
     text-align: left;
     width: 40%;
 }
@@ -57,6 +67,10 @@ td.player {
     transform: translateY(2px);
 }
 
+.player p {
+    margin: 0;
+}
+
 tr:first-child td.player {
     transform: translateY(5px);
 }
@@ -66,7 +80,7 @@ app-online-indicator {
     margin-left: -1px;
 }
 
-td:first-child {
+td:first-child, th:first-child {
     width: 45px;
 }
 

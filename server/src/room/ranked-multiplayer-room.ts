@@ -2,7 +2,8 @@ import { UserSessionID } from "../online-users/online-user";
 import { MultiplayerRoomState, PlayerIndex, TrophyDelta, XPDelta } from "../../shared/room/multiplayer-room-models";
 import { MultiplayerRoom } from "./multiplayer-room";
 import { v4 as uuid } from 'uuid';
-import { DBMatchEndEvent, DBUserObject } from "../database/db-objects/db-user";
+import { DBRankedMatchEndEvent, DBUserObject } from "../database/db-objects/db-user";
+import { RoomError } from "../online-users/event-consumers/room-consumer";
 
 
 export class RankedMultiplayerRoom extends MultiplayerRoom {
@@ -33,6 +34,8 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
      */
     protected async onMatchEnd(state: MultiplayerRoomState): Promise<void> {
 
+        if (state.matchWinner === null) throw new RoomError('Match winner must be defined');
+
         // Iterate through each player in the game to update trophies and XP
         this.iterateGamePlayers(async (player, playerIndex) => {
 
@@ -44,10 +47,12 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
             else trophyChange = trophyDelta.trophyLoss;
 
             // Update each player's trophies and XP after the match, and calculate quest progress
-            await DBUserObject.alter(player.userid, new DBMatchEndEvent({
+            await DBUserObject.alter(player.userid, new DBRankedMatchEndEvent({
                 users: RankedMultiplayerRoom.Users,
                 sessionID: player.sessionID,
                 xpGained: this.calculateXPGain(state, playerIndex),
+                win: state.matchWinner === playerIndex,
+                lose: state.matchWinner !== playerIndex && state.matchWinner !== PlayerIndex.DRAW,
                 trophyChange: trophyChange,
             }), false);
         });

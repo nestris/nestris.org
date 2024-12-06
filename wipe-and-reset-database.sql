@@ -15,6 +15,9 @@ CREATE TABLE "public"."users" (
     "league" int2 NOT NULL DEFAULT 0,
     "xp" int4 NOT NULL DEFAULT 0,
 
+    "matches_played" int4 NOT NULL DEFAULT 0,
+    "wins" int4 NOT NULL DEFAULT 0,
+    "losses" int4 NOT NULL DEFAULT 0,
     "trophies" int2 NOT NULL DEFAULT 0,
     "highest_trophies" int2 NOT NULL DEFAULT 0,
     
@@ -24,9 +27,11 @@ CREATE TABLE "public"."users" (
     "puzzles_solved" int4 NOT NULL DEFAULT 0,
     "puzzle_seconds_played" int8 NOT NULL DEFAULT 0,
     
+    "games_played" int4 NOT NULL DEFAULT 0,
     "highest_score" int4 NOT NULL DEFAULT 0,
     "highest_level" int2 NOT NULL DEFAULT 0,
     "highest_lines" int2 NOT NULL DEFAULT 0,
+
 
     "highest_transition_into_19" int4 NOT NULL DEFAULT 0,
     "highest_transition_into_29" int4 NOT NULL DEFAULT 0,
@@ -159,6 +164,15 @@ CREATE TABLE "public"."games" (
     "tetris_rate" int2 NOT NULL,
     "xp_gained" int4 NOT NULL,
     PRIMARY KEY ("id")
+);
+
+-- HIGHSCORE GAME TABLE
+-- stores the highscore for each game
+DROP TABLE IF EXISTS "public"."highscore_games" CASCADE;
+CREATE TABLE "public"."highscore_games" (
+    "userid" text NOT NULL REFERENCES "public"."users"("userid"),
+    "game_id" text NOT NULL REFERENCES "public"."games"("id"),
+    PRIMARY KEY ("userid")
 );
 
 -- GAME DATA, storing the game data for each game
