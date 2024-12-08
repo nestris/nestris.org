@@ -309,6 +309,17 @@ export default class MoveableTetromino {
         });
     }
 
+    public unblitFromBoard(board: TetrisBoard) {
+            
+        const blockSet = this.getCurrentBlockSet();
+        blockSet.blocks.forEach(block => {
+            if (!board.exists(block.x, block.y)) {
+                throw new Error(`Block at ${block.x}, ${block.y} does not exist in board`);
+            }
+            board.setAt(block.x, block.y, ColorType.EMPTY);
+        });
+    }
+
     public intersectsBoard(board: TetrisBoard): boolean {
         return this.getCurrentBlockSet().blocks.some(block => board.exists(block.x, block.y));
     }

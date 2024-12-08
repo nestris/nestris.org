@@ -3,6 +3,14 @@
 declare const Module: any;
 var API: any;
 
+const attemptParse = (str: string) => {
+  try {
+    return JSON.parse(str);
+  } catch {
+    return str;
+  }
+}
+
 addEventListener('message', (event: MessageEvent<{id: number, endpoint: string, parameters: string}>) => {
 
   const { id, endpoint, parameters } = event.data;
@@ -15,7 +23,7 @@ addEventListener('message', (event: MessageEvent<{id: number, endpoint: string, 
 
     // Call the function dynamically and parse the JSON response
     const rawRes = API[endpoint](parameters);
-    const result = JSON.parse(rawRes);
+    const result = attemptParse(rawRes);
 
     // Send the result back to the main thread
     postMessage({ id, result });

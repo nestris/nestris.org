@@ -8,12 +8,14 @@ import { Keybinds } from './keybinds';
 import { GameDisplayData } from 'src/app/shared/tetris/game-display-data';
 import { GymRNG } from 'src/app/shared/tetris/piece-sequence-generation/gym-rng';
 import { BinaryEncoder } from 'src/app/shared/network/binary-codec';
-import { Observable, Subject } from 'rxjs';
+import { first, Observable, Subject } from 'rxjs';
 import { eventIsForInput } from 'src/app/util/misc';
 import { MemoryGameStatus, StatusHistory, StatusSnapshot } from 'src/app/shared/tetris/memory-game-status';
 import { getFeedback } from 'src/app/util/game-feedback';
 import { MeService } from '../state/me.service';
 import { StackrabbitService } from '../stackrabbit/stackrabbit.service';
+import MoveableTetromino from 'src/app/shared/tetris/moveable-tetromino';
+import { LiveGameAnalyzer } from '../stackrabbit/live-game-analyzer';
 
 
 /*
@@ -29,6 +31,7 @@ export class EmulatorService {
   private keyManager = new KeyManager();
 
   private currentState: EmulatorGameState | undefined = undefined;
+  private analyzer: LiveGameAnalyzer | undefined = undefined;
 
   private framesDone: number = 0;
   private epoch: number = performance.now();
@@ -95,7 +98,15 @@ export class EmulatorService {
     // generate initial game state
     const gymSeed = seed ?? GymRNG.generateRandomSeed();
     this.currentState = new EmulatorGameState(level, new GymRNG(gymSeed));
-    this.analyzePosition(this.currentState);
+    this.analyzer = new LiveGameAnalyzer(this.stackrabbitService);
+
+    this.analyzer.onNewPosition({
+      board: this.currentState.getIsolatedBoard().copy(),
+      currentPiece: this.currentState.getCurrentPieceType(),
+      nextPiece: this.currentState.getNextPieceType(),
+      level: this.currentState.getStatus().level,
+      lines: this.currentState.getStatus().lines,
+    });
 
     // send game start packet
     const current = this.currentState.getCurrentPieceType();
@@ -159,7 +170,15 @@ export class EmulatorService {
         pushdown: result.pushdownPoints,
       }));
 
-      this.analyzePosition(this.currentState);
+      this.analyzer!.onPlacement(result.lockedPiece!);
+      this.analyzer!.onNewPosition({
+        board: this.currentState.getIsolatedBoard().copy(),
+        currentPiece: this.currentState.getCurrentPieceType(),
+        nextPiece: this.currentState.getNextPieceType(),
+        level: this.currentState.getStatus().level,
+        lines: this.currentState.getStatus().lines,
+      });
+
     }
 
     // send packet with board info if board has changed
@@ -192,21 +211,6 @@ export class EmulatorService {
 
   }
 
-  private async analyzePosition(state: EmulatorGameState) {
-    const board = state.getIsolatedBoard();
-    const currentPiece = state.getCurrentPieceType();
-    const nextPiece = state.getNextPieceType();
-    const level = state.getStatus().level;
-    const lines = state.getStatus().lines;
-    console.log("analyzing position");
-
-    const response = await this.stackrabbitService.getTopMovesHybrid({
-      board, currentPiece, nextPiece, level, lines
-    });
-    board.print();
-    console.log(response);
-
-  }
 
   stopGame(force: boolean = false) {
 
@@ -228,6 +232,7 @@ export class EmulatorService {
 
     // Reset game state
     this.currentState = undefined;
+    this.analyzer = undefined;
     
     // send game end packet
     if (!force) this.sendPacket(new GameEndPacket().toBinaryEncoder({}));

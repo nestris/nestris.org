@@ -31,6 +31,7 @@ export interface StackrabbitParams {
   nextPiece: TetrominoType | null;
   inputSpeed: InputSpeed;
   playoutDepth: number;
+  pruningBreadth: number;
 }
 
 export interface OptionalStackrabbitParams {
@@ -43,6 +44,7 @@ export interface OptionalStackrabbitParams {
   lines?: number;
   inputSpeed?: InputSpeed;
   playoutDepth?: number;
+  pruningBreadth?: number;
 }
 
 const DEFAULT_PARAMS = {
@@ -50,7 +52,8 @@ const DEFAULT_PARAMS = {
   level: 18,
   lines: 0,
   inputSpeed: InputSpeed.HZ_30,
-  playoutDepth: 3
+  playoutDepth: 3,
+  pruningBreadth: 30
 }
 
 export interface TopMovesHybridResponse {
@@ -63,6 +66,13 @@ export interface TopMovesHybridResponse {
     firstPlacement: MoveableTetromino,
     score: number
   }[]
+}
+
+export interface RateMoveResponse {
+  bestMoveNB: number,
+  bestMoveNNB: number,
+  playerMoveNB: number,
+  playerMoveNNB: number
 }
 
 export class StackrabbitError extends Error {
@@ -218,7 +228,7 @@ export class StackrabbitService {
     const playoutCount = Math.pow(7, params.playoutDepth);
 
     // Construct the parameters string
-    const parameters = `${boardString}|${params.level}|${params.lines}|${current}|${next}|${inputFrameTimeline}|${playoutCount}|${params.playoutDepth}|`;
+    const parameters = `${boardString}|${params.level}|${params.lines}|${current}|${next}|${inputFrameTimeline}|${playoutCount}|${params.playoutDepth}|${params.pruningBreadth}|`;
 
     // Make the request using nonblocking web workers
     const response = await this.makeRequest("getTopMovesHybrid", parameters);
@@ -232,7 +242,7 @@ export class StackrabbitService {
    * @param optionalParams The board state to get the top moves for
    * @returns The top moves for the given board state
    */
-  public async rateMove(optionalParams: OptionalStackrabbitParams): Promise<any> {
+  public async rateMove(optionalParams: OptionalStackrabbitParams): Promise<RateMoveResponse> {
 
     // Merge the optional parameters with the default parameters
     const params: StackrabbitParams = Object.assign(DEFAULT_PARAMS, optionalParams);
@@ -251,13 +261,12 @@ export class StackrabbitService {
     const playoutCount = Math.pow(7, params.playoutDepth);
 
     // Construct the parameters string
-    const parameters = `${boardString}|${secondBoardString}|${params.level}|${params.lines}|${current}|${next}|${inputFrameTimeline}|${playoutCount}|${params.playoutDepth}|`;
+    const parameters = `${boardString}|${secondBoardString}|${params.level}|${params.lines}|${current}|${next}|${inputFrameTimeline}|${playoutCount}|${params.playoutDepth}|${params.pruningBreadth}|`;
 
     // Make the request using nonblocking web workers
     const response = await this.makeRequest("rateMove", parameters);
-    return response;
 
-    //return this.decodeTopMovesHybridResponse(response, params.currentPiece, params.nextPiece);
+    return this.decodeRateMoveResponse(response);
   }
 
   private validateCurrentNext(current: TetrominoType, next: TetrominoType | null): { current: number, next: number } {
@@ -281,17 +290,50 @@ export class StackrabbitService {
         score: move['playoutScore'] as number
       }});
 
-      const nextBox = next === null ? null : (response['nextBox'] as any[]).map((move: any) => { return {
+      if (noNextBox.length === 0) throw new StackrabbitError("No moves found for noNextBox");
+
+      if (next === null) {
+        return { nextBox: null, noNextBox };
+      }
+
+      const nextBox = (response['nextBox'] as any[]).map((move: any) => { return {
         firstPlacement: MoveableTetromino.fromStackRabbitPose(current, move['firstPlacement'][0] as number, move['firstPlacement'][1] as number, move['firstPlacement'][2] as number),
         secondPlacement: MoveableTetromino.fromStackRabbitPose(next, move['secondPlacement'][0] as number, move['secondPlacement'][1] as number, move['secondPlacement'][2] as number),
         score: move['playoutScore'] as number
       }});
+
+      if (nextBox.length === 0) throw new StackrabbitError("No moves found for nextBox");
 
       return { nextBox, noNextBox };
 
     } catch (e) {
       throw new StackrabbitError(`Invalid Stackrabbit response: ${e}`);
     }
+  }
+
+  private decodeRateMoveResponse(response: any): RateMoveResponse {
+
+    console.log(response);
+
+    try {
+      const rateMoveResponse: RateMoveResponse = {
+        bestMoveNB: response['bestMoveAfterAdjustment'],
+        bestMoveNNB: response['bestMoveNoAdjustment'],
+        playerMoveNB: response['playerMoveAfterAdjustment'],
+        playerMoveNNB: response['playerMoveNoAdjustment']
+      }
+
+      // Make sure all four are numbers
+      if (typeof rateMoveResponse.bestMoveNB !== 'number' || typeof rateMoveResponse.bestMoveNNB !== 'number' || typeof rateMoveResponse.playerMoveNB !== 'number' || typeof rateMoveResponse.playerMoveNNB !== 'number') {
+        throw new StackrabbitError("Invalid rateMove response");
+      }
+
+      return rateMoveResponse;
+
+    } catch (e) {
+      throw new StackrabbitError(`Invalid Stackrabbit response: ${e}`);
+    }
+
   }
 
   // Example function that makes a test request
