@@ -69,6 +69,8 @@ export class EmulatorService {
       this.advanceEmulatorState();
     }
 
+    if (frameAmount > 1) console.log("Skipped", frameAmount, "frames");
+
     // update the number of frames done for the next calculation of frames to advance
     this.framesDone = frames;
   }

@@ -35,7 +35,7 @@ export class LiveGameAnalyzer {
 
         if (this.mode !== Mode.AWAITING_POSITION) throw new Error("Received position when not in position mode");
 
-        console.log("Received new position", position);
+        //console.log("Received new position", position);
 
         this.mode = Mode.AWAITING_PLACEMENT;
         const index = this.currentIndex;
@@ -46,7 +46,7 @@ export class LiveGameAnalyzer {
 
         if (this.mode !== Mode.AWAITING_PLACEMENT) throw new Error("Received placement when not in placement mode");
 
-        console.log("Received placement", placement);
+        //console.log("Received placement", placement);
 
         this.mode = Mode.AWAITING_POSITION;
         const index = this.currentIndex;
@@ -61,10 +61,10 @@ export class LiveGameAnalyzer {
         placement.blitToBoard(secondBoard);
         secondBoard.processLineClears();
 
-        console.log("first board");
-        position.board.print();
-        console.log("second board");
-        secondBoard.print();
+        //console.log("first board");
+        //position.board.print();
+        //console.log("second board");
+        //secondBoard.print();
 
         // Get the rating of the move
         const rateMove = await this.stackrabbit.rateMove(Object.assign(position, { secondBoard }));

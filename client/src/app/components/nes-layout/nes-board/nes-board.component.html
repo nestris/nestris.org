@@ -18,8 +18,8 @@
         [attr.viewBox]="'0 0 ' + boardWidthPixels + ' ' + boardHeightPixels">
 
         <g (mouseleave)="onMouseLeave()">
-            <g *ngFor="let y of ZERO_TO_NINETEEN">
-                <g *ngFor="let x of ZERO_TO_NINE">
+            <g *ngFor="let y of ZERO_TO_NINETEEN; trackBy: trackByIndex">
+                <g *ngFor="let x of ZERO_TO_NINE; trackBy: trackByIndex">
                     <g app-nes-block class="block" [ngClass]="{'animate' : animateOpacity}"
                         [attr.opacity]="getOpacityAt(x,y)"
                         [color]="getBlockAt(x,y)"

@@ -117,4 +117,8 @@ export class NesBoardComponent {
     return typeof this.countdown === 'string';
   }
 
+  trackByIndex(index: number, item: any): number {
+    return index; // Or return a unique identifier for each item
+  }
+
 }
