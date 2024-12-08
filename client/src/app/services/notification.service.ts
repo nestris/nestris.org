@@ -18,7 +18,7 @@ export class NotificationService {
 
   constructor(
     private notifier: NotifierService,
-  ) { }
+  ) {}
 
   // send a notification to the user
   // type is one of 'info', 'success', 'warning', 'error'
@@ -26,6 +26,10 @@ export class NotificationService {
   // id is a unique identifier for this notification
   // durationSeconds is the number of seconds to display the notification for, or undefined for no hide
   notify(type: NotificationType, message: string, autohide: NotificationAutohide = NotificationAutohide.SHORT) {
+
+    // Don't show notifications if the tab is hidden
+    if (document.hidden) return;
+
     const id = uuidv4();
 
     // angular-notifier is broken and needs a setTimeout to register change detection
