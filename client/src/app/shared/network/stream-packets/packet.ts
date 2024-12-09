@@ -12,7 +12,8 @@ export enum PacketOpcode {
   GAME_FULL_BOARD = 5, // for full board state changes where active piece cannot be inferred 
   GAME_ABBR_BOARD = 6, // for abbreviated board state changes where active piece can be inferred
   GAME_RECOVERY = 7, // encapsulates all state during a game for a full recovery
-  GAME_COUNTDOWN = 9, // stores the current countdown value, or not in countdown if value is 0 
+  GAME_COUNTDOWN = 9, // stores the current countdown value, or not in countdown if value is 0
+  STACKRABBIT_PLACEMENT = 10, // a SR evalaution for a piece placement
 }
 
 // map of opcode to packet name
@@ -25,19 +26,9 @@ export const PACKET_NAME: {[key in PacketOpcode]: string} = {
   [PacketOpcode.GAME_ABBR_BOARD]: "GAME_ABBR_BOARD",
   [PacketOpcode.GAME_RECOVERY]: "GAME_RECOVERY",
   [PacketOpcode.GAME_COUNTDOWN]: "GAME_COUNTDOWN",
+  [PacketOpcode.STACKRABBIT_PLACEMENT]: "STACKRABBIT_PLACEMENT",
 };
 
-
-// packets to be included in the database. All else are ignored.
-// We do not include GAME_FULL_BOARD placements because they are sent every frame, and are too expensive to store
-const DATABASE_PACKETS = new Set([
-  PacketOpcode.GAME_START,
-  PacketOpcode.GAME_PLACEMENT
-]);
-
-export function isDatabasePacket(opcode: PacketOpcode): boolean {
-  return DATABASE_PACKETS.has(opcode);
-}
 
 export interface PacketSchema {}
 
@@ -325,3 +316,23 @@ export class GameCountdownPacket extends Packet<GameCountdownSchema> {
   }
 }
 PACKET_MAP[PacketOpcode.GAME_COUNTDOWN] = new GameCountdownPacket();
+
+// ================================ STACKRABBIT_PLACEMENT =================================
+PACKET_CONTENT_LENGTH[PacketOpcode.STACKRABBIT_PLACEMENT] = 10;
+export interface StackRabbitPlacementSchema extends PacketSchema {
+  accuracyScore: number; // 10 bits, placement accuracy score 0-1, stored by multiplying by 1000 and rounding to nearest integer
+}
+export class StackRabbitPlacementPacket extends Packet<StackRabbitPlacementSchema> {
+  constructor() { super(PacketOpcode.STACKRABBIT_PLACEMENT); }
+  protected override _decodePacketContent(content: BinaryDecoder): StackRabbitPlacementSchema {
+    return {
+      accuracyScore: content.nextUnsignedInteger(10) / 1000,
+    };
+  }
+  protected override _toBinaryEncoderWithoutOpcode(content: StackRabbitPlacementSchema): BinaryEncoder {
+    const encoder = new BinaryEncoder();
+    encoder.addUnsignedInteger(Math.round(content.accuracyScore * 1000), 10);
+    return encoder;
+  }
+}
+PACKET_MAP[PacketOpcode.STACKRABBIT_PLACEMENT] = new StackRabbitPlacementPacket();

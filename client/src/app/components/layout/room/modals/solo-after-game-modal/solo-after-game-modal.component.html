@@ -21,7 +21,7 @@
             </div>
 
             <div class="group stat">
-                <h1>-</h1>
+                <h1 [ngStyle]="{ 'color' : getAccuracyColor(summary.accuracy ?? 0) }">{{summary.accuracy}}%</h1>
                 <p>Game Accuracy</p>
             </div>
 

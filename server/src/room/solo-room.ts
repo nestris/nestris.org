@@ -1,5 +1,4 @@
 import { OnlineUserActivityType } from "../../shared/models/activity";
-import { FinishSoloGameMessage } from "../../shared/network/json-message";
 import { PacketAssembler } from "../../shared/network/stream-packets/packet-assembler";
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
 import { RoomType } from "../../shared/room/room-models";
@@ -51,9 +50,6 @@ export class SoloRoom extends Room<SoloRoomState> {
             // Add game to list of solo games
             DBSoloGamesListView.alter(this.player.userid, new DBSoloGamesListAddEvent(event.gameID, score, event.xpGained));
 
-            // Send message to all session of player of a new solo game that was finished
-            SoloRoom.Users.sendToUser(this.player.userid, new FinishSoloGameMessage(event.gameID, score, event.xpGained));
-
             // Send message to player indicating that the game has ended, with updated previous games
             const updatedPreviousGames = (await DBSoloGamesListView.get(this.player.userid)).view;
             this.updateRoomState({
@@ -66,7 +62,7 @@ export class SoloRoom extends Room<SoloRoomState> {
                     isPersonalBest: event.isPersonalBest,
                     linesCleared: event.state.getStatus().lines,
                     tetrisCount: event.state.getNumTetrises(),
-                    accuracy: null
+                    accuracy: event.accuracy,
                 }
             });
         });

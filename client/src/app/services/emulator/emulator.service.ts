@@ -83,10 +83,10 @@ export class EmulatorService {
 
   // starting game will create a game object and execute game frames at 60fps
   // if slowmode, will execute games at 5ps instead
-  startGame(level: number, sendPacketsToServer: boolean, seed?: string) {
+  startGame(startLevel: number, sendPacketsToServer: boolean, seed?: string) {
     this.sendPacketsToServer = sendPacketsToServer;
 
-    console.log("starting game at level", level, "with seed", seed);
+    console.log("starting game at level", startLevel, "with seed", seed);
 
     // Record initial game start time for deterimining time elapsed between frames
     this.timeDelta.resetDelta();
@@ -99,8 +99,8 @@ export class EmulatorService {
 
     // generate initial game state
     const gymSeed = seed ?? GymRNG.generateRandomSeed();
-    this.currentState = new EmulatorGameState(level, new GymRNG(gymSeed));
-    this.analyzer = new LiveGameAnalyzer(this.stackrabbitService);
+    this.currentState = new EmulatorGameState(startLevel, new GymRNG(gymSeed));
+    this.analyzer = new LiveGameAnalyzer(this.stackrabbitService, sendPacketsToServer ? this.platform : null, startLevel);
 
     this.analyzer.onNewPosition({
       board: this.currentState.getIsolatedBoard().copy(),
@@ -113,7 +113,7 @@ export class EmulatorService {
     // send game start packet
     const current = this.currentState.getCurrentPieceType();
     const next = this.currentState.getNextPieceType();
-    this.sendPacket(new GameStartPacket().toBinaryEncoder({level, current, next}));
+    this.sendPacket(new GameStartPacket().toBinaryEncoder({level: startLevel, current, next}));
 
     // send initial board state
     this.sendPacket(new GameAbbrBoardPacket().toBinaryEncoder({
@@ -230,6 +230,10 @@ export class EmulatorService {
       this.lastGameStatus = this.currentState.getStatus();
       this.lastGameFeedback = getFeedback(this.currentState.getStatus(), highestLines);
     }
+
+    this.analyzer!.stopAnalysis();
+    const overallAccuracy = this.analyzer!.getOverallAccuracy();
+    console.log("Overall accuracy:", overallAccuracy);
     
 
     // Reset game state

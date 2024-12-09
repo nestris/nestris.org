@@ -1,20 +1,20 @@
 export enum EvaluationRating {
-    ERROR = "ERROR",
-    BRILLIANT = "BRILLIANT",
-    BEST = "BEST",
-    GOOD = "GOOD",
-    MEDIOCRE = "MEDIOCRE",
-    INACCURACY = "INACCURACY",
-    MISTAKE = "MISTAKE",
-    BLUNDER = "BLUNDER",
+    ERROR = "Error",
+    BRILLIANT = "Brilliant",
+    BEST = "Best",
+    EXCELLENT = "Excellent",
+    GOOD = "Good",
+    INACCURACY = "Inaccuracy",
+    MISTAKE = "Mistake",
+    BLUNDER = "Blunder",
 }
 
 export const EVALUATION_TO_COLOR: { [key in EvaluationRating]: string } = {
     [EvaluationRating.ERROR]: 'grey',
-    [EvaluationRating.BRILLIANT]: '#B658D7',
+    [EvaluationRating.BRILLIANT]: '#B649E9',
     [EvaluationRating.BEST]: '#58D774',
-    [EvaluationRating.GOOD]: '#90D758',
-    [EvaluationRating.MEDIOCRE]: '#5892D7',
+    [EvaluationRating.EXCELLENT]: '#91E469',
+    [EvaluationRating.GOOD]: '#C9C9C9',
     [EvaluationRating.INACCURACY]: '#E6DF3E',
     [EvaluationRating.MISTAKE]: '#D79558',
     [EvaluationRating.BLUNDER]: '#D75858',
@@ -38,4 +38,14 @@ export function calculatePlacementScore(bestEval: number, playerEval: number) {
 
     const score = Math.pow(DIFFICULTY, rescaledPlayerEval - rescaledBestEval);
     return Math.max(0, Math.min(1, score));
+}
+
+export function overallAccuracyRating(accuracy: number): EvaluationRating {
+    if (accuracy >= 95) return EvaluationRating.BRILLIANT;
+    if (accuracy >= 90) return EvaluationRating.BEST;
+    if (accuracy >= 80) return EvaluationRating.GOOD;
+    if (accuracy >= 70) return EvaluationRating.GOOD;
+    if (accuracy >= 60) return EvaluationRating.INACCURACY;
+    if (accuracy >= 50) return EvaluationRating.MISTAKE;
+    return EvaluationRating.BLUNDER;
 }

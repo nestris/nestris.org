@@ -7,7 +7,7 @@ import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 
 // Number of web workers to create, to be used for parallel processing round-robin style
-const NUM_WORKERS = 2;
+const NUM_WORKERS = 3;
 
 // Define the type for the messages sent to each worker
 interface WorkerRequest {
@@ -191,7 +191,7 @@ export class StackrabbitService {
     // Round-robin to select a worker
     const workerIndex = id % NUM_WORKERS;
 
-    console.log(`Making request with ID: ${id} on worker ${workerIndex}`);
+    const startTime = Date.now();
 
     // Wait for the worker to be initialized
     await this.waitForWorkerToBeInitialized(workerIndex);
@@ -204,8 +204,10 @@ export class StackrabbitService {
     this.workers[workerIndex].postMessage(message);
 
     const response = await awaitingResponse;
+
+    console.log(`Request ${endpoint} from worker ${workerIndex} took ${Date.now() - startTime}ms`);
   
-    return response
+    return response;
   }
 
   /**
@@ -312,8 +314,6 @@ export class StackrabbitService {
   }
 
   private decodeRateMoveResponse(response: any): RateMoveResponse {
-
-    console.log(response);
 
     try {
       const rateMoveResponse: RateMoveResponse = {

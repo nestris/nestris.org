@@ -28,7 +28,6 @@ export enum JsonMessageType {
     ROOM_STATE_UPDATE = 'room_state_update',
     CLIENT_ROOM_EVENT = 'client_room_event',
     LEAVE_ROOM = 'leave_room',
-    FINISH_SOLO_GAME = 'finish_solo_game',
     XP_GAIN = 'xp_gain',
     NUM_QUEUING_PLAYERS = 'num_queuing_players',
     FOUND_OPPONENT = 'found_opponent',
@@ -180,16 +179,6 @@ export class LeaveRoomMessage extends JsonMessage {
     }
 }
 
-// sent from server to client to indicate a new solo game has been finished
-export class FinishSoloGameMessage extends JsonMessage {
-    constructor(
-        public readonly id: string,
-        public readonly score: number,
-        public readonly xp: number
-    ) {
-        super(JsonMessageType.FINISH_SOLO_GAME)
-    }
-}
 
 // sent from server to client to indicate an amount of XP has been gained, as well as any quests completed, to trigger client-side animation
 export class XPGainMessage extends JsonMessage {

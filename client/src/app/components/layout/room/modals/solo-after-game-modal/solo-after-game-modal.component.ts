@@ -5,6 +5,7 @@ import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.com
 import { EmulatorService } from 'src/app/services/emulator/emulator.service';
 import { RoomService } from 'src/app/services/room/room.service';
 import { SoloClientRoom, SoloClientState } from 'src/app/services/room/solo-client-room';
+import { EVALUATION_TO_COLOR, overallAccuracyRating } from 'src/app/shared/evaluation/evaluation';
 import { GameSummary, SoloRoomState } from 'src/app/shared/room/solo-room-models';
 import { numberWithCommas } from 'src/app/util/misc';
 
@@ -59,6 +60,11 @@ export class SoloAfterGameModalComponent {
       event.stopImmediatePropagation();
       this.next();
     }
+  }
+
+  getAccuracyColor(accuracy: number): string {
+    const rating = overallAccuracyRating(accuracy);
+    return EVALUATION_TO_COLOR[rating];
   }
 
 }

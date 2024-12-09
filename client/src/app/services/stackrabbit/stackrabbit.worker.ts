@@ -18,7 +18,8 @@ addEventListener('message', (event: MessageEvent<{id: number, endpoint: string, 
   try {
     // Ensure the endpoint corresponds to a valid function in the Module
     if (typeof API[endpoint] !== 'function') {
-      throw new Error(`Unknown endpoint: ${endpoint}`);
+      postMessage({ id, result: `Invalid endpoint: ${endpoint}` });
+      return;
     }
 
     // Call the function dynamically and parse the JSON response
@@ -29,7 +30,7 @@ addEventListener('message', (event: MessageEvent<{id: number, endpoint: string, 
     postMessage({ id, result });
   } catch (err: any) {
     console.error(err);
-    postMessage({ error: err.message });
+    postMessage({ id, result : err.message });
   }
 });
 

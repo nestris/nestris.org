@@ -1,7 +1,7 @@
 import { Subject, Observable } from "rxjs";
 import { GameState } from "../../shared/game-state-from-packets/game-state";
 import { MeMessage } from "../../shared/network/json-message";
-import { PacketContent, PacketOpcode, GameStartSchema, GamePlacementSchema } from "../../shared/network/stream-packets/packet";
+import { PacketContent, PacketOpcode, GameStartSchema, GamePlacementSchema, StackRabbitPlacementSchema } from "../../shared/network/stream-packets/packet";
 import { PacketAssembler } from "../../shared/network/stream-packets/packet-assembler";
 import { DBUserObject, DBGameEndEvent } from "../database/db-objects/db-user";
 import { CreateGameQuery } from "../database/db-queries/create-game-query";
@@ -20,6 +20,7 @@ export interface GameStartEvent {
 export interface GameEndEvent {
     gameID: string;
     state: GameState,
+    accuracy: number;
     packets: PacketAssembler;
     xpGained: number;
     isPersonalBest: boolean;
@@ -33,6 +34,11 @@ export interface XPStrategy {
 // By default, no XP is gained
 export const NO_XP_STRATEGY: XPStrategy = (score: number) => 0;
 
+// List of packet opcodes to ignore when saving to the database
+const DATABASE_PACKET_IGNORE_LIST: PacketOpcode[] = [
+    PacketOpcode.STACKRABBIT_PLACEMENT
+];
+
 /**
  * Represents a player in a game room. Handles server-side logic of a player playing games
  * in a room. It maintains the current game state of the player and aggregates packets when
@@ -43,6 +49,9 @@ export class GamePlayer {
 
     // The current game state for the player
     private gameState: GameState | null = null;
+
+    // A list of accuracy scores for each placement
+    private placementAccuracyScores: number[] = [];
 
     // The aggregation of packets for the player's current game
     private packets: PacketAssembler = new PacketAssembler();
@@ -78,7 +87,7 @@ export class GamePlayer {
     public async onDelete() {
         // If in the middle of a game, end the game and save the game state
         if (this.gameState) {
-            await this.onGameEnd(this.packets, this.gameState);
+            await this.onGameEnd(this.packets, this.gameState, this.placementAccuracyScores);
         }
     }
 
@@ -88,8 +97,8 @@ export class GamePlayer {
      */
     public async handlePacket(packet: PacketContent) {
 
-        // Add packet to the aggregation
-        this.packets.addPacketContent(packet.binary);
+        // Add packet to the aggregation to be saved to the database if not in the ignore list
+        if (!DATABASE_PACKET_IGNORE_LIST.includes(packet.opcode)) this.packets.addPacketContent(packet.binary);
 
         // Process packet and update game state
         if (packet.opcode === PacketOpcode.GAME_START) {
@@ -111,15 +120,22 @@ export class GamePlayer {
             this.gameState.onPlacement(gamePlacement.mtPose, gamePlacement.nextNextType, gamePlacement.pushdown);
         }
 
+        else if (packet.opcode === PacketOpcode.STACKRABBIT_PLACEMENT) {
+            // Add the accuracy score to the list
+            const stackrabbitPlacement = (packet.content as StackRabbitPlacementSchema);
+            this.placementAccuracyScores.push(stackrabbitPlacement.accuracyScore);
+        }
+
         else if (packet.opcode === PacketOpcode.GAME_END) {
             console.log(`Received game end packet from player ${this.username}`);
 
             // Handle the end of the game
-            await this.onGameEnd(this.packets, this.gameState!);
+            await this.onGameEnd(this.packets, this.gameState!, this.placementAccuracyScores);
 
             // Reset game state and packets
             this.gameState = null;
             this.packets = new PacketAssembler();
+            this.placementAccuracyScores = [];
         }
     }
 
@@ -127,15 +143,19 @@ export class GamePlayer {
      * Handle the end of the game, writing the game state to the database and updating XP/quests
      * @param packets The aggregation of packets for the game
      * @param gameState The final game state of the player
+     * @param placementAccuracyScores The list of accuracy scores for each placement
      * @returns The gameID of the game that was written to the database
      */
-    private async onGameEnd(packets: PacketAssembler, gameState: GameState): Promise<string> {
+    private async onGameEnd(packets: PacketAssembler, gameState: GameState, placementAccuracyScores: number[]): Promise<string> {
 
         // Get the final game state
         const state = gameState.getSnapshot();
 
         // Assign a unique game ID
         const gameID = uuid();
+
+        // Calculate overall game accuracy
+        const accuracy = this.calculateOverallAccuracy(placementAccuracyScores);
 
         // Calculate XP gained based on injected strategy
         const xpGained = this.xpStrategy(state.score);
@@ -151,7 +171,7 @@ export class GamePlayer {
             end_level: state.level,
             end_score: state.score,
             end_lines: state.lines,
-            accuracy: null, // TODO: calculate accuracy
+            accuracy: accuracy,
             tetris_rate: state.tetrisRate,
             xp_gained: xpGained
         });
@@ -181,6 +201,7 @@ export class GamePlayer {
             {
                 gameID,
                 state: gameState,
+                accuracy,
                 packets,
                 xpGained,
                 isPersonalBest: state.score > previousHighscore
@@ -188,5 +209,28 @@ export class GamePlayer {
         );
 
         return gameID;
+    }
+
+    /**
+     * Calculate the overall accuracy of the player's placements for the game
+     * @param placementAccuracyScores The list of accuracy scores for each placement
+     */
+    private calculateOverallAccuracy(placementAccuracyScores: number[]): number {
+
+        // Return 0 if no placements have been rated
+        if (placementAccuracyScores.length === 0) return 0;
+
+        // Remove the last TRIM placements, keeping at least MIN placements
+        const TRIM = 3;
+        const MIN = 10;
+        if (placementAccuracyScores.length > MIN) {
+            placementAccuracyScores = placementAccuracyScores.slice(0, -TRIM);
+        }
+
+        // Calculate the average accuracy score
+        const overallAccuracy = placementAccuracyScores.reduce((a, b) => a + b) / placementAccuracyScores.length;
+
+        // Round to 1 decimal place
+        return Math.round(overallAccuracy * 1000) / 10;
     }
 }

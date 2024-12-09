@@ -5,7 +5,6 @@ import { ButtonColor } from 'src/app/components/ui/solid-selector/solid-selector
 import { FetchService, Method } from 'src/app/services/fetch.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
-import { EvaluationRating } from 'src/app/shared/evaluation/evaluation';
 import { T200LeaderboardData, T200LeaderboardType } from 'src/app/shared/models/leaderboard';
 
 
@@ -161,24 +160,5 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
   private async pollTotalPuzzleDuration(): Promise<number> {
     const response = await this.fetchService.fetch<{total: number}>(Method.GET, '/api/v2/total-puzzle-duration');
     return response.total;
-  }
-
-  // private async fetchOnlineUsers(): Promise<Map<string, OnlineUserStatus>> {
-  //   const response = await this.fetchService.fetch<{userid: string, status: OnlineUserStatus}[]>(
-  //     Method.GET, '/api/v2/online-users'
-  //   );
-    
-  //   const onlineUserIDs = new Map<string, OnlineUserStatus>();
-  //   response.forEach(user => onlineUserIDs.set(user.userid, user.status));
-  //   return onlineUserIDs;
-  // }
-
-  private solveRateToRating(solveRate: number): EvaluationRating {
-    if (solveRate >= 70) return EvaluationRating.BEST;
-    else if (solveRate >= 60) return EvaluationRating.GOOD;
-    else if (solveRate >= 50) return EvaluationRating.MEDIOCRE;
-    else if (solveRate >= 40) return EvaluationRating.INACCURACY;
-    else if (solveRate >= 30) return EvaluationRating.MISTAKE;
-    else return EvaluationRating.BLUNDER;
   }
 }
