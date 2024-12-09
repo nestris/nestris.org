@@ -17,6 +17,11 @@ export class LeagueIconComponent {
     [League.MINO_3]: "mino-3",
     [League.MINO_2]: "mino-2",
     [League.MINO_1]: "mino-1",
+    [League.BETTA_5]: "betta-5",
+    [League.BETTA_4]: "betta-4",
+    [League.BETTA_3]: "betta-3",
+    [League.BETTA_2]: "betta-2",
+    [League.BETTA_1]: "betta-1",
   }
 
   public leagueToIcon(league: League | null | undefined) : string {
