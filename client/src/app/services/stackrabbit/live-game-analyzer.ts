@@ -120,7 +120,10 @@ export class LiveGameAnalyzer {
         // Get evaluation for best and player placements
         let response: PlacementEvaluation;
         try {
+            const start = new Date().getTime();
             response = await this.ratePlacement(position, topMovesHybrid, placement);
+            const time = new Date().getTime() - start;
+            console.log(JSON.stringify(response, null, 2), `Time: ${time}ms`);
             this.placementEvaluation$.next(response);
         } catch (e) {
             // If an error occurs, do not rate the placement
@@ -195,15 +198,15 @@ export class LiveGameAnalyzer {
         placement.blitToBoard(secondBoard);
         const numLineClears = secondBoard.processLineClears();
 
-        // Attempt to use rateMove endpoint
-        try {
-            const rateMove = await this.stackrabbit.rateMove(Object.assign({}, position, { secondBoard, playoutDepth: 2 }));
-            return {
-                bestPlacementScore: rateMove.bestMoveNB, // rate-move's evaluation of the best move for the position
-                playerPlacementScore: rateMove.playerMoveNB, // rate-move's evaluation of the player's placement
-                info: "PLAN B: Found player move using rateMove"
-            };
-        } catch {} // Go to Plan C if rateMove fails
+        // // Attempt to use rateMove endpoint
+        // try {
+        //     const rateMove = await this.stackrabbit.rateMove(Object.assign({}, position, { secondBoard, playoutDepth: 2 }));
+        //     return {
+        //         bestPlacementScore: rateMove.bestMoveNB, // rate-move's evaluation of the best move for the position
+        //         playerPlacementScore: rateMove.playerMoveNB, // rate-move's evaluation of the player's placement
+        //         info: "PLAN B: Found player move using rateMove"
+        //     };
+        // } catch {} // Go to Plan C if rateMove fails
 
         /**
          * Plan C: Use topMovesHybrid on resulting board after player placement if rateMove fails.
