@@ -57,13 +57,6 @@ export class AppComponent implements OnInit {
 
     // this.alertService.addAlert(XPAlertComponent, "xpAlert", {league: League.MINO_1, currentXP: 0});
     // this.alertService.addAlert(QuestAlertComponent, "questAlert", {name : "Ok Noah Dengler"});
-
-
-    // wait 3 seconds before making the test request
-    const start = Date.now();
-    const response = await this.stackrabbitService.makeTestRequest();
-    console.log(response, Date.now() - start);
-3
     
   }
 }

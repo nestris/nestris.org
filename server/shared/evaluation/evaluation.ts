@@ -43,7 +43,7 @@ export function calculatePlacementScore(bestEval: number, playerEval: number) {
 export function overallAccuracyRating(accuracy: number): EvaluationRating {
     if (accuracy >= 95) return EvaluationRating.BRILLIANT;
     if (accuracy >= 90) return EvaluationRating.BEST;
-    if (accuracy >= 80) return EvaluationRating.GOOD;
+    if (accuracy >= 80) return EvaluationRating.EXCELLENT;
     if (accuracy >= 70) return EvaluationRating.GOOD;
     if (accuracy >= 60) return EvaluationRating.INACCURACY;
     if (accuracy >= 50) return EvaluationRating.MISTAKE;

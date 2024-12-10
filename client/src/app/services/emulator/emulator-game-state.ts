@@ -33,7 +33,7 @@ export class EmulatorGameState {
     private status: MemoryGameStatus;
 
     // piece shown in next box
-    private nextPieceType!: TetrominoType;
+    private nextPieceType: TetrominoType;
 
     // the pose of the moveable active piece
     private activePiece: MoveableTetromino;

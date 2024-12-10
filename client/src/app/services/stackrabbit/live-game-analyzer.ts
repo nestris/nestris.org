@@ -33,7 +33,7 @@ export class LiveGameAnalyzer {
     private pendingPositions: {[key: number]: Position} = {};
 
     // A map of index to promise for each topMovesHybrid request
-    private topMovesPromises: {[key: number]: Promise<TopMovesHybridResponse>} = {};
+    private topMovesPromises: {[key: number]: Promise<TopMovesHybridResponse | null>} = {};
 
     private stopAnalyzing: boolean = false;
 
@@ -68,6 +68,9 @@ export class LiveGameAnalyzer {
             level: position.level,
             lines: position.lines,
             playoutDepth: 2,
+        }).catch(e => {
+            console.error("Error getting top moves hybrid", e);
+            return null;
         });
 
     }
@@ -101,10 +104,9 @@ export class LiveGameAnalyzer {
         let response;
         try {
             response = await this.ratePlacement(position, topMovesHybrid, placement);
-            console.log(JSON.stringify(response, null, 2));
         } catch (e) {
             // If an error occurs, do not rate the placement
-            console.error("Error rating placement", e);
+            console.error(`Error rating placement ${index}`, e);
             return;
         }
 
@@ -154,7 +156,7 @@ export class LiveGameAnalyzer {
     }> {
 
         if (!topMovesHybrid.nextBox) {
-            console.error(JSON.stringify({position, topMovesHybrid, placement}, null, 2));
+            console.error(JSON.stringify(topMovesHybrid, null, 2));
             throw new Error("TopMovesHybrid response does not contain nextBox");
         }
         /**
@@ -181,7 +183,7 @@ export class LiveGameAnalyzer {
 
         // Attempt to use rateMove endpoint
         try {
-            const rateMove = await this.stackrabbit.rateMove(Object.assign(position, { secondBoard, playoutDepth: 2 }));
+            const rateMove = await this.stackrabbit.rateMove(Object.assign({}, position, { secondBoard, playoutDepth: 2 }));
             return {
                 bestPlacementScore: rateMove.bestMoveNB, // rate-move's evaluation of the best move for the position
                 playerPlacementScore: rateMove.playerMoveNB, // rate-move's evaluation of the player's placement
@@ -196,6 +198,7 @@ export class LiveGameAnalyzer {
         // Calculate the updated level and lines after the line clears, using SmartGameStatus to handle transitions
         const status = new SmartGameStatus(this.startLevel, position.lines, 0, position.level);
         status.onLineClear(numLineClears);
+
 
         // Try to use topMovesHybrid on resulting board as backup
         try {

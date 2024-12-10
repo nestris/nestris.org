@@ -219,7 +219,7 @@ export class StackrabbitService {
   public async getTopMovesHybrid(optionalParams: OptionalStackrabbitParams): Promise<TopMovesHybridResponse> {
 
     // Merge the optional parameters with the default parameters
-    const params: StackrabbitParams = Object.assign(DEFAULT_PARAMS, optionalParams);
+    const params: StackrabbitParams = Object.assign({}, DEFAULT_PARAMS, optionalParams);
 
     // Encode the board to a string of 1s and 0s
     let boardString = BinaryTranscoder.encode(params.board, true);
@@ -247,7 +247,7 @@ export class StackrabbitService {
   public async rateMove(optionalParams: OptionalStackrabbitParams): Promise<RateMoveResponse> {
 
     // Merge the optional parameters with the default parameters
-    const params: StackrabbitParams = Object.assign(DEFAULT_PARAMS, optionalParams);
+    const params: StackrabbitParams = Object.assign({}, DEFAULT_PARAMS, optionalParams);
 
     if (params.secondBoard === null) {
       throw new StackrabbitError("Second board is required for rating moves");
@@ -271,6 +271,22 @@ export class StackrabbitService {
     return this.decodeRateMoveResponse(response);
   }
 
+  /**
+   * Echo a message to the Stackrabbit module, returning the same message
+   * @param message The message to echo
+   * @returns The echoed message
+   */
+  public async echo(message: string): Promise<string> {
+    return await this.makeRequest("echo", message);
+  }
+
+  /**
+   * Validate the current and next pieces, throwing an error if they are invalid
+   * @param current Current piece
+   * @param next Next piece
+   * @returns The current and next pieces as numbers, with -1 for next if it is null
+   * @throws StackrabbitError if the current or next piece is invalid
+   */
   private validateCurrentNext(current: TetrominoType, next: TetrominoType | null): { current: number, next: number } {
     if (current === TetrominoType.ERROR_TYPE) {
       throw new StackrabbitError("Invalid current piece");
@@ -284,6 +300,13 @@ export class StackrabbitService {
     return { current: current, next: next };
   }
 
+  /**
+   * Decode the response from the Stackrabbit module for getTopMovesHybrid
+   * @param response The raw response from the Stackrabbit module
+   * @param current Current piece
+   * @param next Next piece
+   * @returns The decoded response
+   */
   private decodeTopMovesHybridResponse(response: any, current: TetrominoType, next: TetrominoType | null): TopMovesHybridResponse {
     // Decode the response, and if it is invalid, throw an error
     try {
@@ -313,6 +336,11 @@ export class StackrabbitService {
     }
   }
 
+  /**
+   * Decode the response from the Stackrabbit module for rateMove
+   * @param response The raw response from the Stackrabbit module
+   * @returns The decoded response
+   */
   private decodeRateMoveResponse(response: any): RateMoveResponse {
 
     try {

@@ -9,6 +9,7 @@ import { OnSessionDisconnectEvent } from "../online-user-events";
 import { RoomAbortError, RoomConsumer } from "./room-consumer";
 import { NotificationType } from "../../../shared/models/notifications";
 import { OnlineUserActivityType } from "../../../shared/models/activity";
+import { DBUser } from "../../../shared/models/db-user";
 
 export class QueueError extends Error {}
 export class UserUnavailableToJoinQueueError extends QueueError {}
@@ -234,7 +235,7 @@ export class RankedQueueConsumer extends EventConsumer {
         if (!user2.getTrophyRange().contains(user1.trophies)) return false;
 
         // Check if the users have not played each other before, unless both users have been waiting for a long time
-        const MAX_WAIT_TIME = 0; // If both users have been waiting for more than MAX_WAIT_TIME seconds, they can rematch
+        const MAX_WAIT_TIME = 4; // If both users have been waiting for more than MAX_WAIT_TIME seconds, they can rematch
         if (user1.queueElapsedSeconds() < MAX_WAIT_TIME && user2.queueElapsedSeconds() < MAX_WAIT_TIME) {
             if (this.previousOpponent.get(user1.userid) === user2.userid) return false;
             if (this.previousOpponent.get(user2.userid) === user1.userid) return false;
@@ -249,7 +250,7 @@ export class RankedQueueConsumer extends EventConsumer {
      * @param user1 The first user in the match
      * @param user2 The second user in the match
      */
-    private async calculateTrophyDelta(user1: QueueUser, user2: QueueUser): Promise<{
+    private async calculateTrophyDelta(user1: DBUser, user2: DBUser): Promise<{
         player1TrophyDelta: TrophyDelta,
         player2TrophyDelta: TrophyDelta,
     }> {
@@ -282,12 +283,17 @@ export class RankedQueueConsumer extends EventConsumer {
         this.previousOpponent.set(user1.userid, user2.userid);
         this.previousOpponent.set(user2.userid, user1.userid);
 
+        const [dbUser1, dbUser2] = await Promise.all([
+            DBUserObject.get(user1.userid),
+            DBUserObject.get(user2.userid),
+        ]);
+
         // Calculate the win/loss XP delta for the users
-        const { player1TrophyDelta, player2TrophyDelta } = await this.calculateTrophyDelta(user1, user2);
+        const { player1TrophyDelta, player2TrophyDelta } = await this.calculateTrophyDelta(dbUser1, dbUser2);
 
         // Send the message that an opponent has been found to both users
-        const player1League = getLeagueFromIndex((await DBUserObject.get(user1.userid)).league);
-        const player2League = getLeagueFromIndex((await DBUserObject.get(user2.userid)).league);
+        const player1League = getLeagueFromIndex(dbUser1.league);
+        const player2League = getLeagueFromIndex(dbUser2.league);
         this.users.sendToUserSession(user1.sessionID, new FoundOpponentMessage(
             user2.username, user2.trophies, player2League, player1TrophyDelta
         ));

@@ -289,23 +289,23 @@ QuestDefinitions.register({
     targetScore: 1400000
 });
 
-QuestDefinitions.register({
-    name: "StackRabbit Whisperer",
-    description: "Stack at over 90% accuracy transitioning into 29",
-    difficulty: QuestDifficulty.MEDIUM,
-    xp: 1500,
-    computeScore: (user: DBUser) => user.highest_transition_into_29,
-    targetScore: 29
-});
+// QuestDefinitions.register({
+//     name: "StackRabbit Whisperer",
+//     description: "Stack at over 90% accuracy transitioning into 29",
+//     difficulty: QuestDifficulty.MEDIUM,
+//     xp: 1500,
+//     computeScore: (user: DBUser) => user.highest_transition_into_29,
+//     targetScore: 29
+// });
 
-QuestDefinitions.register({
-    name: "StackRabbit Clone",
-    description: "Stack at over 95% accuracy transitioning into 29",
-    difficulty: QuestDifficulty.HARD,
-    xp: 1600,
-    computeScore: (user: DBUser) => user.highest_transition_into_29,
-    targetScore: 29
-});
+// QuestDefinitions.register({
+//     name: "StackRabbit Clone",
+//     description: "Stack at over 95% accuracy transitioning into 29",
+//     difficulty: QuestDifficulty.HARD,
+//     xp: 1600,
+//     computeScore: (user: DBUser) => user.highest_transition_into_29,
+//     targetScore: 29
+// });
 
 QuestDefinitions.register({
     name: "Brain teaser",
@@ -343,14 +343,14 @@ QuestDefinitions.register({
     targetScore: 4000
 });
 
-QuestDefinitions.register({
-    name: "Rather rapid",
-    description: "Reach 100,000 points on level 29 start",
-    difficulty: QuestDifficulty.HARD,
-    xp: 100,
-    computeScore: (user: DBUser) => user.highest_transition_into_29,
-    targetScore: 100000
-});
+// QuestDefinitions.register({
+//     name: "Rather rapid",
+//     description: "Reach 100,000 points on level 29 start",
+//     difficulty: QuestDifficulty.HARD,
+//     xp: 100,
+//     computeScore: (user: DBUser) => user.highest_transition_into_29,
+//     targetScore: 100000
+// });
 
 QuestDefinitions.register({
     name: "I win sometimes",

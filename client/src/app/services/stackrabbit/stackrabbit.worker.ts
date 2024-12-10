@@ -11,9 +11,18 @@ const attemptParse = (str: string) => {
   }
 }
 
-addEventListener('message', (event: MessageEvent<{id: number, endpoint: string, parameters: string}>) => {
+addEventListener('message', async (event: MessageEvent<{id: number, endpoint: string, parameters: string}>) => {
 
   const { id, endpoint, parameters } = event.data;
+
+  if (endpoint == 'echo') {
+
+    // Simulate a delay for the echo endpoint
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Send the result back to the main thread
+    postMessage({ id, result: parameters });
+  }
 
   try {
     // Ensure the endpoint corresponds to a valid function in the Module
