@@ -24,8 +24,12 @@
   overflow-y: scroll;
   width: 100%;
   box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
 }
 
 .content-with-padding {
-  margin: 15px;
+  margin: 20px;
+  flex-grow: 1;
 }

@@ -1,5 +1,11 @@
 @import "../../../../../styles.scss";
 
+:host {
+    display: block;
+    padding: 20px;
+    padding-right: 10px;
+}
+
 .sidebar {
     background-color: $section-color;
     height: 100%;
