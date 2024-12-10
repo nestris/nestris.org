@@ -91,7 +91,7 @@ jobs:
 
             # Build StackRabbit and WASM assets
             mkdir -p client/src/assets/stackrabbit
-            emcc -O3 StackRabbit/src/cpp_modules/src/wasm.cpp --bind -lembind -g0 --pre-js StackRabbit/src/cpp_modules/locateFile.js -s MODULARIZE=1 -s EXPORT_NAME="Module" -o client/src/assets/stackrabbit/wasmRabbit.js
+            emcc -O3 StackRabbit/src/cpp_modules/src/wasm.cpp --bind -lembind -g0 --pre-js StackRabbit/src/cpp_modules/locateFile.js -s MODULARIZE=1 -s EXPORT_NAME="Module" -s INITIAL_MEMORY=67108864 -o client/src/assets/stackrabbit/wasmRabbit.js
             
             # Build and run the Docker containers
             docker compose -p ${NODE_ENV} -f docker-compose.${NODE_ENV}.yml pull
