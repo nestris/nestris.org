@@ -46,6 +46,9 @@ export class ServerPlayer {
      * @param packet The packet received from the server
      */
     private processPacket(packet: PacketContent) {
+
+      // Ignore stackrabbit placement packets
+      if (packet.opcode === PacketOpcode.STACKRABBIT_PLACEMENT) return;
   
       // Can only transition null -> GameStartPacket or null -> GameRecoveryPacket
       // Otherwise, ignore the packet

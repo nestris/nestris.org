@@ -152,7 +152,7 @@ export class T200HighscoreLeaderboard extends T200Leaderboard {
                     highscore_level: row.highscore_level,
                     highscore_lines: row.highscore_lines,
                     highscore_start_level: row.highscore_start_level,
-                    highscore_accuracy: row.highscore_accuracy,
+                    highscore_accuracy: row.highscore_accuracy / 10000,
 
                     resourceID: row.game_id,
                     score: row.highscore,

@@ -1,7 +1,7 @@
-<div class="main">
-    <h1 class="header">Welcome back, Ansel!</h1>
+<div class="main" *ngIf="me$ | async as me">
+    <h1 class="header">Welcome back, {{me.username}}!</h1>
 
-    <section class="profile" *ngIf="me$ | async as me">
+    <section class="profile">
         <div class="league-container">
             <app-league-icon [league]="me.league" [height]="150" />
             <app-xp-info [league]="me.league" [xp]="me.xp" barWidth="180px" />

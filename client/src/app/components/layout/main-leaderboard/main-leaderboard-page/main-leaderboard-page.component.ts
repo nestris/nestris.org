@@ -5,6 +5,7 @@ import { ButtonColor } from 'src/app/components/ui/solid-selector/solid-selector
 import { FetchService, Method } from 'src/app/services/fetch.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
+import { EVALUATION_TO_COLOR, overallAccuracyRating } from 'src/app/shared/evaluation/evaluation';
 import { T200LeaderboardData, T200LeaderboardType } from 'src/app/shared/models/leaderboard';
 
 
@@ -86,10 +87,11 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
   };
 
   FORMAT_RULES: { [key: string]: (value: any) => string } = {
+    highscore_accuracy: accuracy => `${(accuracy*100).toFixed(1)}%`,
   };
 
   COLOR_RULES: { [key: string]: (value: number) => string } = {
-
+    highscore_accuracy: accuracy => EVALUATION_TO_COLOR[overallAccuracyRating(accuracy*100)],
   };
 
   timer: any;
