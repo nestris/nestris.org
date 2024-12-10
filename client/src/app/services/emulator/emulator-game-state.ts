@@ -13,12 +13,6 @@ import { MemoryGameStatus, StatusHistory, StatusSnapshot } from "src/app/shared/
 
 export const EMULATOR_FPS = 60;
 
-export interface EmulatorFrameInfo {
-    toppedOut: boolean;
-    newPieceSpawned: boolean;
-    lockedPiece?: MoveableTetromino;
-    pushdownPoints: number;
-}
 
 export class EmulatorGameState {
     
@@ -34,6 +28,7 @@ export class EmulatorGameState {
 
     // piece shown in next box
     private nextPieceType: TetrominoType;
+    private nextNextPieceType: TetrominoType;
 
     // the pose of the moveable active piece
     private activePiece: MoveableTetromino;
@@ -52,8 +47,7 @@ export class EmulatorGameState {
     private gravityCounter = 1;
 
     private pushingDown = false;
-    private pushDownPoints = 0;
-    private oldPushDownPoints = 0;
+    private rawPushDownPoints = 0;
 
     private lineClearDelay = 0;
     private lineClearRows: number[] = [];
@@ -77,6 +71,7 @@ export class EmulatorGameState {
 
         // generate new next piece
         this.nextPieceType = this.rng.getNextPiece();
+        this.nextNextPieceType = this.rng.getNextPiece();
     }
 
     private getMidLineClearBoard(): TetrisBoard {
@@ -132,6 +127,10 @@ export class EmulatorGameState {
         return this.nextPieceType;
     }
 
+    getNextNextPieceType(): TetrominoType {
+        return this.nextNextPieceType;
+    }
+
     getStatus(): MemoryGameStatus {
         return this.status;
     }
@@ -154,6 +153,9 @@ export class EmulatorGameState {
         return this.status.getTetrisRate();
     }
 
+    getPushdownPoints(): number {
+        return this.calculatePushdown(this.status.score, this.rawPushDownPoints);
+    }
 
     private calculatePushdown(currentScore: number, pushdownPoints: number): number {
         // Helper to convert to BCD
@@ -210,14 +212,15 @@ export class EmulatorGameState {
 
         // reset pushdown flag
         this.pushingDown = false;
-        this.pushDownPoints = 0;
+        this.rawPushDownPoints = 0;
 
         // set active piece to spawn location of next piece
         this.activePiece = MoveableTetromino.fromSpawnPose(this.nextPieceType);
         this.pieceLocked = false;
 
         // generate new next piece
-        this.nextPieceType = this.rng.getNextPiece();
+        this.nextPieceType = this.nextNextPieceType;
+        this.nextNextPieceType = this.rng.getNextPiece();
 
         // if piece is illegal, game over
         if (this.activePiece.intersectsBoard(this.isolatedBoard)) {
@@ -298,8 +301,6 @@ export class EmulatorGameState {
 
             this.pieceLocked = true; // clear active piece
 
-            this.oldPushDownPoints = this.calculatePushdown(this.status.score, this.pushDownPoints);
-
             this.lineClearRows = this.isolatedBoard.getLineClearRows();
             if (this.lineClearRows.length > 0) {
                 this.lineClearDelay = this.MAX_LINE_CLEAR_DELAY;
@@ -308,28 +309,19 @@ export class EmulatorGameState {
             
         } else {
             // successful piece drop, add pushdown points if pushing down
-            if (this.pushingDown) this.pushDownPoints++;
+            if (this.pushingDown) this.rawPushDownPoints++;
+            else this.rawPushDownPoints = 0;
         }
     }
 
     // given the current state and a set of pressed keys, progress the state
-    executeFrame(pressedKeys: CurrentlyPressedKeys): EmulatorFrameInfo {
+    executeFrame(pressedKeys: CurrentlyPressedKeys) {
 
         // do nothing on topout
-        if (this.toppedOut) return {
-            toppedOut: true,
-            newPieceSpawned: false,
-            pushdownPoints: 0,
-        }
-
-        let newPieceSpawned = false;
-        const oldActivePiece = this.activePiece;
+        if (this.toppedOut) return;
 
         if (pressedKeys.isJustPressed(Keybind.PUSHDOWN)) this.pushingDown = true;
-        if (pressedKeys.isJustReleased(Keybind.PUSHDOWN)) {
-            this.pushingDown = false;
-            this.pushDownPoints = 0;
-        }
+        if (pressedKeys.isJustReleased(Keybind.PUSHDOWN)) this.pushingDown = false;
 
         // on first frame, spawn piece
         if (this.placementFrameCount === 0 && this.pieceLocked) {
@@ -337,12 +329,10 @@ export class EmulatorGameState {
             if (this.lineClearDelay > 0) {
                 this.lineClearDelay--;
 
-                return {
-                    toppedOut: false,
-                    newPieceSpawned: false,
-                    pushdownPoints: 0,
-                }
-            } else {
+                // waiting for line clear delay to finish
+                return;
+
+            } else { // if line clear delay is over, spawn new piece
 
                 // Count the number of line clears, and remove them from the board
                 const linesCleared = this.isolatedBoard.processLineClears();
@@ -354,16 +344,10 @@ export class EmulatorGameState {
                 }
 
                 // update pushdown
-                this.status.onPushdown(this.oldPushDownPoints);
-
+                this.status.onPushdown(this.getPushdownPoints());
 
                 this.spawnNewPiece();
-                newPieceSpawned = true;
-                if (this.toppedOut) return {
-                    toppedOut: true,
-                    newPieceSpawned: true,
-                    pushdownPoints: 0,
-                }; // if piece spawn causes topout, exit
+                if (this.toppedOut) return; // if piece spawn causes topout, exit
 
             }
 
@@ -399,15 +383,7 @@ export class EmulatorGameState {
         }
 
         // increment placement frame counter
-        this.placementFrameCount++;
-
-        return {
-            toppedOut: false,
-            newPieceSpawned: newPieceSpawned,
-            lockedPiece: newPieceSpawned ? oldActivePiece : undefined,
-            pushdownPoints: this.oldPushDownPoints,
-        }
-        
+        this.placementFrameCount++;        
     }
 
 }

@@ -301,9 +301,6 @@ export class GameSummaryGraphComponent implements OnInit, AfterViewInit {
       coordinates = this.smoothPath(coordinates, resolution, 0.4);
     }
     
-
-    console.log("Smoothed coordinates", coordinates);
-
     // Finally, onvert coordinates to a string
     return coordinates;
   }

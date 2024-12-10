@@ -221,7 +221,7 @@ export class GamePlayer {
         if (placementAccuracyScores.length === 0) return 0;
 
         // Remove the last TRIM placements, keeping at least MIN placements
-        const TRIM = 3;
+        const TRIM = 4;
         const MIN = 10;
         if (placementAccuracyScores.length > MIN) {
             placementAccuracyScores = placementAccuracyScores.slice(0, -TRIM);

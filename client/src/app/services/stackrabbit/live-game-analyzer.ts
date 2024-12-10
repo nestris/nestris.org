@@ -119,7 +119,7 @@ export class LiveGameAnalyzer {
         // Calculate accuracy score of the placement and add it to the list of scores
         const accuracyScore = calculatePlacementScore(response.bestPlacementScore, response.playerPlacementScore);
         this.placementScores.push(accuracyScore);
-        console.log("Accuracy score for placement:", accuracyScore);
+        console.log("PLACEMENT SCORE:", accuracyScore);
 
         // Send the accuracy score to the server
         if (this.platform) this.platform.sendPacket(new StackRabbitPlacementPacket().toBinaryEncoder({ accuracyScore }));

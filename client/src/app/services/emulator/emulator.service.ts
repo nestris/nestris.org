@@ -138,9 +138,12 @@ export class EmulatorService {
     const previousBoard = this.currentState.getDisplayBoard();
     const previousCountdown = this.currentState.getCountdown();
 
+    const oldActivePiece = this.currentState.getActivePiece();
+
     // execute frame
-    const result = this.currentState.executeFrame(pressedKeys);
+    this.currentState.executeFrame(pressedKeys);
     const newBoard = this.currentState.getDisplayBoard();
+    const activePiece = this.currentState.getActivePiece();
 
     // update game data
     const data: GameDisplayData = {
@@ -164,15 +167,19 @@ export class EmulatorService {
     }
 
     // send placement packet if piece has been placed
-    if (result.newPieceSpawned && !result.toppedOut) {
+    if (oldActivePiece && !activePiece) {
       this.sendPacket(new GamePlacementPacket().toBinaryEncoder({
         delta: this.timeDelta.getDelta(),
-        nextNextType: this.currentState.getNextPieceType(),
-        mtPose: result.lockedPiece!.getMTPose(),
-        pushdown: result.pushdownPoints,
+        nextNextType: this.currentState.getNextNextPieceType(),
+        mtPose: oldActivePiece.getMTPose(),
+        pushdown: this.currentState.getPushdownPoints(),
       }));
 
-      this.analyzer!.onPlacement(result.lockedPiece!);
+      this.analyzer!.onPlacement(oldActivePiece);
+    }
+
+    // send new position to analyzer if new piece has spawned
+    if (!oldActivePiece && activePiece) {
       this.analyzer!.onNewPosition({
         board: this.currentState.getIsolatedBoard().copy(),
         currentPiece: this.currentState.getCurrentPieceType(),
@@ -180,7 +187,6 @@ export class EmulatorService {
         level: this.currentState.getStatus().level,
         lines: this.currentState.getStatus().lines,
       });
-
     }
 
     // send packet with board info if board has changed
