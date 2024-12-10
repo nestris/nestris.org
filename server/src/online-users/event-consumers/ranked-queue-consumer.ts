@@ -112,6 +112,14 @@ export class RankedQueueConsumer extends EventConsumer {
     }
 
     /**
+     * Get the number of players in the queue
+     * @returns The number of players in the queue
+     */
+    public playersInQueue(): number {
+        return this.queue.length;
+    }
+
+    /**
      * When a session disconnects, remove the user from the queue if the user's session is the one that disconnected
      * @param event The session disconnect event
      */
@@ -351,7 +359,7 @@ export class RankedQueueConsumer extends EventConsumer {
      * Send the number of players in the queue to all users in the queue
      */
     private async sendNumQueuingPlayers() {
-        const numQueuingPlayers = this.queue.length;
+        const numQueuingPlayers = this.playersInQueue();
 
         this.queue.forEach(user => this.users.sendToUserSession(
             user.sessionID,
