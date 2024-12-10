@@ -98,6 +98,19 @@ export class PlatformInterfaceService extends PacketSender {
 
   // called by emulator/game-state service to update the game data
   updateGameData(data: GameDisplayData) {
+    
+    // Check if data is the same as the previous data. If so, don't emit the event
+    const prevData = this.polledGameData$.getValue();
+    if (
+      prevData.board.equals(data.board) &&
+      prevData.countdown === data.countdown &&
+      prevData.level === data.level &&
+      prevData.lines === data.lines &&
+      prevData.score === data.score &&
+      prevData.nextPiece === data.nextPiece &&
+      prevData.trt === data.trt
+    ) return;
+
     this.polledGameData$.next(data);
   }
 

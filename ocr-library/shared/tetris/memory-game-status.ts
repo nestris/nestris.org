@@ -97,8 +97,8 @@ export class MemoryGameStatus extends SmartGameStatus {
 
     private rollingTetrisRate = new RollingAverage(14, RollingAverageStrategy.DELTA);
 
-    constructor(startLevel: number) {
-        super(startLevel);
+    constructor(startLevel: number, initialLines: number = 0, initialScore: number = 0, initialLevel?: number) {
+        super(startLevel, initialLines, initialScore, initialLevel);
 
         this.history.addSnapshot({
             level: this.level,

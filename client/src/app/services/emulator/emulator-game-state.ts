@@ -73,6 +73,26 @@ export class EmulatorGameState {
         this.nextPieceType = this.rng.getNextPiece();
         this.nextNextPieceType = this.rng.getNextPiece();
     }
+    
+    copy(): EmulatorGameState {
+        const copy = new EmulatorGameState(this.startLevel, this.rng, this.countdown);
+        copy.isolatedBoard = this.isolatedBoard.copy();
+        copy.status = new MemoryGameStatus(this.status.startLevel, this.status.lines, this.status.score, this.status.level);
+        copy.nextPieceType = this.nextPieceType;
+        copy.nextNextPieceType = this.nextNextPieceType;
+        copy.activePiece = this.activePiece.copy();
+        copy.pieceLocked = this.pieceLocked;
+        copy.toppedOut = this.toppedOut;
+        copy.currentDAS = this.currentDAS;
+        copy.placementFrameCount = this.placementFrameCount;
+        copy.gravity = this.gravity;
+        copy.gravityCounter = this.gravityCounter;
+        copy.pushingDown = this.pushingDown;
+        copy.rawPushDownPoints = this.rawPushDownPoints;
+        copy.lineClearDelay = this.lineClearDelay;
+        copy.lineClearRows = this.lineClearRows.slice();
+        return copy;
+    }
 
     private getMidLineClearBoard(): TetrisBoard {
 

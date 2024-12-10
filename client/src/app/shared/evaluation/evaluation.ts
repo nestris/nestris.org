@@ -31,7 +31,7 @@ export function rescaleStackrabbitEval(ev: number): number {
 
 // Assigns a placement score between 0 and 1 based on the difference between the player's eval and the best eval
 export function calculatePlacementScore(bestEval: number, playerEval: number) {
-    const DIFFICULTY = 1.4;
+    const DIFFICULTY = 1.35;
     
     const rescaledBestEval = rescaleStackrabbitEval(bestEval);
     const rescaledPlayerEval = rescaleStackrabbitEval(playerEval);

@@ -12,3 +12,30 @@ export function standardDeviation(data: number[]): number {
     // Return the standard deviation (square root of variance)
     return Math.sqrt(variance);
 }
+
+export function truncatedMean(data: number[], trimPercent: number): number {
+    if (trimPercent < 0 || trimPercent > 50) {
+        throw new Error("trimPercent must be between 0 and 50.");
+    }
+
+    if (data.length === 0) {
+        throw new Error("Data array must not be empty.");
+    }
+
+    // Sort the data array in ascending order
+    const sortedData = [...data].sort((a, b) => a - b);
+
+    // Calculate the number of elements to trim from each end
+    const trimCount = Math.floor((trimPercent / 100) * sortedData.length);
+
+    // Extract the truncated array
+    const truncatedData = sortedData.slice(trimCount, sortedData.length - trimCount);
+
+    if (truncatedData.length === 0) {
+        throw new Error("Trimming too many elements results in an empty dataset.");
+    }
+
+    // Calculate the mean of the truncated array
+    const sum = truncatedData.reduce((acc, value) => acc + value, 0);
+    return sum / truncatedData.length;
+}

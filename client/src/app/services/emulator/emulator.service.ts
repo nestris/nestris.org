@@ -69,7 +69,11 @@ export class EmulatorService {
       this.advanceEmulatorState();
     }
 
-    if (frameAmount > 1) console.log("Skipped", frameAmount, "frames");
+    // update the client-side board and game stsate if there are frames to update
+    if (frameAmount >= 1) this.updateClientsideDisplay();
+
+    // If more than one frame was executed in a tick cycle, log the number of frames skipped
+    if (frameAmount > 1) console.log("Skipped", frameAmount-1, "frames");
 
     // update the number of frames done for the next calculation of frames to advance
     this.framesDone = frames;
@@ -123,7 +127,37 @@ export class EmulatorService {
 
     // start game loop
     this.loop = setInterval(() => this.tick(), 0);
-}
+  }
+
+  private updateClientsideDisplay() {
+
+    const RUNAHEAD_FRAMES = 0;
+
+    let state = this.currentState;
+    if (!state) return;
+
+    if (RUNAHEAD_FRAMES > 0) {
+      // runahead to get next state
+      let runaheadState = state.copy();
+      for (let i = 0; i < RUNAHEAD_FRAMES; i++) {
+        runaheadState.executeFrame(this.keyManager.peek());
+      }
+      state = runaheadState;
+    }
+
+    // update game data
+    const data: GameDisplayData = {
+      board: state.getDisplayBoard(),
+      level: state.getStatus().level,
+      score: state.getStatus().score,
+      lines: state.getStatus().lines,
+      nextPiece: state.getNextPieceType(),
+      trt: state.getTetrisRate(),
+      countdown: state.getCountdown(),
+    };
+    this.platform.updateGameData(data);
+
+  }
 
   // run emulator for one tick
   // if keyboard input, rollback and runahead
@@ -144,18 +178,6 @@ export class EmulatorService {
     this.currentState.executeFrame(pressedKeys);
     const newBoard = this.currentState.getDisplayBoard();
     const activePiece = this.currentState.getActivePiece();
-
-    // update game data
-    const data: GameDisplayData = {
-      board: newBoard,
-      level: this.currentState.getStatus().level,
-      score: this.currentState.getStatus().score,
-      lines: this.currentState.getStatus().lines,
-      nextPiece: this.currentState.getNextPieceType(),
-      trt: this.currentState.getTetrisRate(),
-      countdown: this.currentState.getCountdown(),
-    };
-    this.platform.updateGameData(data);
 
     // send countdown packet if countdown has changed
     const currentCountdown = this.currentState.getCountdown();

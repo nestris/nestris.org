@@ -106,6 +106,12 @@ export class KeyManager {
         return new CurrentlyPressedKeys(this.thisFramePressed, this.lastFramePressed);
     }
 
+    // returns the most recent state without polling for new events
+    peek(): CurrentlyPressedKeys {
+        return new CurrentlyPressedKeys(this.thisFramePressed, this.thisFramePressed);
+    }
+
+
     print() {
         console.log(this.pressed);
     }
