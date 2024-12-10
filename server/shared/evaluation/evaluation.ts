@@ -40,6 +40,17 @@ export function calculatePlacementScore(bestEval: number, playerEval: number) {
     return Math.max(0, Math.min(1, score));
 }
 
+// Assign a rating to an individual placement score
+export function placementScoreRating(score: number): EvaluationRating {
+    if (score >= 0.95) return EvaluationRating.BEST;
+    else if (score >= 0.90) return EvaluationRating.EXCELLENT;
+    else if (score >= 0.75) return EvaluationRating.GOOD;
+    else if (score >= 0.65) return EvaluationRating.INACCURACY;
+    else if (score >= 0.5) return EvaluationRating.MISTAKE;
+    else return EvaluationRating.BLUNDER;
+}
+
+// Assigns an overall rating based on the overall game accuracy score
 export function overallAccuracyRating(accuracy: number): EvaluationRating {
     if (accuracy >= 95) return EvaluationRating.BRILLIANT;
     if (accuracy >= 90) return EvaluationRating.BEST;

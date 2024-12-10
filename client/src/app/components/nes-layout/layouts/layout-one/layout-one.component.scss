@@ -4,8 +4,13 @@
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
-    align-items: flex-start; // align at top
+    align-items: stretch;
     gap: $panel-margin;
+    height: fit-content;
+}
+
+app-eval-bar {
+    margin-right: 3px;
 }
 
 .panels {

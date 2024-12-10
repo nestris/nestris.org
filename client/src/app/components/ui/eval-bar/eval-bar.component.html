@@ -1,0 +1,6 @@
+<div class="eval-bar" [ngStyle]="{'width': width + 'px', 'backgroundColor' : backgroundColor, 'borderRadius' : borderRadius + 'px'}">
+
+    <div class="fill" [ngStyle]="{'height' : (playerPercent*100) + '%', 'borderRadius' : borderRadius + 'px', 'backgroundColor' : fillColor }"></div>
+    <div class="outline" [ngStyle]="{'height' : (bestPercent*100) + '%', 'borderRadius' : borderRadius + 'px'}"></div>
+
+</div>

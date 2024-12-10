@@ -1,0 +1,27 @@
+@import "../../../../styles.scss";
+
+.eval-bar {
+    box-sizing: border-box;
+    height: 100%;
+    
+
+    position: relative;
+}
+
+.eval-bar div {
+    position: absolute;
+    box-sizing: border-box;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    transition: height 0.5s ease;
+}
+
+.outline {
+    border: solid white 1px;
+}
+
+.fill {
+    background-color: white;
+}

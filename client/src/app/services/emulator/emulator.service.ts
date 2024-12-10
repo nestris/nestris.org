@@ -14,8 +14,7 @@ import { MemoryGameStatus, StatusHistory, StatusSnapshot } from 'src/app/shared/
 import { getFeedback } from 'src/app/util/game-feedback';
 import { MeService } from '../state/me.service';
 import { StackrabbitService } from '../stackrabbit/stackrabbit.service';
-import MoveableTetromino from 'src/app/shared/tetris/moveable-tetromino';
-import { LiveGameAnalyzer } from '../stackrabbit/live-game-analyzer';
+import { LiveGameAnalyzer, PlacementEvaluation } from '../stackrabbit/live-game-analyzer';
 
 
 /*
@@ -266,6 +265,7 @@ export class EmulatorService {
 
     // Reset game state
     this.currentState = undefined;
+    this.analyzer!.destroy();
     this.analyzer = undefined;
     
     // send game end packet

@@ -6,10 +6,17 @@ import { SmartGameStatus } from "src/app/shared/tetris/smart-game-status";
 import { calculatePlacementScore } from "src/app/shared/evaluation/evaluation";
 import { PlatformInterfaceService } from "../platform-interface.service";
 import { StackRabbitPlacementPacket } from "src/app/shared/network/stream-packets/packet";
+import { Subject } from "rxjs";
 
 enum Mode {
     AWAITING_POSITION,
     AWAITING_PLACEMENT,
+}
+
+export interface PlacementEvaluation {
+    bestPlacementScore: number,
+    playerPlacementScore: number,
+    info?: string,
 }
 
 export interface Position {
@@ -37,11 +44,21 @@ export class LiveGameAnalyzer {
 
     private stopAnalyzing: boolean = false;
 
+    private placementEvaluation$ = new Subject<PlacementEvaluation>();
+
     constructor(
         private readonly stackrabbit: StackrabbitService, // For making Stackrabbit API calls
         private readonly platform: PlatformInterfaceService | null, // For sending placement accuracy scores to the server
         private readonly startLevel: number,
     ) {}
+
+    public destroy() {
+        this.placementEvaluation$.complete();
+    }
+
+    public onPlacementEvaluation(callback: (evaluation: PlacementEvaluation) => void) {
+        this.placementEvaluation$.subscribe(callback);
+    }
 
     public onNewPosition(position: Position) {
 
@@ -101,9 +118,10 @@ export class LiveGameAnalyzer {
         secondBoard.processLineClears();
 
         // Get evaluation for best and player placements
-        let response;
+        let response: PlacementEvaluation;
         try {
             response = await this.ratePlacement(position, topMovesHybrid, placement);
+            this.placementEvaluation$.next(response);
         } catch (e) {
             // If an error occurs, do not rate the placement
             console.error(`Error rating placement ${index}`, e);
@@ -149,11 +167,7 @@ export class LiveGameAnalyzer {
      * @param topMovesHybrid The best moves for the position precomputed before the player's placement
      * @param placement The player's placement
      */
-    private async ratePlacement(position: Position, topMovesHybrid: TopMovesHybridResponse, placement: MoveableTetromino): Promise<{
-        bestPlacementScore: number,
-        playerPlacementScore: number,
-        info?: string,
-    }> {
+    private async ratePlacement(position: Position, topMovesHybrid: TopMovesHybridResponse, placement: MoveableTetromino): Promise<PlacementEvaluation> {
 
         if (!topMovesHybrid.nextBox) {
             console.error(JSON.stringify(topMovesHybrid, null, 2));

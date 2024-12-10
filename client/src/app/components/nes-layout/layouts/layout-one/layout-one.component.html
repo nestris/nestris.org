@@ -1,12 +1,15 @@
 <div class="columns">
-    <div class="board-column">
-        <app-nes-board [scale]="3" [board]="board" [level]="level" [countdown]="countdown" (clickNext)="clickNext.emit()"
+
+    <app-nes-board [scale]="3" [board]="board" [level]="level" [countdown]="countdown" (clickNext)="clickNext.emit()"
             [gameOver]="gameOver" [gameOverShowNext]="gameOverShowNext" [animateOpacity]="true" />
+<!-- 
+    <div class="board-column">
+        
         <div class="keybinds-container">
             <p class="keybinds prevent-select">TODO: Keybinds here (Z X Left Right)</p>
         </div>
     </div>
-    
+     -->
     
 
     <div class="panels">

@@ -56,7 +56,7 @@
     box-sizing: border-box;
     display: flex;
     flex-direction: row;
-    gap: 10px;
+    gap: 15px;
 }
 
 .panel {
@@ -67,5 +67,10 @@
 }
 
 .panel.menu {
-    width: 100px;
+    width: 17%;
+    min-width: 170px;
+}
+
+.panel.main {
+    flex-grow: 1;
 }

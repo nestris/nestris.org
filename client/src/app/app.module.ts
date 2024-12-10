@@ -98,6 +98,7 @@ import { MultiplayerAfterMatchModalComponent } from './components/layout/room/mo
 import { GameSummaryGraphComponent } from './components/ui/game-summary-graph/game-summary-graph.component';
 import { XpInfoComponent } from './components/ui/xp-info/xp-info.component';
 import { ModeIconComponent } from './components/ui/mode-icon/mode-icon.component';
+import { EvalBarComponent } from './components/ui/eval-bar/eval-bar.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -232,6 +233,7 @@ const customNotifierOptions: NotifierOptions = {
     GameSummaryGraphComponent,
     XpInfoComponent,
     ModeIconComponent,
+    EvalBarComponent,
   ],
   imports: [
     BrowserModule,
