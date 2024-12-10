@@ -32,7 +32,12 @@ export class RoomService {
 
   private status: InRoomStatus = InRoomStatus.NONE;
 
+  // The client room the client is currently in
   private clientRoom: ClientRoom | null = null;
+
+  // The client room the client is currently in, or was in before it was destroyed
+  private oldClientRoom: ClientRoom | null = null;
+
   public modal$ = new BehaviorSubject<RoomModal | null>(null);
 
   private roomInfo: RoomInfo | null = null;
@@ -130,6 +135,7 @@ export class RoomService {
 
     // Create the client room
     this.clientRoom = this.createClientRoom(event.roomState);
+    this.oldClientRoom = this.clientRoom;
     await this.clientRoom.init(event.roomState);
 
     // Navigate to the room
@@ -191,6 +197,17 @@ export class RoomService {
       throw new Error('Client is not in a room');
     }
     return this.clientRoom as T;
+  }
+
+  /**
+   * Get the old client room.
+   * @returns The old client room
+   */
+  public getOldClient<T extends ClientRoom = ClientRoom>(): T {
+    if (!this.oldClientRoom) {
+      throw new Error('Client is not in a room');
+    }
+    return this.oldClientRoom as T;
   }
 
 }

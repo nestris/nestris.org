@@ -4,7 +4,7 @@ import { MultiplayerRoomState, PlayerIndex } from "src/app/shared/room/multiplay
 
 export class MultiplayerComponent {
 
-  public multiplayerClientRoom = this.roomService.getClient<MultiplayerClientRoom>();
+  public multiplayerClientRoom = this.roomService.getOldClient<MultiplayerClientRoom>();
   public multiplayerState$ = this.multiplayerClientRoom.getState$<MultiplayerRoomState>();
 
   readonly PLAYER_INDICIES = [PlayerIndex.PLAYER_1, PlayerIndex.PLAYER_2];

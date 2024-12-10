@@ -10,6 +10,7 @@ import { RoomAbortError, RoomConsumer } from "./room-consumer";
 import { NotificationType } from "../../../shared/models/notifications";
 import { OnlineUserActivityType } from "../../../shared/models/activity";
 import { DBUser } from "../../../shared/models/db-user";
+import { getEloChange } from "../../../shared/nestris-org/elo-system";
 
 export class QueueError extends Error {}
 export class UserUnavailableToJoinQueueError extends QueueError {}
@@ -79,10 +80,15 @@ class QueueUser {
         // Time elapsed since user was added to the queue in seconds
         const queueTime = this.queueElapsedSeconds();
 
+        // FOR BETA, MATCH QUICKLY
+        if (queueTime < 3) return TrophyRange.fromDelta(this.trophies, 200);
+        if (queueTime < 6) return TrophyRange.fromDelta(this.trophies, 600);
+        return new TrophyRange(null, null);
+
         // Calculate trophy range based on queue time
-        if (queueTime < 5) return TrophyRange.fromDelta(this.trophies, 100);
-        if (queueTime < 10) return TrophyRange.fromDelta(this.trophies, 200);
-        if (queueTime < 15) return TrophyRange.fromDelta(this.trophies, 400);
+        if (queueTime < 3) return TrophyRange.fromDelta(this.trophies, 100);
+        if (queueTime < 5) return TrophyRange.fromDelta(this.trophies, 200);
+        if (queueTime < 10) return TrophyRange.fromDelta(this.trophies, 400);
         if (queueTime < 20) return TrophyRange.fromDelta(this.trophies, 1000);
         return new TrophyRange(null, null);
     }
@@ -235,7 +241,7 @@ export class RankedQueueConsumer extends EventConsumer {
         if (!user2.getTrophyRange().contains(user1.trophies)) return false;
 
         // Check if the users have not played each other before, unless both users have been waiting for a long time
-        const MAX_WAIT_TIME = 4; // If both users have been waiting for more than MAX_WAIT_TIME seconds, they can rematch
+        const MAX_WAIT_TIME = 2; // If both users have been waiting for more than MAX_WAIT_TIME seconds, they can rematch
         if (user1.queueElapsedSeconds() < MAX_WAIT_TIME && user2.queueElapsedSeconds() < MAX_WAIT_TIME) {
             if (this.previousOpponent.get(user1.userid) === user2.userid) return false;
             if (this.previousOpponent.get(user2.userid) === user1.userid) return false;
@@ -255,16 +261,20 @@ export class RankedQueueConsumer extends EventConsumer {
         player2TrophyDelta: TrophyDelta,
     }> {
 
-        // TODO: Implement trophy calculation
+        const elo1 = user1.trophies;
+        const elo2 = user2.trophies;
+        const numMatches1 = user1.matches_played;
+        const numMatches2 = user2.matches_played;
 
+        // use the elo system to calculate the win/loss trophy delta for each user
         return {
             player1TrophyDelta: {
-                trophyGain: 100,
-                trophyLoss: -100,
+                trophyGain: getEloChange(elo1, elo2, 1, numMatches1),
+                trophyLoss: getEloChange(elo1, elo2, 0, numMatches1),
             },
             player2TrophyDelta: {
-                trophyGain: 100,
-                trophyLoss: -100,
+                trophyGain: getEloChange(elo2, elo1, 1, numMatches2),
+                trophyLoss: getEloChange(elo2, elo1, 0, numMatches2),
             }
         };
     }
@@ -301,7 +311,7 @@ export class RankedQueueConsumer extends EventConsumer {
             user1.username, user1.trophies, player1League, player2TrophyDelta
         ));
 
-        console.log(`Matched users ${user1.userid} and ${user2.userid}`);
+        console.log(`Matched users ${user1.username} and ${user2.username} with trophies ${user1.trophies} and ${user2.trophies}and delta ${player1TrophyDelta.trophyGain}/${player1TrophyDelta.trophyLoss} and ${player2TrophyDelta.trophyGain}/${player2TrophyDelta.trophyLoss}`);
 
         // Wait for client-side animations
         await sleep(5500);

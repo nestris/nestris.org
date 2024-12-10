@@ -8,6 +8,9 @@ import { XPGainMessage } from "../../../shared/network/json-message";
 import { OnlineUserManager } from "../../online-users/online-user-manager";
 import { SetHighscoreGameQuery } from "../db-queries/set-highscore-game-query";
 
+// The initial number of trophies a user has
+const INITIAL_RANKED_TROPHIES = 1200;
+
 
 // The parameters required to create a new user
 export interface DBUserParams {
@@ -112,8 +115,8 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
             matches_played: 0,
             wins: 0,
             losses: 0,
-            trophies: 0,
-            highest_trophies: 0,
+            trophies: INITIAL_RANKED_TROPHIES,
+            highest_trophies: INITIAL_RANKED_TROPHIES,
 
             puzzle_elo: 0,
             highest_puzzle_elo: 0,
