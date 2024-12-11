@@ -4,6 +4,9 @@ import { FriendInfo } from '../../shared/models/friends';
 import { FriendUpdateMessage, JsonMessageType } from '../../shared/network/json-message';
 import { Method } from '../fetch.service';
 import { StateService } from './state.service';
+import { NotificationService } from '../notification.service';
+import { MeService } from './me.service';
+import { NotificationType } from 'src/app/shared/models/notifications';
 
 
 @Injectable({
@@ -21,7 +24,10 @@ export class FriendsService extends StateService<FriendInfo[]>() {
     distinctUntilChanged(this.arraysEqual)
   );
 
-  constructor() {
+  constructor(
+    private readonly meService: MeService,
+    private readonly notificationService: NotificationService
+  ) {
     super([JsonMessageType.FRIEND_UPDATE], "Friends");
   }
 
@@ -38,7 +44,10 @@ export class FriendsService extends StateService<FriendInfo[]>() {
     } else if (event.data.update) { // If an existing friend was updated, replace specified properties
     
       const friendIndex = state.findIndex(friend => friend.userid === event.userid);
-      if (friendIndex !== -1) state[friendIndex] = { ...state[friendIndex], ...event.data.update };
+      if (friendIndex !== -1) {
+        state[friendIndex] = { ...state[friendIndex], ...event.data.update };
+        if (event.data.update.isOnline !== undefined) this.notifyUserOnline(state[friendIndex].username, event.data.update.isOnline);
+      }
     }
 
     else { // If a friend was removed, remove friend
@@ -59,5 +68,16 @@ export class FriendsService extends StateService<FriendInfo[]>() {
    */
   public async removeFriend(userid: string) {
     await this.fetchService.fetch(Method.POST, `/api/v2/remove-friend/${userid}`)
+  }
+
+  private notifyUserOnline(username: string, online: boolean) {
+
+    // If friend online notification setting is disabled, do not notify
+    if (!this.meService.getSync()?.notify_on_friend_online) return;
+
+    // Notify user that friend is online
+    const type = online ? NotificationType.SUCCESS : NotificationType.ERROR;
+    const message = online ? `${username} is now online!` : `${username} went offline.`;
+    this.notificationService.notify(type, message);
   }
 }

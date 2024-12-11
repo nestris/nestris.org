@@ -1,5 +1,6 @@
 import { Invitation, InvitationType, InvitationCancellationReason } from "../../shared/models/invitation";
-import { InvitationMessage, InvitationMode } from "../../shared/network/json-message";
+import { NotificationType } from "../../shared/models/notifications";
+import { InvitationMessage, InvitationMode, SendPushNotificationMessage } from "../../shared/network/json-message";
 import { OnSessionDisconnectEvent, OnUserActivityChangeEvent, OnUserDisconnectEvent } from "../online-users/online-user-events";
 import { OnlineUserManager } from "../online-users/online-user-manager";
 
@@ -198,6 +199,13 @@ export abstract class InvitationManager<I extends Invitation = Invitation> {
             throw new InvitationError(`${invitation.senderUsername} is busy!`, true);
         }
 
+        // Check if there was an error creating the invitation, and if so notify the sender.
+        const error = await this.errorCreatingInvitation(invitation);
+        if (error) {
+            this.users.sendToUser(invitation.senderID, new SendPushNotificationMessage(NotificationType.ERROR, error));
+            return;
+        }
+
         // Create the invitation.
         this.addInvitation(invitation);
 
@@ -252,6 +260,13 @@ export abstract class InvitationManager<I extends Invitation = Invitation> {
     }
 
     // ------------ Hooks for subclasses optionally to implement ------------
+
+    /**
+     * Return an error message if there was an error creating the invitation. By default, no error is returned.
+     * @param invitation The invitation that was attempted to be created.
+     * @returns An error message, or null if there was no error.
+     */
+    protected async errorCreatingInvitation(invitation: I): Promise<string | null> { return null; }
 
     /**
      * Hook for when an invitation is created.

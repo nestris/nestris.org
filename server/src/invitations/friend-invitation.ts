@@ -1,4 +1,5 @@
 import { Invitation, InvitationType } from "../../shared/models/invitation";
+import { DBUserObject } from "../database/db-objects/db-user";
 import { EventConsumerManager } from "../online-users/event-consumer";
 import { FriendEventConsumer } from "../online-users/event-consumers/friend-event-consumer";
 import { InvitationManager, InvitationRequirement } from "./invitation";
@@ -13,6 +14,17 @@ export class FriendInvitationManager extends InvitationManager<Invitation> {
 
     // Friend requests can be sent at any time
     protected readonly invitationRequirement = InvitationRequirement.NONE;
+
+    /**
+     * If receiver's settings have friend requests disabled, the sender cannot send a friend request.
+     * @param invitation 
+     */
+    protected override async errorCreatingInvitation(invitation: Invitation): Promise<string | null> {
+        const receiver = await DBUserObject.get(invitation.receiverID);
+        if (!receiver.enable_receive_friend_requests) return `User ${invitation.receiverID} has friend requests disabled.`;
+       
+        return null;
+    }
 
     /**
      * When a friend request is accepted, the sender and receiver become friends.
