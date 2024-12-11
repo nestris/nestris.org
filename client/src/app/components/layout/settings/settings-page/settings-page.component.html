@@ -8,7 +8,7 @@
         <div class="menu panel">
 
         </div>
-        <div class="main panel">
+        <div class="main panel" *ngIf="me$ | async as me">
             <h1 class="tab-name">{{currentTab.name}}</h1>
 
             <ng-container *ngFor="let category of currentTab.categories">
@@ -19,7 +19,7 @@
 
                     <div *ngIf="isBooleanSetting(setting) as setting" class="boolean-setting"> 
                         <p>{{setting.label}}</p>
-                        <p></p>
+                        <app-slide-toggle [checked]="getAttribute(me, setting.key)" (setChecked)="setAttribute(me, setting.key, $event)" />
                     </div>
     
                 </ng-container>

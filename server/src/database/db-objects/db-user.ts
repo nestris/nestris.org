@@ -1,7 +1,7 @@
 import { Authentication, DBUser, DBUserAttributes } from "../../../shared/models/db-user";
 import { getLeagueFromIndex, updateXP } from "../../../shared/nestris-org/league-system";
 import { DBObject } from "../db-object";
-import { DBObjectNotFoundError } from "../db-object-error";
+import { DBObjectAlterError, DBObjectNotFoundError } from "../db-object-error";
 import { Database, DBQuery, WriteDBQuery } from "../db-query";
 import { QuestDefinitions } from "../../../shared/nestris-org/quest-system";
 import { XPGainMessage } from "../../../shared/network/json-message";
@@ -29,20 +29,9 @@ class GenericEvent<T> extends DBUserEvent {
 // When user connects to the server, update last_online
 export class DBUserOnlineEvent extends DBUserEvent {}
 
-// Update settings
-interface UpdateSettingsArgs {
-    enableReceiveFriendRequests: boolean,
-    notifyOnFriendOnline: boolean,
-    soloChatPermission: string,
-    matchChatPermission: string,
-    keybindEmuMoveLeft: string,
-    keybindEmuMoveRight: string,
-    keybindEmuRotLeft: string,
-    keybindEmuRotRight: string,
-    keybindPuzzleRotLeft: string,
-    keybindPuzzleRotRight: string
-}
-export class DBUpdateSettingsEvent extends GenericEvent<UpdateSettingsArgs> {}
+// Update a single attribute of the user
+interface UpdateAttributeArgs { attribute: string, value: any }
+export class DBUpdateAttributeEvent extends GenericEvent<UpdateAttributeArgs> {}
 
 
 // An XP event advances the user's XP and possibly their league. In addition, DBUser will check for quest update
@@ -241,19 +230,18 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
                 }
                 break;
 
-            // Update settings
-            case DBUpdateSettingsEvent:
-                const settingsArgs = (event as DBUpdateSettingsEvent).args;
-                this.inMemoryObject.enable_receive_friend_requests = settingsArgs.enableReceiveFriendRequests;
-                this.inMemoryObject.notify_on_friend_online = settingsArgs.notifyOnFriendOnline;
-                this.inMemoryObject.solo_chat_permission = settingsArgs.soloChatPermission;
-                this.inMemoryObject.match_chat_permission = settingsArgs.matchChatPermission;
-                this.inMemoryObject.keybind_emu_move_left = settingsArgs.keybindEmuMoveLeft;
-                this.inMemoryObject.keybind_emu_move_right = settingsArgs.keybindEmuMoveRight;
-                this.inMemoryObject.keybind_emu_rot_left = settingsArgs.keybindEmuRotLeft;
-                this.inMemoryObject.keybind_emu_rot_right = settingsArgs.keybindEmuRotRight;
-                this.inMemoryObject.keybind_puzzle_rot_left = settingsArgs.keybindPuzzleRotLeft;
-                this.inMemoryObject.keybind_puzzle_rot_right = settingsArgs.keybindPuzzleRotRight;
+            // Update a single attribute
+            case DBUpdateAttributeEvent:
+                const attributeArgs = (event as DBUpdateAttributeEvent).args;
+                
+                // If attribute does not exist, throw error
+                if (!this.inMemoryObject.hasOwnProperty(attributeArgs.attribute)) {
+                    throw new DBObjectAlterError(`Attribute ${attributeArgs.attribute} does not exist`);
+                }
+
+                // Update the attribute
+                (this.inMemoryObject as any)[attributeArgs.attribute] = attributeArgs.value;
+
                 break;
         }
 

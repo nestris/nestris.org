@@ -35,6 +35,7 @@ import { GetInvitationsRoute } from './src/routes/invitations/get-invitations-ro
 import { RemoveFriendRoute } from './src/routes/user/remove-friend-route';
 import { MeConsumer } from './src/online-users/event-consumers/me-consumer';
 import { GetT200LeaderboardRoute } from './src/routes/leaderboard/get-t200-leaderboard-route';
+import { UpdateMeAttributeRoute } from './src/routes/user/update-me-attribute';
 
 // Load environment variables
 require('dotenv').config();
@@ -125,6 +126,7 @@ async function main() {
   routes.registerRoute(GetUsernamesListRoute);
   routes.registerRoute(GetInvitationsRoute);
   routes.registerRoute(RemoveFriendRoute);
+  routes.registerRoute(UpdateMeAttributeRoute);
 
 
   app.get('/api/v2/server-stats', (req: Request, res: Response) => {

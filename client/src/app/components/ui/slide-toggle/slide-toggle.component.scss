@@ -1,0 +1,37 @@
+@import "../../../../styles.scss";
+
+.toggle {
+    width: 35px;
+    height: 18px;
+    border-radius: 10px;
+    position: relative;
+
+    transition: background-color 0.2s ease, opacity 0.1s ease;
+}
+
+.toggle:hover {
+    cursor: pointer;
+    opacity: 0.75;
+}
+
+.toggle.on {
+    background-color: $ui-green-color;
+}
+
+.toggle.off {
+    background-color: $ui-red-color;
+}
+
+.circle {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: white;
+    opacity: 0.9;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    
+    transition: transform 0.2s ease;
+}

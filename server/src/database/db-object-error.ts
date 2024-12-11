@@ -12,3 +12,9 @@ export class DBObjectNotFoundError extends DBError {}
  * Error for when a DBObject already exists in the database
  */
 export class DBObjectAlreadyExistsError extends DBError {}
+
+
+/**
+ * Error for when altering a DBObject fails
+ */
+export class DBObjectAlterError extends DBError {}

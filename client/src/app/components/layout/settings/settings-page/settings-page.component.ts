@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { FetchService, Method } from 'src/app/services/fetch.service';
 import { MeService } from 'src/app/services/state/me.service';
 
 
@@ -52,6 +53,19 @@ export class SettingsPageComponent {
 
   constructor(
     private meService: MeService,
+    private fetchService: FetchService
   ) {}
+
+  getAttribute(user: any, key: string) {
+    if (user[key] === undefined) throw new Error(`User does not have attribute ${key}`);
+    return user[key];
+  }
+
+  async setAttribute(user: any, attribute: string, value: any) {
+    if (user[attribute] === undefined) throw new Error(`User does not have attribute ${attribute}`);
+    console.log(`Setting ${attribute} to ${value}`);
+
+    await this.fetchService.fetch(Method.POST, "/api/v2/update-attribute", { attribute, value });
+  }
 
 }

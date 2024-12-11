@@ -67,36 +67,36 @@
 }
 
 .panel.menu {
-    width: 17%;
+    width: 20%;
     min-width: 170px;
 }
 
 .panel.main {
     flex-grow: 1;
-    padding: 10px 25px;
+    padding: 10px 35px;
 }
 
 .main h1 {
     font-family: $main-font;
     font-weight: 700;
     font-size: 18px;
-    margin: 10px 0px;
+    margin: 15px 0px;
     margin-bottom: 25px;
 }
 
 .main h2 {
     font-family: $main-font;
     font-weight: 500;
-    font-size: 10px;
-    margin: 10px 0px;
+    font-size: 11px;
+    margin: 5px 0px;
     opacity: 0.8;
 }
 
 .main p {
     font-family: $main-font;
-    font-weight: 700;
-    font-size: 12px;
-    margin: 10px 0px;
+    font-weight: 600;
+    font-size: 11px;
+    margin: 12px 0px;
 }
 
 

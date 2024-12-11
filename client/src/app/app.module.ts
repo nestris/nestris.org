@@ -99,6 +99,7 @@ import { GameSummaryGraphComponent } from './components/ui/game-summary-graph/ga
 import { XpInfoComponent } from './components/ui/xp-info/xp-info.component';
 import { ModeIconComponent } from './components/ui/mode-icon/mode-icon.component';
 import { EvalBarComponent } from './components/ui/eval-bar/eval-bar.component';
+import { SlideToggleComponent } from './components/ui/slide-toggle/slide-toggle.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -234,6 +235,7 @@ const customNotifierOptions: NotifierOptions = {
     XpInfoComponent,
     ModeIconComponent,
     EvalBarComponent,
+    SlideToggleComponent,
   ],
   imports: [
     BrowserModule,
