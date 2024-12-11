@@ -73,4 +73,36 @@
 
 .panel.main {
     flex-grow: 1;
+    padding: 10px 25px;
+}
+
+.main h1 {
+    font-family: $main-font;
+    font-weight: 700;
+    font-size: 18px;
+    margin: 10px 0px;
+    margin-bottom: 25px;
+}
+
+.main h2 {
+    font-family: $main-font;
+    font-weight: 500;
+    font-size: 10px;
+    margin: 10px 0px;
+    opacity: 0.8;
+}
+
+.main p {
+    font-family: $main-font;
+    font-weight: 700;
+    font-size: 12px;
+    margin: 10px 0px;
+}
+
+
+.boolean-setting {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
 }
