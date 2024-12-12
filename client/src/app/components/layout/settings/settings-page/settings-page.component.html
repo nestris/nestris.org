@@ -6,20 +6,29 @@
 
     <div class="panels" *ngIf="currentTab$ | async as currentTab">
         <div class="menu panel">
-
+            <div class="tab">
+                <p></p>
+            </div>
         </div>
         <div class="main panel" *ngIf="me$ | async as me">
             <h1 class="tab-name">{{currentTab.name}}</h1>
 
-            <ng-container *ngFor="let category of currentTab.categories">
+            <ng-container *ngFor="let category of currentTab.categories; let i = index">
+
+                <div *ngIf="i !== 0" class="category-spacer"></div>
 
                 <h2 class="category-name">{{category.name}}</h2>
 
-                <ng-container *ngFor="let setting of category.settings">
+                <ng-container *ngFor="let setting of category.settings; let i = index">
 
                     <div *ngIf="isBooleanSetting(setting) as setting" class="boolean-setting"> 
                         <p>{{setting.label}}</p>
                         <app-slide-toggle [checked]="getAttribute(me, setting.key)" (setChecked)="setAttribute(me, setting.key, $event)" />
+                    </div>
+
+                    <div *ngIf="isKeybindSetting(setting) as setting" class="keybind-setting" [ngClass]="i === 0 ? 'first' : ''"> 
+                        <p>{{setting.label}}</p>
+                        <app-editable-keybind [keybind]="getAttribute(me, setting.key)" (setKeybind)="setAttribute(me, setting.key, $event)" />
                     </div>
     
                 </ng-container>

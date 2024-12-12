@@ -100,6 +100,7 @@ import { XpInfoComponent } from './components/ui/xp-info/xp-info.component';
 import { ModeIconComponent } from './components/ui/mode-icon/mode-icon.component';
 import { EvalBarComponent } from './components/ui/eval-bar/eval-bar.component';
 import { SlideToggleComponent } from './components/ui/slide-toggle/slide-toggle.component';
+import { EditableKeybindComponent } from './components/ui/editable-keybind/editable-keybind.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -236,6 +237,7 @@ const customNotifierOptions: NotifierOptions = {
     ModeIconComponent,
     EvalBarComponent,
     SlideToggleComponent,
+    EditableKeybindComponent,
   ],
   imports: [
     BrowserModule,

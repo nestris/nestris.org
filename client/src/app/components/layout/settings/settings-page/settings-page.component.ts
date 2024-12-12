@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { FetchService, Method } from 'src/app/services/fetch.service';
 import { MeService } from 'src/app/services/state/me.service';
+import { capitalize } from 'src/app/util/misc';
 
 
 abstract class Setting {
@@ -29,6 +30,13 @@ class BooleanSetting extends Setting {
   ) { super() }
 }
 
+class KeybindSetting extends Setting {
+  constructor(
+    public readonly key: string,
+    public readonly label: string,
+  ) { super() }
+}
+
 
 @Component({
   selector: 'app-settings-page',
@@ -38,12 +46,19 @@ class BooleanSetting extends Setting {
 export class SettingsPageComponent {
 
   isBooleanSetting = (setting: Setting) => (setting instanceof BooleanSetting) ? (setting as BooleanSetting) : null;
+  isKeybindSetting = (setting: Setting) => (setting instanceof KeybindSetting) ? (setting as KeybindSetting) : null;
 
   readonly tabs: Tab[] = [
     new Tab('General', [
       new Category('Friends', [
         new BooleanSetting('enable_receive_friend_requests', 'Allow people to send me friend requests'),
         new BooleanSetting('notify_on_friend_online', 'Notify me when friends go online'),
+      ]),
+      new Category('Emulator Keybinds', [
+        new KeybindSetting('keybind_emu_move_left', 'Move Left'),
+        new KeybindSetting('keybind_emu_move_right', 'Move Right'),
+        new KeybindSetting('keybind_emu_rot_left', 'Rotate Left'),
+        new KeybindSetting('keybind_emu_rot_right', 'Rotate Right'),
       ]),
     ])
   ]
