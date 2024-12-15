@@ -1,6 +1,6 @@
 import { ClientRoom } from "./client-room";
 import { RoomModal } from "src/app/components/layout/room/room/room.component";
-import { BehaviorSubject, Observable } from "rxjs";
+import { BehaviorSubject, Observable, Subscription } from "rxjs";
 import { EmulatorService } from "../emulator/emulator.service";
 import { PlatformInterfaceService } from "../platform-interface.service";
 import { MultiplayerRoomEventType, MultiplayerRoomState, MultiplayerRoomStatus, PlayerIndex } from "src/app/shared/room/multiplayer-room-models";
@@ -24,6 +24,8 @@ export class MultiplayerClientRoom extends ClientRoom {
 
     // The index of the client in the room, or null if the client is a spectator
     private myIndex!: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2 | null;
+
+    private packetGroupSubscription?: Subscription;
 
     public override async init(state: MultiplayerRoomState): Promise<void> {
 
@@ -52,8 +54,8 @@ export class MultiplayerClientRoom extends ClientRoom {
         }
 
         // Subscribe to websocket binary messages
-        this.websocket.onPacketGroup().subscribe(async (packetGroup: PacketGroup) => {
-
+        this.packetGroupSubscription = this.websocket.onPacketGroup().subscribe(async (packetGroup: PacketGroup) => {
+            
             // Only process packets that are intended for player 1 or player 2
             const playerIndex = packetGroup.playerIndex as PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2;
             if (![PlayerIndex.PLAYER_1, PlayerIndex.PLAYER_2].includes(playerIndex)) return;
@@ -125,6 +127,7 @@ export class MultiplayerClientRoom extends ClientRoom {
 
     public override destroy(): void {
         this.emulator.stopGame(true);
+        this.packetGroupSubscription?.unsubscribe();
     }
 
 }

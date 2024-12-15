@@ -60,6 +60,10 @@ export class SettingsPageComponent {
         new KeybindSetting('keybind_emu_rot_left', 'Rotate Left'),
         new KeybindSetting('keybind_emu_rot_right', 'Rotate Right'),
       ]),
+      new Category('Puzzle Keybinds', [
+        new KeybindSetting('keybind_puzzle_rot_left', 'Rotate Left'),
+        new KeybindSetting('keybind_puzzle_rot_right', 'Rotate Right'),
+      ]),
     ])
   ]
 
