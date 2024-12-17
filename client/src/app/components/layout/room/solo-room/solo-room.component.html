@@ -12,6 +12,7 @@
         [gameOver]="(soloClientRoom.getSoloState$() | async) === SoloClientState.TOPOUT ? GameOverMode.TOPOUT : undefined"
         [gameOverShowNext]="true"
         (clickNext)="clickNextOnTopout()"
+        [keybinds]="getKeybinds()"
 />
 </div>
 <div class="right">

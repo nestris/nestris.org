@@ -31,12 +31,19 @@ Struct storing all the keybinds
 */
 export class Keybinds {
 
+    // default keybinds
     private keybinds: {[keybind in Keybind] : string} = {
         [Keybind.SHIFT_LEFT] : "ArrowLeft",
         [Keybind.SHIFT_RIGHT] : "ArrowRight",
         [Keybind.ROTATE_LEFT] : "z",
         [Keybind.ROTATE_RIGHT] : "x",
         [Keybind.PUSHDOWN] : "ArrowDown",
+    }
+
+    configureKeybinds(keybinds: {[keybind in Keybind] : string}) {
+        this.keybinds = keybinds;
+
+        console.log("Keybinds configured", this.keybinds);
     }
 
     stringToKeybind(key: string): Keybind | undefined {

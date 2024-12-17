@@ -4,7 +4,7 @@ import { TimeDelta } from 'src/app/util/time-delta';
 import { PlatformInterfaceService, Platform } from '../platform-interface.service';
 import { KeyManager } from './currently-pressed-keys';
 import { EmulatorGameState, EMULATOR_FPS } from './emulator-game-state';
-import { Keybinds } from './keybinds';
+import { Keybind, Keybinds } from './keybinds';
 import { GameDisplayData } from 'src/app/shared/tetris/game-display-data';
 import { GymRNG } from 'src/app/shared/tetris/piece-sequence-generation/gym-rng';
 import { BinaryEncoder } from 'src/app/shared/network/binary-codec';
@@ -76,7 +76,7 @@ export class EmulatorService {
 
     // update the client-side board and game stsate if there are frames to update
     if (frameAmount >= 1) {
-      this.zone.run(() => this.updateClientsideDisplay());
+      this.updateClientsideDisplay();
     }
 
     // If more than one frame was executed in a tick cycle, log the number of frames skipped
@@ -135,11 +135,22 @@ export class EmulatorService {
     // Update runahead flag
     this.enableRunahead = this.meService.getSync()?.enable_runahead ?? false;
 
+    // Update keybinds
+    const me = this.meService.getSync()!;
+    const keybinds: {[keybind in Keybind] : string} = {
+      [Keybind.SHIFT_LEFT]: me.keybind_emu_move_left,
+      [Keybind.SHIFT_RIGHT]: me.keybind_emu_move_right,
+      [Keybind.ROTATE_LEFT]: me.keybind_emu_rot_left,
+      [Keybind.ROTATE_RIGHT]: me.keybind_emu_rot_right,
+      [Keybind.PUSHDOWN]: me.keybind_emu_pushdown,
+    }
+    this.keybinds.configureKeybinds(keybinds);
+
     // start game loop
-    this.zone.runOutsideAngular(() => {
-      this.loop = setInterval(() => this.tick(), 0);
-    });
-    // this.loop = setInterval(() => this.tick(), 0);
+    // this.zone.runOutsideAngular(() => {
+    //   this.loop = setInterval(() => this.tick(), 0);
+    // });
+    this.loop = setInterval(() => this.tick(), 0);
   }
 
   private updateClientsideDisplay() {

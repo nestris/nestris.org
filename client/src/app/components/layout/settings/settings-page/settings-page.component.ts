@@ -68,6 +68,8 @@ export class SettingsPageComponent {
         new KeybindSetting('keybind_emu_move_right', 'Move Right'),
         new KeybindSetting('keybind_emu_rot_left', 'Rotate Left'),
         new KeybindSetting('keybind_emu_rot_right', 'Rotate Right'),
+        new KeybindSetting('keybind_emu_pushdown', 'Pushdown'),
+        
       ]),
       new Category('Puzzle Keybinds', [
         new KeybindSetting('keybind_puzzle_rot_left', 'Rotate Left'),
@@ -138,6 +140,10 @@ export class SettingsPageComponent {
   @HostListener('window:keydown', ['$event'])
   handleKeydown(event: KeyboardEvent) {
     console.log(event.key);
+
+    // prevent default behavior for keybinds
+    event.stopPropagation();
+    event.preventDefault();
 
     // If no keybind is being edited, ignore
     const activeKey = this.activeKey$.getValue();

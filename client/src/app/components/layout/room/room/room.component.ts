@@ -39,6 +39,7 @@ export class RoomComponent implements OnInit, OnDestroy {
     this.gameDataSubscription = this.platform.getGameData$().subscribe(() => this.cdr.detectChanges());
 
     this.roomType = this.roomService.getRoomType();
+    console.log('Room type:', this.roomType);
 
     // If not in room, redirect to home
     if (!this.roomType) {

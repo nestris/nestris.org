@@ -1,10 +1,12 @@
 import { ChangeDetectionStrategy, Component, HostListener } from '@angular/core';
 import { map } from 'rxjs';
 import { GameOverMode } from 'src/app/components/nes-layout/nes-board/nes-board.component';
+import { getDisplayKeybind } from 'src/app/components/ui/editable-keybind/editable-keybind.component';
 import { EmulatorService } from 'src/app/services/emulator/emulator.service';
 import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { RoomService } from 'src/app/services/room/room.service';
 import { SoloClientRoom, SoloClientState } from 'src/app/services/room/solo-client-room';
+import { MeService } from 'src/app/services/state/me.service';
 import { SoloGameInfo, SoloRoomState } from 'src/app/shared/room/solo-room-models';
 
 @Component({
@@ -26,6 +28,7 @@ export class SoloRoomComponent {
     public readonly platform: PlatformInterfaceService,
     public readonly emulator: EmulatorService,
     private readonly roomService: RoomService,
+    private meService: MeService,
   ) {}
 
   @HostListener('window:keydown', ['$event'])
@@ -55,6 +58,16 @@ export class SoloRoomComponent {
     if (!games) return false;
 
     return games.some(game => game.score > 999999);
+  }
+
+  getKeybinds(): string {
+    const me = this.meService.getSync()!;
+
+    const moveLeft = getDisplayKeybind(me.keybind_emu_move_left);
+    const moveRight = getDisplayKeybind(me.keybind_emu_move_right);
+    const rotLeft = getDisplayKeybind(me.keybind_emu_rot_left);
+    const rotRight = getDisplayKeybind(me.keybind_emu_rot_right);
+    return `Move: ${moveLeft} ${moveRight}, Rotate: ${rotLeft} ${rotRight}`;
   }
 
 }

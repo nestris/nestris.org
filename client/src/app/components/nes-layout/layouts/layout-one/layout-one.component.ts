@@ -22,6 +22,7 @@ export class LayoutOneComponent extends AbstractNesLayoutComponent implements On
   @Input() das?: number = undefined; // if undefined, not in das and hidden. if das, replace trt
   @Input() gameOver? : GameOverMode;
   @Input() gameOverShowNext: boolean = false;
+  @Input() keybinds?: string;
   @Output() clickNext = new EventEmitter<void>();
 
 
