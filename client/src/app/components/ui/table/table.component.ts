@@ -11,7 +11,7 @@ import { FriendsService } from 'src/app/services/state/friends.service';
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.scss']
 })
-export class TableComponent {
+export class TableComponent implements OnChanges {
   // An ordered list of rows, with each row containing a key for each attribute name
   @Input() rows: T200LeaderboardRow[] = [];
 
@@ -39,11 +39,15 @@ export class TableComponent {
   readonly parseInt = parseInt;
   readonly ButtonColor = ButtonColor;
 
-  readonly onlineFriends$ = this.friendService.onlineFriends$;
+  readonly onlineFriends$ = this.friendService.get$();
 
   constructor(
     private readonly friendService: FriendsService,
   ) {}
+
+  ngOnChanges(): void {
+    console.log('table changes');
+  }
 
   // Preserve original property order
   originalOrder = (a: KeyValue<string,string>, b: KeyValue<string,string>): number => {

@@ -8,12 +8,14 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 })
 export class OnlineIndicatorComponent {
   @Input() isOnline: boolean = false;
+  @Input() inActivity: boolean = false;
 
   // used in template to assign a css class based on status
   // offline is grey, idle is green, busy is orange
   // colors defined in css
   getStatusClass(): string {
     if (!this.isOnline) return 'offline';
+    if (this.inActivity) return 'busy';
     else return 'idle';
   }
 

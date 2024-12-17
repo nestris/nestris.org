@@ -2,7 +2,7 @@
     <div class="container-left">
         <app-league-icon [league]="friendInfo.league" [height]="27" />
         <p class="username">{{friendInfo.username}}</p>
-        <app-online-indicator class="online-indicator" [isOnline]="friendInfo.isOnline" />
+        <app-online-indicator class="online-indicator" [isOnline]="friendInfo.isOnline" [inActivity]="!!friendInfo.activity" />
 
         <div class="stats">
             <app-highest-score [highestScore]="friendInfo.highestScore" [size]="14" />

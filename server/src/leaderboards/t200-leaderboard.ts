@@ -37,6 +37,7 @@ export abstract class T200Leaderboard {
         // Update whether users are online
         for (const user of this.leaderboard) {
             user.isOnline = this.users.isUserOnline(user.userid);
+            user.inActivity = this.users.isUserInActivity(user.userid);
         }
     }
 
@@ -86,6 +87,7 @@ export class T200XPLeaderboard extends T200Leaderboard {
                 return resultRows.map((row) => ({
                     rank: -1,
                     isOnline: false,
+                    inActivity: false,
 
                     userid: row.userid,
                     username: row.username,
@@ -143,6 +145,7 @@ export class T200HighscoreLeaderboard extends T200Leaderboard {
                 return resultRows.map((row) => ({
                     rank: -1,
                     isOnline: false,
+                    inActivity: false,
                     
                     userid: row.userid,
                     username: row.username,
@@ -194,6 +197,7 @@ export class T200RankedLeaderboard extends T200Leaderboard {
                 return resultRows.map((row) => ({
                     rank: -1,
                     isOnline: false,
+                    inActivity: false,
 
                     userid: row.userid,
                     username: row.username,
@@ -246,6 +250,7 @@ export class T200PuzzlesLeaderboard extends T200Leaderboard {
                 return resultRows.map((row) => ({
                     rank: -1,
                     isOnline: false,
+                    inActivity: false,
 
                     userid: row.userid,
                     username: row.username,

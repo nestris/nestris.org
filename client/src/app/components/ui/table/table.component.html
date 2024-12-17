@@ -12,7 +12,7 @@
                 <div class="ranking prevent-select">#{{ row.rank }}</div>
                 <app-league-icon [league]="row.league" [height]="22" />
                 <p class="prevent-select">{{row.username}}</p>
-                <app-online-indicator [isOnline]="row.isOnline || row.userid === myID || ((onlineFriends$ | async) ?? []).includes(row.userid)" />
+                <app-online-indicator [isOnline]="row.isOnline || row.userid === myID" [inActivity]="row.inActivity" />
             </div> </td>
             <ng-container *ngFor="let item of attributes | keyvalue: originalOrder">
 

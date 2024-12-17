@@ -49,6 +49,7 @@ export interface T200LeaderboardRow {
     userid: string;
     username: string;
     isOnline: boolean;
+    inActivity: boolean;
     league: League;
     score: number;
     resourceID: string | null;

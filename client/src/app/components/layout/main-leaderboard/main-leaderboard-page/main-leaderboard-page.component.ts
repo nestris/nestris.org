@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { BehaviorSubject, catchError, distinctUntilChanged, from, map, of, switchMap } from 'rxjs';
+import { BehaviorSubject, catchError, distinctUntilChanged, from, map, of, share, shareReplay, switchMap, timer } from 'rxjs';
 import { Mode } from 'src/app/components/ui/mode-icon/mode-icon.component';
 import { ButtonColor } from 'src/app/components/ui/solid-selector/solid-selector.component';
 import { FetchService, Method } from 'src/app/services/fetch.service';
@@ -14,7 +14,7 @@ import { T200LeaderboardData, T200LeaderboardType } from 'src/app/shared/models/
   templateUrl: './main-leaderboard-page.component.html',
   styleUrls: ['./main-leaderboard-page.component.scss']
 })
-export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
+export class MainLeaderboardPageComponent implements OnDestroy {
 
   readonly Mode = Mode;
   readonly modes = [Mode.SOLO, Mode.RANKED, Mode.PUZZLES];
@@ -62,15 +62,21 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
   private readonly fetchLeaderboard = (type: T200LeaderboardType) => this.fetchService.fetch<T200LeaderboardData>(Method.GET, `/api/v2/leaderboard/top/${type}`);
 
   leaderboard$ = this.currentType$.pipe(
-    distinctUntilChanged(), // Avoid unnecessary calls for the same type
+    distinctUntilChanged(), // Only react when the type actually changes
     switchMap(type =>
-      from(this.fetchLeaderboard(type)).pipe(
-        catchError(error => {
-          console.error('Failed to fetch leaderboard:', error);
-          return of(null); // Fallback to null or an appropriate default value
-        })
+      // On type change, start a timer that fires immediately and then every 5s
+      timer(0, 5000).pipe(
+        switchMap(() =>
+          from(this.fetchLeaderboard(type)).pipe(
+            catchError(error => {
+              console.error('Failed to fetch leaderboard:', error);
+              return of(null);
+            })
+          )
+        )
       )
-    )
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }) // Share the last emitted value with new subscribers
   );
 
 
@@ -102,18 +108,6 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
     public meService: MeService,
   ) {
 
-    // print on currentType$ change
-    this.currentType$.subscribe(type => console.log('currentType$', type));
-
-    // print on leaderboard$ change
-    this.leaderboard$.subscribe(leaderboard => console.log('leaderboard$', leaderboard));
-
-  }
-
-  async ngOnInit() {
-    console.log("MainLeaderboardPageComponent: ngOnInit()");
-    //await this.sync();
-    //this.timer = setInterval(() => this.sync(), 5000);
   }
 
   ngOnDestroy() {
@@ -135,32 +129,5 @@ export class MainLeaderboardPageComponent implements OnInit, OnDestroy {
   getIndexForType(mode: Mode, type: T200LeaderboardType | null): number {
     if (type === null) return 0;
     return this.leaderboardTypes[mode].indexOf(type);
-  }
-
-  // Regularly poll the server for the number of players and puzzles solved
-  private async sync() {
-    
-    this.numPlayers$.next(await this.pollNumPlayers());
-    this.puzzlesSolved$.next(await this.pollPuzzlesSolved());
-
-    const hoursSpent = Math.round((await this.pollTotalPuzzleDuration()) / 3600);
-    this.hoursSpent$.next(Math.round(hoursSpent));
-
-    //this.onlineUserIDs$.next(await this.fetchOnlineUsers());
-  }
-
-  private async pollNumPlayers(): Promise<number> {
-    const response = await this.fetchService.fetch<{count: number}>(Method.GET, '/api/v2/user-count');
-    return response.count;
-  }
-
-  private async pollPuzzlesSolved(): Promise<number> {
-    const response = await this.fetchService.fetch<{count: number}>(Method.GET, '/api/v2/puzzles-solved');
-    return response.count;
-  }
-
-  private async pollTotalPuzzleDuration(): Promise<number> {
-    const response = await this.fetchService.fetch<{total: number}>(Method.GET, '/api/v2/total-puzzle-duration');
-    return response.total;
   }
 }
