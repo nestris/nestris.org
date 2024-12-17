@@ -141,9 +141,6 @@ export class SettingsPageComponent {
   handleKeydown(event: KeyboardEvent) {
     console.log(event.key);
 
-    // prevent default behavior for keybinds
-    event.stopPropagation();
-    event.preventDefault();
 
     // If no keybind is being edited, ignore
     const activeKey = this.activeKey$.getValue();

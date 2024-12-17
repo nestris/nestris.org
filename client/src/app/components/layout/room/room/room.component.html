@@ -1,4 +1,4 @@
-<ng-container>
+<ng-container *ngIf="roomType$ | async as roomType">
     <app-solo-room *ngIf="roomType === RoomType.SOLO" />
     <app-multiplayer-room *ngIf="roomType === RoomType.MULTIPLAYER" />
 </ng-container>

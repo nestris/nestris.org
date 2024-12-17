@@ -22,6 +22,7 @@ export class RoomComponent implements OnInit, OnDestroy {
   readonly RoomModal = RoomModal;
 
   private gameDataSubscription?: Subscription;
+  public roomType$ = new BehaviorSubject<RoomType | null>(null);
 
   constructor(
     public readonly roomService: RoomService,
@@ -31,18 +32,18 @@ export class RoomComponent implements OnInit, OnDestroy {
   ) {}
 
   // The type of the room
-  public roomType!: RoomType | null;
   readonly RoomType = RoomType;
 
   async ngOnInit() {
 
     this.gameDataSubscription = this.platform.getGameData$().subscribe(() => this.cdr.detectChanges());
 
-    this.roomType = this.roomService.getRoomType();
-    console.log('Room type:', this.roomType);
+    const roomType = this.roomService.getRoomType();
+    this.roomType$.next(roomType);
+    console.log('Room type:', roomType);
 
     // If not in room, redirect to home
-    if (!this.roomType) {
+    if (!roomType) {
       this.router.navigate(['/']);
     }
   }
