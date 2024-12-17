@@ -41,6 +41,7 @@ CREATE TABLE "public"."users" (
 
     "enable_receive_friend_requests" boolean NOT NULL,
     "notify_on_friend_online" boolean NOT NULL,
+    "enable_runahead" boolean NOT NULL,
 
     "solo_chat_permission" text NOT NULL,
     "match_chat_permission" text NOT NULL,

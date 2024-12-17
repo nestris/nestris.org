@@ -96,7 +96,22 @@
     font-family: $main-font;
     font-weight: 600;
     font-size: 11px;
-    margin: 12px 0px;
+    margin: 0px;
+}
+
+.main p.description {
+    font-size: 9px;
+    font-weight: 500;
+    opacity: 0.6;
+}
+
+.label {
+    margin-block: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    width: 70%;
 }
 
 .category-spacer {
@@ -130,4 +145,87 @@
 
 .keybind-setting p {
     margin: 10px 0px;
+}
+
+.keybind-modal {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(20px) brightness(0.4);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.keybind-modal .content {
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 100px;
+}
+
+.keybind-modal .content .header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.big {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.keybind-modal h1 {
+    font-family: $main-font;
+    font-weight: 700;
+    font-size: 70px;
+    margin: 0;
+}
+
+.keybind-modal h2 {
+    font-family: $main-font;
+    font-weight: 600;
+    font-size: 20px;
+}
+
+.keybind-modal h3.error {
+    font-family: $main-font;
+    font-weight: 800;
+    font-size: 20px;
+    color: $ui-red-color;
+    margin: 5px;
+
+    opacity: 0;
+}
+
+@keyframes fade-out {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+.keybind-modal h3.error.show {
+    opacity: 1;
+
+    // animate to slowly fade out
+    animation: fade-out 1s forwards;
+}
+
+.keybind-modal p {
+    font-family: $main-font;
+    font-weight: 600;
+    font-size: 30px;
 }

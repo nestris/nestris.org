@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { RoomService } from 'src/app/services/room/room.service';
-import { BehaviorSubject, map } from 'rxjs';
+import { BehaviorSubject, map, Subscription } from 'rxjs';
 import { RoomType } from 'src/app/shared/room/room-models';
 import { Router } from '@angular/router';
+import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 
 export enum RoomModal {
   SOLO_BEFORE_GAME = 'SOLO_BEFORE_GAME',
@@ -20,9 +21,13 @@ export class RoomComponent implements OnInit, OnDestroy {
 
   readonly RoomModal = RoomModal;
 
+  private gameDataSubscription?: Subscription;
+
   constructor(
     public readonly roomService: RoomService,
-    private readonly router: Router
+    private readonly platform: PlatformInterfaceService,
+    private readonly router: Router,
+    private readonly cdr: ChangeDetectorRef,
   ) {}
 
   // The type of the room
@@ -30,6 +35,8 @@ export class RoomComponent implements OnInit, OnDestroy {
   readonly RoomType = RoomType;
 
   async ngOnInit() {
+
+    this.gameDataSubscription = this.platform.getGameData$().subscribe(() => this.cdr.detectChanges());
 
     this.roomType = this.roomService.getRoomType();
 
@@ -46,7 +53,8 @@ export class RoomComponent implements OnInit, OnDestroy {
 
   // Leave the room when the component is destroyed
   async ngOnDestroy() {
-    this.roomService.leaveRoom();    
+    this.roomService.leaveRoom();
+    this.gameDataSubscription?.unsubscribe();
   }
 
 }

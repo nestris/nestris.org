@@ -46,6 +46,7 @@ export interface DBUser {
 
   enable_receive_friend_requests: boolean,
   notify_on_friend_online: boolean,
+  enable_runahead: boolean,
   solo_chat_permission: string,
   match_chat_permission: string,
 
@@ -92,6 +93,7 @@ export const DBUserAttributes = [
 
   'enable_receive_friend_requests',
   'notify_on_friend_online',
+  'enable_runahead',
   'solo_chat_permission',
   'match_chat_permission',
   

@@ -124,6 +124,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
             has_perfect_transition_into_29: false,
             enable_receive_friend_requests: true,
             notify_on_friend_online: true,
+            enable_runahead: false,
 
             solo_chat_permission: 'everyone',
             match_chat_permission: 'everyone',

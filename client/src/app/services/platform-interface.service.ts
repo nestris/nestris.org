@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { ChangeDetectorRef, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { BinaryEncoder } from '../shared/network/binary-codec';
 import { PacketAssembler } from '../shared/network/stream-packets/packet-assembler';
@@ -7,6 +7,7 @@ import { NotificationService } from './notification.service';
 import { NotificationType } from '../shared/models/notifications';
 import { DEFAULT_POLLED_GAME_DATA, GameDisplayData } from '../shared/tetris/game-display-data';
 import { PacketSender } from '../ocr/util/packet-sender';
+import { sleep } from '../util/misc';
 
 
 export enum Platform {
@@ -46,7 +47,7 @@ export class PlatformInterfaceService extends PacketSender {
 
   constructor(
     private websocket: WebsocketService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
   ) {
     super();
 
@@ -58,15 +59,7 @@ export class PlatformInterfaceService extends PacketSender {
 
   }
 
-  getGameData(): GameDisplayData | undefined {
-    return this.polledGameData$.getValue();
-  }
-
   getGameData$(): Observable<GameDisplayData> {
-    return this.polledGameData$.asObservable();
-  }
-
-  getGameEvent$(): Observable<GameDisplayData | undefined> {
     return this.polledGameData$.asObservable();
   }
 
@@ -111,12 +104,14 @@ export class PlatformInterfaceService extends PacketSender {
       prevData.trt === data.trt
     ) return;
 
+    //console.log("frame NEW");
     this.polledGameData$.next(data);
   }
 
   // called by emulator/game-state service to send a packet encoded as a BinaryEncoder
   // by default, is not sent immediately, but is batched and sent by sendBatchedPackets() every second
   sendPacket(packet: BinaryEncoder) {
+
     this.assembler.addPacketContent(packet);
     this.numBatchedPackets++;
   }

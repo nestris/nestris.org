@@ -22,13 +22,17 @@
                 <ng-container *ngFor="let setting of category.settings; let i = index">
 
                     <div *ngIf="isBooleanSetting(setting) as setting" class="boolean-setting"> 
-                        <p>{{setting.label}}</p>
+                        <div class="label">
+                            <p>{{setting.label}}</p>
+                            <p *ngIf="setting.description" class="description">{{setting.description}}</p>
+                        </div>
                         <app-slide-toggle [checked]="getAttribute(me, setting.key)" (setChecked)="setAttribute(me, setting.key, $event)" />
                     </div>
 
                     <div *ngIf="isKeybindSetting(setting) as setting" class="keybind-setting" [ngClass]="i === 0 ? 'first' : ''"> 
                         <p>{{setting.label}}</p>
-                        <app-editable-keybind [keybind]="getAttribute(me, setting.key)" (setKeybind)="setAttribute(me, setting.key, $event)" />
+                        <app-editable-keybind [keybind]="getAttribute(me, setting.key)" (click)="editKeybind(setting.key)"
+                            (setKeybind)="setAttribute(me, setting.key, $event)" />
                     </div>
     
                 </ng-container>
@@ -37,5 +41,16 @@
             </ng-container>
             
         </div>
+    </div>
+</div>
+
+<div class="keybind-modal" *ngIf="activeKey$ | async as activeKey" (click)="cancelKeybindEdit()">
+    <div class="content">
+        <p>[{{getLabelForKey(activeKey)}}]</p>
+        <div class="big">
+            <h1 class="prevent-select">Press any key</h1>
+            <h3 class="error" [ngClass]="{'show' : errorKeybindExists$ | async}">Keybind {{getDisplayKeybind(errorKeybindExists$ | async)}} already exists</h3>
+        </div>
+        <h2 class="prevent-select">(Click anywhere to exit)</h2>
     </div>
 </div>

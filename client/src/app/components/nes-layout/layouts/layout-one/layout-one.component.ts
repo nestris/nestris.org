@@ -1,5 +1,5 @@
 import { AbstractNesLayoutComponent } from '../abstract-nes-layout.component';
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 import { GameOverMode } from '../../nes-board/nes-board.component';
@@ -10,7 +10,7 @@ import { GameOverMode } from '../../nes-board/nes-board.component';
   styleUrls: ['./layout-one.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class LayoutOneComponent extends AbstractNesLayoutComponent {
+export class LayoutOneComponent extends AbstractNesLayoutComponent implements OnChanges {
   @Input() board: TetrisBoard = new TetrisBoard();
   @Input() nextType: TetrominoType = TetrominoType.ERROR_TYPE;
   @Input() level: number = 0;
@@ -23,6 +23,11 @@ export class LayoutOneComponent extends AbstractNesLayoutComponent {
   @Input() gameOver? : GameOverMode;
   @Input() gameOverShowNext: boolean = false;
   @Output() clickNext = new EventEmitter<void>();
+
+
+  ngOnChanges(changes: SimpleChanges): void {
+    //console.log('frame layout-one changes', changes);
+  }
 
   padScore(score: number): string {
     return score.toString().padStart(6, '0');

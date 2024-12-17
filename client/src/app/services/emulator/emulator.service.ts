@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { GameStartPacket, GameCountdownPacket, GamePlacementPacket, GameAbbrBoardPacket, GameFullBoardPacket, GameEndPacket } from 'src/app/shared/network/stream-packets/packet';
 import { TimeDelta } from 'src/app/util/time-delta';
 import { PlatformInterfaceService, Platform } from '../platform-interface.service';
@@ -15,6 +15,7 @@ import { getFeedback } from 'src/app/util/game-feedback';
 import { MeService } from '../state/me.service';
 import { StackrabbitService } from '../stackrabbit/stackrabbit.service';
 import { LiveGameAnalyzer, PlacementEvaluation } from '../stackrabbit/live-game-analyzer';
+import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 
 
 /*
@@ -32,6 +33,8 @@ export class EmulatorService {
   private currentState: EmulatorGameState | undefined = undefined;
   private analyzer: LiveGameAnalyzer | undefined = undefined;
 
+  private displayBoard: TetrisBoard = new TetrisBoard();
+
   private framesDone: number = 0;
   private epoch: number = performance.now();
 
@@ -47,10 +50,13 @@ export class EmulatorService {
   private lastGameStatus: MemoryGameStatus | null = null;
   private lastGameFeedback: string | null = null;
 
+  private enableRunahead: boolean = false;
+
   constructor(
     private platform: PlatformInterfaceService,
     private meService: MeService,
     private stackrabbitService: StackrabbitService,
+    private zone: NgZone
 ) {}
 
   // tick function that advances the emulator state during the game loop
@@ -69,7 +75,9 @@ export class EmulatorService {
     }
 
     // update the client-side board and game stsate if there are frames to update
-    if (frameAmount >= 1) this.updateClientsideDisplay();
+    if (frameAmount >= 1) {
+      this.zone.run(() => this.updateClientsideDisplay());
+    }
 
     // If more than one frame was executed in a tick cycle, log the number of frames skipped
     if (frameAmount > 1) console.log("Skipped", frameAmount-1, "frames");
@@ -124,13 +132,19 @@ export class EmulatorService {
       mtPose: this.currentState.getActivePiece()!.getMTPose(),
     }));
 
+    // Update runahead flag
+    this.enableRunahead = this.meService.getSync()?.enable_runahead ?? false;
+
     // start game loop
-    this.loop = setInterval(() => this.tick(), 0);
+    this.zone.runOutsideAngular(() => {
+      this.loop = setInterval(() => this.tick(), 0);
+    });
+    // this.loop = setInterval(() => this.tick(), 0);
   }
 
   private updateClientsideDisplay() {
 
-    const RUNAHEAD_FRAMES = 0;
+    const RUNAHEAD_FRAMES = this.enableRunahead ? 1 : 0;
 
     let state = this.currentState;
     if (!state) return;
@@ -146,7 +160,7 @@ export class EmulatorService {
 
     // update game data
     const data: GameDisplayData = {
-      board: state.getDisplayBoard(),
+      board: this.displayBoard,
       level: state.getStatus().level,
       score: state.getStatus().score,
       lines: state.getStatus().lines,
@@ -155,6 +169,8 @@ export class EmulatorService {
       countdown: state.getCountdown(),
     };
     this.platform.updateGameData(data);
+
+    // console.log("update display");
 
   }
 
@@ -167,15 +183,18 @@ export class EmulatorService {
 
     if (!this.currentState) return;
 
+    // console.log("frame");
+
     // Store previous data for comparison
-    const previousBoard = this.currentState.getDisplayBoard();
+    const previousBoard = this.displayBoard;
     const previousCountdown = this.currentState.getCountdown();
 
     const oldActivePiece = this.currentState.getActivePiece();
 
     // execute frame
     this.currentState.executeFrame(pressedKeys);
-    const newBoard = this.currentState.getDisplayBoard();
+    //console.log("frame new display board", this.currentState.getDisplayBoard() === this.displayBoard);
+    this.displayBoard = this.currentState.getDisplayBoard();
     const activePiece = this.currentState.getActivePiece();
 
     // send countdown packet if countdown has changed
@@ -211,7 +230,7 @@ export class EmulatorService {
     }
 
     // send packet with board info if board has changed
-    if (!previousBoard.equals(newBoard)) {
+    if (!previousBoard.equals(this.displayBoard)) {
 
       const activePiece = this.currentState.getActivePiece();
 
@@ -226,7 +245,7 @@ export class EmulatorService {
         // send full state, since there is no active piece to send abbreviated packet info
         this.sendPacket(new GameFullBoardPacket().toBinaryEncoder({
           delta: this.timeDelta.getDelta(),
-          board: newBoard,
+          board: this.displayBoard,
         }));
       }
 
