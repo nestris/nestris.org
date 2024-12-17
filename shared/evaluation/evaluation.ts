@@ -13,7 +13,7 @@ export const EVALUATION_TO_COLOR: { [key in EvaluationRating]: string } = {
     [EvaluationRating.ERROR]: 'grey',
     [EvaluationRating.BRILLIANT]: '#B649E9',
     [EvaluationRating.BEST]: '#58D774',
-    [EvaluationRating.EXCELLENT]: '#91E469',
+    [EvaluationRating.EXCELLENT]: '#97DA64',
     [EvaluationRating.GOOD]: '#C9C9C9',
     [EvaluationRating.INACCURACY]: '#E6DF3E',
     [EvaluationRating.MISTAKE]: '#D79558',
@@ -31,7 +31,7 @@ export function rescaleStackrabbitEval(ev: number): number {
 
 // Assigns a placement score between 0 and 1 based on the difference between the player's eval and the best eval
 export function calculatePlacementScore(bestEval: number, playerEval: number) {
-    const DIFFICULTY = 1.35;
+    const DIFFICULTY = 1.5;
     
     const rescaledBestEval = rescaleStackrabbitEval(bestEval);
     const rescaledPlayerEval = rescaleStackrabbitEval(playerEval);

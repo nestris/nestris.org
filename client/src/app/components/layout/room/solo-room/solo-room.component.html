@@ -12,6 +12,9 @@
         [gameOver]="(soloClientRoom.getSoloState$() | async) === SoloClientState.TOPOUT ? GameOverMode.TOPOUT : undefined"
         [gameOverShowNext]="true"
         (clickNext)="clickNextOnTopout()"
+        [showEvalBar]="showAnalysis"
+        [bestEval]="(emulator.getCurrentPlacementEvaluation$() | async)?.bestPlacementScore ?? null"
+        [playerEval]="(emulator.getCurrentPlacementEvaluation$() | async)?.playerPlacementScore ?? null"
         [keybinds]="getKeybinds()"
 />
 </div>

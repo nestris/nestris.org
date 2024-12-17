@@ -23,13 +23,17 @@ export class SoloRoomComponent {
   readonly SoloClientState = SoloClientState;
   readonly GameOverMode = GameOverMode;
 
+  public showAnalysis: boolean = false;
+
 
   constructor(
     public readonly platform: PlatformInterfaceService,
     public readonly emulator: EmulatorService,
     private readonly roomService: RoomService,
     private meService: MeService,
-  ) {}
+  ) {
+    this.showAnalysis = this.meService.getSync()?.show_live_analysis ?? false;
+  }
 
   @HostListener('window:keydown', ['$event'])
   handleKeydown(event: KeyboardEvent) {

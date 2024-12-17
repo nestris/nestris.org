@@ -44,7 +44,7 @@ export class LiveGameAnalyzer {
 
     private stopAnalyzing: boolean = false;
 
-    private placementEvaluation$ = new Subject<PlacementEvaluation>();
+    public placementEvaluation$ = new Subject<PlacementEvaluation>();
 
     constructor(
         private readonly stackrabbit: StackrabbitService, // For making Stackrabbit API calls

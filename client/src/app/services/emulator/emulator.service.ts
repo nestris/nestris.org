@@ -8,7 +8,7 @@ import { Keybind, Keybinds } from './keybinds';
 import { GameDisplayData } from 'src/app/shared/tetris/game-display-data';
 import { GymRNG } from 'src/app/shared/tetris/piece-sequence-generation/gym-rng';
 import { BinaryEncoder } from 'src/app/shared/network/binary-codec';
-import { first, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, first, Observable, Subject } from 'rxjs';
 import { eventIsForInput } from 'src/app/util/misc';
 import { MemoryGameStatus, StatusHistory, StatusSnapshot } from 'src/app/shared/tetris/memory-game-status';
 import { getFeedback } from 'src/app/util/game-feedback';
@@ -50,7 +50,8 @@ export class EmulatorService {
   private lastGameStatus: MemoryGameStatus | null = null;
   private lastGameFeedback: string | null = null;
 
-  private enableRunahead: boolean = false;
+  private runaheadFrames: number = 0;
+  private currentPlacementEvaluation$ = new BehaviorSubject<PlacementEvaluation | null>(null);
 
   constructor(
     private platform: PlatformInterfaceService,
@@ -112,6 +113,9 @@ export class EmulatorService {
     const gymSeed = seed ?? GymRNG.generateRandomSeed();
     this.currentState = new EmulatorGameState(startLevel, new GymRNG(gymSeed));
     this.analyzer = new LiveGameAnalyzer(this.stackrabbitService, sendPacketsToServer ? this.platform : null, startLevel);
+    
+    // subscribe to placement evaluation updates
+    this.analyzer.onPlacementEvaluation((evaluation) => this.currentPlacementEvaluation$.next(evaluation));
 
     this.analyzer.onNewPosition({
       board: this.currentState.getIsolatedBoard().copy(),
@@ -133,7 +137,8 @@ export class EmulatorService {
     }));
 
     // Update runahead flag
-    this.enableRunahead = this.meService.getSync()?.enable_runahead ?? false;
+    this.runaheadFrames = parseInt(this.meService.getSync()!.enable_runahead);
+    if (isNaN(this.runaheadFrames)) throw new Error(`Invalid runahead frames: ${this.runaheadFrames}`);
 
     // Update keybinds
     const me = this.meService.getSync()!;
@@ -155,7 +160,7 @@ export class EmulatorService {
 
   private updateClientsideDisplay() {
 
-    const RUNAHEAD_FRAMES = this.enableRunahead ? 1 : 0;
+    const RUNAHEAD_FRAMES = this.runaheadFrames;
 
     let state = this.currentState;
     if (!state) return;
@@ -289,6 +294,7 @@ export class EmulatorService {
     }
 
     this.analyzer!.stopAnalysis();
+    this.currentPlacementEvaluation$.next(null);
     const overallAccuracy = this.analyzer!.getOverallAccuracy();
     console.log("Overall accuracy:", overallAccuracy);
     
@@ -339,4 +345,10 @@ export class EmulatorService {
   getLastGameFeedback(): string | null {
     return this.lastGameFeedback;
   }
+
+  getCurrentPlacementEvaluation$(): Observable<PlacementEvaluation | null> {
+    return this.currentPlacementEvaluation$.asObservable();
+  }
+
+  
 }

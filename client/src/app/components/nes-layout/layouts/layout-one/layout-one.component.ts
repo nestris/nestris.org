@@ -23,6 +23,9 @@ export class LayoutOneComponent extends AbstractNesLayoutComponent implements On
   @Input() gameOver? : GameOverMode;
   @Input() gameOverShowNext: boolean = false;
   @Input() keybinds?: string;
+  @Input() showEvalBar: boolean = false;
+  @Input() bestEval: number | null = null;
+  @Input() playerEval: number | null = null;
   @Output() clickNext = new EventEmitter<void>();
 
 

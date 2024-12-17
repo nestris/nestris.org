@@ -5,7 +5,8 @@ export enum ButtonColor {
   GREEN = "#54A165",
   RED = "#B73C3C",
   BLUE = "#3C5EB7",
-  GREY = "#2F3033"
+  GREY = "#2F3033",
+  DARK = "#151515",
 }
 
 @Component({
@@ -26,8 +27,10 @@ export class SolidSelectorComponent {
   @Input() height: number = 30;
   @Input() borderRadius: number = 5;
   @Input() iconWidth?: number;
+  @Input() dropdownIconWidth: number = 15;
   @Input() gap: number = 4;
   @Input() textOpacity: number = 1;
+  @Input() updateInternally: boolean = true;
 
   // The selected index for the labels
   @Input() selected: number = 0;
@@ -39,7 +42,7 @@ export class SolidSelectorComponent {
 
     event.stopPropagation();
 
-    this.selected = index;
+    if (this.updateInternally) this.selected = index;
     this.selectedChange.emit(index);
 
     // toggle the expanded state

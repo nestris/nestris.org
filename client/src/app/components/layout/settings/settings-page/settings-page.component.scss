@@ -118,11 +118,15 @@
     height: 20px;
 }
 
-.boolean-setting {
+.boolean-setting, .dropdown-setting {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+}
+
+app-solid-selector {
+    height: 30px;
 }
 
 .keybind-setting {

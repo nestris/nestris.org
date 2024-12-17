@@ -29,6 +29,14 @@
                         <app-slide-toggle [checked]="getAttribute(me, setting.key)" (setChecked)="setAttribute(me, setting.key, $event)" />
                     </div>
 
+                    <div *ngIf="isDropdownSetting(setting) as setting" class="dropdown-setting"> 
+                        <div class="label">
+                            <p>{{setting.label}}</p>
+                            <p *ngIf="setting.description" class="description">{{setting.description}}</p>
+                        </div>
+                        <app-solid-selector [updateInternally]="false" [selected]="getDropdownIndex(me, setting)" (selectedChange)="setDropdownIndex(me, setting, $event)" [labels]="getDropdownLabels(setting)" [color]="ButtonColor.DARK" [fontSize]="12" [textOpacity]="0.8" [paddingHorizontal]="10" [paddingVertical]="0" [dropdownIconWidth]="12" [width]="100" />
+                    </div>
+
                     <div *ngIf="isKeybindSetting(setting) as setting" class="keybind-setting" [ngClass]="i === 0 ? 'first' : ''"> 
                         <p>{{setting.label}}</p>
                         <app-editable-keybind [keybind]="getAttribute(me, setting.key)" (click)="editKeybind(setting.key)"

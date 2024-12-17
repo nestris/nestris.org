@@ -1,6 +1,7 @@
 import { Component, HostListener } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { getDisplayKeybind } from 'src/app/components/ui/editable-keybind/editable-keybind.component';
+import { ButtonColor } from 'src/app/components/ui/solid-selector/solid-selector.component';
 import { FetchService, Method } from 'src/app/services/fetch.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { capitalize } from 'src/app/util/misc';
@@ -39,6 +40,15 @@ class KeybindSetting extends Setting {
   ) { super() }
 }
 
+class DropdownSetting extends Setting {
+  constructor(
+    public readonly key: string,
+    public readonly label: string,
+    public readonly options: {[attribute: string]: string},
+    public readonly description?: string,
+  ) { super() }
+}
+
 
 @Component({
   selector: 'app-settings-page',
@@ -48,6 +58,7 @@ class KeybindSetting extends Setting {
 export class SettingsPageComponent {
 
   isBooleanSetting = (setting: Setting) => (setting instanceof BooleanSetting) ? (setting as BooleanSetting) : null;
+  isDropdownSetting = (setting: Setting) => (setting instanceof DropdownSetting) ? (setting as DropdownSetting) : null;
   isKeybindSetting = (setting: Setting) => (setting instanceof KeybindSetting) ? (setting as KeybindSetting) : null;
 
   readonly tabs: Tab[] = [
@@ -57,10 +68,11 @@ export class SettingsPageComponent {
         new BooleanSetting('notify_on_friend_online', 'Notify me when friends go online'),
       ]),
       new Category('Emulator', [
-        new BooleanSetting(
-          'enable_runahead',
-          'Enable emulator runahead',
-          'Runahead reduces latency by 1 frame but requires more CPU power. It is recommended to disable runahead if you are experiencing performance issues.'
+        new BooleanSetting('show_live_analysis', 'Show live analysis'),
+        new DropdownSetting(
+          'enable_runahead', 'Enable emulator runahead',
+          { '0': 'No runahead', '1': '1 frame', '2': '2 frames' },
+          'Runahead reduces latency but requires more CPU power. It is recommended to disable runahead if you are experiencing performance issues.'
         ),
       ]),
       new Category('Emulator Keybinds', [
@@ -84,6 +96,7 @@ export class SettingsPageComponent {
   public errorKeybindExists$ = new BehaviorSubject<string | null>(null);
 
   readonly getDisplayKeybind = getDisplayKeybind;
+  readonly ButtonColor = ButtonColor;
   
   private fadeTimeout: any;
 
@@ -109,6 +122,21 @@ export class SettingsPageComponent {
     const setting = this.tabs.flatMap(tab => tab.categories).flatMap(category => category.settings).find(setting => setting.key === key);
     if (setting instanceof KeybindSetting) return setting.label;
     throw new Error(`No keybind setting found for key ${key}`);
+  }
+
+  // return all the option values for a dropdown setting
+  getDropdownLabels(setting: DropdownSetting) {
+    return Object.values(setting.options);
+  }
+
+  getDropdownIndex(user: any, setting: DropdownSetting) {
+    const attributeValue = this.getAttribute(user, setting.key);
+    return Object.keys(setting.options).indexOf(attributeValue);
+  }
+
+  setDropdownIndex(user: any, setting: DropdownSetting, index: number) {
+    const value = Object.keys(setting.options)[index];
+    this.setAttribute(user, setting.key, value);
   }
 
   private keybindsEqual(keybind1: string, keybind2: string) {
