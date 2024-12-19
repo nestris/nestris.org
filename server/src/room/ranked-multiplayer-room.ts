@@ -21,6 +21,7 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
             player1SessionID, player2SessionID,
             true, // Ranked
             18, // Start level
+            0.5, // Winning score: single game decides winner
         );
     }
 

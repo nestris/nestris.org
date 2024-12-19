@@ -46,7 +46,7 @@ export interface DBUser {
 
   enable_receive_friend_requests: boolean,
   notify_on_friend_online: boolean,
-  enable_runahead: string,
+  enable_runahead: boolean,
   show_live_analysis: boolean,
   solo_chat_permission: string,
   match_chat_permission: string,

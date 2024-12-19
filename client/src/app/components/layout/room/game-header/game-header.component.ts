@@ -11,5 +11,6 @@ export class GameHeaderComponent {
   @Input() username: string = '';
   @Input() score: number = 0;
   @Input() color: 'red' | 'blue' = 'red';
+  @Input() rated: boolean = false;
 
 }

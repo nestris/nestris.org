@@ -32,6 +32,7 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         player2SessionID: UserSessionID,
         public readonly ranked: boolean,
         public readonly startLevel: number,
+        public readonly winningScore: number,
     ) {
 
         super(
@@ -104,7 +105,7 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
             type: RoomType.MULTIPLAYER,
             startLevel: this.startLevel,
             ranked: this.ranked,
-            winningScore: 2,
+            winningScore: this.winningScore,
             players: {
                 [PlayerIndex.PLAYER_1]: await this.getInfoForPlayer(PlayerIndex.PLAYER_1),
                 [PlayerIndex.PLAYER_2]: await this.getInfoForPlayer(PlayerIndex.PLAYER_2),

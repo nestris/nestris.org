@@ -1,7 +1,7 @@
 <div class="multiplayer-background" *ngIf="(multiplayerState$ | async) as state">
     <div class="side" *ngFor="let playerIndex of getPlayerIndices()" [ngClass]="getIndexColor(playerIndex)">
         <div class="player" *ngIf="state.players[playerIndex] as player">
-            <app-game-header [username]="player.username" [trophies]="player.trophies"
+            <app-game-header [username]="player.username" [trophies]="player.trophies" [rated]="state.ranked"
             [score]="getScore(state, playerIndex)" [color]="getIndexColor(playerIndex)" />
 
             <!-- Show client gameplay directly if it's the player's board -->

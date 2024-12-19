@@ -1,7 +1,8 @@
 <div class="game-header">
     <div class="profile-container">
         <h1 class="name">{{username}}</h1>
-        <app-trophies [trophies]="trophies" [size]="18" />
+        <app-trophies *ngIf="!rated" [trophies]="trophies" [size]="18" />
     </div>
-    <p class="score" [ngClass]="color">{{score}}</p>
+    <p *ngIf="!rated" class="score" [ngClass]="color">{{score}}</p>
+    <app-trophies *ngIf="rated" [trophies]="trophies" [size]="24" />
 </div>

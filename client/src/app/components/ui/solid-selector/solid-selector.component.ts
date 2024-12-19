@@ -31,6 +31,7 @@ export class SolidSelectorComponent {
   @Input() gap: number = 4;
   @Input() textOpacity: number = 1;
   @Input() updateInternally: boolean = true;
+  @Input() duplicateSelected: boolean = false;
 
   // The selected index for the labels
   @Input() selected: number = 0;
@@ -57,9 +58,13 @@ export class SolidSelectorComponent {
 
   iterateIndices( expanded: boolean) {
 
-    let indicies = [];
-    if (expanded) indicies = [this.selected, ...Array.from(Array(this.labels.length).keys()).filter(i => i !== this.selected)];
-    else indicies = [this.selected];
+    let indicies: number[] = [];
+    if (expanded) {
+      indicies = Array.from(Array(this.labels.length).keys());
+      if (!this.duplicateSelected) indicies = indicies.filter(i => i !== this.selected);
+    }
+    // add this.selected to the beginning of the array
+    indicies.unshift(this.selected);
 
     //returns enumerted array of tuples (index, isFirst, isLast)
     return indicies.map((index, i) => {

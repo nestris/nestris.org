@@ -137,8 +137,8 @@ export class EmulatorService {
     }));
 
     // Update runahead flag
-    this.runaheadFrames = parseInt(this.meService.getSync()!.enable_runahead);
-    if (isNaN(this.runaheadFrames)) throw new Error(`Invalid runahead frames: ${this.runaheadFrames}`);
+    this.runaheadFrames = this.meService.getSync()!.enable_runahead ? 1 : 0;
+    console.log("Runahead frames:", this.runaheadFrames);
 
     // Update keybinds
     const me = this.meService.getSync()!;
@@ -169,14 +169,14 @@ export class EmulatorService {
       // runahead to get next state
       let runaheadState = state.copy();
       for (let i = 0; i < RUNAHEAD_FRAMES; i++) {
-        runaheadState.executeFrame(this.keyManager.peek());
+        runaheadState.executeFrame(KeyManager.ALL_KEYS_UNPRESSED);
       }
       state = runaheadState;
     }
 
     // update game data
     const data: GameDisplayData = {
-      board: this.displayBoard,
+      board: state.getDisplayBoard(),
       level: state.getStatus().level,
       score: state.getStatus().score,
       lines: state.getStatus().lines,

@@ -69,9 +69,9 @@ export class SettingsPageComponent {
       ]),
       new Category('Emulator', [
         new BooleanSetting('show_live_analysis', 'Show live analysis'),
-        new DropdownSetting(
-          'enable_runahead', 'Enable emulator runahead',
-          { '0': 'No runahead', '1': '1 frame', '2': '2 frames' },
+        new BooleanSetting(
+          'enable_runahead',
+          'Enable emulator runahead',
           'Runahead reduces latency but requires more CPU power. It is recommended to disable runahead if you are experiencing performance issues.'
         ),
       ]),

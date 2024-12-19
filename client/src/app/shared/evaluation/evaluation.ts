@@ -44,9 +44,9 @@ export function calculatePlacementScore(bestEval: number, playerEval: number) {
 export function placementScoreRating(score: number): EvaluationRating {
     if (score >= 0.95) return EvaluationRating.BEST;
     else if (score >= 0.90) return EvaluationRating.EXCELLENT;
-    else if (score >= 0.75) return EvaluationRating.GOOD;
-    else if (score >= 0.65) return EvaluationRating.INACCURACY;
-    else if (score >= 0.5) return EvaluationRating.MISTAKE;
+    else if (score >= 0.7) return EvaluationRating.GOOD;
+    else if (score >= 0.5) return EvaluationRating.INACCURACY;
+    else if (score >= 0.3) return EvaluationRating.MISTAKE;
     else return EvaluationRating.BLUNDER;
 }
 

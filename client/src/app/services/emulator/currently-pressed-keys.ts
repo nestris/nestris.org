@@ -78,6 +78,23 @@ export class KeyManager {
         [Keybind.PUSHDOWN]: false,
     }
 
+    public static readonly ALL_KEYS_UNPRESSED = new CurrentlyPressedKeys(
+        {
+            [Keybind.SHIFT_LEFT]: false,
+            [Keybind.SHIFT_RIGHT]: false,
+            [Keybind.ROTATE_LEFT]: false,
+            [Keybind.ROTATE_RIGHT]: false,
+            [Keybind.PUSHDOWN]: false,
+        },
+        {
+            [Keybind.SHIFT_LEFT]: false,
+            [Keybind.SHIFT_RIGHT]: false,
+            [Keybind.ROTATE_LEFT]: false,
+            [Keybind.ROTATE_RIGHT]: false,
+            [Keybind.PUSHDOWN]: false,
+        }
+    )
+
     onPress(keybind: Keybind) {
         this.pressed[keybind] = true;
     }
