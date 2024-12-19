@@ -57,6 +57,8 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         this.iterateGamePlayers((player, index) => player.onGameEnd$().subscribe(async (event: GameEndEvent) => {
             this.previousGame[index] = event;
 
+            console.log(`Player ${player.username} game ended with score ${event.state.getStatus().score} (${event.forced ? 'abort' : 'topout'})`);
+
             // Only trigger onBothPlayersEndGame if both players have ended the game and neither player has resigned
             if (this.previousGame[PlayerIndex.PLAYER_1] && this.previousGame[PlayerIndex.PLAYER_2] && !this.playerResigned) {
                 await this.onBothPlayersEndGame(
@@ -224,15 +226,31 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         const player1Points = calculateScoreForPlayer(state.points, PlayerIndex.PLAYER_1);
         const player2Points = calculateScoreForPlayer(state.points, PlayerIndex.PLAYER_2);
         if (player1Points >= state.winningScore || player2Points >= state.winningScore) {
-            // Match is over
+
+            // Match is over. Determine match winner based on who has more points
             if (player1Points > player2Points) state.matchWinner = PlayerIndex.PLAYER_1;
             else if (player1Points < player2Points) state.matchWinner = PlayerIndex.PLAYER_2;
             else state.matchWinner = PlayerIndex.DRAW;
 
+            // End the match
+            console.log(`Ending match with winner ${this.players[state.matchWinner].username}`);
             state.status = MultiplayerRoomStatus.AFTER_MATCH;
+            await this.onMatchEnd(state);
+
+        } else if (this.players[PlayerIndex.PLAYER_1].leftRoom || this.players[PlayerIndex.PLAYER_2].leftRoom) {
+
+            // If match was not over but a player left the room, end the match early by resignation
+            state.wonByResignation = true;
+
+            // Match winner is the player that did not leave the room
+            if (this.players[PlayerIndex.PLAYER_1].leftRoom && this.players[PlayerIndex.PLAYER_2].leftRoom) state.matchWinner = PlayerIndex.DRAW;
+            else if (this.players[PlayerIndex.PLAYER_1].leftRoom) state.matchWinner = PlayerIndex.PLAYER_2;
+            else state.matchWinner = PlayerIndex.PLAYER_1;
 
             // End the match
+            state.status = MultiplayerRoomStatus.AFTER_MATCH;
             await this.onMatchEnd(state);
+
         } else {
             // Match is ongoing
             state.currentSeed = GymRNG.generateRandomSeed();
@@ -244,32 +262,21 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
     }
 
     /**
-     * On room deletion by player leaving, if match still ongoing, end ongoing games and end match early by resignation
-     * @param userid The userid of the player that left the room
-     * @param sessionID The sessionID of the player that left the room
+     * When player leaves the room, check if match is still ongoing. If still ongoing, end the match early by resignation
+     * and update player trophies but wait till game ends to record game.
+     * @param userid 
+     * @param sessionID 
+     * @returns 
      */
-    protected override async onDelete(userid: string, sessionID: string): Promise<void> { 
+    protected override async onPlayerLeave(userid: string, sessionID: string): Promise<void> {
 
         // If match already ended, do nothing
         if (this.getRoomState().status === MultiplayerRoomStatus.AFTER_MATCH) return;
-        
-        // Set resignation flag
-        this.playerResigned = true;
-        
-        // End ongoing games for both players and save them
-        await Promise.all(Object.values(this.gamePlayers).map(player => player.onDelete()));
 
-        // Mark match as won by resignation, where the player that left the room loses
-        const state = this.getRoomState();
-        state.status = MultiplayerRoomStatus.AFTER_MATCH;
-        state.wonByResignation = true;
-        state.matchWinner = this.getPlayerIndex(sessionID) === PlayerIndex.PLAYER_1 ? PlayerIndex.PLAYER_2 : PlayerIndex.PLAYER_1;
-
-        // End the match
-        await this.onMatchEnd(state);
-
-        // Update the room state with resignation flag and match winner
-        this.updateRoomState(state);
+        // If the player that left the room was in the middle of a game, end that game. This will call
+        // match end callbacks if both players have ended the game
+        const playerIndex = this.getPlayerIndex(sessionID);
+        await this.gamePlayers[playerIndex].onDelete();   
     }
 
     /**

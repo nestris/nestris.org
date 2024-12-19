@@ -24,6 +24,7 @@ export interface GameEndEvent {
     packets: PacketAssembler;
     xpGained: number;
     isPersonalBest: boolean;
+    forced: boolean; // If the game was forced to end due to onDelete() call, this is true
 }
 
 // Strategy for calculating XP gained for a game
@@ -87,7 +88,7 @@ export class GamePlayer {
     public async onDelete() {
         // If in the middle of a game, end the game and save the game state
         if (this.gameState) {
-            await this.onGameEnd(this.packets, this.gameState, this.placementAccuracyScores);
+            await this.onGameEnd(this.packets, this.gameState, this.placementAccuracyScores, true);
         }
     }
 
@@ -130,7 +131,7 @@ export class GamePlayer {
             console.log(`Received game end packet from player ${this.username}`);
 
             // Handle the end of the game
-            await this.onGameEnd(this.packets, this.gameState!, this.placementAccuracyScores);
+            await this.onGameEnd(this.packets, this.gameState!, this.placementAccuracyScores, false);
 
             // Reset game state and packets
             this.gameState = null;
@@ -146,7 +147,7 @@ export class GamePlayer {
      * @param placementAccuracyScores The list of accuracy scores for each placement
      * @returns The gameID of the game that was written to the database
      */
-    private async onGameEnd(packets: PacketAssembler, gameState: GameState, placementAccuracyScores: number[]): Promise<string> {
+    private async onGameEnd(packets: PacketAssembler, gameState: GameState, placementAccuracyScores: number[], forced: boolean): Promise<string> {
 
         // Get the final game state
         const state = gameState.getSnapshot();
@@ -204,7 +205,8 @@ export class GamePlayer {
                 accuracy,
                 packets,
                 xpGained,
-                isPersonalBest: state.score > previousHighscore
+                isPersonalBest: state.score > previousHighscore,
+                forced
             }
         );
 

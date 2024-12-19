@@ -20,10 +20,18 @@ export interface DBUserParams {
 
 abstract class DBUserEvent {
     constructor() {}
+
+    toString(): string {
+        return this.constructor.name;
+    }
 }
 
-class GenericEvent<T> extends DBUserEvent {
+class GenericEvent<T extends {}> extends DBUserEvent {
     constructor(public readonly args: T) { super(); }
+
+    override toString(): string {
+        return `${super.toString()} with args ${this.args}`;
+    }
 }
 
 // When user connects to the server, update last_online
@@ -247,6 +255,8 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
 
                 break;
         }
+
+        console.log(`Altered user ${this.id} with event ${event.toString()}`);
 
         // Update XP, league, and quests
         if (event instanceof XPEvent) {
