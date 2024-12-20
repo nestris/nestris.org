@@ -1,0 +1,7 @@
+<app-alert [hide]="hide" borderColor="#FFAF2C">
+    <div class="trophy-alert">
+        <app-trophies class="trophies" [size]="30" [scaleIcon]="1.8" [scaleGap]="1.8" [trophies]="(trophies$ | async) ?? 0" textWidth="75px" />
+        <app-trophies class="delta" [size]="30" [reverse]="true" [trophies]="getDeltaString()"
+        [color]="trophyDelta > 0 ?  '#58D774' : '#F15757'" [ngClass]="trophyDelta > 0 ? 'positive' : 'negative'" />
+    </div>
+</app-alert>

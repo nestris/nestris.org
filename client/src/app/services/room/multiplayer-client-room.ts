@@ -11,6 +11,8 @@ import { PacketGroup } from "src/app/shared/network/stream-packets/packet";
 import { GameStateSnapshot } from "src/app/shared/game-state-from-packets/game-state";
 import { TetrisBoard } from "src/app/shared/tetris/tetris-board";
 import { TetrominoType } from "src/app/shared/tetris/tetromino-type";
+import { AlertService } from "../alert.service";
+import { TrophyAlertComponent } from "src/app/components/alerts/trophy-alert/trophy-alert.component";
 
 
 export class MultiplayerClientRoom extends ClientRoom {
@@ -19,6 +21,7 @@ export class MultiplayerClientRoom extends ClientRoom {
     private readonly websocket = this.injector.get(WebsocketService);
     private readonly emulator = this.injector.get(EmulatorService);
     private readonly platform = this.injector.get(PlatformInterfaceService);
+    private readonly alerts = this.injector.get(AlertService);
 
     private serverPlayers!: {[PlayerIndex.PLAYER_1]: ServerPlayer, [PlayerIndex.PLAYER_2]: ServerPlayer};
 

@@ -1,5 +1,5 @@
-<div class="container" [ngClass]="{reverse}" [ngStyle]="{'gap' : (size * 0.15)+'px'}">
-    <svg class="trophies" [attr.width]="size * 21/24 * 0.75" [attr.height]="size * 0.75" viewBox="0 0 21 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<div class="container" [ngClass]="{reverse}" [ngStyle]="{'gap' : (size * 0.15 * scaleGap)+'px'}">
+    <svg class="trophies" [attr.width]="size * 21/24 * 0.75 * scaleIcon" [attr.height]="size * 0.75 * scaleIcon" viewBox="0 0 21 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M2.5432 10.3389H1.27148V11.6106H2.5432V10.3389Z" [attr.fill]="color ?? 'url(#paint0_linear_2037_416)'"/>
         <path d="M1.27172 5.25293H0V10.3398H1.27172V5.25293Z" [attr.fill]="color ?? 'url(#paint1_linear_2037_416)'"/>
         <path d="M19.5683 10.3389H18.1357V11.6106H19.5683V10.3389Z" [attr.fill]="color ?? 'url(#paint2_linear_2037_416)'"/>
@@ -30,7 +30,7 @@
         </defs>
     </svg>
 
-    <h1 *ngIf="!color" class="default-color prevent-select" [ngStyle]="{'font-size' : size + 'px'}">{{trophies}}</h1>
-    <h1 *ngIf="color" class="prevent-select" [ngStyle]="{'font-size' : size + 'px', 'color' : color}">{{trophies}}</h1>
+    <h1 *ngIf="!color" class="default-color prevent-select" [ngStyle]="{'font-size' : size + 'px', 'width' : textWidth}">{{trophies}}</h1>
+    <h1 *ngIf="color" class="prevent-select" [ngStyle]="{'font-size' : size + 'px', 'color' : color, 'width' : textWidth}">{{trophies}}</h1>
         
 </div>

@@ -101,6 +101,7 @@ import { ModeIconComponent } from './components/ui/mode-icon/mode-icon.component
 import { EvalBarComponent } from './components/ui/eval-bar/eval-bar.component';
 import { SlideToggleComponent } from './components/ui/slide-toggle/slide-toggle.component';
 import { EditableKeybindComponent } from './components/ui/editable-keybind/editable-keybind.component';
+import { TrophyAlertComponent } from './components/alerts/trophy-alert/trophy-alert.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -238,6 +239,7 @@ const customNotifierOptions: NotifierOptions = {
     EvalBarComponent,
     SlideToggleComponent,
     EditableKeybindComponent,
+    TrophyAlertComponent,
   ],
   imports: [
     BrowserModule,

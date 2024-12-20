@@ -53,6 +53,7 @@ export interface PlayerInfo {
     sessionID: string;
     trophies: number;
     leftRoom: boolean;
+    trophyDelta: TrophyDelta;
 }
 
 export interface MultiplayerRoomState extends RoomState {

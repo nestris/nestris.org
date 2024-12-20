@@ -66,7 +66,7 @@ export class DBGameEndEvent extends XPEvent<GameEndArgs> {}
 
 
 // Update user's trophies by trophyDelta amount
-interface RankedMatchEndArgs extends XPArgs { win: boolean, lose: boolean, trophyChange: number }
+interface RankedMatchEndArgs extends XPArgs { win: boolean, lose: boolean, trophyChange: number, winXPBonus: number }
 export class DBRankedMatchEndEvent extends XPEvent<RankedMatchEndArgs> {}
 
 
@@ -268,11 +268,18 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
             // Get the list of quest names that were just completed
             const completedQuests = QuestDefinitions.getJustCompletedQuests(dbUserBefore, dbUserAfter).map(q => q.name);
 
-            // Calculate the total XP gained from both the normal XP gain and the quest completions
-            const totalXPGained = completedQuests.reduce((acc, questName) => acc + QuestDefinitions.getQuestDefinition(questName).xp, xpArgs.xpGained);
+            // Calculate the total XP gained from both the normal XP gain and the quest completions and xp bonus
+            const winBonus = event.constructor === DBRankedMatchEndEvent ? (event as DBRankedMatchEndEvent).args.winXPBonus : 0;
+            const totalXPGained = completedQuests.reduce((acc, questName) => acc + QuestDefinitions.getQuestDefinition(questName).xp, xpArgs.xpGained + winBonus);
+
+            const trophyInfo = event.constructor === DBRankedMatchEndEvent ? {
+                initial: dbUserBefore.trophies,
+                change: (event as DBRankedMatchEndEvent).args.trophyChange,
+                winBonus: winBonus
+            } : undefined;
 
             // Send the XP gained message, as well as any quests completed, to the specific session of the player that finished the game
-            if (totalXPGained > 0 || completedQuests.length > 0) {
+            if (totalXPGained > 0 || completedQuests.length > 0 || trophyInfo) {
 
                 console.log(`Sending XP gain message to user ${this.id} for ${totalXPGained} XP gained and ${completedQuests.length} quests completed`);
                 
@@ -280,7 +287,8 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
                     dbUserBefore.league,
                     dbUserBefore.xp,
                     xpArgs.xpGained,
-                    completedQuests
+                    completedQuests,
+                    trophyInfo
                 ));
             }
 

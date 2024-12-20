@@ -19,6 +19,7 @@ import { QuestAlertComponent } from './components/alerts/quest-alert/quest-alert
 import { InvitationsService } from './services/state/invitations.service';
 import { StackrabbitService } from './services/stackrabbit/stackrabbit.service';
 import { sleep } from './util/misc';
+import { TrophyAlertComponent } from './components/alerts/trophy-alert/trophy-alert.component';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
@@ -54,6 +55,8 @@ export class AppComponent implements OnInit {
   async ngOnInit() {
 
     console.log("DEV MODE", isDevMode());
+
+    // this.alertService.addAlert(TrophyAlertComponent, "trophyAlert", {startTrophies: 1300, trophyDelta: -23});
 
     // this.alertService.addAlert(XPAlertComponent, "xpAlert", {league: League.MINO_1, currentXP: 0});
     // this.alertService.addAlert(QuestAlertComponent, "questAlert", {name : "Ok Noah Dengler"});

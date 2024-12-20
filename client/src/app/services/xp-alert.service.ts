@@ -6,6 +6,7 @@ import { XPAlertComponent } from '../components/alerts/xp-alert/xp-alert.compone
 import { sleep } from '../util/misc';
 import { QuestDefinitions } from '../shared/nestris-org/quest-system';
 import { QuestAlertComponent } from '../components/alerts/quest-alert/quest-alert.component';
+import { TrophyAlertComponent } from '../components/alerts/trophy-alert/trophy-alert.component';
 
 @Injectable({
   providedIn: 'root'
@@ -31,9 +32,9 @@ export class XPAlertService {
       xp += xpGain;
 
       this.alertService.updateAlert("xpAlert", {currentXP: xp});
-    }
+    } 
 
-    // first, add the alert
+    // first add the xp alert
     this.alertService.addAlert(XPAlertComponent, "xpAlert", {
       league: message.startLeague, currentXP: xp
     });
@@ -41,6 +42,20 @@ export class XPAlertService {
     // Wait a bit, then update the alert with the new XP
     await sleep(800);
     addXP(message.normalXPGain);
+
+    // if trophy change, show trophy alert
+    if (message.trophyInfo) {
+
+      await sleep(500);
+
+      this.alertService.addAlert(TrophyAlertComponent, "trophyAlert", {
+        startTrophies: message.trophyInfo.initial,
+        trophyDelta: message.trophyInfo.change
+      });
+
+      await sleep(1300);
+      addXP(message.trophyInfo.winBonus);
+    }
 
 
     // For each completed quest, show a quest alert
@@ -62,6 +77,7 @@ export class XPAlertService {
 
     // Hide all alerts after a bit
     await sleep(2500);
+    this.alertService.removeAlert("trophyAlert");
     this.alertService.removeAlert("xpAlert");
     for (const quest of message.completedQuests) {
       this.alertService.removeAlert(quest);

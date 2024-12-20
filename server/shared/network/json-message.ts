@@ -177,7 +177,8 @@ export class XPGainMessage extends JsonMessage {
         public readonly startLeague: League,
         public readonly startXP: number,
         public readonly normalXPGain: number,
-        public readonly completedQuests: string[] // list of quest names that were completed and should have XP added
+        public readonly completedQuests: string[], // list of quest names that were completed and should have XP added
+        public readonly trophyInfo?: { initial: number, change: number, winBonus: number }
     ) {
         super(JsonMessageType.XP_GAIN)
     }

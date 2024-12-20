@@ -3,7 +3,7 @@ import { PacketDisassembler } from "../../shared/network/stream-packets/packet-d
 import { ClientRoomEvent, RoomType } from "../../shared/room/room-models";
 import { Room } from "../online-users/event-consumers/room-consumer";
 import { UserSessionID } from "../online-users/online-user";
-import { calculateScoreForPlayer, MatchPoint, MultiplayerRoomEventType, MultiplayerRoomState, MultiplayerRoomStatus, PlayerIndex, PlayerInfo } from "../../shared/room/multiplayer-room-models";
+import { calculateScoreForPlayer, MatchPoint, MultiplayerRoomEventType, MultiplayerRoomState, MultiplayerRoomStatus, PlayerIndex, PlayerInfo, TrophyDelta } from "../../shared/room/multiplayer-room-models";
 import { GameEndEvent, GamePlayer, GameStartEvent, NO_XP_STRATEGY } from "./game-player";
 import { GymRNG } from "../../shared/tetris/piece-sequence-generation/gym-rng";
 import { DBUserObject } from "../database/db-objects/db-user";
@@ -30,6 +30,8 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
     constructor(
         player1SessionID: UserSessionID,
         player2SessionID: UserSessionID,
+        protected readonly player1TrophyDelta: TrophyDelta, // How much player 1 will gain/lose
+        protected readonly player2TrophyDelta: TrophyDelta, // How much player 2 will gain/lose
         public readonly ranked: boolean,
         public readonly startLevel: number,
         public readonly winningScore: number,
@@ -96,6 +98,7 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
             sessionID: this.gamePlayers[playerIndex].sessionID,
             trophies: trophies,
             leftRoom: false,
+            trophyDelta: playerIndex === PlayerIndex.PLAYER_1 ? this.player1TrophyDelta : this.player2TrophyDelta,
         };
     }
 

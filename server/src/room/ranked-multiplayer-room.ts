@@ -4,6 +4,7 @@ import { MultiplayerRoom } from "./multiplayer-room";
 import { v4 as uuid } from 'uuid';
 import { DBRankedMatchEndEvent, DBUserObject } from "../database/db-objects/db-user";
 import { RoomError } from "../online-users/event-consumers/room-consumer";
+import { soloXPStrategy } from "./solo-room";
 
 
 export class RankedMultiplayerRoom extends MultiplayerRoom {
@@ -14,19 +15,15 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
     constructor(
         player1SessionID: UserSessionID,
         player2SessionID: UserSessionID,
-        private readonly player1TrophyDelta: TrophyDelta, // How much player 1 will gain/lose
-        private readonly player2TrophyDelta: TrophyDelta, // How much player 2 will gain/lose
+        player1TrophyDelta: TrophyDelta, // How much player 1 will gain/lose
+        player2TrophyDelta: TrophyDelta, // How much player 2 will gain/lose
     ) {
         super(
-            player1SessionID, player2SessionID,
+            player1SessionID, player2SessionID, player1TrophyDelta, player2TrophyDelta,
             true, // Ranked
             18, // Start level
             0.5, // Winning score: single game decides winner
         );
-    }
-
-    private calculateXPGain(state: MultiplayerRoomState, playerIndex: PlayerIndex): number {
-        return 1000;
     }
 
     /**
@@ -47,14 +44,18 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
             else if (state.matchWinner === playerIndex) trophyChange = trophyDelta.trophyGain;
             else trophyChange = trophyDelta.trophyLoss;
 
+            const newTrophies = state.players[playerIndex].trophies + trophyChange;
+            const xpBonusIfWin = Math.floor(newTrophies * 0.1);
+
             // Update each player's trophies and XP after the match, and calculate quest progress
             await DBUserObject.alter(player.userid, new DBRankedMatchEndEvent({
                 users: RankedMultiplayerRoom.Users,
                 sessionID: player.sessionID,
-                xpGained: this.calculateXPGain(state, playerIndex),
+                xpGained: soloXPStrategy(state.points.length > 0 ? state.points[0].game[playerIndex].score : 0),
                 win: state.matchWinner === playerIndex,
                 lose: state.matchWinner !== playerIndex && state.matchWinner !== PlayerIndex.DRAW,
                 trophyChange: trophyChange,
+                winXPBonus: state.matchWinner === playerIndex ? xpBonusIfWin : 0,
             }), false);
         });
 
