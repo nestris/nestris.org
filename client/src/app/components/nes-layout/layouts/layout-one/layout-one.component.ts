@@ -26,6 +26,7 @@ export class LayoutOneComponent extends AbstractNesLayoutComponent implements On
   @Input() showEvalBar: boolean = false;
   @Input() bestEval: number | null = null;
   @Input() playerEval: number | null = null;
+  @Input() dimmed: boolean = false;
   @Output() clickNext = new EventEmitter<void>();
 
 

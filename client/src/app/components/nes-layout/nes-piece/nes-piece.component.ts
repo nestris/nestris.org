@@ -18,6 +18,9 @@ export class NesPieceComponent implements OnChanges {
   @Input() piece?: TetrominoType = TetrominoType.ERROR_TYPE;
   @Input() level: number = 18;
 
+  @Input() animateOpacity: boolean = false;
+  @Input() opacity: number = 1;
+
   // login page has white style
   @Input() isLoginPage: boolean = false;
 

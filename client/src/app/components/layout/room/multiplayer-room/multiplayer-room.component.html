@@ -13,7 +13,7 @@
                     [lines]="myData.lines"
                     [score]="myData.score"
                     [trt]="myData.trt"
-                    [countdown]="showReadyCountdown(state, playerIndex) ?? myData.countdown"
+                    [countdown]="showBoardText(state, playerIndex) ?? myData.countdown"
                     [gameOverShowNext]="true"
                     [gameOver]="getGameOverMode(state, playerIndex)"
                     (clickNext)="clickNext(state)"
@@ -29,9 +29,10 @@
                     [lines]="playerData.lines"
                     [score]="playerData.score"
                     [trt]="playerData.tetrisRate"
-                    [countdown]="showReadyCountdown(state, playerIndex) ?? playerData.countdown"
+                    [countdown]="showBoardText(state, playerIndex) ?? playerData.countdown"
                     [gameOverShowNext]="false"
                     [gameOver]="getGameOverMode(state, playerIndex)"
+                    [dimmed]="player.leftRoom"
                     />                    
             </ng-container>
 

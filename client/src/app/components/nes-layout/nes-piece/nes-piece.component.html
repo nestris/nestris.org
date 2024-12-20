@@ -6,7 +6,8 @@
         <g>
             <g *ngFor="let y of ROWS">
                 <g *ngFor="let x of COLS">
-                    <g app-nes-block
+                    <g app-nes-block class="block" [ngClass]="{'animate' : animateOpacity}"
+                        [attr.opacity]="opacity"
                         [color]="nextBox ? nextBox[y][x] : ColorType.EMPTY"
                         [level]="level"
                         [isLoginPage]="isLoginPage"

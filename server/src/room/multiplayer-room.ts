@@ -95,6 +95,7 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
             username: this.gamePlayers[playerIndex].username,
             sessionID: this.gamePlayers[playerIndex].sessionID,
             trophies: trophies,
+            leftRoom: false,
         };
     }
 
@@ -233,7 +234,8 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
             else state.matchWinner = PlayerIndex.DRAW;
 
             // End the match
-            console.log(`Ending match with winner ${this.players[state.matchWinner].username}`);
+            const winnerUsername = state.matchWinner === PlayerIndex.DRAW ? 'DRAW' : this.gamePlayers[state.matchWinner].username;
+            console.log(`Ending match with winner: ${winnerUsername}`);
             state.status = MultiplayerRoomStatus.AFTER_MATCH;
             await this.onMatchEnd(state);
 
@@ -273,9 +275,14 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         // If match already ended, do nothing
         if (this.getRoomState().status === MultiplayerRoomStatus.AFTER_MATCH) return;
 
+        // Update multiplayer room state with player leaving
+        const state = this.getRoomState();
+        const playerIndex = this.getPlayerIndex(sessionID);
+        state.players[playerIndex].leftRoom = true;
+        this.updateRoomState(state);
+
         // If the player that left the room was in the middle of a game, end that game. This will call
         // match end callbacks if both players have ended the game
-        const playerIndex = this.getPlayerIndex(sessionID);
         await this.gamePlayers[playerIndex].onDelete();   
     }
 

@@ -1,3 +1,8 @@
 .next-box-svg {
     display: block; // prevents the weird space in the bottom of the board
 }
+
+.block.animate {
+    transition: opacity 1s;
+    transition-delay: 0.2s;
+}
