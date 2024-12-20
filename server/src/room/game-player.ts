@@ -165,8 +165,11 @@ export class GamePlayer {
         const previousHighscore = (await DBUserObject.get(this.userid)).highest_score;
 
         // Write game to database
+        const binary: Uint8Array = packets.encode();
+        console.log(`Saving game with bytes: ${binary.byteLength}`);
         await Database.query(CreateGameQuery, {
             id: gameID,
+            data: binary,
             userid: this.userid,
             start_level: gameState.startLevel,
             end_level: state.level,
@@ -193,9 +196,6 @@ export class GamePlayer {
             perfectTransitionInto29: state.perfectInto29,
         }), false);
         
-        
-
-        // TODO: write game data to database
 
         // Emit the game end event
         this.gameEnd$.next(

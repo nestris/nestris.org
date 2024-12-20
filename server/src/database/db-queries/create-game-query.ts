@@ -4,8 +4,11 @@ import { WriteDBQuery } from "../db-query";
 
 export class CreateGameQuery extends WriteDBQuery {
     public override query = `
-        INSERT INTO games (id, userid, start_level, end_score, end_level, end_lines, accuracy, tetris_rate, xp_gained)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
+        WITH ins_games AS (
+            INSERT INTO games (id, userid, start_level, end_score, end_level, end_lines, accuracy, tetris_rate, xp_gained)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        )
+        INSERT INTO game_data (game_id, data) VALUES ($1, $10);
     `;
 
     public override warningMs = null;
@@ -19,7 +22,8 @@ export class CreateGameQuery extends WriteDBQuery {
         end_lines: number,
         accuracy: number | null,
         tetris_rate: number,
-        xp_gained: number
+        xp_gained: number,
+        data: Uint8Array,
     }) {
         super([
             game.id,
@@ -30,7 +34,8 @@ export class CreateGameQuery extends WriteDBQuery {
             game.end_lines,
             game.accuracy ? encodeDecimal(game.accuracy, 2) : game.accuracy,
             encodeDecimal(game.tetris_rate, 2),
-            game.xp_gained
+            game.xp_gained,
+            game.data
         ]);
     }
 

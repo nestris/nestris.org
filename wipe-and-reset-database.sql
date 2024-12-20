@@ -169,6 +169,14 @@ CREATE TABLE "public"."games" (
     PRIMARY KEY ("id")
 );
 
+-- GAME DATA, storing the game data for each game
+DROP TABLE IF EXISTS "public"."game_data" CASCADE;
+CREATE TABLE "public"."game_data" (
+    "game_id" text NOT NULL REFERENCES "public"."games"("id"),
+    "data" bytea NOT NULL,
+    PRIMARY KEY ("game_id")
+);
+
 -- HIGHSCORE GAME TABLE
 -- stores the highscore for each game
 DROP TABLE IF EXISTS "public"."highscore_games" CASCADE;
@@ -176,14 +184,6 @@ CREATE TABLE "public"."highscore_games" (
     "userid" text NOT NULL REFERENCES "public"."users"("userid"),
     "game_id" text NOT NULL REFERENCES "public"."games"("id"),
     PRIMARY KEY ("userid")
-);
-
--- GAME DATA, storing the game data for each game
-DROP TABLE IF EXISTS "public"."game_data" CASCADE;
-CREATE TABLE "public"."game_data" (
-    "game_id" text NOT NULL REFERENCES "public"."games"("id"),
-    "data" bytea NOT NULL,
-    PRIMARY KEY ("game_id")
 );
 
 -- MATCH TABLE

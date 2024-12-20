@@ -38,6 +38,7 @@ import { GetT200LeaderboardRoute } from './src/routes/leaderboard/get-t200-leade
 import { UpdateMeAttributeRoute } from './src/routes/user/update-me-attribute';
 import { LeaveRoomRoute } from './src/routes/room/leave-room-route';
 import { GetRoomsRoute } from './src/routes/room/get-rooms-route';
+import { ExampleTask, TaskScheduler, TimeUnit } from './src/task-scheduler/task-scheduler';
 
 // Load environment variables
 require('dotenv').config();
@@ -112,6 +113,10 @@ async function main() {
   LeaderboardManager.registerT200Leaderboard(T200RankedLeaderboard);
   LeaderboardManager.registerT200Leaderboard(T200PuzzlesLeaderboard);
   await LeaderboardManager.init(users);
+
+  // Schedule tasks
+  const scheduler = new TaskScheduler();
+  scheduler.schedule(ExampleTask, 5, TimeUnit.MINUTES);
 
   // initialize routes
   const routes = new RouteManager(app);
