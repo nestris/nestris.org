@@ -7,6 +7,7 @@ import { TetrominoType } from "../tetromino-type";
 export abstract class RNG {
 
     abstract getNextPiece(): TetrominoType;
+    abstract copy(): RNG;
 
 }
 

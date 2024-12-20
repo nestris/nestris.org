@@ -56,6 +56,19 @@ export class GymRNG extends RNG {
     }
 
     /**
+     * Creates a copy of the current RNG.
+     * @returns A copy of the current RNG.
+     */
+    override copy(): GymRNG {
+        const copy = new GymRNG(this.seedStr);
+        copy.seed = this.seed;
+        copy.cnt = this.cnt;
+        copy.iters = this.iters;
+        copy.prev = this.prev;
+        return copy;
+    }
+
+    /**
      * Advances the internal state of the RNG.
      */
     private advance(): void {

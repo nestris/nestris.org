@@ -23,4 +23,8 @@ export  class RandomRNG extends RNG {
             return TetrominoType.Z_TYPE;
         }
     }
+
+    override copy(): RNG {
+        return new RandomRNG();
+    }
 }

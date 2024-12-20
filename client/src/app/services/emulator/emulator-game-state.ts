@@ -75,7 +75,7 @@ export class EmulatorGameState {
     }
     
     copy(): EmulatorGameState {
-        const copy = new EmulatorGameState(this.startLevel, this.rng, this.countdown);
+        const copy = new EmulatorGameState(this.startLevel, this.rng.copy(), this.countdown);
         copy.isolatedBoard = this.isolatedBoard.copy();
         copy.status = new MemoryGameStatus(this.status.startLevel, this.status.lines, this.status.score, this.status.level);
         copy.nextPieceType = this.nextPieceType;
