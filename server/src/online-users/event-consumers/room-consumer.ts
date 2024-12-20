@@ -161,6 +161,13 @@ export abstract class Room<T extends RoomState = RoomState> {
     }
 
     /**
+     * Get all session ids for players in the room that have not left the room
+     */
+    public get playerSessionIDsInRoom(): string[] {
+        return this.players.filter(player => !player.leftRoom).map(player => player.sessionID);
+    }
+
+    /**
      * Get all session ids for spectators in the room
      */
     public get spectatorSessionIDs(): string[] {
@@ -175,11 +182,10 @@ export abstract class Room<T extends RoomState = RoomState> {
     }
 
     /**
-     * Get all session ids for all players and spectators in the room (not including players that have left the room)
+     * Get all session ids for all in-room players and spectators in the room
      */
     public get allSessionIDsInRoom(): string[] {
-        const playersInRoomIDs = this.players.filter(player => !player.leftRoom).map(player => player.sessionID);
-        return playersInRoomIDs.concat(this.spectatorSessionIDs);
+        return this.playerSessionIDsInRoom.concat(this.spectatorSessionIDs);
     }
 
     /**
@@ -485,9 +491,6 @@ export class RoomConsumer extends EventConsumer {
         else if (event.message.type === JsonMessageType.CLIENT_ROOM_EVENT)
             await room._onClientRoomEvent(event.sessionID, (event.message as ClientRoomEventMessage).event);
 
-        // Handle when a client session leaves the room
-        else if (event.message.type === JsonMessageType.LEAVE_ROOM) 
-            await this.freeSession(event.userid, event.sessionID);
         
     }
 
@@ -503,12 +506,13 @@ export class RoomConsumer extends EventConsumer {
      * Free the session from any room. This involves removing the session from the room and the session map. If the session
      * is a player in the room, delete the room entirely after triggering the room's destructor.
      * @param sessionID The session id of the user that disconnected
+     * @returns True if the session was successfully freed, false if the session was not in any room.
      */
-    public async freeSession(userid: string, sessionID: string) {
+    public async freeSession(userid: string, sessionID: string): Promise<boolean> {
 
         // Get the room the session is in. Ignore if the session is not in any room.
         const room = this.getRoomBySessionID(sessionID);
-        if (!room) return;
+        if (!room) return false;
 
         // Remove the session from the room
         if (room.isPlayer(sessionID)) {
@@ -517,7 +521,7 @@ export class RoomConsumer extends EventConsumer {
             await room._onPlayerLeave(userid, sessionID);
 
             // If that was the last player in the room, delete the room entirely
-            if (room.playerSessionIDs.length === 0) {
+            if (room.playerSessionIDsInRoom.length === 0) {
                 await room._deinit();
                 this.rooms.delete(room.id);
             }
@@ -528,6 +532,7 @@ export class RoomConsumer extends EventConsumer {
 
         // Remove the session from the session map
         this.sessions.delete(sessionID);
+        return true;
     }
 
     /**
@@ -537,6 +542,10 @@ export class RoomConsumer extends EventConsumer {
      */
     public getRoomCount(filter: (room: Room) => boolean = (_) => true): number {
         return Array.from(this.rooms.values()).filter(filter).length;
+    }
+
+    public getAllRoomInfo(): RoomInfo[] {
+        return Array.from(this.rooms.values()).map(room => room.getRoomInfo());
     }
 
 }

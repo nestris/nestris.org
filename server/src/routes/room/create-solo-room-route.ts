@@ -1,6 +1,4 @@
-import { Authentication, DBUser } from "../../../shared/models/db-user";
-import { DBObjectNotFoundError } from "../../database/db-object-error";
-import { DBUserObject } from "../../database/db-objects/db-user";
+import { Authentication } from "../../../shared/models/db-user";
 import { EventConsumerManager } from "../../online-users/event-consumer";
 import { RoomConsumer } from "../../online-users/event-consumers/room-consumer";
 import { SoloRoom } from "../../room/solo-room";

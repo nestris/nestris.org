@@ -27,7 +27,6 @@ export enum JsonMessageType {
     IN_ROOM_STATUS = 'in_room_status',
     ROOM_STATE_UPDATE = 'room_state_update',
     CLIENT_ROOM_EVENT = 'client_room_event',
-    LEAVE_ROOM = 'leave_room',
     XP_GAIN = 'xp_gain',
     NUM_QUEUING_PLAYERS = 'num_queuing_players',
     FOUND_OPPONENT = 'found_opponent',
@@ -171,14 +170,6 @@ export class ClientRoomEventMessage extends JsonMessage {
         super(JsonMessageType.CLIENT_ROOM_EVENT)
     }
 }
-
-// sent from client to server to leave the room
-export class LeaveRoomMessage extends JsonMessage {
-    constructor() {
-        super(JsonMessageType.LEAVE_ROOM)
-    }
-}
-
 
 // sent from server to client to indicate an amount of XP has been gained, as well as any quests completed, to trigger client-side animation
 export class XPGainMessage extends JsonMessage {

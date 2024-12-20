@@ -55,7 +55,7 @@ export class RoomComponent implements OnInit, OnDestroy {
 
   // Leave the room when the component is destroyed
   async ngOnDestroy() {
-    this.roomService.leaveRoom();
+    await this.roomService.leaveRoom();
     this.gameDataSubscription?.unsubscribe();
   }
 

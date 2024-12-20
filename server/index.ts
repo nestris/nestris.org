@@ -36,6 +36,8 @@ import { RemoveFriendRoute } from './src/routes/user/remove-friend-route';
 import { MeConsumer } from './src/online-users/event-consumers/me-consumer';
 import { GetT200LeaderboardRoute } from './src/routes/leaderboard/get-t200-leaderboard-route';
 import { UpdateMeAttributeRoute } from './src/routes/user/update-me-attribute';
+import { LeaveRoomRoute } from './src/routes/room/leave-room-route';
+import { GetRoomsRoute } from './src/routes/room/get-rooms-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -119,8 +121,10 @@ async function main() {
   routes.registerRoute(GetAllUsernamesRoute);
   routes.registerRoute(GetRelativeLeaderboardsRoute);
   routes.registerRoute(GetT200LeaderboardRoute);
+  routes.registerRoute(GetRoomsRoute);
   routes.registerRoute(CreateSoloRoomRoute);
   routes.registerRoute(GetCacheStatsRoute);
+  routes.registerRoute(LeaveRoomRoute);
   routes.registerRoute(EnterRankedQueueRoute);
   routes.registerRoute(LeaveRankedQueueRoute);
   routes.registerRoute(GetUsernamesListRoute);

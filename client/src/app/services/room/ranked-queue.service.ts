@@ -5,6 +5,7 @@ import { FoundOpponentMessage, JsonMessageType, NumQueuingPlayersMessage } from 
 import { FetchService, HTTPError, Method } from '../fetch.service';
 import { NotificationService } from '../notification.service';
 import { NotificationType } from 'src/app/shared/models/notifications';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +22,7 @@ export class RankedQueueService {
     private websocketService: WebsocketService,
     private fetchService: FetchService,
     private notifier: NotificationService,
+    private router: Router
   ) {
 
     // Listen for the number of players in the queue
@@ -61,6 +63,11 @@ export class RankedQueueService {
 
       // If successful, set isInQueue to true
       this.isInQueue = true;
+
+      // if not already in the ranked queue, navigate to the ranked queue
+      if (this.router.url !== '/online/ranked') {
+        this.router.navigate(['/online/ranked']);
+      }
 
       return true;
 

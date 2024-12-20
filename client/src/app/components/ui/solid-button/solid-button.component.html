@@ -2,7 +2,7 @@
     [ngStyle]="{backgroundColor: color, paddingInline: !label ? 0 : paddingHorizontal + 'px',
     borderRadius: borderRadius + 'px', gap : gap + 'px'}"
     [ngClass]="{
-        'disabled': disabled || loading,
+        'disabled': disabled || loading || (actionLoading$ | async),
         'loading' : loading,
         'stretch': stretch,
         'just-icon': !label,
@@ -16,5 +16,5 @@
     }">{{ label }}</h1>
 </div>
 
-<app-loading-animation *ngIf="loading" class="loading-animation"
+<app-loading-animation *ngIf="enableLoadingAnimation && (loading || (actionLoading$ | async))" class="loading-animation"
 [size]="loadingSize" />

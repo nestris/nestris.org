@@ -5,6 +5,7 @@ import { calculateScoreForPlayer, MultiplayerRoomState, PlayerIndex, pointWinner
 import { MultiplayerComponent } from '../../multiplayer-room/multiplayer-component';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { Router } from '@angular/router';
+import { RankedQueueService } from 'src/app/services/room/ranked-queue.service';
 
 @Component({
   selector: 'app-multiplayer-after-match-modal',
@@ -16,6 +17,7 @@ export class MultiplayerAfterMatchModalComponent extends MultiplayerComponent {
 
   constructor(
     roomService: RoomService,
+    private readonly queueService: RankedQueueService,
     private readonly router: Router,
   ) {
     super(roomService);
@@ -38,8 +40,17 @@ export class MultiplayerAfterMatchModalComponent extends MultiplayerComponent {
     return 'Defeat';
   }
 
-  exit() {
-    this.roomService.leaveRoom();
+  async playNewMatch() {
+
+    // Leave the room
+    await this.roomService.leaveRoom();
+
+    // Join the queue
+    await this.queueService.joinQueue();
+  }
+
+  async exit() {
+    await this.roomService.leaveRoom();
     this.router.navigate(['/']);
   }
 

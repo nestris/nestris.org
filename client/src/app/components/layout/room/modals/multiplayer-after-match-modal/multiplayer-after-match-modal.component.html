@@ -27,7 +27,7 @@
         </div>
         <div class="buttons">
             <app-solid-button label="Exit" [color]="ButtonColor.RED" (click)="exit()" />
-            <app-solid-button label="Rematch" [disabled]="true" tooltip="Coming soon!" />
+            <app-solid-button label="Play" [color]="ButtonColor.GREEN" [action]="playNewMatch.bind(this)" />
         </div>
     </div>
 </div>

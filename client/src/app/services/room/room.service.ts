@@ -1,5 +1,5 @@
 import { Injectable, Injector } from '@angular/core';
-import { ChatMessage, InRoomStatus, InRoomStatusMessage, JsonMessage, JsonMessageType, LeaveRoomMessage, RoomStateUpdateMessage, SpectatorCountMessage } from 'src/app/shared/network/json-message';
+import { ChatMessage, InRoomStatus, InRoomStatusMessage, JsonMessage, JsonMessageType, RoomStateUpdateMessage, SpectatorCountMessage } from 'src/app/shared/network/json-message';
 import { RoomInfo, RoomState, RoomType } from 'src/app/shared/room/room-models';
 import { WebsocketService } from '../websocket.service';
 import { Router } from '@angular/router';
@@ -11,6 +11,7 @@ import { RoomModal } from 'src/app/components/layout/room/room/room.component';
 import { v4 as uuid } from 'uuid';
 import { SoloRoomState } from 'src/app/shared/room/solo-room-models';
 import { MultiplayerClientRoom } from './multiplayer-client-room';
+import { FetchService, Method } from '../fetch.service';
 
 const MAX_MESSAGES = 15;
 export interface Message {
@@ -49,6 +50,7 @@ export class RoomService {
     private injector: Injector,
     private websocketService: WebsocketService,
     private meService: MeService,
+    private fetchService: FetchService,
     private router: Router,
   ) {
 
@@ -77,13 +79,13 @@ export class RoomService {
   /**
    * Leave the room the client is in, if any.
    */
-  public leaveRoom() {
+  public async leaveRoom() {
 
     // Cleanup the client room
     this.clientRoom?.destroy();
 
     // Tell the server to leave the room
-    this.websocketService.sendJsonMessage(new LeaveRoomMessage());
+    await this.fetchService.fetch(Method.POST, `/api/v2/leave-room/${this.websocketService.getSessionID()}`);
   }
 
   /**

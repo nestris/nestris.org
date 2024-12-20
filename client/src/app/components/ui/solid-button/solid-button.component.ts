@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 export enum ButtonColor {
   GREEN = "#54A165",
@@ -31,14 +32,29 @@ export class SolidButtonComponent {
   @Input() iconHeight?: number;
   @Input() noShadow: boolean = false;
   @Input() gap: number = 4;
+  @Input() enableLoadingAnimation: boolean = false;
+
+  @Input() action: (() => Promise<void>) | null = null;
 
   @Output() smartClick = new EventEmitter<void>();
 
   @HostBinding('class.stretchHost') get stretchHost() { return this.stretch; }
 
+  actionLoading$ = new BehaviorSubject<boolean>(false);
+
   // Click only if not disabled or loading
-  onClick() {
-    if (!this.disabled && !this.loading) this.smartClick.emit();
+  async onClick() {
+    if (!this.disabled && !this.loading && !this.actionLoading$.getValue()) {
+
+      if (this.action) {
+        const action = this.action();
+        this.actionLoading$.next(true);
+        await action;
+        this.actionLoading$.next(false);
+      }
+
+      this.smartClick.emit();
+    }
   }
 
 }

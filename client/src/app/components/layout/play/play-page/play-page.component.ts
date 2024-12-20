@@ -110,10 +110,7 @@ export class PlayPageComponent implements OnDestroy{
   async playRanked() {
 
     // Attempt to join the ranked queue
-    const success = await this.rankedQueueService.joinQueue();
-
-    // If successful, navigate to the ranked queue
-    if (success) this.router.navigate(['/online/ranked']);
+    await this.rankedQueueService.joinQueue();
   }
 
   onClickMode(mode: Mode) {
