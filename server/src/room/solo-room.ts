@@ -14,7 +14,8 @@ import { GameEndEvent, GamePlayer, GameStartEvent, XPStrategy } from "./game-pla
  * @returns 
  */
 const soloXPStrategy: XPStrategy = (score: number) => {
-    return 100;
+    // https://www.desmos.com/calculator/g5tyne6y40
+    return Math.round(Math.pow(score / 25000, 1.6));
 };
 
 export class SoloRoom extends Room<SoloRoomState> {
