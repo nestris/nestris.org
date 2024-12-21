@@ -1,4 +1,4 @@
-import { Component, isDevMode, OnInit } from '@angular/core';
+import { Component, HostListener, isDevMode, OnInit } from '@angular/core';
 import { NotificationService } from './services/notification.service';
 import { PushNotificationService } from './services/push-notification.service';
 import { ModalManagerService } from './services/modal-manager.service';
@@ -20,6 +20,7 @@ import { InvitationsService } from './services/state/invitations.service';
 import { StackrabbitService } from './services/stackrabbit/stackrabbit.service';
 import { sleep } from './util/misc';
 import { TrophyAlertComponent } from './components/alerts/trophy-alert/trophy-alert.component';
+import { GamepadService } from './services/gamepad.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
@@ -41,6 +42,7 @@ export class AppComponent implements OnInit {
     private xpAlertService: XPAlertService,
     private invitationsService: InvitationsService,
     private stackrabbitService: StackrabbitService,
+    private gamepadService: GamepadService,
     private router: Router,
   ) {
 
@@ -48,7 +50,6 @@ export class AppComponent implements OnInit {
     this.router.routeReuseStrategy.shouldReuseRoute = function () {
       return false;
     };
-
     
   }
 

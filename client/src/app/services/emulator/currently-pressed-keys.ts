@@ -103,6 +103,10 @@ export class KeyManager {
         this.pressed[keybind] = false;
     }
 
+    setPressed(keybind: Keybind, pressed: boolean) {
+        this.pressed[keybind] = pressed;
+    }
+
     resetAll() {
         ALL_KEYBINDS.forEach((keybind) => {
             this.pressed[keybind] = false;

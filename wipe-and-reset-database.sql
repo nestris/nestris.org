@@ -51,7 +51,9 @@ CREATE TABLE "public"."users" (
     "keybind_emu_move_right" text NOT NULL,
     "keybind_emu_rot_left" text NOT NULL,
     "keybind_emu_rot_right" text NOT NULL,
-    "keybind_emu_pushdown" text NOT NULL,
+    "keybind_emu_up" text NOT NULL,
+    "keybind_emu_down" text NOT NULL,
+    "keybind_emu_start" text NOT NULL,
     "keybind_puzzle_rot_left" text NOT NULL,
     "keybind_puzzle_rot_right" text NOT NULL,
 

@@ -141,7 +141,9 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
             keybind_emu_move_right: 'ArrowRight',
             keybind_emu_rot_left: 'Z',
             keybind_emu_rot_right: 'X',
-            keybind_emu_pushdown: 'ArrowDown',
+            keybind_emu_up: 'ArrowUp',
+            keybind_emu_down: 'ArrowDown',
+            keybind_emu_start: 'Enter',
             keybind_puzzle_rot_left: 'Z',
             keybind_puzzle_rot_right: 'X'
         };

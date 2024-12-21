@@ -6,6 +6,7 @@ export function getDisplayKeybind(keybind: string | null): string {
   if (keybind.startsWith('Arrow')) return capitalize(keybind.slice(5).toLowerCase());
   if (keybind === ' ') return 'Space';
   if (keybind.length === 1) return keybind.toUpperCase();
+  if (keybind.startsWith('Gamepad')) keybind = keybind.slice(7);
   return capitalize(keybind.toLowerCase());
 }
 

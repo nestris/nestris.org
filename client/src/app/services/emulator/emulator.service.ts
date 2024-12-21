@@ -16,6 +16,7 @@ import { MeService } from '../state/me.service';
 import { StackrabbitService } from '../stackrabbit/stackrabbit.service';
 import { LiveGameAnalyzer, PlacementEvaluation } from '../stackrabbit/live-game-analyzer';
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
+import { GamepadService } from '../gamepad.service';
 
 
 /*
@@ -57,6 +58,7 @@ export class EmulatorService {
     private platform: PlatformInterfaceService,
     private meService: MeService,
     private stackrabbitService: StackrabbitService,
+    private gamepadService: GamepadService,
     private zone: NgZone
 ) {}
 
@@ -147,7 +149,7 @@ export class EmulatorService {
       [Keybind.SHIFT_RIGHT]: me.keybind_emu_move_right,
       [Keybind.ROTATE_LEFT]: me.keybind_emu_rot_left,
       [Keybind.ROTATE_RIGHT]: me.keybind_emu_rot_right,
-      [Keybind.PUSHDOWN]: me.keybind_emu_pushdown,
+      [Keybind.PUSHDOWN]: me.keybind_emu_down,
     }
     this.keybinds.configureKeybinds(keybinds);
 
@@ -194,6 +196,13 @@ export class EmulatorService {
   // if keyboard input, rollback and runahead
   // if topped out, stop game
   private advanceEmulatorState() {
+
+    // Poll gamepad and update pressed gamepad keys
+    const gamepadKeybinds = this.keybinds.geGamepadKeybinds();
+    const gamepadPressed = this.gamepadService.getPressedButtons();
+    for (let keybind of gamepadKeybinds) {
+      this.keyManager.setPressed(keybind, gamepadPressed.includes(this.keybinds.getKeybind(keybind)));
+    }
     
     const pressedKeys = this.keyManager.generate();
 

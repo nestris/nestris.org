@@ -40,10 +40,19 @@ export class Keybinds {
         [Keybind.PUSHDOWN] : "ArrowDown",
     }
 
+    private gamepadKeybinds: Keybind[] = [];
+
     configureKeybinds(keybinds: {[keybind in Keybind] : string}) {
         this.keybinds = keybinds;
 
+        // recalculate gamepad keybinds as ones with prefix 'Gamepad'
+        this.gamepadKeybinds = [];
+        ALL_KEYBINDS.forEach((keybind) => {
+            if (this.keybinds[keybind].startsWith("Gamepad")) this.gamepadKeybinds.push(keybind);
+        });
+
         console.log("Keybinds configured", this.keybinds);
+        console.log("Gamepad keybinds", this.gamepadKeybinds);
     }
 
     stringToKeybind(key: string): Keybind | undefined {
@@ -58,8 +67,8 @@ export class Keybinds {
         return this.keybinds[keybind];
     }
 
-    setKeybind(keybind: Keybind, key: string) {
-        this.keybinds[keybind] = key;
+    geGamepadKeybinds(): Keybind[] {
+        return this.gamepadKeybinds;
     }
 
 }

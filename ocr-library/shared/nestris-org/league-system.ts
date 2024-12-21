@@ -36,21 +36,21 @@ export const LEAGUE_NAMES = {
 
 // The amount of xp needed to advance from this league to the next league
 export const LEAGUE_XP_REQUIREMENTS = {
-    [League.MINO_5]: 5000,
-    [League.MINO_4]: 6000,
-    [League.MINO_3]: 7000,
-    [League.MINO_2]: 8000,
-    [League.MINO_1]: 9000,
+    [League.MINO_5]: 1000,
+    [League.MINO_4]: 2000,
+    [League.MINO_3]: 4000,
+    [League.MINO_2]: 6000,
+    [League.MINO_1]: 8000,
     [League.BETTA_5]: 10000,
     [League.BETTA_4]: 20000,
     [League.BETTA_3]: 30000,
     [League.BETTA_2]: 40000,
     [League.BETTA_1]: 50000,
-    [League.RUBY_5]: 100000,
-    [League.RUBY_4]: 200000,
-    [League.RUBY_3]: 300000,
-    [League.RUBY_2]: 400000,
-    [League.RUBY_1]: 500000,
+    [League.RUBY_5]: 60000,
+    [League.RUBY_4]: 70000,
+    [League.RUBY_3]: 80000,
+    [League.RUBY_2]: 90000,
+    [League.RUBY_1]: 100000,
 }
 
 export function getLeagueFromIndex(index: number): League {

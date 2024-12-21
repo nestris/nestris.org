@@ -1,8 +1,9 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, OnDestroy } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { getDisplayKeybind } from 'src/app/components/ui/editable-keybind/editable-keybind.component';
 import { ButtonColor } from 'src/app/components/ui/solid-selector/solid-selector.component';
 import { FetchService, Method } from 'src/app/services/fetch.service';
+import { GamepadService } from 'src/app/services/gamepad.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { capitalize } from 'src/app/util/misc';
 
@@ -55,7 +56,7 @@ class DropdownSetting extends Setting {
   templateUrl: './settings-page.component.html',
   styleUrls: ['./settings-page.component.scss']
 })
-export class SettingsPageComponent {
+export class SettingsPageComponent implements OnDestroy {
 
   isBooleanSetting = (setting: Setting) => (setting instanceof BooleanSetting) ? (setting as BooleanSetting) : null;
   isDropdownSetting = (setting: Setting) => (setting instanceof DropdownSetting) ? (setting as DropdownSetting) : null;
@@ -76,11 +77,13 @@ export class SettingsPageComponent {
         ),
       ]),
       new Category('Emulator Keybinds', [
+        new KeybindSetting('keybind_emu_start', 'Start'),
+        new KeybindSetting('keybind_emu_up', 'Up'),
+        new KeybindSetting('keybind_emu_down', 'Down'),
         new KeybindSetting('keybind_emu_move_left', 'Move Left'),
         new KeybindSetting('keybind_emu_move_right', 'Move Right'),
         new KeybindSetting('keybind_emu_rot_left', 'Rotate Left'),
         new KeybindSetting('keybind_emu_rot_right', 'Rotate Right'),
-        new KeybindSetting('keybind_emu_pushdown', 'Pushdown'),
         
       ]),
       new Category('Puzzle Keybinds', [
@@ -100,10 +103,23 @@ export class SettingsPageComponent {
   
   private fadeTimeout: any;
 
+  private gamepadSubscription: any;
+
   constructor(
     private meService: MeService,
-    private fetchService: FetchService
-  ) {}
+    private fetchService: FetchService,
+    private gamepadService: GamepadService,
+  ) {
+
+
+    this.gamepadSubscription = this.gamepadService.onPress().subscribe((button: string) => {
+      this.onKeyDown(button);
+    });
+  }
+
+  ngOnDestroy() {
+    this.gamepadSubscription.unsubscribe();
+  }
 
   getAttribute(user: any, key: string) {
     if (user[key] === undefined) throw new Error(`User does not have attribute ${key}`);
@@ -167,9 +183,10 @@ export class SettingsPageComponent {
 
   @HostListener('window:keydown', ['$event'])
   handleKeydown(event: KeyboardEvent) {
-    console.log(event.key);
+    this.onKeyDown(event.key);
+  }
 
-
+  private onKeyDown(key: string) {
     // If no keybind is being edited, ignore
     const activeKey = this.activeKey$.getValue();
     if (!activeKey) return;
@@ -178,13 +195,16 @@ export class SettingsPageComponent {
 
     // If already that keybind, ignore
     const currentKeybind = this.getAttribute(user, activeKey);
-    if (this.keybindsEqual(currentKeybind, event.key)) return;
+    if (this.keybindsEqual(currentKeybind, key)) {
+      this.activeKey$.next(null);
+      return;
+    }
 
     // If keybind already exists, set error
-    if (this.doesKeybindExist(this.meService.getSync()!, activeKey, event.key)) {
+    if (this.doesKeybindExist(this.meService.getSync()!, activeKey, key)) {
       this.errorKeybindExists$.next(null);
       setTimeout(() => {
-        this.errorKeybindExists$.next(event.key);
+        this.errorKeybindExists$.next(key);
         clearTimeout(this.fadeTimeout);
         this.fadeTimeout = setTimeout(() => this.errorKeybindExists$.next(null), 1000);
       }, 0);
@@ -194,7 +214,7 @@ export class SettingsPageComponent {
     }
 
     // Set the keybind
-    this.setAttribute(user, activeKey, event.key);
+    this.setAttribute(user, activeKey, key);
     this.activeKey$.next(null);
   }
 

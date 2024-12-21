@@ -55,7 +55,9 @@ export interface DBUser {
   keybind_emu_move_right: string,
   keybind_emu_rot_left: string,
   keybind_emu_rot_right: string,
-  keybind_emu_pushdown: string,
+  keybind_emu_up: string,
+  keybind_emu_down: string,
+  keybind_emu_start: string,
   keybind_puzzle_rot_left: string,
   keybind_puzzle_rot_right: string,
 }
@@ -104,7 +106,9 @@ export const DBUserAttributes = [
   'keybind_emu_move_right',
   'keybind_emu_rot_left',
   'keybind_emu_rot_right',
-  'keybind_emu_pushdown',
+  'keybind_emu_up',
+  'keybind_emu_down',
+  'keybind_emu_start',
   'keybind_puzzle_rot_left',
   'keybind_puzzle_rot_right',
 ]

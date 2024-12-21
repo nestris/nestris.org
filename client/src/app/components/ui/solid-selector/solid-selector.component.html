@@ -19,7 +19,7 @@
             }">{{ labels[item.index] }}</h1>
         </div>
 
-        <img *ngIf="item.isFirst" src="./assets/img/ui-icons/dropdown.svg" [width]="dropdownIconWidth">
+        <img *ngIf="item.isFirst && labels.length > 1" src="./assets/img/ui-icons/dropdown.svg" [width]="dropdownIconWidth">
         
     </div>
     
