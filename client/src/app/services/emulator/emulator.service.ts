@@ -17,6 +17,7 @@ import { StackrabbitService } from '../stackrabbit/stackrabbit.service';
 import { LiveGameAnalyzer, PlacementEvaluation } from '../stackrabbit/live-game-analyzer';
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { GamepadService } from '../gamepad.service';
+import { WakeLockService } from '../wake-lock.service';
 
 
 /*
@@ -59,6 +60,7 @@ export class EmulatorService {
     private meService: MeService,
     private stackrabbitService: StackrabbitService,
     private gamepadService: GamepadService,
+    private wakeLockService: WakeLockService,
     private zone: NgZone
 ) {}
 
@@ -99,6 +101,8 @@ export class EmulatorService {
   // if slowmode, will execute games at 5ps instead
   startGame(startLevel: number, sendPacketsToServer: boolean, seed?: string) {
     this.sendPacketsToServer = sendPacketsToServer;
+
+    if (this.sendPacketsToServer) this.wakeLockService.enableWakeLock();
 
     console.log("starting game at level", startLevel, "with seed", seed);
 
@@ -289,6 +293,8 @@ export class EmulatorService {
 
     // if game is already stopped, do nothing
     if (this.currentState === undefined) return;
+
+    this.wakeLockService.disableWakeLock();
 
     // stop game loop
     console.log("game stopped");
