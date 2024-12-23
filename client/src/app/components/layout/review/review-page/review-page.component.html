@@ -32,7 +32,7 @@
                 <div [ngStyle]="{'color' : getAccuracyColor(game.accuracy)}">{{game.accuracy}}%</div>
                 <div>
 
-                <a *ngIf="game.data_exists" [routerLink]="['/game', game.id]" target="_blank" class="analyze-button">
+                <a *ngIf="game.data_exists" [routerLink]="['/game', game.id]" class="analyze-button">
                     <app-solid-button icon="/assets/img/tab-icons/learn.svg" [color]="ButtonColor.BLUE" tooltip="Analyze game" tooltipDirection="right" />
                 </a>
                 <app-solid-button *ngIf="!game.data_exists" class="analyze-button" icon="/assets/img/tab-icons/learn.svg" tooltipDirection="right"

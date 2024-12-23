@@ -54,4 +54,15 @@ export class ApiService {
     return rawGames.map(game => this.decodeGame(game));
   }
 
+  /**
+   * Get a game by its id
+   * @param gameID The game id
+   * @param sessionID The session id
+   * @returns The game information
+   */
+  public async getGame(gameID: string, sessionID: string): Promise<DBGame> {
+    const game = await this.fetchService.fetch<DBGame>(Method.POST, `/api/v2/game/${gameID}/${sessionID}`);
+    return this.decodeGame(game);
+  }
+
 }

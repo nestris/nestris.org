@@ -15,7 +15,8 @@ export class GetGameQuery extends DBQuery<DBGameWithData> {
         SELECT 
           ${this.attributes.join(',')}, 
           gd.data,
-          u.username
+          u.username,
+          rank() OVER (ORDER BY g.end_score DESC) AS rank
         FROM games AS g
         LEFT JOIN game_data AS gd 
           ON g.id = gd.game_id

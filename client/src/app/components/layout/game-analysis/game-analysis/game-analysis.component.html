@@ -1,1 +1,69 @@
-<p>game-analysis works!</p>
+<div class="content" *ngIf="game$ | async as game">
+
+    <h1 class="title">{{game.username}}'s game {{timeAgo(game.created_at)}} </h1>
+
+    <div class="stat-panels">
+        <div class="stat score">
+            <p class="label">Score</p>
+            <p class="value">{{numberWithCommas(game.end_score)}}</p>
+            <p class="description">Ranked #{{game.rank}}</p>
+        </div>
+        <div class="stat accuracy">
+            <p class="label">Accuracy</p>
+            <p class="value" [ngStyle]="{'color' : getAccuracyColor(game.accuracy)}">{{game.accuracy}}%</p>
+            <p class="description">[todo]</p>
+        </div>
+        <div class="stat statistics">
+            <div class="statistic">
+                <p>Start level</p>
+                <p>{{game.start_level}}</p>
+            </div>
+            <div class="statistic">
+                <p>Level reached</p>
+                <p>{{game.end_level}}</p>
+            </div>
+            <div class="statistic">
+                <p>Lines reached</p>
+                <p>{{game.end_lines}}</p>
+            </div>
+            <div class="statistic">
+                <p>Quad rate</p>
+                <p>{{game.tetris_rate}}%</p>
+            </div>
+        </div>
+        <div class="stat">
+            
+        </div>
+    </div>
+
+    <div class="main">
+
+        <app-eval-bar backgroundColor="#2D2D31" [borderRadius]="5" [width]="30" />
+        <div class="board-panel">
+            
+            <app-nes-board [scale]="2.5" />
+            <div class="board-info">
+                <div class="top">
+
+                </div>
+                <div class="center">
+
+                </div>
+                <div class="bottom">
+                    <section class="placement">
+                        <h1>Placement #354</h1>
+                        <div class="buttons">
+                            <app-solid-button label="Prev" [color]="ButtonColor.GREY" [fontSize]="14" [paddingHorizontal]="12" [paddingVertical]="5" (click)="previous()" />
+                            <app-solid-button label="Next" [color]="ButtonColor.BLUE" [fontSize]="14" [paddingHorizontal]="12" [paddingVertical]="5" (click)="next()" />
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<a routerLink="/review"><app-solid-button class="back-button" [color]="ButtonColor.GREY" label="Back" /></a>
+<app-loading-animation *ngIf="!(game$ | async)" [size]="30" />

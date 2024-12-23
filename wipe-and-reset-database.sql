@@ -171,6 +171,11 @@ CREATE TABLE "public"."games" (
     PRIMARY KEY ("id")
 );
 
+-- index by end_score, created_at, accuracy
+CREATE INDEX end_score_index ON games (end_score DESC);
+CREATE INDEX created_at_index ON games (created_at DESC);
+CREATE INDEX accuracy_index ON games (accuracy DESC);
+
 -- GAME DATA, storing the game data for each game
 DROP TABLE IF EXISTS "public"."game_data" CASCADE;
 CREATE TABLE "public"."game_data" (

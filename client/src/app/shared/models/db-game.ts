@@ -10,7 +10,8 @@ export interface DBGame {
     tetris_rate: number,
     xp_gained: number,
     username?: string,
-    data_exists?: boolean
+    data_exists?: boolean,
+    rank?: number
 }
 
 export const DBGameAttributes = [
