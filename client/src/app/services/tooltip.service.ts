@@ -14,6 +14,7 @@ call these functions when necessary.
 export interface TooltipInfo {
   text: string;
   position: Point;
+  direction: string;
 }
 
 @Injectable({
@@ -32,14 +33,17 @@ export class TooltipService {
     this.info$.next({
       text: prevInfo.text,
       position: { x, y },
+      direction: prevInfo.direction,
     });
   }
 
   // set by TooltipDirective when mouse enters
-  show(text: string, x: number, y: number) {
+  show(text: string, x: number, y: number, direction: string = "left") {
+    console.log("showing tooltip", text, x, y, direction);
     this.info$.next({
       text,
       position: { x, y },
+      direction,
     });
   }
 

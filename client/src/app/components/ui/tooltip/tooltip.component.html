@@ -1,5 +1,9 @@
 <div *ngIf="(tooltip.getTooltipInfo$() | async) as info" class="tooltip"
-    [ngStyle]="{'top': (info.position.y+5) + 'px', 'left': (info.position.x+11) + 'px'}"
+    [ngStyle]="{
+        'top': (info.position.y+5) + 'px',
+        'left' : (info.position.x + (info.direction === 'right' ? -5 : 11)) + 'px',
+        'transform': info.direction === 'right' ? 'translate(-100%, 0)' : 'none',
+    }"
 >
     <p>{{ info.text }}</p>
   </div>

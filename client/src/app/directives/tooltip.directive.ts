@@ -9,12 +9,13 @@ export class TooltipDirective implements OnChanges, OnDestroy {
 
   @Input('tooltip') tooltipText: string = '';
   @Input('tooltipPosition') tooltipPosition: Point | null = null;
+  @Input('tooltipDirection') tooltipDirection: string = 'left';
 
   constructor(private el: ElementRef, private tooltipManager: TooltipService) {}
 
   ngOnChanges() {
     if (this.tooltipPosition !== null) {
-      this.tooltipManager.show(this.tooltipText, this.tooltipPosition.x, this.tooltipPosition.y);
+      this.tooltipManager.show(this.tooltipText, this.tooltipPosition.x, this.tooltipPosition.y, this.tooltipDirection);
     }
   }
 
@@ -25,7 +26,7 @@ export class TooltipDirective implements OnChanges, OnDestroy {
     // If there is no tooltip text, don't show the tooltip
     if (!this.tooltipText || this.tooltipText === "") return;
 
-    this.tooltipManager.show(this.tooltipText, event.clientX, event.clientY);
+    this.tooltipManager.show(this.tooltipText, event.clientX, event.clientY, this.tooltipDirection);
   }
 
   @HostListener('mousemove', ['$event']) onMouseMove(event: MouseEvent) {

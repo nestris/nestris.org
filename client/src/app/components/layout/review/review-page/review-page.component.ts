@@ -55,6 +55,7 @@ export class ReviewPageComponent implements OnInit {
     this.games$ = this.sortIndex$.pipe(
       map(index => this.sortStrategies[index]),
       switchMap(strategy => this.request(strategy)),
+      tap(games => console.log('games', games))
     );
   }
 

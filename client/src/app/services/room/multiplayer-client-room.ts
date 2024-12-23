@@ -57,8 +57,11 @@ export class MultiplayerClientRoom extends ClientRoom {
         }
 
         // Subscribe to websocket binary messages
+        this.websocket.setPacketGroupContainsPrefix(true);
         this.packetGroupSubscription = this.websocket.onPacketGroup().subscribe(async (packetGroup: PacketGroup) => {
             
+            if (packetGroup.playerIndex === undefined) throw new Error("Player index not defined in packet group");
+
             // Only process packets that are intended for player 1 or player 2
             const playerIndex = packetGroup.playerIndex as PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2;
             if (![PlayerIndex.PLAYER_1, PlayerIndex.PLAYER_2].includes(playerIndex)) return;

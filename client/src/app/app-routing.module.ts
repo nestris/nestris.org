@@ -17,6 +17,7 @@ import { ControlPanelPageComponent } from './components/layout/control-panel/con
 import { SettingsPageComponent } from './components/layout/settings/settings-page/settings-page.component';
 import { MatchmakingLoadingPageComponent } from './components/layout/multiplayer/matchmaking-loading-page/matchmaking-loading-page.component';
 import { RoomComponent } from './components/layout/room/room/room.component';
+import { GameAnalysisComponent } from './components/layout/game-analysis/game-analysis/game-analysis.component';
 
 const routes: Routes = [
 
@@ -47,6 +48,8 @@ const routes: Routes = [
       { path: "settings", component: SettingsPageComponent },
       { path: "play", component: PlayPageComponent, },
       { path: "review", component: ReviewPageComponent },
+
+      { path: "game/:id", component: GameAnalysisComponent },
 
       { path: "learn", component: LearnPageComponent,
         children: [

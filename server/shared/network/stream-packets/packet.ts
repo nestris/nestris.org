@@ -55,7 +55,7 @@ export function getPacketDelay(content: PacketContent): number | undefined {
 
 // group of packets sent from another player through server, decoded from stream into useful list of packets
 export interface PacketGroup {
-  playerIndex: number;
+  playerIndex: number | undefined;
   packets: PacketContent[];
 }
 

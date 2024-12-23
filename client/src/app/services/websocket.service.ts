@@ -38,6 +38,8 @@ export class WebsocketService {
 
   private disconnectRetries = 0;
 
+  private packetGroupContainsPrefix = true;
+
   constructor(
     private fetchService: FetchService,
     private notificationService: NotificationService,
@@ -154,11 +156,15 @@ export class WebsocketService {
     return this.sessionID;
   }
 
+  setPacketGroupContainsPrefix(containsPrefix: boolean) {
+    this.packetGroupContainsPrefix = containsPrefix;
+  }
+
 
   // called when server sends a binary or json message to the client
   private async onMessage(message: MessageEvent) {
 
-    const { type, data } = await decodeMessage(message.data, true);
+    const { type, data } = await decodeMessage(message.data, this.packetGroupContainsPrefix);
     if (type === MessageType.JSON) {
 
       if ((data as JsonMessage).type !== JsonMessageType.PING) console.log('Received JSON message:', data);
@@ -169,7 +175,7 @@ export class WebsocketService {
       // decode stream into packets from a player index
       const packets = data as PacketDisassembler;
 
-      const playerIndex = packets.getPlayerIndex()!;
+      const playerIndex = packets.getPlayerIndex();
 
       const packetList: PacketContent[] = [];    
       while (packets.hasMorePackets()) {

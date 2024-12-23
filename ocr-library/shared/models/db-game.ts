@@ -8,7 +8,9 @@ export interface DBGame {
     end_lines: number,
     accuracy: number,
     tetris_rate: number,
-    xp_gained: number
+    xp_gained: number,
+    username?: string,
+    data_exists?: boolean
 }
 
 export const DBGameAttributes = [

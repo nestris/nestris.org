@@ -40,6 +40,7 @@ import { LeaveRoomRoute } from './src/routes/room/leave-room-route';
 import { GetRoomsRoute } from './src/routes/room/get-rooms-route';
 import { ExampleTask, TaskScheduler, TimeUnit } from './src/task-scheduler/task-scheduler';
 import { GetGamesRoute } from './src/routes/game/get-games-route';
+import { GetGameRoute } from './src/routes/game/get-game-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -138,6 +139,7 @@ async function main() {
   routes.registerRoute(RemoveFriendRoute);
   routes.registerRoute(UpdateMeAttributeRoute);
   routes.registerRoute(GetGamesRoute);
+  routes.registerRoute(GetGameRoute);
 
 
   app.get('/api/v2/server-stats', (req: Request, res: Response) => {

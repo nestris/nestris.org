@@ -30,7 +30,14 @@
                 <div>{{game.end_lines}}</div>
                 <div>{{game.tetris_rate * 100}}%</div>
                 <div [ngStyle]="{'color' : getAccuracyColor(game.accuracy)}">{{game.accuracy}}%</div>
-                <div><app-solid-button class="analyze-button" icon="/assets/img/tab-icons/learn.svg" [color]="ButtonColor.BLUE" /></div>
+                <div>
+
+                <a *ngIf="game.data_exists" [routerLink]="['/game', game.id]" target="_blank" class="analyze-button">
+                    <app-solid-button icon="/assets/img/tab-icons/learn.svg" [color]="ButtonColor.BLUE" tooltip="Analyze game" tooltipDirection="right" />
+                </a>
+                <app-solid-button *ngIf="!game.data_exists" class="analyze-button" icon="/assets/img/tab-icons/learn.svg" tooltipDirection="right"
+                    [color]="ButtonColor.BLUE" [disabled]="true" tooltip="Replay file has expired. Upgrade to premium to save games for longer!" />
+                </div>
             </div>
     
         </section>
