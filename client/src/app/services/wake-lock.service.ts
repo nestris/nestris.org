@@ -17,7 +17,7 @@ export class WakeLockService {
         // Casting navigator to any to allow wakeLock usage
         this.wakeLock = await (navigator as any).wakeLock.request('screen');
 
-        // Optional: Listen for the release event (e.g., system or user action)
+        // Listen for the release event (e.g., system or user action)
         this.wakeLock.addEventListener('release', () => {
           console.log('Wake Lock was released by the system');
           this.wakeLock = null;

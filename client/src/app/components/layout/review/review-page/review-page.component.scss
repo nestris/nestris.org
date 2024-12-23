@@ -1,0 +1,91 @@
+@import "../../../../../styles.scss";
+
+:host {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.content {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.section-header {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    margin-bottom: 5px;
+
+}
+
+.section-header h1 {
+    font-family: $main-font;
+    font-weight: 600;
+    font-size: 16px;
+    margin: 0;
+    margin-top: 1px;
+}
+
+app-solid-selector {
+    height: 0;
+    z-index: 1;
+}
+
+.games {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 35% 1fr 1fr 1fr 1fr 1fr 1fr 30px;
+}
+
+.row {
+    font-family: $main-font;
+    text-align: center;
+    margin: 0;
+    padding-left: 10px;
+}
+
+.row div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.row div:first-child {
+    justify-content: flex-start;
+}
+
+.row div:last-child {
+    justify-content: flex-end;
+}
+
+.row.header {
+    font-size: 10px;
+    font-weight: 400;
+    opacity: 0.7;
+}
+
+
+.row.game {
+    background-color: $section-color;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.row.game:hover {
+    filter: brightness(1.1);
+}
+
+.analyze-button {
+    transform: scale(0.6);
+}

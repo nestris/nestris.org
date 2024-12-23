@@ -1,1 +1,42 @@
-<p>review-page works!</p>
+<div class="content">
+    <app-page-title title="Review" icon="./assets/img/tab-icons/review.svg" />
+
+    <div class="centered">
+
+        <div class="section-header">
+            <h1>History</h1>
+            <app-solid-selector [labels]="sortLabels" (selectedChange)="sortIndex$.next($event)"
+                [color]="ButtonColor.DARK" [fontSize]="10" [textOpacity]="0.8" [paddingHorizontal]="10" [paddingVertical]="0"
+                [dropdownIconWidth]="12" [width]="110" [height]="25" [fontWeight]="500" />
+        </div>
+        <section class="games" *ngIf="games$ | async as games">
+    
+            <div class="row header">
+                <div></div>
+                <div>Start level</div>
+                <div>Score</div>
+                <div>Level</div>
+                <div>Lines</div>
+                <div>Tetris rate</div>
+                <div>Accuracy</div>
+                <div></div>
+            </div>
+    
+            <div class="row game" *ngFor="let game of games">
+                <div>{{timeAgo(game.created_at)}}</div>
+                <div>{{game.start_level}}</div>
+                <div>{{game.end_score}}</div>
+                <div>{{game.end_level}}</div>
+                <div>{{game.end_lines}}</div>
+                <div>{{game.tetris_rate * 100}}%</div>
+                <div [ngStyle]="{'color' : getAccuracyColor(game.accuracy)}">{{game.accuracy}}%</div>
+                <div><app-solid-button class="analyze-button" icon="/assets/img/tab-icons/learn.svg" [color]="ButtonColor.BLUE" /></div>
+            </div>
+    
+        </section>
+
+    </div>
+
+    
+
+</div>

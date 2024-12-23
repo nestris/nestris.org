@@ -7,11 +7,11 @@ import { FriendsService } from 'src/app/services/state/friends.service';
 
 
 @Component({
-  selector: 'app-table',
-  templateUrl: './table.component.html',
-  styleUrls: ['./table.component.scss']
+  selector: 'app-leaderboard-table',
+  templateUrl: './leaderboard-table.component.html',
+  styleUrls: ['./leaderboard-table.component.scss']
 })
-export class TableComponent implements OnChanges {
+export class LeaderboardTableComponent implements OnChanges {
   // An ordered list of rows, with each row containing a key for each attribute name
   @Input() rows: T200LeaderboardRow[] = [];
 

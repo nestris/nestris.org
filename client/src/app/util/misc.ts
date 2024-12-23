@@ -24,3 +24,41 @@ export const hexWithAlpha = (hex: string, alpha: number) => {
 export function capitalize(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
+
+export function timeAgo(date: Date): string {
+  const now = new Date();
+  const diff = now.getTime() - date.getTime(); // diff in milliseconds
+  
+  // If the date is in the future
+  if (diff < 0) {
+    return "In the future";
+  }
+
+  // Convert milliseconds into total seconds
+  const totalSeconds = Math.floor(diff / 1000);
+
+  // Calculate time units
+  const days = Math.floor(totalSeconds / 86400); // 60*60*24
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  if (days > 0) {
+    return days === 1 ? "1 day ago" : `${days} days ago`;
+  }
+
+  if (hours > 0) {
+    return hours === 1 ? "1 hour ago" : `${hours} hours ago`;
+  }
+
+  if (minutes > 0) {
+    return minutes === 1 ? "1 minute ago" : `${minutes} minutes ago`;
+  }
+
+  // Less than a minute
+  if (seconds <= 5) {
+    return "A moment ago";
+  } else {
+    return `${seconds} seconds ago`;
+  }
+}

@@ -70,7 +70,7 @@ import { BannersComponent } from './components/layout/root/banners/banners.compo
 import { GameOverComponent } from './components/nes-layout/game-over/game-over.component';
 import { BoardEditorComponent } from './components/layout/control-panel/board-editor/board-editor.component';
 import { StatPanelComponent } from './components/layout/main-leaderboard/stat-panel/stat-panel.component';
-import { TableComponent } from './components/ui/table/table.component';
+import { LeaderboardTableComponent } from './components/ui/table/leaderboard-table.component';
 import { MatchmakingLoadingPageComponent } from './components/layout/multiplayer/matchmaking-loading-page/matchmaking-loading-page.component';
 import { LoadingScreenComponent } from './components/layout/multiplayer/loading-screen/loading-screen.component';
 import { SolidSelectorComponent } from './components/ui/solid-selector/solid-selector.component';
@@ -102,6 +102,7 @@ import { EvalBarComponent } from './components/ui/eval-bar/eval-bar.component';
 import { SlideToggleComponent } from './components/ui/slide-toggle/slide-toggle.component';
 import { EditableKeybindComponent } from './components/ui/editable-keybind/editable-keybind.component';
 import { TrophyAlertComponent } from './components/alerts/trophy-alert/trophy-alert.component';
+import { PageTitleComponent } from './components/ui/page-title/page-title.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -210,7 +211,7 @@ const customNotifierOptions: NotifierOptions = {
     GameOverComponent,
     BoardEditorComponent,
     StatPanelComponent,
-    TableComponent,
+    LeaderboardTableComponent,
     MatchmakingLoadingPageComponent,
     LoadingScreenComponent,
     RoomComponent,
@@ -240,6 +241,7 @@ const customNotifierOptions: NotifierOptions = {
     SlideToggleComponent,
     EditableKeybindComponent,
     TrophyAlertComponent,
+    PageTitleComponent,
   ],
   imports: [
     BrowserModule,

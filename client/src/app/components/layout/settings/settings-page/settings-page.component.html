@@ -1,8 +1,5 @@
 <div class="content">
-    <div class="title prevent-select">
-        <img src="./assets/img/tab-icons/settings.svg" width="22px" />
-        <h1 class="prevent-select">Settings</h1>
-    </div>
+    <app-page-title title="Settings" icon="./assets/img/tab-icons/settings.svg" />
 
     <div class="panels" *ngIf="currentTab$ | async as currentTab">
         <div class="menu panel">

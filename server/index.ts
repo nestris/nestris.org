@@ -39,6 +39,7 @@ import { UpdateMeAttributeRoute } from './src/routes/user/update-me-attribute';
 import { LeaveRoomRoute } from './src/routes/room/leave-room-route';
 import { GetRoomsRoute } from './src/routes/room/get-rooms-route';
 import { ExampleTask, TaskScheduler, TimeUnit } from './src/task-scheduler/task-scheduler';
+import { GetGamesRoute } from './src/routes/game/get-games-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -136,6 +137,7 @@ async function main() {
   routes.registerRoute(GetInvitationsRoute);
   routes.registerRoute(RemoveFriendRoute);
   routes.registerRoute(UpdateMeAttributeRoute);
+  routes.registerRoute(GetGamesRoute);
 
 
   app.get('/api/v2/server-stats', (req: Request, res: Response) => {

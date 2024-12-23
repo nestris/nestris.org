@@ -1,8 +1,5 @@
 <div class="content">
-    <div class="title prevent-select">
-        <img src="./assets/img/tab-icons/leaderboard.svg" width="22px" />
-        <h1 class="prevent-select">Leaderboard</h1>
-    </div>
+    <app-page-title title="Leaderboard" icon="./assets/img/tab-icons/leaderboard.svg" />
     <div class="header">
         <div class="left prevent-select">
 
@@ -27,7 +24,7 @@
         </div>
     </div>
 
-    <app-table *ngIf="leaderboard$ | async as leaderboard" [attributes]="leaderboard.attributes" [rows]="leaderboard.leaderboard" [myID]="(meService.getUserID$() | async) ?? undefined"
+    <app-leaderboard-table *ngIf="leaderboard$ | async as leaderboard" [attributes]="leaderboard.attributes" [rows]="leaderboard.leaderboard" [myID]="(meService.getUserID$() | async) ?? undefined"
         sortByAttribute="rating" [formatRules]="FORMAT_RULES" [colorRules]="COLOR_RULES" [resourceIDType]="leaderboard.resourceIDType" />
 
 </div>

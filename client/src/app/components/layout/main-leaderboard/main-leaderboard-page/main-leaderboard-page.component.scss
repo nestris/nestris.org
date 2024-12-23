@@ -22,39 +22,13 @@
 
 }
 
-app-table {
+app-leaderboard-table {
     align-self: center;
     margin-top: 40px;
     width: 90%;
     max-width: 1000px;
 }
 
-
-.title {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 10px;
-    
-    width: fit-content;
-    margin-bottom: 23px;
-}
-
-.title:hover {
-    cursor: pointer;
-    opacity: 0.7;
-}
-
-.title:active {
-    opacity: 0.5;
-}
-
-h1 {
-    font-family: $main-font;
-    font-weight: 700;
-    font-size: 22px;
-    margin: 0;
-}
 
 .header {
     gap: 100px;

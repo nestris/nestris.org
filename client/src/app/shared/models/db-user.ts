@@ -111,4 +111,4 @@ export const DBUserAttributes = [
   'keybind_emu_start',
   'keybind_puzzle_rot_left',
   'keybind_puzzle_rot_right',
-]
+];
