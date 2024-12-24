@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, Host, HostListener, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Host, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, combineLatestWith, map, Observable, Subject } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { ApiService } from 'src/app/services/api.service';
 import { NotificationService } from 'src/app/services/notification.service';
@@ -9,7 +9,14 @@ import { EVALUATION_TO_COLOR, overallAccuracyRating } from 'src/app/shared/evalu
 import { DBGame } from 'src/app/shared/models/db-game';
 import { NotificationType } from 'src/app/shared/models/notifications';
 import { PacketContent } from 'src/app/shared/network/stream-packets/packet';
+import { MemoryGameStatus } from 'src/app/shared/tetris/memory-game-status';
 import { numberWithCommas, timeAgo } from 'src/app/util/misc';
+import { AnalysisPlacement, interpretPackets } from '../game-interpreter';
+
+interface GameData {
+  game: DBGame; // game metadata
+  placements: AnalysisPlacement[]; // list of placements interpreted from packets
+}
 
 @Component({
   selector: 'app-game-analysis',
@@ -17,11 +24,25 @@ import { numberWithCommas, timeAgo } from 'src/app/util/misc';
   styleUrls: ['./game-analysis.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GameAnalysisComponent implements OnInit {
+export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('content') contentElement!: ElementRef;
 
   readonly ButtonColor = ButtonColor;
   readonly timeAgo = timeAgo;
   readonly numberWithCommas = numberWithCommas;
+
+  public game$ = new Subject<DBGame>();
+  private placements$ = new Subject<AnalysisPlacement[]>();
+
+  // subscribe to both game and packets
+  public gameData$: Observable<GameData> = this.game$.pipe(
+    combineLatestWith(this.placements$),
+    map(([game, placements]) => ({ game, placements }))
+  );
+
+  public contentRect$ = new BehaviorSubject<DOMRect | null>(null);
+  public memoryGameStatus = new MemoryGameStatus(18);
+  private resizeInterval: any;
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -29,10 +50,12 @@ export class GameAnalysisComponent implements OnInit {
     private readonly websocketService: WebsocketService,
     private readonly apiService: ApiService,
     private readonly notificationService: NotificationService,
-  ) {}
+  ) {
+    this.gameData$.subscribe(({ game, placements }) => {
+      console.log('Game data received', game, placements);
+    });
+  }
 
-  public game$ = new BehaviorSubject<DBGame | null>(null);
-  private packets: PacketContent[] | null = null;
   
   async ngOnInit() {
 
@@ -47,9 +70,9 @@ export class GameAnalysisComponent implements OnInit {
       // Ensure player index is not defined
       if (packetGroup.playerIndex !== undefined) throw new Error('Player index should not be defined');
 
-      this.packets = packetGroup.packets;
-      console.log('Received game data in', Date.now() - startGameData, 'ms', this.packets);
-      this.onGameDataReceived();
+      console.log('Received game data in', Date.now() - startGameData, 'ms', packetGroup.packets);
+      const placements = interpretPackets(packetGroup.packets);
+      this.placements$.next(placements);
 
       // Stop listening for game data
       gameDataSubscription.unsubscribe();
@@ -68,9 +91,11 @@ export class GameAnalysisComponent implements OnInit {
 
     // Fetch the game metadata
     try {
+
       const game = await this.apiService.getGame(gameID, sessionID);
-      this.game$.next(game);
       console.log('Game metadata', game, 'fetched in', Date.now() - startFetchGame, 'ms');
+      this.game$.next(game);
+
     } catch (error: any) {
 
       // If error code is 410, the game has been deleted
@@ -79,10 +104,6 @@ export class GameAnalysisComponent implements OnInit {
     
       this.router.navigate(['/review']);
     }
-  }
-
-  private onGameDataReceived() {
-    // TODO
   }
 
   getAccuracyColor(accuracy: number): string {
@@ -101,6 +122,28 @@ export class GameAnalysisComponent implements OnInit {
   handleKeyboardEvent(event: KeyboardEvent) {
     if (event.key === 'ArrowLeft') this.previous();
     else if (event.key === 'ArrowRight') this.next();
+  }
+
+  ngAfterViewInit(): void {
+    
+    // the shittiest monkeypatch ever to make app-game-summary-graph component fit the width of content div
+    this.resizeInterval = setInterval(() => {
+      if (this.contentElement === undefined) return;
+      const rect = this.contentElement.nativeElement.getBoundingClientRect();
+      if (rect.width !== this.contentRect$.getValue()?.width) {
+        this.onResize();
+      }
+    }, 200);
+  }
+
+  ngOnDestroy(): void {
+    clearInterval(this.resizeInterval);
+  }
+
+  // on window resize, update the svgRect
+  onResize(): void {
+    const rect = this.contentElement.nativeElement.getBoundingClientRect();
+    this.contentRect$.next(rect);
   }
 
 }

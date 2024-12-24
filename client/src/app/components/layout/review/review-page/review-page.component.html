@@ -17,7 +17,7 @@
                 <div>Score</div>
                 <div>Level</div>
                 <div>Lines</div>
-                <div>Tetris rate</div>
+                <div>Quad rate</div>
                 <div>Accuracy</div>
                 <div></div>
             </div>
@@ -28,7 +28,7 @@
                 <div>{{game.end_score}}</div>
                 <div>{{game.end_level}}</div>
                 <div>{{game.end_lines}}</div>
-                <div>{{game.tetris_rate * 100}}%</div>
+                <div>{{(game.tetris_rate * 100).toFixed(0)}}%</div>
                 <div [ngStyle]="{'color' : getAccuracyColor(game.accuracy)}">{{game.accuracy}}%</div>
                 <div>
 

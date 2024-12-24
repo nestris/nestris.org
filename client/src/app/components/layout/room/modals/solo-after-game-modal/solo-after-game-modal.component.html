@@ -34,7 +34,9 @@
     <div class="buttons">
         <app-solid-button label="Exit" [color]="ButtonColor.RED" (click)="exit()" />
         <div class="buttons-right">
-            <app-solid-button icon="./assets/img/button-icons/analyze.svg" [color]="ButtonColor.GREY" [disabled]="true" tooltip="Analysis coming soon!" />
+            <a [routerLink]="['/game', summary.gameID]" target="_blank">
+                <app-solid-button icon="./assets/img/button-icons/analyze.svg" [color]="ButtonColor.GREY" tooltip="Review your game!" />
+            </a>
             <app-solid-button label="Next" [color]="ButtonColor.BLUE" (click)="next()" />
             <!-- TODO: keybinds button here -->
         </div>

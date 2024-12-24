@@ -13,16 +13,21 @@ export class GetGameQuery extends DBQuery<DBGameWithData> {
 
     public override query = `
         SELECT 
-          ${this.attributes.join(',')}, 
-          gd.data,
-          u.username,
-          rank() OVER (ORDER BY g.end_score DESC) AS rank
+            ${this.attributes.join(',')}, 
+            gd.data,
+            u.username,
+            1 + (
+            SELECT COUNT(*)
+            FROM games
+            WHERE end_score > g.end_score
+            ) AS rank
         FROM games AS g
         LEFT JOIN game_data AS gd 
-          ON g.id = gd.game_id
+            ON g.id = gd.game_id
         LEFT JOIN users AS u
-          ON g.userid = u.userid
-        WHERE g.id = $1;
+            ON g.userid = u.userid
+        WHERE g.id = $1
+        LIMIT 1;
     `;
 
     public override warningMs = null;

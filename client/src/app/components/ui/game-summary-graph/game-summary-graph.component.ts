@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Host, HostListener, Input, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Host, HostListener, Input, OnChanges, OnInit, ViewChild } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Rectangle } from 'src/app/ocr/util/rectangle';
 import { getGravity } from 'src/app/shared/tetris/gravity';
@@ -29,14 +29,14 @@ interface Annotation {
   styleUrls: ['./game-summary-graph.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GameSummaryGraphComponent implements OnInit, AfterViewInit {
+export class GameSummaryGraphComponent implements OnChanges, AfterViewInit {
   @ViewChild('graph') graph!: ElementRef;
   @Input() game!: MemoryGameStatus;
+  @Input() WIDTH: number = 600;
 
   mouseX$ = new BehaviorSubject<number | null>(null);
 
   // Chart dimensions
-  readonly WIDTH = 600;
   readonly ANNOTATION_HEIGHT = 30;
   readonly CONTENT_HEIGHT = 70;
   readonly LABEL_HEIGHT = 15;
@@ -81,7 +81,7 @@ export class GameSummaryGraphComponent implements OnInit, AfterViewInit {
     9 : ColorType.PRIMARY,
   }
 
-  ngOnInit(): void {
+  ngOnChanges(): void {
     this.history = this.game.getHistory();
 
     // ensure there is at least one line
@@ -111,13 +111,13 @@ export class GameSummaryGraphComponent implements OnInit, AfterViewInit {
   @HostListener('window:resize')
   onResize(): void {
     const rect = this.graph.nativeElement.getBoundingClientRect();
+
     this.svgRect$.next({
       top: rect.top,
       bottom: rect.bottom,
       left: rect.left,
       right: rect.right
     });
-    console.log("SVG rect", this.svgRect$.getValue());
   }
   
 
@@ -170,7 +170,6 @@ export class GameSummaryGraphComponent implements OnInit, AfterViewInit {
       currentFraction += sections[i].fraction;
     }
 
-    console.log(sections);
     return sections;
   }
 
@@ -228,7 +227,6 @@ export class GameSummaryGraphComponent implements OnInit, AfterViewInit {
       }
     }
 
-    console.log("Annotations", annotations);
     return annotations;
   }
 
@@ -250,7 +248,6 @@ export class GameSummaryGraphComponent implements OnInit, AfterViewInit {
 
     // make deep copy of points
     const pointsCopy = JSON.parse(JSON.stringify(points));
-    console.log("Unadjusted points", pointsCopy);
 
     const THRESHOLD = 10;
     
@@ -272,7 +269,6 @@ export class GameSummaryGraphComponent implements OnInit, AfterViewInit {
       if (lines < THRESHOLD) points[i][1] = trtAt14;
       if (lines >= THRESHOLD) break;
     }
-    console.log("Adjusted points", points);
 
     return points;
   }
@@ -297,7 +293,6 @@ export class GameSummaryGraphComponent implements OnInit, AfterViewInit {
       }
 
       const resolution = Math.ceil(500 / coordinates.length);
-      console.log("Resolution", resolution);
       coordinates = this.smoothPath(coordinates, resolution, 0.4);
     }
     

@@ -82,6 +82,11 @@ app-solid-selector {
     font-weight: 600;
 }
 
+.row.game div:first-child {
+    font-weight: 500;
+    font-size: 12px;
+}
+
 .row.game:hover {
     filter: brightness(1.1);
 }
