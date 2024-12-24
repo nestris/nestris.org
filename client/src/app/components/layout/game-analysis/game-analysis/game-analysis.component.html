@@ -39,9 +39,11 @@
     <div class="main">
 
         <app-eval-bar backgroundColor="#2D2D31" [borderRadius]="5" [width]="30" />
-        <div class="board-panel">
+        <div class="board-panel" *ngIf="current$ | async as current">
             
-            <app-nes-board [scale]="2.2" />
+            <app-nes-board [scale]="2.2"
+                [board]="getDisplayBoard(gameData, current)"
+            />
             <div class="board-info">
                 <div class="top">
 
@@ -51,7 +53,7 @@
                 </div>
                 <div class="bottom">
                     <section class="placement">
-                        <h1>Placement #354</h1>
+                        <h1>Placement #{{current.placementIndex + 1}}</h1>
                         <div class="buttons">
                             <app-solid-button label="Prev" [color]="ButtonColor.GREY" [fontSize]="14" [paddingHorizontal]="12" [paddingVertical]="5" (click)="previous()" />
                             <app-solid-button label="Next" [color]="ButtonColor.BLUE" [fontSize]="14" [paddingHorizontal]="12" [paddingVertical]="5" (click)="next()" />
@@ -63,9 +65,9 @@
 
     </div>
 
-    <app-game-summary-graph [game]="memoryGameStatus" [WIDTH]="(contentRect$ | async)?.width ?? 600"  />
+    <app-game-summary-graph *ngIf="memoryGameStatus" [game]="memoryGameStatus" [WIDTH]="(contentRect$ | async)?.width ?? 600"  />
 
 </div>
 
 <a routerLink="/review"><app-solid-button class="back-button" [color]="ButtonColor.GREY" label="Back" /></a>
-<app-loading-animation *ngIf="!(game$ | async)" [size]="30" />
+<app-loading-animation *ngIf="!(gameData$ | async)" [size]="30" />

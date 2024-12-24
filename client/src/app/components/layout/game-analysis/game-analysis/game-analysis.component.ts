@@ -12,10 +12,18 @@ import { PacketContent } from 'src/app/shared/network/stream-packets/packet';
 import { MemoryGameStatus } from 'src/app/shared/tetris/memory-game-status';
 import { numberWithCommas, timeAgo } from 'src/app/util/misc';
 import { AnalysisPlacement, interpretPackets } from '../game-interpreter';
+import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
+import { BufferTranscoder } from 'src/app/shared/network/tetris-board-transcoding/buffer-transcoder';
+import MoveableTetromino from 'src/app/shared/tetris/moveable-tetromino';
 
 interface GameData {
   game: DBGame; // game metadata
   placements: AnalysisPlacement[]; // list of placements interpreted from packets
+}
+
+interface CurrentFrame {
+  placementIndex: number;
+  frameIndex: number;
 }
 
 @Component({
@@ -31,19 +39,28 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly timeAgo = timeAgo;
   readonly numberWithCommas = numberWithCommas;
 
-  public game$ = new Subject<DBGame>();
+  // The HTTP request for game metadata
+  private game$ = new Subject<DBGame>();
+
+  // The packets send through websocket interpreted into placements
   private placements$ = new Subject<AnalysisPlacement[]>();
 
-  // subscribe to both game and packets
+  // Observable of when both game metadata and placements are received
   public gameData$: Observable<GameData> = this.game$.pipe(
     combineLatestWith(this.placements$),
     map(([game, placements]) => ({ game, placements }))
   );
 
+  // Current frame and placement to display
+  public current$ = new BehaviorSubject<CurrentFrame>({ placementIndex: 0, frameIndex: 0 });
+
+  // Terrible hack to make app-game-summary-graph component fit the width of content div
   public contentRect$ = new BehaviorSubject<DOMRect | null>(null);
-  public memoryGameStatus = new MemoryGameStatus(18);
   private resizeInterval: any;
 
+  // Derive memory game status from placements
+  public memoryGameStatus: MemoryGameStatus | null = null;
+  
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
@@ -70,8 +87,10 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
       // Ensure player index is not defined
       if (packetGroup.playerIndex !== undefined) throw new Error('Player index should not be defined');
 
+      // Interpret the packets into placements
       console.log('Received game data in', Date.now() - startGameData, 'ms', packetGroup.packets);
-      const placements = interpretPackets(packetGroup.packets);
+      const { placements, status } = interpretPackets(packetGroup.packets);
+      this.memoryGameStatus = status;
       this.placements$.next(placements);
 
       // Stop listening for game data
@@ -134,6 +153,19 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
         this.onResize();
       }
     }, 200);
+  }
+
+  getDisplayBoard(gameData: GameData, current: CurrentFrame): TetrisBoard {
+    const placement = gameData.placements[current.placementIndex];
+    const frame = placement.frames[current.frameIndex];
+
+    if (frame.encodedBoard) return BufferTranscoder.decode(frame.encodedBoard);
+    else if (frame.mtPose) {
+      const mt = MoveableTetromino.fromMTPose(placement.current, frame.mtPose);
+      const board = BufferTranscoder.decode(placement.encodedIsolatedBoard);
+      mt.blitToBoard(board);
+      return board;
+    } else return BufferTranscoder.decode(placement.encodedIsolatedBoard);
   }
 
   ngOnDestroy(): void {
