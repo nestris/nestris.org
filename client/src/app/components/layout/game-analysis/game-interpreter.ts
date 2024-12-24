@@ -15,6 +15,7 @@ export interface Frame {
     delta: number; // time in ms since the previous frame
     encodedBoard?: Uint8Array; // if present, this is the board encoded as Uint8Array to be displayed for this frame
     mtPose?: MTPose; // if present, this is the MoveableTetromino to be placed on the isolated board for this frame
+    ms: number; // the time in ms since the start of the game
 }
 
 /**
@@ -36,6 +37,29 @@ export interface AnalysisPlacement {
 export interface InterpretedGame {
     placements: AnalysisPlacement[];
     status: MemoryGameStatus;
+    totalMs: number; // the total time in ms of the game
+}
+
+/**
+ * Get the index of the first frame where the given placement is placed on the board.
+ * @param frames The frames of the game leading up to the placement
+ * @param isolatedBoard The isolated board state without the active piece
+ * @param placement The placement of the piece
+ * @returns 
+ */
+function getPlacementFrameIndex(frames: Frame[], isolatedBoard: TetrisBoard, pieceType: TetrominoType, placement: MoveableTetromino): number {
+    // Place the active piece on the board
+    const placementBoard = isolatedBoard.copy();
+    placement.blitToBoard(placementBoard);
+
+    // Find the first frame where resultant board matches the frame's board
+    for (let i = 0; i < frames.length; i++) {
+        const frame = frames[i];
+        if (frame.encodedBoard && BufferTranscoder.decode(frame.encodedBoard).equals(placementBoard)) return i;
+        if (frame.mtPose && MoveableTetromino.fromMTPose(pieceType, frame.mtPose).equals(placement)) return i;
+    }
+
+    throw new Error('Placement not found in frames');
 }
 
 /**
@@ -64,17 +88,38 @@ export function interpretPackets(packets: PacketContent[]): InterpretedGame {
     let current: TetrominoType = gameStartPacket.current;
     let next: TetrominoType = gameStartPacket.next;
 
+    // The frames of the game, to be accumulated until a placement is found
     let frames: Frame[] = [];
 
-    // A spacer frame takes in a delta but maintains the previous board state
-    const getSpacerFrame = (delta: number): Frame => {
-        // If this is the first frame, return a frame with just the delta
-        if (frames.length === 0) return { delta };
-        // Otherwise, return a frame with the previous board state and the delta
-        const lastFrame = frames[frames.length - 1];
-        return Object.assign({}, lastFrame, { delta });
+    // The time since the start of the game, to be accumulated with each frame
+    let msSinceStart: number = 0;
+
+    // Add a frame, which can contain a board state or a MoveableTetromino, incrementing the time since the start
+    const addFrame = (delta: number, encodedBoard?: Uint8Array, mtPose?: MTPose) => {
+        frames.push({ delta, encodedBoard, mtPose, ms: msSinceStart });
+        msSinceStart += delta;
     }
 
+    // Add a frame with a full board
+    const addBoardFrame = (delta: number, board: TetrisBoard) => {
+        addFrame(delta, BufferTranscoder.encode(board));
+    }
+
+    // Add a frame with a MoveableTetromino
+    const addMTFrame = (delta: number, mtPose: MTPose) => {
+        addFrame(delta, undefined, mtPose);
+    }
+
+    // Add a spacer frame with the given delta
+    const addSpacerFrame = (delta: number) => {
+        if (frames.length === 0) addFrame(delta);
+        else {
+            const lastFrame = frames[frames.length - 1];
+            addFrame(delta, lastFrame.encodedBoard, lastFrame.mtPose);
+        }
+    }
+
+    // Iterate through the packets, adding frames and placements as necessary
     for (let i = startIndex + 1; i < packets.length; i++) {
         const packet = packets[i];
 
@@ -83,19 +128,19 @@ export function interpretPackets(packets: PacketContent[]): InterpretedGame {
         // Add a full board frame
         else if (packet.opcode === PacketOpcode.GAME_FULL_BOARD) {
             const fullBoard = packet.content as GameFullBoardSchema;
-            frames.push({ delta: fullBoard.delta, encodedBoard: BufferTranscoder.encode(fullBoard.board) });
+            addBoardFrame(fullBoard.delta, fullBoard.board);
         }
 
         // Add a abbreviated board frame
         else if (packet.opcode === PacketOpcode.GAME_ABBR_BOARD) {
             const abbrBoard = packet.content as GameAbbrBoardSchema;
-            frames.push({ delta: abbrBoard.delta, mtPose: abbrBoard.mtPose });
+            addMTFrame(abbrBoard.delta, abbrBoard.mtPose);
         }
 
         // Add a spacer frame for countdowns
         else if (packet.opcode === PacketOpcode.GAME_COUNTDOWN) {
             const countdown = packet.content as GameCountdownSchema;
-            frames.push(getSpacerFrame(countdown.delta));
+            addSpacerFrame(countdown.delta);
         }
 
         // If the packet contains a placement, create the new placement with all the accumulated frames
@@ -103,7 +148,20 @@ export function interpretPackets(packets: PacketContent[]): InterpretedGame {
             const placement = packet.content as GamePlacementSchema;
 
             // GAME_PLACEMENT packet is a timed packet (has a duration), so we add a spacer frame with the duration of the packet
-            frames.push(getSpacerFrame(placement.delta));
+            addSpacerFrame(placement.delta);
+
+            const placementMT = MoveableTetromino.fromMTPose(current, placement.mtPose);
+
+            let placementFrameIndex: number;
+            try {
+                placementFrameIndex = getPlacementFrameIndex(frames, isolatedBoard, current, placementMT);
+            } catch (e) {
+                placementFrameIndex = frames.length - 1;
+                console.error(`Error finding placement frame for placement ${placements.length}`, );
+                isolatedBoard.print();
+                placementMT.print();
+            }
+            
 
             // Create the new placement
             const newPlacement: AnalysisPlacement = {
@@ -115,7 +173,7 @@ export function interpretPackets(packets: PacketContent[]): InterpretedGame {
                 lines: status.lines,
                 placement: placement.mtPose,
                 frames,
-                placementFrameIndex: frames.length - 1 // TODO: find the frame which matches the valid placement
+                placementFrameIndex: placementFrameIndex,
             };
             placements.push(newPlacement);
 
@@ -143,7 +201,6 @@ export function interpretPackets(packets: PacketContent[]): InterpretedGame {
             next = placement.nextNextType;
         }
     }
-    
 
-    return { placements, status };
+    return { placements, status, totalMs: msSinceStart };
 }

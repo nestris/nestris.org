@@ -218,13 +218,15 @@ export class EmulatorService {
     const previousBoard = this.displayBoard;
     const previousCountdown = this.currentState.getCountdown();
 
-    const oldActivePiece = this.currentState.getActivePiece();
+    const wasPieceLocked = this.currentState.isPieceLocked();
 
     // execute frame
     this.currentState.executeFrame(pressedKeys);
+
     //console.log("frame new display board", this.currentState.getDisplayBoard() === this.displayBoard);
     this.displayBoard = this.currentState.getDisplayBoard();
     const activePiece = this.currentState.getActivePiece();
+    const isPieceLocked = this.currentState.isPieceLocked();
 
     // send countdown packet if countdown has changed
     const currentCountdown = this.currentState.getCountdown();
@@ -236,19 +238,19 @@ export class EmulatorService {
     }
 
     // send placement packet if piece has been placed
-    if (oldActivePiece && !activePiece) {
+    if (!wasPieceLocked && isPieceLocked) {
       this.sendPacket(new GamePlacementPacket().toBinaryEncoder({
         delta: this.timeDelta.getDelta(),
         nextNextType: this.currentState.getNextNextPieceType(),
-        mtPose: oldActivePiece.getMTPose(),
+        mtPose: activePiece.getMTPose(),
         pushdown: this.currentState.getPushdownPoints(),
       }));
 
-      this.analyzer!.onPlacement(oldActivePiece);
+      this.analyzer!.onPlacement(activePiece);
     }
 
     // send new position to analyzer if new piece has spawned
-    if (!oldActivePiece && activePiece) {
+    if (wasPieceLocked && !isPieceLocked) {
       this.analyzer!.onNewPosition({
         board: this.currentState.getIsolatedBoard().copy(),
         currentPiece: this.currentState.getCurrentPieceType(),

@@ -39,7 +39,6 @@ export class TooltipService {
 
   // set by TooltipDirective when mouse enters
   show(text: string, x: number, y: number, direction: string = "left") {
-    console.log("showing tooltip", text, x, y, direction);
     this.info$.next({
       text,
       position: { x, y },

@@ -1,34 +1,34 @@
-<div class="content" #content *ngIf="gameData$ | async as gameData">
+<div class="content" #content *ngIf="loaded$ | async">
 
-    <h1 class="title">{{gameData.game.username}}'s game {{timeAgo(gameData.game.created_at)}} </h1>
+    <h1 class="title">{{game!.username}}'s game {{timeAgo(game!.created_at)}} </h1>
 
     <div class="stat-panels">
         <div class="stat score">
             <p class="label">Score</p>
-            <p class="value">{{numberWithCommas(gameData.game.end_score)}}</p>
-            <p class="description">Ranked #{{gameData.game.rank}}</p>
+            <p class="value">{{numberWithCommas(game!.end_score)}}</p>
+            <p class="description">Ranked #{{game!.rank}}</p>
         </div>
         <div class="stat accuracy">
             <p class="label">Accuracy</p>
-            <p class="value" [ngStyle]="{'color' : getAccuracyColor(gameData.game.accuracy)}">{{gameData.game.accuracy}}%</p>
+            <p class="value" [ngStyle]="{'color' : getAccuracyColor(game!.accuracy)}">{{game!.accuracy}}%</p>
             <p class="description">[todo]</p>
         </div>
         <div class="stat statistics">
             <div class="statistic">
                 <p>Start level</p>
-                <p>{{gameData.game.start_level}}</p>
+                <p>{{game!.start_level}}</p>
             </div>
             <div class="statistic">
                 <p>Level reached</p>
-                <p>{{gameData.game.end_level}}</p>
+                <p>{{game!.end_level}}</p>
             </div>
             <div class="statistic">
                 <p>Lines reached</p>
-                <p>{{gameData.game.end_lines}}</p>
+                <p>{{game!.end_lines}}</p>
             </div>
             <div class="statistic">
                 <p>Quad rate</p>
-                <p>{{(gameData.game.tetris_rate * 100).toFixed(0)}}%</p>
+                <p>{{(game!.tetris_rate * 100).toFixed(0)}}%</p>
             </div>
         </div>
         <div class="stat">
@@ -42,7 +42,7 @@
         <div class="board-panel" *ngIf="current$ | async as current">
             
             <app-nes-board [scale]="2.2"
-                [board]="getDisplayBoard(gameData, current)"
+                [board]="getDisplayBoard(current)"
             />
             <div class="board-info">
                 <div class="top">
@@ -55,8 +55,14 @@
                     <section class="placement">
                         <h1>Placement #{{current.placementIndex + 1}}</h1>
                         <div class="buttons">
-                            <app-solid-button label="Prev" [color]="ButtonColor.GREY" [fontSize]="14" [paddingHorizontal]="12" [paddingVertical]="5" (click)="previous()" />
-                            <app-solid-button label="Next" [color]="ButtonColor.BLUE" [fontSize]="14" [paddingHorizontal]="12" [paddingVertical]="5" (click)="next()" />
+                            <app-solid-button label="Prev" [color]="ButtonColor.GREY" [fontSize]="14" [paddingHorizontal]="12" [paddingVertical]="6" (click)="previous()" />
+                            <app-solid-button label="Next" [color]="ButtonColor.BLUE" [fontSize]="14" [paddingHorizontal]="12" [paddingVertical]="6" (click)="next()" />
+                        </div>
+                        <div class="buttons">
+                            <app-solid-button icon="./assets/img/media-icons/play.svg" [color]="ButtonColor.BLUE" [iconHeight]="15" />
+                            <app-solid-button label="2x" [color]="ButtonColor.GREY" [fontSize]="12" [paddingHorizontal]="6" [paddingVertical]="7.75" />
+                            <app-solid-button icon="./assets/img/media-icons/start.svg" [color]="ButtonColor.GREY" [iconHeight]="15" />
+                            <app-solid-button icon="./assets/img/media-icons/end.svg" [color]="ButtonColor.GREY" [iconHeight]="15" />
                         </div>
                     </section>
                 </div>
@@ -70,4 +76,4 @@
 </div>
 
 <a routerLink="/review"><app-solid-button class="back-button" [color]="ButtonColor.GREY" label="Back" /></a>
-<app-loading-animation *ngIf="!(gameData$ | async)" [size]="30" />
+<app-loading-animation *ngIf="!(loaded$ | async)" [size]="30" />

@@ -159,10 +159,12 @@ export class EmulatorGameState {
         return this.toppedOut;
     }
 
-    getActivePiece(): MoveableTetromino | undefined {
-
-        if (this.pieceLocked || this.toppedOut) return undefined;
+    getActivePiece(): MoveableTetromino {
         return this.activePiece;
+    }
+
+    isPieceLocked(): boolean {
+        return this.pieceLocked;
     }
 
     getCountdown(): number | undefined {

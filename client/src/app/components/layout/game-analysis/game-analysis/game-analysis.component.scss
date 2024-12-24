@@ -130,12 +130,13 @@ app-loading-animation {
 }
 
 .board-panel {
-    padding: 12px;
+    padding: 10px;
     background-color: $section-color;
     border-radius: 10px;
 
     display: flex;
     flex-direction: row;
+    gap: 10px;
 }
 
 .board-info {

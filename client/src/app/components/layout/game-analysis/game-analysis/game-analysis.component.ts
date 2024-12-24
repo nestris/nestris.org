@@ -40,16 +40,13 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly numberWithCommas = numberWithCommas;
 
   // The HTTP request for game metadata
-  private game$ = new Subject<DBGame>();
+  public game?: DBGame;
 
   // The packets send through websocket interpreted into placements
-  private placements$ = new Subject<AnalysisPlacement[]>();
+  public placements?: AnalysisPlacement[];
 
   // Observable of when both game metadata and placements are received
-  public gameData$: Observable<GameData> = this.game$.pipe(
-    combineLatestWith(this.placements$),
-    map(([game, placements]) => ({ game, placements }))
-  );
+  public loaded$ = new BehaviorSubject<boolean>(false);
 
   // Current frame and placement to display
   public current$ = new BehaviorSubject<CurrentFrame>({ placementIndex: 0, frameIndex: 0 });
@@ -68,9 +65,6 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     private readonly apiService: ApiService,
     private readonly notificationService: NotificationService,
   ) {
-    this.gameData$.subscribe(({ game, placements }) => {
-      console.log('Game data received', game, placements);
-    });
   }
 
   
@@ -89,9 +83,12 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
 
       // Interpret the packets into placements
       console.log('Received game data in', Date.now() - startGameData, 'ms', packetGroup.packets);
-      const { placements, status } = interpretPackets(packetGroup.packets);
+      const { placements, status, totalMs } = interpretPackets(packetGroup.packets);
       this.memoryGameStatus = status;
-      this.placements$.next(placements);
+      this.current$.next({ placementIndex: 0, frameIndex: placements[0].placementFrameIndex });
+      this.placements = placements;
+
+      if (this.game) this.loaded$.next(true);
 
       // Stop listening for game data
       gameDataSubscription.unsubscribe();
@@ -113,7 +110,9 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
 
       const game = await this.apiService.getGame(gameID, sessionID);
       console.log('Game metadata', game, 'fetched in', Date.now() - startFetchGame, 'ms');
-      this.game$.next(game);
+      this.game = game;
+
+      if (this.placements) this.loaded$.next(true);
 
     } catch (error: any) {
 
@@ -129,16 +128,32 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     return EVALUATION_TO_COLOR[overallAccuracyRating(accuracy)];
   }
 
+  // Navigate to the previous placement at the frame index that matches piece lock
   previous() {
-    console.log('Previous');
+    const current = this.current$.getValue();
+    if (current.placementIndex === 0) return;
+    const index = current.placementIndex - 1;
+    this.current$.next({
+      placementIndex: index,
+      frameIndex: this.placements![index].placementFrameIndex
+    });
   }
 
   next() {
-    console.log('Next');
+    const current = this.current$.getValue();
+    if (current.placementIndex === this.placements!.length - 1) return;
+    const index = current.placementIndex + 1;
+    this.current$.next({
+      placementIndex: index,
+      frameIndex: this.placements![index].placementFrameIndex
+    });
   }
 
   @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
+
+    if (!this.loaded$.getValue()) return;
+
     if (event.key === 'ArrowLeft') this.previous();
     else if (event.key === 'ArrowRight') this.next();
   }
@@ -155,17 +170,24 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     }, 200);
   }
 
-  getDisplayBoard(gameData: GameData, current: CurrentFrame): TetrisBoard {
-    const placement = gameData.placements[current.placementIndex];
+  // Get the board to display for the current frame
+  getDisplayBoard(current: CurrentFrame): TetrisBoard {
+    const placement = this.placements![current.placementIndex];
     const frame = placement.frames[current.frameIndex];
 
+    // If full board is specified, decode and return that
     if (frame.encodedBoard) return BufferTranscoder.decode(frame.encodedBoard);
+
+    // If the active piece's position is specified, blitz the active piece onto the isolated board
     else if (frame.mtPose) {
       const mt = MoveableTetromino.fromMTPose(placement.current, frame.mtPose);
       const board = BufferTranscoder.decode(placement.encodedIsolatedBoard);
       mt.blitToBoard(board);
       return board;
-    } else return BufferTranscoder.decode(placement.encodedIsolatedBoard);
+    }
+    
+    // If neither is specified, return the isolated board
+    else return BufferTranscoder.decode(placement.encodedIsolatedBoard);
   }
 
   ngOnDestroy(): void {
