@@ -11,7 +11,7 @@
         <div class="stat accuracy">
             <p class="label">Accuracy</p>
             <p class="value" [ngStyle]="{'color' : getAccuracyColor(game!.accuracy)}">{{game!.accuracy}}%</p>
-            <p class="description">[todo]</p>
+            <p [ngStyle]="{opacity : 0}" class="description">[todo]</p>
         </div>
         <div class="stat statistics">
             <div class="statistic">
@@ -36,49 +36,68 @@
         </div>
     </div>
 
-    <div class="main">
+    <ng-container *ngIf="current$ | async as current">
+        <div class="main" *ngIf="getCurrentPlacement(current) as placement">
 
-        <app-eval-bar backgroundColor="#2D2D31" [borderRadius]="5" [width]="30" />
-        <div class="board-panel" *ngIf="current$ | async as current">
-            
-            <app-nes-board *ngIf="emphasizePlacement$ | async" [scale]="2.2"
-                [board]="getIsolatedBoard(current)"
-                [activePiece]="getActivePiece(current) ?? undefined"
-                [activePieceOpacity]="1"
-                [defaultOpacity]="0.6"
-            />
-            <app-nes-board *ngIf="!(emphasizePlacement$ | async)" [scale]="2.2"
-                [board]="getDisplayBoard(current)"
-            />
-            <div class="board-info">
-                <div class="top">
-
-                </div>
-                <div class="center">
-
-                </div>
-                <div class="bottom">
-                    <section class="placement">
-                        <h1>Placement #{{current.placementIndex + 1}}</h1>
-                        <div class="buttons">
-                            <app-solid-button label="Prev" [color]="ButtonColor.GREY" [fontSize]="14" [paddingHorizontal]="12" [paddingVertical]="6" (click)="previousPlacement()" />
-                            <app-solid-button label="Next" [color]="ButtonColor.BLUE" [fontSize]="14" [paddingHorizontal]="12" [paddingVertical]="6" (click)="nextPlacement()" />
+            <app-eval-bar backgroundColor="#2D2D31" [borderRadius]="5" [width]="30" />
+            <div class="board-panel">
+                
+                <app-nes-board *ngIf="emphasizePlacement$ | async" [scale]="2.2"
+                    [board]="getIsolatedBoard(current)"
+                    [level]="placement.level"
+                    [activePiece]="getActivePiece(current) ?? undefined"
+                    [activePieceOpacity]="1"
+                    [defaultOpacity]="0.6"
+                />
+                <app-nes-board *ngIf="!(emphasizePlacement$ | async)" [scale]="2.2"
+                    [board]="getDisplayBoard(current)"
+                    [level]="placement.level"
+                />
+                <div class="board-info">
+                    <div class="top">
+                        <div class="board-stat">
+                            <p class="label">Score</p>
+                            <p class="value">{{numberWithCommas(placement.score)}}</p>
                         </div>
-                        <div class="buttons">
-
-                            <app-solid-button *ngIf="!(playing$ | async)" icon="./assets/img/media-icons/play.svg" [color]="ButtonColor.GREEN" [iconHeight]="15" (click)="play()" />
-                            <app-solid-button *ngIf="playing$ | async" icon="./assets/img/media-icons/pause.svg" [color]="ButtonColor.RED" [iconHeight]="15" (click)="stopPlaying()" />
-
-                            <app-solid-button label="2x" [color]="ButtonColor.GREY" [fontSize]="12" [paddingHorizontal]="6" [paddingVertical]="7.75" />
-                            <app-solid-button icon="./assets/img/media-icons/start.svg" [color]="ButtonColor.GREY" [iconHeight]="15" (click)="goToStart()" />
-                            <app-solid-button icon="./assets/img/media-icons/end.svg" [color]="ButtonColor.GREY" [iconHeight]="15" (click)="goToEnd()" />
+                        <div class="level-lines">
+                            <div class="board-stat">
+                                <p class="label">Level</p>
+                                <p class="value">{{placement.level}}</p>
+                            </div>
+                            <div class="board-stat">
+                                <p class="label">Lines</p>
+                                <p class="value">{{placement.lines}}</p>
+                            </div>
                         </div>
-                    </section>
+                    </div>
+                    <div class="center">
+                        <p>Next</p>
+                        <app-nes-piece [scale]="2.2" [piece]="placement.next" [level]="placement.level" />
+                    </div>
+                    <div class="bottom">
+                        <section class="placement">
+                            <h1>Placement #{{current.placementIndex + 1}}</h1>
+                            <div class="buttons">
+                                <app-solid-button label="Prev" [color]="ButtonColor.GREY" [fontSize]="14" [paddingHorizontal]="12" [paddingVertical]="6" (click)="previousPlacement()" />
+                                <app-solid-button label="Next" [color]="ButtonColor.BLUE" [fontSize]="14" [paddingHorizontal]="12" [paddingVertical]="6" (click)="nextPlacement()" />
+                            </div>
+                            <div class="buttons">
+
+                                <app-solid-button *ngIf="!(playing$ | async)" icon="./assets/img/media-icons/play.svg" [color]="ButtonColor.GREEN" [iconHeight]="15" (click)="play()" />
+                                <app-solid-button *ngIf="playing$ | async" icon="./assets/img/media-icons/pause.svg" [color]="ButtonColor.RED" [iconHeight]="15" (click)="stopPlaying()" />
+
+                                <app-solid-button [label]="(speed$ | async) + 'x'" [color]="ButtonColor.GREY" [fontSize]="12" [paddingHorizontal]="8" [paddingVertical]="7.75" (click)="toggleSpeed()" />
+                                <app-solid-button icon="./assets/img/media-icons/start.svg" [color]="ButtonColor.GREY" [iconHeight]="15" (click)="goToStart()" />
+                                <app-solid-button icon="./assets/img/media-icons/end.svg" [color]="ButtonColor.GREY" [iconHeight]="15" (click)="goToEnd()" />
+                            </div>
+                            <p class="time">{{getTimeString(current)}}</p>
+                        </section>
+                    </div>
                 </div>
             </div>
-        </div>
 
-    </div>
+        </div>
+    </ng-container>
 
     <app-game-summary-graph *ngIf="memoryGameStatus" [game]="memoryGameStatus" [WIDTH]="(contentRect$ | async)?.width ?? 600"  />
 

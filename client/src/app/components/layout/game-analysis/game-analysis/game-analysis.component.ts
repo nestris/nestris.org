@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Host, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, combineLatestWith, map, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, combineLatestWith, map, Observable, Subject, tap } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { ApiService } from 'src/app/services/api.service';
 import { NotificationService } from 'src/app/services/notification.service';
@@ -25,6 +25,8 @@ interface CurrentFrame {
   placementIndex: number;
   frameIndex: number;
 }
+
+const SPEEDS = [1, 2, 4, 0.5];
 
 @Component({
   selector: 'app-game-analysis',
@@ -52,6 +54,16 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
   public current$ = new BehaviorSubject<CurrentFrame>({ placementIndex: 0, frameIndex: 0 });
 
   public playing$ = new BehaviorSubject<boolean>(false);
+
+  public speedIndex$ = new BehaviorSubject<number>(0);
+  public speed$ = this.speedIndex$.pipe(
+    map(index => SPEEDS[index]),
+    tap(speed => this.speed = speed)
+  );
+
+  public speed: number = 1;
+
+  private finalTimestampString: string = '';
 
   // Emphasize placement if paused and on the placement frame
   public emphasizePlacement$ = this.current$.pipe(
@@ -98,6 +110,7 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
       const { placements, status, totalMs } = interpretPackets(packetGroup.packets);
       this.memoryGameStatus = status;
       this.placements = placements;
+      this.finalTimestampString = this.msToTimestamp(totalMs);
 
       console.log('Interpreted packets', placements);
 
@@ -141,6 +154,11 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     return EVALUATION_TO_COLOR[overallAccuracyRating(accuracy)];
   }
 
+  toggleSpeed() {
+    const index = this.speedIndex$.getValue();
+    this.speedIndex$.next((index + 1) % SPEEDS.length);
+  }
+
   stopPlaying() {
     this.playing$.next(false);
   }
@@ -167,7 +185,7 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
       this.stopPlaying();
       return;
     }
-    const msToWait = this.placements![next.placementIndex].frames[next.frameIndex].delta;
+    let msToWait = this.placements![next.placementIndex].frames[next.frameIndex].delta / this.speed;
     setTimeout(() => this.play(true), msToWait);
   }
 
@@ -276,12 +294,16 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     }, 200);
   }
 
+  getCurrentPlacement(current: CurrentFrame): AnalysisPlacement {
+    return this.placements![current.placementIndex];
+  }
+
   getIsolatedBoard(current: CurrentFrame): TetrisBoard {
-    return BufferTranscoder.decode(this.placements![current.placementIndex].encodedIsolatedBoard);
+    return BufferTranscoder.decode(this.getCurrentPlacement(current).encodedIsolatedBoard);
   }
 
   getActivePiece(current: CurrentFrame): MoveableTetromino | null {
-    const placement = this.placements![current.placementIndex];
+    const placement = this.getCurrentPlacement(current);
     const frame = placement.frames[current.frameIndex];
     if (frame.mtPose) return MoveableTetromino.fromMTPose(placement.current, frame.mtPose);
     return null;
@@ -289,7 +311,7 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Get the board to display for the current frame
   getDisplayBoard(current: CurrentFrame): TetrisBoard {
-    const placement = this.placements![current.placementIndex];
+    const placement = this.getCurrentPlacement(current);
     const frame = placement.frames[current.frameIndex];
 
     // If full board is specified, decode and return that
@@ -315,6 +337,19 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
   onResize(): void {
     const rect = this.contentElement.nativeElement.getBoundingClientRect();
     this.contentRect$.next(rect);
+  }
+
+  // MM:SS:mm
+  msToTimestamp(ms: number): string {
+    const seconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(seconds / 60);
+    return `${minutes}:${(seconds % 60).toString().padStart(2, '0')}`;
+  }
+
+  getTimeString(current: CurrentFrame): string {
+    const placement = this.getCurrentPlacement(current);
+    const frame = placement.frames[current.frameIndex];
+    return `${this.msToTimestamp(frame.ms)} of ${this.finalTimestampString}`;
   }
 
 }

@@ -148,6 +148,62 @@ app-loading-animation {
     box-sizing: border-box;
 }
 
+.top {
+    margin-top: 3px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.level-lines {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+
+
+.board-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0px;
+}
+
+.board-stat .label {
+    font-family: 'Pixel NES';
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.board-stat .value {
+    font-family: 'Pixel NES';
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.center p {
+    font-family: 'Pixel NES';
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0;
+}
+
+app-nes-piece {
+    height: 70px;
+}
+
 section.placement {
     display: flex;
     flex-direction: column;
@@ -171,6 +227,13 @@ section.placement .buttons {
     gap: 5px;
     width: 100%;
     box-sizing: border-box;
+}
+
+p.time {
+    font-family: $main-font;
+    font-weight: 500;
+    font-size: 12px;
+    margin: 3px;
 }
 
 app-game-summary-graph {
