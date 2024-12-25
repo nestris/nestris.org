@@ -55,8 +55,8 @@
                     <section class="placement">
                         <h1>Placement #{{current.placementIndex + 1}}</h1>
                         <div class="buttons">
-                            <app-solid-button label="Prev" [color]="ButtonColor.GREY" [fontSize]="14" [paddingHorizontal]="12" [paddingVertical]="6" (click)="previous()" />
-                            <app-solid-button label="Next" [color]="ButtonColor.BLUE" [fontSize]="14" [paddingHorizontal]="12" [paddingVertical]="6" (click)="next()" />
+                            <app-solid-button label="Prev" [color]="ButtonColor.GREY" [fontSize]="14" [paddingHorizontal]="12" [paddingVertical]="6" (click)="previousPlacement()" />
+                            <app-solid-button label="Next" [color]="ButtonColor.BLUE" [fontSize]="14" [paddingHorizontal]="12" [paddingVertical]="6" (click)="nextPlacement()" />
                         </div>
                         <div class="buttons">
 
@@ -64,8 +64,8 @@
                             <app-solid-button *ngIf="playing$ | async" icon="./assets/img/media-icons/pause.svg" [color]="ButtonColor.RED" [iconHeight]="15" (click)="stopPlaying()" />
 
                             <app-solid-button label="2x" [color]="ButtonColor.GREY" [fontSize]="12" [paddingHorizontal]="6" [paddingVertical]="7.75" />
-                            <app-solid-button icon="./assets/img/media-icons/start.svg" [color]="ButtonColor.GREY" [iconHeight]="15" />
-                            <app-solid-button icon="./assets/img/media-icons/end.svg" [color]="ButtonColor.GREY" [iconHeight]="15" />
+                            <app-solid-button icon="./assets/img/media-icons/start.svg" [color]="ButtonColor.GREY" [iconHeight]="15" (click)="goToStart()" />
+                            <app-solid-button icon="./assets/img/media-icons/end.svg" [color]="ButtonColor.GREY" [iconHeight]="15" (click)="goToEnd()" />
                         </div>
                     </section>
                 </div>

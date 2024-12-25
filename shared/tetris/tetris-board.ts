@@ -80,6 +80,10 @@ export class TetrisBoard {
         return this.grid[y].every(cell => cell !== ColorType.EMPTY);
     }
 
+    public isRowEmpty(y: number): boolean {
+        return this.grid[y].every(cell => cell === ColorType.EMPTY);
+    }
+
     // modifies grid in place to delete line clears, and returns the number of lines cleared
     public processLineClears(): number {
         // remove all full rows

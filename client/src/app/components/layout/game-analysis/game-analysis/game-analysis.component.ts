@@ -87,8 +87,9 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
       console.log('Received game data in', Date.now() - startGameData, 'ms', packetGroup.packets);
       const { placements, status, totalMs } = interpretPackets(packetGroup.packets);
       this.memoryGameStatus = status;
-      this.current$.next({ placementIndex: 0, frameIndex: placements[0].placementFrameIndex });
       this.placements = placements;
+
+      console.log('Interpreted packets', placements);
 
       if (this.game) this.loaded$.next(true);
 
@@ -144,45 +145,90 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     // If recursive, advance to the next frame
     if (recursive) {
 
-      // Reached the end of the game
-      if (current.placementIndex === this.placements!.length - 1 && current.frameIndex === this.placements![current.placementIndex].frames.length - 1) {
+      if (!this.nextFrame()) {
         this.stopPlaying();
         return;
       }
-
-      // Reached the end of the placement
-      if (current.frameIndex === this.placements![current.placementIndex].frames.length - 1) {
-        current = { placementIndex: current.placementIndex + 1, frameIndex: 0 };
-      } else { // Advance to the next frame in the placement
-        current = { placementIndex: current.placementIndex, frameIndex: current.frameIndex + 1 };
-      }
-      this.current$.next(current);
     }
  
-    // Wait for the frame to finish, then play the next frame
-    const msToWait = this.placements![current.placementIndex].frames[current.frameIndex].delta;
+    // Get the delta of the next frame to find the time to wait
+    const next = this.incrementCurrent(this.current$.getValue());
+    const msToWait = this.placements![next.placementIndex].frames[next.frameIndex].delta;
     console.log('Playing frame', current, 'in', msToWait, 'ms');
     setTimeout(() => this.play(true), msToWait);
   }
 
+  previousFrame(): boolean {
+
+    let current = this.current$.getValue();
+
+    // Reached the beginning of the game
+    if (current.placementIndex === 0 && current.frameIndex === 0) {
+      return false;
+    }
+
+    // Reached the end of the placement
+    if (current.frameIndex === 0) {
+      current = { placementIndex: current.placementIndex - 1, frameIndex: this.placements![current.placementIndex - 1].frames.length - 1 };
+    } else { // Advance to the previous frame in the placement
+      current = { placementIndex: current.placementIndex, frameIndex: current.frameIndex - 1 };
+    }
+    this.current$.next(current);
+    return true;
+  }
+
+  private incrementCurrent(current: CurrentFrame): CurrentFrame {
+    if (current.frameIndex === this.placements![current.placementIndex].frames.length - 1) {
+      return { placementIndex: current.placementIndex + 1, frameIndex: 0 };
+    } else {
+      return { placementIndex: current.placementIndex, frameIndex: current.frameIndex + 1 };
+    }
+  }
+
+  nextFrame(): boolean {
+    let current = this.current$.getValue();
+
+    // Reached the end of the game
+    if (current.placementIndex === this.placements!.length - 1 && current.frameIndex === this.placements![current.placementIndex].frames.length - 1) {
+      return false;
+    }
+
+    this.current$.next(this.incrementCurrent(current));
+    return true;
+  }
+
   // Navigate to the previous placement at the frame index that matches piece lock
-  previous() {
+  previousPlacement(): boolean {
     const current = this.current$.getValue();
-    if (current.placementIndex === 0) return;
+    if (current.placementIndex === 0) return false;
     const index = current.placementIndex - 1;
     this.current$.next({
       placementIndex: index,
       frameIndex: this.placements![index].placementFrameIndex
     });
+    return true;
   }
 
-  next() {
+  nextPlacement(): boolean {
     const current = this.current$.getValue();
-    if (current.placementIndex === this.placements!.length - 1) return;
+    if (current.placementIndex === this.placements!.length - 1) return false;
     const index = current.placementIndex + 1;
     this.current$.next({
       placementIndex: index,
       frameIndex: this.placements![index].placementFrameIndex
+    });
+    return true;
+  }
+
+  goToStart(): void {
+    this.current$.next({ placementIndex: 0, frameIndex: 0 });
+  }
+
+  goToEnd(): void {
+    const index = this.placements!.length - 1;
+    this.current$.next({
+      placementIndex: index,
+      frameIndex: this.placements![index].frames.length - 1
     });
   }
 
@@ -191,8 +237,14 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (!this.loaded$.getValue()) return;
 
-    if (event.key === 'ArrowLeft') this.previous();
-    else if (event.key === 'ArrowRight') this.next();
+    if (event.key === 'ArrowLeft') this.previousPlacement();
+    else if (event.key === 'ArrowRight') this.nextPlacement();
+    else if (event.key === ",") this.previousFrame();
+    else if (event.key === ".") this.nextFrame();
+    else if (event.key === " ") {
+      if (this.playing$.getValue()) this.stopPlaying();
+      else this.play();
+    }
   }
 
   ngAfterViewInit(): void {

@@ -262,9 +262,7 @@ export class EmulatorService {
     // send packet with board info if board has changed
     if (!previousBoard.equals(this.displayBoard)) {
 
-      const activePiece = this.currentState.getActivePiece();
-
-      if (activePiece) {
+      if (!isPieceLocked) {
         // if there's an active piece, send abbreviated packet to save bandwidth
         this.sendPacket(new GameAbbrBoardPacket().toBinaryEncoder({
           delta: this.timeDelta.getDelta(),

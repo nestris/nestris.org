@@ -119,8 +119,40 @@ export function interpretPackets(packets: PacketContent[]): InterpretedGame {
         }
     }
 
+    // Iterate until first frame where first row is empty, then go back one frame
+    let firstEmptyRowFrameIndex = startIndex;
+    while (firstEmptyRowFrameIndex < packets.length) {
+        const packet = packets[firstEmptyRowFrameIndex];
+        if (packet.opcode === PacketOpcode.GAME_FULL_BOARD) {
+            const board = (packet.content as GameFullBoardSchema).board;
+            if (board.isRowEmpty(0)) break;
+        }
+        if (packet.opcode === PacketOpcode.GAME_ABBR_BOARD) {
+            const mtPose = (packet.content as GameAbbrBoardSchema).mtPose;
+            if (MoveableTetromino.fromMTPose(current, mtPose).getCurrentBlockSet().minY > 0) break;
+        }
+        firstEmptyRowFrameIndex++;
+    }
+
+    // Get the first frame before firstEmptyRowFrameIndex that is a GameFullBoard or GameAbbrBoard to get MT at the top
+    let firstMTFrameIndex = firstEmptyRowFrameIndex - 1;
+    while (firstMTFrameIndex >= 0) {
+        const packet = packets[firstMTFrameIndex];
+        if ([PacketOpcode.GAME_ABBR_BOARD, PacketOpcode.GAME_FULL_BOARD].includes(packet.opcode)) break;
+        firstMTFrameIndex--;
+    }
+
+    // If a frame with full board or abbreviated board was found, add it to the frames
+    if (firstMTFrameIndex >= 0) {
+        const packet = packets[firstMTFrameIndex];
+        if (packet.opcode === PacketOpcode.GAME_FULL_BOARD) addBoardFrame(0, (packet.content as GameFullBoardSchema).board);
+        else if (packet.opcode === PacketOpcode.GAME_ABBR_BOARD) addMTFrame(0, (packet.content as GameAbbrBoardSchema).mtPose);
+    }
+
+    console.log('First empty row frame index', firstEmptyRowFrameIndex);
+
     // Iterate through the packets, adding frames and placements as necessary
-    for (let i = startIndex + 1; i < packets.length; i++) {
+    for (let i = firstEmptyRowFrameIndex; i < packets.length; i++) {
         const packet = packets[i];
 
         if (packet.opcode === PacketOpcode.GAME_START) throw new Error('Multiple GameStart packets found');
@@ -152,11 +184,8 @@ export function interpretPackets(packets: PacketContent[]): InterpretedGame {
             let placementFrameIndex: number;
             try {
                 placementFrameIndex = getPlacementFrameIndex(frames, isolatedBoard, current, placementMT);
-            } catch (e) {
+            } catch (e) { // if placement not found, use the last frame. Happens close to top out
                 placementFrameIndex = frames.length - 1;
-                console.error(`Error finding placement frame for placement ${placements.length}`, );
-                isolatedBoard.print();
-                placementMT.print();
             }
             
 
