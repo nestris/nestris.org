@@ -1,33 +1,35 @@
-<table>
-    <thead>
-        <tr>
-            <th class="player"><p class="prevent-select">Player</p></th>
-            <th *ngFor="let item of attributes | keyvalue: originalOrder" class="prevent-select">{{item.value}}</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr *ngFor="let row of rows" [ngClass]="{'me': row.userid === myID, 'first' : row.rank === 1, 'second' : row.rank === 2, 'third' : row.rank === 3, 'click' : !!resourceIDType}"
-            [tooltip]="resourceIDType ? 'Click to open ' + resourceIDType + '...' : ''">
-            <td><div class="player">
-                <div class="ranking prevent-select">#{{ row.rank }}</div>
-                <app-league-icon [league]="row.league" [height]="22" />
-                <p class="prevent-select">{{row.username}}</p>
-                <app-online-indicator [isOnline]="row.isOnline || row.userid === myID" [inActivity]="row.inActivity" />
-            </div> </td>
-            <ng-container *ngFor="let item of attributes | keyvalue: originalOrder">
+<div class="table">
+    <div class="row header" [ngStyle]="{gridTemplateColumns: gridTemplateColumns()}">
+        <div class="cell player"><p class="prevent-select">Player</p></div>
+        <div *ngFor="let item of attributes | keyvalue: originalOrder" class="cell prevent-select">{{item.value}}</div>
+        <div class="cell resource" *ngIf="!!resourceIDType"></div>
+    </div>
 
-                <td *ngIf="item.key === 'highest_score'; else trophies"><app-highest-score class="td-content" [size]="14" [highestScore]="getRowAttribute(row, item.key)" /></td>
-                <ng-template #trophies>
-                    <td *ngIf="['trophies', 'highest_trophies'].includes(item.key); else puzzle_elo"><app-trophies class="td-content" [size]="14" [trophies]="getRowAttribute(row, item.key)" /></td>
-                </ng-template>
-                <ng-template #puzzle_elo>
-                    <td *ngIf="['puzzle_elo', 'highest_puzzle_elo'].includes(item.key); else default"><app-puzzle-elo class="td-content" [size]="14" [puzzleElo]="getRowAttribute(row, item.key)" /></td>
-                </ng-template>
-                <ng-template #default>
-                    <td class="prevent-select" [ngStyle]="{color: getCellColor(row, item.key)}">{{getRowAttribute(row, item.key)}}</td>
-                </ng-template>
-            </ng-container>
-            
-        </tr>
-    </tbody>
-</table>
+    <div class="row content" *ngFor="let row of rows; let i = index" [ngStyle]="{gridTemplateColumns: gridTemplateColumns()}"
+        [ngClass]="{'me': row.userid === myID, 'top' : i === 0, 'first' : row.rank === 1, 'second' : row.rank === 2, 'third' : row.rank === 3}">
+        <div class="cell player">
+            <div class="ranking prevent-select">#{{ row.rank }}</div>
+            <app-league-icon [league]="row.league" [height]="22" />
+            <p class="prevent-select">{{row.username}}</p>
+            <app-online-indicator [isOnline]="row.isOnline || row.userid === myID" [inActivity]="row.inActivity" />
+        </div>
+        <ng-container *ngFor="let item of attributes | keyvalue: originalOrder">
+
+            <div class="cell" *ngIf="item.key === 'highest_score'; else trophies"><app-highest-score class="td-content" [size]="14" [highestScore]="getRowAttribute(row, item.key)" /></div>
+            <ng-template #trophies>
+                <div class="cell" *ngIf="['trophies', 'highest_trophies'].includes(item.key); else puzzle_elo"><app-trophies class="td-content" [size]="14" [trophies]="getRowAttribute(row, item.key)" /></div>
+            </ng-template>
+            <ng-template #puzzle_elo>
+                <div class="cell" *ngIf="['puzzle_elo', 'highest_puzzle_elo'].includes(item.key); else default"><app-puzzle-elo class="td-content" [size]="14" [puzzleElo]="getRowAttribute(row, item.key)" /></div>
+            </ng-template>
+            <ng-template #default>
+                <div class="cell prevent-select" [ngStyle]="{color: getCellColor(row, item.key)}">{{getRowAttribute(row, item.key)}}</div>
+            </ng-template>
+        </ng-container>
+
+        <div class="cell resource" *ngIf="!!resourceIDType">
+            <a [routerLink]="['/game', row.resourceID]" target="_blank"><app-solid-button [icon]="'./assets/img/tab-icons/learn.svg'" tooltip="Analyze game..." /></a>
+        </div>
+        
+    </div>
+</div>

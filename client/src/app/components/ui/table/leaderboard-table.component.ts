@@ -78,5 +78,13 @@ export class LeaderboardTableComponent implements OnChanges {
     return 'white';
   }
 
+  gridTemplateColumns(): string {
+    let str = `35% repeat(${Object.keys(this.attributes).length}, 1fr)`;
+    if (this.resourceIDType) str += ' 40px';
+    return str;
+  }
+
+
+
 
 }

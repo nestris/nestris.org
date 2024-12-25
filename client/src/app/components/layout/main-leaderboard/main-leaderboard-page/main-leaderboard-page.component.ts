@@ -47,7 +47,7 @@ export class MainLeaderboardPageComponent implements OnDestroy {
 
 
   // The current leaderboard type
-  currentType$ = new BehaviorSubject<T200LeaderboardType>(T200LeaderboardType.RANKED);
+  currentType$ = new BehaviorSubject<T200LeaderboardType>(T200LeaderboardType.SOLO_HIGHSCORE);
 
   // The current mode based on the current type
   currentMode$ = this.currentType$.pipe(
@@ -65,7 +65,7 @@ export class MainLeaderboardPageComponent implements OnDestroy {
     distinctUntilChanged(), // Only react when the type actually changes
     switchMap(type =>
       // On type change, start a timer that fires immediately and then every 5s
-      timer(0, 5000).pipe(
+      timer(0, 50000).pipe(
         switchMap(() =>
           from(this.fetchLeaderboard(type)).pipe(
             catchError(error => {

@@ -5,5 +5,5 @@
         'transform': info.direction === 'right' ? 'translate(-100%, 0)' : 'none',
     }"
 >
-    <p>{{ info.text }}</p>
+    <p [ngStyle]="{width: info.text.length > 50 ? '200px' : 'auto', textWrap: info.text.length > 50 ? 'wrap' : 'nowrap' }">{{ info.text }}</p>
   </div>

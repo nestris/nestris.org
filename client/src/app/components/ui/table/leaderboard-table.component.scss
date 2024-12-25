@@ -1,25 +1,60 @@
 @import "../../../../styles.scss";
 
-table {
-    border-collapse: collapse;
-    width: 100%;
+.table {
+    
 }
 
-thead tr {
+.row:first-child {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.row:last-child {
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.row {
+    display: grid;
+    align-items: center;
+    padding-left: 10px;
+    padding-right: 5px;
+}
+
+app-solid-button {
+    transform: scale(0.85);
+    display: block;
+}
+
+.row.header {
     background-color: $dark-color;
 
     height: 50px;
 }
 
-tbody {
+.row.content {
     background-color: $section-color;
 }
 
-th, td {
+.cell {
     text-align: center;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
 }
 
-th {
+.cell.player {
+    justify-content: left;
+}
+
+.row.content.top {
+    padding-top: 1px;
+}
+
+
+.row.header .cell {
     font-family: $main-font;
     font-size: 14px;
     font-weight: 600;
@@ -27,25 +62,23 @@ th {
     opacity: 0.8;
     color: white;
     text-wrap: nowrap;
-    padding-inline: 10px;
 }
 
-th.player {
-    padding-inline: 0px;
+.row.header .cell.player {
+    padding-left: 10px;
 }
 
-td {
+
+.row.content .cell {
     font-family: $main-font;
     font-size: 14px;
     font-weight: 600;
     margin: 0;
     color: white;
     text-wrap: nowrap;
-
-    width: 13%;
 }
 
-td .player {
+.row.content .cell.player .player {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -56,25 +89,21 @@ app-league-icon {
     margin-left: 5px;
 }
 
-th.player, td .player {
+.player {
     text-align: left;
     // width: 40%;
     // min-width: 100px;
 }
 
-th.player p {
+.player p {
     margin-left: 53px;
 }
 
-td.resource {
-    padding-inline: 10px;
-}
 
-td.player {
+.player {
     display: flex;
     flex-direction: row;
     align-items: center;
-    transform: translateY(2px);
 }
 
 .player p {
@@ -94,23 +123,14 @@ td:first-child, th:first-child {
     width: 45px;
 }
 
-th:last-child {
-    padding-right: 15px;
+.cell.resource {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
 }
 
-// Make four corners round
-th:first-child {
-    border-top-left-radius: 10px;
-}
-th:last-child {
-    border-top-right-radius: 10px;
-}
-tr:last-child td:first-child {
-    border-bottom-left-radius: 10px;
-}
-tr:last-child td:last-child {
-    border-bottom-right-radius: 10px;
-}
+
 
 .ranking {
     width: 25px;
@@ -127,12 +147,12 @@ tr:last-child td:last-child {
 }
 
 // Two-digit ranks have smaller font size
-tr:nth-child(n+10) td .ranking {
+.content.row:nth-child(n+10) td .ranking {
     font-size: 10.5px;
 }
 
 // Three-digit ranks have even smaller font size
-tr:nth-child(n+100) td .ranking {
+.content.row:nth-child(n+100) td .ranking {
     font-size: 9px;
 }
 
@@ -159,13 +179,10 @@ tbody tr.third td .ranking {
     background-color: $bronze-color;
 }
 
-tbody tr:hover {
+.content.row:hover {
     background-color: #323237;
 }
 
-tbody tr:active {
-    background-color: #37373d;
-}
 
 
 tbody tr.me {
