@@ -53,6 +53,16 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public playing$ = new BehaviorSubject<boolean>(false);
 
+  // Emphasize placement if paused and on the placement frame
+  public emphasizePlacement$ = this.current$.pipe(
+    combineLatestWith(this.playing$),
+    map(([current, playing]) => {
+      if (!this.placements) return false;
+      if (playing) return false;
+      return current.frameIndex === this.placements[current.placementIndex].placementFrameIndex;
+    })
+  )
+
   // Terrible hack to make app-game-summary-graph component fit the width of content div
   public contentRect$ = new BehaviorSubject<DOMRect | null>(null);
   private resizeInterval: any;
@@ -153,8 +163,11 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
  
     // Get the delta of the next frame to find the time to wait
     const next = this.incrementCurrent(this.current$.getValue());
+    if (next == null) {
+      this.stopPlaying();
+      return;
+    }
     const msToWait = this.placements![next.placementIndex].frames[next.frameIndex].delta;
-    console.log('Playing frame', current, 'in', msToWait, 'ms');
     setTimeout(() => this.play(true), msToWait);
   }
 
@@ -177,7 +190,13 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     return true;
   }
 
-  private incrementCurrent(current: CurrentFrame): CurrentFrame {
+  private incrementCurrent(current: CurrentFrame): CurrentFrame | null {
+
+    // Reached the end of the game
+    if (current.placementIndex === this.placements!.length - 1 && current.frameIndex === this.placements![current.placementIndex].frames.length - 1) {
+      return null;
+    }
+
     if (current.frameIndex === this.placements![current.placementIndex].frames.length - 1) {
       return { placementIndex: current.placementIndex + 1, frameIndex: 0 };
     } else {
@@ -187,13 +206,11 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
 
   nextFrame(): boolean {
     let current = this.current$.getValue();
+    const next = this.incrementCurrent(current);
 
-    // Reached the end of the game
-    if (current.placementIndex === this.placements!.length - 1 && current.frameIndex === this.placements![current.placementIndex].frames.length - 1) {
-      return false;
-    }
+    if (next == null) return false;
 
-    this.current$.next(this.incrementCurrent(current));
+    this.current$.next(next);
     return true;
   }
 
@@ -257,6 +274,17 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
         this.onResize();
       }
     }, 200);
+  }
+
+  getIsolatedBoard(current: CurrentFrame): TetrisBoard {
+    return BufferTranscoder.decode(this.placements![current.placementIndex].encodedIsolatedBoard);
+  }
+
+  getActivePiece(current: CurrentFrame): MoveableTetromino | null {
+    const placement = this.placements![current.placementIndex];
+    const frame = placement.frames[current.frameIndex];
+    if (frame.mtPose) return MoveableTetromino.fromMTPose(placement.current, frame.mtPose);
+    return null;
   }
 
   // Get the board to display for the current frame

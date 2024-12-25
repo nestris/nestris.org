@@ -41,7 +41,7 @@ export interface InterpretedGame {
 }
 
 /**
- * Get the index of the first frame where the given placement is placed on the board.
+ * Get the frame index to display when sifting through placements.
  * @param frames The frames of the game leading up to the placement
  * @param isolatedBoard The isolated board state without the active piece
  * @param placement The placement of the piece
