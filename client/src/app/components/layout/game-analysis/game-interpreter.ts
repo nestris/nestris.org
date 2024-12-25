@@ -147,9 +147,6 @@ export function interpretPackets(packets: PacketContent[]): InterpretedGame {
         else if (packet.opcode === PacketOpcode.GAME_PLACEMENT) {
             const placement = packet.content as GamePlacementSchema;
 
-            // GAME_PLACEMENT packet is a timed packet (has a duration), so we add a spacer frame with the duration of the packet
-            addSpacerFrame(placement.delta);
-
             const placementMT = MoveableTetromino.fromMTPose(current, placement.mtPose);
 
             let placementFrameIndex: number;

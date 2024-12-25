@@ -59,7 +59,10 @@
                             <app-solid-button label="Next" [color]="ButtonColor.BLUE" [fontSize]="14" [paddingHorizontal]="12" [paddingVertical]="6" (click)="next()" />
                         </div>
                         <div class="buttons">
-                            <app-solid-button icon="./assets/img/media-icons/play.svg" [color]="ButtonColor.BLUE" [iconHeight]="15" />
+
+                            <app-solid-button *ngIf="!(playing$ | async)" icon="./assets/img/media-icons/play.svg" [color]="ButtonColor.GREEN" [iconHeight]="15" (click)="play()" />
+                            <app-solid-button *ngIf="playing$ | async" icon="./assets/img/media-icons/pause.svg" [color]="ButtonColor.RED" [iconHeight]="15" (click)="stopPlaying()" />
+
                             <app-solid-button label="2x" [color]="ButtonColor.GREY" [fontSize]="12" [paddingHorizontal]="6" [paddingVertical]="7.75" />
                             <app-solid-button icon="./assets/img/media-icons/start.svg" [color]="ButtonColor.GREY" [iconHeight]="15" />
                             <app-solid-button icon="./assets/img/media-icons/end.svg" [color]="ButtonColor.GREY" [iconHeight]="15" />

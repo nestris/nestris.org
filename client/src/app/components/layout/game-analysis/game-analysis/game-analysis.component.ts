@@ -51,6 +51,8 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
   // Current frame and placement to display
   public current$ = new BehaviorSubject<CurrentFrame>({ placementIndex: 0, frameIndex: 0 });
 
+  public playing$ = new BehaviorSubject<boolean>(false);
+
   // Terrible hack to make app-game-summary-graph component fit the width of content div
   public contentRect$ = new BehaviorSubject<DOMRect | null>(null);
   private resizeInterval: any;
@@ -126,6 +128,41 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
 
   getAccuracyColor(accuracy: number): string {
     return EVALUATION_TO_COLOR[overallAccuracyRating(accuracy)];
+  }
+
+  stopPlaying() {
+    this.playing$.next(false);
+  }
+
+  // Play the game from the current frame. If recursive is true, keep playing until paused
+  play(recursive: boolean = false) {
+    if (recursive && !this.playing$.getValue()) return;
+    this.playing$.next(true);
+
+    let current = this.current$.getValue();
+
+    // If recursive, advance to the next frame
+    if (recursive) {
+
+      // Reached the end of the game
+      if (current.placementIndex === this.placements!.length - 1 && current.frameIndex === this.placements![current.placementIndex].frames.length - 1) {
+        this.stopPlaying();
+        return;
+      }
+
+      // Reached the end of the placement
+      if (current.frameIndex === this.placements![current.placementIndex].frames.length - 1) {
+        current = { placementIndex: current.placementIndex + 1, frameIndex: 0 };
+      } else { // Advance to the next frame in the placement
+        current = { placementIndex: current.placementIndex, frameIndex: current.frameIndex + 1 };
+      }
+      this.current$.next(current);
+    }
+ 
+    // Wait for the frame to finish, then play the next frame
+    const msToWait = this.placements![current.placementIndex].frames[current.frameIndex].delta;
+    console.log('Playing frame', current, 'in', msToWait, 'ms');
+    setTimeout(() => this.play(true), msToWait);
   }
 
   // Navigate to the previous placement at the frame index that matches piece lock

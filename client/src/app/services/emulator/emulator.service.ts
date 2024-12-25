@@ -240,7 +240,6 @@ export class EmulatorService {
     // send placement packet if piece has been placed
     if (!wasPieceLocked && isPieceLocked) {
       this.sendPacket(new GamePlacementPacket().toBinaryEncoder({
-        delta: this.timeDelta.getDelta(),
         nextNextType: this.currentState.getNextNextPieceType(),
         mtPose: activePiece.getMTPose(),
         pushdown: this.currentState.getPushdownPoints(),

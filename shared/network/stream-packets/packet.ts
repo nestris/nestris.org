@@ -176,9 +176,8 @@ export class LastPacket extends Packet<LastPacketSchema> {
 PACKET_MAP[PacketOpcode.LAST_PACKET_OPCODE] = new LastPacket();
 
 // ================================ GAME_PLACEMENT =================================
-PACKET_CONTENT_LENGTH[PacketOpcode.GAME_PLACEMENT] = 30;
-export interface GamePlacementSchema extends TimedPacketSchema {
-  // inherited 12 bit delta in ms
+PACKET_CONTENT_LENGTH[PacketOpcode.GAME_PLACEMENT] = 18;
+export interface GamePlacementSchema extends PacketSchema {
   nextNextType: TetrominoType; // 3 bits piece type after current and next piece
   mtPose: MTPose // 11 bits
   pushdown: number; // 4 bits pushdown (0-15)
@@ -187,7 +186,6 @@ export class GamePlacementPacket extends Packet<GamePlacementSchema> {
   constructor() { super(PacketOpcode.GAME_PLACEMENT); }
   protected override _decodePacketContent(content: BinaryDecoder): GamePlacementSchema {
     return {
-      delta: content.nextUnsignedInteger(12),
       nextNextType: content.nextTetrominoType(),
       mtPose: content.nextMTPose(),
       pushdown: content.nextUnsignedInteger(4),
@@ -195,7 +193,6 @@ export class GamePlacementPacket extends Packet<GamePlacementSchema> {
   }
   protected override _toBinaryEncoderWithoutOpcode(content: GamePlacementSchema): BinaryEncoder {
     const encoder = new BinaryEncoder();
-    encoder.addUnsignedInteger(content.delta, 12);
     encoder.addTetrominoType(content.nextNextType);
     encoder.addMTPose(content.mtPose);
     encoder.addUnsignedInteger(content.pushdown, 4);
@@ -206,8 +203,8 @@ PACKET_MAP[PacketOpcode.GAME_PLACEMENT] = new GamePlacementPacket();
 
 // ================================ GAME_FULL_BAORD =================================
 PACKET_CONTENT_LENGTH[PacketOpcode.GAME_FULL_BOARD] = 412;
-export interface GameFullBoardSchema extends PacketSchema {
-  delta: number; // 12 bits delta in ms. Calculated by subtracting previous frame from time delta since game start
+export interface GameFullBoardSchema extends TimedPacketSchema {
+  // inherited 12 bit delta in ms
   board: TetrisBoard; // 400 bits board state, 2 bits per mino
 }
 export class GameFullBoardPacket extends Packet<GameFullBoardSchema> {
