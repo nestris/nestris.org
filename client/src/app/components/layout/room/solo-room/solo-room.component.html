@@ -13,8 +13,7 @@
         [gameOverShowNext]="true"
         (clickNext)="clickNextOnTopout()"
         [showEvalBar]="showAnalysis"
-        [bestEval]="(emulator.getCurrentPlacementEvaluation$() | async)?.bestPlacementScore ?? null"
-        [playerEval]="(emulator.getCurrentPlacementEvaluation$() | async)?.playerPlacementScore ?? null"
+        [ratedMove]="getRatedMove(emulator.getCurrentPlacementEvaluation$() | async)"
         [keybinds]="getKeybinds()"
 />
 </div>

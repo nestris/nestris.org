@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Out
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 import { GameOverMode } from '../../nes-board/nes-board.component';
+import { RatedMove } from 'src/app/components/ui/eval-bar/eval-bar.component';
 
 @Component({
   selector: 'app-layout-one',
@@ -24,8 +25,7 @@ export class LayoutOneComponent extends AbstractNesLayoutComponent implements On
   @Input() gameOverShowNext: boolean = false;
   @Input() keybinds?: string;
   @Input() showEvalBar: boolean = false;
-  @Input() bestEval: number | null = null;
-  @Input() playerEval: number | null = null;
+  @Input() ratedMove: RatedMove = { bestEval: null, playerEval: null };
   @Input() dimmed: boolean = false;
   @Output() clickNext = new EventEmitter<void>();
 

@@ -57,6 +57,9 @@ export class GamePlayer {
     // The aggregation of packets for the player's current game
     private packets: PacketAssembler = new PacketAssembler();
 
+    // need at least one placement to save the game
+    private hasAtLeastOnePlacement: boolean = false;
+
     private gameStart$ = new Subject<GameStartEvent>();
     private gameEnd$ = new Subject<GameEndEvent>();
 
@@ -108,6 +111,8 @@ export class GamePlayer {
             const gameStart = (packet.content as GameStartSchema);
             this.gameState = new GameState(gameStart.level, gameStart.current, gameStart.next);
 
+            this.hasAtLeastOnePlacement = false;
+
             // Emit the game start event
             this.gameStart$.next({
                 level: gameStart.level,
@@ -118,6 +123,7 @@ export class GamePlayer {
         } else if (packet.opcode === PacketOpcode.GAME_PLACEMENT) {
             if (!this.gameState) throw new Error("Cannot add game placement packet without game start packet");
             const gamePlacement = (packet.content as GamePlacementSchema);
+            this.hasAtLeastOnePlacement = true;
             this.gameState.onPlacement(gamePlacement.mtPose, gamePlacement.nextNextType, gamePlacement.pushdown);
         }
 
@@ -165,36 +171,39 @@ export class GamePlayer {
         const previousHighscore = (await DBUserObject.get(this.userid)).highest_score;
 
         // Write game to database
-        const binary: Uint8Array = packets.encode();
-        console.log(`Saving game with bytes: ${binary.byteLength}`);
-        await Database.query(CreateGameQuery, {
-            id: gameID,
-            data: binary,
-            userid: this.userid,
-            start_level: gameState.startLevel,
-            end_level: state.level,
-            end_score: state.score,
-            end_lines: state.lines,
-            accuracy: accuracy,
-            tetris_rate: state.tetrisRate,
-            xp_gained: xpGained
-        });
+        if (this.hasAtLeastOnePlacement) {
 
+            const binary: Uint8Array = packets.encode();
+            console.log(`Saving game with bytes: ${binary.byteLength}`);
+            await Database.query(CreateGameQuery, {
+                id: gameID,
+                data: binary,
+                userid: this.userid,
+                start_level: gameState.startLevel,
+                end_level: state.level,
+                end_score: state.score,
+                end_lines: state.lines,
+                accuracy: accuracy,
+                tetris_rate: state.tetrisRate,
+                xp_gained: xpGained
+            });
 
-        // Update user stats from game
-        await DBUserObject.alter(this.userid, new DBGameEndEvent({
-            users: this.Users,
-            sessionID: this.sessionID,
-            xpGained: xpGained,
-            gameID: gameID,
-            score: state.score,
-            level: state.level,
-            lines: state.lines,
-            transitionInto19: state.transitionInto19,
-            transitionInto29: state.transitionInto29,
-            perfectTransitionInto19: state.perfectInto19,
-            perfectTransitionInto29: state.perfectInto29,
-        }), false);
+            // Update user stats from game
+            await DBUserObject.alter(this.userid, new DBGameEndEvent({
+                users: this.Users,
+                sessionID: this.sessionID,
+                xpGained: xpGained,
+                gameID: gameID,
+                score: state.score,
+                level: state.level,
+                lines: state.lines,
+                transitionInto19: state.transitionInto19,
+                transitionInto29: state.transitionInto29,
+                perfectTransitionInto19: state.perfectInto19,
+                perfectTransitionInto29: state.perfectInto29,
+            }), false);
+
+        } else console.log(`Not saving game for player ${this.username} because no placements were made`);
         
 
         // Emit the game end event

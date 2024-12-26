@@ -1,6 +1,11 @@
 import { ChangeDetectionStrategy, Component, Input, OnChanges } from '@angular/core';
 import { calculatePlacementScore, EVALUATION_TO_COLOR, placementScoreRating } from 'src/app/shared/evaluation/evaluation';
 
+export interface RatedMove {
+  bestEval: number | null;
+  playerEval: number | null;
+}
+
 @Component({
   selector: 'app-eval-bar',
   templateUrl: './eval-bar.component.html',
@@ -11,8 +16,8 @@ export class EvalBarComponent implements OnChanges{
   @Input() width: number = 30;
   @Input() backgroundColor: string = "#151515";
   @Input() borderRadius: number = 10;
-  @Input() bestEval: number | null = null;
-  @Input() playerEval: number | null = null;
+  @Input() ratedMove: RatedMove = {bestEval: null, playerEval: null};
+  
 
   bestPercent: number = 0; // percent from 0-1 of height for outline
   playerPercent: number = 0; // percent from 0-1 of height for fill
@@ -20,23 +25,21 @@ export class EvalBarComponent implements OnChanges{
 
   ngOnChanges(): void {
 
-    if (this.bestEval === null || this.playerEval === null) {
+    if (this.ratedMove.bestEval === null || this.ratedMove.playerEval === null) {
       this.bestPercent = 1;
       this.playerPercent = 0.8;
       this.fillColor = "white";
       return;
     }
 
-    this.bestPercent = this.evalToPercent(this.bestEval);
-    this.playerPercent = this.evalToPercent(this.playerEval);
+    // if the player's evaluation is better than the best evaluation, set the best evaluation to the player's evaluation
+    if (this.ratedMove.playerEval > this.ratedMove.bestEval) this.ratedMove.bestEval = this.ratedMove.playerEval;
 
-    const placementScore = calculatePlacementScore(this.bestEval, this.playerEval);
+    this.bestPercent = this.evalToPercent(this.ratedMove.bestEval);
+    this.playerPercent = this.evalToPercent(this.ratedMove.playerEval);
+
+    const placementScore = calculatePlacementScore(this.ratedMove.bestEval, this.ratedMove.playerEval);
     this.fillColor = EVALUATION_TO_COLOR[placementScoreRating(placementScore)];
-
-    console.log("bestEval: " + this.bestEval);
-    console.log("bestPercent: " + this.bestPercent);
-    console.log("playerPercent: " + this.playerPercent);
-    console.log("playerEval: " + this.playerEval);
   }
 
   // converts a raw StackRabbit evaluation to a percent between 0 and 1

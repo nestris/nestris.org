@@ -39,7 +39,7 @@
     <ng-container *ngIf="current$ | async as current">
         <div class="main" *ngIf="getCurrentPlacement(current) as placement">
 
-            <app-eval-bar backgroundColor="#2D2D31" [borderRadius]="5" [width]="30" />
+            <app-eval-bar backgroundColor="#2D2D31" [borderRadius]="5" [width]="30" [ratedMove]="(stackrabbit$ | async)?.ratedMove ?? {'bestEval': null, 'playerEval': null}" />
             <div class="board-panel">
                 
                 <app-nes-board *ngIf="emphasizePlacement$ | async" [scale]="2.2"

@@ -2,10 +2,12 @@ import { ChangeDetectionStrategy, Component, HostListener } from '@angular/core'
 import { map } from 'rxjs';
 import { GameOverMode } from 'src/app/components/nes-layout/nes-board/nes-board.component';
 import { getDisplayKeybind } from 'src/app/components/ui/editable-keybind/editable-keybind.component';
+import { RatedMove } from 'src/app/components/ui/eval-bar/eval-bar.component';
 import { EmulatorService } from 'src/app/services/emulator/emulator.service';
 import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { RoomService } from 'src/app/services/room/room.service';
 import { SoloClientRoom, SoloClientState } from 'src/app/services/room/solo-client-room';
+import { PlacementEvaluation } from 'src/app/services/stackrabbit/live-game-analyzer';
 import { MeService } from 'src/app/services/state/me.service';
 import { SoloGameInfo, SoloRoomState } from 'src/app/shared/room/solo-room-models';
 
@@ -72,6 +74,14 @@ export class SoloRoomComponent {
     const rotLeft = getDisplayKeybind(me.keybind_emu_rot_left);
     const rotRight = getDisplayKeybind(me.keybind_emu_rot_right);
     return `Move: ${moveLeft} ${moveRight}, Rotate: ${rotLeft} ${rotRight}`;
+  }
+
+  getRatedMove(placementEvaluation: PlacementEvaluation | null): RatedMove {
+    if (placementEvaluation === null) return { bestEval: null, playerEval: null };
+    return {
+      bestEval: placementEvaluation.bestPlacementScore,
+      playerEval: placementEvaluation.playerPlacementScore,
+    };
   }
 
 }

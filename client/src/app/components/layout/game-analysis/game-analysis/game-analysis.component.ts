@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Host, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, combineLatestWith, map, Observable, Subject, tap } from 'rxjs';
+import { BehaviorSubject, combineLatestWith, debounceTime, distinct, distinctUntilChanged, filter, map, Observable, Subject, switchMap, tap } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { ApiService } from 'src/app/services/api.service';
 import { NotificationService } from 'src/app/services/notification.service';
@@ -15,6 +15,8 @@ import { AnalysisPlacement, interpretPackets } from '../game-interpreter';
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { BufferTranscoder } from 'src/app/shared/network/tetris-board-transcoding/buffer-transcoder';
 import MoveableTetromino from 'src/app/shared/tetris/moveable-tetromino';
+import { RateMoveResponse, StackrabbitService, TopMovesHybridResponse } from 'src/app/services/stackrabbit/stackrabbit.service';
+import { SmartGameStatus } from 'src/app/shared/tetris/smart-game-status';
 
 interface GameData {
   game: DBGame; // game metadata
@@ -24,6 +26,11 @@ interface GameData {
 interface CurrentFrame {
   placementIndex: number;
   frameIndex: number;
+}
+
+interface RatedMove {
+  bestEval: number | null;
+  playerEval: number | null;
 }
 
 const SPEEDS = [1, 2, 4, 0.5];
@@ -52,6 +59,13 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Current frame and placement to display
   public current$ = new BehaviorSubject<CurrentFrame>({ placementIndex: 0, frameIndex: 0 });
+
+  public currentPlacement$!: Observable<number>;
+  public stackrabbit$!: Observable<{
+    recommendations: TopMovesHybridResponse | null,
+    ratedMove: RatedMove
+  }>;
+
 
   public playing$ = new BehaviorSubject<boolean>(false);
 
@@ -88,11 +102,34 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     private readonly websocketService: WebsocketService,
     private readonly apiService: ApiService,
     private readonly notificationService: NotificationService,
+    private readonly stackrabbitService: StackrabbitService,
   ) {
   }
 
   
   async ngOnInit() {
+
+    // Used for analysis
+    this.currentPlacement$ = this.current$.pipe(
+      map(current => {
+        if (!this.placements) return 0;
+        if (current.placementIndex === 0) return 0;
+        if (current.frameIndex < this.placements[current.placementIndex].placementFrameIndex) return current.placementIndex - 1;
+        return current.placementIndex;
+      }),
+      distinctUntilChanged(),
+      debounceTime(50) // rate-limit to prevent spamming SR analysis
+    );
+
+    this.stackrabbit$ = this.currentPlacement$.pipe(
+      combineLatestWith(this.loaded$), // on load, start evaluating
+      filter(([_, loaded]) => loaded),
+      switchMap(([placementIndex, _]) => this.getStackrabbit(placementIndex)),
+    );
+
+
+    this.currentPlacement$.subscribe(placement => console.log('Current placement', placement));
+    this.stackrabbit$.subscribe(analysis => console.log('Stackrabbit analysis', analysis));
 
     // Wait for log in
     await this.websocketService.waitForSignIn();
@@ -281,6 +318,15 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
       if (this.playing$.getValue()) this.stopPlaying();
       else this.play();
     }
+
+    // if number key, go to that part of the game
+    else if (event.key.match(/[0-9]/)) {
+      if (!this.placements) return;
+      const percent = parseInt(event.key) / 9;
+      const placement = Math.floor((this.placements.length - 1) * percent);
+      this.current$.next({ placementIndex: placement, frameIndex: percent === 0 ? 0 : this.placements[placement].placementFrameIndex });
+      console.log('Go to', percent, placement);
+    }
   }
 
   ngAfterViewInit(): void {
@@ -362,5 +408,89 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     const frame = placement.frames[current.frameIndex];
     return `${this.msToTimestamp(frame.ms)} of ${this.finalTimestampString}`;
   }
+
+  private async getStackrabbit(placementIndex: number): Promise<{
+    recommendations: TopMovesHybridResponse | null,
+    ratedMove: RatedMove
+  }> {
+
+    const none = { recommendations: null, ratedMove: { bestEval: null, playerEval: null } };
+
+    if (!this.placements || placementIndex >= this.placements.length) return none;
+    const placement = this.placements[placementIndex];
+    if (!placement) return none;
+
+    const status = new SmartGameStatus(this.game!.start_level, placement.lines, placement.score, placement.level);
+    const board = BufferTranscoder.decode(placement.encodedIsolatedBoard);
+    const placementMT = MoveableTetromino.fromMTPose(placement.current, placement.placement);
+    
+    let recommendations: TopMovesHybridResponse | null = null;
+    try {
+
+      // Get the recommendations for the current placement
+      recommendations = await this.stackrabbitService.getTopMovesHybrid({
+        board: board,
+        currentPiece: placement.current,
+        nextPiece: placement.next,
+        level: placement.level,
+        lines: placement.lines,
+        playoutDepth: 3,
+      });
+
+    } catch (error) {
+      return none;
+    }
+
+    if (!recommendations || !recommendations.nextBox) return none;
+
+    // Find the player's move in the recommendations, if it exists
+    for (let topPlacementPair of recommendations.nextBox) {
+      if (topPlacementPair.firstPlacement.equals(placementMT)) {
+        console.log('Found player move in recommendations', placementIndex);
+        return {
+          recommendations, 
+          ratedMove: {
+            bestEval: recommendations.nextBox[0].score, // Score of the best move for the position
+            playerEval: topPlacementPair.score, // Score of the player's placement
+          }
+        }
+      }
+    }
+
+    // If player move not in recommendations, get the resulting board and status after the placement
+    const placementBoard = board.copy();
+    const mt = MoveableTetromino.fromMTPose(placement.current, placement.placement);
+    mt.blitToBoard(placementBoard);
+
+    // Process line clears
+    const numLineClears = placementBoard.processLineClears();
+    status.onLineClear(numLineClears);
+
+    try {
+      const recommendationsAfterPlacement = await this.stackrabbitService.getTopMovesHybrid({
+        board: placementBoard,
+        currentPiece: placement.next,
+        nextPiece: null,
+        level: status.level,
+        lines: status.lines,
+        playoutDepth: 2,
+      });
+
+      if (!recommendationsAfterPlacement || !recommendationsAfterPlacement.noNextBox) throw new Error();   
+      
+      console.log('Got post-placement recommendations', placementIndex);
+      return {
+        recommendations,
+        ratedMove: { bestEval: recommendations.nextBox[0].score, playerEval: recommendationsAfterPlacement.noNextBox[0].score }
+      }
+    } catch (error) {
+      return {
+        recommendations,
+        ratedMove: { bestEval: null, playerEval: null }
+      }
+    }
+
+  }
+
 
 }
