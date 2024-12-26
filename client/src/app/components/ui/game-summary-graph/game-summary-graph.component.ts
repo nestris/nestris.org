@@ -1,5 +1,5 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Host, HostListener, Input, OnChanges, OnInit, ViewChild } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Host, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { BehaviorSubject, combineLatest, map } from 'rxjs';
 import { Rectangle } from 'src/app/ocr/util/rectangle';
 import { getGravity } from 'src/app/shared/tetris/gravity';
 import { MemoryGameStatus, StatusHistory, StatusSnapshot } from 'src/app/shared/tetris/memory-game-status';
@@ -33,6 +33,11 @@ export class GameSummaryGraphComponent implements OnChanges, AfterViewInit {
   @ViewChild('graph') graph!: ElementRef;
   @Input() game!: MemoryGameStatus;
   @Input() WIDTH: number = 600;
+  @Input() currentPlacement: number | null = null; // If not null, display a vertical line at the current placement
+  @Input() placementPercent: number = 0; // a number from 0-1, where 0 is at a placement and 1 is the next placement
+  @Input() showHoverPlacement: boolean = false;
+  
+  @Output() clickPlacement = new EventEmitter<number>();
 
   mouseX$ = new BehaviorSubject<number | null>(null);
 
@@ -48,6 +53,8 @@ export class GameSummaryGraphComponent implements OnChanges, AfterViewInit {
   readonly GRID_LINE_Y = [0, 0.25, 0.5, 0.75, 1].map(i => this.trtToY(i));
 
   svgRect$ = new BehaviorSubject<Rectangle | null>(null);
+
+  placementX$ = new BehaviorSubject<number | null>(null);
 
   TOTAL_LINES!: number;
   history!: StatusHistory;
@@ -81,21 +88,42 @@ export class GameSummaryGraphComponent implements OnChanges, AfterViewInit {
     9 : ColorType.PRIMARY,
   }
 
-  ngOnChanges(): void {
-    this.history = this.game.getHistory();
+  ngOnChanges(changes: SimpleChanges): void {
 
-    // ensure there is at least one line
-    this.TOTAL_LINES = Math.max(1, this.game.lines);
+    if (changes['game']) {
 
-    this.levelSections = this.getLevelSections();
+      this.history = this.game.getHistory();
+
+      // ensure there is at least one line
+      this.TOTAL_LINES = Math.max(1, this.game.lines);
+
+      this.levelSections = this.getLevelSections();
+    }
+
+    if (changes['game'] || changes['WIDTH']) {
     
-    const points = this.getGraphPoints();
-    this.points = this.polylinePoints(points, true);
+      const points = this.getGraphPoints();
+      this.points = this.polylinePoints(points, true);
 
-    this.polylineString = this.points.map(([x, y]) => `${x},${y}`).join(' ');
-    this.polygon = this.makePolygon(this.polylineString);
+      this.polylineString = this.points.map(([x, y]) => `${x},${y}`).join(' ');
+      this.polygon = this.makePolygon(this.polylineString);
 
-    this.annotations = this.generateAnnotations();
+      this.annotations = this.generateAnnotations();
+
+    }
+
+    // Always update the placement x
+    if (this.currentPlacement !== null) {
+      let placementX: number;
+      if (this.placementPercent === 0) {
+        placementX = this.getPlacementX(this.currentPlacement);
+      } else {
+        const placementX1 = this.getPlacementX(this.currentPlacement);
+        const placementX2 = this.getPlacementX(this.currentPlacement + 1);
+        placementX = placementX1 + (placementX2 - placementX1) * this.placementPercent;
+      }
+      this.placementX$.next(placementX);
+    }
   }
 
   ngAfterViewInit(): void {
@@ -179,6 +207,42 @@ export class GameSummaryGraphComponent implements OnChanges, AfterViewInit {
 
   public getSectionWidth(section: LevelSection): number {
     return section.fraction * this.WIDTH;
+  }
+
+  private getPlacementX(placement: number): number {
+
+    // Get the closest snapshots before and after the placement
+    let i = 0;
+    while (i < this.history.length() && this.history.getSnapshot(i).placement < placement) {
+      i++;
+    }
+
+    // If out of bounds, return the end of the game
+    if (i === this.history.length()) return this.WIDTH;
+
+
+    // If the placement is exactly at a snapshot, return the x value of that snapshot
+    if (this.history.getSnapshot(i).placement === this.currentPlacement) {
+      return this.getXFromLines(this.history.getSnapshot(i).lines);
+    }
+
+    // If the placement is after the last snapshot, interpolate between the last snapshot and the end of the game
+    if (i === this.history.length()) {
+      const snapshot = this.history.getSnapshot(i - 1);
+      const numPlacements = this.game.getTotalPlacementCount();
+      const snapshotX = this.getXFromLines(snapshot.lines);
+      const endX = this.WIDTH;
+      return snapshotX + (endX - snapshotX) * ((placement - snapshot.placement) / (numPlacements - snapshot.placement));
+    }
+
+    // Otherwise, interpolate between the two closest snapshots
+    const snapshot1 = this.history.getSnapshot(i - 1);
+    const snapshot2 = this.history.getSnapshot(i);
+    const x1 = this.getXFromLines(snapshot1.lines);
+    const x2 = this.getXFromLines(snapshot2.lines);
+    const placement1 = snapshot1.placement;
+    const placement2 = snapshot2.placement;
+    return x1 + (x2 - x1) * ((placement - placement1) / (placement2 - placement1));
   }
 
   private generateAnnotations(): Annotation[] {
@@ -380,6 +444,37 @@ export class GameSummaryGraphComponent implements OnChanges, AfterViewInit {
 
   onMouseLeave(): void {
     this.mouseX$.next(null);
+  }
+
+  private getPlacementFromX(x: number): number {
+
+    // Find closest snapshot before and after x
+    let i = 0;
+    while (i < this.history.length() && this.getXFromLines(this.history.getSnapshot(i).lines) < x) {
+      i++;
+    }
+
+    // If out of bounds, return the last placement
+    if (i === this.history.length()) return this.history.getSnapshot(i - 1).placement;
+
+    // If x is exactly at a snapshot, return that placement
+    if (this.getXFromLines(this.history.getSnapshot(i).lines) === x) return this.history.getSnapshot(i).placement;
+
+    // Otherwise, interpolate between the two closest snapshots
+    const snapshot1 = this.history.getSnapshot(i - 1);
+    const snapshot2 = this.history.getSnapshot(i);
+    const x1 = this.getXFromLines(snapshot1.lines);
+    const x2 = this.getXFromLines(snapshot2.lines);
+    const placement1 = snapshot1.placement;
+    const placement2 = snapshot2.placement;
+    return Math.floor(placement1 + (placement2 - placement1) * ((x - x1) / (x2 - x1)));
+  }
+
+
+  onClick(event: MouseEvent): void {
+    const mouseX = event.clientX - this.svgRect$.getValue()!.left;
+
+    this.clickPlacement.emit(this.getPlacementFromX(mouseX));
   }
 
   getHoverY(mouseX: number): number {

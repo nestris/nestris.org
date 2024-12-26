@@ -368,6 +368,8 @@ export class EmulatorGameState {
                 // update pushdown
                 this.status.onPushdown(this.getPushdownPoints());
 
+                this.status.onPlacement();
+
                 this.spawnNewPiece();
                 if (this.toppedOut) return; // if piece spawn causes topout, exit
 

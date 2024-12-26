@@ -1,4 +1,4 @@
-<svg #graph [attr.width]="WIDTH" [attr.height]="HEIGHT" xmlns="http://www.w3.org/2000/svg" (mousemove)="onMouseMove($event)" (mouseleave)="onMouseLeave()">
+<svg #graph [attr.width]="WIDTH" [attr.height]="HEIGHT" xmlns="http://www.w3.org/2000/svg" (mousemove)="onMouseMove($event)" (mouseleave)="onMouseLeave()" (click)="onClick($event)">
 
     <!-- Level section backgrounds -->
     <g *ngFor="let section of levelSections">
@@ -61,6 +61,13 @@
         [attr.points]="polylineString"
         stroke="#FFFFFF" stroke-width="1" fill="none"
     ></polyline>
+
+
+    <line *ngIf="(placementX$ | async) !== null"
+        [attr.x1]="placementX$ | async" [attr.y1]="ANNOTATION_HEIGHT"
+        [attr.x2]="placementX$ | async" [attr.y2]="ANNOTATION_HEIGHT + CONTENT_HEIGHT + LABEL_HEIGHT"
+        stroke="#F15757" stroke-width="1"
+    ></line>
 
 
 </svg>

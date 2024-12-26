@@ -113,6 +113,7 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
       this.finalTimestampString = this.msToTimestamp(totalMs);
 
       console.log('Interpreted packets', placements);
+      console.log('Memory game status', status);
 
       if (this.game) this.loaded$.next(true);
 
@@ -292,6 +293,16 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
         this.onResize();
       }
     }, 200);
+  }
+
+  clickPlacement(placementIndex: number): void {
+    this.current$.next({ placementIndex, frameIndex: this.placements![placementIndex].placementFrameIndex });
+  }
+
+  // Get where in the placement the current frame is by index
+  getPlacementPercent(current: CurrentFrame): number {
+    const placement = this.placements![current.placementIndex];
+    return current.frameIndex / placement.frames.length;
   }
 
   getCurrentPlacement(current: CurrentFrame): AnalysisPlacement {

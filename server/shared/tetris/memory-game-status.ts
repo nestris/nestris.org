@@ -6,6 +6,7 @@ export interface StatusSnapshot {
     lines: number;
     score: number;
     tetrisRate: number;
+    placement: number;
 }
 
 /**
@@ -26,7 +27,7 @@ export class StatusHistory {
         const roundedTetrisRate = Math.round(snapshot.tetrisRate * 100) / 100;
 
         // Add the snapshot to the history, with each property as a column
-        this.snapshots.push([snapshot.level, snapshot.lines, snapshot.score, roundedTetrisRate]);
+        this.snapshots.push([snapshot.level, snapshot.lines, snapshot.score, roundedTetrisRate, snapshot.placement]);
     }
 
     /**
@@ -54,7 +55,8 @@ export class StatusHistory {
             level: this.snapshots[index][0],
             lines: this.snapshots[index][1],
             score: this.snapshots[index][2],
-            tetrisRate: this.snapshots[index][3]
+            tetrisRate: this.snapshots[index][3],
+            placement: this.snapshots[index][4]
         }
     }
 
@@ -67,14 +69,11 @@ export class StatusHistory {
 
         if (this.snapshots.length === 0) return null;
         
-        // Find the closest snapshot to the number of lines cleared
+        // Find the snapshot with the number of lines closest to given number of lines, but not exceeding it
         let closestIndex = 0;
-        let closestDiff = Math.abs(this.snapshots[0][1] - lines);
-        for (let i = 1; i < this.snapshots.length; i++) {
-            const diff = Math.abs(this.snapshots[i][1] - lines);
-            if (diff < closestDiff) {
+        for (let i = 0; i < this.snapshots.length; i++) {
+            if (this.snapshots[i][1] <= lines) {
                 closestIndex = i;
-                closestDiff = diff;
             }
         }
 
@@ -97,6 +96,8 @@ export class MemoryGameStatus extends SmartGameStatus {
 
     private rollingTetrisRate = new RollingAverage(14, RollingAverageStrategy.DELTA);
 
+    private placementCount: number = 0;
+
     constructor(startLevel: number, initialLines: number = 0, initialScore: number = 0, initialLevel?: number) {
         super(startLevel, initialLines, initialScore, initialLevel);
 
@@ -104,7 +105,8 @@ export class MemoryGameStatus extends SmartGameStatus {
             level: this.level,
             lines: this.lines,
             score: this.score,
-            tetrisRate: 0
+            tetrisRate: 0,
+            placement: this.placementCount
         });
     }
 
@@ -130,8 +132,21 @@ export class MemoryGameStatus extends SmartGameStatus {
             level: this.level,
             lines: this.lines,
             score: this.score,
-            tetrisRate: this.getRollingTetrisRate()
+            tetrisRate: this.getRollingTetrisRate(),
+            placement: this.placementCount
         });   
+    }
+
+    public onPlacement(): void {
+        this.placementCount++;
+    }
+
+    /**
+     * Get the number of placements in the game currently
+     * @returns The number of placements
+     */
+    public getTotalPlacementCount(): number {
+        return this.placementCount;
     }
 
     /**

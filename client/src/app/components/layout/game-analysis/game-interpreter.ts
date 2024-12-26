@@ -222,6 +222,8 @@ export function interpretPackets(packets: PacketContent[]): InterpretedGame {
             status.onLineClear(linesCleared);
             status.onPushdown(placement.pushdown);
 
+            status.onPlacement();
+
             // Cycle current and next pieces
             current = next;
             next = placement.nextNextType;

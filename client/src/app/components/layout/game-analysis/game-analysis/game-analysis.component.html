@@ -99,7 +99,13 @@
         </div>
     </ng-container>
 
-    <app-game-summary-graph *ngIf="memoryGameStatus" [game]="memoryGameStatus" [WIDTH]="(contentRect$ | async)?.width ?? 600"  />
+    <ng-container *ngIf="current$ | async as current">
+        <app-game-summary-graph *ngIf="memoryGameStatus" [game]="memoryGameStatus"
+        [currentPlacement]="current.placementIndex"
+        [placementPercent]="getPlacementPercent(current)"
+        (clickPlacement)="clickPlacement($event)"
+            [WIDTH]="(contentRect$ | async)?.width ?? 600"  />
+    </ng-container>
 
 </div>
 
