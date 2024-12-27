@@ -27,8 +27,18 @@
         [attr.ry]="isLoginPage ? 0.5 : 0"
         [attr.fill]="getBackgroundColor()" />
 
+    <!-- Draw engine block -->
+    <svg:rect *ngIf="color === 'engine'"
+        [attr.x]="offsetX + 0.5" [attr.y]="offsetY + 0.5"
+        [attr.width]="7"
+        [attr.height]="7"
+        [attr.opacity]="0.8"
+        stroke="rgb(255,255,255)"
+        stroke-width="1"
+    />
+
     <!-- draw a white pxiel at the top left corner -->
-    <svg:rect *ngIf="color !== Color.EMPTY && !isLoginPage"
+    <svg:rect *ngIf="color !== Color.EMPTY && !isLoginPage && color !== 'engine'"
         [attr.x]="offsetX" [attr.y]="offsetY"
         [attr.width]="1"
         [attr.height]="1"

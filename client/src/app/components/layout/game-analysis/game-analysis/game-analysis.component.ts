@@ -52,6 +52,12 @@ interface RecommendationGroup {
   recommendations: Recommendation[]
 }
 
+interface StackRabbit {
+  placementIndex: number,
+  recommendations: RecommendationGroup[],
+  ratedMove: RatedMove
+}
+
 
 const SPEEDS = [1, 2, 4, 0.5];
 const ALL_INPUT_SPEEDS: InputSpeed[] = [InputSpeed.HZ_10, InputSpeed.HZ_12, InputSpeed.HZ_15, InputSpeed.HZ_20, InputSpeed.HZ_30];
@@ -84,10 +90,7 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
   public current$ = new BehaviorSubject<CurrentFrame>({ placementIndex: 0, frameIndex: 0 });
 
   public currentPlacement$!: Observable<number>;
-  public stackrabbit$!: Observable<{
-    recommendations: RecommendationGroup[],
-    ratedMove: RatedMove
-  }>;
+  public stackrabbit$!: Observable<StackRabbit>;
 
   public playing$ = new BehaviorSubject<boolean>(false);
   public hoveredRecommendation$ = new BehaviorSubject<Recommendation | null>(null);
@@ -124,6 +127,8 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
   public inputSpeedIndex$ = this.inputSpeed$.pipe(
     map(speed => ALL_INPUT_SPEEDS.indexOf(speed)),
   );
+
+  public showEngineMove$ = new BehaviorSubject<boolean>(false);
   
   constructor(
     private readonly route: ActivatedRoute,
@@ -483,14 +488,11 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
 
   }
 
-  private async getStackrabbit(placementIndex: number, inputSpeed: InputSpeed): Promise<{
-    recommendations: RecommendationGroup[],
-    ratedMove: RatedMove
-  }> {
+  private async getStackrabbit(placementIndex: number, inputSpeed: InputSpeed): Promise<StackRabbit> {
 
     console.log('Getting stackrabbit analysis', placementIndex, "speed", inputSpeed);
 
-    const none = { recommendations: [], ratedMove: { bestEval: null, playerEval: null } };
+    const none = { placementIndex, recommendations: [], ratedMove: { bestEval: null, playerEval: null } };
 
     if (!this.placements || placementIndex >= this.placements.length) return none;
     const placement = this.placements[placementIndex];
@@ -530,6 +532,7 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
       if (topPlacementPair.firstPlacement.equals(placementMT)) {
         console.log('Found player move in recommendations', placementIndex);
         return {
+          placementIndex,
           recommendations, 
           ratedMove: {
             bestEval: topMovesHybrid.nextBox[0].score, // Score of the best move for the position
@@ -563,11 +566,13 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
       
       console.log('Got post-placement recommendations', placementIndex);
       return {
+        placementIndex,
         recommendations,
         ratedMove: { bestEval: topMovesHybrid.nextBox[0].score, playerEval: recommendationsAfterPlacement.noNextBox[0].score }
       }
     } catch (error) {
       return {
+        placementIndex,
         recommendations,
         ratedMove: { bestEval: null, playerEval: null }
       }
@@ -598,6 +603,34 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.playing$.getValue()) return;
 
     this.hoveredRecommendation$.next(recommendation);
+  }
+
+  showEngineMove(stackrabbit: StackRabbit, showEngineMove: boolean | null): MoveableTetromino | undefined {
+    if (!showEngineMove) return undefined;
+
+    const placement = stackrabbit.recommendations[0].recommendations[0].firstPlacement;
+
+    const boardWithPlacement = new TetrisBoard();
+    placement.blitToBoard(boardWithPlacement);
+
+    // also blit placement with one row above so that there must be one layer of space
+    placement.moveBy(0, 0, -1);
+    placement.blitToBoard(boardWithPlacement);
+    placement.moveBy(0, 0, 1);
+
+    // do not show if stackrabbit placement index differs from current placement index (i.e. not loaded yet)
+    const current = this.current$.getValue();
+    if (stackrabbit.placementIndex !== current.placementIndex) return undefined;
+
+    // Do not show if not MT frame
+    const activePiece = this.getActivePiece(current);
+    if (!activePiece) return undefined;
+ 
+    // Do not show if placement intersects active piece
+    if (activePiece.intersectsBoard(boardWithPlacement)) return undefined;
+    
+    // Show the engine move
+    return placement;
   }
 
 }

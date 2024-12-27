@@ -40,6 +40,8 @@ export class NesBoardComponent {
   @Input() nextPiece?: MoveableTetromino;
   @Input() nextPieceOpacity: number = 1;
 
+  @Input() enginePiece?: MoveableTetromino;
+
   @Input() countdown?: number | string; // if defined, will be shown as number in center of board
 
   // if hidden, <ng-content> will be displayed instead of board
@@ -90,8 +92,9 @@ export class NesBoardComponent {
 
   // get the color of a block at a given row and column
   // if activePiece is defined and (x,y) is in activePiece location, return that instead
-  getBlockAt(x: number, y: number): ColorType {
+  getBlockAt(x: number, y: number): ColorType | "engine" {
 
+    if (this.enginePiece && this.enginePiece.contains(x,y)) return "engine";
     if (this.activePiece && this.activePiece.contains(x,y)) return this.activePiece.color;
     if (this.nextPiece && this.nextPiece.contains(x,y)) return this.nextPiece.color;
     return this.board?.getAt(x,y) ?? ColorType.EMPTY;

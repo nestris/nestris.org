@@ -9,7 +9,7 @@ import { getColorForLevel } from 'src/app/shared/tetris/tetromino-colors';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NesBlockComponent {
-  @Input() color: ColorType = ColorType.EMPTY;
+  @Input() color: ColorType | "engine" = ColorType.EMPTY;
   @Input() level: number = 18;
   
   @Input() offsetX: number = 0;
@@ -25,7 +25,7 @@ export class NesBlockComponent {
 
   getBackgroundColor(): string {
     
-    if (this.color === ColorType.EMPTY || this.color === undefined) return "rgb(0,0,0,0)"; // invisible if empty
+    if (this.color === ColorType.EMPTY || this.color === undefined || this.color === "engine") return "rgb(0,0,0,0)"; // invisible if empty
 
     // if is login page, force to be white
     if (this.isLoginPage) return "white";

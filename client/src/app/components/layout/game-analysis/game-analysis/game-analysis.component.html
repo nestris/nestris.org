@@ -66,6 +66,7 @@
                             <app-nes-board *ngIf="!(emphasizePlacement$ | async)" [scale]="2.2"
                                 [board]="getDisplayBoard(current)"
                                 [level]="placement.level"
+                                [enginePiece]="showEngineMove(stackrabbit, showEngineMove$ | async)"
                             />
                         </ng-template>
                         
@@ -113,40 +114,44 @@
                     </div>
 
                     <div class="panels">
-                        <div class="upper-panels">
-                            <div class="recommendation-panel">
+                        <div class="recommendation-panel">
 
-                                <app-solid-selector class="hz-selector" [labels]="inputSpeedLabels" [duplicateSelected]="true"
-                                    [selected]="(inputSpeedIndex$ | async) ?? 0" (selectedChange)="setInputSpeedIndex($event)" [updateInternally]="false"
-                                    [color]="SelectorColor.BLUE" [fontSize]="9" [textOpacity]="1" [paddingHorizontal]="5" [paddingVertical]="0"
-                                    [dropdownIconWidth]="8" [width]="37" [height]="17" [fontWeight]="500" />
+                            <app-solid-selector class="hz-selector" [labels]="inputSpeedLabels" [duplicateSelected]="true"
+                                [selected]="(inputSpeedIndex$ | async) ?? 0" (selectedChange)="setInputSpeedIndex($event)" [updateInternally]="false"
+                                [color]="SelectorColor.BLUE" [fontSize]="9" [textOpacity]="1" [paddingHorizontal]="5" [paddingVertical]="0"
+                                [dropdownIconWidth]="8" [width]="37" [height]="17" [fontWeight]="500" />
 
-                                <div class="recommendation-group" *ngFor="let recommendationGroup of stackrabbit.recommendations">
+                            <div class="recommendation-group" *ngFor="let recommendationGroup of stackrabbit.recommendations">
 
-                                    <h1>{{recommendationGroup.type}}</h1>
+                                <h1>{{recommendationGroup.type}}</h1>
 
-                                    <div class="recommendations best">
-                                        <div class="recommendation-row header">
-                                            <div></div>
-                                            <div class="prevent-select">Score</div>
-                                            <div class="prevent-select">Current</div>
-                                            <div *ngIf="recommendationGroup.hasNextBox" class="prevent-select">Next</div>
-                                        </div>
-                                        <div class="recommendation-row rec-content" *ngFor="let move of recommendationGroup.recommendations; let i = index"
-                                            (mouseover)="setHoveredRecommendation(move)" (mouseleave)="setHoveredRecommendation(null)"
-                                            [ngClass]="{'actual' : move.isActual, 'has-next-box' : recommendationGroup.hasNextBox, 'hovered' : move === (hoveredRecommendation$ | async)}">
-                                            <div class="prevent-select">#{{i + 1}}</div>
-                                            <div class="prevent-select" [ngStyle]="{'color' : move.color}">{{addSignPrefix(move.score)}}</div>
-                                            <div class="prevent-select">{{move.firstPlacement.getTetrisNotation()}}</div>
-                                            <div class="prevent-select" *ngIf="recommendationGroup.hasNextBox">{{move.secondPlacement!.getTetrisNotation()}}</div>
-                                        </div>
+                                <div class="recommendations best">
+                                    <div class="recommendation-row header">
+                                        <div></div>
+                                        <div class="prevent-select">Score</div>
+                                        <div class="prevent-select">Current</div>
+                                        <div *ngIf="recommendationGroup.hasNextBox" class="prevent-select">Next</div>
                                     </div>
-
+                                    <div class="recommendation-row rec-content" *ngFor="let move of recommendationGroup.recommendations; let i = index"
+                                        (mouseover)="setHoveredRecommendation(move)" (mouseleave)="setHoveredRecommendation(null)"
+                                        [ngClass]="{'actual' : move.isActual, 'has-next-box' : recommendationGroup.hasNextBox, 'hovered' : move === (hoveredRecommendation$ | async)}">
+                                        <div class="prevent-select">#{{i + 1}}</div>
+                                        <div class="prevent-select" [ngStyle]="{'color' : move.color}">{{addSignPrefix(move.score)}}</div>
+                                        <div class="prevent-select">{{move.firstPlacement.getTetrisNotation()}}</div>
+                                        <div class="prevent-select" *ngIf="recommendationGroup.hasNextBox">{{move.secondPlacement!.getTetrisNotation()}}</div>
+                                    </div>
                                 </div>
-                                
 
                             </div>
-                            <div></div>
+                            <div class="show-best-toggle-container">
+                                <div class="show-best-toggle">
+                                    <p>Show engine move on board</p>
+                                    <app-slide-toggle [checked]="!!(showEngineMove$ | async)" (setChecked)="showEngineMove$.next($event)" />
+                                </div>
+                                
+                            </div>
+                            
+
                         </div>
                     </div>
 
