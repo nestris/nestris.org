@@ -143,7 +143,6 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
       map(current => {
         if (!this.placements) return 0;
         if (current.placementIndex === 0) return 0;
-        if (current.frameIndex < this.placements[current.placementIndex].placementFrameIndex) return current.placementIndex - 1;
         return current.placementIndex;
       }),
       distinctUntilChanged(),
@@ -160,7 +159,7 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     );
 
 
-    // this.currentPlacement$.subscribe(placement => console.log('Current placement', placement));
+    this.currentPlacement$.subscribe(placement => console.log('Current placement', placement));
     // this.stackrabbit$.subscribe(analysis => console.log('Stackrabbit analysis', analysis));
     // this.hoveredRecommendation$.subscribe(recommendation => console.log('Hovered recommendation', recommendation));
 
