@@ -134,7 +134,7 @@
                                     </div>
                                     <div class="recommendation-row rec-content" *ngFor="let move of recommendationGroup.recommendations; let i = index"
                                         (mouseover)="setHoveredRecommendation(move)" (mouseleave)="setHoveredRecommendation(null)"
-                                        [ngClass]="{'actual' : move.isActual, 'has-next-box' : recommendationGroup.hasNextBox, 'hovered' : move === (hoveredRecommendation$ | async)}">
+                                        [ngClass]="{'actual' : (highlightMove$ | async) && move.isActual, 'has-next-box' : recommendationGroup.hasNextBox, 'hovered' : move === (hoveredRecommendation$ | async)}">
                                         <div class="prevent-select">#{{i + 1}}</div>
                                         <div class="prevent-select" [ngStyle]="{'color' : move.color}">{{addSignPrefix(move.score)}}</div>
                                         <div class="prevent-select">{{move.firstPlacement.getTetrisNotation()}}</div>
@@ -143,9 +143,13 @@
                                 </div>
 
                             </div>
-                            <div class="show-best-toggle-container">
-                                <div class="show-best-toggle">
-                                    <p>Show engine move on board</p>
+                            <div class="toggle-container">
+                                <div class="toggle-div">
+                                    <p>Highlight your move</p>
+                                    <app-slide-toggle [checked]="!!(highlightMove$ | async)" (setChecked)="highlightMove$.next($event)" />
+                                </div>
+                                <div class="toggle-div">
+                                    <p>Show engine move on the board</p>
                                     <app-slide-toggle [checked]="!!(showEngineMove$ | async)" (setChecked)="showEngineMove$.next($event)" />
                                 </div>
                                 

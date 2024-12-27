@@ -346,14 +346,15 @@ app-game-summary-graph {
     cursor: pointer;
 }
 
-.show-best-toggle-container {
+.toggle-container {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
     height: 100%;
+    gap: 5px;
 }
 
-.show-best-toggle {
+.toggle-div {
     box-sizing: border-box;
     display: flex;
     flex-direction: row;
@@ -361,9 +362,13 @@ app-game-summary-graph {
     align-items: center;
 }
 
-.show-best-toggle p {
+.toggle-div p {
     margin: 0;
     font-family: $main-font;
     font-weight: 600;
-    font-size: 10px;
+    font-size: 9px;
+}
+
+app-slide-toggle {
+    transform: scale(0.8);
 }

@@ -128,6 +128,7 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     map(speed => ALL_INPUT_SPEEDS.indexOf(speed)),
   );
 
+  public highlightMove$ = new BehaviorSubject<boolean>(true);
   public showEngineMove$ = new BehaviorSubject<boolean>(false);
   
   constructor(
