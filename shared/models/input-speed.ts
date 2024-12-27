@@ -10,6 +10,8 @@ export enum InputSpeed {
   HZ_30 = 30,
 }
 
+export const ALL_INPUT_SPEEDS = Object.values(InputSpeed).filter(value => typeof value === "number");
+
 export const INPUT_SPEED_TO_TIMELINE: { [speed in InputSpeed]: string } = {
   [InputSpeed.HZ_10] : "X.....",
   [InputSpeed.HZ_11] : "X.....X....X....",

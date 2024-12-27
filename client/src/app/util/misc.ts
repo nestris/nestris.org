@@ -62,3 +62,7 @@ export function timeAgo(date: Date): string {
     return `${seconds} seconds ago`;
   }
 }
+
+export function addSignPrefix(number: number): string {
+  return number >= 0 ? `+${number}` : `${number}`;
+}

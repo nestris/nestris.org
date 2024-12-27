@@ -1,27 +1,24 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Host, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Host, HostListener, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, combineLatestWith, debounceTime, distinct, distinctUntilChanged, filter, map, Observable, Subject, switchMap, tap } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
+import { ButtonColor as SelectorColor } from 'src/app/components/ui/solid-selector/solid-selector.component';
 import { ApiService } from 'src/app/services/api.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
-import { EVALUATION_TO_COLOR, overallAccuracyRating } from 'src/app/shared/evaluation/evaluation';
+import { calculatePlacementScore, EVALUATION_TO_COLOR, overallAccuracyRating, placementScoreRating } from 'src/app/shared/evaluation/evaluation';
 import { DBGame } from 'src/app/shared/models/db-game';
 import { NotificationType } from 'src/app/shared/models/notifications';
-import { PacketContent } from 'src/app/shared/network/stream-packets/packet';
 import { MemoryGameStatus } from 'src/app/shared/tetris/memory-game-status';
-import { numberWithCommas, timeAgo } from 'src/app/util/misc';
+import { addSignPrefix, numberWithCommas, timeAgo } from 'src/app/util/misc';
 import { AnalysisPlacement, interpretPackets } from '../game-interpreter';
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { BufferTranscoder } from 'src/app/shared/network/tetris-board-transcoding/buffer-transcoder';
 import MoveableTetromino from 'src/app/shared/tetris/moveable-tetromino';
 import { RateMoveResponse, StackrabbitService, TopMovesHybridResponse } from 'src/app/services/stackrabbit/stackrabbit.service';
 import { SmartGameStatus } from 'src/app/shared/tetris/smart-game-status';
+import { InputSpeed } from 'src/app/shared/models/input-speed';
 
-interface GameData {
-  game: DBGame; // game metadata
-  placements: AnalysisPlacement[]; // list of placements interpreted from packets
-}
 
 interface CurrentFrame {
   placementIndex: number;
@@ -33,7 +30,31 @@ interface RatedMove {
   playerEval: number | null;
 }
 
+interface RawRecommendation {
+  firstPlacement: MoveableTetromino,
+  secondPlacement?: MoveableTetromino,
+  score: number,
+}
+
+interface Recommendation extends RawRecommendation {
+  isActual: boolean;
+  color: string;
+}
+
+enum RecommendationType {
+  ENGINE_MOVE = 'Engine move',
+  NO_NEXT_BOX = 'Without next piece',
+}
+
+interface RecommendationGroup {
+  type: RecommendationType,
+  hasNextBox: boolean,
+  recommendations: Recommendation[]
+}
+
+
 const SPEEDS = [1, 2, 4, 0.5];
+const ALL_INPUT_SPEEDS: InputSpeed[] = [InputSpeed.HZ_10, InputSpeed.HZ_12, InputSpeed.HZ_15, InputSpeed.HZ_20, InputSpeed.HZ_30];
 
 @Component({
   selector: 'app-game-analysis',
@@ -45,8 +66,10 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('content') contentElement!: ElementRef;
 
   readonly ButtonColor = ButtonColor;
+  readonly SelectorColor = SelectorColor;
   readonly timeAgo = timeAgo;
   readonly numberWithCommas = numberWithCommas;
+  readonly addSignPrefix = addSignPrefix;
 
   // The HTTP request for game metadata
   public game?: DBGame;
@@ -62,12 +85,12 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public currentPlacement$!: Observable<number>;
   public stackrabbit$!: Observable<{
-    recommendations: TopMovesHybridResponse | null,
+    recommendations: RecommendationGroup[],
     ratedMove: RatedMove
   }>;
 
-
   public playing$ = new BehaviorSubject<boolean>(false);
+  public hoveredRecommendation$ = new BehaviorSubject<Recommendation | null>(null);
 
   public speedIndex$ = new BehaviorSubject<number>(0);
   public speed$ = this.speedIndex$.pipe(
@@ -95,6 +118,12 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Derive memory game status from placements
   public memoryGameStatus: MemoryGameStatus | null = null;
+
+  public inputSpeedLabels = ALL_INPUT_SPEEDS.map(speed => `${speed.toString()}hz`);
+  public inputSpeed$ = new BehaviorSubject<InputSpeed>(InputSpeed.HZ_30);
+  public inputSpeedIndex$ = this.inputSpeed$.pipe(
+    map(speed => ALL_INPUT_SPEEDS.indexOf(speed)),
+  );
   
   constructor(
     private readonly route: ActivatedRoute,
@@ -122,14 +151,18 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     );
 
     this.stackrabbit$ = this.currentPlacement$.pipe(
-      combineLatestWith(this.loaded$), // on load, start evaluating
-      filter(([_, loaded]) => loaded),
-      switchMap(([placementIndex, _]) => this.getStackrabbit(placementIndex)),
+      combineLatestWith(this.loaded$, this.inputSpeed$), // on load, start evaluating
+      filter(([placementIndex, loaded, inputSpeed]) => loaded),
+      distinctUntilChanged(),
+      tap(([placementIndex, loaded, inputSpeed]) => console.log("SR", placementIndex, loaded, inputSpeed)),
+      switchMap(([placementIndex, loaded, inputSpeed]) => this.getStackrabbit(placementIndex, inputSpeed)),
+      tap(() => this.hoveredRecommendation$.next(null)) // clear hovered recommendation
     );
 
 
-    this.currentPlacement$.subscribe(placement => console.log('Current placement', placement));
-    this.stackrabbit$.subscribe(analysis => console.log('Stackrabbit analysis', analysis));
+    // this.currentPlacement$.subscribe(placement => console.log('Current placement', placement));
+    // this.stackrabbit$.subscribe(analysis => console.log('Stackrabbit analysis', analysis));
+    // this.hoveredRecommendation$.subscribe(recommendation => console.log('Hovered recommendation', recommendation));
 
     // Wait for log in
     await this.websocketService.waitForSignIn();
@@ -188,6 +221,10 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  setInputSpeedIndex(index: number) {
+    this.inputSpeed$.next(ALL_INPUT_SPEEDS[index] as InputSpeed);
+  }
+
   getAccuracyColor(accuracy: number): string {
     return EVALUATION_TO_COLOR[overallAccuracyRating(accuracy)];
   }
@@ -204,6 +241,7 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
   // Play the game from the current frame. If recursive is true, keep playing until paused
   play(recursive: boolean = false) {
     if (recursive && !this.playing$.getValue()) return;
+    if (!recursive) this.hoveredRecommendation$.next(null); // clear hovered recommendation
     this.playing$.next(true);
 
     let current = this.current$.getValue();
@@ -274,22 +312,32 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
   previousPlacement(): boolean {
     const current = this.current$.getValue();
     if (current.placementIndex === 0) return false;
-    const index = current.placementIndex - 1;
+    const index = Math.max(0, current.placementIndex - (this.playing$.getValue() ? 2 : 1));
     this.current$.next({
       placementIndex: index,
       frameIndex: this.placements![index].placementFrameIndex
     });
+
+    
     return true;
   }
 
   nextPlacement(): boolean {
     const current = this.current$.getValue();
     if (current.placementIndex === this.placements!.length - 1) return false;
-    const index = current.placementIndex + 1;
-    this.current$.next({
-      placementIndex: index,
-      frameIndex: this.placements![index].placementFrameIndex
-    });
+
+    const placementFrameIndex = this.placements![current.placementIndex].placementFrameIndex;
+    if (current.frameIndex < placementFrameIndex) {
+      this.current$.next({
+        placementIndex: current.placementIndex,
+        frameIndex: placementFrameIndex
+      });
+    } else {
+      this.current$.next({
+        placementIndex: current.placementIndex + 1,
+        frameIndex: this.placements![current.placementIndex + 1].placementFrameIndex
+      });
+    }
     return true;
   }
 
@@ -409,12 +457,41 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     return `${this.msToTimestamp(frame.ms)} of ${this.finalTimestampString}`;
   }
 
-  private async getStackrabbit(placementIndex: number): Promise<{
-    recommendations: TopMovesHybridResponse | null,
+  private convertToRecommendationGroup(
+    actualPlacement: MoveableTetromino,
+    type: RecommendationType,
+    recommendations: RawRecommendation[]
+  ): RecommendationGroup {
+
+    let actualIndex = -1;
+    for (let i = 0; i < recommendations.length; i++) {
+      if (recommendations[i].firstPlacement.equals(actualPlacement)) {
+        actualIndex = i;
+        break;
+      }
+    }
+
+    return {
+      type,
+      hasNextBox: recommendations[0].secondPlacement !== undefined,
+      recommendations: recommendations.map(
+        (recommendation, i) => Object.assign({}, recommendation, {
+          isActual: i === actualIndex,
+          color: this.getEvalColor(recommendations[0].score, recommendation.score)
+        })
+      )
+    }
+
+  }
+
+  private async getStackrabbit(placementIndex: number, inputSpeed: InputSpeed): Promise<{
+    recommendations: RecommendationGroup[],
     ratedMove: RatedMove
   }> {
 
-    const none = { recommendations: null, ratedMove: { bestEval: null, playerEval: null } };
+    console.log('Getting stackrabbit analysis', placementIndex, "speed", inputSpeed);
+
+    const none = { recommendations: [], ratedMove: { bestEval: null, playerEval: null } };
 
     if (!this.placements || placementIndex >= this.placements.length) return none;
     const placement = this.placements[placementIndex];
@@ -424,16 +501,17 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     const board = BufferTranscoder.decode(placement.encodedIsolatedBoard);
     const placementMT = MoveableTetromino.fromMTPose(placement.current, placement.placement);
     
-    let recommendations: TopMovesHybridResponse | null = null;
+    let topMovesHybrid: TopMovesHybridResponse | null = null;
     try {
 
       // Get the recommendations for the current placement
-      recommendations = await this.stackrabbitService.getTopMovesHybrid({
+      topMovesHybrid = await this.stackrabbitService.getTopMovesHybrid({
         board: board,
         currentPiece: placement.current,
         nextPiece: placement.next,
         level: placement.level,
         lines: placement.lines,
+        inputSpeed: inputSpeed,
         playoutDepth: 3,
       });
 
@@ -441,16 +519,21 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
       return none;
     }
 
-    if (!recommendations || !recommendations.nextBox) return none;
+    if (!topMovesHybrid || !topMovesHybrid.nextBox) return none;
+
+    // Convert topMovesHybrid to RecommendationGroups
+    const recommendations: RecommendationGroup[] = [];
+    recommendations.push(this.convertToRecommendationGroup(placementMT, RecommendationType.ENGINE_MOVE, topMovesHybrid.nextBox));
+    recommendations.push(this.convertToRecommendationGroup(placementMT, RecommendationType.NO_NEXT_BOX, topMovesHybrid.noNextBox));
 
     // Find the player's move in the recommendations, if it exists
-    for (let topPlacementPair of recommendations.nextBox) {
+    for (let topPlacementPair of topMovesHybrid.nextBox) {
       if (topPlacementPair.firstPlacement.equals(placementMT)) {
         console.log('Found player move in recommendations', placementIndex);
         return {
           recommendations, 
           ratedMove: {
-            bestEval: recommendations.nextBox[0].score, // Score of the best move for the position
+            bestEval: topMovesHybrid.nextBox[0].score, // Score of the best move for the position
             playerEval: topPlacementPair.score, // Score of the player's placement
           }
         }
@@ -473,6 +556,7 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
         nextPiece: null,
         level: status.level,
         lines: status.lines,
+        inputSpeed: inputSpeed,
         playoutDepth: 2,
       });
 
@@ -481,7 +565,7 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
       console.log('Got post-placement recommendations', placementIndex);
       return {
         recommendations,
-        ratedMove: { bestEval: recommendations.nextBox[0].score, playerEval: recommendationsAfterPlacement.noNextBox[0].score }
+        ratedMove: { bestEval: topMovesHybrid.nextBox[0].score, playerEval: recommendationsAfterPlacement.noNextBox[0].score }
       }
     } catch (error) {
       return {
@@ -492,5 +576,29 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
 
   }
 
+  public getEvalColor(bestEval: number, playerEval: number) {
+    const placementScore = calculatePlacementScore(bestEval, playerEval);
+    const rating = placementScoreRating(placementScore);
+    return EVALUATION_TO_COLOR[rating];
+  }
+
+  public displayHoveredBoard(current: CurrentFrame, hoveredRecommendation: Recommendation | null): Recommendation | null {
+    if (!hoveredRecommendation) return null;
+
+    // If current frame is not a MT frame, cannot display hovered board
+    const placement = this.getCurrentPlacement(current);
+    const frame = placement.frames[current.frameIndex];
+    if (!frame.mtPose) return null;
+
+    return hoveredRecommendation;
+  }
+
+  public setHoveredRecommendation(recommendation: Recommendation | null) {
+
+    // If playing, do not set hovered recommendation
+    if (this.playing$.getValue()) return;
+
+    this.hoveredRecommendation$.next(recommendation);
+  }
 
 }
