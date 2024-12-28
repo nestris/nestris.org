@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { MultiplayerClientRoom } from 'src/app/services/room/multiplayer-client-room';
 import { RoomService } from 'src/app/services/room/room.service';
 import { calculateScoreForPlayer, MultiplayerRoomState, PlayerIndex, pointWinner } from 'src/app/shared/room/multiplayer-room-models';
 import { MultiplayerComponent } from '../../multiplayer-room/multiplayer-component';

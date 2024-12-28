@@ -14,15 +14,23 @@
                 </div>
             </div>
             <div class="game-container" *ngFor="let point of state.points" [ngClass]="getIndexColorWithTie(pointWinner(point))">
+
                 <div class="point blue">
-                    <app-solid-button icon="./assets/img/button-icons/analyze-blue.svg" [color]="ButtonColor.GREY" />
+                    <a [routerLink]="['/game', point.game[getColorIndex('blue')].gameID]" target="_blank">
+                        <app-solid-button icon="./assets/img/button-icons/analyze-blue.svg" [color]="ButtonColor.GREY" />
+                    </a>
                     <p class="score">{{point.game[getColorIndex("blue")].score}}</p>
                 </div>
+
                 <p class="result-text">{{getPointText(pointWinner(point))}}</p>
+
                 <div class="point red">
                     <p class="score">{{point.game[getColorIndex("red")].score}}</p>
-                    <app-solid-button icon="./assets/img/button-icons/analyze-red.svg" [color]="ButtonColor.GREY" />
+                    <a [routerLink]="['/game', point.game[getColorIndex('red')].gameID]" target="_blank">
+                        <app-solid-button icon="./assets/img/button-icons/analyze-red.svg" [color]="ButtonColor.GREY" />
+                    </a>
                 </div>
+
             </div>
         </div>
         <div class="buttons">
