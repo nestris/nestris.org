@@ -5,6 +5,12 @@ export enum Authentication {
   NONE = "none",
 }
 
+export enum LoginMethod {
+  GUEST = "guest",
+  DISCORD = "discord",
+  PASSWORD = "password",
+}
+
 export const AUTHENTICATION_LEVEL = {
   [Authentication.ADMIN]: 3,
   [Authentication.TRUSTED]: 2,
@@ -15,7 +21,7 @@ export const AUTHENTICATION_LEVEL = {
 export interface DBUser {
   userid: string,
   username: string,
-  is_guest: boolean,
+  login_method: LoginMethod,
   authentication: Authentication,
   created_at: Date,
   last_online: Date,
@@ -66,7 +72,7 @@ export interface DBUser {
 export const DBUserAttributes = [
   'userid',
   'username',
-  'is_guest',
+  'login_method',
   'authentication',
   'created_at',
   'last_online',

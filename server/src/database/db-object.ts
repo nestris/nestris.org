@@ -256,13 +256,21 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
         }
 
         /**
+         * Gets all in-memory objects. This is useful for debugging and monitoring.
+         * @returns A map of all in-memory objects, indexed by their ID
+         */
+        static getAllCacheEntries() {
+            return Object.fromEntries(DBObject.dbObjects);
+        }
+
+        /**
          * Removes all in-memory objects from the cache. This will not modify or delete the objects in the database. Subsequent calls to get() will
          * fetch the object from the database.
          */
         static clearCache() {
             DBObject.dbObjects.clear();
             DBObject.cacheSize = 0;
-            DBCacheMonitor.setNumCacheEntries(name, DBObject.cacheSize);
+            DBCacheMonitor.clearCacheMonitor(name);
 
             console.log(`Cleared ${name} object cache`);
         }

@@ -1,6 +1,6 @@
 import { Express, Request, Response } from 'express';
 import { Authentication, AUTHENTICATION_LEVEL } from '../../shared/models/db-user';
-import { UserSession } from '../util/discord-util';
+import { UserSession } from '../authentication/session-util';
 
 
 export interface UserInfo {

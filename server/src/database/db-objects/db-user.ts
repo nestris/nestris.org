@@ -1,4 +1,4 @@
-import { Authentication, DBUser, DBUserAttributes } from "../../../shared/models/db-user";
+import { Authentication, DBUser, DBUserAttributes, LoginMethod } from "../../../shared/models/db-user";
 import { getLeagueFromIndex, updateXP } from "../../../shared/nestris-org/league-system";
 import { DBObject } from "../db-object";
 import { DBObjectAlterError, DBObjectNotFoundError } from "../db-object-error";
@@ -15,7 +15,8 @@ const INITIAL_RANKED_TROPHIES = 1200;
 // The parameters required to create a new user
 export interface DBUserParams {
     username: string,
-    is_guest: boolean
+    login_method: LoginMethod,
+    authentication: Authentication
 }
 
 abstract class DBUserEvent {
@@ -102,8 +103,8 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
         return {
             userid: this.id,
             username: params.username,
-            is_guest: params.is_guest,
-            authentication: Authentication.USER,
+            login_method: params.login_method,
+            authentication: params.authentication,
             created_at: new Date(),
             last_online: new Date(),
             league: 0,

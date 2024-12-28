@@ -22,17 +22,6 @@ export class ServerRestartWarningService {
     private notificationService: NotificationService
   ) {
 
-    // get whether the server is currently in a restart warning state
-    // this.fetchService.fetch(Method.GET, '/api/v2/server-restart-warning').then((response) => {
-    //   const warning = (response as any).warning;
-    //   console.log("Server restart warning", warning);
-    //   this.setWarning(warning);
-
-    // }).catch((error) => {
-    //   console.error("Failed to fetch server restart warning", error);
-    // });
-
-
     // Subscribe to changes in server restart warning
     this.websocketService.onEvent(JsonMessageType.SERVER_RESTART_WARNING).subscribe((warningMessage) => {
       const warning = (warningMessage as ServerRestartWarningMessage).warning;
@@ -43,14 +32,19 @@ export class ServerRestartWarningService {
 
   private setWarning(warning: boolean) {
 
+    console.log("Setting server restart warning", warning);
+
     if (warning) {
 
       // Send a notification
       this.notificationID = this.notificationService.notify(
         NotificationType.WARNING,
         "The server will restart in a few minutes! Please refrain from starting new games.",
-        NotificationAutohide.DISABLED
+        NotificationAutohide.DISABLED,
+        true
       );
+
+      console.log("Showing notification", this.notificationID);
 
       // Set a banner
       this.bannerService.addBanner({
@@ -59,12 +53,14 @@ export class ServerRestartWarningService {
         message: "The server will restart in a few minutes! Please refrain from starting new games.",
         color: "#B73C3C",
       });
+
     } else {
       // Remove the banner
       this.bannerService.removeBanner(BannerType.SERVER_RESTART_WARNING);
 
       // Remove the notification, if it exists
       if (this.notificationID) {
+        console.log("Hiding notification", this.notificationID);
         this.notificationService.hide(this.notificationID);
         this.notificationID = undefined;
       }

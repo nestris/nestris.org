@@ -1,6 +1,6 @@
 import { Injectable, OnInit } from '@angular/core';
 import { StateService } from './state.service';
-import { DBUser } from 'src/app/shared/models/db-user';
+import { DBUser, LoginMethod } from 'src/app/shared/models/db-user';
 import { Method } from '../fetch.service';
 import { JsonMessage, JsonMessageType, MeMessage } from 'src/app/shared/network/json-message';
 import { map, Observable } from 'rxjs';
@@ -43,7 +43,7 @@ export class MeService extends StateService<DBUser>() {
   protected override onFetch(me: DBUser): void {
 
     // Add banner for guest mode
-    if (me.is_guest) {
+    if (me.login_method === LoginMethod.GUEST) {
       this.bannerManager.addBanner({
         id: BannerType.GUEST_WARNING,
         priority: BannerPriority.HIGH,

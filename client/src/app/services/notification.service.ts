@@ -25,10 +25,12 @@ export class NotificationService {
   // message is the message to display
   // id is a unique identifier for this notification
   // durationSeconds is the number of seconds to display the notification for, or undefined for no hide
-  notify(type: NotificationType, message: string, autohide: NotificationAutohide = NotificationAutohide.SHORT) {
+  notify(type: NotificationType, message: string, autohide: NotificationAutohide = NotificationAutohide.SHORT, showEvenIfNotOnTab: boolean = false): string | undefined {
 
     // Don't show notifications if the tab is hidden
-    if (document.hidden) return;
+    if (document.hidden && !showEvenIfNotOnTab) {
+      return;
+    }
 
     const id = uuidv4();
 
@@ -37,13 +39,12 @@ export class NotificationService {
       this.notifier.notify(type, message, id);
     }, 0);
 
-    // console.log("show:", message, id);
-
     let durationSeconds;
     switch (autohide) {
-      case NotificationAutohide.DISABLED: return;
+      case NotificationAutohide.DISABLED: durationSeconds = null; break;
       case NotificationAutohide.SHORT: durationSeconds = 4; break;
       case NotificationAutohide.LONG: durationSeconds = 15; break;
+      default: durationSeconds = null;
     }
 
     // hide after duration, or no hide if undefined

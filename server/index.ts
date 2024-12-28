@@ -7,7 +7,7 @@ import morgan from 'morgan';
 import cors from 'cors';
 
 import { DeploymentEnvironment, ServerStats } from './shared/models/server-stats';
-import { handleDiscordCallback, handleLogout, redirectToDiscord, registerAsGuest } from './src/util/discord-util';
+import { handleDiscordCallback, redirectToDiscord } from './src/authentication/discord-util';
 import { OnlineUserManager } from './src/online-users/online-user-manager';
 import { EventConsumerManager } from './src/online-users/event-consumer';
 import { RouteManager } from './src/routes/route';
@@ -33,7 +33,7 @@ import { InvitationConsumer } from './src/online-users/event-consumers/invitatio
 import { FriendInvitationManager } from './src/invitations/friend-invitation';
 import { GetInvitationsRoute } from './src/routes/invitations/get-invitations-route';
 import { RemoveFriendRoute } from './src/routes/user/remove-friend-route';
-import { MeConsumer } from './src/online-users/event-consumers/me-consumer';
+import { UserConsumer } from './src/online-users/event-consumers/user-consumer';
 import { GetT200LeaderboardRoute } from './src/routes/leaderboard/get-t200-leaderboard-route';
 import { UpdateMeAttributeRoute } from './src/routes/user/update-me-attribute';
 import { LeaveRoomRoute } from './src/routes/room/leave-room-route';
@@ -41,6 +41,13 @@ import { GetRoomsRoute } from './src/routes/room/get-rooms-route';
 import { ExampleTask, TaskScheduler, TimeUnit } from './src/task-scheduler/task-scheduler';
 import { GetGamesRoute } from './src/routes/game/get-games-route';
 import { GetGameRoute } from './src/routes/game/get-game-route';
+import { handleLogout } from './src/authentication/session-util';
+import { registerAsGuest } from './src/authentication/guest-util';
+import { hashPassword } from './src/authentication/password-util';
+import { ServerRestartWarningConsumer } from './src/online-users/event-consumers/server-restart-warning-consumer';
+import { SetServerRestartWarningRoute } from './src/routes/misc/set-server-restart-warning-route';
+import { ClearUserCacheRoute } from './src/routes/misc/clear-user-cache-route';
+import { GetUserCacheRoute } from './src/routes/misc/get-user-cache-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -93,13 +100,14 @@ async function main() {
 
   // Register consumers
   const consumers = EventConsumerManager.getInstance();
-  consumers.registerConsumer(MeConsumer);
+  consumers.registerConsumer(UserConsumer);
   consumers.registerConsumer(FriendEventConsumer);
   consumers.registerConsumer(PingConsumer);
   consumers.registerConsumer(GuestConsumer);
   consumers.registerConsumer(RoomConsumer);
   consumers.registerConsumer(RankedQueueConsumer);
   consumers.registerConsumer(InvitationConsumer);
+  consumers.registerConsumer(ServerRestartWarningConsumer);
 
   // Initialize InvitationManagers
   const invitationConsumer = consumers.getConsumer(InvitationConsumer);
@@ -140,6 +148,13 @@ async function main() {
   routes.registerRoute(UpdateMeAttributeRoute);
   routes.registerRoute(GetGamesRoute);
   routes.registerRoute(GetGameRoute);
+  routes.registerRoute(SetServerRestartWarningRoute);
+  routes.registerRoute(GetUserCacheRoute);
+  routes.registerRoute(ClearUserCacheRoute);
+
+  const password = "asdf";
+  const hashed = await hashPassword(password);
+  console.log(password, hashed)
 
 
   app.get('/api/v2/server-stats', (req: Request, res: Response) => {

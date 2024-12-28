@@ -304,6 +304,22 @@ app-loading-screen {
 
 }
 
+.username-login {
+    font-family: $main-font;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: underline;
+
+    margin-top: 15px;
+    margin-bottom: 0px;
+
+    cursor: pointer;
+}
+
+.username-login:hover {
+    opacity: 0.85;
+}
+
 @media only screen and (min-width:1000px) {
     .buttons-container {
         padding-inline: 0;
@@ -425,7 +441,7 @@ app-nes-piece {
 }
 
 
-@media only screen and (max-width:800px) {
+@media only screen and (max-width:900px) {
     .bottom-row {
         flex-direction: column;
     }

@@ -1,6 +1,7 @@
 <div class="main">
 
     <button (click)="toggleServerRestart()">Toggle Server Restart Warning</button>
+    <button (click)="clearUserCache()">Clear DBUser Cache</button>
 
     <table *ngIf="(aggregate$ | async) as aggregate">
         <tr>

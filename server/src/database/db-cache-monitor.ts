@@ -54,6 +54,14 @@ export class DBCacheMonitor {
     }
 
     /**
+     * Clear the cache monitor for a specific cache
+     * @param cacheName The name of the cache
+     */
+    public static clearCacheMonitor(cacheName: string): void {
+        DBCacheMonitor.cacheMonitors.delete(cacheName);
+    }
+
+    /**
      * Get the cache monitor results for a specific cache
      * @param cacheName The name of the cache
      * @returns The cache monitor results

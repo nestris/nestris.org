@@ -8,7 +8,7 @@ DROP TABLE IF EXISTS "public"."users" CASCADE;
 CREATE TABLE "public"."users" (
     "userid" text NOT NULL,
     "username" text NOT NULL UNIQUE,
-    "is_guest" boolean NOT NULL,
+    "login_method" text NOT NULL,
     "authentication" text NOT NULL,
     "created_at" timestamp NOT NULL,
     "last_online" timestamp NOT NULL,
@@ -65,6 +65,13 @@ CREATE INDEX trophies_index ON users (trophies DESC);
 CREATE INDEX puzzle_elo_index ON users (puzzle_elo DESC);
 CREATE INDEX highest_score_index ON users (highest_score DESC);
 CREATE INDEX highest_accuracy_index ON users (highest_accuracy DESC);
+
+-- Store brcypted password for password users
+CREATE TABLE "public"."password_users" (
+    "userid" text NOT NULL REFERENCES "public"."users"("userid"),
+    "password" text NOT NULL,
+    PRIMARY KEY ("userid")
+);
 
 -- maintain the highest trophies
 CREATE OR REPLACE FUNCTION update_highest_trophies()

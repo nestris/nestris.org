@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { FetchService, Method } from 'src/app/services/fetch.service';
+import { NotificationService } from 'src/app/services/notification.service';
+import { NotificationType } from 'src/app/shared/models/notifications';
 import { PuzzleAggregate } from 'src/app/shared/puzzles/puzzle-aggregate';
 
 @Component({
@@ -12,7 +14,10 @@ export class ControlPanelPageComponent implements OnInit {
   
   public aggregate$ = new BehaviorSubject<PuzzleAggregate | undefined>(undefined);
 
-  constructor(private fetchService: FetchService) {}
+  constructor(
+    private fetchService: FetchService,
+    private notificationService: NotificationService,
+  ) {}
 
   async ngOnInit() {
     await this.sync();
@@ -33,8 +38,13 @@ export class ControlPanelPageComponent implements OnInit {
     }, { totalPuzzles: 0, totalAttempts: 0, totalSolves: 0 });
   }
 
-  toggleServerRestart() {
-    this.fetchService.fetch(Method.POST, '/api/v2/server-restart-warning');
+  async toggleServerRestart() {
+    await this.fetchService.fetch(Method.POST, '/api/v2/server-restart-warning');
+  }
+
+  async clearUserCache() {
+    await this.fetchService.fetch(Method.POST, '/api/v2/user-cache/clear');
+    this.notificationService.notify(NotificationType.SUCCESS, "User cache cleared");
   }
 
 }
