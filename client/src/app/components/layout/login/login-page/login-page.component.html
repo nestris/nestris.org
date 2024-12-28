@@ -61,7 +61,7 @@
                 <app-solid-button label="Continue as Guest" color="#1C1C1C"
                 [stretch]="true" (click)="websocketService.registerAsGuest()" [fontSize]="(small$ | async) ? 12 : 16" [paddingHorizontal]="(small$ | async) ? 12 : 15" [paddingVertical]="(small$ | async) ? 4 : 6"/>
             </div>
-            <p class="username-login prevent-select">Or login with username and password...</p>
+            <p class="username-login prevent-select" (click)="passwordLogin()">Or login with username and password...</p>
 
         </div>
         <div class="play-panel bottom-row-panel">

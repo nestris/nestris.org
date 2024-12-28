@@ -143,18 +143,28 @@ export class EmulatorService {
     }));
 
     // Update runahead flag
-    this.runaheadFrames = this.meService.getSync()!.enable_runahead ? 1 : 0;
+    this.runaheadFrames = this.meService.getSync()?.enable_runahead ? 1 : 0;
     console.log("Runahead frames:", this.runaheadFrames);
 
     // Update keybinds
-    const me = this.meService.getSync()!;
-    const keybinds: {[keybind in Keybind] : string} = {
-      [Keybind.SHIFT_LEFT]: me.keybind_emu_move_left,
-      [Keybind.SHIFT_RIGHT]: me.keybind_emu_move_right,
-      [Keybind.ROTATE_LEFT]: me.keybind_emu_rot_left,
-      [Keybind.ROTATE_RIGHT]: me.keybind_emu_rot_right,
-      [Keybind.PUSHDOWN]: me.keybind_emu_down,
-    }
+    const me = this.meService.getSync();
+    let keybinds: {[keybind in Keybind] : string};
+  
+    if (me) {
+      keybinds = {
+        [Keybind.SHIFT_LEFT]: me.keybind_emu_move_left,
+        [Keybind.SHIFT_RIGHT]: me.keybind_emu_move_right,
+        [Keybind.ROTATE_LEFT]: me.keybind_emu_rot_left,
+        [Keybind.ROTATE_RIGHT]: me.keybind_emu_rot_right,
+        [Keybind.PUSHDOWN]: me.keybind_emu_down,
+      };
+    } else keybinds = {
+      [Keybind.SHIFT_LEFT]: "ArrowLeft",
+      [Keybind.SHIFT_RIGHT]: "ArrowRight",
+      [Keybind.ROTATE_LEFT]: "z",
+      [Keybind.ROTATE_RIGHT]: "x",
+      [Keybind.PUSHDOWN]: "ArrowDown",
+    };
     this.keybinds.configureKeybinds(keybinds);
 
     // start game loop

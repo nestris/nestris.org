@@ -7,6 +7,14 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
+
+    cursor: pointer;
+
+    transition: transform 0.2s ease-in-out;
+}
+
+.x-container:hover {
+    transform: scale(1.2);
 }
 
 .x rect {

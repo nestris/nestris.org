@@ -31,7 +31,6 @@ export async function registerAsGuest(req: express.Request, res: express.Respons
     });
 
     // Store the user's session and redirect to play
-    createUserSession(req, res, user.userid, user.username, user.authentication);
-
+    createUserSession(req, user.userid, user.username, user.authentication);
     res.status(200).send({msg: 'Registered as guest'});
 }

@@ -4,30 +4,108 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 15px;
 
   height: 350px;
   width: 50vw;
+
+  padding-top: 20px;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  height: 100px;
+
+  transition: gap 0.3s ease-in-out;
+}
+
+.fields.register {
+  gap: 7px;
+}
+
+.fields .confirm-password {
+  max-height: 0px;
+  padding-block: 0;
+  overflow: hidden !important;
+  opacity: 0;
+
+  transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+.fields.register .confirm-password {
+  padding-block: 5px;
+  max-height: 50px;
+  opacity: 1;
 }
 
 input {
   border: none;
   background-color: $section-color;
-  color: #ffffffc7;
+  color: rgba(255,255,255,0.7);
   border-radius: 5px;
   padding: 5px;
   width: 150px;
+
+  outline: none;
 }
 
+input:focus {
+  outline: none; /* removes the default blue outline */
+  box-shadow: none; /* prevents the default focus ring shadow in some browsers */
+  border: 1px solid #fff; /* add your custom white border */
+}
+
+input.incorrect {
+  outline: none; /* removes the default blue outline */
+  box-shadow: none; /* prevents the default focus ring shadow in some browsers */
+  border: 1px solid red; /* add your custom white border */
+}
+
+app-solid-button {
+  margin-top: 5px;
+}
+
+.error {
+  font-family: $main-font;
+  color: $ui-red-color;
+  font-size: 12px;
+  font-weight: 600;
+  margin: -12px;
+
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.error.visible {
+  opacity: 1;
+}
 
 .switch-mode {
-  font-family: Montserrat;
+  font-family: $main-font;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 12px;
   cursor: pointer;
   text-align: center;
   hover: {
     color: #ffffff95;
   }
+  
+  margin-bottom: -10px;
+}
+
+::-webkit-input-placeholder {
+  opacity: 0.8;
+}
+:-moz-placeholder {
+  opacity: 0.8; 
+}
+::-moz-placeholder {
+  opacity: 0.8;  
+}
+:-ms-input-placeholder {  
+  opacity: 0.8;
 }

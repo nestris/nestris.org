@@ -8,7 +8,7 @@ export interface UserSession extends session.Session {
     permission: Authentication;
 }
 
-export function createUserSession(req: express.Request, res: express.Response, userID: string, username: string, permission: Authentication) {
+export function createUserSession(req: express.Request, userID: string, username: string, permission: Authentication) {
 
     // Store the user's session
     (req.session as UserSession).userid = userID;

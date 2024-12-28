@@ -95,8 +95,7 @@ export async function handleDiscordCallback(req: express.Request, res: express.R
                 console.log(`Creating new user ${newUsername} with ID ${userID} with Discord login`);
                 user = await DBUserObject.create(userID, {
                     username: newUsername,
-                    login_method:
-                    LoginMethod.DISCORD,
+                    login_method: LoginMethod.DISCORD,
                     authentication: userID === ANSEL_DISCORD_ID ? Authentication.ADMIN : Authentication.USER
                 });
             } else {
@@ -104,7 +103,7 @@ export async function handleDiscordCallback(req: express.Request, res: express.R
             }
         }
 
-        createUserSession(req, res, userID, user.username, user.authentication);
+        createUserSession(req, userID, user.username, user.authentication);
 
         // Redirect to play
         console.log(`Authenticated user ${user.username} with ID ${userID}, redirecting to play`);

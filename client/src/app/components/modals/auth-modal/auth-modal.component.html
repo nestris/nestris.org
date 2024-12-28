@@ -2,10 +2,15 @@
   
   <img class="logo" src="./assets/img/branding/tetrisfish_logo.svg" width="110px" />
 
-  <input type="text" placeholder="Username" [(ngModel)]="username" class="username" autofocus />
-  <input type="password" placeholder="Password" [(ngModel)]="password" class="password" />
+  <div class="fields" [ngClass]="authMode">
+    <input type="text" [ngClass]="{'incorrect' : !(usernameValid$ | async)}" placeholder="Username" [(ngModel)]="username" class="username" autofocus />
+    <input type="password" [ngClass]="{'incorrect' : !(passwordValid$ | async)}" placeholder="Password" [(ngModel)]="password" class="password" />
+    <input type="password" [ngClass]="{'incorrect' : !(confirmPasswordValid$ | async)}" placeholder="Confirm password" [(ngModel)]="confirmPassword" class="confirm-password" />
+  </div>
 
-  <app-solid-button [label]="getAuthButtonLabel()" [color]="ButtonColor.BLUE" (click)="login()" />
+  <p class="error" [ngClass]="{visible : error$ | async}">{{error$ | async}}</p>
+  
+  <app-solid-button [label]="getAuthButtonLabel()" [color]="ButtonColor.GREEN" (click)="submit()" />
   <p class="switch-mode prevent-select" (click)="toggleAuthMode()"><u>{{getSwitchModeMessage()}}</u></p>
   
 </div>

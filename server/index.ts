@@ -38,12 +38,12 @@ import { GetT200LeaderboardRoute } from './src/routes/leaderboard/get-t200-leade
 import { UpdateMeAttributeRoute } from './src/routes/user/update-me-attribute';
 import { LeaveRoomRoute } from './src/routes/room/leave-room-route';
 import { GetRoomsRoute } from './src/routes/room/get-rooms-route';
-import { ExampleTask, TaskScheduler, TimeUnit } from './src/task-scheduler/task-scheduler';
+import { TaskScheduler } from './src/task-scheduler/task-scheduler';
 import { GetGamesRoute } from './src/routes/game/get-games-route';
 import { GetGameRoute } from './src/routes/game/get-game-route';
 import { handleLogout } from './src/authentication/session-util';
 import { registerAsGuest } from './src/authentication/guest-util';
-import { hashPassword } from './src/authentication/password-util';
+import { passwordLogin, passwordRegister } from './src/authentication/password-util';
 import { ServerRestartWarningConsumer } from './src/online-users/event-consumers/server-restart-warning-consumer';
 import { SetServerRestartWarningRoute } from './src/routes/misc/set-server-restart-warning-route';
 import { ClearUserCacheRoute } from './src/routes/misc/clear-user-cache-route';
@@ -93,6 +93,9 @@ async function main() {
   app.post('/api/v2/register-as-guest', registerAsGuest);
   app.post('/api/v2/logout', handleLogout);
 
+  app.post('/api/v2/password-register', passwordRegister);
+  app.post('/api/v2/password-login', passwordLogin);
+
 
   // Initialize singletons
   const users = new OnlineUserManager(wss);
@@ -126,7 +129,7 @@ async function main() {
 
   // Schedule tasks
   const scheduler = new TaskScheduler();
-  scheduler.schedule(ExampleTask, 5, TimeUnit.MINUTES);
+  // scheduler.schedule(ExampleTask, 5, TimeUnit.MINUTES);
 
   // initialize routes
   const routes = new RouteManager(app);
@@ -151,11 +154,6 @@ async function main() {
   routes.registerRoute(SetServerRestartWarningRoute);
   routes.registerRoute(GetUserCacheRoute);
   routes.registerRoute(ClearUserCacheRoute);
-
-  const password = "asdf";
-  const hashed = await hashPassword(password);
-  console.log(password, hashed)
-
 
   app.get('/api/v2/server-stats', (req: Request, res: Response) => {
     const stats: ServerStats = {

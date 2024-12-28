@@ -2,6 +2,7 @@ import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { GameOverMode } from 'src/app/components/nes-layout/nes-board/nes-board.component';
 import { EmulatorService } from 'src/app/services/emulator/emulator.service';
+import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
 import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 
@@ -31,9 +32,10 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   ]
 
   constructor(
-    public websocketService: WebsocketService,
-    public emulator: EmulatorService,
-    public platform: PlatformInterfaceService,
+    public readonly websocketService: WebsocketService,
+    public readonly emulator: EmulatorService,
+    public readonly platform: PlatformInterfaceService,
+    private modalManager: ModalManagerService,
   ) {}
 
   ngOnInit(): void {
@@ -56,6 +58,10 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   onResize(event: any) {
     this.windowWidth = event.target.innerWidth;
     this.calculateSmall();
+  }
+
+  passwordLogin() {
+    this.modalManager.showModal(ModalType.AUTH);
   }
 
   private calculateSmall() {
