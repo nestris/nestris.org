@@ -33,8 +33,6 @@ export class AuthModalComponent {
 
   constructor(
     private readonly fetchService: FetchService,
-    private modalManagerService: ModalManagerService,
-    private readonly router: Router,
   ) {}
 
   // if enter is pressed, submit the form
@@ -121,15 +119,15 @@ export class AuthModalComponent {
       });
       console.log('Login successful');
 
-      // Redirect to home page
-      this.router.navigate(['/']);
-      this.modalManagerService.hideModal();
+      // Redirect to home page, reload to update user info
+      location.href = '/';      
       return null;
 
     } catch (e) {
       if (!(e instanceof HTTPError) || e.status === 500) return 'Server error occurred';
-      else if (e.status === 403) return 'If this is you, log in through Discord instead';
-      else return 'Invalid username or password';
+      else if (e.status === 409) return 'If this is you, log in through Discord instead';
+      else if (e.status === 403) return 'Invalid username or password';
+      else return e.message;
     }
     
   }
@@ -144,8 +142,7 @@ export class AuthModalComponent {
         console.log('Register successful');
 
         // Redirect to home page
-        this.router.navigate(['/']);
-        this.modalManagerService.hideModal();
+        location.href = '/';
         return null;
   
       } catch (e) {

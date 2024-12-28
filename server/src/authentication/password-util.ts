@@ -146,7 +146,7 @@ export async function passwordLogin(req: express.Request, res: express.Response)
         hashedPassword = await Database.query(GetHashedPasswordQuery, user.userid);
     } catch (error) {
         console.error('Not a password user:', error);
-        return res.status(403).send('Not a password user');
+        return res.status(409).send('Not a password user');
     }
 
     // Check if the password is correct
