@@ -1,9 +1,10 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { BehaviorSubject, combineLatest, combineLatestWith, map, Observable, Subscription, tap } from 'rxjs';
 import MoveableTetromino from 'src/app/shared/tetris/moveable-tetromino';
 import { Point } from 'src/app/shared/tetris/point';
 import { TetrisBoard, ColorType } from 'src/app/shared/tetris/tetris-board';
+import { getColorForLevel } from 'src/app/shared/tetris/tetromino-colors';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 
 
@@ -15,18 +16,28 @@ export enum GameOverMode {
   READY = 'ready',
 }
 
+interface CanvasData {
+  board: TetrisBoard;
+  level: number;
+}
+
 @Component({
   selector: 'app-nes-board',
   templateUrl: './nes-board.component.html',
   styleUrls: ['./nes-board.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class NesBoardComponent {
+export class NesBoardComponent implements AfterViewInit, OnChanges, OnInit, OnDestroy {
+  @ViewChild('boardCanvas') boardCanvas?: ElementRef<HTMLCanvasElement>;
+
   // by default, each block will take up 8 pixels. scale can adjust, respecting proportions and aspect ratio
   @Input() scale: number = 1;
 
   @Input() board: TetrisBoard | undefined | null = new TetrisBoard();
+  @Input() canvasBoard?: Observable<TetrisBoard>; // If defined, use canvas instead of svg for faster rendering
   @Input() level: number = 18; // for deriving block color
+  level$ = new BehaviorSubject<number>(18);
+  canvasDataSubscription?: Subscription;
 
   // if true, hovered blocks will dim. hovering over active piece, if it exists, will dim
   @Input() interactable: boolean = false;
@@ -76,16 +87,34 @@ export class NesBoardComponent {
 
   readonly GameOverMode = GameOverMode;
 
+  ngOnChanges(changes: SimpleChanges): void {
+    // Update level$ if level changes
+    if (changes['level']) {
+      this.level$.next(this.level);
+    }
+  }
+
+  ngOnInit(): void {
+    if (this.canvasBoard) {
+
+      // merge observable with level$ to get canvasData$
+      this.canvasDataSubscription = this.canvasBoard.pipe(
+        combineLatestWith(this.level$),
+        map(([board, level]) => ({board, level})),
+      ).subscribe((data: CanvasData) => this.redrawCanvas(data));
+    }
+  }
+
   onMouseEnter(x: number, y: number) {
 
-    if (!this.interactable) return;
+    if (!this.interactable || this.canvasBoard) return;
 
     this.hoveringBlock.emit({x, y});
   }
 
   onMouseLeave() {
 
-    if (!this.interactable) return;
+    if (!this.interactable || this.canvasBoard) return;
     
     this.hoveringBlock.emit(undefined);
   }
@@ -122,6 +151,68 @@ export class NesBoardComponent {
 
   trackByIndex(index: number, item: any): number {
     return index; // Or return a unique identifier for each item
+  }
+
+
+  ngAfterViewInit(): void {
+    // if canvasBoard is defined, subscribe to it and draw the board
+    if (this.boardCanvas) console.log('boardCanvas defined', this.boardCanvas);
+    else console.log('boardCanvas undefined', this.boardCanvas);
+  }
+
+  redrawCanvas(data: CanvasData) {
+    console.log('redrawCanvas', data);
+
+    // Get the canvas context
+    const ctx = this.boardCanvas?.nativeElement.getContext('2d');
+    if (!ctx) return;
+
+    // Clear the canvas
+    ctx.clearRect(0, 0, this.boardWidthPixels * this.scale, this.boardHeightPixels * this.scale);
+
+    for (let y of this.ZERO_TO_NINETEEN) {
+      for (let x of this.ZERO_TO_NINE) {
+
+        // Get the color of the block
+        const color = data.board.getAt(x,y);
+
+        const blockX = (9*x + 1) * this.scale;
+        const blockY = (9*y + 1) * this.scale;
+
+        this.drawCanvasBlock(ctx, data.level, blockX, blockY, color);
+      }
+    }
+  }
+
+  // draw a block on the canvas
+  drawCanvasBlock(ctx: CanvasRenderingContext2D, level: number, x: number, y: number, color: ColorType) {
+
+    // Don't draw empty blocks
+    if (color === ColorType.EMPTY) return;
+
+    // Draw background color
+    ctx.fillStyle = getColorForLevel(color === ColorType.WHITE ? ColorType.PRIMARY : color, level);
+    ctx.fillRect(x, y, 8 * this.scale, 8 * this.scale);
+  
+    // Draw white pixel at top left corner
+    ctx.fillStyle = 'white';
+    ctx.fillRect(x, y, 1 * this.scale, 1 * this.scale);
+
+    // If white block, draw a white square over the non-white color excluding 1 pixel of border
+    if (color === ColorType.WHITE) {
+      ctx.fillStyle = 'white';
+      ctx.fillRect(x + 1 * this.scale, y + 1 * this.scale, 6 * this.scale, 6 * this.scale);
+
+    } else { // Draw a white dot at (1,1), (1,2), (2,1)
+      ctx.fillStyle = 'white';
+      ctx.fillRect(x + 1 * this.scale, y + 1 * this.scale, 1 * this.scale, 1 * this.scale);
+      ctx.fillRect(x + 1 * this.scale, y + 2 * this.scale, 1 * this.scale, 1 * this.scale);
+      ctx.fillRect(x + 2 * this.scale, y + 1 * this.scale, 1 * this.scale, 1 * this.scale);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.canvasDataSubscription?.unsubscribe();
   }
 
 }

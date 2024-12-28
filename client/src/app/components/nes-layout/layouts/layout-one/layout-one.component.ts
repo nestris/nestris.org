@@ -4,6 +4,7 @@ import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 import { GameOverMode } from '../../nes-board/nes-board.component';
 import { RatedMove } from 'src/app/components/ui/eval-bar/eval-bar.component';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-layout-one',
@@ -13,6 +14,7 @@ import { RatedMove } from 'src/app/components/ui/eval-bar/eval-bar.component';
 })
 export class LayoutOneComponent extends AbstractNesLayoutComponent implements OnChanges {
   @Input() board: TetrisBoard = new TetrisBoard();
+  @Input() canvasBoard?: Observable<TetrisBoard>; // If defined, use canvas instead of svg for faster rendering
   @Input() nextType: TetrominoType = TetrominoType.ERROR_TYPE;
   @Input() level: number = 0;
   @Input() lines: number = 0;

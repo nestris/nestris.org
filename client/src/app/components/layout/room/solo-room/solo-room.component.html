@@ -1,8 +1,8 @@
 <div class="left"></div>
 
 <div class="main">
-    <app-layout-one class="game" *ngIf="(platform.getGameData$() | async) as data"
-        [board]="data.board"
+    <app-layout-one class="game" *ngIf="(platform.getGameDataWithoutBoard$() | async) as data"
+        [canvasBoard]="platform.getGameBoard$()"
         [nextType]="data.nextPiece"
         [level]="data.level"
         [lines]="data.lines"

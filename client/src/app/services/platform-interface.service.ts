@@ -1,13 +1,14 @@
 import { ChangeDetectorRef, Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, map, Observable } from 'rxjs';
 import { BinaryEncoder } from '../shared/network/binary-codec';
 import { PacketAssembler } from '../shared/network/stream-packets/packet-assembler';
 import { WebsocketService } from './websocket.service';
 import { NotificationService } from './notification.service';
 import { NotificationType } from '../shared/models/notifications';
-import { DEFAULT_POLLED_GAME_DATA, GameDisplayData } from '../shared/tetris/game-display-data';
+import { DEFAULT_POLLED_GAME_DATA, GameDisplayData, GameDisplayDataWithoutBoard } from '../shared/tetris/game-display-data';
 import { PacketSender } from '../ocr/util/packet-sender';
 import { sleep } from '../util/misc';
+import { TetrisBoard } from '../shared/tetris/tetris-board';
 
 
 export enum Platform {
@@ -25,10 +26,9 @@ Game data changes are emitted as an observable, which the display layout compone
 
 It is not the responsibility of this class to do things like start or stop emulator games. it simply
 polls from emulator class at specified interval.
-*/
 
-/*
-Routinely polls from either the online platform or the OCR platform, depending on which platform is selected.
+
+UPDATE: This is really bad rxjs practice. A more declarative approach is better.
 */
 
 @Injectable({
@@ -37,8 +37,9 @@ Routinely polls from either the online platform or the OCR platform, depending o
 export class PlatformInterfaceService extends PacketSender {
 
   private platform$ = new BehaviorSubject<Platform>(Platform.ONLINE);
+  private polledGameDataWithoutBoard$ = new BehaviorSubject<GameDisplayDataWithoutBoard>(DEFAULT_POLLED_GAME_DATA);
   private polledGameData$ = new BehaviorSubject<GameDisplayData>(DEFAULT_POLLED_GAME_DATA);
-
+  private polledGameBoard$ = new BehaviorSubject<TetrisBoard>(new TetrisBoard());
 
   private assembler = new PacketAssembler();
   private numBatchedPackets: number = 0;
@@ -61,6 +62,14 @@ export class PlatformInterfaceService extends PacketSender {
 
   getGameData$(): Observable<GameDisplayData> {
     return this.polledGameData$.asObservable();
+  }
+
+  getGameBoard$(): Observable<TetrisBoard> {
+    return this.polledGameBoard$.asObservable();
+  }
+
+  getGameDataWithoutBoard$(): Observable<GameDisplayDataWithoutBoard> {
+    return this.polledGameDataWithoutBoard$.asObservable();
   }
 
 
@@ -94,18 +103,20 @@ export class PlatformInterfaceService extends PacketSender {
     
     // Check if data is the same as the previous data. If so, don't emit the event
     const prevData = this.polledGameData$.getValue();
-    if (
-      prevData.board.equals(data.board) &&
+
+    const boardChanged = !prevData.board.equals(data.board);
+    const nonBoardChanged = !(
       prevData.countdown === data.countdown &&
       prevData.level === data.level &&
       prevData.lines === data.lines &&
       prevData.score === data.score &&
       prevData.nextPiece === data.nextPiece &&
       prevData.trt === data.trt
-    ) return;
+    );
 
-    //console.log("frame NEW");
-    this.polledGameData$.next(data);
+    if (boardChanged) this.polledGameBoard$.next(data.board);
+    if (nonBoardChanged) this.polledGameDataWithoutBoard$.next(data);
+    if (boardChanged || nonBoardChanged) this.polledGameData$.next(data);
   }
 
   // called by emulator/game-state service to send a packet encoded as a BinaryEncoder

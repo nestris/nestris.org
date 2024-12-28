@@ -12,7 +12,12 @@
         [ngStyle]="{padding: (5 * scale * 0.5) + 'px'}"
         [scale]="scale * 0.5" />
 
-    <svg class="board-svg" *ngIf="!hide && board"
+    <canvas #boardCanvas class="board-canvas" *ngIf="!hide && canvasBoard"
+        [width]="(scale*boardWidthPixels)"
+        [height]="(scale*boardHeightPixels)"
+        [ngStyle]="{'width': scale*boardWidthPixels + 'px', 'height': scale*boardHeightPixels + 'px'}"></canvas>
+
+    <svg class="board-svg" *ngIf="!hide && board && !canvasBoard"
         [attr.width]="(scale*boardWidthPixels) + 'px'"
         [attr.height]="(scale*boardHeightPixels) + 'px'"
         [attr.viewBox]="'0 0 ' + boardWidthPixels + ' ' + boardHeightPixels">

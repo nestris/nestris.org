@@ -1,14 +1,17 @@
 import { TetrisBoard } from "./tetris-board";
 import { TetrominoType } from "./tetromino-type";
 
-export interface GameDisplayData {
-    board: TetrisBoard;
+export interface GameDisplayDataWithoutBoard {
     nextPiece: TetrominoType;
     level: number;
     lines: number;
     score: number;
     trt: number;
     countdown: number | undefined;
+}
+
+export interface GameDisplayData extends GameDisplayDataWithoutBoard {
+    board: TetrisBoard;
 }
 
 export const DEFAULT_POLLED_GAME_DATA: GameDisplayData = {
