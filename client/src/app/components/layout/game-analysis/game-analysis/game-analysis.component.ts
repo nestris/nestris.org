@@ -249,8 +249,6 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!recursive) this.hoveredRecommendation$.next(null); // clear hovered recommendation
     this.playing$.next(true);
 
-    let current = this.current$.getValue();
-
     // If recursive, advance to the next frame
     if (recursive) {
 

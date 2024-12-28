@@ -1,5 +1,5 @@
-import { BehaviorSubject, Observable } from "rxjs";
-import { GameState, GameStateSnapshot } from "src/app/shared/game-state-from-packets/game-state";
+import { BehaviorSubject, map, Observable } from "rxjs";
+import { GameState, GameStateSnapshot, GameStateSnapshotWithoutBoard } from "src/app/shared/game-state-from-packets/game-state";
 import { GameAbbrBoardSchema, GameCountdownSchema, GameFullBoardSchema, GamePlacementSchema, GameRecoverySchema, GameStartSchema, PACKET_NAME, PacketContent, PacketOpcode } from "src/app/shared/network/stream-packets/packet";
 import MoveableTetromino from "src/app/shared/tetris/moveable-tetromino";
 import { TetrisBoard } from "src/app/shared/tetris/tetris-board";
@@ -11,8 +11,8 @@ import { PacketReplayer } from "src/app/util/packet-replayer";
  * smooth out the game state updates, and maintains the current state of the player.
  */
 export class ServerPlayer {
-
-    private snapshot$ = new BehaviorSubject<GameStateSnapshot>(this.getDefaultSnapshot());
+    private snapshot$ = new BehaviorSubject<GameStateSnapshotWithoutBoard>(this.getDefaultSnapshot());
+    private board$ = new BehaviorSubject<TetrisBoard>(new TetrisBoard());
 
     // The current game state of the player, or null if not in a game
     private state: GameState | null;
@@ -91,7 +91,8 @@ export class ServerPlayer {
       }
 
       // Update the snapshot
-      this.snapshot$.next(this.state?.getSnapshot() ?? this.previousSnapshot ?? this.getDefaultSnapshot());
+      this.snapshot$.next(this.state?.getSnapshotWithoutBoard() ?? this.previousSnapshot ?? this.getDefaultSnapshot());
+      this.board$.next(this.state?.getCurrentBoard() ?? new TetrisBoard());
     }
   
     /**
@@ -115,16 +116,22 @@ export class ServerPlayer {
     /**
      * @returns An observable of the current game state of the player
      */
-    public getSnapshot$(): Observable<GameStateSnapshot> {
+    public getSnapshot$(): Observable<GameStateSnapshotWithoutBoard> {
       return this.snapshot$.asObservable();
     }
 
-    private getDefaultSnapshot(): GameStateSnapshot {
+    /**
+     * @returns An observable of the current game board of the player
+     */
+    public getBoard$(): Observable<TetrisBoard> {
+      return this.board$;
+    }
+
+    private getDefaultSnapshot(): GameStateSnapshotWithoutBoard {
       return { 
         level: this.defaultLevel,
         lines: 0,
         score: 0,
-        board: new TetrisBoard(),
         next: TetrominoType.ERROR_TYPE,
         countdown: 0,
         tetrisRate: 0,

@@ -13,8 +13,8 @@
         [scale]="scale * 0.5" />
 
     <canvas #boardCanvas class="board-canvas" *ngIf="!hide && canvasBoard"
-        [width]="(scale*boardWidthPixels)"
-        [height]="(scale*boardHeightPixels)"
+        [width]="(scale*boardWidthPixels * CANVAS_SCALE)"
+        [height]="(scale*boardHeightPixels * CANVAS_SCALE)"
         [ngStyle]="{'width': scale*boardWidthPixels + 'px', 'height': scale*boardHeightPixels + 'px'}"></canvas>
 
     <svg class="board-svg" *ngIf="!hide && board && !canvasBoard"

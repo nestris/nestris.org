@@ -4,11 +4,10 @@ import { TetrisBoard } from "../tetris/tetris-board";
 import { TetrominoType } from "../tetris/tetromino-type";
 import { SmartGameStatus } from "../tetris/smart-game-status";
 
-export interface GameStateSnapshot {
+export interface GameStateSnapshotWithoutBoard {
   level: number,
   lines: number,
   score: number,
-  board: TetrisBoard,
   next: TetrominoType,
   tetrisRate: number,
   countdown: number | undefined,
@@ -16,6 +15,10 @@ export interface GameStateSnapshot {
   transitionInto29: number | null,
   perfectInto19: boolean,
   perfectInto29: boolean
+}
+
+export interface GameStateSnapshot extends GameStateSnapshotWithoutBoard {
+  board: TetrisBoard
 }
 
 // Keeps track of state within a legal game
@@ -177,11 +180,14 @@ export class GameState {
 
   // get a snapshot of the current game state
   getSnapshot(): GameStateSnapshot {
+    return Object.assign({}, this.getSnapshotWithoutBoard(), { board: this.currentBoard });
+  }
+
+  getSnapshotWithoutBoard(): GameStateSnapshotWithoutBoard {
     return {
       level: this.status.level,
       lines: this.status.lines,
       score: this.status.score,
-      board: this.currentBoard,
       next: this.next,
       tetrisRate: this.getTetrisRate(),
       countdown: this.countdown,

@@ -8,7 +8,7 @@ import { MeService } from "../state/me.service";
 import { ServerPlayer } from "./server-player";
 import { WebsocketService } from "../websocket.service";
 import { PacketGroup } from "src/app/shared/network/stream-packets/packet";
-import { GameStateSnapshot } from "src/app/shared/game-state-from-packets/game-state";
+import { GameStateSnapshot, GameStateSnapshotWithoutBoard } from "src/app/shared/game-state-from-packets/game-state";
 import { TetrisBoard } from "src/app/shared/tetris/tetris-board";
 import { TetrominoType } from "src/app/shared/tetris/tetromino-type";
 import { AlertService } from "../alert.service";
@@ -78,8 +78,12 @@ export class MultiplayerClientRoom extends ClientRoom {
         return this.myIndex;
     }
 
-    public getSnapshotForPlayer$(playerIndex: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2): Observable<GameStateSnapshot> {
+    public getSnapshotForPlayer$(playerIndex: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2): Observable<GameStateSnapshotWithoutBoard> {
         return this.serverPlayers[playerIndex].getSnapshot$();
+    }
+
+    public getBoardForPlayer$(playerIndex: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2): Observable<TetrisBoard> {
+        return this.serverPlayers[playerIndex].getBoard$();
     }
 
     protected override async onStateUpdate(oldState: MultiplayerRoomState, newState: MultiplayerRoomState): Promise<void> {

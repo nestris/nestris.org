@@ -6,8 +6,8 @@
 
             <!-- Show client gameplay directly if it's the player's board -->
             <ng-container *ngIf="isMyIndex(playerIndex)">
-                <app-layout-one *ngIf="(platform.getGameData$() | async) as myData"
-                    [board]="myData.board"
+                <app-layout-one *ngIf="(platform.getGameDataWithoutBoard$() | async) as myData"
+                    [canvasBoard]="platform.getGameBoard$()"
                     [nextType]="myData.nextPiece"
                     [level]="myData.level"
                     [lines]="myData.lines"
@@ -23,7 +23,7 @@
             <!-- Otherwise, show game data from the server for this player -->
             <ng-container *ngIf="!isMyIndex(playerIndex)">
                 <app-layout-one *ngIf="(multiplayerClientRoom.getSnapshotForPlayer$(playerIndex) | async) as playerData"
-                    [board]="playerData.board"
+                    [canvasBoard]="multiplayerClientRoom.getBoardForPlayer$(playerIndex)"
                     [nextType]="playerData.next"
                     [level]="playerData.level"
                     [lines]="playerData.lines"

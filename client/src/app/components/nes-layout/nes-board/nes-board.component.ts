@@ -19,6 +19,7 @@ export enum GameOverMode {
 interface CanvasData {
   board: TetrisBoard;
   level: number;
+  enginePiece?: MoveableTetromino;
 }
 
 @Component({
@@ -52,6 +53,7 @@ export class NesBoardComponent implements AfterViewInit, OnChanges, OnInit, OnDe
   @Input() nextPieceOpacity: number = 1;
 
   @Input() enginePiece?: MoveableTetromino;
+  enginePiece$ = new BehaviorSubject<MoveableTetromino | undefined>(undefined);
 
   @Input() countdown?: number | string; // if defined, will be shown as number in center of board
 
@@ -85,6 +87,8 @@ export class NesBoardComponent implements AfterViewInit, OnChanges, OnInit, OnDe
   public readonly ZERO_TO_NINE: number[] = Array(10).fill(0).map((x, i) => i);
   public readonly ZERO_TO_NINETEEN: number[] = Array(20).fill(0).map((x, i) => i);
 
+  public CANVAS_SCALE = 2;
+
   readonly GameOverMode = GameOverMode;
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -99,8 +103,8 @@ export class NesBoardComponent implements AfterViewInit, OnChanges, OnInit, OnDe
 
       // merge observable with level$ to get canvasData$
       this.canvasDataSubscription = this.canvasBoard.pipe(
-        combineLatestWith(this.level$),
-        map(([board, level]) => ({board, level})),
+        combineLatestWith(this.level$, this.enginePiece$),
+        map(([board, level, enginePiece]) => ({board, level, enginePiece})),
       ).subscribe((data: CanvasData) => this.redrawCanvas(data));
     }
   }
@@ -167,8 +171,12 @@ export class NesBoardComponent implements AfterViewInit, OnChanges, OnInit, OnDe
     const ctx = this.boardCanvas?.nativeElement.getContext('2d');
     if (!ctx) return;
 
+    const scale = this.scale * this.CANVAS_SCALE;
+
     // Clear the canvas
-    ctx.clearRect(0, 0, this.boardWidthPixels * this.scale, this.boardHeightPixels * this.scale);
+    ctx.clearRect(0, 0, this.boardWidthPixels * scale, this.boardHeightPixels * scale);
+
+    const canvasCoord = (pos: number) => (9*pos + 1) * scale;
 
     for (let y of this.ZERO_TO_NINETEEN) {
       for (let x of this.ZERO_TO_NINE) {
@@ -176,39 +184,51 @@ export class NesBoardComponent implements AfterViewInit, OnChanges, OnInit, OnDe
         // Get the color of the block
         const color = data.board.getAt(x,y);
 
-        const blockX = (9*x + 1) * this.scale;
-        const blockY = (9*y + 1) * this.scale;
-
-        this.drawCanvasBlock(ctx, data.level, blockX, blockY, color);
+        // Draw the block
+        this.drawCanvasNESBlock(ctx, scale, data.level, canvasCoord(x), canvasCoord(y), color);
       }
     }
+
+    // Draw the engine piece
+    if (data.enginePiece) {
+      for (let block of data.enginePiece.getCurrentBlockSet().blocks) {
+        this.drawCanvasEngineBlock(ctx, scale, canvasCoord(block.x), canvasCoord(block.y));
+      }
+    }
+
   }
 
   // draw a block on the canvas
-  drawCanvasBlock(ctx: CanvasRenderingContext2D, level: number, x: number, y: number, color: ColorType) {
+  drawCanvasNESBlock(ctx: CanvasRenderingContext2D, scale: number, level: number, x: number, y: number, color: ColorType) {
 
     // Don't draw empty blocks
     if (color === ColorType.EMPTY) return;
 
     // Draw background color
     ctx.fillStyle = getColorForLevel(color === ColorType.WHITE ? ColorType.PRIMARY : color, level);
-    ctx.fillRect(x, y, 8 * this.scale, 8 * this.scale);
+    ctx.fillRect(x, y, 8 * scale, 8 * scale);
   
     // Draw white pixel at top left corner
     ctx.fillStyle = 'white';
-    ctx.fillRect(x, y, 1 * this.scale, 1 * this.scale);
+    ctx.fillRect(x, y, 1 * scale, 1 * scale);
 
     // If white block, draw a white square over the non-white color excluding 1 pixel of border
     if (color === ColorType.WHITE) {
       ctx.fillStyle = 'white';
-      ctx.fillRect(x + 1 * this.scale, y + 1 * this.scale, 6 * this.scale, 6 * this.scale);
+      ctx.fillRect(x + 1 * scale, y + 1 * scale, 6 * scale, 6 * scale);
 
     } else { // Draw a white dot at (1,1), (1,2), (2,1)
       ctx.fillStyle = 'white';
-      ctx.fillRect(x + 1 * this.scale, y + 1 * this.scale, 1 * this.scale, 1 * this.scale);
-      ctx.fillRect(x + 1 * this.scale, y + 2 * this.scale, 1 * this.scale, 1 * this.scale);
-      ctx.fillRect(x + 2 * this.scale, y + 1 * this.scale, 1 * this.scale, 1 * this.scale);
+      ctx.fillRect(x + 1 * scale, y + 1 * scale, 1 * scale, 1 * scale);
+      ctx.fillRect(x + 1 * scale, y + 2 * scale, 1 * scale, 1 * scale);
+      ctx.fillRect(x + 2 * scale, y + 1 * scale, 1 * scale, 1 * scale);
     }
+  }
+
+  drawCanvasEngineBlock(ctx: CanvasRenderingContext2D, scale: number, x: number, y: number) {
+    ctx.fillStyle = 'white';
+    ctx.fillRect(x, y, 8 * scale, 8 * scale);
+    ctx.clearRect(x + 1 * scale, y + 1 * scale, 6 * scale, 6 * scale);
   }
 
   ngOnDestroy(): void {
