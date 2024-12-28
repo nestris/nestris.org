@@ -1,16 +1,18 @@
-#!/usr/bin/env python3
-
 import requests
+import time
 
 def main():
-    url = "http://localhost/api/v2/game/008256d5-d3c2-4687-9a5c-2ab04402ca33/1"
+    url = "http://localhost:4500/top-moves-hybrid?board=00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000100000010111111011011111101111111110111111111011111111101111111110&level=18&lines=0&currentPiece=0&nextPiece=1&inputFrameTimeline=X.&playoutCount=7&playoutDepth=1"
     
-    try:
-        response = requests.post(url)
-        # Print the entire response body (as text)
-        print(response.text)
-    except requests.exceptions.RequestException as e:
-        print(f"An error occurred: {e}")
+    start_time = time.time()
+    response = requests.get(url)
+    end_time = time.time()
+    
+    elapsed_time = end_time - start_time
+    
+    print(f"Status code: {response.status_code}")
+    print(f"Response: {response.text}")
+    print(f"Time taken (seconds): {elapsed_time:.4f}")
 
 if __name__ == "__main__":
     main()
