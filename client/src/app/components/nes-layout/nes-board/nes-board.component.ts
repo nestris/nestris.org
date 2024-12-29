@@ -28,7 +28,7 @@ interface CanvasData {
   styleUrls: ['./nes-board.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class NesBoardComponent implements AfterViewInit, OnChanges, OnInit, OnDestroy {
+export class NesBoardComponent implements OnChanges, OnInit, OnDestroy {
   @ViewChild('boardCanvas') boardCanvas?: ElementRef<HTMLCanvasElement>;
 
   // by default, each block will take up 8 pixels. scale can adjust, respecting proportions and aspect ratio
@@ -157,12 +157,6 @@ export class NesBoardComponent implements AfterViewInit, OnChanges, OnInit, OnDe
     return index; // Or return a unique identifier for each item
   }
 
-
-  ngAfterViewInit(): void {
-    // if canvasBoard is defined, subscribe to it and draw the board
-    if (this.boardCanvas) console.log('boardCanvas defined', this.boardCanvas);
-    else console.log('boardCanvas undefined', this.boardCanvas);
-  }
 
   redrawCanvas(data: CanvasData) {
     console.log('redrawCanvas', data);

@@ -1,14 +1,12 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { PuzzleSubmission } from 'src/app/models/puzzles/puzzle';
-import { BinaryTranscoder } from 'src/app/shared/network/tetris-board-transcoding/binary-transcoder';
-import { GenericPuzzle } from 'src/app/shared/puzzles/generic-puzzle';
 import { PuzzleRating } from 'src/app/shared/puzzles/puzzle-rating';
-import { RatedPuzzle } from 'src/app/shared/puzzles/rated-puzzle';
 import MoveableTetromino from 'src/app/shared/tetris/moveable-tetromino';
 import { Point } from 'src/app/shared/tetris/point';
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
+import { PuzzleData } from '../play-puzzle-page/play-puzzle-page.component';
 
 
 /*
@@ -24,13 +22,14 @@ Takes in an undo$ subject, and subscribes to it to undo the first piece placemen
   styleUrls: ['./puzzle-nes-board.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PuzzleNesBoardComponent implements OnInit {
+export class PuzzleNesBoardComponent implements OnInit, OnDestroy {
 
   readonly PuzzleRating = PuzzleRating;
 
   @Input() scale: number = 1;
+  @Input() level: number = 18;
 
-  @Input() puzzle!: RatedPuzzle;
+  @Input() puzzle!: PuzzleData;
   @Output() submitPuzzle = new EventEmitter<PuzzleSubmission>();
 
   @Input() undo$?: Subject<void>;
@@ -46,17 +45,25 @@ export class PuzzleNesBoardComponent implements OnInit {
 
   rotation: number = 0;
 
+  undoSubscription?: any;
+
   ngOnInit(): void {
 
     // initialize board
     
-    this.currentBoard$.next(BinaryTranscoder.decode(this.puzzle.boardString));
+    this.currentBoard$.next(this.puzzle.board.copy());
 
     // when undo$ emits, undo the first piece placement
     if (this.undo$ !== undefined) {
-      this.undo$.subscribe(() => {
+      this.undoSubscription = this.undo$.subscribe(() => {
         this.undo();
       });
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.undoSubscription !== undefined) {
+      this.undoSubscription.unsubscribe();
     }
   }
 
@@ -189,7 +196,7 @@ export class PuzzleNesBoardComponent implements OnInit {
     if (!(this.placedFirstPiece$.getValue() !== undefined) && (this.placedSecondPiece$.getValue() === undefined)) return;
 
     this.placedFirstPiece$.next(undefined); // reset first piece placement
-    this.currentBoard$.next(BinaryTranscoder.decode(this.puzzle.boardString)); // reset board
+    this.currentBoard$.next(this.puzzle.board.copy()); // reset board
     this.rotation = 0; // reset rotation
     this.computeHoveredPiece(); // update hovered piece
 

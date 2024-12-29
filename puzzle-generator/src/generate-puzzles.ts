@@ -1,38 +1,34 @@
-import { BinaryTranscoder } from "../../shared/network/tetris-board-transcoding/binary-transcoder";
-import { BufferTranscoder } from "../../shared/network/tetris-board-transcoding/buffer-transcoder";
-import { PuzzleRating } from "../../shared/puzzles/puzzle-rating";
-import { TetrominoType, getRandomTetrominoType } from "../../shared/tetris/tetromino-type";
-import { TETROMINO_CHAR } from "../../shared/tetris/tetrominos";
-import { queryDB } from "./database";
+import { PuzzleRating, PuzzleRatingDetails } from "../../shared/puzzles/puzzle-rating";
+import { getRandomTetrominoType, TetrominoType } from "../../shared/tetris/tetromino-type";
 import { classifyPuzzleTheme } from "./classify-puzzle-theme";
 import { ratePuzzle } from "./rate-puzzle";
+import { DBPuzzleBuilder } from "../../shared/puzzles/db-puzzle";
 import { SequentialBoardGenerator, GeneratorMode } from "./sequential-board-generator";
-import { PartialRatedPuzzle } from '../../shared/puzzles/partial-rated-puzzle';
+import { TopMovesHybridResponse } from "../../shared/scripts/stackrabbit-decoder";
+import { PuzzleTheme } from "../../shared/puzzles/puzzle-theme";
+import { TetrisBoard } from "../../shared/tetris/tetris-board";
 import { encodePuzzle } from "../../shared/puzzles/encode-puzzle";
 
-let puzzlesGenerated: number;
-let puzzlesAddedToDB: number;
-let totalPuzzles: number;
 
 const MAKE_HARDER = true;
 
 // generate count number of puzzles
 // this function takes a long time to run (approx. 2 seconds per puzzle)
-export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle[]> {
+export async function generatePuzzles(count: number): Promise<DBPuzzleBuilder[]> {
 
-  puzzlesGenerated = 0;
-  puzzlesAddedToDB = 0;
-  totalPuzzles = count;
+  let puzzlesGenerated: number = 0;
 
   const MAX_BAD_PUZZLES_IN_A_ROW = 30; // if this many bad puzzles are generated in a row, reset the board
 
   // generator generates realistic board states
   let generator = new SequentialBoardGenerator(GeneratorMode.NB, MAKE_HARDER);
-  const puzzles: PartialRatedPuzzle[] = [];
+  const puzzles: DBPuzzleBuilder[] = [];
 
   let badPuzzlesInARow = 0;
 
   for (let i = 0; i < count; i++) {
+
+    //console.log("starting puzzle", i);
 
     let state;
     if (badPuzzlesInARow >= MAX_BAD_PUZZLES_IN_A_ROW) {
@@ -40,7 +36,7 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
       // board is in too messy of a state. Reset.
       state = generator.getResetBoardState();
       badPuzzlesInARow = 0;
-      console.log("Resetting board due to too many bad puzzles in a row or hit 50 puzzles");
+      //console.log("Resetting board due to too many bad puzzles in a row or hit 50 puzzles");
 
     } else {
       state = await generator.getNextBoardState();
@@ -54,8 +50,12 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
       next = getRandomTetrominoType();
     }
 
+    //console.log("Generating puzzle", i);
+    
+    const height = state.board.getAverageHeight();
+
     // Disallow puzzles with extremely low boards
-    if (state.board.getAverageHeight() < 0.5) {
+    if (height < 0.5) {
       //console.log("Too low board generated");
       i--;
       badPuzzlesInARow++;
@@ -63,7 +63,7 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
     }
 
     // There are an excessive number of puzzles with low boards generated. Filter half of them out
-    if (state.board.getAverageHeight() < 5 && Math.random() < 0.8) {
+    if (height < 5 && Math.random() < 0.9) {
       //console.log("Too low board generated 2");
       i--;
       badPuzzlesInARow++;
@@ -71,7 +71,7 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
     }
 
     // Disallow puzzles with high boards
-    if (state.board.getAverageHeight() > 10) {
+    if (height > 10) {
       //console.log("Too high board generated");
       i--;
       badPuzzlesInARow++;
@@ -86,87 +86,68 @@ export async function generatePuzzles(count: number): Promise<PartialRatedPuzzle
       continue;
     }
     
-    let rating, details, currentSolution, nextSolution, badReason;
+    //console.log("rating puzzle", i);
+    let rating: PuzzleRating;
+    let stackrabbit: TopMovesHybridResponse;
+    let details: PuzzleRatingDetails;
     try {
-      ({rating, details, currentSolution, nextSolution, badReason} = await ratePuzzle(state.board, current, next));
+      const response = await ratePuzzle(state.board, current, next);
+      if (typeof response === "string") {
+        throw new Error(response);
+      }
+
+      ({ rating, details, stackrabbit } = response);
+
     } catch (e) { // if something goes wrong with ratePuzzle, reset the board
       i--;
-      badReason = "Error in ratePuzzle: " + e;
       badPuzzlesInARow = MAX_BAD_PUZZLES_IN_A_ROW;
       continue;
     }
     
-
-    // discard bad puzzles
-    if (rating === PuzzleRating.BAD_PUZZLE) {
-
-      //console.log("Bad puzzle generated", badReason);
-
-      i--;
-      badPuzzlesInARow++;
-      continue;
-    }
 
     // reset bad puzzle counter
     badPuzzlesInARow = 0;
 
 
     // discard a fraction of rated puzzles due to overabundance
-    if (rating === PuzzleRating.ONE_STAR && Math.random() < 0.4) {
+    if (rating === PuzzleRating.ONE_STAR && Math.random() < 0.75) {
       i--;
       continue;
     }
-    if (rating === PuzzleRating.TWO_STAR && Math.random() < 0.92) {
+    if (rating === PuzzleRating.TWO_STAR && Math.random() < 0.96) {
       i--;
       continue;
     }
-    if (rating === PuzzleRating.THREE_STAR && Math.random() < 0.98) {
+    if (rating === PuzzleRating.THREE_STAR && Math.random() < 0.992) {
       i--;
       continue;
     }
-    if (rating === PuzzleRating.FOUR_STAR && Math.random() < 0.9) {
+    if (rating === PuzzleRating.FOUR_STAR && Math.random() < 0.93) {
       i--;
       continue;
     }
 
-    const theme = classifyPuzzleTheme(state.board, currentSolution!, nextSolution!, details);
+    const theme = classifyPuzzleTheme(state.board, details);
 
-    const puzzle: PartialRatedPuzzle = {
-      board: state.board,
-      current: current,
-      next: next,
+    const puzzle: DBPuzzleBuilder = {
+      id: encodePuzzle(state.board, current, next),
       rating: rating,
       theme: theme,
-      currentPlacement: currentSolution!,
-      nextPlacement: nextSolution!,
+      current_1: stackrabbit.nextBox[0].firstPlacement.getInt2(),
+      next_1: stackrabbit.nextBox[0].secondPlacement.getInt2(),
+      current_2: stackrabbit.nextBox[1].firstPlacement.getInt2(),
+      next_2: stackrabbit.nextBox[1].secondPlacement.getInt2(),
+      current_3: stackrabbit.nextBox[2].firstPlacement.getInt2(),
+      next_3: stackrabbit.nextBox[2].secondPlacement.getInt2(),
+      current_4: stackrabbit.nextBox[3].firstPlacement.getInt2(),
+      next_4: stackrabbit.nextBox[3].secondPlacement.getInt2(),
+      current_5: stackrabbit.nextBox[4].firstPlacement.getInt2(),
+      next_5: stackrabbit.nextBox[4].secondPlacement.getInt2(),
     };
 
     puzzles.push(puzzle);
     console.log(`Generated puzzle ${++puzzlesGenerated}/${count} with rating ${rating}`);
-
-    addRatedPuzzleToDatabase(puzzle); // start adding to database in the background
   }
 
   return puzzles;
-}
-
-async function addRatedPuzzleToDatabase(puzzle: PartialRatedPuzzle): Promise<any> {
-  const currentChar = TETROMINO_CHAR[puzzle.current];
-  const nextChar = TETROMINO_CHAR[puzzle.next];
-
-  const puzzleID = encodePuzzle(puzzle.board, puzzle.current, puzzle.next);
-  const currentPlacement = puzzle.currentPlacement.getInt2();
-  const nextPlacement = puzzle.nextPlacement.getInt2();
-
-  // add puzzle to database
-  const result = await queryDB("INSERT INTO rated_puzzles (id, current_piece, next_piece, rating, theme, current_placement, next_placement) VALUES ($1, $2, $3, $4, $5, $6, $7)",
-    [puzzleID, currentChar, nextChar, puzzle.rating, puzzle.theme, currentPlacement, nextPlacement]
-  );
-
-  puzzlesAddedToDB++;
-  if (puzzlesAddedToDB === totalPuzzles) {
-    console.log("All puzzles added to database");
-  }
-
-  return result;
 }

@@ -1,13 +1,12 @@
 import { PuzzleRating } from "../../shared/puzzles/puzzle-rating";
 import { generatePuzzles } from "./generate-puzzles";
 import { server } from "./server";
-import { calculateProbabilities } from "../../server/src/puzzle-generation/select-puzzle";
-import { test, test2 } from "./test";
 import { TetrisBoard } from "../../shared/tetris/tetris-board";
 import { TetrominoType } from "../../shared/tetris/tetromino-type";
 import { TETROMINO_CHAR } from "../../shared/tetris/tetrominos";
 import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
 import { decodePuzzle, encodePuzzle } from "../../shared/puzzles/encode-puzzle";
+import { addPuzzlesToDatabase } from "./add-puzzles-to-database";
 
 
 function generate() {
@@ -18,7 +17,8 @@ function generate() {
     const count: { [key in PuzzleRating]?: number } = {};
 
     console.log(`Generating ${NUM_PUZZLES} puzzles`);
-    generatePuzzles(NUM_PUZZLES).then(puzzles => {
+    const startTime = Date.now();
+    generatePuzzles(NUM_PUZZLES).then(async puzzles => {
         puzzles.forEach(puzzle => {
             if (count[puzzle.rating] === undefined) {
                 count[puzzle.rating] = 1;
@@ -27,18 +27,16 @@ function generate() {
             }
         });
 
-        console.log("Puzzles generated:");
+        console.log(`Generated ${NUM_PUZZLES} puzzles in ${Date.now() - startTime}ms`);
         for (let [rating, numPuzzles] of Object.entries(count)) {
             console.log(`${rating}: ${numPuzzles}`);
         }
+
+        // save to database
+        await addPuzzlesToDatabase(puzzles);
     });
 }
 
-function testElo() {
-    for (let i = 0; i <= 5000; i += 100) {
-        console.log(`Elo ${i}:`, calculateProbabilities(i).map(p => p.toFixed(2)));
-    }
-}
 
 function testEncoding() {
 
@@ -72,9 +70,7 @@ const mode = args.find((arg) => arg.startsWith('--mode='))?.split('=')[1];
 (() => {switch (mode) {
     case 'generate': return generate();
     case 'server': return server();
-    case 'elo': return testElo();
     case 'encode-puzzle': return testEncoding();
-    case 'test': return test2();
     default:
         console.error("Invalid mode");
         break;

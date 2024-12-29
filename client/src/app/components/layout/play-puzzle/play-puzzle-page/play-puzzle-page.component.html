@@ -1,58 +1,53 @@
-<div class="root"
+<div class="root" *ngIf="state$ | async as state"
 [ngClass]="{
-    'correct': !(solvingPuzzle$ | async) && puzzleIsCorrect,
-    'incorrect': !(solvingPuzzle$ | async) && !puzzleIsCorrect
+    'correct': state.submissionIndex === 0,
+    'incorrect': ![0, undefined].includes(state.submissionIndex)
 }">
 
-    <app-fullscreen-exit-button [confirm]="confirmString(!!(solvingPuzzle$ | async), !!(isRetry$ | async))" [onExit]="this.onExit.bind(this)" />
+    <app-fullscreen-exit-button [onExit]="this.onExit.bind(this)" />
 
     <div class="content">
 
         <header>
             <h1 class="title">PUZZLES</h1>
-            <!-- <div class="subtitle-container">
-                <hr>
-                <h2 class="subtitle">RANKED MODE</h2>
-                <hr>
-            </div> -->
         </header>
 
-        <p class="instructions" *ngIf="solvingPuzzle$ | async">
+        <p class="instructions" *ngIf="state.id === State.SOLVING">
             Find the best place to put the given two pieces. There's only one right answer!
         </p>
 
-        <p class="instructions" *ngIf="!(solvingPuzzle$ | async)">
-            {{puzzleSolutionExplanation}}
+        <p class="instructions" *ngIf="state.id === State.SOLUTION">
+            {{state.comment}}
         </p>
 
         <div class="main-row">
 
             <!-- show undo button if in puzzle solving mode and can undo -->
             <app-outline-button class="undo-button" label="Undo"
-            [ngStyle]="{visibility: ((solvingPuzzle$ | async) && (canUndo$ | async)) ? 'visible' : 'hidden'}" (click)="undo()" />
+            [ngStyle]="{visibility: (state.id === State.SOLVING && (canUndo$ | async)) ? 'visible' : 'hidden'}" (click)="clickUndo$.next()" />
 
             <!-- show nes board if it's in puzzle solving mode but no puzzle is loaded yet -->
-            <app-nes-board *ngIf="(solvingPuzzle$ | async) && (puzzle$ | async) === undefined"
+            <app-nes-board *ngIf="state.id === State.SOLVING && !state.data"
                 class="board" [scale]="3.3"
             />
 
             <!-- show puzzle board if it's in puzzle solving mode and a puzzle is loaded -->
-            <app-puzzle-nes-board *ngIf="(solvingPuzzle$ | async) && (puzzle$ | async)"
-                class="board" [scale]="3.3" 
-                [puzzle]="(puzzle$ | async)!" (submitPuzzle)="submitPuzzle($event)"
+            <app-puzzle-nes-board *ngIf="state.id === State.SOLVING && state.data"
+                class="board" [scale]="3.3" [level]="state.data.level"
+                [puzzle]="state.data" (submitPuzzle)="submitPuzzle($event)"
                 [undo$]="clickUndo$" (canUndo)="canUndo$.next($event)"
             />
 
             <!-- show puzzle solution if it's not in puzzle solving mode -->
-            <app-nes-board *ngIf="!(solvingPuzzle$ | async) && (puzzle$ | async)"
-                class="board" [scale]="3.3"
-                [board]="getBoard()" [level]="18"
-                [activePiece]="(hoveredMove$ | async)?.firstPlacement ?? getCurrentMT()"
-                [nextPiece]="(hoveredMove$ | async)?.secondPlacement ?? getNextMT()"
+            <app-nes-board *ngIf="state.id === State.SOLUTION"
+                class="board" [scale]="3.3" [level]="state.data?.level ?? 18"
+                [board]="state.data?.board"
+                [activePiece]="(hoveredMove$ | async)?.firstPlacement ?? state.submission?.firstPiece"
+                [nextPiece]="(hoveredMove$ | async)?.secondPlacement ?? state.submission?.secondPiece"
                 [activePieceOpacity]="1"
                 [nextPieceOpacity]="1"
                 [defaultOpacity]="0.6"
-                [gold]="(puzzle$ | async)?.rating === PuzzleRating.SIX_STAR"
+                [gold]="state.solution?.rating === PuzzleRating.SIX_STAR"
             />
 
             <div class="puzzle-details">
@@ -62,71 +57,67 @@
 
                         <div class="puzzle-header">
 
-                            <img *ngIf="!(solvingPuzzle$ | async)" class="puzzle-header-icon"
-                                [src]="'./assets/img/display-icons/' + (puzzleIsCorrect ? 'correct.svg' : '/incorrect.svg')"
+                            <img *ngIf="state.id === State.SOLUTION" class="puzzle-header-icon"
+                                [src]="'./assets/img/display-icons/' + (state.submissionIndex === 0 ? 'correct.svg' : '/incorrect.svg')"
                             >
     
-                            <h1 [ngClass]="{
-                                'correct': !(solvingPuzzle$ | async) && puzzleIsCorrect,
-                                'incorrect': !(solvingPuzzle$ | async) && !puzzleIsCorrect
-                            }">{{(solvingPuzzle$ | async) ? (puzzleState$ | async)?.getPuzzleName(!!(isRetry$ | async)) : (puzzleIsCorrect ? "Correct" : "Incorrect")}}</h1>
+                            <h1>{{state.id === State.SOLVING ? (state.isRetry ? 'Retry Puzzle' : strategy.displayName) : (state.submissionIndex === 0 ? "Correct" : "Incorrect")}}</h1>
                         </div>
                         
-                        <ng-container *ngIf="!(isRetry$ | async)">
-                            <app-elo-rating class="elo-container" *ngIf="(eloChange$ | async) as eloChange"
-                                [rating]="(getRatedPuzzleState$() | async)?.getElo() ?? 1000"
-                                [increase]="eloChange.eloGain" [decrease]="eloChange.eloLoss"
-                                [mode]="(solvingPuzzle$ | async) ? EloMode.NEUTRAL : (puzzleIsCorrect ? EloMode.WIN : EloMode.LOSS)"
+                        <ng-container *ngIf="!state.isRetry">
+                            <app-elo-rating class="elo-container" *ngIf="state.data?.eloChange as eloChange"
+                                [rating]="eloChange.startElo" [increase]="eloChange.eloGain" [decrease]="eloChange.eloLoss"
+                                [mode]="state.id === State.SOLVING ? EloMode.NEUTRAL : (state.submissionIndex === 0 ? EloMode.WIN : EloMode.LOSS)"
                             />
                         </ng-container>
 
                     </div>
                     
 
-                    <div class="next-box-container" *ngIf="(solvingPuzzle$ | async) && (puzzle$ | async)">
+                    <div class="next-box-container" *ngIf="state.id === State.SOLVING && state.data">
                         <app-nes-piece  [scale]="3"
-                            [piece]="(canUndo$ | async) ? undefined: (puzzle$ | async)!.next" [level]="18"
+                            [piece]="(canUndo$ | async) ? undefined : state.data.next" [level]="state.data.level"
                         />
                     </div>
 
-                    <p class="instructions narrow" *ngIf="solvingPuzzle$ | async">
+                    <p class="instructions narrow" *ngIf="state.id === State.SOLVING">
                         Hover your mouse on the board to move the piece, or use the arrow keys! Rotate with Z and X.
                     </p>
 
                     <!-- show "View Solution" button if in puzzle solving mode -->
-                    <app-solid-button *ngIf="(solvingPuzzle$ | async)"
+                    <app-solid-button *ngIf="state.id === State.SOLVING"
                         class="view-solution-button"
                         icon="./assets/img/button-icons/eye.svg"
                         label="View Solution" [color]="ButtonColor.RED"
                         [paddingVertical]="10"
-                        (click)="submitPuzzleEarly()"
+                        (click)="submitPuzzle()"
                     />
 
                     <!-- all the elements in puzzle solution mode -->
-                    <ng-container *ngIf="!(solvingPuzzle$ | async)">
+                    <ng-container *ngIf="state.id === State.SOLUTION">
 
-                        <app-elo-graph *ngIf="(getRatedPuzzleState$() | async) as ratedState" [eloHistory]="ratedState.getEloHistory()"/>
+                        <app-elo-graph *ngIf="getRatedPuzzleStrategy() as ratedState" [eloHistory]="ratedState.getEloHistory()"/>
 
-                        <div *ngIf="(mode$ | async) === PuzzleMode.SINGLE" class="padding-above-puzzle-stats"></div>
+                        <div *ngIf="getSinglePuzzleStrategy()" class="padding-above-puzzle-stats"></div>
 
                         <!-- Statistics for the puzzle -->
-                        <ng-container *ngIf="(puzzleState$ | async) as puzzle">
-                            <div class="puzzle-stats" *ngIf="puzzle.getPuzzle().rating as rating">
+                        <ng-container *ngIf="getRatedPuzzleStrategy()?.getRatedPuzzle() as ratedPuzzle">
+                            <div class="puzzle-stats">
                                 <div class="stat">
                                     <h1>Puzzle Rating</h1>
-                                    <app-rating-stars [rating]="rating" [width]="75" />
+                                    <app-rating-stars [rating]="ratedPuzzle.rating" [width]="75" />
                                 </div>
-                                <div class="stat" *ngIf="puzzle.getPuzzle().rating != PuzzleRating.UNRATED">
+                                <div class="stat">
                                     <h1>Success Rate</h1>
-                                    <p>{{puzzle.getSuccessRate()}}</p>
+                                    <p>{{ratedPuzzle.num_attempts === 0 ? '0' : (100*ratedPuzzle.num_solves / (ratedPuzzle.num_attempts+ratedPuzzle.num_solves)).toFixed(0)}}%</p>
                                 </div>
-                                <div class="stat" *ngIf="puzzle.getPuzzle().rating != PuzzleRating.UNRATED">
+                                <div class="stat">
                                     <h1>Attempts</h1>
-                                    <p>{{puzzle.getPuzzle().numAttempts}}</p>
+                                    <p>{{ratedPuzzle.num_attempts}}</p>
                                 </div>
-                                <div class="stat" *ngIf="puzzle.getThemeString() as theme">
+                                <div class="stat">
                                     <h1>Theme</h1>
-                                    <p>{{theme}}</p>
+                                    <p>{{ratedPuzzle.theme}}</p>
                                 </div>
                             </div>
                         </ng-container>
@@ -148,7 +139,7 @@
                                     </div>
                                 </div>
                                 
-                                <div class="row-container" *ngFor="let move of (moveRecommendations$ | async); let i=index">
+                                <div class="row-container" *ngFor="let move of state.solution?.moves; let i=index">
 
                                     <div class="guesses">
                                         <p>{{ move.guesses ?? 0 }}</p>
@@ -156,8 +147,8 @@
                                     <div></div>
                                     <div class="engine-move table-rows"
                                     [class.first-move]="i === 0"
-                                    [class.player-move]="isPlayerMove(move) && i !== 0"
-                                    (mouseenter)="hoverEngineMove(move)" (mouseleave)="hoverEngineMove(undefined)"
+                                    [class.player-move]="i === state.submissionIndex"
+                                    (mouseenter)="hoveredMove$.next(move)" (mouseleave)="hoveredMove$.next(undefined)"
                                     >
                                         <p><b>#{{ i + 1 }}</b></p>
                                         <p>{{ (move.score > 0 ? ('+' + move.score) : move.score) }}</p>
@@ -170,9 +161,9 @@
                         </div>
 
                         <!-- show puzzle feedback if it is rated -->
-                        <div class="feedback-container" *ngIf="(getRatedPuzzleState$() | async) as rated">
+                        <div class="feedback-container" *ngIf="getRatedPuzzleStrategy() && state.data">
                             <h2 class="prevent-select">Did you like this puzzle?</h2>
-                            <app-feedback-thumbs [puzzleID]="rated.getPuzzleID()" />
+                            <app-feedback-thumbs [puzzleID]="state.data.puzzleID" />
                         </div>
                         
 
@@ -185,12 +176,12 @@
                     
 
                     <!-- Show "share" and "retry" buttons if in puzzle solution mode -->
-                    <div *ngIf="!(solvingPuzzle$ | async)" class="two-button-container">
+                    <div *ngIf="state.id === State.SOLUTION" class="two-button-container">
                         <app-solid-button class="new-puzzle-button"
                             icon="./assets/img/puzzle-button-icons/link.svg"
                                 label="Share" [color]="ButtonColor.GREY"
                                 [stretch]="true"
-                            (smartClick)="copyPuzzleLink()"
+                            (smartClick)="copyPuzzleLink(state.data?.puzzleID)"
                             tooltip="Copy puzzle link to share with friends!"
                         />
                         <app-solid-button class="new-puzzle-button"
@@ -202,22 +193,22 @@
                     </div>
 
                     <!-- If in puzzle solution mode and no next puzzle, show "Exit" button -->
-                    <app-solid-button *ngIf="!(solvingPuzzle$ | async) && !(puzzleState$ | async)?.nextButtonText()"
+                    <app-solid-button *ngIf="state.id === State.SOLUTION && !strategy.nextButtonText"
                         class="new-puzzle-button"
                         icon="./assets/img/button-icons/new-puzzle.svg"
                         label="Back to Puzzles" [color]="ButtonColor.BLUE"
                         [stretch]="true"
-                        (click)="exitUnratedPuzzle()"
+                        (click)="router.navigate(['/'])"
                     />
 
                     <!-- If in puzzle solution mode and has next puzzle, show "Next Puzzle" button -->
-                    <app-solid-button *ngIf="!(solvingPuzzle$ | async) && (puzzleState$ | async)?.nextButtonText()"
+                    <app-solid-button *ngIf="state.id === State.SOLUTION && strategy.nextButtonText"
                         class="new-puzzle-button"
                         icon="./assets/img/button-icons/new-puzzle.svg"
-                        [label]="(puzzleState$ | async)?.nextButtonText()" [color]="ButtonColor.GREEN"
+                        [label]="strategy.nextButtonText" [color]="ButtonColor.GREEN"
                         [stretch]="true"
-                        [loading]="!!(loadingNextPuzzle$ | async)" [loadingSize]="15"
-                        (smartClick)="startPuzzle()"
+                        [action]="fetchNextPuzzle"
+                        [loadingSize]="15"
                     />
                 </div>
 
@@ -227,7 +218,7 @@
 
         <!-- show timer if in puzzle solving mode -->
         <app-timer class="timer"
-            [ngStyle]="{visibility: ((solvingPuzzle$ | async) && (puzzleState$ | async)?.isTimed()) ? 'visible' : 'hidden'}"
+            [ngStyle]="{visibility: (state.id === State.SOLVING && strategy.isTimed) ? 'visible' : 'hidden'}"
             [currentTime]="(currentPuzzleTime$ | async) ?? 0"
             [maxTime]="PUZZLE_TIME_LIMIT"
         />

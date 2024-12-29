@@ -3,35 +3,70 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Observable, Subject, map } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { PuzzleSubmission } from 'src/app/models/puzzles/puzzle';
-import { getTopMovesHybrid } from 'src/app/scripts/stackrabbit-decoder';
 import { NotificationService } from 'src/app/services/notification.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
-import { InputSpeed } from 'src/app/shared/models/input-speed';
-import { BinaryTranscoder } from 'src/app/shared/network/tetris-board-transcoding/binary-transcoder';
-import { GenericPuzzle } from 'src/app/shared/puzzles/generic-puzzle';
 import MoveableTetromino from 'src/app/shared/tetris/moveable-tetromino';
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { EloMode } from '../elo-rating/elo-rating.component';
-import { PuzzleState, EloChange } from './puzzle-states/puzzle-state';
-import { RatedPuzzleState } from './puzzle-states/rated-puzzle-state';
-import { SinglePuzzleState } from './puzzle-states/single-puzzle-state';
 import { NotificationAutohide, NotificationType } from 'src/app/shared/models/notifications';
-import { RatedPuzzle } from 'src/app/shared/puzzles/rated-puzzle';
 import { PuzzleRating } from 'src/app/shared/puzzles/puzzle-rating';
-import { PuzzleGuesses } from 'src/app/shared/puzzles/puzzle-guess';
-import { FetchService, Method } from 'src/app/services/fetch.service';
+import { FetchService } from 'src/app/services/fetch.service';
 import { MeService } from 'src/app/services/state/me.service';
+import { DBPuzzle } from 'src/app/shared/puzzles/db-puzzle';
+import { decodePuzzle } from 'src/app/shared/puzzles/encode-puzzle';
+import { PuzzleStrategyType } from './puzzle-states/puzzle-strategy-type';
+import { EloChange, EngineMove, PuzzleSolution, PuzzleStrategy, UnsolvedPuzzle } from './puzzle-states/puzzle-strategy';
+import { puzzleStrategyFactory } from './puzzle-states/puzzle-strategy-factory';
+import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
+import { StackrabbitService } from 'src/app/services/stackrabbit/stackrabbit.service';
+import { RatedPuzzleStrategy } from './puzzle-states/rated-puzzle-strategy';
+import { SinglePuzzleStrategy } from './puzzle-states/single-puzzle-strategy';
 
-export enum PuzzleMode {
-  RATED = "rated",
-  SINGLE = "single",
+const RIGHT_ANSWER_COMMENTS = [
+  "You got it!",
+  "Stack-tastic!",
+  "Superb solving!"
+]
+
+const WRONG_ANSWER_COMMENTS = [
+  "Good try! This puzzle's a toughie.",
+  "Not quite, but you got the next one!",
+  "Back to the drawing board!",
+  "Left your brain in bed today?",
+  "Not even close, but A for effort!",
+  "Was that a wild guess?",
+  "If that was a dart, you missed the board.",
+  "Try again, Einstein.",
+  "Feeling puzzled?",
+  "Is your GPS off today?",
+  "Your accuracy's on vacation.",
+  "I guess perfection's too mainstream for you.",
+]
+
+enum PuzzleStateID {
+  SOLVING = "SOLVING",
+  SOLUTION = "SOLUTION"
 }
 
-export interface Move {
-  firstPlacement: MoveableTetromino;
-  secondPlacement: MoveableTetromino;
-  score: number;
-  guesses?: number;
+// Represents all the data needed to display a puzzle in SOLVING state
+export interface PuzzleData {
+  puzzleID: string,
+  board: TetrisBoard,
+  current: TetrominoType,
+  next: TetrominoType,
+  level: number,
+  eloChange?: EloChange // if undefined, puzzle is unrated
+}
+
+// Represents the full state of the puzzle page
+interface PuzzleState {
+  id: PuzzleStateID,
+  data?: PuzzleData, // undefined if still loading
+  isRetry: boolean,
+  solution?: PuzzleSolution, // undefined if not yet submitted or still loading
+  submission?: PuzzleSubmission, // undefined if not yet submitted
+  submissionIndex?: number, // number from -1 to 4 indicating which engine move corresponds to the user's submission
+  comment?: string, // comment to display to the user after submitting
 }
 
 @Component({
@@ -42,340 +77,179 @@ export interface Move {
 })
 export class PlayPuzzlePageComponent implements OnInit {
 
-  readonly PUZZLE_TIME_LIMIT = 30;
-  readonly PuzzleMode = PuzzleMode;
-  readonly PuzzleRating = PuzzleRating;
-
-  mode$ = new BehaviorSubject<PuzzleMode | undefined>(undefined);
-
-  puzzleState$ = new BehaviorSubject<PuzzleState | undefined>(undefined);
-
-  puzzle$ = new BehaviorSubject<RatedPuzzle | undefined>(undefined);
-  eloChange$ = new BehaviorSubject<EloChange | undefined>(undefined);
-
-  canUndo$ = new BehaviorSubject<boolean>(false);
-  clickUndo$ = new Subject<void>();
-
-  // if true, in the process of solving puzzle. if false, showing puzzle solution
-  solvingPuzzle$ = new BehaviorSubject<boolean>(true);
-  puzzleIsCorrect = false;
-  puzzleSolutionExplanation: string = "";
-
-  loadingNextPuzzle$ = new BehaviorSubject<boolean>(false);
-  loadingSubmitPuzzle$ = new BehaviorSubject<boolean>(false);
-
-  moveRecommendations$ = new BehaviorSubject<Move[]>([]);
-  public hoveredMove$ = new BehaviorSubject<Move | undefined>(undefined);
-
-  public currentPuzzleTime$ = new BehaviorSubject<number>(0);
-  private startPuzzleTime?: number;
-  private timerInterval: any;
-
-  public isRetry$ = new BehaviorSubject<boolean>(false);
-
   readonly EloMode = EloMode;
   readonly ButtonColor = ButtonColor;
 
+  readonly PUZZLE_TIME_LIMIT = 30;
+  readonly PuzzleStrategyType = PuzzleStrategyType;
+  readonly PuzzleRating = PuzzleRating;
+  readonly State = PuzzleStateID;
+
+  public strategy!: PuzzleStrategy;
+
+  // undefined means still loading
+  public state$ = new BehaviorSubject<PuzzleState | undefined>(undefined);
+
+  // Emits when the user clicks the undo button
+  public clickUndo$ = new Subject<void>();
+
+  // Set by puzzle component to indicate whether the user is allowed to undo
+  public canUndo$ = new BehaviorSubject<boolean>(false);
+
+  // The engine move that the user is currently hovering over
+  public hoveredMove$ = new BehaviorSubject<EngineMove | undefined>(undefined);
+
+  // The fraction of time that has passed in the puzzle to be displayed in the timer bar
+  public currentPuzzleTime$ = new BehaviorSubject<number>(0);
+
+
   constructor(
-    private fetchService: FetchService,
     private route: ActivatedRoute,
-    private router: Router,
+    public router: Router,
     private notifier: NotificationService,
-    private websocketService: WebsocketService,
-    private meService: MeService,
-  ) {
-  }
+    private stackrabbitService: StackrabbitService,
+  ) {}
 
-  // for when URL is invalid, redirect to default puzzle URL (rated puzzle)
-  redirectToDefaultURL() {
-
-    // if not logged in, redirect back to puzzles page
-    if (!this.websocketService.isSignedIn()) {
-      this.router.navigate(['/puzzles/']);
-      return;
-    }
-
-    this.router.navigate(['/online/puzzle'], {
-      queryParams: {
-        mode: "rated", 
-        exit: this.route.snapshot.queryParamMap.get('exit')
-      },
-    });
-  }
 
   async ngOnInit() {
 
-    /* get query parameters
+    // 'mode' query parameter determines the puzzle strategy
+    const params = this.route.snapshot.queryParamMap;
+    const mode = params.get('mode') as PuzzleStrategyType;
 
-    mode:
-    - "rated" - fetch a random rated puzzle from server 
-    - "folder" - unrated puzzles from a specific folder id
-    - "single" - unrated puzzle with specific id
-
-    id:
-    - id of folder or puzzle
-    */
-
-    this.route.queryParamMap.subscribe(async (param) => {
-      const mode = param.get('mode') as PuzzleMode;
-      const id = param.get('id'); 
-
-      console.log("Mode:", mode);
-      console.log("ID:", id);
-
-      // if mode is not valid, redirect to default puzzle URL
-      if (!Object.values(PuzzleMode).includes(mode)) {
-        console.log("Invalid mode");
-        this.redirectToDefaultURL();
-        return;
-      }
-
-      // if mode is rated and not logged in, redirect back to puzzles page
-      if (mode === PuzzleMode.RATED && !this.websocketService.isSignedIn()) {
-        console.log("Not logged in");
-        this.router.navigate(['/puzzles/']);
-        return;
-      }
-
-      console.log("Creating puzzle state");
-      let puzzleState: PuzzleState;
-
-      switch (mode) {
-        case PuzzleMode.RATED:
-          // guaranteed to be logged in
-          const userid = await this.meService.getUserID();
-          puzzleState = new RatedPuzzleState(this.fetchService, userid);
-          console.log("Rated puzzle state created");
-          break;
-        case PuzzleMode.SINGLE:
-          if (!id) {
-            console.log("Invalid id");
-            this.redirectToDefaultURL();
-            return;
-          }
-          puzzleState = new SinglePuzzleState(this.fetchService, id, this.notifier);
-          console.log("Single puzzle state created");
-          break;
-      }
-
-      console.log("Puzzle state created");
-
-      try {
-        await puzzleState.init();
-        this.mode$.next(mode);
-        this.puzzleState$.next(puzzleState);
-        console.log("Puzzle state initialized");
-      } catch (e) {
-
-        if (mode === PuzzleMode.SINGLE) {
-          this.notifier.notify(NotificationType.ERROR, "Puzzle not found", NotificationAutohide.LONG);
-        }
-
-        console.log("Error initializing puzzle state:", e);
-        this.redirectToDefaultURL();
-        return;
-      }
-
-      await this.startPuzzle();
-    });
-  }
-
-  confirmString(solvingPuzzle: boolean, isRetry: boolean): string | undefined {
-
-    if (this.puzzleState$.getValue() instanceof RatedPuzzleState) {
-      if (solvingPuzzle && !isRetry) return "Are you sure you want to exit? You will lose elo for this puzzle.";
-      else return undefined;
+    // Create puzzle strategy based on mode
+    const strategy = puzzleStrategyFactory(mode, this.stackrabbitService, params);
+    if (!strategy) { // If invalid mode, redirect to home
+      console.error("Invalid puzzle mode:", mode);
+      this.router.navigate(['/']);
+      return;
     }
+    this.strategy = strategy;
 
-    return undefined;
+    // Fetch the first puzzle
+    await this.fetchNextPuzzle();
   }
 
-  async generateMoveRecommendations(puzzle: GenericPuzzle) {
+  public async fetchNextPuzzle() {
 
-    console.log("Generating move recommendations");
-    this.moveRecommendations$.next([]);
+    // Clear the timer and hovered move
+    this.currentPuzzleTime$.next(0);
+    this.hoveredMove$.next(undefined);
 
-    const board = BinaryTranscoder.decode(puzzle.boardString);
+    // Set state to loading the SOLVING state
+    this.state$.next({ id: PuzzleStateID.SOLVING, isRetry: false });
+
+    // Fetch the next puzzle and decode the board and pieces
+    let puzzle: UnsolvedPuzzle;
+    let board: TetrisBoard;
+    let current: TetrominoType;
+    let next: TetrominoType;
     try {
 
-      // get top moves from stackrabbit, and guesses from server
-      const topMovesHybridPromise = getTopMovesHybrid(board, 18, 0, puzzle.current, puzzle.next, InputSpeed.HZ_30);
-      const guessesPromise = this.fetchService.fetch<PuzzleGuesses>(Method.GET, `/api/v2/puzzle-guesses/${puzzle.id}`);
-      const [response, guesses] = await Promise.all([topMovesHybridPromise, guessesPromise]);
+      puzzle = await this.strategy.fetchNextPuzzle();
+      ({ board, current, next } = decodePuzzle(puzzle.puzzleID));
 
-      // Calculate the number of guesses for each move
-      const moves: Move[] = response.nextBox;
-      for (let move of moves) {
-        for (let guess of guesses.guesses) {
-          if (move.firstPlacement.getInt2() == guess.currentPlacement && move.secondPlacement.getInt2() == guess.nextPlacement) {
-            move.guesses = guess.numGuesses;
-            break;
-          }
-        }
-      }
-
-      this.moveRecommendations$.next(moves);
-      console.log("Move recommendations generated");
     } catch (e) {
-      console.error("Error generating move recommendations", e);
-      this.moveRecommendations$.next([]);
-    };
-    
-  }
-
-  hoverEngineMove(move: Move | undefined) {
-    this.hoveredMove$.next(move);
-  }
-
-  isPlayerMove(move: Move): boolean {
-
-    const submission = this.puzzleState$.getValue()!.getSubmission();
-    if (!submission) return false;
-
-    const firstPiece = submission.firstPiece;
-    const secondPiece = submission.secondPiece;
-
-    if (!firstPiece || !secondPiece) return false;
-
-    return firstPiece.equals(move.firstPlacement) && secondPiece.equals(move.secondPlacement);
-
-  }
-
-
-  // fetch a new puzzle from the server, start puzzle, and start timer
-  async startPuzzle() {
-
-    // if not signed in, redirect back to puzzles page
-    if (this.puzzleState$.getValue() instanceof RatedPuzzleState && !this.websocketService.isSignedIn()) {
-      this.router.navigate(['/puzzles/']);
+      // If fetch fails, redirect to home
+      console.error(e);
+      this.router.navigate(['/']);
       return;
     }
 
-    // if already loading next puzzle, return
-    if (this.loadingNextPuzzle$.getValue()) return;
-    this.loadingNextPuzzle$.next(true);
+    // Update the state with the new puzzle data
+    this.state$.next({
+      id: PuzzleStateID.SOLVING,
+      isRetry: false,
+      data: { puzzleID: puzzle.puzzleID, board, current, next, level: puzzle.level, eloChange: puzzle.eloChange },
+    });
 
-    const puzzle = await this.puzzleState$.getValue()!.fetchNextPuzzle();
-
-    // start fetching move generations. no need to wait for this to finish
-    this.generateMoveRecommendations(puzzle);
-
-    this.canUndo$.next(false);
-    this.puzzle$.next(puzzle);
-    this.hoverEngineMove(undefined);
-    this.eloChange$.next(this.puzzleState$.getValue()!.getEloChange());
-    
-    if (this.puzzleState$.getValue()!.isTimed()) {
-      this.startTimer();
-    }
-
-    this.isRetry$.next(false);
-    this.solvingPuzzle$.next(true);
-    this.loadingNextPuzzle$.next(false);
+    // Start the timer if the puzzle is timed
+    if (this.strategy.isTimed) this.startTimer();
   }
 
   private startTimer() {
-    this.startPuzzleTime = Date.now();
+
+    const startPuzzleTime = Date.now();
 
     // start timer
-    this.currentPuzzleTime$.next(0);
+    const timerInterval = setInterval(() => {
 
-    // start timer
-    this.timerInterval = setInterval(() => {
-      let time = (Date.now() - this.startPuzzleTime!) / 1000;
+      let time = (Date.now() - startPuzzleTime) / 1000;
 
-      // submit puzzle if time limit is reached
+      // stop timer and submit puzzle if time limit is reached
       if (time >= this.PUZZLE_TIME_LIMIT) {
-        this.submitPuzzle({firstPiece: undefined, secondPiece: undefined});
+        clearInterval(timerInterval);
+        this.submitPuzzle(); // submit puzzle early
       }
 
       this.currentPuzzleTime$.next(time);
-
     }, 20);
   }
 
-  // when undo button is clicked, emit clickUndo$, which will send an event to the puzzle board to undo the first piece placement
-  undo() {
-    this.clickUndo$.next();
+  getRatedPuzzleStrategy(): RatedPuzzleStrategy | undefined {
+    if (this.strategy instanceof RatedPuzzleStrategy) return this.strategy;
+    return undefined;
   }
 
-  async submitPuzzleEarly() {
-    const submission: PuzzleSubmission = {
-      firstPiece: undefined,
-      secondPiece: undefined
-    };
-    await this.submitPuzzle(submission);
+  getSinglePuzzleStrategy(): SinglePuzzleStrategy | undefined {
+    if (this.strategy instanceof SinglePuzzleStrategy) return this.strategy;
+    return undefined;
   }
 
-  // submit puzzle and go to puzzle solution page
-  async submitPuzzle(submission: PuzzleSubmission) {
+  async submitPuzzle(submission: PuzzleSubmission = {firstPiece: undefined, secondPiece: undefined}) {
+    const currentState = this.state$.getValue();
+    if (!currentState) throw new Error('Puzzle state is undefined when submitting puzzle');
+    if (!currentState.data) throw new Error('Puzzle data is undefined when submitting puzzle');
 
-    // if already loading submit puzzle, return
-    if (this.loadingSubmitPuzzle$.getValue()) return;
-    this.loadingSubmitPuzzle$.next(true);
-
-    // stop timer
-    clearInterval(this.timerInterval);
-
-    // if not signed in, redirect back to puzzles page
-    if (this.puzzleState$.getValue() instanceof RatedPuzzleState && !this.websocketService.isSignedIn()) {
-      this.router.navigate(['/puzzles/']);
-      return;
+    // If this is retrying, do not resubmit the puzzle
+    let solution: PuzzleSolution;
+    if (currentState.isRetry) {
+      if (!currentState.solution) throw new Error('Puzzle solution is undefined when retrying puzzle');
+      solution = currentState.solution;
+    } else {
+      // Submit the puzzle based on the strategy
+      solution = await this.strategy.submitPuzzle(submission);
     }
 
-    // submit puzzle to server
-    const result = await this.puzzleState$.getValue()!.submitPuzzle(submission, this.isRetry$.getValue());
-    this.puzzleIsCorrect = result.isCorrect;
-    this.puzzleSolutionExplanation = result.explanation;
+    // Check which submission index corresponds to the user's submission
+    let submissionIndex = -1;
+    if (submission.firstPiece && submission.secondPiece) {
+      for (let i = 0; i < solution.moves.length; i++) {
 
-    // go to puzzle solution page
-    this.solvingPuzzle$.next(false);
-    this.loadingSubmitPuzzle$.next(false);
-  }
-  
-
-  getBoard(): TetrisBoard {
-    const puzzle = this.puzzle$.getValue()!;
-    return BinaryTranscoder.decode(puzzle.boardString);
-  }
-
-  // get the submitted first piece
-  getCurrentMT(): MoveableTetromino | undefined {
-    return this.puzzleState$.getValue()!.getSubmission()?.firstPiece;
-  }
-
-  // get the submitted second piece
-  getNextMT(): MoveableTetromino | undefined {
-    return this.puzzleState$.getValue()!.getSubmission()?.secondPiece;
-  }
-
-  getRatedPuzzleState$(): Observable<RatedPuzzleState | undefined> {
-    return this.puzzleState$.pipe(map(state => {
-      if (state instanceof RatedPuzzleState) {
-        return state;
+        if (
+          solution.moves[i].firstPlacement.equals(submission.firstPiece) &&
+          solution.moves[i].secondPlacement.equals(submission.secondPiece)
+        ) {
+          submissionIndex = i;
+          break;
+        }
       }
-      return undefined;
-    }));
-  }
-
-  exitUnratedPuzzle() {
-    this.router.navigate(["/puzzles"]);
-  }
-
-  retryPuzzle() {
-
-    this.isRetry$.next(true);
-
-    if (this.puzzleState$.getValue()!.isTimed()) {
-      this.startTimer();
     }
 
-    this.solvingPuzzle$.next(true);
+    const comment = (
+      submissionIndex === 0 ?
+      RIGHT_ANSWER_COMMENTS[Math.floor(Math.random() * RIGHT_ANSWER_COMMENTS.length)] :
+      WRONG_ANSWER_COMMENTS[Math.floor(Math.random() * WRONG_ANSWER_COMMENTS.length)]
+    );
+
+    this.state$.next({ id: PuzzleStateID.SOLUTION, isRetry: currentState.isRetry, data: currentState.data, solution, submission, submissionIndex, comment });
   }
 
-  copyPuzzleLink() {
-    const puzzle = this.puzzle$.getValue()!;
-    const url = window.location.origin + `/online/puzzle?mode=single&id=${puzzle.id}`;
+  // Go back to solving state but keep the same puzzle and solution as retry
+  retryPuzzle() {
+    const currentState = this.state$.getValue();
+    if (!currentState) throw new Error('Puzzle state is undefined when retrying puzzle');
+    if (!currentState.data) throw new Error('Puzzle data is undefined when retrying puzzle');
+
+    this.state$.next({ id: PuzzleStateID.SOLVING, isRetry: true, data: currentState.data, solution: currentState.solution });
+  }
+
+
+  // Copy the puzzle link to the clipboard
+  copyPuzzleLink(puzzleID: string | undefined) {
+    if (!puzzleID) return;
+
+    const url = window.location.origin + `/online/puzzle?mode=single&id=${puzzleID}`;
     navigator.clipboard.writeText(url);
     this.notifier.notify(NotificationType.SUCCESS, "Puzzle link copied to clipboard!");
   }
@@ -383,9 +257,9 @@ export class PlayPuzzlePageComponent implements OnInit {
   async onExit() {
     console.log("Exiting puzzle");
 
-    // if in the middle of submitting rated puzzle, submit first 
-    if (this.solvingPuzzle$.getValue() && this.puzzleState$.getValue() instanceof RatedPuzzleState) {
-      await this.submitPuzzleEarly();
+    // if in the middle of submitting puzzle, submit first 
+    if (this.state$.getValue()?.id === PuzzleStateID.SOLVING) {
+      await this.submitPuzzle(); // submit puzzle early
     }
   }
 

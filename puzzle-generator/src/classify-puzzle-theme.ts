@@ -42,8 +42,6 @@ function isSpire(board: TetrisBoard): boolean {
 
 export function classifyPuzzleTheme(
   board: TetrisBoard,
-  currentPlacement: MoveableTetromino,
-  nextPlacement: MoveableTetromino,
   details: PuzzleRatingDetails
 ): PuzzleTheme {
 

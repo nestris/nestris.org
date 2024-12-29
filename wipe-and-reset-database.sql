@@ -73,41 +73,6 @@ CREATE TABLE "public"."password_users" (
     PRIMARY KEY ("userid")
 );
 
--- maintain the highest trophies
-CREATE OR REPLACE FUNCTION update_highest_trophies()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF NEW.trophies > NEW.highest_trophies THEN
-        NEW.highest_trophies = NEW.trophies;
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- trigger to update the highest trophies when the trophies are updated for a user
-DROP TRIGGER IF EXISTS update_highest_trophies_trigger ON users;
-CREATE TRIGGER update_highest_trophies_trigger
-BEFORE UPDATE ON users
-FOR EACH ROW EXECUTE FUNCTION update_highest_trophies();
-
--- maintain the highest puzzle elo
-CREATE OR REPLACE FUNCTION update_highest_puzzle_elo()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF NEW.puzzle_elo > NEW.highest_puzzle_elo THEN
-        NEW.highest_puzzle_elo = NEW.puzzle_elo;
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- trigger to update the highest puzzle elo when the puzzle elo is updated for a user
-DROP TRIGGER IF EXISTS update_highest_puzzle_elo_trigger ON users;
-CREATE TRIGGER update_highest_puzzle_elo_trigger
-BEFORE UPDATE ON users
-FOR EACH ROW EXECUTE FUNCTION update_highest_puzzle_elo();
-
-
 -- USER_RELATIONSHIPS table
 DROP TABLE IF EXISTS "public"."friends" CASCADE;
 CREATE TABLE "public"."friends" (
@@ -118,35 +83,32 @@ CREATE TABLE "public"."friends" (
 
 
 -- GENERATED RATED PUZZLE TABLE
--- rating is between 1 and t
+-- rating is between 1 and 6
 -- [current|next|guesses]_N -> N is which solution ranking (1-5), current is current piece, next is next piece, guesses is num guesses to solution
 DROP TABLE IF EXISTS "public"."rated_puzzles" CASCADE;
 CREATE TABLE "public"."rated_puzzles" (
     "id" text NOT NULL,
     "created_at" timestamp NOT NULL DEFAULT now(),
-
-    "current_piece" char(1) NOT NULL,
-    "next_piece" char(1) NOT NULL,
     
     "current_1" int2 NOT NULL,
     "next_1" int2 NOT NULL,
-    "guesses_1" int2 NOT NULL,
+    "guesses_1" int2 NOT NULL DEFAULT 0,
 
     "current_2" int2 NOT NULL,
     "next_2" int2 NOT NULL,
-    "guesses_2" int2 NOT NULL,
+    "guesses_2" int2 NOT NULL DEFAULT 0,
 
     "current_3" int2 NOT NULL,
     "next_3" int2 NOT NULL,
-    "guesses_3" int2 NOT NULL,
+    "guesses_3" int2 NOT NULL DEFAULT 0,
 
-    "current_4" int2 NOT NULL,
+    "current_4" int2 NOT NULL DEFAULT 0,
     "next_4" int2 NOT NULL,
-    "guesses_4" int2 NOT NULL,
+    "guesses_4" int2 NOT NULL DEFAULT 0,
 
-    "current_5" int2 NOT NULL,
+    "current_5" int2 NOT NULL DEFAULT 0,
     "next_5" int2 NOT NULL,
-    "guesses_5" int2 NOT NULL,
+    "guesses_5" int2 NOT NULL DEFAULT 0,
 
     "rating" int2 NOT NULL CHECK (rating >= 1 AND rating <= 6),
     "theme" text NOT NULL,

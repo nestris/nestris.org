@@ -1,5 +1,5 @@
 export enum PuzzleFeedback {
-  LIKE = "liked",
-  DISLIKE = "disliked",
-  NONE = "none",
+    LIKE = "liked",
+    DISLIKE = "disliked",
+    NONE = "none",
 }
