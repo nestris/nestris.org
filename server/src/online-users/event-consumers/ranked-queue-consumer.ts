@@ -105,7 +105,7 @@ export class RankedQueueConsumer extends EventConsumer {
     // Map of previous opponent's userid for each userid, used to discourage rematches     
     private previousOpponent: Map<string, string> = new Map();
 
-    public override init(): void {
+    public override async init() {
 
         // Find matches every second
         setInterval(() => this.findMatches(), 1000);

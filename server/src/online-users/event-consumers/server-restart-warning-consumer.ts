@@ -9,7 +9,7 @@ export class ServerRestartWarningConsumer extends EventConsumer {
 
     private serverRestartWarning: boolean = false;
 
-    public override init() {
+    public override async init() {
         console.log(`Server restart warning initialized to ${this.serverRestartWarning}`);
     }
 

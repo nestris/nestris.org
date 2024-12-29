@@ -422,7 +422,7 @@ export class RoomConsumer extends EventConsumer {
     private sessions: Map<string, string> = new Map();
 
     // Initialize OnlineUserManager for Room
-    public override init(): void {
+    public override async init() {
         Room.bootstrap(this, this.users);
     }
 

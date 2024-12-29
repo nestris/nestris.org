@@ -54,7 +54,7 @@ export class EventConsumer {
     }
 
     // Override to initialize consumer
-    public init() {}
+    public async init(): Promise<void> {}
 
     // override methods to handle desired events
     protected async onUserConnect?(event: OnUserConnectEvent) {}
@@ -90,6 +90,8 @@ export class EventConsumerManager {
     // Map of consumer class names to consumer instances
     private consumerInstances = new Map<string, EventConsumer>();
 
+    private consumerInitPromises: Promise<void>[] = [];
+
     // Must be called before using singleton
     public static bootstrap(users: OnlineUserManager) {
         this.instance = new EventConsumerManager(users);
@@ -104,6 +106,12 @@ export class EventConsumerManager {
         }
         return this.instance;
     }
+
+    // Wait for all consumers to initialize
+    public async init(): Promise<void> {
+        await Promise.all(this.consumerInitPromises);
+        console.log("All consumers initialized");
+    }
     
 
     // Register a new online user event consumer
@@ -114,7 +122,8 @@ export class EventConsumerManager {
 
         // Instantiate consumer object
         const consumer = new eventConsumerClass(this.users, this.consumerEvent$);
-        consumer.init();
+        let initPromise = consumer.init();
+        this.consumerInitPromises.push(initPromise);
 
         // Assert consumer is not already registered
         if (this.consumerInstances.has(eventConsumerClass.name)) {

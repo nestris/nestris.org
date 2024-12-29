@@ -70,7 +70,7 @@ class RemoveFriendsQuery extends WriteDBQuery {
 // Event consumer that handles friend events
 export class FriendEventConsumer extends EventConsumer {
 
-    public override init() {
+    public override async init() {
 
         // When a user's stat changes that is visible on the friends page, update all friends
         DBUserObject.onChange().subscribe(async ({ id: userid, before: beforeUser, after: afterUser, event }) => {

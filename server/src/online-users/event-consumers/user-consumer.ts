@@ -7,7 +7,7 @@ import { OnSessionConnectEvent } from "../online-user-events";
 // Handles events related to users
 export class UserConsumer extends EventConsumer {
 
-    public override init() {
+    public override async init() {
         // When a DBUser object changes, send MeMessage to all online sessions of the user
         DBUserObject.onChange().subscribe(async ({ id: userid,  after: dbUser }) => {
             this.users.sendToUser(userid, new MeMessage(dbUser));

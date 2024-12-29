@@ -48,6 +48,7 @@ import { ServerRestartWarningConsumer } from './src/online-users/event-consumers
 import { SetServerRestartWarningRoute } from './src/routes/misc/set-server-restart-warning-route';
 import { ClearUserCacheRoute } from './src/routes/misc/clear-user-cache-route';
 import { GetUserCacheRoute } from './src/routes/misc/get-user-cache-route';
+import { PuzzleConsumer } from './src/online-users/event-consumers/puzzle-consumer';
 
 // Load environment variables
 require('dotenv').config();
@@ -110,7 +111,9 @@ async function main() {
   consumers.registerConsumer(RoomConsumer);
   consumers.registerConsumer(RankedQueueConsumer);
   consumers.registerConsumer(InvitationConsumer);
+  consumers.registerConsumer(PuzzleConsumer);
   consumers.registerConsumer(ServerRestartWarningConsumer);
+  await consumers.init();
 
   // Initialize InvitationManagers
   const invitationConsumer = consumers.getConsumer(InvitationConsumer);
