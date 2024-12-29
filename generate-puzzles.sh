@@ -1,16 +1,34 @@
 #!/bin/bash
 
-# Number of processes to run (always 10)
-NUM_INSTANCES=10
-
-# Number of times each process will run the command
-NUM_RUNS=30
-
 # Check if a database parameter is provided
 if [ $# -eq 0 ]; then
     echo "Usage: $0 <database>"
     exit 1
 fi
+
+
+# 1. Change to the StackRabbit directory
+cd StackRabbit || exit
+
+# 2. Run node-gyp configure
+node-gyp configure
+
+# 3. Run node-gyp build
+node-gyp build
+
+# 4. Return to the root directory
+cd ..
+
+# 5. Copy the built cRabbit.node to the puzzle-generator/binaries folder
+cp StackRabbit/build/Release/cRabbit.node puzzle-generator/binaries/
+
+cd puzzle-generator || exit
+
+# Number of processes to run (always 10)
+NUM_INSTANCES=10
+
+# Number of times each process will run the command
+NUM_RUNS=30
 
 # Store the database parameter
 DB=$1
