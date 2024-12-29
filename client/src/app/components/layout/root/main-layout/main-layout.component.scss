@@ -5,6 +5,27 @@
   flex-direction: column;
 }
 
+@media (max-width: 800px) {
+  :host {
+    zoom: 0.75;
+    height: 133.33vh;
+  }
+}
+
+@media (max-width: 600px) {
+  :host {
+    zoom: 0.6;
+    height: 166.667vh;
+  }
+}
+
+@media (max-width: 500px) {
+  :host {
+    zoom: 0.4;
+    height: 250vh;
+  }
+}
+
 .root {
   display: flex;
   flex-direction: row;

@@ -61,7 +61,6 @@ export class EmulatorService {
     private stackrabbitService: StackrabbitService,
     private gamepadService: GamepadService,
     private wakeLockService: WakeLockService,
-    private zone: NgZone
 ) {}
 
   // tick function that advances the emulator state during the game loop
