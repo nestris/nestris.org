@@ -68,7 +68,7 @@ class UpdatePuzzleStatsQuery extends WriteDBQuery {
  * the batch in a different order, and that they will not run into any duplicates until they have traversed the
  * entire batch.
  */
-const BATCH_SIZE = 7;
+const BATCH_SIZE = 97;
 
 // The fraction of the batch that a user can fetch before we start replenishing the batch
 const REPLENISH_THRESHOLD = 0.75;

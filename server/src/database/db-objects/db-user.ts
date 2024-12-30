@@ -220,6 +220,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
             case DBPuzzleSubmitEvent:
                 const puzzleArgs = (event as DBPuzzleSubmitEvent).args;
                 this.inMemoryObject.puzzle_elo = puzzleArgs.newElo;
+                this.inMemoryObject.highest_puzzle_elo = Math.max(this.inMemoryObject.highest_puzzle_elo, puzzleArgs.newElo);
                 this.inMemoryObject.puzzles_attempted++;
                 this.inMemoryObject.puzzles_solved += puzzleArgs.isCorrect ? 1 : 0;
                 this.inMemoryObject.puzzle_seconds_played += Math.round(puzzleArgs.seconds);

@@ -31,8 +31,6 @@ export class EloGraphComponent implements OnChanges {
       return;
     }
 
-    console.log("elo history: ", this.eloHistory);
-
     const eloHistory = this.eloHistory.slice(-15);
 
     this.lastResult = eloHistory[eloHistory.length - 1] > eloHistory[eloHistory.length - 2];
