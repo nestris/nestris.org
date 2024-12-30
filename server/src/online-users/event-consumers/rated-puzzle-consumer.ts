@@ -302,6 +302,8 @@ export class RatedPuzzleConsumer extends EventConsumer {
     // A map of userid to their active puzzle
     private activePuzzles = new Map<string, ActivePuzzle>();
 
+    private puzzleCount: number = 0;
+
     /**
      * Initialize the puzzle batches for each rating.
      */
@@ -342,7 +344,7 @@ export class RatedPuzzleConsumer extends EventConsumer {
     public async requestRatedPuzzle(userid: string, sessionID: string): Promise<UnsolvedRatedPuzzle | null> {
 
         // If the user already has an active puzzle, a new puzzle cannot be requested
-        if (this.activePuzzles.has(userid)) return null
+        if (this.activePuzzles.has(userid)) return null;
 
         // Immediately set the user's active puzzle with undefined values to prevent multiple requestRatedPuzzle calls
         this.activePuzzles.set(userid, { sessionID });
@@ -379,6 +381,8 @@ export class RatedPuzzleConsumer extends EventConsumer {
                 await this.submitRatedPuzzle(userid, { puzzleID: puzzle.id, seconds: 30 });
 
             }, 45 * 1000);
+
+            this.puzzleCount++;
 
             // Return the unsolved rated puzzle
             return { id: puzzle.id, startElo: user.puzzle_elo, eloGain, eloLoss };
@@ -437,6 +441,11 @@ export class RatedPuzzleConsumer extends EventConsumer {
         // Start updating puzzle stats based on submission, but don't wait for database call to finish
         this.updatePuzzleStats(dbPuzzle, submission, isCorrect);
 
+        // After some time seconds, decrement the puzzle count. Waiting approximates the time the user looks at the solution
+        setTimeout(() => {
+            this.puzzleCount--;
+        }, 3 * 1000);
+
         // Return the full DBPuzzle object of the puzzle that was submitted
         return {
             puzzle: dbPuzzle,
@@ -479,6 +488,14 @@ export class RatedPuzzleConsumer extends EventConsumer {
         else if (puzzle.current_5 === submission.current && puzzle.next_5 === submission.next) updatedPuzzle.guesses_5++;
 
         await Database.query(UpdatePuzzleStatsQuery, updatedPuzzle);
+    }
+
+    /**
+     * Get the number of active puzzles currently being solved.
+     * @returns The number of active puzzles
+     */
+    public activePuzzleCount(): number {
+        return this.puzzleCount;
     }
 
 }
