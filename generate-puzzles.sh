@@ -19,6 +19,9 @@ node-gyp build
 # 4. Return to the root directory
 cd ..
 
+# Create binaries folder if it doesn't exist
+mkdir -p puzzle-generator/binaries
+
 # 5. Copy the built cRabbit.node to the puzzle-generator/binaries folder
 cp StackRabbit/build/Release/cRabbit.node puzzle-generator/binaries/
 
