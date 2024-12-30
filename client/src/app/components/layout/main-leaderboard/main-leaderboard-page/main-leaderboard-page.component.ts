@@ -1,11 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { BehaviorSubject, catchError, distinctUntilChanged, from, map, of, share, shareReplay, switchMap, timer } from 'rxjs';
+import { BehaviorSubject, catchError, distinctUntilChanged, filter, from, map, of, share, shareReplay, switchMap, timer } from 'rxjs';
 import { Mode } from 'src/app/components/ui/mode-icon/mode-icon.component';
 import { ButtonColor } from 'src/app/components/ui/solid-selector/solid-selector.component';
 import { FetchService, Method } from 'src/app/services/fetch.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { EVALUATION_TO_COLOR, overallAccuracyRating } from 'src/app/shared/evaluation/evaluation';
+import { GlobalStat, GlobalStats } from 'src/app/shared/models/global-stat';
 import { T200LeaderboardData, T200LeaderboardType } from 'src/app/shared/models/leaderboard';
 
 
@@ -45,7 +46,6 @@ export class MainLeaderboardPageComponent implements OnDestroy {
   readonly getIconsForMode = (mode: Mode) => this.leaderboardTypes[mode].map(type => this.leaderboardTypeIcon[type]);
 
 
-
   // The current leaderboard type
   currentType$ = new BehaviorSubject<T200LeaderboardType>(T200LeaderboardType.SOLO_HIGHSCORE);
 
@@ -59,8 +59,18 @@ export class MainLeaderboardPageComponent implements OnDestroy {
     })
   );
 
-  private readonly fetchLeaderboard = (type: T200LeaderboardType) => this.fetchService.fetch<T200LeaderboardData>(Method.GET, `/api/v2/leaderboard/top/${type}`);
+  private readonly fetchLeaderboard = async (type: T200LeaderboardType) => {
 
+    // Fetch leaderboard data and global stats in parallel
+    const dataPromise = this.fetchService.fetch<T200LeaderboardData>(Method.GET, `/api/v2/leaderboard/top/${type}`)
+    const statsPromise = this.fetchService.fetch<GlobalStats>(Method.GET, "/api/v2/global-stats");
+    const [data, stats] = await Promise.all([dataPromise, statsPromise]);
+
+    console.log('Fetched leaderboard:', data, stats);
+    
+    return { data, stats };
+  };
+  
   leaderboard$ = this.currentType$.pipe(
     distinctUntilChanged(), // Only react when the type actually changes
     switchMap(type =>
@@ -79,8 +89,11 @@ export class MainLeaderboardPageComponent implements OnDestroy {
     shareReplay({ bufferSize: 1, refCount: true }) // Share the last emitted value with new subscribers
   );
 
+  playerCount$ = this.leaderboard$.pipe(
+    map((leaderboard) => leaderboard?.stats[GlobalStat.TOTAL_USER_COUNT] as number ?? 0)
+  );
 
-  numPlayers$ = new BehaviorSubject<number>(0);
+
   puzzlesSolved$ = new BehaviorSubject<number>(0);
   hoursSpent$ = new BehaviorSubject<number>(0);
 

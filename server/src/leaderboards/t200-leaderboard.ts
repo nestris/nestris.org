@@ -67,7 +67,8 @@ export class T200XPLeaderboard extends T200Leaderboard {
         puzzle_elo: 'Puzzle elo',
     };
 
-    protected async populateLeaderboard(): Promise<T200LeaderboardRow[]> {
+
+    protected override async populateLeaderboard(): Promise<T200LeaderboardRow[]> {
 
         // Query the top 200 XP leaderboard
         class T200XPLeaderboardQuery extends DBQuery<T200LeaderboardRow[]> {
@@ -264,7 +265,7 @@ export class T200PuzzlesLeaderboard extends T200Leaderboard {
 
                     resourceID: null,
 
-                    score: row.trophies,
+                    score: row.puzzle_elo,
                 })); 
             }
         }

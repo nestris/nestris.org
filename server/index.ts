@@ -51,6 +51,8 @@ import { GetUserCacheRoute } from './src/routes/misc/get-user-cache-route';
 import { RatedPuzzleConsumer } from './src/online-users/event-consumers/rated-puzzle-consumer';
 import { RequestRatedPuzzleRoute } from './src/routes/puzzles/request-rated-puzzle-route';
 import { SubmitRatedPuzzleRoute } from './src/routes/puzzles/submit-rated-puzzle-route';
+import { GlobalStatConsumer } from './src/online-users/event-consumers/global-stat-consumer';
+import { GetGlobalStatRoute } from './src/routes/misc/get-global-stat-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -115,6 +117,7 @@ async function main() {
   consumers.registerConsumer(InvitationConsumer);
   consumers.registerConsumer(RatedPuzzleConsumer);
   consumers.registerConsumer(ServerRestartWarningConsumer);
+  consumers.registerConsumer(GlobalStatConsumer);
   await consumers.init();
 
   // Initialize InvitationManagers
@@ -161,6 +164,7 @@ async function main() {
   routes.registerRoute(ClearUserCacheRoute);
   routes.registerRoute(RequestRatedPuzzleRoute);
   routes.registerRoute(SubmitRatedPuzzleRoute);
+  routes.registerRoute(GetGlobalStatRoute);
 
   app.get('/api/v2/server-stats', (req: Request, res: Response) => {
     const stats: ServerStats = {

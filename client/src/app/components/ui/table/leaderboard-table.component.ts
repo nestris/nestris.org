@@ -46,7 +46,7 @@ export class LeaderboardTableComponent implements OnChanges {
   ) {}
 
   ngOnChanges(): void {
-    console.log('table changes');
+    console.log('table changes', this.rows);
   }
 
   // Preserve original property order

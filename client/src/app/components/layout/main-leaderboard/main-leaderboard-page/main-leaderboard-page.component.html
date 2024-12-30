@@ -18,13 +18,13 @@
 
         </div>
         <div class="right">
-            <app-stat-panel icon="./assets/img/tab-icons/profile.svg" label="Players" [value]="(numPlayers$ | async) ?? 0" />
+            <app-stat-panel icon="./assets/img/tab-icons/profile.svg" label="Players" [value]="(playerCount$ | async) ?? 0" />
             <app-stat-panel icon="./assets/img/tab-icons/puzzles.svg" label="Puzzles solved" [value]="(puzzlesSolved$ | async) ?? 0" />
             <app-stat-panel icon="./assets/img/tab-icons/time.svg" label="Hours played" [value]="(hoursSpent$ | async) ?? 0" />
         </div>
     </div>
 
-    <app-leaderboard-table *ngIf="leaderboard$ | async as leaderboard" [attributes]="leaderboard.attributes" [rows]="leaderboard.leaderboard" [myID]="(meService.getUserID$() | async) ?? undefined"
+    <app-leaderboard-table *ngIf="(leaderboard$ | async)?.data as leaderboard" [attributes]="leaderboard.attributes" [rows]="leaderboard.leaderboard" [myID]="(meService.getUserID$() | async) ?? undefined"
         sortByAttribute="rating" [formatRules]="FORMAT_RULES" [colorRules]="COLOR_RULES" [resourceIDType]="leaderboard.resourceIDType" />
 
 </div>

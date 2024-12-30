@@ -165,17 +165,17 @@ tr:last-child td .ranking {
 }
 
 // First place
-tbody tr.first td .ranking {
+.row.first .cell .ranking {
     background-color: $gold-color;
 }
 
 // Second place
-tbody tr.second td .ranking {
+.row.second .cell .ranking {
     background-color: $silver-color;
 }
 
 // Third place
-tbody tr.third td .ranking {
+.row.third .cell .ranking {
     background-color: $bronze-color;
 }
 

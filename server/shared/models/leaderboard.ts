@@ -41,7 +41,6 @@ export interface T200LeaderboardData {
     resourceIDType: ResourceIDType | null;
     attributes: { [key: string]: string };
     leaderboard: T200LeaderboardRow[];
-    
 }
 
 export interface T200LeaderboardRow {
