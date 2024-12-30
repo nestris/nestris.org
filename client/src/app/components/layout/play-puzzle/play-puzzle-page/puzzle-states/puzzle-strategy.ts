@@ -53,5 +53,5 @@ export abstract class PuzzleStrategy {
   public abstract fetchNextPuzzle(): Promise<UnsolvedPuzzle>;
 
   // Submits the user's solution to the puzzle, returning the engine's recommendations
-  public abstract submitPuzzle(submission: PuzzleSubmission): Promise<PuzzleSolution>;
+  public abstract submitPuzzle(puzzleID: string, submission: PuzzleSubmission): Promise<PuzzleSolution>;
 }

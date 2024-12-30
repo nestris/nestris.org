@@ -12,26 +12,23 @@ export class SinglePuzzleStrategy extends PuzzleStrategy {
   public readonly nextButtonText = undefined;
   public readonly displayName = "Shared Puzzle";
 
-  private puzzleID?: string;
-
   public async fetchNextPuzzle(): Promise<UnsolvedPuzzle> {
-    this.puzzleID = this.paramMap.get('id') ?? undefined;
-    if (!this.puzzleID) throw new Error('No puzzle ID provided');
+    const puzzleID = this.paramMap.get('id') ?? undefined;
+    if (!puzzleID) throw new Error('No puzzle ID provided');
 
-    console.log('Fetching solo puzzle', this.puzzleID);
+    console.log('Fetching solo puzzle', puzzleID);
 
     // TODO: try to fetch the puzzle from the server to get guess stats
 
     // Puzzle is directly encoded in the URL
-    return { puzzleID: this.puzzleID, level: 18 };
+    return { puzzleID, level: 18 };
   }
 
   // Calculate engine moves client-side and return them
-  public async submitPuzzle(submission: PuzzleSubmission): Promise<PuzzleSolution> {
-    if (!this.puzzleID) throw new Error('No puzzle ID provided');
+  public async submitPuzzle(puzzleID: string, submission: PuzzleSubmission): Promise<PuzzleSolution> {
     return {
       rating: PuzzleRating.UNRATED,
-      moves: await computeEngineMoves(this.stackrabbitService, this.puzzleID, 18)
+      moves: await computeEngineMoves(this.stackrabbitService, puzzleID, 18)
     }
   }
 }

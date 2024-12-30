@@ -32,11 +32,3 @@ export interface DBPuzzle extends DBPuzzleBuilder {
     num_likes: number;
     num_dislikes: number;
 }
-
-
-export interface UnsolvedRatedPuzzle {
-    attemptID: string;
-    puzzleID: string;
-    eloGain: number;
-    eloLoss: number;
-}

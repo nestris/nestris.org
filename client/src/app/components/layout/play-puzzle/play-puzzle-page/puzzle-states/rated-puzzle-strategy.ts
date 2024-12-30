@@ -17,7 +17,7 @@ export class RatedPuzzleStrategy extends PuzzleStrategy {
     return { puzzleID: "", level: 18 };
   }
 
-  public override async submitPuzzle(submission: PuzzleSubmission): Promise<PuzzleSolution> {
+  public override async submitPuzzle(puzzleID: string, submission: PuzzleSubmission): Promise<PuzzleSolution> {
     // Submit the user's solution to the server and return the engine's recommendations
 
     // This is a placeholder
