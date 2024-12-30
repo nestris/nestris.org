@@ -7,8 +7,6 @@ import { Point } from 'src/app/shared/tetris/point';
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 import { PuzzleData } from '../play-puzzle-page/play-puzzle-page.component';
-import { MeService } from 'src/app/services/state/me.service';
-import { getDisplayKeybind } from 'src/app/components/ui/editable-keybind/editable-keybind.component';
 
 
 /*
@@ -16,8 +14,6 @@ Smart component that handles the logic for the puzzle board.
 Takes in a puzzle definition, and emits a puzzle submission when the puzzle is completed.
 Takes in an undo$ subject, and subscribes to it to undo the first piece placement when it emits.
 */
-
-
 @Component({
   selector: 'app-puzzle-nes-board',
   templateUrl: './puzzle-nes-board.component.html',
@@ -51,9 +47,6 @@ export class PuzzleNesBoardComponent implements OnInit, OnDestroy {
 
   undoSubscription?: any;
 
-  constructor(
-    private readonly meService: MeService,
-  ) {}
 
   ngOnInit(): void {
 
