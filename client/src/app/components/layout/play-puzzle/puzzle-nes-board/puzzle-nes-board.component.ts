@@ -7,6 +7,8 @@ import { Point } from 'src/app/shared/tetris/point';
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 import { PuzzleData } from '../play-puzzle-page/play-puzzle-page.component';
+import { MeService } from 'src/app/services/state/me.service';
+import { getDisplayKeybind } from 'src/app/components/ui/editable-keybind/editable-keybind.component';
 
 
 /*
@@ -30,6 +32,8 @@ export class PuzzleNesBoardComponent implements OnInit, OnDestroy {
   @Input() level: number = 18;
 
   @Input() puzzle!: PuzzleData;
+  @Input() rotateLeftKeybind: string = 'z';
+  @Input() rotateRightKeybind: string = 'x';
   @Output() submitPuzzle = new EventEmitter<PuzzleSubmission>();
 
   @Input() undo$?: Subject<void>;
@@ -46,6 +50,10 @@ export class PuzzleNesBoardComponent implements OnInit, OnDestroy {
   rotation: number = 0;
 
   undoSubscription?: any;
+
+  constructor(
+    private readonly meService: MeService,
+  ) {}
 
   ngOnInit(): void {
 
@@ -79,10 +87,10 @@ export class PuzzleNesBoardComponent implements OnInit, OnDestroy {
 
     const key = event.key.toLowerCase();
 
-    if (key === 'z') {
+    if (key === this.rotateLeftKeybind.toLowerCase()) {
       this.rotation = (this.rotation + 3) % 4;
       this.computeHoveredPiece();
-    } else if (key === 'x') {
+    } else if (key === this.rotateRightKeybind.toLowerCase()) {
       this.rotation = (this.rotation + 1) % 4;
       this.computeHoveredPiece();
     }

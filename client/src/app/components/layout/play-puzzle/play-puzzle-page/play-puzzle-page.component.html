@@ -35,6 +35,7 @@
             <app-puzzle-nes-board *ngIf="state.id === State.SOLVING && state.data"
                 class="board" [scale]="3.3" [level]="state.data.level"
                 [puzzle]="state.data" (submitPuzzle)="submitPuzzle($event)"
+                [rotateLeftKeybind]="rotateLeftKeybind" [rotateRightKeybind]="rotateRightKeybind"
                 [undo$]="clickUndo$" (canUndo)="canUndo$.next($event)"
             />
 
@@ -81,7 +82,7 @@
                     </div>
 
                     <p class="instructions narrow" *ngIf="state.id === State.SOLVING">
-                        Hover your mouse on the board to move the piece, or use the arrow keys! Rotate with Z and X.
+                        Hover your mouse on the board to move the piece! Rotate with {{getDisplayKeybind(rotateLeftKeybind)}} and {{getDisplayKeybind(rotateRightKeybind)}}.
                     </p>
 
                     <!-- show "View Solution" button if in puzzle solving mode -->
