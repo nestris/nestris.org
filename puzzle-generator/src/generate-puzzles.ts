@@ -110,15 +110,15 @@ export async function generatePuzzles(count: number): Promise<DBPuzzleBuilder[]>
 
 
     // discard a fraction of rated puzzles due to overabundance
-    if (rating === PuzzleRating.ONE_STAR && Math.random() < 0.6) {
+    if (rating === PuzzleRating.ONE_STAR && Math.random() < 0.5) {
       i--;
       continue;
     }
-    if (rating === PuzzleRating.TWO_STAR && Math.random() < 0.94) {
+    if (rating === PuzzleRating.TWO_STAR && Math.random() < 0.93) {
       i--;
       continue;
     }
-    if (rating === PuzzleRating.THREE_STAR && Math.random() < 0.99) {
+    if (rating === PuzzleRating.THREE_STAR && Math.random() < 0.988) {
       i--;
       continue;
     }
