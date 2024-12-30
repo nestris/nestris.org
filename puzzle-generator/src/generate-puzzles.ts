@@ -135,14 +135,19 @@ export async function generatePuzzles(count: number): Promise<DBPuzzleBuilder[]>
       theme: theme,
       current_1: stackrabbit.nextBox[0].firstPlacement.getInt2(),
       next_1: stackrabbit.nextBox[0].secondPlacement.getInt2(),
+      score_1: stackrabbit.nextBox[0].score.toFixed(2),
       current_2: stackrabbit.nextBox[1].firstPlacement.getInt2(),
       next_2: stackrabbit.nextBox[1].secondPlacement.getInt2(),
+      score_2: stackrabbit.nextBox[1].score.toFixed(2),
       current_3: stackrabbit.nextBox[2].firstPlacement.getInt2(),
       next_3: stackrabbit.nextBox[2].secondPlacement.getInt2(),
+      score_3: stackrabbit.nextBox[2].score.toFixed(2),
       current_4: stackrabbit.nextBox[3].firstPlacement.getInt2(),
       next_4: stackrabbit.nextBox[3].secondPlacement.getInt2(),
+      score_4: stackrabbit.nextBox[3].score.toFixed(2),
       current_5: stackrabbit.nextBox[4].firstPlacement.getInt2(),
       next_5: stackrabbit.nextBox[4].secondPlacement.getInt2(),
+      score_5: stackrabbit.nextBox[4].score.toFixed(2),
     };
 
     puzzles.push(puzzle);

@@ -49,6 +49,8 @@ import { SetServerRestartWarningRoute } from './src/routes/misc/set-server-resta
 import { ClearUserCacheRoute } from './src/routes/misc/clear-user-cache-route';
 import { GetUserCacheRoute } from './src/routes/misc/get-user-cache-route';
 import { RatedPuzzleConsumer } from './src/online-users/event-consumers/rated-puzzle-consumer';
+import { RequestRatedPuzzleRoute } from './src/routes/puzzles/request-rated-puzzle-route';
+import { SubmitRatedPuzzleRoute } from './src/routes/puzzles/submit-rated-puzzle-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -157,6 +159,8 @@ async function main() {
   routes.registerRoute(SetServerRestartWarningRoute);
   routes.registerRoute(GetUserCacheRoute);
   routes.registerRoute(ClearUserCacheRoute);
+  routes.registerRoute(RequestRatedPuzzleRoute);
+  routes.registerRoute(SubmitRatedPuzzleRoute);
 
   app.get('/api/v2/server-stats', (req: Request, res: Response) => {
     const stats: ServerStats = {

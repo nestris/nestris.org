@@ -5,12 +5,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { PuzzleSubmission } from "src/app/models/puzzles/puzzle";
 import { computeEngineMoves } from "./compute-engine-moves";
 import { PuzzleRating } from "src/app/shared/puzzles/puzzle-rating";
+import { StackrabbitService } from "src/app/services/stackrabbit/stackrabbit.service";
 
 export class SinglePuzzleStrategy extends PuzzleStrategy {
   public readonly type = PuzzleStrategyType.SINGLE;
   public readonly isTimed = false;
   public readonly nextButtonText = undefined;
   public readonly displayName = "Shared Puzzle";
+
+  private stackrabbitService = this.injector.get(StackrabbitService);
 
   public async fetchNextPuzzle(): Promise<UnsolvedPuzzle> {
     const puzzleID = this.paramMap.get('id') ?? undefined;

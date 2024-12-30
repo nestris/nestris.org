@@ -4,6 +4,7 @@ import { PuzzleStrategyType } from "./puzzle-strategy-type";
 import { PuzzleSubmission } from "src/app/models/puzzles/puzzle";
 import { StackrabbitService } from "src/app/services/stackrabbit/stackrabbit.service";
 import { PuzzleRating } from "src/app/shared/puzzles/puzzle-rating";
+import { Injector } from "@angular/core";
 
 // Rated puzzles result in an elo change
 export interface EloChange {
@@ -45,7 +46,7 @@ export abstract class PuzzleStrategy {
    public abstract readonly displayName: string;
 
    constructor(
-    protected readonly stackrabbitService: StackrabbitService, // The service to compute engine moves client-side
+    protected readonly injector: Injector,
     protected readonly paramMap: ParamMap, // The parameters of the current route
    ) {}
 

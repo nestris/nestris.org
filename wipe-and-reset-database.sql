@@ -64,9 +64,9 @@ CREATE TABLE "public"."users" (
 CREATE INDEX trophies_index ON users (trophies DESC);
 CREATE INDEX puzzle_elo_index ON users (puzzle_elo DESC);
 CREATE INDEX highest_score_index ON users (highest_score DESC);
-CREATE INDEX highest_accuracy_index ON users (highest_accuracy DESC);
 
 -- Store brcypted password for password users
+DROP TABLE IF EXISTS "public"."password_users" CASCADE;
 CREATE TABLE "public"."password_users" (
     "userid" text NOT NULL REFERENCES "public"."users"("userid"),
     "password" text NOT NULL,
@@ -92,22 +92,27 @@ CREATE TABLE "public"."rated_puzzles" (
     
     "current_1" int2 NOT NULL,
     "next_1" int2 NOT NULL,
+    "score_1" text NOT NULL,
     "guesses_1" int2 NOT NULL DEFAULT 0,
 
     "current_2" int2 NOT NULL,
     "next_2" int2 NOT NULL,
+    "score_2" text NOT NULL,
     "guesses_2" int2 NOT NULL DEFAULT 0,
 
     "current_3" int2 NOT NULL,
     "next_3" int2 NOT NULL,
+    "score_3" text NOT NULL,
     "guesses_3" int2 NOT NULL DEFAULT 0,
 
     "current_4" int2 NOT NULL DEFAULT 0,
     "next_4" int2 NOT NULL,
+    "score_4" text NOT NULL,
     "guesses_4" int2 NOT NULL DEFAULT 0,
 
     "current_5" int2 NOT NULL DEFAULT 0,
     "next_5" int2 NOT NULL,
+    "score_5" text NOT NULL,
     "guesses_5" int2 NOT NULL DEFAULT 0,
 
     "rating" int2 NOT NULL CHECK (rating >= 1 AND rating <= 6),

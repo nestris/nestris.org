@@ -1,8 +1,8 @@
 import { DBPuzzle } from "../../../shared/puzzles/db-puzzle";
 import { PuzzleRating } from "../../../shared/puzzles/puzzle-rating";
-import { RatedPuzzleSubmission, UnsolvedRatedPuzzle } from "../../../shared/puzzles/rated-puzzle";
+import { RatedPuzzleResult, RatedPuzzleSubmission, UnsolvedRatedPuzzle } from "../../../shared/puzzles/rated-puzzle";
 import { DBPuzzleSubmitEvent, DBUserObject } from "../../database/db-objects/db-user";
-import { Database, DBQuery } from "../../database/db-query";
+import { Database, DBQuery, WriteDBQuery } from "../../database/db-query";
 import { EventConsumer } from "../event-consumer";
 import { OnSessionDisconnectEvent } from "../online-user-events";
 
@@ -21,6 +21,39 @@ class SamplePuzzlesQuery extends DBQuery<DBPuzzle[]> {
 
     public override parseResult(resultRows: any[]): DBPuzzle[] {
         return resultRows as DBPuzzle[];
+    }
+}
+
+/**
+ * Query to update the puzzle stats for a given puzzle in the database.
+ * Updates only the guesses, attempts, and solves fields.
+ */
+class UpdatePuzzleStatsQuery extends WriteDBQuery {
+    public override query = `
+        UPDATE "public"."rated_puzzles"
+        SET 
+            "guesses_1" = $1,
+            "guesses_2" = $2,
+            "guesses_3" = $3,
+            "guesses_4" = $4,
+            "guesses_5" = $5,
+            "num_attempts" = $6,
+            "num_solves" = $7
+        WHERE "id" = $8
+    `;
+    public override warningMs = null;
+
+    constructor(puzzle: DBPuzzle) {
+        super([
+            puzzle.guesses_1,
+            puzzle.guesses_2,
+            puzzle.guesses_3,
+            puzzle.guesses_4,
+            puzzle.guesses_5,
+            puzzle.num_attempts,
+            puzzle.num_solves,
+            puzzle.id
+        ]);
     }
 }
 
@@ -302,15 +335,14 @@ export class RatedPuzzleConsumer extends EventConsumer {
     /**
      * Request a rated puzzle for the given user id and session ID. This will determine the rating of the puzzle
      * based on the user's current rating, fetch a random puzzle of that rating, and add it as the user's active puzzle.
-     * @param userid 
-     * @param sessionID 
+     * @param userid The user id to request the puzzle for
+     * @param sessionID The session ID of the user requesting the puzzle
+     * @returns The unsolved rated puzzle object for the user to solve, or null if the user already has an active puzzle
      */
-    public async requestRatedPuzzle(userid: string, sessionID: string): Promise<UnsolvedRatedPuzzle> {
+    public async requestRatedPuzzle(userid: string, sessionID: string): Promise<UnsolvedRatedPuzzle | null> {
 
-        // If the user already has an active puzzle, throw an error
-        if (this.activePuzzles.has(userid)) {
-            throw new Error("User already has an active puzzle");
-        }
+        // If the user already has an active puzzle, a new puzzle cannot be requested
+        if (this.activePuzzles.has(userid)) return null
 
         // Immediately set the user's active puzzle with undefined values to prevent multiple requestRatedPuzzle calls
         this.activePuzzles.set(userid, { sessionID });
@@ -367,7 +399,7 @@ export class RatedPuzzleConsumer extends EventConsumer {
      * @param submission The user's submission for the puzzle
      * @returns The full DBPuzzle object of the puzzle that was submitted, which contains the solution
      */
-    public async submitRatedPuzzle(userid: string, submission: RatedPuzzleSubmission): Promise<DBPuzzle> {
+    public async submitRatedPuzzle(userid: string, submission: RatedPuzzleSubmission): Promise<RatedPuzzleResult> {
 
         // Throw an error if the active puzzle for the puzzle does not exist
         const activePuzzle = this.activePuzzles.get(userid);
@@ -387,10 +419,11 @@ export class RatedPuzzleConsumer extends EventConsumer {
         const isCorrect = (dbPuzzle.current_1 === submission.current && dbPuzzle.next_1 === submission.next);
 
         // New elo is the user's starting elo plus the elo gain or loss
-        const newElo = activePuzzle.data.startElo + (isCorrect ? activePuzzle.data.eloGain : activePuzzle.data.eloLoss);
+        const newElo = activePuzzle.data.startElo + (isCorrect ? activePuzzle.data.eloGain : -activePuzzle.data.eloLoss);
 
         // Calculate the xp gained for the user, which is 1 xp for every 200 elo gained
-        const xpGained = isCorrect ? Math.floor(newElo / 200) + 1 : 0;
+        //const xpGained = isCorrect ? Math.floor(newElo / 200) + 1 : 0;
+        const xpGained = 0; // TEMPORARY: Disable XP gain for now
         
         // Update the in-memory user's rating, but don't wait for database call to finish
         await DBUserObject.alter(userid, new DBPuzzleSubmitEvent({
@@ -401,9 +434,17 @@ export class RatedPuzzleConsumer extends EventConsumer {
         }), false);
         console.log(`User ${userid} submitted rated puzzle ${dbPuzzle.id} with ${isCorrect ? "correct" : "incorrect"} solution, new elo ${newElo}, xp gained ${xpGained}`);
 
+        // Start updating puzzle stats based on submission, but don't wait for database call to finish
+        this.updatePuzzleStats(dbPuzzle, submission, isCorrect);
+
         // Return the full DBPuzzle object of the puzzle that was submitted
-        return dbPuzzle;
+        return {
+            puzzle: dbPuzzle,
+            isCorrect,
+            newElo
+        }
     }
+
 
     /**
      * If session with active puzzle disconnects, submit the puzzle as incorrect.
@@ -421,5 +462,23 @@ export class RatedPuzzleConsumer extends EventConsumer {
         
     }
 
+    // Update the puzzle's stats for the number of guesses, attempts, and solves based on submission
+    private async updatePuzzleStats(puzzle: DBPuzzle, submission: RatedPuzzleSubmission, isCorrect: boolean) {
+
+        const updatedPuzzle = { ...puzzle };
+
+        // Update the number of attempts and solves
+        updatedPuzzle.num_attempts++;
+        if (isCorrect) updatedPuzzle.num_solves++;
+
+        // Update which guess the user made
+        if (puzzle.current_1 === submission.current && puzzle.next_1 === submission.next) updatedPuzzle.guesses_1++;
+        else if (puzzle.current_2 === submission.current && puzzle.next_2 === submission.next) updatedPuzzle.guesses_2++;
+        else if (puzzle.current_3 === submission.current && puzzle.next_3 === submission.next) updatedPuzzle.guesses_3++;
+        else if (puzzle.current_4 === submission.current && puzzle.next_4 === submission.next) updatedPuzzle.guesses_4++;
+        else if (puzzle.current_5 === submission.current && puzzle.next_5 === submission.next) updatedPuzzle.guesses_5++;
+
+        await Database.query(UpdatePuzzleStatsQuery, updatedPuzzle);
+    }
 
 }

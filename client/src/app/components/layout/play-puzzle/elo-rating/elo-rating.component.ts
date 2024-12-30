@@ -23,21 +23,25 @@ export class EloRatingComponent implements OnInit, OnChanges {
   @Input() increase!: number;
   @Input() decrease!: number;
 
+  adjustedRating!: number;
+
   displayRating = new BehaviorSubject<number>(1000);
 
   ngOnInit() {
-    this.displayRating.next(this.rating);
+    this.displayRating.next(this.adjustedRating);
   }
 
   // when rating changes, have displayRating approach rating over time
   ngOnChanges() {
 
+    this.adjustedRating = this.rating;
+    if (this.mode === EloMode.WIN) this.adjustedRating += this.increase;
+    if (this.mode === EloMode.LOSS) this.adjustedRating -= this.decrease;
+
     const oldRating = this.displayRating.getValue();
 
     // if rating is already equal to displayRating, do nothing
-    if (oldRating === this.rating) return;
-
-    console.log("EloRatingComponent change", this.rating, oldRating);
+    if (oldRating === this.adjustedRating) return;
 
     // delay 300ms before starting animation to set displayRating to rating
     setTimeout(
@@ -55,13 +59,13 @@ export class EloRatingComponent implements OnInit, OnChanges {
     const oldRating = this.displayRating.getValue();
     
     // if difference is less than 1, set display rating to rating and exit loop
-    if (Math.abs(this.rating - oldRating) < 1) {
-      this.displayRating.next(this.rating);
+    if (Math.abs(this.adjustedRating - oldRating) < 1) {
+      this.displayRating.next(this.adjustedRating);
       return;
     }
 
     // otherwise, update display rating and call again
-    this.displayRating.next(oldRating + (this.rating - oldRating) * RATE);
+    this.displayRating.next(oldRating + (this.adjustedRating - oldRating) * RATE);
     requestAnimationFrame(() => this.animateRating());
 
   }

@@ -113,11 +113,18 @@ export class PlayPageComponent implements OnDestroy{
     await this.rankedQueueService.joinQueue();
   }
 
+  async playPuzzles() {
+    this.router.navigate(['/online/puzzle'], { 
+      queryParams: { mode: 'rated' } 
+    });
+  }
+
+
   onClickMode(mode: Mode) {
     switch (mode) {
       case Mode.SOLO: return this.playSolo();
       case Mode.RANKED: return this.playRanked();
-      case Mode.PUZZLES: return undefined;
+      case Mode.PUZZLES: return this.playPuzzles();
     }
   }
 

@@ -138,11 +138,11 @@ header {
     margin: 0;
 }
 
-.correct .puzzle-details-top h1 {
+.correct .puzzle-header h1 {
     color: $ui-green-color;
 }
 
-.incorrect .puzzle-details-top h1 {
+.incorrect .puzzle-header h1 {
     color: $ui-red-color;
 }
 

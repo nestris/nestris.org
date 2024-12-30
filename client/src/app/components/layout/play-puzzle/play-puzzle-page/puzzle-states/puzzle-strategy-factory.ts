@@ -4,18 +4,19 @@ import { RatedPuzzleStrategy } from "./rated-puzzle-strategy";
 import { SinglePuzzleStrategy } from "./single-puzzle-strategy";
 import { PuzzleStrategy } from "./puzzle-strategy";
 import { StackrabbitService } from "src/app/services/stackrabbit/stackrabbit.service";
+import { Injector } from "@angular/core";
 
 export function puzzleStrategyFactory(
     type: PuzzleStrategyType,
-    stackrabbitService: StackrabbitService,
+    injector: Injector,
     params: ParamMap
 ): PuzzleStrategy | null {
-    
+
     switch (type) {
         case PuzzleStrategyType.RATED:
-            return new RatedPuzzleStrategy(stackrabbitService, params);
+            return new RatedPuzzleStrategy(injector, params);
         case PuzzleStrategyType.SINGLE:
-            return new SinglePuzzleStrategy(stackrabbitService, params);
+            return new SinglePuzzleStrategy(injector, params);
         default: return null;
     }
 }

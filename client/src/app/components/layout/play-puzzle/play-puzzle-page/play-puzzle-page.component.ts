@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Injector, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Observable, Subject, map } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
@@ -21,6 +21,7 @@ import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 import { StackrabbitService } from 'src/app/services/stackrabbit/stackrabbit.service';
 import { RatedPuzzleStrategy } from './puzzle-states/rated-puzzle-strategy';
 import { SinglePuzzleStrategy } from './puzzle-states/single-puzzle-strategy';
+import { PUZZLE_THEME_TEXT } from 'src/app/shared/puzzles/puzzle-theme';
 
 const RIGHT_ANSWER_COMMENTS = [
   "You got it!",
@@ -79,6 +80,7 @@ export class PlayPuzzlePageComponent implements OnInit {
 
   readonly EloMode = EloMode;
   readonly ButtonColor = ButtonColor;
+  readonly PUZZLE_THEME_TEXT = PUZZLE_THEME_TEXT;
 
   readonly PUZZLE_TIME_LIMIT = 30;
   readonly PuzzleStrategyType = PuzzleStrategyType;
@@ -102,12 +104,14 @@ export class PlayPuzzlePageComponent implements OnInit {
   // The fraction of time that has passed in the puzzle to be displayed in the timer bar
   public currentPuzzleTime$ = new BehaviorSubject<number>(0);
 
+  private timerInterval?: any;
+
 
   constructor(
     private route: ActivatedRoute,
     public router: Router,
     private notifier: NotificationService,
-    private stackrabbitService: StackrabbitService,
+    private injector: Injector,
   ) {}
 
 
@@ -118,7 +122,7 @@ export class PlayPuzzlePageComponent implements OnInit {
     const mode = params.get('mode') as PuzzleStrategyType;
 
     // Create puzzle strategy based on mode
-    const strategy = puzzleStrategyFactory(mode, this.stackrabbitService, params);
+    const strategy = puzzleStrategyFactory(mode, this.injector, params);
     if (!strategy) { // If invalid mode, redirect to home
       console.error("Invalid puzzle mode:", mode);
       this.router.navigate(['/']);
@@ -152,6 +156,9 @@ export class PlayPuzzlePageComponent implements OnInit {
     } catch (e) {
       // If fetch fails, redirect to home
       console.error(e);
+      this.notifier.notify(NotificationType.ERROR, "You are already in a puzzle!");
+
+      // Redirect to home
       this.router.navigate(['/']);
       return;
     }
@@ -172,13 +179,12 @@ export class PlayPuzzlePageComponent implements OnInit {
     const startPuzzleTime = Date.now();
 
     // start timer
-    const timerInterval = setInterval(() => {
+    this.timerInterval = setInterval(() => {
 
       let time = (Date.now() - startPuzzleTime) / 1000;
 
       // stop timer and submit puzzle if time limit is reached
       if (time >= this.PUZZLE_TIME_LIMIT) {
-        clearInterval(timerInterval);
         this.submitPuzzle(); // submit puzzle early
       }
 
@@ -201,6 +207,8 @@ export class PlayPuzzlePageComponent implements OnInit {
     if (!currentState) throw new Error('Puzzle state is undefined when submitting puzzle');
     if (!currentState.data) throw new Error('Puzzle data is undefined when submitting puzzle');
 
+    clearInterval(this.timerInterval);
+
     // If this is retrying, do not resubmit the puzzle
     let solution: PuzzleSolution;
     if (currentState.isRetry) {
@@ -208,7 +216,7 @@ export class PlayPuzzlePageComponent implements OnInit {
       solution = currentState.solution;
     } else {
       // Submit the puzzle based on the strategy
-      solution = await this.strategy.submitPuzzle(submission);
+      solution = await this.strategy.submitPuzzle(currentState.data.puzzleID, submission);
     }
 
     // Check which submission index corresponds to the user's submission

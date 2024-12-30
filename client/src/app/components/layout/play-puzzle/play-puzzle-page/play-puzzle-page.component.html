@@ -117,7 +117,7 @@
                                 </div>
                                 <div class="stat">
                                     <h1>Theme</h1>
-                                    <p>{{ratedPuzzle.theme}}</p>
+                                    <p>{{PUZZLE_THEME_TEXT[ratedPuzzle.theme]}}</p>
                                 </div>
                             </div>
                         </ng-container>
@@ -207,7 +207,7 @@
                         icon="./assets/img/button-icons/new-puzzle.svg"
                         [label]="strategy.nextButtonText" [color]="ButtonColor.GREEN"
                         [stretch]="true"
-                        [action]="fetchNextPuzzle"
+                        [action]="fetchNextPuzzle.bind(this)"
                         [loadingSize]="15"
                     />
                 </div>
