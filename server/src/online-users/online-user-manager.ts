@@ -5,7 +5,7 @@ import { JsonMessage, JsonMessageType, OnConnectMessage, ErrorHandshakeIncomplet
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
 import { decodeMessage, MessageType } from "../../shared/network/ws-message";
 import { OnlineUserEvent, OnlineUserEventType, OnSessionBinaryMessageEvent, OnSessionConnectEvent, OnSessionDisconnectEvent, OnSessionJsonMessageEvent, OnUserActivityChangeEvent, OnUserConnectEvent, OnUserDisconnectEvent } from "./online-user-events";
-import { OnlineUser, OnlineUserActivity, OnlineUserInfo, OnlineUserSession, SessionSocket } from "./online-user";
+import { HumanOnlineUserSession, OnlineUser, OnlineUserActivity, OnlineUserInfo, OnlineUserSession, SessionSocket } from "./online-user";
 import { WebSocketServer } from "ws";
 import { OnlineUserActivityType } from "../../shared/models/activity";
 
@@ -194,8 +194,6 @@ export class OnlineUserManager {
             }
         } else {
 
-            console.log(`Received message from ${session.user.username} with sessionID ${session.sessionID}: ${JSON.stringify(data)}`);
-
             // recieved message from socket already recognized as online user
             try {
                 if (type === MessageType.JSON) {
@@ -221,16 +219,18 @@ export class OnlineUserManager {
     // Called when a new socket connects with information about the user
     private handleSocketConnect(userid: string, username: string, ws: WebSocket, sessionID: string) {
 
+        const newSession = new HumanOnlineUserSession(sessionID, ws);
+
         // Check if user is already online on a different session. If not, create a new OnlineUser
         let onlineUser = this.onlineUsers.get(userid);
         if (!onlineUser) {
             // Create a new OnlineUser and send new user event
-            onlineUser = new OnlineUser(userid, username, sessionID, ws);
+            onlineUser = new OnlineUser(userid, username, newSession);
             this.onlineUsers.set(userid, onlineUser);
             this.events$.next(new OnUserConnectEvent(userid, username));
         } else {
             // Add the new session to the existing OnlineUser
-            onlineUser.addSession(sessionID, ws);
+            onlineUser.addSession(newSession);
         }
 
         // Map the sessionID to the userid
