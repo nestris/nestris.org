@@ -30,7 +30,7 @@ export class TetrisBoard {
 
     static random(): TetrisBoard {
         const board = new TetrisBoard();
-        for (let y = 0; y < 20; y++) {
+        for (let y = 10; y < 20; y++) {
             for (let x = 0; x < 10; x++) {
                 if (Math.random() < 0.5) board.setAt(x, y, getRandomColorType());                
             }

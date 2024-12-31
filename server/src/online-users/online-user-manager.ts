@@ -5,7 +5,7 @@ import { JsonMessage, JsonMessageType, OnConnectMessage, ErrorHandshakeIncomplet
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
 import { decodeMessage, MessageType } from "../../shared/network/ws-message";
 import { OnlineUserEvent, OnlineUserEventType, OnSessionBinaryMessageEvent, OnSessionConnectEvent, OnSessionDisconnectEvent, OnSessionJsonMessageEvent, OnUserActivityChangeEvent, OnUserConnectEvent, OnUserDisconnectEvent } from "./online-user-events";
-import { OnlineUser, OnlineUserActivity, OnlineUserInfo, OnlineUserSession } from "./online-user";
+import { OnlineUser, OnlineUserActivity, OnlineUserInfo, OnlineUserSession, SessionSocket } from "./online-user";
 import { WebSocketServer } from "ws";
 import { OnlineUserActivityType } from "../../shared/models/activity";
 
@@ -48,14 +48,9 @@ export class OnlineUserManager {
         // });
     }
 
-    // Given a websocket, get the session object associated with it. Keep private, as external classes
-    // should not access these objects directly.
+    // Given a websocket, get the session object associated with it
     private getSessionBySocket(ws: WebSocket): OnlineUserSession | undefined {
-        for (const onlineUser of this.onlineUsers.values()) {
-            const session = onlineUser.getSessionBySocket(ws);
-            if (session) return session;
-        }
-        return undefined;
+        return (ws as SessionSocket).session;
     }
 
     // Get the userid associated with a sessionID
@@ -198,6 +193,9 @@ export class OnlineUserManager {
                 ws.send(JSON.stringify(new ErrorHandshakeIncompleteMessage()));
             }
         } else {
+
+            console.log(`Received message from ${session.user.username} with sessionID ${session.sessionID}: ${JSON.stringify(data)}`);
+
             // recieved message from socket already recognized as online user
             try {
                 if (type === MessageType.JSON) {

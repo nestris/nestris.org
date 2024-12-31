@@ -1,6 +1,10 @@
 import { OnlineUserActivityType } from "../../shared/models/activity";
 import { JsonMessage } from "../../shared/network/json-message";
 
+export class SessionSocket extends WebSocket {
+    session: OnlineUserSession | undefined;
+}
+
 export interface UserSessionID {
     userid: string,
     sessionID: string,
@@ -9,12 +13,18 @@ export interface UserSessionID {
 export class OnlineUserSession {
 
     public readonly sessionStart = Date.now();
+    public readonly socket: SessionSocket;
 
     constructor(
         public readonly user: OnlineUser,
         public readonly sessionID: string,
-        public readonly socket: WebSocket,
-    ) { }
+        _socket: WebSocket,
+    ) {
+        // Assign the socket a reference to this session
+        this.socket = _socket as SessionSocket;
+        this.socket.session = this;
+        console.log(`Session ${sessionID} created for user ${user.username}`);
+    }
 
     // Sends a binary or JsonMessage to the connected client for this session
     sendMessage(message: JsonMessage | Uint8Array) {

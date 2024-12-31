@@ -3,6 +3,7 @@ import { TetrisBoard } from "../../shared/tetris/tetris-board";
 import { BinaryTranscoder } from "../../shared/network/tetris-board-transcoding/binary-transcoder";
 import { TetrominoType } from "../../shared/tetris/tetromino-type";
 import { decodeStackrabbitResponse, TopMovesHybridResponse } from "../../shared/scripts/stackrabbit-decoder";
+import { INPUT_SPEED_TO_TIMELINE, InputSpeed } from "../../shared/models/input-speed";
 
 require('dotenv').config();
 
@@ -38,4 +39,26 @@ export async function getTopMovesHybrid(
     console.log(`Fetched topMovesHybrid depth ${depth} in ${Date.now() - startTime}ms`);
 
     return topMovesHybrid;
+}
+
+export async function testStackrabbit() {
+    const startTime = Date.now();
+    for (let i = 0; i < 600; i++) {
+        const board = TetrisBoard.random();
+        try {
+            await getTopMovesHybrid(
+                board,
+                TetrominoType.I_TYPE,
+                TetrominoType.I_TYPE,
+                18,
+                INPUT_SPEED_TO_TIMELINE[InputSpeed.HZ_30],
+                1
+                );
+        } catch (e) {
+            console.error(e);
+            board.print();
+        }
+        
+    }
+    console.log(`Tested 600 stackrabbit requests in ${Date.now() - startTime}ms`);
 }
