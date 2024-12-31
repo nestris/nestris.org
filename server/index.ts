@@ -57,6 +57,7 @@ import { getTopMovesHybrid, testStackrabbit } from './src/scripts/stackrabbit';
 import { TetrisBoard } from './shared/tetris/tetris-board';
 import { TetrominoType } from './shared/tetris/tetromino-type';
 import { INPUT_SPEED_TO_TIMELINE, InputSpeed } from './shared/models/input-speed';
+import { generateRandomUsername } from './src/authentication/username-generation';
 
 // Load environment variables
 require('dotenv').config();
@@ -170,7 +171,9 @@ async function main() {
   routes.registerRoute(SubmitRatedPuzzleRoute);
   routes.registerRoute(GetGlobalStatRoute);
 
-  // await testStackrabbit();
+  for (let i = 0; i < 100; i++) {
+    await generateRandomUsername();
+  }
 
   app.get('/api/v2/server-stats', (req: Request, res: Response) => {
     const stats: ServerStats = {

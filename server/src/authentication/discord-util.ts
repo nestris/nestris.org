@@ -3,9 +3,8 @@ import axios from 'axios';
 import { Authentication, DBUser, LoginMethod } from '../../shared/models/db-user';
 import { DBUserObject } from '../database/db-objects/db-user';
 import { DBObjectNotFoundError } from '../database/db-object-error';
-import { createUserSession, UserSession } from './session-util';
-import { Database } from '../database/db-query';
-import { UsernameExistsQuery } from '../database/db-queries/username-exists-query';
+import { createUserSession } from './session-util';
+import { makeUsernameUnique } from './username-generation';
 
 require('dotenv').config();
 
@@ -25,25 +24,6 @@ export const redirectToDiscord = (req: express.Request, res: express.Response) =
     res.redirect(authorizeUrl);
 };
 
-// Return the first version of the username that doesn't already exist in the database
-async function generateUniqueUsername(username: string) {
-
-    // If the username is already unique, return it
-    const usernameExists = await Database.query(UsernameExistsQuery, username);
-    if (!usernameExists) {
-        console.log(`Username ${username} is already unique`);
-        return username;
-    }
-
-    console.log(`Username ${username} already exists, generating a new one`);
-
-    // If the username already exists, add a number to the end of the username
-    let i = 2;
-    while (await Database.query(UsernameExistsQuery, `${username}${i}`)) {
-        i++;
-    }
-    return `${username}${i}`;
-}
 
 export async function handleDiscordCallback(req: express.Request, res: express.Response) {
     const code = req.query.code as string;
@@ -88,8 +68,8 @@ export async function handleDiscordCallback(req: express.Request, res: express.R
 
                 console.log(`User ${userID} not found in the database, creating new user with username ${newUsername}`);
 
-                // Generate a unique username
-                newUsername = await generateUniqueUsername(newUsername);
+                // Make the username unique
+                newUsername = await makeUsernameUnique(newUsername);
 
                 // Create the new user with username
                 console.log(`Creating new user ${newUsername} with ID ${userID} with Discord login`);

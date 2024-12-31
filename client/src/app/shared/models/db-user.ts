@@ -9,6 +9,7 @@ export enum LoginMethod {
   GUEST = "guest",
   DISCORD = "discord",
   PASSWORD = "password",
+  BOT = "bot",
 }
 
 export const AUTHENTICATION_LEVEL = {

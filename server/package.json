@@ -30,6 +30,7 @@
     "ts-jest": "^29.2.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.3",
+    "unique-username-generator": "^1.4.0",
     "uuid": "^10.0.0",
     "ws": "^8.18.0"
   },
