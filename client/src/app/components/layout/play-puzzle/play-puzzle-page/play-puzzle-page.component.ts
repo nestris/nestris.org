@@ -27,7 +27,10 @@ import { getDisplayKeybind } from 'src/app/components/ui/editable-keybind/editab
 const RIGHT_ANSWER_COMMENTS = [
   "You got it!",
   "Stack-tastic!",
-  "Superb solving!"
+  "Superb solving!",
+  "Bullseye!",
+  "Sharp as a tack!",
+  "Nailed it with style!"
 ]
 
 const WRONG_ANSWER_COMMENTS = [
@@ -43,6 +46,7 @@ const WRONG_ANSWER_COMMENTS = [
   "Is your GPS off today?",
   "Your accuracy's on vacation.",
   "I guess perfection's too mainstream for you.",
+  "Whoops, better luck next time!"
 ]
 
 enum PuzzleStateID {

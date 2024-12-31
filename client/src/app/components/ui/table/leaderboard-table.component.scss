@@ -184,18 +184,6 @@ tr:last-child td .ranking {
 }
 
 
-
-tbody tr.me {
+.content.row.me {
     background-color: #264D2A;
-}
-
-tbody tr.click {
-    cursor: pointer;
-}
-
-.td-content {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
