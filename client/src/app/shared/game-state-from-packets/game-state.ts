@@ -3,6 +3,7 @@ import MoveableTetromino, { MTPose } from "../tetris/moveable-tetromino";
 import { TetrisBoard } from "../tetris/tetris-board";
 import { TetrominoType } from "../tetris/tetromino-type";
 import { SmartGameStatus } from "../tetris/smart-game-status";
+import { DroughtCounter } from "./drought-counter";
 
 export interface GameStateSnapshotWithoutBoard {
   level: number,
@@ -10,6 +11,7 @@ export interface GameStateSnapshotWithoutBoard {
   score: number,
   next: TetrominoType,
   tetrisRate: number,
+  droughtCount: number | null,
   countdown: number | undefined,
   transitionInto19: number | null,
   transitionInto29: number | null,
@@ -43,6 +45,8 @@ export class GameState {
   private perfectInto19: boolean = false;
   private perfectInto29: boolean = false
 
+  private droughtCounter = new DroughtCounter();
+
   constructor(public readonly startLevel: number, current: TetrominoType, next: TetrominoType, initialCountdown: number | undefined = undefined) {
     this.status = new SmartGameStatus(startLevel);
     this.isolatedBoard = new TetrisBoard(); // the board without the active piece. updated every placement
@@ -51,6 +55,7 @@ export class GameState {
 
     this.currentBoard = new TetrisBoard();
     this.countdown = initialCountdown;
+    this.droughtCounter.onPiece(current);
   }
 
   static fromRecovery(recovery: GameRecoverySchema): GameState {
@@ -110,6 +115,8 @@ export class GameState {
     this.current = recovery.current;
     this.next = recovery.next;
     this.countdown = recovery.countdown;
+    this.droughtCounter.reset();
+    this.droughtCounter.onPiece(this.current);
   }
 
   // when a packet for the full board recieved. updates current board
@@ -169,6 +176,8 @@ export class GameState {
     this.current = this.next;
     this.next = nextNextPiece;
 
+    this.droughtCounter.onPiece(this.current);
+
     // increment pushdown into score, if any
     this.status.onPushdown(pushdown);
   }
@@ -190,6 +199,7 @@ export class GameState {
       score: this.status.score,
       next: this.next,
       tetrisRate: this.getTetrisRate(),
+      droughtCount: this.droughtCounter.getDroughtCount(),
       countdown: this.countdown,
       transitionInto19: this.transitionInto19,
       transitionInto29: this.transitionInto29,

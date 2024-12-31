@@ -21,7 +21,7 @@ export class LayoutOneComponent extends AbstractNesLayoutComponent implements On
   @Input() score: number = 0;
   @Input() countdown?: number | string;
   @Input() trt: number = 0;
-  @Input() drought?: number = undefined; // if undefined, not in drought and hidden. if drought, replace trt
+  @Input() drought: number | null = null; // if undefined, not in drought and hidden. if drought, replace trt
   @Input() das?: number = undefined; // if undefined, not in das and hidden. if das, replace trt
   @Input() gameOver? : GameOverMode;
   @Input() gameOverShowNext: boolean = false;

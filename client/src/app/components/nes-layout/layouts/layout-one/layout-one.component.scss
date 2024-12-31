@@ -69,3 +69,16 @@ app-eval-bar {
     transition-delay: 1s;
     opacity: 0;
 }
+
+.trt-panel {
+    width: 70px;
+}
+
+.trt-panel p, .trt-panel h2 {
+    color: white;
+    transition: color 1.5s;
+}
+
+.trt-panel.drought p, .trt-panel.drought h2 {
+    color: red;
+}

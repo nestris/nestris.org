@@ -9,6 +9,7 @@ import { SmartGameStatus } from "src/app/shared/tetris/smart-game-status";
 import { IGameStatus } from "src/app/shared/tetris/game-status";
 import { RNG } from "src/app/shared/tetris/piece-sequence-generation/rng";
 import { MemoryGameStatus, StatusHistory, StatusSnapshot } from "src/app/shared/tetris/memory-game-status";
+import { DroughtCounter } from "src/app/shared/game-state-from-packets/drought-counter";
 
 
 export const EMULATOR_FPS = 60;
@@ -25,6 +26,8 @@ export class EmulatorGameState {
      * displaying the game summary graph at the end of the game
      */
     private status: MemoryGameStatus;
+
+    private droughtCounter = new DroughtCounter();
 
     // piece shown in next box
     private nextPieceType: TetrominoType;
@@ -68,6 +71,7 @@ export class EmulatorGameState {
 
         // generate current piece
         this.activePiece = MoveableTetromino.fromSpawnPose(this.rng.getNextPiece());
+        this.droughtCounter.onPiece(this.activePiece.tetrominoType);
 
         // generate new next piece
         this.nextPieceType = this.rng.getNextPiece();
@@ -78,6 +82,7 @@ export class EmulatorGameState {
         const copy = new EmulatorGameState(this.startLevel, this.rng.copy(), this.countdown);
         copy.isolatedBoard = this.isolatedBoard.copy();
         copy.status = new MemoryGameStatus(this.status.startLevel, this.status.lines, this.status.score, this.status.level);
+        copy.droughtCounter = this.droughtCounter.copy();
         copy.nextPieceType = this.nextPieceType;
         copy.nextNextPieceType = this.nextNextPieceType;
         copy.activePiece = this.activePiece.copy();
@@ -175,6 +180,10 @@ export class EmulatorGameState {
         return this.status.getTetrisRate();
     }
 
+    getDroughtCount(): number | null {
+        return this.droughtCounter.getDroughtCount();
+    }
+
     getPushdownPoints(): number {
         return this.calculatePushdown(this.status.score, this.rawPushDownPoints);
     }
@@ -238,6 +247,7 @@ export class EmulatorGameState {
 
         // set active piece to spawn location of next piece
         this.activePiece = MoveableTetromino.fromSpawnPose(this.nextPieceType);
+        this.droughtCounter.onPiece(this.activePiece.tetrominoType);
         this.pieceLocked = false;
 
         // generate new next piece

@@ -135,6 +135,7 @@ export class ServerPlayer {
         next: TetrominoType.ERROR_TYPE,
         countdown: 0,
         tetrisRate: 0,
+        droughtCount: null,
         transitionInto19: null,
         transitionInto29: null,
         perfectInto19: false,

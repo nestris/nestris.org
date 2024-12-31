@@ -111,7 +111,8 @@ export class PlatformInterfaceService extends PacketSender {
       prevData.lines === data.lines &&
       prevData.score === data.score &&
       prevData.nextPiece === data.nextPiece &&
-      prevData.trt === data.trt
+      prevData.trt === data.trt &&
+      prevData.drought === data.drought
     );
 
     if (boardChanged) this.polledGameBoard$.next(data.board);

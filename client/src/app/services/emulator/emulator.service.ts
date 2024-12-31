@@ -197,6 +197,7 @@ export class EmulatorService {
       lines: state.getStatus().lines,
       nextPiece: state.getNextPieceType(),
       trt: this.currentState!.getTetrisRate(), // use non-runahead state for tetris rate because it is not correct with runahead
+      drought: state.getDroughtCount(),
       countdown: state.getCountdown(),
     };
     this.platform.updateGameData(data);

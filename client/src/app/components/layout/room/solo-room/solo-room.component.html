@@ -9,6 +9,7 @@
         [score]="data.score"
         [countdown]="data.countdown"
         [trt]="data.trt"
+        [drought]="data.drought"
         [gameOver]="(soloClientRoom.getSoloState$() | async) === SoloClientState.TOPOUT ? GameOverMode.TOPOUT : undefined"
         [gameOverShowNext]="true"
         (clickNext)="clickNextOnTopout()"

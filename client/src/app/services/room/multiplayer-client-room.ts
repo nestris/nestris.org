@@ -40,6 +40,7 @@ export class MultiplayerClientRoom extends ClientRoom {
             score: 0,
             nextPiece: TetrominoType.ERROR_TYPE,
             trt: 0,
+            drought: null,
             countdown: undefined
         })
 
@@ -103,6 +104,7 @@ export class MultiplayerClientRoom extends ClientRoom {
                         score: 0,
                         nextPiece: TetrominoType.ERROR_TYPE,
                         trt: 0,
+                        drought: null,
                         countdown: undefined
                     })
                 }
