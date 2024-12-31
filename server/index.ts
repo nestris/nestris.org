@@ -53,6 +53,10 @@ import { RequestRatedPuzzleRoute } from './src/routes/puzzles/request-rated-puzz
 import { SubmitRatedPuzzleRoute } from './src/routes/puzzles/submit-rated-puzzle-route';
 import { GlobalStatConsumer } from './src/online-users/event-consumers/global-stat-consumer';
 import { GetGlobalStatRoute } from './src/routes/misc/get-global-stat-route';
+import { getTopMovesHybrid } from './src/scripts/stackrabbit';
+import { TetrisBoard } from './shared/tetris/tetris-board';
+import { TetrominoType } from './shared/tetris/tetromino-type';
+import { INPUT_SPEED_TO_TIMELINE, InputSpeed } from './shared/models/input-speed';
 
 // Load environment variables
 require('dotenv').config();
@@ -165,6 +169,15 @@ async function main() {
   routes.registerRoute(RequestRatedPuzzleRoute);
   routes.registerRoute(SubmitRatedPuzzleRoute);
   routes.registerRoute(GetGlobalStatRoute);
+
+  await getTopMovesHybrid(
+    new TetrisBoard(),
+    TetrominoType.I_TYPE,
+    TetrominoType.I_TYPE,
+    18,
+    INPUT_SPEED_TO_TIMELINE[InputSpeed.HZ_30],
+    1
+  );
 
   app.get('/api/v2/server-stats', (req: Request, res: Response) => {
     const stats: ServerStats = {

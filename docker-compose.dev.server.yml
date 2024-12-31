@@ -12,6 +12,7 @@ services:
       - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
       - DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
       - NODE_ENV=dev
+      - CPP_SERVICE_PORT=4500
     ports:
       - "9229:9229"  # Node.js debugger port
       - "3000:3000" # Expose port 3000 for dev server
