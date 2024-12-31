@@ -33,6 +33,7 @@ services:
       - "9229:9229"  # Node.js debugger port
     depends_on:
       - postgres
+      - cpp-service
     command: node --inspect=0.0.0.0:9229 -r ts-node/register index.ts
 
   cpp-service:

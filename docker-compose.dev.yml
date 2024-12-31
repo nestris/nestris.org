@@ -33,6 +33,7 @@ services:
       - "3000:3000" # Expose port 3000 for dev server
     depends_on:
       - postgres
+      - cpp-service
     volumes:
       - ./server:/app  # Mount your source code
       - /app/node_modules  # Anonymous volume to prevent overwriting node_modules

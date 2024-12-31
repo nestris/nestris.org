@@ -17,6 +17,7 @@ services:
       - "3000:3000" # Expose port 3000 for dev server
     depends_on:
       - postgres
+      - cpp-service
     volumes:
       - ./server:/app  # Mount your source code
       - /app/node_modules  # Anonymous volume to prevent overwriting node_modules
@@ -27,6 +28,16 @@ services:
       --ignore "node_modules/*"
       --ignore "dist/*"
       --exec "node --inspect=0.0.0.0:9229 -r ts-node/register index.ts"
+
+  cpp-service:
+    image: anselchang1/nestris.org:cpp-dev
+    build:
+      context: .
+      dockerfile: Dockerfile.cpp
+    expose:
+      - "4500"
+    ports:
+      - "4500:4500"
 
   postgres:
     image: postgres:13
