@@ -5,9 +5,10 @@ import { JsonMessage, JsonMessageType, OnConnectMessage, ErrorHandshakeIncomplet
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
 import { decodeMessage, MessageType } from "../../shared/network/ws-message";
 import { OnlineUserEvent, OnlineUserEventType, OnSessionBinaryMessageEvent, OnSessionConnectEvent, OnSessionDisconnectEvent, OnSessionJsonMessageEvent, OnUserActivityChangeEvent, OnUserConnectEvent, OnUserDisconnectEvent } from "./online-user-events";
-import { HumanOnlineUserSession, OnlineUser, OnlineUserActivity, OnlineUserInfo, OnlineUserSession, SessionSocket } from "./online-user";
+import { BotOnlineUserSession, HumanOnlineUserSession, OnlineUser, OnlineUserActivity, OnlineUserInfo, OnlineUserSession, SessionSocket } from "./online-user";
 import { WebSocketServer } from "ws";
 import { OnlineUserActivityType } from "../../shared/models/activity";
+import { BotUser } from "../bot/bot-user";
 
 /*
 Manages the users that are online right now and thus are connected to socket with websocket.
@@ -51,6 +52,10 @@ export class OnlineUserManager {
     // Given a websocket, get the session object associated with it
     private getSessionBySocket(ws: WebSocket): OnlineUserSession | undefined {
         return (ws as SessionSocket).session;
+    }
+
+    private getSessionByBot(bot: BotUser): OnlineUserSession {
+        return bot.session;
     }
 
     // Get the userid associated with a sessionID
@@ -175,6 +180,19 @@ export class OnlineUserManager {
         this.events$.next(new OnUserActivityChangeEvent(userid, onlineUser.username, activityType));
     }
 
+    // called when a message is received from a bot
+    public onBotMessage(bot: BotUser, message: JsonMessage | PacketDisassembler) {
+
+        if (message instanceof PacketDisassembler) {
+            // Received a binary message from the bot
+            this.events$.next(new OnSessionBinaryMessageEvent(bot.userid, bot.username, bot.sessionID, message));
+        } else {
+            // Received a JSON message from the bot
+            this.events$.next(new OnSessionJsonMessageEvent(bot.userid, bot.username, bot.sessionID, message));
+        }
+    }
+
+
     // called when a message is received from a client
     public async onSocketMessage(ws: WebSocket, message: any) {
 
@@ -216,10 +234,20 @@ export class OnlineUserManager {
         }
     }
 
+    // called when a bot connects
+    public onBotConnect(bot: BotUser): BotOnlineUserSession {
+        const newSession = new BotOnlineUserSession(bot.sessionID, bot);
+        this.createSession(bot.userid, bot.username, newSession);
+        return newSession;
+    }
+
     // Called when a new socket connects with information about the user
     private handleSocketConnect(userid: string, username: string, ws: WebSocket, sessionID: string) {
-
         const newSession = new HumanOnlineUserSession(sessionID, ws);
+        this.createSession(userid, username, newSession);
+    }
+
+    private createSession(userid: string, username: string, newSession: OnlineUserSession) {
 
         // Check if user is already online on a different session. If not, create a new OnlineUser
         let onlineUser = this.onlineUsers.get(userid);
@@ -234,19 +262,24 @@ export class OnlineUserManager {
         }
 
         // Map the sessionID to the userid
-        this.sessions.set(sessionID, onlineUser.getSessionByID(sessionID)!);
+        this.sessions.set(newSession.sessionID, onlineUser.getSessionByID(newSession.sessionID)!);
 
         // Finish the handshake by sending a connection successful message
-        this.sendToUserSession(sessionID, new ConnectionSuccessfulMessage());
+        this.sendToUserSession(newSession.sessionID, new ConnectionSuccessfulMessage());
 
         // Send the session connect event
-        this.events$.next(new OnSessionConnectEvent(userid, username, sessionID));
+        this.events$.next(new OnSessionConnectEvent(userid, username, newSession.sessionID));
 
-        console.log(`User ${username} connected with sessionID ${sessionID}`);
+        console.log(`User ${username} connected with sessionID ${newSession.sessionID}`);
+    }
+
+    public onBotDisconnect(bot: BotUser) {
+        const session = this.getSessionByBot(bot);
+        this.deleteSession(session, 1000, "Bot disconnected");
     }
 
     // called when a socket connection is closed. Close session, and if no more sessions for user, close user.
-    public async onSocketClose(ws: WebSocket, code: number, reason: string) {
+    public onSocketClose(ws: WebSocket, code: number, reason: string) {
 
         // get the session associated with the socket
         const session = this.getSessionBySocket(ws);
@@ -254,6 +287,13 @@ export class OnlineUserManager {
             console.error("Received close event for unrecognized socket");
             return;
         }
+
+        // Disconnect the session
+        this.deleteSession(session, code, reason);
+    }
+
+    // Disconnect a session
+    private deleteSession(session: OnlineUserSession, code: number, reason: string) {
 
         // get the online user associated with the session
         const onlineUser = session.user;

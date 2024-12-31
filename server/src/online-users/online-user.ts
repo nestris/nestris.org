@@ -1,5 +1,6 @@
 import { OnlineUserActivityType } from "../../shared/models/activity";
 import { JsonMessage } from "../../shared/network/json-message";
+import { BotUser } from "../bot/bot-user";
 
 export interface UserSessionID {
     userid: string,
@@ -22,7 +23,7 @@ export abstract class OnlineUserSession {
     }   
 
     public abstract sendMessage(message: JsonMessage | Uint8Array): void;
-    public abstract terminateSession(code?: number, reason?: string): void;
+    public terminateSession(code?: number, reason?: string): void {}
     
 }
 
@@ -53,6 +54,18 @@ export class HumanOnlineUserSession extends OnlineUserSession {
     }
 }
 
+export class BotOnlineUserSession extends OnlineUserSession {
+    
+    constructor(sessionID: string, private readonly bot: BotUser) {
+        super(sessionID);
+    }
+
+    // Route the message to the bot
+    public override sendMessage(message: JsonMessage | Uint8Array): void {
+        if (message instanceof Uint8Array) this.bot.onBinaryMessageFromServer(message);
+        else this.bot.onJsonMessageFromServer(message);
+    }
+}
 
 // The type of activity the user is currently doing and the sessionID of the session that is doing it
 export interface OnlineUserActivity {

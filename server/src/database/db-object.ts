@@ -234,11 +234,28 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
          * This will be fast if the object is already in-memory, but slow if the object is not in-memory.
          * @param id The ID of the object to get
          * @returns The in-memory object, whether it was cached, and the time it took to fetch the object
-         * @throws DBError
+         * @throws DBError if the object does not exist
          */
         static async get<T extends DBObject>(this: new (id: string) => T, id: string): Promise<InMemoryObject> {
             const dbObject = await DBObject.getDBObject.call(this, id);
             return dbObject.get();
+        }
+
+        /**
+         * Gets the object from the cache or the database, otherwise returns null if the object does not exist.
+         * @param id The ID of the object to get
+         * @returns The in-memory object, or null if the object does not exist
+         */
+        static async getOrNull<T extends DBObject>(this: new (id: string) => T, id: string): Promise<InMemoryObject | null> {
+            try {
+                return await DBObject.get.call(this, id);
+            } catch (error: any) {
+                if (error instanceof DBObjectNotFoundError) {
+                    return null;
+                } else {
+                    throw error;
+                }
+            }
         }
 
         /**

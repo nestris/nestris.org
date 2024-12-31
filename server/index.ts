@@ -58,6 +58,7 @@ import { TetrisBoard } from './shared/tetris/tetris-board';
 import { TetrominoType } from './shared/tetris/tetromino-type';
 import { INPUT_SPEED_TO_TIMELINE, InputSpeed } from './shared/models/input-speed';
 import { generateRandomUsername } from './src/authentication/username-generation';
+import { BotUserConsumer } from './src/online-users/event-consumers/bot-user-consumer';
 
 // Load environment variables
 require('dotenv').config();
@@ -123,6 +124,7 @@ async function main() {
   consumers.registerConsumer(RatedPuzzleConsumer);
   consumers.registerConsumer(ServerRestartWarningConsumer);
   consumers.registerConsumer(GlobalStatConsumer);
+  consumers.registerConsumer(BotUserConsumer);
   await consumers.init();
 
   // Initialize InvitationManagers
@@ -171,9 +173,6 @@ async function main() {
   routes.registerRoute(SubmitRatedPuzzleRoute);
   routes.registerRoute(GetGlobalStatRoute);
 
-  for (let i = 0; i < 100; i++) {
-    await generateRandomUsername();
-  }
 
   app.get('/api/v2/server-stats', (req: Request, res: Response) => {
     const stats: ServerStats = {
