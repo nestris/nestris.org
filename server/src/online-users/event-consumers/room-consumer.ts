@@ -213,6 +213,10 @@ export abstract class Room<T extends RoomState = RoomState> {
         return this.roomState;
     }
 
+    public getPlayerByUserID(userid: string): RoomPlayer | undefined {
+        return this.players.find(player => player.userid === userid);
+    }
+
     // ======================== PUBLIC METHODS ========================
 
 
@@ -519,6 +523,8 @@ export class RoomConsumer extends EventConsumer {
 
             // Trigger the onPlayerLeave hook
             await room._onPlayerLeave(userid, sessionID);
+            const player = room.getPlayerByUserID(userid);
+            console.log(`Player ${player?.username} left room ${room.id}`);
 
             // If that was the last player in the room, delete the room entirely
             if (room.playerSessionIDsInRoom.length === 0) {

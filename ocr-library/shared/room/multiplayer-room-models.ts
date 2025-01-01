@@ -45,6 +45,7 @@ export enum MultiplayerRoomStatus {
     BEFORE_GAME = 'BEFORE_GAME',
     IN_GAME = 'IN_GAME',
     AFTER_MATCH = 'AFTER_MATCH',
+    ABORTED = 'ABORTED',
 }
 
 export interface PlayerInfo {

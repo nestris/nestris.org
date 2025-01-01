@@ -34,6 +34,7 @@ export class MultiplayerAfterMatchModalComponent extends MultiplayerComponent {
   }
 
   getMatchText(state: MultiplayerRoomState): string {
+    if (state.matchWinner === null) return 'Match Aborted';
     if (state.matchWinner === PlayerIndex.DRAW) return 'Draw';
     if (state.matchWinner === this.getColorIndex("blue")) return 'Victory';
     return 'Defeat';

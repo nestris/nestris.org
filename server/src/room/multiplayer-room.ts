@@ -274,9 +274,19 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
      * @returns 
      */
     protected override async onPlayerLeave(userid: string, sessionID: string): Promise<void> {
+        const roomState = this.getRoomState();
 
         // If match already ended, do nothing
-        if (this.getRoomState().status === MultiplayerRoomStatus.AFTER_MATCH) return;
+        if (roomState.status === MultiplayerRoomStatus.AFTER_MATCH) return;
+
+        // If a player left before any game even started, abort the match
+        if (roomState.status === MultiplayerRoomStatus.BEFORE_GAME && roomState.points.length === 0) {
+            const state = this.getRoomState();
+            state.status = MultiplayerRoomStatus.ABORTED;
+            this.updateRoomState(state);
+            console.log('Match aborted because a player left before any game started');
+            return;
+        }
 
         // Update multiplayer room state with player leaving
         const state = this.getRoomState();

@@ -121,6 +121,11 @@ export class MultiplayerClientRoom extends ClientRoom {
             if (newState.wonByResignation) this.showAfterMatchModal();
         }
 
+        // If aborted, show after match modal
+        if (oldState.status !== MultiplayerRoomStatus.AFTER_MATCH && newState.status === MultiplayerRoomStatus.ABORTED) {
+            this.showAfterMatchModal();
+        }
+
     }
 
     /**

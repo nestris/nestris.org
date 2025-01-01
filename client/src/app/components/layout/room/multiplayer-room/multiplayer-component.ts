@@ -35,7 +35,8 @@ export class MultiplayerComponent {
     else return index === PlayerIndex.PLAYER_1 ? 'blue' : 'red';
   }
 
-  public getIndexColorWithTie(index: PlayerIndex): 'red' | 'blue' | 'tie' {
+  public getIndexColorWithTie(index: PlayerIndex | null): 'red' | 'blue' | 'tie' | 'aborted' {
+    if (index === null) return 'aborted';
     if (index === PlayerIndex.DRAW) return 'tie';
     return this.getIndexColor(index);
   }

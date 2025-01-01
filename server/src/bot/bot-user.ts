@@ -123,8 +123,8 @@ export class BotUser {
      * Send a binary message to the server.
      * @param message The binary message to send to the server
      */
-    protected sendBinaryMessageToServer(message: PacketDisassembler) {
-        this.users.onBotMessage(this, message);
+    protected sendBinaryMessageToServer(message: Uint8Array) {
+        this.users.onBotMessage(this, new PacketDisassembler(message, false));
     }
 }
 
