@@ -78,7 +78,7 @@ export function interpretPackets(packets: PacketContent[]): InterpretedGame {
     
     // Start level/lines/score counters at start level and 0. Use MemoryGameStatus to track these values over time
     const gameStartPacket = packets[startIndex].content as GameStartSchema;
-    const status = new MemoryGameStatus(gameStartPacket.level);
+    const status = new MemoryGameStatus(true, gameStartPacket.level);
     console.log('Game start packet at index', startIndex, gameStartPacket);
 
     // The current board state without the active piece, to be updated with each placement

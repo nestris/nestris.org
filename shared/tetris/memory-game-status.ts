@@ -98,10 +98,10 @@ export class MemoryGameStatus extends SmartGameStatus {
 
     private placementCount: number = 0;
 
-    constructor(startLevel: number, initialLines: number = 0, initialScore: number = 0, initialLevel?: number) {
+    constructor(private readonly storeHistory: boolean, startLevel: number, initialLines: number = 0, initialScore: number = 0, initialLevel?: number) {
         super(startLevel, initialLines, initialScore, initialLevel);
 
-        this.history.addSnapshot({
+        if (this.storeHistory) this.history.addSnapshot({
             level: this.level,
             lines: this.lines,
             score: this.score,
@@ -128,7 +128,7 @@ export class MemoryGameStatus extends SmartGameStatus {
         }
 
         // Capture a snapshot of the game status
-        this.history.addSnapshot({
+        if (this.storeHistory) this.history.addSnapshot({
             level: this.level,
             lines: this.lines,
             score: this.score,

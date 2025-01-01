@@ -54,7 +54,7 @@ export class OnlineUserManager {
         return (ws as SessionSocket).session;
     }
 
-    private getSessionByBot(bot: BotUser): OnlineUserSession {
+    private getSessionByBot(bot: BotUser): OnlineUserSession | undefined {
         return bot.session;
     }
 
@@ -275,6 +275,10 @@ export class OnlineUserManager {
 
     public onBotDisconnect(bot: BotUser) {
         const session = this.getSessionByBot(bot);
+        if (!session) {
+            console.error(`Bot ${bot.userid} is not connected, cannot disconnect`);
+            return;
+        }
         this.deleteSession(session, 1000, "Bot disconnected");
     }
 

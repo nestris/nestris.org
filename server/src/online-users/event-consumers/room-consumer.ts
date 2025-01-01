@@ -299,13 +299,13 @@ export abstract class Room<T extends RoomState = RoomState> {
         // Trigger the onCreate hook that may be implemented by subclasses
         await this.onCreate();
 
-        // Send IN_ROOM_STATUS messages to all players in the room to indicate that they are players in the room,
-        // including the room info
-        this.sendToAll(new InRoomStatusMessage(InRoomStatus.PLAYER, this.roomInfo, this.roomState));
-
         // Log the creation of the room
         const playerUsernames = this.roomInfo.players.map(player => player.username).join(", ");
         console.log(`Created room ${this.id} of type ${this.roomState.type} with players ${playerUsernames}`);
+
+        // Send IN_ROOM_STATUS messages to all players in the room to indicate that they are players in the room,
+        // including the room info
+        this.sendToAll(new InRoomStatusMessage(InRoomStatus.PLAYER, this.roomInfo, this.roomState));
     }
 
     /**

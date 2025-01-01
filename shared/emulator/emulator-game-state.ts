@@ -1,18 +1,31 @@
-import { getGravity } from "src/app/shared/tetris/gravity";
-import MoveableTetromino from "src/app/shared/tetris/moveable-tetromino";
-import { TetrisBoard } from "src/app/shared/tetris/tetris-board";
-import { TetrominoType } from "src/app/shared/tetris/tetromino-type";
-import { CurrentlyPressedKeys } from "./currently-pressed-keys";
+import { TetrisBoard } from "../tetris/tetris-board";
+import { TetrominoType } from "../tetris/tetromino-type";
+import { RNG } from "../tetris/piece-sequence-generation/rng";
+import MoveableTetromino from "../tetris/moveable-tetromino";
+import { MemoryGameStatus } from "../tetris/memory-game-status";
+import { DroughtCounter } from "../game-state-from-packets/drought-counter";
 import { Keybind } from "./keybinds";
-import { getLockDelay } from "./spawn-delay";
-import { SmartGameStatus } from "src/app/shared/tetris/smart-game-status";
-import { IGameStatus } from "src/app/shared/tetris/game-status";
-import { RNG } from "src/app/shared/tetris/piece-sequence-generation/rng";
-import { MemoryGameStatus, StatusHistory, StatusSnapshot } from "src/app/shared/tetris/memory-game-status";
-import { DroughtCounter } from "src/app/shared/game-state-from-packets/drought-counter";
-
+import { CurrentlyPressedKeys } from "./currently-pressed-keys";
+import { getGravity } from "../tetris/gravity";
 
 export const EMULATOR_FPS = 60;
+
+
+// return the number of delay frames after a piece has locked
+// it is dependent on the y position of the piece
+export function getLockDelay(lastPlacement: MoveableTetromino): number {
+
+    /*
+    ARE is 10~18 frames depending on the height at which the piece locked;
+    pieces that lock in the bottom two rows are followed by 10 frames of entry delay,
+    and each group of 4 rows above that has an entry delay 2 frames longer than the last. 
+    */
+    const y = lastPlacement.getLowestY();
+    const additionalDelay = Math.floor((19 - y + 2) / 4);
+
+    return 10 + additionalDelay * 2; // TODO: make this more accurate
+
+}
 
 
 export class EmulatorGameState {
@@ -65,8 +78,9 @@ export class EmulatorGameState {
         public readonly startLevel: number,
         private readonly rng: RNG,
         private countdown: number = 3, // how many seconds of countdown before game starts
+        private readonly storeHistory: boolean = true // whether to store history for game summary (requires more memory)
     ) {
-        this.status = new MemoryGameStatus(startLevel);
+        this.status = new MemoryGameStatus(storeHistory, startLevel);
         this.gravity = getGravity(this.status.level);
 
         // generate current piece
@@ -81,7 +95,7 @@ export class EmulatorGameState {
     copy(): EmulatorGameState {
         const copy = new EmulatorGameState(this.startLevel, this.rng.copy(), this.countdown);
         copy.isolatedBoard = this.isolatedBoard.copy();
-        copy.status = new MemoryGameStatus(this.status.startLevel, this.status.lines, this.status.score, this.status.level);
+        copy.status = new MemoryGameStatus(this.storeHistory, this.status.startLevel, this.status.lines, this.status.score, this.status.level);
         copy.droughtCounter = this.droughtCounter.copy();
         copy.nextPieceType = this.nextPieceType;
         copy.nextNextPieceType = this.nextNextPieceType;

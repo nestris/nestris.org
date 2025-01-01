@@ -2,9 +2,6 @@ import { Injectable, NgZone } from '@angular/core';
 import { GameStartPacket, GameCountdownPacket, GamePlacementPacket, GameAbbrBoardPacket, GameFullBoardPacket, GameEndPacket } from 'src/app/shared/network/stream-packets/packet';
 import { TimeDelta } from 'src/app/util/time-delta';
 import { PlatformInterfaceService, Platform } from '../platform-interface.service';
-import { KeyManager } from './currently-pressed-keys';
-import { EmulatorGameState, EMULATOR_FPS } from './emulator-game-state';
-import { Keybind, Keybinds } from './keybinds';
 import { GameDisplayData } from 'src/app/shared/tetris/game-display-data';
 import { GymRNG } from 'src/app/shared/tetris/piece-sequence-generation/gym-rng';
 import { BinaryEncoder } from 'src/app/shared/network/binary-codec';
@@ -18,6 +15,9 @@ import { LiveGameAnalyzer, PlacementEvaluation } from '../stackrabbit/live-game-
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { GamepadService } from '../gamepad.service';
 import { WakeLockService } from '../wake-lock.service';
+import { EMULATOR_FPS, EmulatorGameState } from 'src/app/shared/emulator/emulator-game-state';
+import { Keybind, Keybinds } from 'src/app/shared/emulator/keybinds';
+import { KeyManager } from 'src/app/shared/emulator/currently-pressed-keys';
 
 
 /*
