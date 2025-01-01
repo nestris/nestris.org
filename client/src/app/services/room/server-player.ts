@@ -92,7 +92,7 @@ export class ServerPlayer {
 
       // Update the snapshot
       this.snapshot$.next(this.state?.getSnapshotWithoutBoard() ?? this.previousSnapshot ?? this.getDefaultSnapshot());
-      this.board$.next(this.state?.getCurrentBoard() ?? new TetrisBoard());
+      this.board$.next(this.state?.getCurrentBoard() ?? this.previousSnapshot?.board ?? new TetrisBoard());
     }
   
     /**

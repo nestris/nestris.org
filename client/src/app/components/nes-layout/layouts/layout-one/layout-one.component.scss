@@ -38,6 +38,10 @@ app-eval-bar {
     height: 80px;
 }
 
+.level-panel {
+    width: 80px; // prevent panel from stretching when level number increases
+}
+
 .board-column {
     display: flex;
     flex-direction: column;
