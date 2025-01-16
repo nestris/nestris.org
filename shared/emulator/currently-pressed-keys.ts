@@ -107,6 +107,13 @@ export class KeyManager {
         this.pressed[keybind] = pressed;
     }
 
+    // Set only these keybinds to pressed, and all others to unpressed
+    setOnlyPressed(keybinds: Keybind[]) {
+        ALL_KEYBINDS.forEach((key) => {
+            this.pressed[key] = keybinds.includes(key);
+        });
+    }
+
     resetAll() {
         ALL_KEYBINDS.forEach((keybind) => {
             this.pressed[keybind] = false;

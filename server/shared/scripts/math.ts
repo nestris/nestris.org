@@ -48,3 +48,22 @@ export function randomInt(min: number, max: number): number {
 export function randomChoice<T>(array: T[]): T {
     return array[randomInt(0, array.length - 1)];
 }
+
+export function weightedRandomChoice<T>(array: T[], weights: number[]): T {
+    if (array.length !== weights.length) {
+        throw new Error("Array and weights must have the same length.");
+    }
+
+    const totalWeight = weights.reduce((acc, weight) => acc + weight, 0);
+    const randomValue = Math.random() * totalWeight;
+
+    let sum = 0;
+    for (let i = 0; i < array.length; i++) {
+        sum += weights[i];
+        if (randomValue < sum) {
+            return array[i];
+        }
+    }
+
+    return randomChoice(array);
+}

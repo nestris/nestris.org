@@ -7,6 +7,7 @@ import { DroughtCounter } from "../game-state-from-packets/drought-counter";
 import { Keybind } from "./keybinds";
 import { CurrentlyPressedKeys } from "./currently-pressed-keys";
 import { getGravity } from "../tetris/gravity";
+import { SmartGameStatus } from "../tetris/smart-game-status";
 
 export const EMULATOR_FPS = 60;
 
@@ -202,6 +203,10 @@ export class EmulatorGameState {
         return this.calculatePushdown(this.status.score, this.rawPushDownPoints);
     }
 
+    getPlacementFrameCount(): number {
+        return this.placementFrameCount;
+    }
+
     private calculatePushdown(currentScore: number, pushdownPoints: number): number {
         // Helper to convert to BCD
         function toBCD(value: number): number {
@@ -358,6 +363,22 @@ export class EmulatorGameState {
             if (this.pushingDown) this.rawPushDownPoints++;
             else this.rawPushDownPoints = 0;
         }
+    }
+
+    // Get state after lock for after line clear happens
+    getPostLockState() {
+        if (!this.pieceLocked) throw new Error("Cannot get post lock state when piece is not locked");
+
+        // At lock, the active piece is already placed, but line clear delay is still ongoing
+        const postLockBoard = this.isolatedBoard.copy();
+        const postLockStatus = new SmartGameStatus(this.startLevel, this.status.lines, this.status.score, this.status.level)
+        postLockStatus.onLineClear(postLockBoard.processLineClears());
+
+        // We cycle current and next piece types for the next piece
+        const current = this.nextPieceType;
+        const next = this.nextNextPieceType;
+
+        return { postLockBoard, postLockStatus, current, next };
     }
 
     // given the current state and a set of pressed keys, progress the state

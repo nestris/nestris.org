@@ -21,6 +21,7 @@ export async function getTopMovesHybrid(
     current: TetrominoType,
     next: TetrominoType,
     level: number = 18,
+    lines: number = 0,
     inputTimeline: string = "X.",
     depth: number = 3,
 ): Promise<TopMovesHybridResponse> {
@@ -29,7 +30,7 @@ export async function getTopMovesHybrid(
     const encodedBoard = BinaryTranscoder.encode(board, true);
     const playoutCount = Math.pow(7, depth);
 
-    const request = `http://cpp-service:4500/top-moves-hybrid?board=${encodedBoard}&currentPiece=${current}&nextPiece=${next}&level=${level}&inputFrameTimeline=${inputTimeline}&depth=${depth}&playoutCount=${playoutCount}`;
+    const request = `http://cpp-service:4500/top-moves-hybrid?board=${encodedBoard}&currentPiece=${current}&nextPiece=${next}&level=${level}&lines=${lines}&inputFrameTimeline=${inputTimeline}&depth=${depth}&playoutCount=${playoutCount}`;
 
     // fetch from server
     const startTime = Date.now();
@@ -51,6 +52,7 @@ export async function testStackrabbit() {
                 TetrominoType.I_TYPE,
                 TetrominoType.I_TYPE,
                 18,
+                0,
                 INPUT_SPEED_TO_TIMELINE[InputSpeed.HZ_30],
                 1
                 );

@@ -14,6 +14,11 @@ import { GameAbbrBoardPacket, GameCountdownPacket, GameEndPacket, GameFullBoardP
 import { PacketAssembler } from "../../shared/network/stream-packets/packet-assembler";
 import { BinaryEncoder } from "../../shared/network/binary-codec";
 import { RoomConsumer } from "../online-users/event-consumers/room-consumer";
+import { TetrominoType } from "../../shared/tetris/tetromino-type";
+import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
+import { TetrisBoard } from "../../shared/tetris/tetris-board";
+import { SRPlacementAI } from "./sr-placement-ai";
+import { PlacementAI } from "./placement-ai";
 
 const BEFORE_GAME_MESSAGE = [
     "glhf",
@@ -38,6 +43,8 @@ export class RankedBotUser extends BotUser {
 
     private inRoomStatus$ = new BehaviorSubject<InRoomStatus>(InRoomStatus.NONE);
     private roomState$ = new BehaviorSubject<MultiplayerRoomState | null>(null);
+
+    private placementIndex: number = 0;
 
     override async start() {
 
@@ -132,15 +139,24 @@ export class RankedBotUser extends BotUser {
         const roomState = this.roomState$.getValue();
         if (!roomState) throw new Error('Bot is not in a room');
 
+        
+
         // Initialize the game state with the room's seed and start level
         const rng = new GymRNG(roomState.currentSeed);
         const state = new EmulatorGameState(roomState.startLevel, rng, 3, false);
+
+        // Initialize the key manager
+        const keyManager = new KeyManager();
 
         // Manages calculating time differences between frames
         const timeDelta = new TimeDelta();
 
         // Batch packets together and send them at a regular interval
         const packetBatcher = new PacketBatcher((binaryData) => this.sendBinaryMessageToServer(binaryData));
+
+        // Initialize AI and start calculating first placement
+        const placementAI = new SRPlacementAI();
+        placementAI.registerPlacementPosition(0, state.getIsolatedBoard(), state.getCurrentPieceType(), state.getNextPieceType(), state.getStatus().level, state.getStatus().lines);
 
         // Send initial game start packet
         packetBatcher.sendPacket(new GameStartPacket().toBinaryEncoder({
@@ -154,6 +170,9 @@ export class RankedBotUser extends BotUser {
             delta: timeDelta.getDelta(),
             mtPose: state.getActivePiece().getMTPose(),
         }));
+
+        // Reset the placement index
+        this.placementIndex = 0;
 
         const EMULATOR_FPS = 60;
         let framesDone: number = 0;
@@ -170,7 +189,7 @@ export class RankedBotUser extends BotUser {
             // Advance as many frames as needed to catch up to current time
             let gameOver = false;
             for (let i = 0; i < frameAmount; i++) {
-                gameOver = this.advanceEmulatorState(state, timeDelta, packetBatcher);
+                gameOver = this.advanceEmulatorState(state, keyManager, placementAI, timeDelta, packetBatcher);
                 if (gameOver) break;
             }
             if (gameOver) break;
@@ -201,16 +220,19 @@ export class RankedBotUser extends BotUser {
      * @param packetBatcher The packet batcher to use for sending packets
      * @returns True if the game is over, false otherwise
      */
-    private advanceEmulatorState(state: EmulatorGameState, timeDelta: TimeDelta, packetBatcher: PacketBatcher): boolean {
+    private advanceEmulatorState(state: EmulatorGameState, keyManager: KeyManager, placementAI: PlacementAI, timeDelta: TimeDelta, packetBatcher: PacketBatcher): boolean {
 
         // Store previous state to compare with new state
         const previousBoard = state.getDisplayBoard();
         const previousCountdown = state.getCountdown();
         const wasPieceLocked = state.isPieceLocked();
 
+        // Get the inputs to make for this frame
+        const inputs = placementAI.getInputForPlacementAndFrame(this.placementIndex, state.getPlacementFrameCount());
+        keyManager.setOnlyPressed(inputs);
+
         // Advance the emulator state by one frame
-        const pressedKeys = KeyManager.ALL_KEYS_UNPRESSED;
-        state.executeFrame(pressedKeys);
+        state.executeFrame(keyManager.generate());
 
         // Get the new state
         const currentBoard = state.getDisplayBoard();
@@ -229,6 +251,12 @@ export class RankedBotUser extends BotUser {
 
         // Send placement packet if piece has been placed
         if (!wasPieceLocked && isPieceLocked) {
+
+            // Register the next placement for AI computation. Note that the pieces have not updated yet, so we use next and next-next
+            this.placementIndex++;
+            const { postLockBoard, postLockStatus, current, next } = state.getPostLockState();
+            placementAI.registerPlacementPosition(this.placementIndex, postLockBoard, current, next, postLockStatus.level, postLockStatus.lines);
+
             packetBatcher.sendPacket(new GamePlacementPacket().toBinaryEncoder({
                 nextNextType: state.getNextNextPieceType(),
                     mtPose: activePiece.getMTPose(),
@@ -291,6 +319,7 @@ export class RankedBotUser extends BotUser {
     }
 }
 
+
 /**
  * A class that batches packets together and sends them at a regular interval.
  */
@@ -346,6 +375,4 @@ class PacketBatcher {
         // clear the assembler for the next batch of packets
         this.assembler = new PacketAssembler();
     }
-
-
 }
