@@ -24,13 +24,14 @@ export async function getTopMovesHybrid(
     lines: number = 0,
     inputTimeline: string = "X.",
     depth: number = 3,
+    disableTuck: boolean = false
 ): Promise<TopMovesHybridResponse> {
 
     // Encode into 0s and 1s
     const encodedBoard = BinaryTranscoder.encode(board, true);
     const playoutCount = Math.pow(7, depth);
 
-    const request = `http://cpp-service:4500/top-moves-hybrid?board=${encodedBoard}&currentPiece=${current}&nextPiece=${next}&level=${level}&lines=${lines}&inputFrameTimeline=${inputTimeline}&depth=${depth}&playoutCount=${playoutCount}`;
+    const request = `http://cpp-service:4500/top-moves-hybrid?board=${encodedBoard}&currentPiece=${current}&nextPiece=${next}&level=${level}&lines=${lines}&inputFrameTimeline=${inputTimeline}&depth=${depth}&playoutCount=${playoutCount}&disableTuck=${disableTuck}`;
 
     // fetch from server
     const startTime = Date.now();

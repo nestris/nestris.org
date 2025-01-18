@@ -39,24 +39,21 @@ export class SRPlacementAI extends PlacementAI {
         // Try to get the top move from stackrabbit
         let stackrabbit: TopMovesHybridResponse;
         try {
-            stackrabbit = await getTopMovesHybrid(board, current, next, level, lines, inputFrameTimeline, 1);
+            // Disable tucks: tucks not supported with shift map yet
+            stackrabbit = await getTopMovesHybrid(board, current, next, level, lines, inputFrameTimeline, 1, true);
         } catch (e) {
             // No placement found
             return null;
         }
 
-        // Filter out any tuck/spin moves
-        stackrabbit.nextBox = stackrabbit.nextBox.filter(move => {
-            const placementOneRowHigher = move.firstPlacement.copy();
-            placementOneRowHigher.moveBy(0, 0, -1);
-            return !placementOneRowHigher.intersectsBoard(board);
-        });
         if (stackrabbit.nextBox.length === 0) return null;
 
+        // Get best move
+        return stackrabbit.nextBox[0].firstPlacement;
+
         // Get a weighted random move from top moves based on score. The better the move, the more likely it is to be chosen.
-        const lowestEval = stackrabbit.nextBox[stackrabbit.nextBox.length - 1].score;
-        return weightedRandomChoice(stackrabbit.nextBox, stackrabbit.nextBox.map(move => Math.pow(move.score - lowestEval, 2))).firstPlacement;
-        
+        //const lowestEval = stackrabbit.nextBox[stackrabbit.nextBox.length - 1].score;
+        //return weightedRandomChoice(stackrabbit.nextBox, stackrabbit.nextBox.map(move => Math.pow(move.score - lowestEval, 2))).firstPlacement;   
         
     }
 
