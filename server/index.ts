@@ -61,6 +61,8 @@ import { generateRandomUsername } from './src/authentication/username-generation
 import { BotManager } from './src/bot/bot-manager';
 import { BotUser } from './src/bot/bot-user';
 import { RankedBotUser } from './src/bot/ranked-bot-user';
+import { OnlineUserCacheConsumer } from './src/online-users/event-consumers/online-user-cache-consumer';
+import { TestUserCache } from './src/online-user-cache/test-user-cache';
 
 // Load environment variables
 require('dotenv').config();
@@ -117,6 +119,7 @@ async function main() {
   // Register consumers
   const consumers = EventConsumerManager.getInstance();
   consumers.registerConsumer(UserConsumer);
+  consumers.registerConsumer(OnlineUserCacheConsumer);
   consumers.registerConsumer(FriendEventConsumer);
   consumers.registerConsumer(PingConsumer);
   consumers.registerConsumer(GuestConsumer);
@@ -127,6 +130,10 @@ async function main() {
   consumers.registerConsumer(ServerRestartWarningConsumer);
   consumers.registerConsumer(GlobalStatConsumer);
   await consumers.init();
+
+  // Initialize OnlineUserCaches
+  const onlineUserCacheConsumer = consumers.getConsumer(OnlineUserCacheConsumer);
+  onlineUserCacheConsumer.registerCache(TestUserCache, 5);
 
   // Initialize InvitationManagers
   const invitationConsumer = consumers.getConsumer(InvitationConsumer);

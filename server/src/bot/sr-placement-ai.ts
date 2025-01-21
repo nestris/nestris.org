@@ -64,11 +64,6 @@ export class SRPlacementAI extends PlacementAI {
         const numShifts = Math.abs(lockPlacement.getTranslateX() - spawnPiece.getTranslateX());
         const shiftDirection = lockPlacement.getTranslateX() > spawnPiece.getTranslateX() ? Keybind.SHIFT_RIGHT : Keybind.SHIFT_LEFT;
 
-        console.log('spawn');
-        spawnPiece.print();
-        console.log('lock');
-        lockPlacement.print();
-
         // Calculate rotation
         const spawnRotation = spawnPiece.getRotation();
         const lockRotation = lockPlacement.getRotation();

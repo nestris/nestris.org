@@ -63,7 +63,7 @@ export abstract class PlacementAI {
             const placement = this.placements.get(index);
             if (!placement) throw new Error(`Placement at index ${index} not found`);
             placement.shiftMap = move === null ? new Map() : this.computeShiftMap(inputFrameTimeline, move);
-            console.log(`Computed shift map for placement at index ${index}: ${Array.from(placement.shiftMap.entries()).map(([frame, keybinds]) => `${frame}: ${keybinds.map(keybind => keybind).join(' ')}`).join(', ')}`);
+            //console.log(`Computed shift map for placement at index ${index}: ${Array.from(placement.shiftMap.entries()).map(([frame, keybinds]) => `${frame}: ${keybinds.map(keybind => keybind).join(' ')}`).join(', ')}`);
         });
     }
 
