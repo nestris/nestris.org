@@ -237,6 +237,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
                 this.inMemoryObject.highest_transition_into_29 = Math.max(this.inMemoryObject.highest_transition_into_29, gameEndArgs.transitionInto29 ?? 0);
                 this.inMemoryObject.has_perfect_transition_into_19 = this.inMemoryObject.has_perfect_transition_into_19 || gameEndArgs.perfectTransitionInto19;
                 this.inMemoryObject.has_perfect_transition_into_29 = this.inMemoryObject.has_perfect_transition_into_29 || gameEndArgs.perfectTransitionInto29;
+                this.inMemoryObject.games_played++;
 
                 // If highscore, start query to update the highscore game
                 if (isHighscore) {

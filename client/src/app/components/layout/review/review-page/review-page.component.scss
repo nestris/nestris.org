@@ -13,6 +13,9 @@
     flex-direction: column;
 }
 
+section {
+    margin-bottom: 20px;
+}
 
 .section-header {
     display: flex;
@@ -93,4 +96,118 @@ app-solid-selector {
 
 .analyze-button {
     transform: scale(0.6);
+}
+
+section.stats {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+}
+
+section.stats .left {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.panel {
+    background-color: $section-color;
+    border-radius: 5px;
+    box-shadow: 0px 3px 3px 0px rgba(0, 0, 0, 0.3);
+    padding: 10px;
+}
+
+.panel h1 {
+    font-family: $main-font;
+    font-size: 10px;
+    font-weight: 600;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.panel.score-histogram {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.histogram {
+    height: 100px;
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    padding-inline: 5px;
+}
+
+.column {
+    width: 9px;
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.column p {
+    font-family: $main-font;
+    font-size: 7.5px;
+    font-weight: 500;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    margin-bottom: 1px;
+}
+
+.column h1 {
+    font-family: $main-font;
+    font-size: 6.5px;
+    font-weight: 600;
+    margin: 0;
+    padding: 0;
+    margin-top: 2px;
+    text-align: center;
+}
+
+.bar {
+    width: 100%;
+    box-sizing: border-box;
+    height: 80%;
+    border-radius: 2px;
+}
+
+.stat-list {
+    display: flex;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.stat-list .stat {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.stat-list .stat h2 {
+    font-family: $main-font;
+    font-size: 10px;
+    font-weight: 400;
+    margin: 0;
+}
+
+.stat-list .stat p {
+    font-family: $main-font;
+    font-size: 10px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.panel.games-graph {
+    width: 100%;
+    box-sizing: border-box;
 }

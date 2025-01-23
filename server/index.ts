@@ -63,6 +63,7 @@ import { BotUser } from './src/bot/bot-user';
 import { RankedBotUser } from './src/bot/ranked-bot-user';
 import { OnlineUserCacheConsumer } from './src/online-users/event-consumers/online-user-cache-consumer';
 import { TestUserCache } from './src/online-user-cache/test-user-cache';
+import { GetScoreHistogramRoute } from './src/routes/user-stats/get-score-histogram-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -180,6 +181,7 @@ async function main() {
   routes.registerRoute(RequestRatedPuzzleRoute);
   routes.registerRoute(SubmitRatedPuzzleRoute);
   routes.registerRoute(GetGlobalStatRoute);
+  routes.registerRoute(GetScoreHistogramRoute);
 
   const bots = new BotManager();
   bots.registerBot(new RankedBotUser('bot'));

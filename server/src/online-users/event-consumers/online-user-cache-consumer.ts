@@ -51,6 +51,21 @@ export class OnlineUserCacheConsumer extends EventConsumer {
     }
 
     /**
+     * Updates the cache for the user with the given event
+     * @param cache The cache class to update data for
+     * @param userid The userid of the user to update the cache for
+     * @param event The event to update the cache with
+     */
+    public update<T, Event>(cache: new () => OnlineUserCache<T, Event>, userid: string, event: Event) {
+        const cacheInstance = this.caches.get(cache.name);
+        if (!cacheInstance) {
+            throw new Error(`Cache with name ${cache.name} not registered`);
+        }
+
+        cacheInstance.cache.update(userid, event);
+    }
+
+    /**
      * When a user connects, start fetching data for all caches for that user.
      * Also clear any pending disconnect timer for that user (so we don't expire).
      */

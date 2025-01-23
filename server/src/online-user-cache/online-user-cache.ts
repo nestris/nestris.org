@@ -3,8 +3,11 @@
  * online and there is no cached data for the user, the expensive queries to the database are made and cached and updated
  * while the user is online, but when the user goes offline and an expiration time is reached, the cached data is removed
  * to free up memory.
+ * 
+ * @template T The type of data to cache for each user
+ * @template Event The type of event to update the cache for a user
  */
-export abstract class OnlineUserCache<T = any> {
+export abstract class OnlineUserCache<T = any, Event = any> {
 
     // The map of cached data for users, indexed by their userid
     private readonly cache = new Map<string, T>();
@@ -18,6 +21,36 @@ export abstract class OnlineUserCache<T = any> {
      * @returns A promise that resolves to the data for the user
      */
     protected abstract query(userid: string): Promise<T>;
+    
+
+    /**
+     * Updates the cache for the user with the given event. Optionally implemented by subclasses.
+     * @param userid The userid of the user to update the cache for
+     * @param event The event to update the cache with
+     * @returns A promise that resolves to the updated data for the user
+     */
+    protected onEvent(userid: string, previous: T, event: Event): T {
+        return previous;
+    }
+
+    /**
+     * Updates the cache for the user with the given event.
+     * @param userid The userid of the user to update the cache for
+     * @param event The event to update the cache with
+     */
+    public update(userid: string, event: Event) {
+        if (!this.cache.has(userid)) {
+            throw new Error(`No cache found for user ${userid} - is the user offline?`);
+        }
+
+        const previous = this.cache.get(userid)!;
+        const updated = this.onEvent(userid, previous, event);
+
+        this.cache.set(userid, updated);
+
+        console.log(`Updated ${this.constructor.name} cache for user ${userid}`);
+    }
+
 
     /**
      * Fetches the data for the user, either from the cache or by making the expensive query to the database

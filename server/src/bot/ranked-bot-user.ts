@@ -10,7 +10,7 @@ import { EmulatorGameState } from "../../shared/emulator/emulator-game-state";
 import { GymRNG } from "../../shared/tetris/piece-sequence-generation/gym-rng";
 import { CurrentlyPressedKeys, KeyManager } from "../../shared/emulator/currently-pressed-keys";
 import { TimeDelta } from "../../shared/scripts/time-delta";
-import { GameAbbrBoardPacket, GameCountdownPacket, GameEndPacket, GameFullBoardPacket, GamePlacementPacket, GameStartPacket } from "../../shared/network/stream-packets/packet";
+import { GameAbbrBoardPacket, GameCountdownPacket, GameEndPacket, GameFullBoardPacket, GamePlacementPacket, GameStartPacket, StackRabbitPlacementPacket } from "../../shared/network/stream-packets/packet";
 import { PacketAssembler } from "../../shared/network/stream-packets/packet-assembler";
 import { BinaryEncoder } from "../../shared/network/binary-codec";
 import { RoomConsumer } from "../online-users/event-consumers/room-consumer";
@@ -18,7 +18,7 @@ import { TetrominoType } from "../../shared/tetris/tetromino-type";
 import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
 import { TetrisBoard } from "../../shared/tetris/tetris-board";
 import { SRPlacementAI } from "./sr-placement-ai";
-import { PlacementAI } from "./placement-ai";
+import { AIPlacement, PlacementAI } from "./placement-ai";
 
 const BEFORE_GAME_MESSAGE = [
     "glhf",
@@ -155,7 +155,11 @@ export class RankedBotUser extends BotUser {
         const packetBatcher = new PacketBatcher((binaryData) => this.sendBinaryMessageToServer(binaryData));
 
         // Initialize AI and start calculating first placement
-        const placementAI = new SRPlacementAI();
+        const onPlacementComputed: (placement: AIPlacement) => void = (placement) => 
+            packetBatcher.sendPacket(new StackRabbitPlacementPacket().toBinaryEncoder({
+                accuracyScore: placement.accuracyScore,
+            }));
+        const placementAI = new SRPlacementAI(onPlacementComputed);
         placementAI.registerPlacementPosition(0, state.getIsolatedBoard(), state.getCurrentPieceType(), state.getNextPieceType(), state.getStatus().level, state.getStatus().lines);
 
         // Send initial game start packet

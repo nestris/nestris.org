@@ -3,6 +3,50 @@
 
     <div class="centered">
 
+        <section class="stats">
+            <div class="left">
+                <div class="panel score-histogram" *ngIf="histogram$ | async as histogram">
+                    <h1>Your scores</h1>
+                    <div class="histogram">
+                        <div class="column" *ngFor="let scoreRange of HISTOGRAM_SCORE_RANGES; let i = index">
+                            <p>{{histogramValue(histogram[i].count)}}</p>
+                            <div class="bar" [ngStyle]="{
+                                'backgroundColor' : HISTOGRAM_COLORS[i],
+                                'height' : ((histogram[i].height) * 80 + 1) + '%'
+                            }"></div>
+                            <h1 [ngStyle]="{
+                                'opacity' : (i % 2) ? 0 : 1
+                            }">{{histogramLabel(i)}}</h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel player-stats">
+                    <h1>Your stats</h1>
+                    <div class="stat-list" *ngIf="me$ | async as me">
+                        <div class="stat">
+                            <h2>Highest score</h2>
+                            <p>{{numbersWithCommas(me.highest_score)}}</p>
+                        </div>
+                        <div class="stat">
+                            <h2>Best score into 19</h2>
+                            <p>{{numbersWithCommas(me.highest_transition_into_19)}}</p>
+                        </div>
+                        <div class="stat">
+                            <h2>Best score into 29</h2>
+                            <p>{{numbersWithCommas(me.highest_transition_into_29)}}</p>
+                        </div>
+                        <div class="stat">
+                            <h2>Games played</h2>
+                            <p>{{numbersWithCommas(me.games_played)}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="right panel games-graph">
+
+            </div>
+        </section>
+
         <div class="section-header">
             <h1>History</h1>
             <app-solid-selector [labels]="sortLabels" (selectedChange)="sortIndex$.next($event)"

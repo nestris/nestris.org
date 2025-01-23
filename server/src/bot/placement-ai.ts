@@ -10,6 +10,10 @@ export interface Placement {
     computed: boolean; // whether the placement was already computed, or still awaiting engine response
 }
 
+export interface AIPlacement {
+    placement: MoveableTetromino | null, accuracyScore: number
+}
+
 /**
  * Handles generating the placements for each position in the game, and the move sequence for each placement.
  */
@@ -17,6 +21,10 @@ export abstract class PlacementAI {
 
     // A map of placement index to the placement data
     readonly placements = new Map<number, Placement>();
+
+    constructor(
+        private onPlacementComputed: (placement: AIPlacement) => void = () => { }
+    ) {}
 
     // Generates a series of X and . characters to represent the input frame timeline. Can be random or deterministic.
     protected abstract generateInputFrameTimeline(): string;
@@ -28,7 +36,7 @@ export abstract class PlacementAI {
         level: number,
         lines: number,
         inputFrameTimeline: string,
-    ): Promise<MoveableTetromino | null>;
+    ): Promise<AIPlacement>;
 
     /**
      * Compute the shift map for a given input frame timeline and the lock placement
@@ -62,8 +70,11 @@ export abstract class PlacementAI {
             // Update the placement with the computed shifts
             const placement = this.placements.get(index);
             if (!placement) throw new Error(`Placement at index ${index} not found`);
-            placement.shiftMap = move === null ? new Map() : this.computeShiftMap(inputFrameTimeline, move);
+            placement.shiftMap = move.placement === null ? new Map() : this.computeShiftMap(inputFrameTimeline, move.placement);
             //console.log(`Computed shift map for placement at index ${index}: ${Array.from(placement.shiftMap.entries()).map(([frame, keybinds]) => `${frame}: ${keybinds.map(keybind => keybind).join(' ')}`).join(', ')}`);
+
+            // Call the callback
+            this.onPlacementComputed(move);
         });
     }
 

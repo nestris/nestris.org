@@ -1,16 +1,18 @@
-import { randomInt } from "crypto";
 import { Keybind } from "../../shared/emulator/keybinds";
 import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
 import { TetrisBoard } from "../../shared/tetris/tetris-board";
 import { TetrominoType } from "../../shared/tetris/tetromino-type";
 import { getTopMovesHybrid } from "../scripts/stackrabbit";
-import { PlacementAI } from "./placement-ai";
+import { AIPlacement, PlacementAI } from "./placement-ai";
 import { TopMovesHybridResponse } from "../../shared/scripts/stackrabbit-decoder";
-import { randomChoice, weightedRandomChoice } from "../../shared/scripts/math";
+import { randomChoice, randomInt, weightedRandomChoice } from "../../shared/scripts/math";
 
 export class SRPlacementAI extends PlacementAI {
 
     protected override generateInputFrameTimeline(): string {
+
+        return "X..";
+
         let timeline = "";
 
         // 5 maximum inputs
@@ -32,9 +34,14 @@ export class SRPlacementAI extends PlacementAI {
         level: number,
         lines: number,
         inputFrameTimeline: string
-    ): Promise<MoveableTetromino | null> {
+    ): Promise<AIPlacement> {
 
         if (next === null) throw new Error("Next piece must be provided for SRPlacementAI");
+
+        const noPlacement: AIPlacement = {
+            placement: null,
+            accuracyScore: 0
+        }
         
         // Try to get the top move from stackrabbit
         let stackrabbit: TopMovesHybridResponse;
@@ -43,13 +50,18 @@ export class SRPlacementAI extends PlacementAI {
             stackrabbit = await getTopMovesHybrid(board, current, next, level, lines, inputFrameTimeline, 1, true);
         } catch (e) {
             // No placement found
-            return null;
+            return noPlacement;
         }
 
-        if (stackrabbit.nextBox.length === 0) return null;
+        if (stackrabbit.nextBox.length === 0) return noPlacement;
 
         // Get best move
-        return stackrabbit.nextBox[0].firstPlacement;
+        // score is random number from 0.9 to 1.0
+        const accuracyScore = randomInt(90, 100) / 100;
+        return {
+            placement: stackrabbit.nextBox[0].firstPlacement,
+            accuracyScore: accuracyScore
+        }
 
         // Get a weighted random move from top moves based on score. The better the move, the more likely it is to be chosen.
         //const lowestEval = stackrabbit.nextBox[stackrabbit.nextBox.length - 1].score;
