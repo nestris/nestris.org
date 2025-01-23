@@ -69,7 +69,7 @@
             <div class="row game" *ngFor="let game of games">
                 <div>{{timeAgo(game.created_at)}}</div>
                 <div>{{game.start_level}}</div>
-                <div>{{game.end_score}}</div>
+                <div>{{numbersWithCommas(game.end_score)}}</div>
                 <div>{{game.end_level}}</div>
                 <div>{{game.end_lines}}</div>
                 <div>{{(game.tetris_rate * 100).toFixed(0)}}%</div>

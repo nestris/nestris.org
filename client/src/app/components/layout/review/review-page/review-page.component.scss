@@ -119,12 +119,12 @@ section.stats .left {
 
 .panel h1 {
     font-family: $main-font;
-    font-size: 10px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 700;
     margin: 0;
     padding: 0;
     text-align: center;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
 }
 
 .panel.score-histogram {
@@ -134,15 +134,15 @@ section.stats .left {
 }
 
 .histogram {
-    height: 100px;
+    height: 150px;
     display: flex;
     flex-direction: row;
-    gap: 5px;
+    gap: 6px;
     padding-inline: 5px;
 }
 
 .column {
-    width: 9px;
+    width: 12px;
     height: 100%;
     box-sizing: border-box;
     display: flex;
@@ -153,7 +153,7 @@ section.stats .left {
 
 .column p {
     font-family: $main-font;
-    font-size: 7.5px;
+    font-size: 9px;
     font-weight: 500;
     margin: 0;
     padding: 0;
@@ -163,11 +163,11 @@ section.stats .left {
 
 .column h1 {
     font-family: $main-font;
-    font-size: 6.5px;
-    font-weight: 600;
+    font-size: 9px;
+    font-weight: 500;
     margin: 0;
     padding: 0;
-    margin-top: 2px;
+    margin-top: 3px;
     text-align: center;
 }
 
@@ -178,6 +178,12 @@ section.stats .left {
     border-radius: 2px;
 }
 
+.panel.player-stats {
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+}
+
 .stat-list {
     display: flex;
     width: 100%;
@@ -185,6 +191,8 @@ section.stats .left {
     display: flex;
     flex-direction: column;
     gap: 3px;
+    flex-grow: 1;
+    justify-content: center;
 }
 
 .stat-list .stat {
@@ -195,14 +203,14 @@ section.stats .left {
 
 .stat-list .stat h2 {
     font-family: $main-font;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 400;
     margin: 0;
 }
 
 .stat-list .stat p {
     font-family: $main-font;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 600;
     margin: 0;
 }
