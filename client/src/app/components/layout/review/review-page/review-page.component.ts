@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { BehaviorSubject, map, Observable, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, concat, from, map, Observable, of, switchMap, tap } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-selector/solid-selector.component';
 import { ApiService, GameSortKey } from 'src/app/services/api.service';
 import { FetchService, Method } from 'src/app/services/fetch.service';
@@ -53,8 +53,19 @@ export class ReviewPageComponent implements OnInit {
 
   public me$ = this.meService.get$();
 
-  public histogramRequest = async () => this.fetchService.fetch<number[]>(Method.GET, '/api/v2/score-histogram');
-  public histogram$ = new BehaviorSubject<HistogramColumn[] | null>(null);
+  private readonly DEFAULT_HISTOGRAM: HistogramColumn[] = Array.from({length: 17}, () => ({ count: 0, height: 0 }));
+  public histogram$ = concat(
+    of(this.DEFAULT_HISTOGRAM),
+    from(this.fetchService.fetch<number[]>(Method.GET, '/api/v2/score-histogram')).pipe(
+      map(histogram => this.calculateHistogram(histogram))
+    )
+  );
+
+  private DEFAULT_CHART: DBGame[] = [];
+  public chart$ = concat(
+    of(this.DEFAULT_CHART),
+    from(this.apiService.getGamesForUser(undefined, GameSortKey.SCORE, SortOrder.DESCENDING, 1000))
+  );
 
   // array from 0 to 16
   public readonly HISTOGRAM_SCORE_RANGES = Array.from({length: 17}, (_, i) => i);
@@ -94,10 +105,6 @@ export class ReviewPageComponent implements OnInit {
       switchMap(strategy => this.request(strategy)),
       tap(games => console.log('games', games))
     );
-
-    this.histogramRequest().then(histogram => {
-      this.histogram$.next(this.calculateHistogram(histogram));
-    });
   }
 
   // Return an array of histogram columns, with height normalized to the max count and max height 1

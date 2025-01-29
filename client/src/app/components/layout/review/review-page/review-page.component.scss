@@ -120,7 +120,7 @@ section.stats .left {
 .panel h1 {
     font-family: $main-font;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 600;
     margin: 0;
     padding: 0;
     text-align: center;
@@ -174,8 +174,8 @@ section.stats .left {
 .bar {
     width: 100%;
     box-sizing: border-box;
-    height: 80%;
     border-radius: 2px;
+    transition: height 1s ease-in-out 0.2s;
 }
 
 .panel.player-stats {
