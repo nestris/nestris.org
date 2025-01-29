@@ -55,6 +55,13 @@ jobs:
         run: |
           docker compose -f docker-compose.staging.yml build
           docker compose -f docker-compose.staging.yml push
+
+      - name: Set up SSH Key
+        run: |
+          echo "${{ secrets.DO_SSH_KEY }}" | tr -d '\r' > key.pem
+          chmod 600 key.pem
+          eval "$(ssh-agent -s)"
+          ssh-add key.pem
           
       - name: Deploy to DigitalOcean
         env:
@@ -66,8 +73,6 @@ jobs:
           POSTGRES_DB: ${{ github.ref == 'refs/heads/main' && secrets.POSTGRES_DB_PROD || secrets.POSTGRES_DB_DEV }}
           BRANCH: ${{ github.ref == 'refs/heads/main' && 'main' || 'dev' }}
         run: |
-          echo "${DO_SSH_KEY}" > key.pem
-          chmod 600 key.pem
           ssh -o StrictHostKeyChecking=no -i key.pem root@${DO_HOST} << EOF
 
             # Pull the latest changes from the GitHub repository
