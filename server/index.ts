@@ -184,7 +184,7 @@ async function main() {
   routes.registerRoute(GetScoreHistogramRoute);
 
   const bots = new BotManager();
-  bots.registerBot(new RankedBotUser('bot'));
+  //bots.registerBot(new RankedBotUser('bot'));
   await bots.init();
 
 
