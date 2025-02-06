@@ -28,6 +28,8 @@ export class RGBColor {
 
 }
 
+export const COLOR_WHITE = new RGBColor(255, 255, 255);
+
 export const COLOR_FIRST_COLORS_RGB: {[key: number]: RGBColor } = {
     0: new RGBColor(0,88,248),
     1: new RGBColor(0,168,0),
@@ -74,16 +76,23 @@ export function getColorForTetrominoAndLevel(tetrominoType: TetrominoType, level
     return getColorForLevel(getColorTypeForTetromino(tetrominoType), level);
 }
 
-function findMostSimilarColor(color1: RGBColor, color2: RGBColor, color3: RGBColor, targetColor: RGBColor): RGBColor {
-    // Function to calculate the Euclidean distance between two colors
-    const colorDistance = (c1: RGBColor, c2: RGBColor): number => {
-        return Math.sqrt(Math.pow(c2.r - c1.r, 2) + Math.pow(c2.g - c1.g, 2) + Math.pow(c2.b - c1.b, 2));
-    };
+// Function to calculate the squared Euclidean distance between two colors
+// Why do we want this? Since sqrt is a monotonic function, to find a minima amongst multiple distances, comparing squared distances is equivalent to
+// comparing distances themselves. So unless the distance itself is needed for something, the computational cost of square rooting can often be avoided.
+export function colorSquaredDistance(c1: RGBColor, c2: RGBColor): number {
+    return Math.pow(c2.r - c1.r, 2) + Math.pow(c2.g - c1.g, 2) + Math.pow(c2.b - c1.b, 2);
+}
 
+// Function to calculate the Euclidean distance between two colors
+export function colorDistance(c1: RGBColor, c2: RGBColor): number {
+    return Math.sqrt(colorSquaredDistance(c1, c2));
+}
+
+function findMostSimilarColor(color1: RGBColor, color2: RGBColor, color3: RGBColor, targetColor: RGBColor): RGBColor {
     // Calculating the distance of each color to the target color
-    const distance1 = colorDistance(color1, targetColor);
-    const distance2 = colorDistance(color2, targetColor);
-    const distance3 = colorDistance(color3, targetColor);
+    const distance1 = colorSquaredDistance(color1, targetColor);
+    const distance2 = colorSquaredDistance(color2, targetColor);
+    const distance3 = colorSquaredDistance(color3, targetColor);
 
     // Determining the color with the minimum distance
     const minDistance = Math.min(distance1, distance2, distance3);
@@ -94,20 +103,14 @@ function findMostSimilarColor(color1: RGBColor, color2: RGBColor, color3: RGBCol
 
 // given a raw RGB color and a level, find closest color in level that matches
 export function classifyColor(level: number, colorToClassify: RGBColor): ColorType {
-    
     level = level % 10;
 
-    const colorWhite = new RGBColor(255, 255, 255);
     const colorFirst = COLOR_FIRST_COLORS_RGB[level];
     const colorSecond = COLOR_SECOND_COLORS_RGB[level];
 
-    const mostSimilarColor = findMostSimilarColor(colorWhite, colorFirst, colorSecond, colorToClassify);
+    const mostSimilarColor = findMostSimilarColor(COLOR_WHITE, colorFirst, colorSecond, colorToClassify);
 
-    if (mostSimilarColor === colorWhite) return ColorType.WHITE;
+    if (mostSimilarColor === COLOR_WHITE) return ColorType.WHITE;
     else if (mostSimilarColor === colorFirst) return ColorType.PRIMARY;
     else return ColorType.SECONDARY;
-}
-
-export function colorDistance(color1: RGBColor, color2: RGBColor): number {
-    return Math.sqrt(Math.pow(color2.r - color1.r, 2) + Math.pow(color2.g - color1.g, 2) + Math.pow(color2.b - color1.b, 2));
 }
