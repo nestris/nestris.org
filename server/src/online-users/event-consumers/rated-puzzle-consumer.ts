@@ -1,6 +1,7 @@
 import { DBPuzzle } from "../../../shared/puzzles/db-puzzle";
 import { PuzzleRating } from "../../../shared/puzzles/puzzle-rating";
 import { RatedPuzzleResult, RatedPuzzleSubmission, UnsolvedRatedPuzzle } from "../../../shared/puzzles/rated-puzzle";
+import { isPrime } from "../../../shared/scripts/math";
 import { DBPuzzleSubmitEvent, DBUserObject } from "../../database/db-objects/db-user";
 import { Database, DBQuery, WriteDBQuery } from "../../database/db-query";
 import { EventConsumer } from "../event-consumer";
@@ -58,18 +59,6 @@ class UpdatePuzzleStatsQuery extends WriteDBQuery {
 }
 
 
-/**
- * This represents the number of puzzles to fetch at a time for each rating. This should be a largish prime
- * number which is large enough that the cache isn't constantly being replenished, but small enough that
- * we don't run into memory issues.
- * 
- * For each user, we store their current index pointer i and a random step size S where S < BATCH_SIZE. Each user
- * traverses the batch with formula i_(n+1) = (i_n + S) % BATCH_SIZE. This ensures that each user will traverse
- * the batch in a different order, and that they will not run into any duplicates until they have traversed the
- * entire batch.
- */
-const BATCH_SIZE = 97;
-
 // The fraction of the batch that a user can fetch before we start replenishing the batch
 const REPLENISH_THRESHOLD = 0.75;
 
@@ -95,7 +84,7 @@ class PuzzleBatch {
     private replenishing = false;
 
     // This batch will be in charge of fetching puzzles of the given rating
-    constructor(public readonly rating: PuzzleRating) {}
+    constructor(public readonly rating: PuzzleRating, public readonly batchSize: number) {}
 
     /**
      * Replenish the puzzle batch with a new set of puzzles from the database. Should be called at the start
@@ -111,16 +100,16 @@ class PuzzleBatch {
         console.log(`Replenishing batch for rating ${this.rating}...`);
 
         // Fetch a new random set of puzzles from the database
-        this.puzzles = await Database.query(SamplePuzzlesQuery, this.rating, BATCH_SIZE);
-        if (this.puzzles.length !== BATCH_SIZE) {
-            throw new Error(`Failed to fetch ${BATCH_SIZE} puzzles for rating ${this.rating}`);
+        this.puzzles = await Database.query(SamplePuzzlesQuery, this.rating, this.batchSize);
+        if (this.puzzles.length !== this.batchSize) {
+            throw new Error(`Failed to fetch ${this.batchSize} puzzles for rating ${this.rating}`);
         }
 
         // Reset the player metadata, and players will recieve new indices and steps for the new batch
         this.players = new Map();
 
         this.replenishing = false;
-        console.log(`Replenished batch for rating ${this.rating} with ${BATCH_SIZE} puzzles in ${Date.now() - startTime}ms`);
+        console.log(`Replenished batch for rating ${this.rating} with ${this.batchSize} puzzles in ${Date.now() - startTime}ms`);
     }
 
     /**
@@ -138,13 +127,13 @@ class PuzzleBatch {
 
         // Update the index for the next fetch. The step size and BATCH_SIZE are coprime, so
         // this will ensure that the user will traverse the batch without repeats.
-        userMetadata.index = (userMetadata.index + userMetadata.step) % BATCH_SIZE;
+        userMetadata.index = (userMetadata.index + userMetadata.step) % this.batchSize;
 
         // Increment the count of puzzles fetched
         userMetadata.count++;
 
         // If the user has fetched close to BATCH_SIZE puzzles, start replenishing the batch
-        if (userMetadata.count > REPLENISH_THRESHOLD * BATCH_SIZE) {
+        if (userMetadata.count > REPLENISH_THRESHOLD * this.batchSize) {
             this.replenish();
         }
 
@@ -159,8 +148,8 @@ class PuzzleBatch {
     private getUserMetadata(userid: string): UserMetadata {
         if (!this.players.has(userid)) {
             const metadata: UserMetadata = {
-                index: Math.floor(Math.random() * BATCH_SIZE),
-                step: Math.floor(Math.random() * (BATCH_SIZE - 1)) + 1,
+                index: Math.floor(Math.random() * this.batchSize),
+                step: Math.floor(Math.random() * (this.batchSize - 1)) + 1,
                 count: 0
             };
             this.players.set(userid, metadata);
@@ -288,13 +277,25 @@ interface ActivePuzzle {
 }
 
 /**
+ * This represents the number of puzzles to fetch at a time for each rating. This should be a largish prime
+ * number which is large enough that the cache isn't constantly being replenished, but small enough that
+ * we don't run into memory issues.
+ * 
+ * For each user, we store their current index pointer i and a random step size S where S < BATCH_SIZE. Each user
+ * traverses the batch with formula i_(n+1) = (i_n + S) % BATCH_SIZE. This ensures that each user will traverse
+ * the batch in a different order, and that they will not run into any duplicates until they have traversed the
+ * entire batch.
+ */
+type RatedPuzzleConfig = {batchSize: number};
+
+/**
  * Consumer for handling distributing random puzzles to users with the help of an in-memory puzzle cache for each rating.
  * 
  * Manages the rated (timed) puzzle each user is currently solving. Manages fetching the puzzle, waiting for
  * the user submission, and updating the user's rating based on the result. On session offline or 
  * submission timeout (1 minute), the puzzle is automatically submitted as incorrect.
  */
-export class RatedPuzzleConsumer extends EventConsumer {
+export class RatedPuzzleConsumer extends EventConsumer<RatedPuzzleConfig> {
 
     // Map of puzzle batches for each rating
     private puzzleBatches = new Map<PuzzleRating, PuzzleBatch>();
@@ -308,11 +309,16 @@ export class RatedPuzzleConsumer extends EventConsumer {
      * Initialize the puzzle batches for each rating.
      */
     public override async init() {
+
+        // Assert batch size is prime
+        if (!isPrime(this.config.batchSize)) {
+            throw new Error(`Batch size ${this.config.batchSize} is not prime`);
+        }
         
         // Initialize the puzzle batches for each rating
         const batchInitPromises = [];
         for (let rating = PuzzleRating.ONE_STAR; rating <= PuzzleRating.FIVE_STAR; rating++) {
-            const batch = new PuzzleBatch(rating);
+            const batch = new PuzzleBatch(rating, this.config.batchSize);
             batchInitPromises.push(batch.replenish());
             this.puzzleBatches.set(rating, batch);
         }
@@ -426,8 +432,7 @@ export class RatedPuzzleConsumer extends EventConsumer {
         const newElo = activePuzzle.data.startElo + (isCorrect ? activePuzzle.data.eloGain : -activePuzzle.data.eloLoss);
 
         // Calculate the xp gained for the user, which is 1 xp for every 200 elo gained
-        //const xpGained = isCorrect ? Math.floor(newElo / 200) + 1 : 0;
-        const xpGained = 0; // TEMPORARY: Disable XP gain for now
+        const xpGained = isCorrect ? Math.floor(newElo / 200) + 1 : 0;
         
         // Update the in-memory user's rating, but don't wait for database call to finish
         await DBUserObject.alter(userid, new DBPuzzleSubmitEvent({

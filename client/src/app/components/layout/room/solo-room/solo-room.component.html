@@ -19,6 +19,9 @@
 />
 </div>
 <div class="right">
+    
+    <app-xp-status />
+
     <div class="previous-games-panel fade" [ngClass]="{'seven-digit': hasSevenDigits(previousGames$ | async)}">
 
         <div class="previous-game" *ngFor="let game of (previousGames$ | async); trackBy: soloGameHash" [ngClass]="{'expanding-div' : !soloClientRoom.isOriginalGame(game.gameID)}">

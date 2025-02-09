@@ -11,7 +11,7 @@ import { addPuzzlesToDatabase } from "./add-puzzles-to-database";
 
 function generate() {
 
-    const NUM_PUZZLES = 20;
+    const NUM_PUZZLES = 5;
 
     // Store the number of puzzles generated for each rating
     const count: { [key in PuzzleRating]?: number } = {};

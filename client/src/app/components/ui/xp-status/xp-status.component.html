@@ -1,0 +1,4 @@
+<div class="xp-status" *ngIf="me$ | async as me" [ngStyle]="{'borderColor' : leagueColor(me.league)}">
+    <app-league-icon [league]="me.league" [height]="30" />
+    <app-xp-info [league]="me.league" [xp]="(displayXP$ | async) ?? 0" barWidth="180px" barHeight="11px" />
+</div>

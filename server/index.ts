@@ -88,7 +88,12 @@ async function main() {
   // cors middleware
   app.use(cors());
 
-  const NODE_ENV = process.env.NODE_ENV!;
+  // Make sure the server is running in a valid environment
+  const NODE_ENV = process.env.NODE_ENV as DeploymentEnvironment;
+  if (!Object.values(DeploymentEnvironment).includes(NODE_ENV)) {
+    throw new Error(`Invalid NODE_ENV: ${NODE_ENV}, must be one of ${Object.values(DeploymentEnvironment)}`);
+  }
+
   const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET!;
   console.log(`Starting ${NODE_ENV} server`);
 
@@ -119,17 +124,17 @@ async function main() {
 
   // Register consumers
   const consumers = EventConsumerManager.getInstance();
-  consumers.registerConsumer(UserConsumer);
-  consumers.registerConsumer(OnlineUserCacheConsumer);
-  consumers.registerConsumer(FriendEventConsumer);
-  consumers.registerConsumer(PingConsumer);
-  consumers.registerConsumer(GuestConsumer);
-  consumers.registerConsumer(RoomConsumer);
-  consumers.registerConsumer(RankedQueueConsumer);
-  consumers.registerConsumer(InvitationConsumer);
-  //consumers.registerConsumer(RatedPuzzleConsumer);
-  consumers.registerConsumer(ServerRestartWarningConsumer);
-  consumers.registerConsumer(GlobalStatConsumer);
+  consumers.registerConsumer(UserConsumer, {});
+  consumers.registerConsumer(OnlineUserCacheConsumer, {});
+  consumers.registerConsumer(FriendEventConsumer, {});
+  consumers.registerConsumer(PingConsumer, {});
+  consumers.registerConsumer(GuestConsumer, {});
+  consumers.registerConsumer(RoomConsumer, {});
+  consumers.registerConsumer(RankedQueueConsumer, {});
+  consumers.registerConsumer(InvitationConsumer, {});
+  consumers.registerConsumer(RatedPuzzleConsumer, {batchSize: NODE_ENV === DeploymentEnvironment.DEV ? 3 : 97});
+  consumers.registerConsumer(ServerRestartWarningConsumer, {});
+  consumers.registerConsumer(GlobalStatConsumer, {});
   await consumers.init();
 
   // Initialize OnlineUserCaches

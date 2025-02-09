@@ -6,6 +6,8 @@
 
     <app-fullscreen-exit-button [onExit]="this.onExit.bind(this)" />
 
+    <app-xp-status *ngIf="getRatedPuzzleStrategy() as ratedState" />
+
     <div class="content">
 
         <header>

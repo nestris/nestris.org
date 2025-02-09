@@ -104,6 +104,7 @@ import { EditableKeybindComponent } from './components/ui/editable-keybind/edita
 import { TrophyAlertComponent } from './components/alerts/trophy-alert/trophy-alert.component';
 import { PageTitleComponent } from './components/ui/page-title/page-title.component';
 import { GameAnalysisComponent } from './components/layout/game-analysis/game-analysis/game-analysis.component';
+import { XpStatusComponent } from './components/ui/xp-status/xp-status.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -244,6 +245,7 @@ const customNotifierOptions: NotifierOptions = {
     TrophyAlertComponent,
     PageTitleComponent,
     GameAnalysisComponent,
+    XpStatusComponent,
   ],
   imports: [
     BrowserModule,
