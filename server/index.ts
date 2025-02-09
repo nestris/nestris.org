@@ -127,7 +127,7 @@ async function main() {
   consumers.registerConsumer(RoomConsumer);
   consumers.registerConsumer(RankedQueueConsumer);
   consumers.registerConsumer(InvitationConsumer);
-  consumers.registerConsumer(RatedPuzzleConsumer);
+  //consumers.registerConsumer(RatedPuzzleConsumer);
   consumers.registerConsumer(ServerRestartWarningConsumer);
   consumers.registerConsumer(GlobalStatConsumer);
   await consumers.init();

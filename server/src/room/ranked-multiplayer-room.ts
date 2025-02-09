@@ -51,7 +51,7 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
             await DBUserObject.alter(player.userid, new DBRankedMatchEndEvent({
                 users: RankedMultiplayerRoom.Users,
                 sessionID: player.sessionID,
-                xpGained: soloXPStrategy(state.points.length > 0 ? state.points[0].game[playerIndex].score : 0),
+                nonQuestXpGained: soloXPStrategy(state.points.length > 0 ? state.points[0].game[playerIndex].score : 0),
                 win: state.matchWinner === playerIndex,
                 lose: state.matchWinner !== playerIndex && state.matchWinner !== PlayerIndex.DRAW,
                 trophyChange: trophyChange,

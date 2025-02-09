@@ -6,6 +6,7 @@ import { League } from "../nestris-org/league-system";
 import { TrophyDelta, XPDelta } from "../room/multiplayer-room-models"
 import { FriendInfo, FriendInfoUpdate } from "../models/friends";
 import { Invitation, InvitationCancellationReason } from "../models/invitation";
+import { QuestID } from "../nestris-org/quest-system";
 
 /*
 Data sent over websocket as JSON. type is the only required field and specifies
@@ -177,7 +178,7 @@ export class XPGainMessage extends JsonMessage {
         public readonly startLeague: League,
         public readonly startXP: number,
         public readonly normalXPGain: number,
-        public readonly completedQuests: string[], // list of quest names that were completed and should have XP added
+        public readonly completedQuests: QuestID[], // list of quest names that were completed and should have XP added
         public readonly trophyInfo?: { initial: number, change: number, winBonus: number }
     ) {
         super(JsonMessageType.XP_GAIN)

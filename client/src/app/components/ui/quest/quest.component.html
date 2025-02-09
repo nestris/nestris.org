@@ -1,4 +1,4 @@
-<div class="quest prevent-select" *ngIf="QuestDefinitions.getQuestDefinition(name) as quest">
+<div class="quest prevent-select" *ngIf="getQuest(questID) as quest">
     <div class="header prevent-select">
         <div class="left prevent-select">
             <h1 class="name prevent-select">{{quest.name}}</h1>

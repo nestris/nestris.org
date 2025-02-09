@@ -3,10 +3,10 @@ import { getLeagueFromIndex, updateXP } from "../../../shared/nestris-org/league
 import { DBObject } from "../db-object";
 import { DBObjectAlterError, DBObjectNotFoundError } from "../db-object-error";
 import { Database, DBQuery, WriteDBQuery } from "../db-query";
-import { QuestDefinitions } from "../../../shared/nestris-org/quest-system";
 import { XPGainMessage } from "../../../shared/network/json-message";
 import { OnlineUserManager } from "../../online-users/online-user-manager";
 import { SetHighscoreGameQuery } from "../db-queries/set-highscore-game-query";
+import { QuestID } from "../../../shared/nestris-org/quest-system";
 
 // The initial number of trophies a user has
 const INITIAL_RANKED_TROPHIES = 1200;
@@ -45,7 +45,12 @@ export class DBUpdateAttributeEvent extends GenericEvent<UpdateAttributeArgs> {}
 
 // An XP event advances the user's XP and possibly their league. In addition, DBUser will check for quest update
 // changes and trigger additional XP increases if necessary.
-interface XPArgs { users: OnlineUserManager, xpGained: number, sessionID: string }
+interface XPArgs {
+    users: OnlineUserManager,
+    sessionID: string,
+    nonQuestXpGained: number,
+    questProgressUpdate?: { [quest in QuestID]?: number } // optionally, new progress for any quests
+}
 export class XPEvent<T extends XPArgs = XPArgs> extends GenericEvent<T> {}
 
 // Update user stats after puzzle submission
@@ -60,8 +65,6 @@ interface GameEndArgs extends XPArgs {
     lines: number,
     transitionInto19: number | null,
     transitionInto29: number | null,
-    perfectTransitionInto19: boolean,
-    perfectTransitionInto29: boolean,
 }
 export class DBGameEndEvent extends XPEvent<GameEndArgs> {}
 
@@ -129,8 +132,6 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
 
             highest_transition_into_19: 0,
             highest_transition_into_29: 0,
-            has_perfect_transition_into_19: false,
-            has_perfect_transition_into_29: false,
             enable_receive_friend_requests: true,
             notify_on_friend_online: true,
             enable_runahead: false,
@@ -146,7 +147,9 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
             keybind_emu_down: 'ArrowDown',
             keybind_emu_start: 'Enter',
             keybind_puzzle_rot_left: 'Z',
-            keybind_puzzle_rot_right: 'X'
+            keybind_puzzle_rot_right: 'X',
+
+            quest_progress: []
         };
     }
 
@@ -235,8 +238,6 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
                 this.inMemoryObject.highest_lines = Math.max(this.inMemoryObject.highest_lines, gameEndArgs.lines);
                 this.inMemoryObject.highest_transition_into_19 = Math.max(this.inMemoryObject.highest_transition_into_19, gameEndArgs.transitionInto19 ?? 0);
                 this.inMemoryObject.highest_transition_into_29 = Math.max(this.inMemoryObject.highest_transition_into_29, gameEndArgs.transitionInto29 ?? 0);
-                this.inMemoryObject.has_perfect_transition_into_19 = this.inMemoryObject.has_perfect_transition_into_19 || gameEndArgs.perfectTransitionInto19;
-                this.inMemoryObject.has_perfect_transition_into_29 = this.inMemoryObject.has_perfect_transition_into_29 || gameEndArgs.perfectTransitionInto29;
                 this.inMemoryObject.games_played++;
 
                 // If highscore, start query to update the highscore game
@@ -267,15 +268,8 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
         if (event instanceof XPEvent) {
             const xpArgs = (event as XPEvent).args;
 
-            // The db user after the XP event is simply the updated in-memory object
-            const dbUserAfter = this.inMemoryObject;
-
-            // Get the list of quest names that were just completed
-            const completedQuests = QuestDefinitions.getJustCompletedQuests(dbUserBefore, dbUserAfter).map(q => q.name);
-
             // Calculate the total XP gained from both the normal XP gain and the quest completions and xp bonus
             const winBonus = event.constructor === DBRankedMatchEndEvent ? (event as DBRankedMatchEndEvent).args.winXPBonus : 0;
-            const totalXPGained = completedQuests.reduce((acc, questName) => acc + QuestDefinitions.getQuestDefinition(questName).xp, xpArgs.xpGained + winBonus);
 
             const trophyInfo = event.constructor === DBRankedMatchEndEvent ? {
                 initial: dbUserBefore.trophies,
@@ -284,21 +278,19 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
             } : undefined;
 
             // Send the XP gained message, as well as any quests completed, to the specific session of the player that finished the game
-            if (totalXPGained > 0 || completedQuests.length > 0 || trophyInfo) {
-
-                console.log(`Sending XP gain message to user ${this.id} for ${totalXPGained} XP gained and ${completedQuests.length} quests completed`);
+            if (xpArgs.nonQuestXpGained > 0 || trophyInfo) {
                 
                 xpArgs.users.sendToUserSession(xpArgs.sessionID, new XPGainMessage(
                     dbUserBefore.league,
                     dbUserBefore.xp,
-                    xpArgs.xpGained,
-                    completedQuests,
+                    xpArgs.nonQuestXpGained,
+                    [],
                     trophyInfo
                 ));
             }
 
             // Update the user's XP and league for the aggregate XP gain
-            this.updateXPInMemory(totalXPGained);
+            this.updateXPInMemory(xpArgs.nonQuestXpGained);
         }
     }
 

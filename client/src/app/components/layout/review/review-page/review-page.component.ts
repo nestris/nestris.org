@@ -53,11 +53,12 @@ export class ReviewPageComponent implements OnInit {
 
   public me$ = this.meService.get$();
 
-  private readonly DEFAULT_HISTOGRAM: HistogramColumn[] = Array.from({length: 17}, () => ({ count: 0, height: 0 }));
+  private static initialHistogram: HistogramColumn[] = Array.from({length: 17}, () => ({ count: 0, height: 0 }));
   public histogram$ = concat(
-    of(this.DEFAULT_HISTOGRAM),
+    of(ReviewPageComponent.initialHistogram),
     from(this.fetchService.fetch<number[]>(Method.GET, '/api/v2/score-histogram')).pipe(
-      map(histogram => this.calculateHistogram(histogram))
+      map(histogram => this.calculateHistogram(histogram)),
+      tap((histogram) => { ReviewPageComponent.initialHistogram = histogram })
     )
   );
 

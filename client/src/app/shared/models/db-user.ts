@@ -48,8 +48,6 @@ export interface DBUser {
 
   highest_transition_into_19: number,
   highest_transition_into_29: number,
-  has_perfect_transition_into_19: boolean,
-  has_perfect_transition_into_29: boolean,
 
   enable_receive_friend_requests: boolean,
   notify_on_friend_online: boolean,
@@ -67,6 +65,8 @@ export interface DBUser {
   keybind_emu_start: string,
   keybind_puzzle_rot_left: string,
   keybind_puzzle_rot_right: string,
+
+  quest_progress: number[],
 }
 
 // list of all DBUser attributes
@@ -99,8 +99,6 @@ export const DBUserAttributes = [
 
   'highest_transition_into_19',
   'highest_transition_into_29',
-  'has_perfect_transition_into_19',
-  'has_perfect_transition_into_29',
 
   'enable_receive_friend_requests',
   'notify_on_friend_online',
@@ -118,4 +116,6 @@ export const DBUserAttributes = [
   'keybind_emu_start',
   'keybind_puzzle_rot_left',
   'keybind_puzzle_rot_right',
+
+  'quest_progress',
 ];

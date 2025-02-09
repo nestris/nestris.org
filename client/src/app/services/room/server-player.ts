@@ -138,8 +138,6 @@ export class ServerPlayer {
         droughtCount: null,
         transitionInto19: null,
         transitionInto29: null,
-        perfectInto19: false,
-        perfectInto29: false,
       }
     };
 }

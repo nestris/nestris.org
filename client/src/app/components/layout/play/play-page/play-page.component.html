@@ -10,10 +10,10 @@
             <div class="quest-header">
                 <h1>Ongoing quests</h1>
             </div>
-            <div class="quest" *ngFor="let quest of (quests$ | async)"
+            <!-- <div class="quest" *ngFor="let quest of (quests$ | async)"
                 [ngStyle]="{'borderColor' : questColor(quest) , 'backgroundColor': hexWithAlpha(questColor(quest), 0.03) }">
                 <app-quest [name]="quest.name" [status]="quest.currentScore" />
-            </div>
+            </div> -->
         </div>
     </section>
 

@@ -4,9 +4,9 @@ import { JsonMessage, JsonMessageType, XPGainMessage } from '../shared/network/j
 import { AlertService } from './alert.service';
 import { XPAlertComponent } from '../components/alerts/xp-alert/xp-alert.component';
 import { sleep } from '../util/misc';
-import { QuestDefinitions } from '../shared/nestris-org/quest-system';
 import { QuestAlertComponent } from '../components/alerts/quest-alert/quest-alert.component';
 import { TrophyAlertComponent } from '../components/alerts/trophy-alert/trophy-alert.component';
+import { getQuest, QuestID } from '../shared/nestris-org/quest-system';
 
 @Injectable({
   providedIn: 'root'
@@ -32,7 +32,9 @@ export class XPAlertService {
       xp += xpGain;
 
       this.alertService.updateAlert("xpAlert", {currentXP: xp});
-    } 
+    }
+
+    const hashQuestID = (questID: QuestID) => `quest-${questID}`;
 
     // first add the xp alert
     this.alertService.addAlert(XPAlertComponent, "xpAlert", {
@@ -64,14 +66,14 @@ export class XPAlertService {
       await sleep(1000);
 
       // Add the alert for the quest
-      this.alertService.addAlert(QuestAlertComponent, quest, {
+      this.alertService.addAlert(QuestAlertComponent, hashQuestID(quest), {
         name: quest
       });
 
       await sleep(1000);
 
       // Add the alert for the XP gain
-      const xpGain = QuestDefinitions.getQuestDefinition(quest).xp;
+      const xpGain = getQuest(quest).xp;
       addXP(xpGain);
     }
 
@@ -80,7 +82,7 @@ export class XPAlertService {
     this.alertService.removeAlert("trophyAlert");
     this.alertService.removeAlert("xpAlert");
     for (const quest of message.completedQuests) {
-      this.alertService.removeAlert(quest);
+      this.alertService.removeAlert(hashQuestID(quest));
     }
 
   }

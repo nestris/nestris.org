@@ -434,7 +434,7 @@ export class RatedPuzzleConsumer extends EventConsumer {
             users: this.users,
             sessionID: activePuzzle.sessionID,
             seconds: submission.seconds,
-            newElo, isCorrect, xpGained
+            newElo, isCorrect, nonQuestXpGained: xpGained
         }), false);
         console.log(`User ${userid} submitted rated puzzle ${dbPuzzle.id} with ${isCorrect ? "correct" : "incorrect"} solution, new elo ${newElo}, xp gained ${xpGained}`);
 

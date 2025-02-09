@@ -15,8 +15,6 @@ export interface GameStateSnapshotWithoutBoard {
   countdown: number | undefined,
   transitionInto19: number | null,
   transitionInto29: number | null,
-  perfectInto19: boolean,
-  perfectInto29: boolean
 }
 
 export interface GameStateSnapshot extends GameStateSnapshotWithoutBoard {
@@ -42,8 +40,6 @@ export class GameState {
 
   private transitionInto19: number | null = null;
   private transitionInto29: number | null = null;
-  private perfectInto19: boolean = false;
-  private perfectInto29: boolean = false
 
   private droughtCounter = new DroughtCounter();
 
@@ -164,11 +160,9 @@ export class GameState {
     // calculate transitions, if any
     if (levelBefore === 18 && this.status.level === 19) {
       this.transitionInto19 = this.status.score;
-      this.perfectInto19 = this.getTetrisRate() === 1;
     }
     if (levelBefore === 28 && this.status.level === 29) {
       this.transitionInto29 = this.status.score;
-      this.perfectInto29 = this.getTetrisRate() === 1;
     }
 
 
@@ -203,8 +197,6 @@ export class GameState {
       countdown: this.countdown,
       transitionInto19: this.transitionInto19,
       transitionInto29: this.transitionInto29,
-      perfectInto19: this.perfectInto19,
-      perfectInto29: this.perfectInto29
     };
   }
 }

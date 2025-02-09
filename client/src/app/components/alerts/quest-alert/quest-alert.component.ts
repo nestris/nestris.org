@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { QUEST_COLORS, QuestDefinitions } from 'src/app/shared/nestris-org/quest-system';
+import { getQuest, QUEST_COLORS, QuestID } from 'src/app/shared/nestris-org/quest-system';
 
 /**
  * Alert for when a quest has been completed
@@ -13,10 +13,10 @@ import { QUEST_COLORS, QuestDefinitions } from 'src/app/shared/nestris-org/quest
 })
 export class QuestAlertComponent {
   @Input() hide: boolean = false;
-  @Input() name!: string; // name of the quest
+  @Input() questID!: QuestID; // name of the quest
 
-  public getQuestColor(name: string) {
-    const quest = QuestDefinitions.getQuestDefinition(name);
+  public getQuestColor(questID: QuestID) {
+    const quest = getQuest(questID);
     return QUEST_COLORS[quest.difficulty];
   }
 

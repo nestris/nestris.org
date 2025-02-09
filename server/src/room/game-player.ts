@@ -192,15 +192,13 @@ export class GamePlayer {
             await DBUserObject.alter(this.userid, new DBGameEndEvent({
                 users: this.Users,
                 sessionID: this.sessionID,
-                xpGained: xpGained,
+                nonQuestXpGained: xpGained,
                 gameID: gameID,
                 score: state.score,
                 level: state.level,
                 lines: state.lines,
                 transitionInto19: state.transitionInto19,
                 transitionInto29: state.transitionInto29,
-                perfectTransitionInto19: state.perfectInto19,
-                perfectTransitionInto29: state.perfectInto29,
             }), false);
 
         } else console.log(`Not saving game for player ${this.username} because no placements were made`);

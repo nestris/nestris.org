@@ -32,12 +32,8 @@ CREATE TABLE "public"."users" (
     "highest_level" int2 NOT NULL,
     "highest_lines" int2 NOT NULL,
 
-
     "highest_transition_into_19" int4 NOT NULL,
     "highest_transition_into_29" int4 NOT NULL,
-
-    "has_perfect_transition_into_19" boolean NOT NULL,
-    "has_perfect_transition_into_29" boolean NOT NULL,
 
     "enable_receive_friend_requests" boolean NOT NULL,
     "notify_on_friend_online" boolean NOT NULL,
@@ -57,6 +53,7 @@ CREATE TABLE "public"."users" (
     "keybind_puzzle_rot_left" text NOT NULL,
     "keybind_puzzle_rot_right" text NOT NULL,
 
+    "quest_progress" int4[] NOT NULL DEFAULT '{}',
 
     PRIMARY KEY ("userid")
 );

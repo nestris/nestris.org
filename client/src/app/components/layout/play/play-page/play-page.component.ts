@@ -15,7 +15,7 @@ import { WebsocketService } from 'src/app/services/websocket.service';
 import { RelativeLeaderboards } from 'src/app/shared/models/leaderboard';
 import { NotificationType } from 'src/app/shared/models/notifications';
 import { DeploymentEnvironment } from 'src/app/shared/models/server-stats';
-import { QUEST_COLORS, QuestDefinitions, QuestResult } from 'src/app/shared/nestris-org/quest-system';
+import { QUEST_COLORS } from 'src/app/shared/nestris-org/quest-system';
 import { capitalize, hexWithAlpha } from 'src/app/util/misc';
 
 @Component({
@@ -42,10 +42,6 @@ export class PlayPageComponent implements OnDestroy{
   });
   private leaderboardInterval: any;
 
-  public quests$ = this.me$.pipe(
-    map(me => QuestDefinitions.getClosestIncompleteQuests(me, 2))
-  );
-  
   constructor(
     public platformService: PlatformInterfaceService,
     public videoCapture: VideoCaptureService,
@@ -103,8 +99,6 @@ export class PlayPageComponent implements OnDestroy{
   async playSolo() {
     const sessionID = this.websocketService.getSessionID();
     this.fetchService.fetch(Method.POST, `/api/v2/create-solo-room/${sessionID}`);
-
-    console.log(QuestDefinitions.getClosestIncompleteQuests(this.meService.getSync()!, 20));
   }
 
   async playRanked() {
@@ -140,10 +134,6 @@ export class PlayPageComponent implements OnDestroy{
 
   isMe(userid: string) {
     return this.meService.getUserIDSync() === userid;
-  }
-
-  questColor(quest: QuestResult): string {
-    return QUEST_COLORS[quest.difficulty];
   }
 
 }
