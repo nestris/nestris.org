@@ -18,9 +18,9 @@ export class XPAlertService {
     private readonly alertService: AlertService,
   ) {
 
-    this.websocketService.onEvent(JsonMessageType.XP_GAIN).subscribe((message: JsonMessage) => {
-      this.onXPGain(message as XPGainMessage);
-    });
+    // this.websocketService.onEvent(JsonMessageType.XP_GAIN).subscribe((message: JsonMessage) => {
+    //   this.onXPGain(message as XPGainMessage);
+    // });
 
   }
 
