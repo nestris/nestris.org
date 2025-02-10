@@ -9,6 +9,11 @@ import { EVALUATION_TO_COLOR, overallAccuracyRating } from 'src/app/shared/evalu
 import { GlobalStat, GlobalStats } from 'src/app/shared/models/global-stat';
 import { T200LeaderboardData, T200LeaderboardType } from 'src/app/shared/models/leaderboard';
 
+interface GlobalStatDisplay {
+  icon: string;
+  label: string;
+  stat: GlobalStat;
+}
 
 @Component({
   selector: 'app-main-leaderboard-page',
@@ -41,6 +46,22 @@ export class MainLeaderboardPageComponent implements OnDestroy {
     [T200LeaderboardType.RANKED]: './assets/img/tab-icons/play.svg',
     [T200LeaderboardType.PUZZLES]: './assets/img/tab-icons/puzzles.svg',
   }
+
+  readonly globalStatDisplays: { [key in Mode]: GlobalStatDisplay[] } = {
+    [Mode.SOLO]: [
+      { icon: './assets/img/tab-icons/profile.svg', label: 'Players', stat: GlobalStat.TOTAL_USER_COUNT },
+    ],
+    [Mode.RANKED]: [
+      { icon: './assets/img/tab-icons/profile.svg', label: 'Players', stat: GlobalStat.TOTAL_USER_COUNT },
+    ],
+    [Mode.PUZZLES]: [
+      { icon: './assets/img/tab-icons/profile.svg', label: 'Players', stat: GlobalStat.TOTAL_USER_COUNT },
+      { icon: './assets/img/tab-icons/puzzles.svg', label: 'Puzzles solved', stat: GlobalStat.TOTAL_PUZZLES_SOLVED },
+      { icon: './assets/img/tab-icons/time.svg', label: 'Hours played', stat: GlobalStat.TOTAL_PUZZLE_HOURS },
+
+    ],
+  };
+
 
   readonly getLabelsForMode = (mode: Mode) => this.leaderboardTypes[mode].map(type => this.leaderboardTypeLabels[type]);
   readonly getIconsForMode = (mode: Mode) => this.leaderboardTypes[mode].map(type => this.leaderboardTypeIcon[type]);

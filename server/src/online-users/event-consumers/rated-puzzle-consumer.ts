@@ -1,7 +1,7 @@
 import { DBPuzzle } from "../../../shared/puzzles/db-puzzle";
 import { PuzzleRating } from "../../../shared/puzzles/puzzle-rating";
 import { RatedPuzzleResult, RatedPuzzleSubmission, UnsolvedRatedPuzzle } from "../../../shared/puzzles/rated-puzzle";
-import { isPrime } from "../../../shared/scripts/math";
+import { clamp, isPrime } from "../../../shared/scripts/math";
 import { DBPuzzleSubmitEvent, DBUserObject } from "../../database/db-objects/db-user";
 import { Database, DBQuery, WriteDBQuery } from "../../database/db-query";
 import { EventConsumer } from "../event-consumer";
@@ -438,7 +438,7 @@ export class RatedPuzzleConsumer extends EventConsumer<RatedPuzzleConfig> {
         await DBUserObject.alter(userid, new DBPuzzleSubmitEvent({
             users: this.users,
             sessionID: activePuzzle.sessionID,
-            seconds: submission.seconds,
+            seconds: clamp(submission.seconds, 0, 30),
             newElo, isCorrect, nonQuestXpGained: xpGained
         }), false);
         console.log(`User ${userid} submitted rated puzzle ${dbPuzzle.id} with ${isCorrect ? "correct" : "incorrect"} solution, new elo ${newElo}, xp gained ${xpGained}`);

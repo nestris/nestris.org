@@ -1,6 +1,6 @@
 <div class="content">
     <app-page-title title="Leaderboard" icon="./assets/img/tab-icons/leaderboard.svg" />
-    <div class="header">
+    <div class="header" *ngIf="(leaderboard$ | async)?.stats as stats">
         <div class="left prevent-select">
 
             <div class="tabs">
@@ -18,9 +18,11 @@
 
         </div>
         <div class="right">
-            <app-stat-panel icon="./assets/img/tab-icons/profile.svg" label="Players" [value]="(playerCount$ | async) ?? 0" />
-            <app-stat-panel icon="./assets/img/tab-icons/puzzles.svg" label="Puzzles solved" [value]="(puzzlesSolved$ | async) ?? 0" />
-            <app-stat-panel icon="./assets/img/tab-icons/time.svg" label="Hours played" [value]="(hoursSpent$ | async) ?? 0" />
+            <ng-container *ngIf="currentMode$ | async as mode">
+                <app-stat-panel *ngFor="let display of globalStatDisplays[mode]"
+                    [icon]="display.icon" [label]="display.label" [value]="stats[display.stat]"
+                />
+            </ng-container>
         </div>
     </div>
 

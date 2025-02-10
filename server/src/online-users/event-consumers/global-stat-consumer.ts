@@ -26,6 +26,17 @@ export class CountPuzzlesSolvedQuery extends DBQuery<number> {
     }
 }
 
+export class CountPuzzleHoursQuery extends DBQuery<number> {
+    public override query = `SELECT SUM(puzzle_seconds_played / 3600.0) FROM users;`;
+    public override warningMs = null;
+
+    public override parseResult(resultRows: any[]): number {
+        if (resultRows.length === 0) throw new Error('Count of puzzle hours not found');
+
+        return parseFloat(resultRows[0].sum);
+    }
+}
+
 /**
  * Consumer for handling guests. On guest disconnect, delete the guest user from the database.
  */
@@ -34,6 +45,7 @@ export class GlobalStatConsumer extends EventConsumer {
     private stats: GlobalStats = {
         [GlobalStat.TOTAL_USER_COUNT]: 0,
         [GlobalStat.TOTAL_PUZZLES_SOLVED]: 0,
+        [GlobalStat.TOTAL_PUZZLE_HOURS]: 0,
     }
 
     public override async init(): Promise<void> {
@@ -47,6 +59,14 @@ export class GlobalStatConsumer extends EventConsumer {
         DBUserObject.onChange().subscribe((change) => {
             if (change.event instanceof DBPuzzleSubmitEvent && change.event.args.isCorrect) {
                 this.stats[GlobalStat.TOTAL_PUZZLES_SOLVED]++;
+            }
+        });
+
+        // Query database for initial total puzzle hours count, and increment it when a user solves a puzzle. Store as a float
+        this.stats[GlobalStat.TOTAL_PUZZLE_HOURS] = await Database.query(CountPuzzleHoursQuery);
+        DBUserObject.onChange().subscribe((change) => {
+            if (change.event instanceof DBPuzzleSubmitEvent) {
+                this.stats[GlobalStat.TOTAL_PUZZLE_HOURS] += change.event.args.seconds / 3600.0;
             }
         });
         
