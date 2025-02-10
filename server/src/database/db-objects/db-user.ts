@@ -65,6 +65,7 @@ interface GameEndArgs extends XPArgs {
     lines: number,
     transitionInto19: number | null,
     transitionInto29: number | null,
+    numPlacements: number
 }
 export class DBGameEndEvent extends XPEvent<GameEndArgs> {}
 

@@ -5,12 +5,16 @@ import { v4 as uuid } from 'uuid';
 import { DBRankedMatchEndEvent, DBUserObject } from "../database/db-objects/db-user";
 import { RoomError } from "../online-users/event-consumers/room-consumer";
 import { soloXPStrategy } from "./solo-room";
+import { EventConsumerManager } from "../online-users/event-consumer";
+import { GlobalStatConsumer } from "../online-users/event-consumers/global-stat-consumer";
 
 
 export class RankedMultiplayerRoom extends MultiplayerRoom {
 
     // Unique match ID for this ranked multiplayer match
     private readonly matchID: string = uuid();
+
+    private readonly startTime = Date.now();
 
     constructor(
         player1SessionID: UserSessionID,
@@ -59,6 +63,10 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
             }), false);
         });
 
+        // Update global stats for how long the match took
+        const globalStatConsumer = EventConsumerManager.getInstance().getConsumer(GlobalStatConsumer);
+        const durationSeconds = (Date.now() - this.startTime) / 1000;
+        globalStatConsumer.onMatchEnd(durationSeconds);
     }
 
     /**

@@ -185,6 +185,14 @@ CREATE TABLE "public"."match_games" (
     PRIMARY KEY ("match_id", "game_id")
 );
 
+-- Table that maps global stat to value
+DROP TABLE IF EXISTS "public"."global_stats" CASCADE;
+CREATE TABLE "public"."global_stats" (
+    "stat" text NOT NULL,
+    "value" int8 NOT NULL,
+    PRIMARY KEY ("stat")
+);
+
 
 -- LOG table that logs message with timestamp
 DROP TABLE IF EXISTS "public"."logs" CASCADE;

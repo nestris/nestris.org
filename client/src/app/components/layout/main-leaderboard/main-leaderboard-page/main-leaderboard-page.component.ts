@@ -50,9 +50,14 @@ export class MainLeaderboardPageComponent implements OnDestroy {
   readonly globalStatDisplays: { [key in Mode]: GlobalStatDisplay[] } = {
     [Mode.SOLO]: [
       { icon: './assets/img/tab-icons/profile.svg', label: 'Players', stat: GlobalStat.TOTAL_USER_COUNT },
+      { icon: './assets/img/puzzle-button-icons/play.svg', label: 'Games played', stat: GlobalStat.TOTAL_GAMES_PLAYED },
+      { icon: './assets/img/tab-icons/play.svg', label: 'Pieces placed', stat: GlobalStat.TOTAL_PIECES_PLACED },
+
     ],
     [Mode.RANKED]: [
       { icon: './assets/img/tab-icons/profile.svg', label: 'Players', stat: GlobalStat.TOTAL_USER_COUNT },
+      { icon: './assets/img/button-icons/trophy.svg', label: 'Matches played', stat: GlobalStat.TOTAL_MATCHES_PLAYED },
+      { icon: './assets/img/tab-icons/time.svg', label: 'Hours played', stat: GlobalStat.TOTAL_MATCH_HOURS },
     ],
     [Mode.PUZZLES]: [
       { icon: './assets/img/tab-icons/profile.svg', label: 'Players', stat: GlobalStat.TOTAL_USER_COUNT },

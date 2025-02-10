@@ -84,6 +84,11 @@ export class LeaderboardTableComponent implements OnChanges {
     return str;
   }
 
+  getDigitClassname(num: number): string {
+    const numDigits = num.toString().length;
+    return `digit-${numDigits}`;
+  }
+
 
 
 

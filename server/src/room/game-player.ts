@@ -199,6 +199,7 @@ export class GamePlayer {
                 lines: state.lines,
                 transitionInto19: state.transitionInto19,
                 transitionInto29: state.transitionInto29,
+                numPlacements: state.numPlacements,
             }), false);
 
         } else console.log(`Not saving game for player ${this.username} because no placements were made`);

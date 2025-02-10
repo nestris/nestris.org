@@ -15,6 +15,7 @@ export interface GameStateSnapshotWithoutBoard {
   countdown: number | undefined,
   transitionInto19: number | null,
   transitionInto29: number | null,
+  numPlacements: number
 }
 
 export interface GameStateSnapshot extends GameStateSnapshotWithoutBoard {
@@ -37,6 +38,7 @@ export class GameState {
 
   private numTetrises: number = 0;
   private numLines: number = 0;
+  private numPlacements: number = 0;
 
   private transitionInto19: number | null = null;
   private transitionInto29: number | null = null;
@@ -174,6 +176,8 @@ export class GameState {
 
     // increment pushdown into score, if any
     this.status.onPushdown(pushdown);
+
+    this.numPlacements++;
   }
 
   setCountdown(countdown: number) {
@@ -197,6 +201,7 @@ export class GameState {
       countdown: this.countdown,
       transitionInto19: this.transitionInto19,
       transitionInto29: this.transitionInto29,
+      numPlacements: this.numPlacements
     };
   }
 }
