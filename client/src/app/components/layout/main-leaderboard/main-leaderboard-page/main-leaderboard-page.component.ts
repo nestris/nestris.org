@@ -75,7 +75,7 @@ export class MainLeaderboardPageComponent implements OnDestroy {
     distinctUntilChanged(), // Only react when the type actually changes
     switchMap(type =>
       // On type change, start a timer that fires immediately and then every 5s
-      timer(0, 50000).pipe(
+      timer(0, 5000).pipe(
         switchMap(() =>
           from(this.fetchLeaderboard(type)).pipe(
             catchError(error => {

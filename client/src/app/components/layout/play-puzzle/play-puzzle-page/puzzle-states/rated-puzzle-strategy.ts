@@ -17,7 +17,7 @@ export class RatedPuzzleStrategy extends PuzzleStrategy {
   private websocketService = this.injector.get(WebsocketService);
 
   private currentPuzzle?: DBPuzzle;
-  private startTime = 0;
+  private startTime = Date.now();
 
   private eloHistory: number[] = [];
 
@@ -56,7 +56,7 @@ export class RatedPuzzleStrategy extends PuzzleStrategy {
     };
 
     // Submit the user's solution to the server
-    const { puzzle: dbPuzzle, newElo }  = await this.fetchService.fetch<RatedPuzzleResult>(Method.POST, `/api/v2/rated-puzzle/submit`, ratedPuzzleSubmission);
+    const { puzzle: dbPuzzle, newElo } = await this.fetchService.fetch<RatedPuzzleResult>(Method.POST, `/api/v2/rated-puzzle/submit`, ratedPuzzleSubmission);
     this.currentPuzzle = dbPuzzle;
 
     // update the user's elo history

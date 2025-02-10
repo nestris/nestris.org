@@ -7,6 +7,7 @@ import { XPGainMessage } from "../../../shared/network/json-message";
 import { OnlineUserManager } from "../../online-users/online-user-manager";
 import { SetHighscoreGameQuery } from "../db-queries/set-highscore-game-query";
 import { QuestID } from "../../../shared/nestris-org/quest-system";
+import { clamp } from "../../../shared/scripts/math";
 
 // The initial number of trophies a user has
 const INITIAL_RANKED_TROPHIES = 1200;
@@ -226,7 +227,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
                 this.inMemoryObject.highest_puzzle_elo = Math.max(this.inMemoryObject.highest_puzzle_elo, puzzleArgs.newElo);
                 this.inMemoryObject.puzzles_attempted++;
                 this.inMemoryObject.puzzles_solved += puzzleArgs.isCorrect ? 1 : 0;
-                this.inMemoryObject.puzzle_seconds_played += Math.round(puzzleArgs.seconds);
+                this.inMemoryObject.puzzle_seconds_played += Math.round(clamp(puzzleArgs.seconds, 0, 30));
                 break;
 
             // On game end, update highest stats
