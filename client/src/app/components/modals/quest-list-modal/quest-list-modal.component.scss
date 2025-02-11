@@ -19,7 +19,96 @@ h1 {
   text-wrap: nowrap;
 }
 
+.quest-content {
+  height: 80dvh;
+  overflow-y: scroll;
+  box-sizing: border-box;
+  zoom: 0.9;
+}
+
 .quests {
-    display: grid;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding-inline: 25px;
+  margin-block: 5px;
+  box-sizing: border-box;
+}
+
+// If screen is small enough, 2 columns
+@media screen and (max-width: 1800px) {
+  .quests {
     grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+// If screen is small enough, 2 columns
+@media screen and (max-width: 1200px) {
+  .quest-content {
+    zoom: 0.8;
+  }
+}
+
+// If screen is small enough, 2 columns
+@media screen and (max-width: 1000px) {
+  .quests {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+// If screen is small enough, 2 columns
+@media screen and (max-width: 650px) {
+  .quests {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+
+.quest {
+  transition: all 0.3s;
+}
+
+app-quest:hover {
+  filter: brightness(1.4) contrast(1.1);
+  transform: scale(1.02);
+  cursor: pointer;
+
+  animation: shake 0.4s;
+  animation-delay: 0.05s;
+  animation-iteration-count: 1;
+}
+
+
+@keyframes shake {
+0% { transform: rotate(0deg) scale(1.02); }
+25% { transform: rotate(0.2deg) scale(1.02); }
+50% { transform: rotate(0deg) scale(1.02); }
+75% { transform: rotate(-0.2deg) scale(1.02); }
+100% { transform: rotate(0deg) scale(1.02); }
+}
+
+.quest.not-impossible {
+  border-radius: 10px;
+  border-style: solid;
+  border-width: 2px;
+  padding: 10px;
+}
+
+.quest.impossible {
+  padding: 12px;
+  position: relative;
+  background: linear-gradient(90deg, rgba(255, 47, 0, 0.15), rgba(255, 165, 0, 0.15));
+  border-radius: 10px;
+}
+.quest.impossible::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 10px; 
+  padding: 2px;
+  background:linear-gradient(90deg,#FF2F00,#FFA500); 
+  mask: 
+    linear-gradient(#000 0 0) content-box, 
+    linear-gradient(#000 0 0);
+  mask-composite: exclude; 
 }

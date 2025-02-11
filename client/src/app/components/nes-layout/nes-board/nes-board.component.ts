@@ -159,8 +159,6 @@ export class NesBoardComponent implements OnChanges, OnInit, OnDestroy {
 
 
   redrawCanvas(data: CanvasData) {
-    console.log('redrawCanvas', data);
-
     // Get the canvas context
     const ctx = this.boardCanvas?.nativeElement.getContext('2d');
     if (!ctx) return;

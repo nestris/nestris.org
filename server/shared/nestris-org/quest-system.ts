@@ -286,7 +286,7 @@ export const QUESTS: Quest[] = [
     {
         id: QuestID.EFFICIENCY_V,
         category: QuestCategory.EFFICIENCY,
-        name: "Efficiency IV",
+        name: "Efficiency V",
         description: "Score 50 back-to-back quads in a game",
         difficulty: QuestDifficulty.IMPOSSIBLE,
         xp: 10,

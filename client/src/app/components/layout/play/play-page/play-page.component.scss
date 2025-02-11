@@ -59,7 +59,7 @@ section.profile {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 2px;
+    gap: 3px;
 }
 
 .quest-header h1 {
@@ -70,7 +70,7 @@ section.profile {
 }
 
 .quest-header app-solid-button {
-    transform: scale(0.7);
+    transform: scale(0.85);
 }
 
 .quest {
