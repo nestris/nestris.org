@@ -9,7 +9,6 @@ import { RoomService } from 'src/app/services/room/room.service';
 import { SoloClientRoom, SoloClientState } from 'src/app/services/room/solo-client-room';
 import { PlacementEvaluation } from 'src/app/services/stackrabbit/live-game-analyzer';
 import { MeService } from 'src/app/services/state/me.service';
-import { leagueColor } from 'src/app/shared/nestris-org/league-system';
 import { SoloGameInfo, SoloRoomState } from 'src/app/shared/room/solo-room-models';
 
 @Component({

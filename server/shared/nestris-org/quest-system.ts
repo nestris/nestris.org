@@ -50,6 +50,7 @@ export enum QuestDifficulty {
     EXPERT = "Expert",
     IMPOSSIBLE = "Impossible"
 }
+const questDifficultyOrder = [QuestDifficulty.EASY, QuestDifficulty.INTERMEDIATE, QuestDifficulty.ADVANCED, QuestDifficulty.EXPERT, QuestDifficulty.IMPOSSIBLE];
 
 export const QUEST_COLORS = {
     [QuestDifficulty.EASY]: "#58D774",
@@ -361,6 +362,12 @@ export const QUESTS: Quest[] = [
         targetScore: 100
     }
 ];
+
+// Sort quests first by difficulty, then by xp
+QUESTS.sort((a, b) => {
+    if (a.difficulty === b.difficulty) return a.xp - b.xp;
+    return questDifficultyOrder.indexOf(a.difficulty) - questDifficultyOrder.indexOf(b.difficulty);
+});
 
 export function getQuest(questID: QuestID): Quest {
     const quest = QUESTS.find(q => q.id === questID);

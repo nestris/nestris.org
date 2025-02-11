@@ -104,6 +104,7 @@ import { TrophyAlertComponent } from './components/alerts/trophy-alert/trophy-al
 import { PageTitleComponent } from './components/ui/page-title/page-title.component';
 import { GameAnalysisComponent } from './components/layout/game-analysis/game-analysis/game-analysis.component';
 import { XpStatusComponent } from './components/ui/xp-status/xp-status.component';
+import { QuestListModalComponent } from './components/modals/quest-list-modal/quest-list-modal.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -244,6 +245,7 @@ const customNotifierOptions: NotifierOptions = {
     PageTitleComponent,
     GameAnalysisComponent,
     XpStatusComponent,
+    QuestListModalComponent,
   ],
   imports: [
     BrowserModule,

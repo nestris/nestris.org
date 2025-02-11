@@ -1,0 +1,25 @@
+@import "../../../../styles.scss";
+
+.header {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+h1 {
+  font-family: Montserrat;
+  font-size: 30px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  text-align: center;
+  text-wrap: nowrap;
+}
+
+.quests {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}

@@ -56,6 +56,10 @@ section.profile {
 
 .quest-header {
     margin-bottom: 3px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 2px;
 }
 
 .quest-header h1 {
@@ -63,6 +67,10 @@ section.profile {
     font-size: 12px;
     font-weight: 700;
     margin: 0;
+}
+
+.quest-header app-solid-button {
+    transform: scale(0.7);
 }
 
 .quest {

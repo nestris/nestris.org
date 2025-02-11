@@ -1,0 +1,17 @@
+<div class="modal">
+
+    <div class="header">
+        <!-- <app-solid-button label="Back" (click)="modalManagerService.hideModal()" /> -->
+        <div></div>
+        <h1>Ansel's Quests</h1>
+        <div></div>
+
+    </div>
+
+    <div class="quests">
+        <app-quest class="quest" *ngFor="let quest of QUESTS" [questID]="quest.id" [status]="true" />
+    </div>
+    
+  
+    
+  </div>

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { RoomService } from 'src/app/services/room/room.service';
-import { BehaviorSubject, map, Subscription } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 import { RoomType } from 'src/app/shared/room/room-models';
 import { Router } from '@angular/router';
 import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';

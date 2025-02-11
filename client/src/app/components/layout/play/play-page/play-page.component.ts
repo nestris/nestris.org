@@ -123,7 +123,6 @@ export class PlayPageComponent implements OnDestroy{
   }
 
 
-
   comingSoon() {
     this.notifier.notify(NotificationType.ERROR, "This feature is currently in development. Coming soon!");
   }
@@ -134,6 +133,10 @@ export class PlayPageComponent implements OnDestroy{
 
   isMe(userid: string) {
     return this.meService.getUserIDSync() === userid;
+  }
+
+  showMyQuests() {
+    this.modalManager.showModal(ModalType.QUEST_LIST);
   }
 
 }
