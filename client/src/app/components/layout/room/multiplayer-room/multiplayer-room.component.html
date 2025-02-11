@@ -42,3 +42,5 @@
     </div>
 
 </div>
+
+<app-xp-status *ngIf="(multiplayerState$ | async)?.ranked" />

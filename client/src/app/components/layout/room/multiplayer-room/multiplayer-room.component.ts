@@ -49,6 +49,9 @@ export class MultiplayerRoomComponent extends MultiplayerComponent {
   }
 
   getGameOverMode(state: MultiplayerRoomState, index: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2): GameOverMode | undefined {
+
+    if (this.multiplayerClientRoom.showingAfterMatchModal()) return undefined;
+
     if (state.status === MultiplayerRoomStatus.BEFORE_GAME) {
 
       // if before first game, show ready
