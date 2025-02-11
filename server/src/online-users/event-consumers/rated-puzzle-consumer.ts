@@ -436,10 +436,8 @@ export class RatedPuzzleConsumer extends EventConsumer<RatedPuzzleConfig> {
         
         // Update the in-memory user's rating, but don't wait for database call to finish
         await DBUserObject.alter(userid, new DBPuzzleSubmitEvent({
-            users: this.users,
-            sessionID: activePuzzle.sessionID,
+            newElo, isCorrect, xpGained,
             seconds: clamp(submission.seconds, 0, 30),
-            newElo, isCorrect, nonQuestXpGained: xpGained
         }), false);
         console.log(`User ${userid} submitted rated puzzle ${dbPuzzle.id} with ${isCorrect ? "correct" : "incorrect"} solution, new elo ${newElo}, xp gained ${xpGained}`);
 

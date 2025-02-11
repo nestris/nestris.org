@@ -3,10 +3,7 @@ import { getLeagueFromIndex, updateXP } from "../../../shared/nestris-org/league
 import { DBObject } from "../db-object";
 import { DBObjectAlterError, DBObjectNotFoundError } from "../db-object-error";
 import { Database, DBQuery, WriteDBQuery } from "../db-query";
-import { XPGainMessage } from "../../../shared/network/json-message";
-import { OnlineUserManager } from "../../online-users/online-user-manager";
 import { SetHighscoreGameQuery } from "../db-queries/set-highscore-game-query";
-import { QuestID } from "../../../shared/nestris-org/quest-system";
 
 // The initial number of trophies a user has
 const INITIAL_RANKED_TROPHIES = 1200;
@@ -46,10 +43,7 @@ export class DBUpdateAttributeEvent extends GenericEvent<UpdateAttributeArgs> {}
 // An XP event advances the user's XP and possibly their league. In addition, DBUser will check for quest update
 // changes and trigger additional XP increases if necessary.
 interface XPArgs {
-    users: OnlineUserManager,
-    sessionID: string,
-    nonQuestXpGained: number,
-    questProgressUpdate?: { [quest in QuestID]?: number } // optionally, new progress for any quests
+    xpGained: number,
 }
 export class XPEvent<T extends XPArgs = XPArgs> extends GenericEvent<T> {}
 
@@ -71,7 +65,7 @@ export class DBGameEndEvent extends XPEvent<GameEndArgs> {}
 
 
 // Update user's trophies by trophyDelta amount
-interface RankedMatchEndArgs extends XPArgs { win: boolean, lose: boolean, trophyChange: number, winXPBonus: number }
+interface RankedMatchEndArgs extends XPArgs { win: boolean, lose: boolean, trophyChange: number }
 export class DBRankedMatchEndEvent extends XPEvent<RankedMatchEndArgs> {}
 
 
@@ -190,13 +184,6 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
         return Database.query(DeleteUserQuery, userid);
     }
 
-    private updateXPInMemory(xpDelta: number): void {
-        const currentLeague = getLeagueFromIndex(this.inMemoryObject.league);
-        const { newXP, newLeague } = updateXP(this.inMemoryObject.xp, currentLeague, xpDelta);
-        this.inMemoryObject.xp = newXP;
-        this.inMemoryObject.league = newLeague;
-    }
-
     // Given an event, alters the object in-memory
     protected override alterInMemory(event: DBUserEvent): void {
 
@@ -265,33 +252,17 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
 
         console.log(`Altered user ${this.id} with event ${event.toString()}`);
 
-        // Update XP, league, and quests
+        // Update xp gained, and league if necessary
         if (event instanceof XPEvent) {
-            const xpArgs = (event as XPEvent).args;
+            const xpGained = (event as XPEvent).args.xpGained;
 
-            // Calculate the total XP gained from both the normal XP gain and the quest completions and xp bonus
-            const winBonus = event.constructor === DBRankedMatchEndEvent ? (event as DBRankedMatchEndEvent).args.winXPBonus : 0;
+            // Calculate new XP and league
+            const currentLeague = getLeagueFromIndex(this.inMemoryObject.league);
+            const { newXP, newLeague } = updateXP(this.inMemoryObject.xp, currentLeague, xpGained);
 
-            const trophyInfo = event.constructor === DBRankedMatchEndEvent ? {
-                initial: dbUserBefore.trophies,
-                change: (event as DBRankedMatchEndEvent).args.trophyChange,
-                winBonus: winBonus
-            } : undefined;
-
-            // Send the XP gained message, as well as any quests completed, to the specific session of the player that finished the game
-            if (xpArgs.nonQuestXpGained > 0 || trophyInfo) {
-                
-                xpArgs.users.sendToUserSession(xpArgs.sessionID, new XPGainMessage(
-                    dbUserBefore.league,
-                    dbUserBefore.xp,
-                    xpArgs.nonQuestXpGained,
-                    [],
-                    trophyInfo
-                ));
-            }
-
-            // Update the user's XP and league for the aggregate XP gain
-            this.updateXPInMemory(xpArgs.nonQuestXpGained);
+            // Update in-memory object
+            this.inMemoryObject.xp = newXP;
+            this.inMemoryObject.league = newLeague;
         }
     }
 

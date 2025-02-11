@@ -136,7 +136,7 @@ export const QUESTS: Quest[] = [
         description: "Survive for 100 lines in a game",
         difficulty: QuestDifficulty.EASY,
         xp: 100,
-        targetScore: 29
+        targetScore: 100
     },
     {
         id: QuestID.SURVIVOR_II,
@@ -235,7 +235,7 @@ export const QUESTS: Quest[] = [
         description: "Reach 2500 trophies in ranked mode",
         difficulty: QuestDifficulty.ADVANCED,
         xp: 10,
-        targetScore: 2000
+        targetScore: 2500
     },
     {
         id: QuestID.CHAMPION_IV,
@@ -244,7 +244,7 @@ export const QUESTS: Quest[] = [
         description: "Reach 3000 trophies in ranked mode",
         difficulty: QuestDifficulty.EXPERT,
         xp: 10,
-        targetScore: 2000
+        targetScore: 3000
     },
     {
         id: QuestID.EFFICIENCY_I,
@@ -334,7 +334,7 @@ export const QUESTS: Quest[] = [
         description: "Make 100 best (green) placements in a row",
         difficulty: QuestDifficulty.IMPOSSIBLE,
         xp: 10,
-        targetScore: 50
+        targetScore: 100
     },
     {
         id: QuestID.AUTOMATON,
@@ -342,7 +342,7 @@ export const QUESTS: Quest[] = [
         description: "Maintain 95% accuracy on a full game to level 29",
         difficulty: QuestDifficulty.IMPOSSIBLE,
         xp: 10000,
-        targetScore: 1
+        targetScore: 95
     },
     {
         id: QuestID.QUICKSILVER,
@@ -350,7 +350,7 @@ export const QUESTS: Quest[] = [
         description: "Survive for 100 lines on level 29 start",
         difficulty: QuestDifficulty.IMPOSSIBLE,
         xp: 10000,
-        targetScore: 1
+        targetScore: 100
     },
     {
         id: QuestID.JUGGERNAUT,

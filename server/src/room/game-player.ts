@@ -190,9 +190,7 @@ export class GamePlayer {
 
             // Update user stats from game
             await DBUserObject.alter(this.userid, new DBGameEndEvent({
-                users: this.Users,
-                sessionID: this.sessionID,
-                nonQuestXpGained: xpGained,
+                xpGained: xpGained,
                 gameID: gameID,
                 score: state.score,
                 level: state.level,

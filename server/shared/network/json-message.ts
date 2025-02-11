@@ -28,7 +28,6 @@ export enum JsonMessageType {
     IN_ROOM_STATUS = 'in_room_status',
     ROOM_STATE_UPDATE = 'room_state_update',
     CLIENT_ROOM_EVENT = 'client_room_event',
-    XP_GAIN = 'xp_gain',
     NUM_QUEUING_PLAYERS = 'num_queuing_players',
     FOUND_OPPONENT = 'found_opponent',
     REDIRECT = 'go_to_page',
@@ -169,19 +168,6 @@ export class ClientRoomEventMessage extends JsonMessage {
         public readonly event: ClientRoomEvent
     ) {
         super(JsonMessageType.CLIENT_ROOM_EVENT)
-    }
-}
-
-// sent from server to client to indicate an amount of XP has been gained, as well as any quests completed, to trigger client-side animation
-export class XPGainMessage extends JsonMessage {
-    constructor(
-        public readonly startLeague: League,
-        public readonly startXP: number,
-        public readonly normalXPGain: number,
-        public readonly completedQuests: QuestID[], // list of quest names that were completed and should have XP added
-        public readonly trophyInfo?: { initial: number, change: number, winBonus: number }
-    ) {
-        super(JsonMessageType.XP_GAIN)
     }
 }
 

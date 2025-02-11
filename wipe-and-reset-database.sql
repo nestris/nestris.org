@@ -189,7 +189,7 @@ CREATE TABLE "public"."match_games" (
 DROP TABLE IF EXISTS "public"."global_stats" CASCADE;
 CREATE TABLE "public"."global_stats" (
     "stat" text NOT NULL,
-    "value" int8 NOT NULL,
+    "value" double precision NOT NULL,
     PRIMARY KEY ("stat")
 );
 

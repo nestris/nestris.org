@@ -53,13 +53,10 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
 
             // Update each player's trophies and XP after the match, and calculate quest progress
             await DBUserObject.alter(player.userid, new DBRankedMatchEndEvent({
-                users: RankedMultiplayerRoom.Users,
-                sessionID: player.sessionID,
-                nonQuestXpGained: soloXPStrategy(state.points.length > 0 ? state.points[0].game[playerIndex].score : 0),
+                xpGained: state.matchWinner === playerIndex ? xpBonusIfWin : 0, // solo xp gain handled by GamePlayer
                 win: state.matchWinner === playerIndex,
                 lose: state.matchWinner !== playerIndex && state.matchWinner !== PlayerIndex.DRAW,
                 trophyChange: trophyChange,
-                winXPBonus: state.matchWinner === playerIndex ? xpBonusIfWin : 0,
             }), false);
         });
 

@@ -11,15 +11,8 @@ import { CacheableRequestService } from './services/cacheable-request.service';
 import { MeService } from './services/state/me.service';
 import { RoomService } from './services/room/room.service';
 import { AlertService } from './services/alert.service';
-import { TestAlertComponent } from './components/alerts/test-alert/test-alert.component';
-import { XPAlertComponent } from './components/alerts/xp-alert/xp-alert.component';
-import { League } from './shared/nestris-org/league-system';
-import { XPAlertService } from './services/xp-alert.service';
-import { QuestAlertComponent } from './components/alerts/quest-alert/quest-alert.component';
 import { InvitationsService } from './services/state/invitations.service';
 import { StackrabbitService } from './services/stackrabbit/stackrabbit.service';
-import { sleep } from './util/misc';
-import { TrophyAlertComponent } from './components/alerts/trophy-alert/trophy-alert.component';
 import { GamepadService } from './services/gamepad.service';
 @Component({
   selector: 'app-root',
@@ -39,7 +32,6 @@ export class AppComponent implements OnInit {
     private meService: MeService,
     private roomService: RoomService,
     private alertService: AlertService,
-    private xpAlertService: XPAlertService,
     private invitationsService: InvitationsService,
     private stackrabbitService: StackrabbitService,
     private gamepadService: GamepadService,
