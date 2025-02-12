@@ -9,6 +9,7 @@
     align-items: center;
 }
 
+
 .back-button {
     position: absolute;
     top: 0;
@@ -38,7 +39,7 @@ app-loading-animation {
     display: flex;
     flex-direction: column;
     align-items: center;
-    max-width: 900px;
+    max-width: 880px;
     gap: 20px;
 }
 
@@ -245,7 +246,7 @@ app-game-summary-graph {
     display: flex;
     flex-direction: row;
     gap: 20px;
-    width: 100%;
+    flex-grow: 1;
     box-sizing: border-box;
 }
 
@@ -371,4 +372,53 @@ app-game-summary-graph {
 
 app-slide-toggle {
     transform: scale(0.8);
+}
+
+.placements-panel {
+    background-color: $section-color;
+    border-radius: 10px;
+    padding: 12px;
+
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    width: 100%;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: fit-content;
+    gap: 3px;
+}
+
+.placements-panel h1 {
+    font-family: $main-font;
+    font-weight: 700;
+    font-size: 13px;
+    margin: 0;
+    margin-bottom: 8px;
+}
+
+.placement {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+p.rating {
+    font-family: $main-font;
+    font-weight: 600;
+    font-size: 12px;
+    margin: 0;
+}
+
+p.count {
+    font-family: $main-font;
+    font-weight: 600;
+    font-size: 12px;
+    margin: 0;
 }

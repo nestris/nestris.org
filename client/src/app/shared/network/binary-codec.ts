@@ -81,6 +81,16 @@ export class BinaryEncoder {
         }
     }
 
+    // float, which is 32 bits
+    addFloat(value: number): void {
+        const buffer = new ArrayBuffer(4);
+        new DataView(buffer).setFloat32(0, value, true);
+        const uint8Array = new Uint8Array(buffer);
+        for (let i = 0; i < 4; i++) {
+            this.addUnsignedInteger(uint8Array[i], 8);
+        }
+    }
+
     // 11 bits total
     // rotation: number; // 2 bits rotation (0-3)
     // 4 bits x (-2 to 13 range, add 2 to store 0 to 15)
@@ -202,6 +212,16 @@ export class BinaryDecoder {
 
         return BinaryTranscoder.decode(base4);
 
+    }
+
+    nextFloat(): number {
+        const buffer = new ArrayBuffer(4);
+        const uint8Array = new Uint8Array(buffer);
+        for (let i = 0; i < 4; i++) {
+            uint8Array[i] = this.nextUnsignedInteger(8);
+        }
+
+        return new DataView(buffer).getFloat32(0, true);
     }
 
     // 11 bits total

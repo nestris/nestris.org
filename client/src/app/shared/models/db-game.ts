@@ -9,6 +9,15 @@ export interface DBGame {
     accuracy: number,
     tetris_rate: number,
     xp_gained: number,
+    average_eval_loss: number,
+    brilliant_count: number,
+    best_count: number,
+    excellent_count: number,
+    good_count: number,
+    inaccurate_count: number,
+    mistake_count: number,
+    blunder_count: number,
+
     username?: string,
     data_exists?: boolean,
     rank?: number
@@ -24,5 +33,13 @@ export const DBGameAttributes = [
     'end_lines',
     'accuracy',
     'tetris_rate',
-    'xp_gained'
+    'xp_gained',
+    'average_eval_loss',
+    'brilliant_count',
+    'best_count',
+    'excellent_count',
+    'good_count',
+    'inaccurate_count',
+    'mistake_count',
+    'blunder_count'
 ];

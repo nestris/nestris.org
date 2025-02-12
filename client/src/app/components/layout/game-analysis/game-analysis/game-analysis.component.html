@@ -12,7 +12,7 @@
             <div class="stat accuracy">
                 <p class="label">Accuracy</p>
                 <p class="value" [ngStyle]="{'color' : getAccuracyColor(game!.accuracy)}">{{game!.accuracy}}%</p>
-                <p [ngStyle]="{opacity : 0}" class="description">[todo]</p>
+                <p  class="description">{{getAverageEvalLoss()}} average eval loss</p>
             </div>
             <div class="stat statistics">
                 <div class="statistic">
@@ -156,6 +156,14 @@
                             </div>
                             
 
+                        </div>
+                    </div>
+
+                    <div class="placements-panel">
+                        <h1>Placements</h1>
+                        <div class="placement" *ngFor="let rating of EVALUATION_ORDER" [ngStyle]="{'color' : EVALUATION_TO_COLOR[rating]}">
+                            <p class="rating">{{rating}}</p>
+                            <p class="count">{{getRatingCount(rating)}}</p>
                         </div>
                     </div>
 

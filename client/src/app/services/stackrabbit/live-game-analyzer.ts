@@ -143,7 +143,10 @@ export class LiveGameAnalyzer {
         console.log("PLACEMENT SCORE:", accuracyScore);
 
         // Send the accuracy score to the server
-        if (this.platform) this.platform.sendPacket(new StackRabbitPlacementPacket().toBinaryEncoder({ accuracyScore }));
+        if (this.platform) this.platform.sendPacket(new StackRabbitPlacementPacket().toBinaryEncoder({ 
+            bestEval: response.bestPlacementScore,
+            playerEval: response.playerPlacementScore,
+         }));
     }
 
     /**

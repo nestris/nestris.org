@@ -139,6 +139,14 @@ CREATE TABLE "public"."games" (
     "accuracy" int2,
     "tetris_rate" int2 NOT NULL,
     "xp_gained" int4 NOT NULL,
+    "average_eval_loss" real NOT NULL,
+    "brilliant_count" int2 NOT NULL,
+    "best_count" int2 NOT NULL,
+    "excellent_count" int2 NOT NULL,
+    "good_count" int2 NOT NULL,
+    "inaccurate_count" int2 NOT NULL,
+    "mistake_count" int2 NOT NULL,
+    "blunder_count" int2 NOT NULL,
     PRIMARY KEY ("id")
 );
 
