@@ -39,7 +39,11 @@ app-eval-bar {
 }
 
 .level-panel {
-    width: 80px; // prevent panel from stretching when level number increases
+    width: 75px; // prevent panel from stretching when level number increases
+}
+
+.lines-panel {
+    width: 90px;
 }
 
 .board-column {
