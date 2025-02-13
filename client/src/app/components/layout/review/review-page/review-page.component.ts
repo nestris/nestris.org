@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { BehaviorSubject, concat, from, map, Observable, of, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, concat, distinctUntilChanged, from, map, Observable, of, switchMap, tap } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-selector/solid-selector.component';
 import { ApiService, GameSortKey } from 'src/app/services/api.service';
 import { FetchService, Method } from 'src/app/services/fetch.service';
@@ -102,6 +102,7 @@ export class ReviewPageComponent implements OnInit {
 
     // When the sort index changes, fetch from the API to update the games based on the new sort strategy
     this.games$ = this.sortIndex$.pipe(
+      distinctUntilChanged(),
       map(index => this.sortStrategies[index]),
       switchMap(strategy => this.request(strategy)),
       tap(games => console.log('games', games))
