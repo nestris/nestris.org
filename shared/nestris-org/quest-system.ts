@@ -31,7 +31,8 @@ export enum QuestID {
     PERFECTION_V,
     AUTOMATON,
     QUICKSILVER,
-    JUGGERNAUT
+    JUGGERNAUT,
+    SOCIAL_BUTTERFLY,
 }
 
 export enum QuestCategory {
@@ -296,7 +297,7 @@ export const QUESTS: Quest[] = [
         id: QuestID.PERFECTION_I,
         category: QuestCategory.PERFECTION,
         name: "Perfection I",
-        description: "Make 5 best (green) placements in a row",
+        description: "Make 5 best placements in a row",
         difficulty: QuestDifficulty.EASY,
         xp: 10,
         targetScore: 5
@@ -305,7 +306,7 @@ export const QUESTS: Quest[] = [
         id: QuestID.PERFECTION_II,
         category: QuestCategory.PERFECTION,
         name: "Perfection II",
-        description: "Make 10 best (green) placements in a row",
+        description: "Make 10 best placements in a row",
         difficulty: QuestDifficulty.INTERMEDIATE,
         xp: 10,
         targetScore: 10,
@@ -314,7 +315,7 @@ export const QUESTS: Quest[] = [
         id: QuestID.PERFECTION_III,
         category: QuestCategory.PERFECTION,
         name: "Perfection III",
-        description: "Make 20 best (green) placements in a row",
+        description: "Make 20 best placements in a row",
         difficulty: QuestDifficulty.ADVANCED,
         xp: 10,
         targetScore: 20
@@ -323,7 +324,7 @@ export const QUESTS: Quest[] = [
         id: QuestID.PERFECTION_IV,
         category: QuestCategory.PERFECTION,
         name: "Perfection IV",
-        description: "Make 50 best (green) placements in a row",
+        description: "Make 50 best placements in a row",
         difficulty: QuestDifficulty.EXPERT,
         xp: 10,
         targetScore: 50
@@ -332,7 +333,7 @@ export const QUESTS: Quest[] = [
         id: QuestID.PERFECTION_V,
         category: QuestCategory.PERFECTION,
         name: "Perfection V",
-        description: "Make 100 best (green) placements in a row",
+        description: "Make 100 best placements in a row",
         difficulty: QuestDifficulty.IMPOSSIBLE,
         xp: 10,
         targetScore: 100
@@ -360,6 +361,14 @@ export const QUESTS: Quest[] = [
         difficulty: QuestDifficulty.IMPOSSIBLE,
         xp: 10000,
         targetScore: 100
+    },
+    {
+        id: QuestID.SOCIAL_BUTTERFLY,
+        name: "Social butterfly",
+        description: "Be friends with 5 other players on the site",
+        difficulty: QuestDifficulty.EASY,
+        xp: 10,
+        targetScore: 5
     }
 ];
 

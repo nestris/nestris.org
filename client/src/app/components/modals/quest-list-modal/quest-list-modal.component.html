@@ -10,13 +10,7 @@
 
     <div class="quest-content">
         <div class="quests">
-            <app-quest class="quest" *ngFor="let quest of QUESTS" [questID]="quest.id" [status]="true"
-                [ngClass]="quest.difficulty === QuestDifficulty.IMPOSSIBLE ? 'impossible' : 'not-impossible'"
-                [ngStyle]="quest.difficulty === QuestDifficulty.IMPOSSIBLE ? {} : {
-                    'borderColor': QUEST_COLORS[quest.difficulty],
-                    backgroundColor: hexWithAlpha(QUEST_COLORS[quest.difficulty], 0.05)
-                }"
-            />
+            <app-quest class="quest" *ngFor="let quest of QUESTS" [questID]="quest.id" [status]="1" />
         </div>
     </div>
     

@@ -2,19 +2,87 @@
 
 .quest {
     width: 350px;
+    height: 85px;
     box-sizing: border-box;
 
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    justify-content: space-between;
 
+    transition: all 0.3s;
+
+}
+
+.quest.not-completed {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.quest.not-completed:hover {
+    color: white;
+}
+
+@keyframes shake {
+    0% { transform: rotate(0deg) scale(1.02); }
+    25% { transform: rotate(0.3deg) scale(1.02); }
+    50% { transform: rotate(0deg) scale(1.02); }
+    75% { transform: rotate(-0.3deg) scale(1.02); }
+    100% { transform: rotate(0deg) scale(1.02); }
+}
+
+.quest.completed:hover {
+    filter: brightness(1.4) contrast(1.1);
+    transform: scale(1.03);
+    cursor: pointer;
+
+    animation: shake 0.4s;
+    animation-delay: 0.1s;
+    animation-iteration-count: 1;
+}
+
+
+.quest.not-impossible {
+    border-radius: 10px;
+    border-style: solid;
+    border-width: 2px;
+    padding: 10px;
+}
+  
+.quest.impossible {
+padding: 12.25px;
+position: relative;
+background: linear-gradient(90deg, rgba(255, 47, 0, 0.15), rgba(255, 165, 0, 0.15));
+border-radius: 10px;
+}
+.quest.impossible::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 10px; 
+    padding: 1.75px;
+    background:linear-gradient(90deg,#FF2F00,#FFA500); 
+    mask: 
+        linear-gradient(#000 0 0) content-box, 
+        linear-gradient(#000 0 0);
+    mask-composite: exclude;
+
+    transition: all 0.3s;
+}
+
+.quest.impossible.quest.not-completed:not(:hover) {
+    background: linear-gradient(90deg, rgba(255, 47, 0, 0.06), rgba(255, 165, 0, 0.06));
+}
+
+
+
+.quest.impossible.not-completed:not(:hover)::before {
+    opacity: 0.4;
 }
 
 .header {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
 }
 
 .left {
@@ -47,7 +115,6 @@
 }
 
 .definition-container {
-    width: 90%;
     height: 32px;
 
     display: flex;
@@ -61,4 +128,75 @@
     font-weight: 500;
     margin: 0;
     line-height: 16px;
+}
+
+.progress-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding-top: 1px;
+}
+
+.progress-bar {
+    width: 100px;
+    height: 10px;
+    position: relative;
+    border-radius: 5px;
+    overflow: hidden;
+
+    opacity: 0.7;
+    transition: all 0.3s;
+}
+
+.quest:hover .progress-bar {
+    opacity: 1;
+}
+
+.progress-bar div {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.progress-bar .background {
+    background-color: rgba(255, 255, 255, 0.15);
+    border: 1.5px solid white;
+}
+
+.progress-bar .progress {
+    background-color: white;
+    z-index: 10;
+    border: 1.5px solid rgba(0,0,0,0);
+}
+
+.progress-label {
+    font-family: $main-font;
+    font-size: 10px;
+    font-weight: 600;
+    margin: 0;
+    padding: 0;
+}
+
+.footer {
+    display: flex;
+    width: 100%;
+    box-sizing: border-box;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+}
+
+.go {
+    color: white;
+}
+
+.completed .go {
+    opacity: 0;
+    cursor: pointer;
 }
