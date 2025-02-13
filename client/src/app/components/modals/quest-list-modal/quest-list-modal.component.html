@@ -9,8 +9,10 @@
     </div>
 
     <div class="quest-content">
-        <div class="quests">
-            <app-quest class="quest" *ngFor="let quest of QUESTS" [questID]="quest.id" [status]="1" />
+        <div class="quests" *ngIf="(meService.get$() | async) as me">
+            <app-quest class="quest" *ngFor="let quest of QUESTS" [questID]="quest.id"
+                [status]="getQuestStatus(me, quest.id)"
+                />
         </div>
     </div>
     

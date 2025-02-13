@@ -7,7 +7,7 @@
         'completed' : status === true
     }"
     [ngStyle]="quest.difficulty === QuestDifficulty.IMPOSSIBLE ? {} : {
-        'borderColor': hexWithAlpha(QUEST_COLORS[quest.difficulty], (status === true || (hovering$ | async)) ? 1 : 0.4),
+        'borderColor': hexWithAlpha(QUEST_COLORS[quest.difficulty], (status === true || (hovering$ | async)) ? 1 : 0.3),
         'backgroundColor': hexWithAlpha(QUEST_COLORS[quest.difficulty], (status === true || (hovering$ | async)) ? 0.05 : 0.02),
     }"
 >
@@ -22,7 +22,7 @@
         <div class="progress-container" *ngIf="status !== true">
             <div class="progress-bar">
                 <div class="background"></div>
-                <div class="progress" [ngStyle]="{'width' : (100 * status / quest.targetScore) + '%'}"></div>
+                <div class="progress" *ngIf="status" [ngStyle]="{'width' : (100 * status / quest.targetScore) + '%'}"></div>
             </div>
             <p class="progress-label">{{numberWithCommas(status)}} of {{numberWithCommas(quest.targetScore)}}</p>
         </div>

@@ -71,7 +71,7 @@ export interface Quest {
     targetScore: number;
 }
 
-export interface QuestStatus extends Quest {
+export interface QuestStatus {
     currentScore: number;
     completed: boolean;
 }
@@ -384,16 +384,21 @@ export function getQuest(questID: QuestID): Quest {
     return quest;
 }
 
+// Returns the current score and whether the quest is completed
 export function getQuestStatus(quest_progress: number[], questID: QuestID): QuestStatus {
     const quest = getQuest(questID);
+
+    // If the quest progress array is shorter than the questID, the quest has not been started
+    if (quest_progress.length <= questID) {
+        return {
+            currentScore: 0,
+            completed: false
+        }
+    }   
+
+    // Otherwise, return the current score and whether the quest is completed
     return {
-        ...quest,
         currentScore: quest_progress[questID],
         completed: quest_progress[questID] >= quest.targetScore
     };
-}
-
-export function didQuestJustComplete(old_quest_progress: number[], questID: QuestID, new_quest_progress: number): boolean {
-    const quest = getQuest(questID);
-    return old_quest_progress[questID] < quest.targetScore && new_quest_progress >= quest.targetScore;
 }
