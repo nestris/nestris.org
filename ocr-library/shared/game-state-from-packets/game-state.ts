@@ -22,6 +22,11 @@ export interface GameStateSnapshot extends GameStateSnapshotWithoutBoard {
   board: TetrisBoard
 }
 
+export interface PlacementInfo {
+  numLinesCleared: number;
+
+}
+
 // Keeps track of state within a legal game
 export class GameState {
 
@@ -139,7 +144,7 @@ export class GameState {
   // called whenever a new piece is placed on the board. Updates board and counters
   // nextNextPiece is the piece in the next box after the piece is placed and the new piece spawns
   // pushdown is the number of pushdown points scored with this placement
-  onPlacement(mtPose: MTPose, nextNextPiece: TetrominoType, pushdown: number = 0) {
+  onPlacement(mtPose: MTPose, nextNextPiece: TetrominoType, pushdown: number = 0): PlacementInfo {
 
     const placement = MoveableTetromino.fromMTPose(this.current, mtPose);
 
@@ -178,6 +183,10 @@ export class GameState {
     this.status.onPushdown(pushdown);
 
     this.numPlacements++;
+
+    return {
+      numLinesCleared: linesCleared
+    }
   }
 
   setCountdown(countdown: number) {

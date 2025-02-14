@@ -35,8 +35,6 @@ export class QuestConsumer extends EventConsumer {
         // Get the existing quest progress for the user
         const questProgress = [...(await DBUserObject.get(userid)).quest_progress];
 
-        console.log(`${userid}: Updating quests for category ${category} with progress ${progress}`);
-
         // Update quest progress for each quest in the category
         // Iterate through all quests in the category in descending order of xp gain
         let progressMade = false;
@@ -56,7 +54,7 @@ export class QuestConsumer extends EventConsumer {
                 progressMade = true;
 
                 // if newly completed quest, mark as completed to add xp and display alert
-                if (!previousStatus.completed && newProgress > quest.targetScore) completedQuestIDs.push(questID);
+                if (!previousStatus.completed && newProgress >= quest.targetScore) completedQuestIDs.push(questID);
             }
         }
 

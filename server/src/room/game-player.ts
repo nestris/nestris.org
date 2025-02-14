@@ -55,6 +55,26 @@ const DATABASE_PACKET_IGNORE_LIST: PacketOpcode[] = [
     PacketOpcode.STACKRABBIT_PLACEMENT
 ];
 
+
+// Track consecutive instances of something happening for the purpose of quests. Check if positive progress has been made
+class ConsecutiveTracker {
+    private count: number = 0;
+
+    constructor(
+        private readonly userid: string,
+        private readonly category: QuestCategory,
+    ) {}
+
+    increment() {
+        this.count++;
+        EventConsumerManager.getInstance().getConsumer(QuestConsumer).updateQuestCategory(this.userid, this.category, this.count);
+    }
+
+    reset() {
+        this.count = 0;
+    }
+}
+
 /**
  * Represents a player in a game room. Handles server-side logic of a player playing games
  * in a room. It maintains the current game state of the player and aggregates packets when
@@ -75,6 +95,9 @@ export class GamePlayer {
     // need at least one placement to save the game
     private hasAtLeastOnePlacement: boolean = false;
 
+    private consecBestPlacements: ConsecutiveTracker;
+    private consecTetrises: ConsecutiveTracker;
+
     private gameStart$ = new Subject<GameStartEvent>();
     private gameEnd$ = new Subject<GameEndEvent>();
 
@@ -84,7 +107,10 @@ export class GamePlayer {
         public readonly username: string,
         public readonly sessionID: string,
         private readonly xpStrategy: XPStrategy = NO_XP_STRATEGY
-    ) {}
+    ) {
+        this.consecBestPlacements = new ConsecutiveTracker(this.userid, QuestCategory.PERFECTION);
+        this.consecTetrises = new ConsecutiveTracker(this.userid, QuestCategory.EFFICIENCY);
+    }
 
     /**
      * Subscribe to the game start event to execute additional logic when the game starts
@@ -128,6 +154,9 @@ export class GamePlayer {
 
             this.hasAtLeastOnePlacement = false;
 
+            this.consecBestPlacements.reset();
+            this.consecTetrises.reset();
+
             // Emit the game start event
             this.gameStart$.next({
                 level: gameStart.level,
@@ -139,13 +168,22 @@ export class GamePlayer {
             if (!this.gameState) throw new Error("Cannot add game placement packet without game start packet");
             const gamePlacement = (packet.content as GamePlacementSchema);
             this.hasAtLeastOnePlacement = true;
-            this.gameState.onPlacement(gamePlacement.mtPose, gamePlacement.nextNextType, gamePlacement.pushdown);
+            const { numLinesCleared } = this.gameState.onPlacement(gamePlacement.mtPose, gamePlacement.nextNextType, gamePlacement.pushdown);
+
+            // Check if any progress on 'Efficiency' quests for number of consecutive tetrises
+            if (numLinesCleared === 4) this.consecTetrises.increment();
+            else if (numLinesCleared > 0) this.consecTetrises.reset();
         }
 
         else if (packet.opcode === PacketOpcode.STACKRABBIT_PLACEMENT) {
             // Add the accuracy score to the list
             const stackrabbitPlacement = (packet.content as StackRabbitPlacementSchema);
             this.placementEvaluations.push(stackrabbitPlacement);
+
+            // Check if any progress on 'Perfection' quests for number of consecutive best placements
+            const rating = placementScoreRating(calculatePlacementScore(stackrabbitPlacement.bestEval, stackrabbitPlacement.playerEval));
+            if ([EvaluationRating.BRILLIANT, EvaluationRating.BEST].includes(rating)) this.consecBestPlacements.increment();
+            else this.consecBestPlacements.reset();
         }
 
         else if (packet.opcode === PacketOpcode.GAME_END) {

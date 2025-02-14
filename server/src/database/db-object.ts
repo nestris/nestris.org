@@ -198,8 +198,6 @@ export function DBObject<InMemoryObject extends {}, CreateParams, Event>(name: s
 
             // If the object is in-memory, return the in-memory object
             if (existingDBObject) {
-                console.log(`Got ${name} object with ID ${id} from cache`);
-
                 // Notify the cache monitor of the cache hit
                 DBCacheMonitor.recordCacheHit(name);
 
@@ -223,7 +221,6 @@ export function DBObject<InMemoryObject extends {}, CreateParams, Event>(name: s
             DBCacheMonitor.recordCacheMiss(name, ms);
 
             // Return the in-memory object
-            console.log(`Got ${name} object with ID ${id} from database`);
             return dbObject;
         }
 

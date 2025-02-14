@@ -3,7 +3,7 @@ import { StackrabbitService, TopMovesHybridResponse } from "./stackrabbit.servic
 import { TetrominoType } from "src/app/shared/tetris/tetromino-type";
 import MoveableTetromino from "src/app/shared/tetris/moveable-tetromino";
 import { SmartGameStatus } from "src/app/shared/tetris/smart-game-status";
-import { calculatePlacementScore } from "src/app/shared/evaluation/evaluation";
+import { calculatePlacementScore, EvaluationRating, placementScoreRating } from "src/app/shared/evaluation/evaluation";
 import { PlatformInterfaceService } from "../platform-interface.service";
 import { StackRabbitPlacementPacket } from "src/app/shared/network/stream-packets/packet";
 import { Subject } from "rxjs";

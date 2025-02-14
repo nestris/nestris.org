@@ -39,6 +39,8 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.modalManager.hideModal();
+
     this.windowWidth = window.innerWidth;
     this.calculateSmall();
 
