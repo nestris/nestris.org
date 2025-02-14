@@ -160,7 +160,7 @@ export const QUESTS: Record<QuestID, Quest> = {
     [QuestID.SURVIVOR_IV]: {
         id: QuestID.SURVIVOR_IV,
         category: QuestCategory.SURVIVOR,
-        name: "Survivor III",
+        name: "Survivor IV",
         description: "Survive 100 lines on killscreen and reach level 39",
         difficulty: QuestDifficulty.EXPERT,
         xp: 100,

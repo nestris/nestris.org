@@ -11,7 +11,7 @@ import { v4 as uuid } from 'uuid';
 import { calculatePlacementScore, EvaluationRating, placementScoreRating } from "../../shared/evaluation/evaluation";
 import { EventConsumerManager } from "../online-users/event-consumer";
 import { QuestConsumer } from "../online-users/event-consumers/quest-consumer";
-import { QuestCategory } from "../../shared/nestris-org/quest-system";
+import { QuestCategory, QuestID } from "../../shared/nestris-org/quest-system";
 
 // Event that is emitted when a game starts
 export interface GameStartEvent {
@@ -277,8 +277,15 @@ export class GamePlayer {
             }
         );
 
-        // Update score quests
-        EventConsumerManager.getInstance().getConsumer(QuestConsumer).updateQuestCategory(this.userid, QuestCategory.SCORE, state.score);
+        // Update score and lines quests
+        const questConsumer = EventConsumerManager.getInstance().getConsumer(QuestConsumer);
+        questConsumer.updateQuestCategory(this.userid, QuestCategory.SCORE, state.score);
+        questConsumer.updateQuestCategory(this.userid, QuestCategory.SURVIVOR, (questID => {
+            // Survivor I tracks lines
+            if (questID === QuestID.SURVIVOR_I) return state.lines;
+            // Survivor II+ tracks level from non-29 start
+            else return gameState.startLevel >= 29 ? 0 : state.level;
+        }));
 
         return gameID;
     }
