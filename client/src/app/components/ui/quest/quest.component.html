@@ -7,8 +7,8 @@
         'completed' : status === true
     }"
     [ngStyle]="quest.difficulty === QuestDifficulty.IMPOSSIBLE ? {} : {
-        'borderColor': hexWithAlpha(QUEST_COLORS[quest.difficulty], (status === true || (hovering$ | async)) ? 1 : 0.3),
-        'backgroundColor': hexWithAlpha(QUEST_COLORS[quest.difficulty], (status === true || (hovering$ | async)) ? 0.05 : 0.02),
+        'borderColor': hexWithAlpha(QUEST_COLORS[quest.difficulty], status === true ? 1 : (hovering$ | async) ? 0.6 : 0.3),
+        'backgroundColor': hexWithAlpha(QUEST_COLORS[quest.difficulty], status === true ? 0.11 : (hovering$ | async) ? 0.06 : 0.02),
     }"
 >
     <div class="header prevent-select">
