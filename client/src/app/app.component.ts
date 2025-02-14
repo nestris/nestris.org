@@ -57,7 +57,7 @@ export class AppComponent implements OnInit {
     // this.alertService.addAlert(TrophyAlertComponent, "trophyAlert", {startTrophies: 1300, trophyDelta: -23});
 
     // // this.alertService.addAlert(XPAlertComponent, "xpAlert", {league: League.MINO_1, currentXP: 0});
-    //this.alertService.addAlert(QuestAlertComponent, "questAlert", {questID: QuestID.AUTOMATON});
+    //this.alertService.addAlert(QuestAlertComponent, "questAlert", {questID: QuestID.AUTOMATON}, 2);
     
   }
 }

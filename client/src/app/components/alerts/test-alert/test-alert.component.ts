@@ -7,6 +7,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TestAlertComponent {
+  @Input() alertID!: string;
   @Input() hide: boolean = false;
   @Input() param1: string = '';
   @Input() param2: string = '';

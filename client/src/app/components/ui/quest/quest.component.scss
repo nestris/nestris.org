@@ -200,6 +200,10 @@ border-radius: 10px;
 
 .go {
     color: white;
+    opacity: 0.5;
+}
+
+.quest:hover:not(.completed) .go {
     opacity: 0.9;
 }
 

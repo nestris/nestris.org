@@ -5,7 +5,7 @@ export interface AlertEntry {
   alertId: string;
   componentType: Type<any>;
   inputs?: { [key: string]: any };
-  hide?: boolean; // New property to control fade-out
+  hide: boolean; // New property to control fade-out
 }
 
 @Injectable({
@@ -40,7 +40,7 @@ export class AlertService {
       alertId,
       componentType,
       inputs,
-      hide: false // Set hide to false by default
+      hide: false, // Set hide to false by default
     });
     this.alertsSubject.next(currentAlerts);
 
@@ -65,6 +65,10 @@ export class AlertService {
     alertEntry.hide = true;
     currentAlerts.set(alertId, alertEntry);
     this.alertsSubject.next(currentAlerts);
+  }
+
+  fullyDeleteAlert(alertId: string) {
+    const currentAlerts = this.alertsSubject.value;
 
     // Wait for the fade-out animation to complete, then fully remove the alert
     setTimeout(() => {

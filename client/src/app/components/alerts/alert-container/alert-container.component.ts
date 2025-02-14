@@ -48,6 +48,8 @@ export class AlertContainerComponent implements OnInit, OnDestroy {
 
         // Pass the hide parameter
         alertRef.setInput('hide', entry.hide);
+        alertRef.setInput('alertID', entry.alertId);
+
 
         alertRef.changeDetectorRef.detectChanges();
       } else {
@@ -63,6 +65,7 @@ export class AlertContainerComponent implements OnInit, OnDestroy {
 
         // Pass the hide parameter
         alertRef.setInput('hide', entry.hide);
+        alertRef.setInput('alertID', entry.alertId);
 
         // Save the reference
         this.alertRefs.set(alertId, alertRef);

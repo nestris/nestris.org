@@ -1,11 +1,13 @@
+import { QuestCategory } from "../../../shared/nestris-org/quest-system";
 import { DBPuzzle } from "../../../shared/puzzles/db-puzzle";
 import { PuzzleRating } from "../../../shared/puzzles/puzzle-rating";
 import { RatedPuzzleResult, RatedPuzzleSubmission, UnsolvedRatedPuzzle } from "../../../shared/puzzles/rated-puzzle";
 import { clamp, isPrime } from "../../../shared/scripts/math";
 import { DBPuzzleSubmitEvent, DBUserObject } from "../../database/db-objects/db-user";
 import { Database, DBQuery, WriteDBQuery } from "../../database/db-query";
-import { EventConsumer } from "../event-consumer";
+import { EventConsumer, EventConsumerManager } from "../event-consumer";
 import { OnSessionDisconnectEvent } from "../online-user-events";
+import { QuestConsumer } from "./quest-consumer";
 
 /**
  * Query to fetch a random sample of puzzles of a given rating from the database.
@@ -443,6 +445,9 @@ export class RatedPuzzleConsumer extends EventConsumer<RatedPuzzleConfig> {
 
         // Start updating puzzle stats based on submission, but don't wait for database call to finish
         this.updatePuzzleStats(dbPuzzle, submission, isCorrect);
+
+        // Update puzzle quests
+        EventConsumerManager.getInstance().getConsumer(QuestConsumer).updateQuestCategory(userid, QuestCategory.PUZZLER, newElo);
 
         // After some time seconds, decrement the puzzle count. Waiting approximates the time the user looks at the solution
         setTimeout(() => {

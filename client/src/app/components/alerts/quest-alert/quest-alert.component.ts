@@ -12,6 +12,7 @@ import { getQuest, QUEST_COLORS, QuestID } from 'src/app/shared/nestris-org/ques
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuestAlertComponent {
+  @Input() alertID!: string;
   @Input() hide: boolean = false;
   @Input() questID!: QuestID; // name of the quest
 

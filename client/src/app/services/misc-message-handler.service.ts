@@ -26,7 +26,7 @@ export class MiscMessageHandlerService {
     });
 
     this.websocket.onEvent<QuestCompleteMessage>(JsonMessageType.QUEST_COMPLETE).subscribe((message) => {
-      this.alertService.addAlert(QuestAlertComponent, `quest-${message.questID}`, {questID: message.questID}, 3);
+      this.alertService.addAlert(QuestAlertComponent, `quest-${message.questID}`, {questID: message.questID}, 4);
     })
 
   }
