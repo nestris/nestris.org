@@ -19,7 +19,7 @@ import { DBCacheMonitor } from "./db-cache-monitor";
  * @template CreateParams The parameters needed to create the object
  * @template Event An enum of events that can be emitted to alter the object
  */
-export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxCacheSize: number = 1000) {
+export function DBObject<InMemoryObject extends {}, CreateParams, Event>(name: string, maxCacheSize: number = 1000) {
 
     // Ensure maxCacheSize is valid
     if (maxCacheSize < 0) throw new Error("maxCacheSize must be nonnegative");
@@ -382,13 +382,29 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
          */
         public async alter(event: Event, waitForDB: boolean) {
 
+            const inMemoryCopy = Object.assign({}, this.inMemoryObject);
+
+            // If altering object with event causes error, revert to old object and log error
+            const revert = (error: any) => {
+                console.error(
+                    `Failed to alter ${name} object with ID ${this.id}, and will revert to old object\n`,
+                    `Event: ${JSON.stringify(event)}\n`,
+                    `Old object: ${JSON.stringify(inMemoryCopy)}\n`,
+                    `New object: ${JSON.stringify(this.inMemoryObject)}\n`,
+                    error
+                );
+                this.inMemoryObject = inMemoryCopy;
+            }
+
             // First, alter the object in-memory
             this.alterInMemory(event);
 
             // Second, update database. If waitForDB is true, wait for the database to finish writing before returning
             const saveToDatabase = this.saveToDatabase();
-            if (waitForDB) await saveToDatabase;
-            else saveToDatabase.catch(console.error);
+            if (waitForDB) {
+                try { await saveToDatabase; }
+                catch (error: any) { revert(error); }
+            } else saveToDatabase.catch((error) => revert(error));
         }
 
         /**

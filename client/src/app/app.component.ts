@@ -14,6 +14,10 @@ import { AlertService } from './services/alert.service';
 import { InvitationsService } from './services/state/invitations.service';
 import { StackrabbitService } from './services/stackrabbit/stackrabbit.service';
 import { GamepadService } from './services/gamepad.service';
+import { TrophyAlertComponent } from './components/alerts/trophy-alert/trophy-alert.component';
+import { QuestAlertComponent } from './components/alerts/quest-alert/quest-alert.component';
+import { QuestID } from './shared/nestris-org/quest-system';
+import { sleep } from './util/misc';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
@@ -49,10 +53,11 @@ export class AppComponent implements OnInit {
 
     console.log("DEV MODE", isDevMode());
 
+    // await sleep(1000);
     // this.alertService.addAlert(TrophyAlertComponent, "trophyAlert", {startTrophies: 1300, trophyDelta: -23});
 
-    // this.alertService.addAlert(XPAlertComponent, "xpAlert", {league: League.MINO_1, currentXP: 0});
-    // this.alertService.addAlert(QuestAlertComponent, "questAlert", {name : "Ok Noah Dengler"});
+    // // this.alertService.addAlert(XPAlertComponent, "xpAlert", {league: League.MINO_1, currentXP: 0});
+    //this.alertService.addAlert(QuestAlertComponent, "questAlert", {questID: QuestID.AUTOMATON});
     
   }
 }

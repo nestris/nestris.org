@@ -1,5 +1,6 @@
 @import "../../../../styles.scss";
 
+
 .trophy-alert {
     display: flex;
     flex-direction: row;
@@ -7,10 +8,14 @@
     justify-content: center;
     gap: 5px;
 
-    width: 270px;
-    height: 60px;
+    width: 290px;
+    height: 70px;
     box-sizing: border-box;
     position: relative;
+
+    background-color: black;
+    border-radius: 10px;
+    border: 2px solid #FFAF2C;
 }
 
 

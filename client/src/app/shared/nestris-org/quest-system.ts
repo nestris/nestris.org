@@ -14,7 +14,7 @@ export enum QuestID {
     PUZZLER_II,
     PUZZLER_III,
     PUZZLER_IV,
-    PUZZLER_5,
+    PUZZLER_V,
     CHAMPION_I,
     CHAMPION_II,
     CHAMPION_III,
@@ -51,7 +51,6 @@ export enum QuestDifficulty {
     EXPERT = "Expert",
     IMPOSSIBLE = "Impossible"
 }
-const questDifficultyOrder = [QuestDifficulty.EASY, QuestDifficulty.INTERMEDIATE, QuestDifficulty.ADVANCED, QuestDifficulty.EXPERT, QuestDifficulty.IMPOSSIBLE];
 
 export const QUEST_COLORS = {
     [QuestDifficulty.EASY]: "#58D774",
@@ -76,8 +75,8 @@ export interface QuestStatus {
     completed: boolean;
 }
 
-export const QUESTS: Quest[] = [
-    {
+export const QUESTS: Record<QuestID, Quest> = {
+    [QuestID.FIRST_BLOOD]: {
         id: QuestID.FIRST_BLOOD,
         category: QuestCategory.SCORE,
         name: "First blood",
@@ -86,7 +85,7 @@ export const QUESTS: Quest[] = [
         xp: 10,
         targetScore: 100000,
     },
-    {
+    [QuestID.RISING_STAR]: {
         id: QuestID.RISING_STAR,
         category: QuestCategory.SCORE,
         name: "Rising star",
@@ -95,7 +94,7 @@ export const QUESTS: Quest[] = [
         xp: 20,
         targetScore: 500000,
     },
-    {
+    [QuestID.MAXOUT_CITY]: {
         id: QuestID.MAXOUT_CITY,
         category: QuestCategory.SCORE,
         name: "Maxout city",
@@ -104,7 +103,7 @@ export const QUESTS: Quest[] = [
         xp: 1000,
         targetScore: 1000000
     },
-    {
+    [QuestID.HARRY_HONG]: {
         id: QuestID.HARRY_HONG,
         category: QuestCategory.SCORE,
         name: "Harry Hong",
@@ -113,7 +112,7 @@ export const QUESTS: Quest[] = [
         xp: 2000,
         targetScore: 1200000
     },
-    {
+    [QuestID.JOSEPH_SALEE]: {
         id: QuestID.JOSEPH_SALEE,
         category: QuestCategory.SCORE,
         name: "Joseph Salee",
@@ -122,7 +121,7 @@ export const QUESTS: Quest[] = [
         xp: 5000,
         targetScore: 1400000
     },
-    {
+    [QuestID.GAME_BREAKER]: {
         id: QuestID.GAME_BREAKER,
         category: QuestCategory.SCORE,
         name: "Game breaker",
@@ -131,7 +130,7 @@ export const QUESTS: Quest[] = [
         xp: 5000,
         targetScore: 1600000
     },
-    {
+    [QuestID.SURVIVOR_I]: {
         id: QuestID.SURVIVOR_I,
         category: QuestCategory.SURVIVOR,
         name: "Survivor I",
@@ -140,7 +139,7 @@ export const QUESTS: Quest[] = [
         xp: 100,
         targetScore: 100
     },
-    {
+    [QuestID.SURVIVOR_II]: {
         id: QuestID.SURVIVOR_II,
         category: QuestCategory.SURVIVOR,
         name: "Survivor II",
@@ -149,7 +148,7 @@ export const QUESTS: Quest[] = [
         xp: 100,
         targetScore: 29
     },
-    {
+    [QuestID.SURVIVOR_III]: {
         id: QuestID.SURVIVOR_III,
         category: QuestCategory.SURVIVOR,
         name: "Survivor III",
@@ -158,7 +157,7 @@ export const QUESTS: Quest[] = [
         xp: 100,
         targetScore: 30
     },
-    {
+    [QuestID.SURVIVOR_IV]: {
         id: QuestID.SURVIVOR_IV,
         category: QuestCategory.SURVIVOR,
         name: "Survivor III",
@@ -167,7 +166,7 @@ export const QUESTS: Quest[] = [
         xp: 100,
         targetScore: 30
     },
-    {
+    [QuestID.PUZZLER_I]: {
         id: QuestID.PUZZLER_I,
         category: QuestCategory.PUZZLER,
         name: "Puzzler I",
@@ -176,7 +175,7 @@ export const QUESTS: Quest[] = [
         xp: 10,
         targetScore: 1000
     },
-    {
+    [QuestID.PUZZLER_II]: {
         id: QuestID.PUZZLER_II,
         category: QuestCategory.PUZZLER,
         name: "Puzzler II",
@@ -185,7 +184,7 @@ export const QUESTS: Quest[] = [
         xp: 10,
         targetScore: 2000
     },
-    {
+    [QuestID.PUZZLER_III]: {
         id: QuestID.PUZZLER_III,
         category: QuestCategory.PUZZLER,
         name: "Puzzler III",
@@ -194,7 +193,7 @@ export const QUESTS: Quest[] = [
         xp: 10,
         targetScore: 3000
     },
-    {
+    [QuestID.PUZZLER_IV]: {
         id: QuestID.PUZZLER_IV,
         category: QuestCategory.PUZZLER,
         name: "Puzzler IV",
@@ -203,8 +202,8 @@ export const QUESTS: Quest[] = [
         xp: 10,
         targetScore: 4000
     },
-    {
-        id: QuestID.PUZZLER_5,
+    [QuestID.PUZZLER_V]: {
+        id: QuestID.PUZZLER_V,
         category: QuestCategory.PUZZLER,
         name: "Puzzler V",
         description: "Reach a high of 5000 elo in puzzles",
@@ -212,7 +211,7 @@ export const QUESTS: Quest[] = [
         xp: 10,
         targetScore: 5000
     },
-    {
+    [QuestID.CHAMPION_I]: {
         id: QuestID.CHAMPION_I,
         category: QuestCategory.CHAMPION,
         name: "Champion I",
@@ -221,7 +220,7 @@ export const QUESTS: Quest[] = [
         xp: 10,
         targetScore: 10
     },
-    {
+    [QuestID.CHAMPION_II]: {
         id: QuestID.CHAMPION_II,
         category: QuestCategory.CHAMPION,
         name: "Champion II",
@@ -230,7 +229,7 @@ export const QUESTS: Quest[] = [
         xp: 10,
         targetScore: 2000
     },
-    {
+    [QuestID.CHAMPION_III]: {
         id: QuestID.CHAMPION_III,
         category: QuestCategory.CHAMPION,
         name: "Champion III",
@@ -239,7 +238,7 @@ export const QUESTS: Quest[] = [
         xp: 10,
         targetScore: 2500
     },
-    {
+    [QuestID.CHAMPION_IV]: {
         id: QuestID.CHAMPION_IV,
         category: QuestCategory.CHAMPION,
         name: "Champion IV",
@@ -248,7 +247,7 @@ export const QUESTS: Quest[] = [
         xp: 10,
         targetScore: 3000
     },
-    {
+    [QuestID.EFFICIENCY_I]: {
         id: QuestID.EFFICIENCY_I,
         category: QuestCategory.EFFICIENCY,
         name: "Efficiency I",
@@ -257,7 +256,7 @@ export const QUESTS: Quest[] = [
         xp: 10,
         targetScore: 2
     },
-    {
+    [QuestID.EFFICIENCY_II]: {
         id: QuestID.EFFICIENCY_II,
         category: QuestCategory.EFFICIENCY,
         name: "Efficiency II",
@@ -266,7 +265,7 @@ export const QUESTS: Quest[] = [
         xp: 10,
         targetScore: 5
     },
-    {
+    [QuestID.EFFICIENCY_III]: {
         id: QuestID.EFFICIENCY_III,
         category: QuestCategory.EFFICIENCY,
         name: "Efficiency III",
@@ -275,7 +274,7 @@ export const QUESTS: Quest[] = [
         xp: 10,
         targetScore: 10
     },
-    {
+    [QuestID.EFFICIENCY_IV]: {
         id: QuestID.EFFICIENCY_IV,
         category: QuestCategory.EFFICIENCY,
         name: "Efficiency IV",
@@ -284,7 +283,7 @@ export const QUESTS: Quest[] = [
         xp: 10,
         targetScore: 20
     },
-    {
+    [QuestID.EFFICIENCY_V]: {
         id: QuestID.EFFICIENCY_V,
         category: QuestCategory.EFFICIENCY,
         name: "Efficiency V",
@@ -293,7 +292,7 @@ export const QUESTS: Quest[] = [
         xp: 10,
         targetScore: 50
     },
-    {
+    [QuestID.PERFECTION_I]: {
         id: QuestID.PERFECTION_I,
         category: QuestCategory.PERFECTION,
         name: "Perfection I",
@@ -302,7 +301,7 @@ export const QUESTS: Quest[] = [
         xp: 10,
         targetScore: 5
     },
-    {
+    [QuestID.PERFECTION_II]: {
         id: QuestID.PERFECTION_II,
         category: QuestCategory.PERFECTION,
         name: "Perfection II",
@@ -311,7 +310,7 @@ export const QUESTS: Quest[] = [
         xp: 10,
         targetScore: 10,
     },
-    {
+    [QuestID.PERFECTION_III]: {
         id: QuestID.PERFECTION_III,
         category: QuestCategory.PERFECTION,
         name: "Perfection III",
@@ -320,7 +319,7 @@ export const QUESTS: Quest[] = [
         xp: 10,
         targetScore: 20
     },
-    {
+    [QuestID.PERFECTION_IV]: {
         id: QuestID.PERFECTION_IV,
         category: QuestCategory.PERFECTION,
         name: "Perfection IV",
@@ -329,7 +328,7 @@ export const QUESTS: Quest[] = [
         xp: 10,
         targetScore: 50
     },
-    {
+    [QuestID.PERFECTION_V]: {
         id: QuestID.PERFECTION_V,
         category: QuestCategory.PERFECTION,
         name: "Perfection V",
@@ -338,7 +337,7 @@ export const QUESTS: Quest[] = [
         xp: 10,
         targetScore: 100
     },
-    {
+    [QuestID.AUTOMATON]: {
         id: QuestID.AUTOMATON,
         name: "Automaton",
         description: "Maintain 95% accuracy on a full game to level 29",
@@ -346,7 +345,7 @@ export const QUESTS: Quest[] = [
         xp: 10000,
         targetScore: 95
     },
-    {
+    [QuestID.QUICKSILVER]: {
         id: QuestID.QUICKSILVER,
         name: "Quicksilver",
         description: "Survive for 100 lines on level 29 start",
@@ -354,7 +353,7 @@ export const QUESTS: Quest[] = [
         xp: 10000,
         targetScore: 100
     },
-    {
+    [QuestID.JUGGERNAUT]: {
         id: QuestID.JUGGERNAUT,
         name: "Juggernaut",
         description: "Maintain a 100-0 win-loss record in ranked mode",
@@ -362,7 +361,7 @@ export const QUESTS: Quest[] = [
         xp: 10000,
         targetScore: 100
     },
-    {
+    [QuestID.SOCIAL_BUTTERFLY]: {
         id: QuestID.SOCIAL_BUTTERFLY,
         name: "Social butterfly",
         description: "Be friends with 5 other players on the site",
@@ -370,16 +369,11 @@ export const QUESTS: Quest[] = [
         xp: 10,
         targetScore: 5
     }
-];
+};
 
-// Sort quests first by difficulty, then by xp
-QUESTS.sort((a, b) => {
-    if (a.difficulty === b.difficulty) return a.xp - b.xp;
-    return questDifficultyOrder.indexOf(a.difficulty) - questDifficultyOrder.indexOf(b.difficulty);
-});
 
 export function getQuest(questID: QuestID): Quest {
-    const quest = QUESTS.find(q => q.id === questID);
+    const quest = QUESTS[questID];
     if (!quest) throw new Error(`Quest not found: ${questID}`);
     return quest;
 }
@@ -388,17 +382,11 @@ export function getQuest(questID: QuestID): Quest {
 export function getQuestStatus(quest_progress: number[], questID: QuestID): QuestStatus {
     const quest = getQuest(questID);
 
-    // If the quest progress array is shorter than the questID, the quest has not been started
-    if (quest_progress.length <= questID) {
-        return {
-            currentScore: 0,
-            completed: false
-        }
-    }   
+    const currentScore = quest_progress[questID] ?? 0;
 
     // Otherwise, return the current score and whether the quest is completed
     return {
-        currentScore: quest_progress[questID],
-        completed: quest_progress[questID] >= quest.targetScore
+        currentScore: currentScore,
+        completed: currentScore >= quest.targetScore
     };
 }

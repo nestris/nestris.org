@@ -9,6 +9,9 @@ import { Database } from "../database/db-query";
 import { OnlineUserManager } from "../online-users/online-user-manager";
 import { v4 as uuid } from 'uuid';
 import { calculatePlacementScore, EvaluationRating, placementScoreRating } from "../../shared/evaluation/evaluation";
+import { EventConsumerManager } from "../online-users/event-consumer";
+import { QuestConsumer } from "../online-users/event-consumers/quest-consumer";
+import { QuestCategory } from "../../shared/nestris-org/quest-system";
 
 // Event that is emitted when a game starts
 export interface GameStartEvent {
@@ -235,6 +238,9 @@ export class GamePlayer {
                 forced
             }
         );
+
+        // Update score quests
+        EventConsumerManager.getInstance().getConsumer(QuestConsumer).updateQuestCategory(this.userid, QuestCategory.SCORE, state.score);
 
         return gameID;
     }

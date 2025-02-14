@@ -1,3 +1,5 @@
+@import "../../../../styles.scss";
+
 @keyframes slideIn {
     from {
       transform: translateX(-120%);
@@ -21,14 +23,11 @@
     cursor: pointer;
     animation: slideIn 0.7s ease forwards;
   
-    background-color: black;
-    border-radius: 10px;
-    border-width: 2px;
-    border-style: solid;
-  
-    padding: 10px 15px;
-
     transition: box-shadow 0.2s, filter 0.2s;
+
+
+    background-color: $dark-color;
+    border-radius: 10px;
 
     &.slide-out {
       animation: slideOut 0.9s ease forwards;
@@ -41,7 +40,5 @@
 
     // brightness filter
     filter: brightness(1.15);
-
-
   }
   

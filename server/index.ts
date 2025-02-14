@@ -64,6 +64,7 @@ import { RankedBotUser } from './src/bot/ranked-bot-user';
 import { OnlineUserCacheConsumer } from './src/online-users/event-consumers/online-user-cache-consumer';
 import { TestUserCache } from './src/online-user-cache/test-user-cache';
 import { GetScoreHistogramRoute } from './src/routes/user-stats/get-score-histogram-route';
+import { QuestConsumer } from './src/online-users/event-consumers/quest-consumer';
 
 // Load environment variables
 require('dotenv').config();
@@ -126,6 +127,7 @@ async function main() {
   const consumers = EventConsumerManager.getInstance();
   consumers.registerConsumer(UserConsumer, {});
   consumers.registerConsumer(OnlineUserCacheConsumer, {});
+  consumers.registerConsumer(QuestConsumer, {});
   consumers.registerConsumer(FriendEventConsumer, {});
   consumers.registerConsumer(PingConsumer, {});
   consumers.registerConsumer(GuestConsumer, {});

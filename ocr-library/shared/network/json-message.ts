@@ -32,6 +32,7 @@ export enum JsonMessageType {
     FOUND_OPPONENT = 'found_opponent',
     REDIRECT = 'go_to_page',
     INVITATION = 'invitation',
+    QUEST_COMPLETE = 'quest_complete',
 }
 
 export abstract class JsonMessage {
@@ -228,5 +229,13 @@ export class InvitationMessage extends JsonMessage {
         public readonly cancelReason?: InvitationCancellationReason
     ) {
         super(JsonMessageType.INVITATION)
+    }
+}
+
+export class QuestCompleteMessage extends JsonMessage {
+    constructor(
+        public readonly questID: QuestID
+    ) {
+        super(JsonMessageType.QUEST_COMPLETE)
     }
 }
