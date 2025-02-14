@@ -233,6 +233,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
                 this.inMemoryObject.puzzles_attempted++;
                 this.inMemoryObject.puzzles_solved += puzzleArgs.isCorrect ? 1 : 0;
                 this.inMemoryObject.puzzle_seconds_played += Math.round(puzzleArgs.seconds);
+                console.log(`Adding ${Math.round(puzzleArgs.seconds)} seconds to puzzle_seconds_played=${this.inMemoryObject.puzzle_seconds_played}`);
                 break;
 
             // On game end, update highest stats

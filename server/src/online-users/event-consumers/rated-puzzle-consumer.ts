@@ -271,6 +271,7 @@ interface ActivePuzzleData {
     startElo: number; // The user's starting elo for the puzzle
     eloGain: number; // The elo gain for the user if they solve the puzzle
     eloLoss: number; // The elo loss for the user if they fail to solve the puzzle
+    startTime: number;
 }
 
 interface ActivePuzzle {
@@ -374,7 +375,7 @@ export class RatedPuzzleConsumer extends EventConsumer<RatedPuzzleConfig> {
             // Set the user's active puzzle with the fetched puzzle and elo changes
             this.activePuzzles.set(userid, { 
                 sessionID,
-                data : { puzzle, startElo: user.puzzle_elo, eloGain, eloLoss }
+                data : { puzzle, startElo: user.puzzle_elo, eloGain, eloLoss, startTime: Date.now() }
             });
             console.log(`User ${userid} fetched rated puzzle ${puzzle.id} with rating ${puzzleRating}, eloGain ${eloGain}, eloLoss ${eloLoss}`);
 
@@ -475,7 +476,8 @@ export class RatedPuzzleConsumer extends EventConsumer<RatedPuzzleConfig> {
 
         // Submit the puzzle as incorrect
         console.log(`User ${event.userid} disconnected with active puzzle, submitting as incorrect`);
-        await this.submitRatedPuzzle(event.userid, { puzzleID: activePuzzle.data.puzzle.id, seconds: 30 });
+        const duration = clamp((Date.now() - activePuzzle.data.startTime) / 1000, 0, 30);
+        await this.submitRatedPuzzle(event.userid, { puzzleID: activePuzzle.data.puzzle.id, seconds: duration });
         
     }
 

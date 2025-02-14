@@ -1,15 +1,15 @@
-<div class="modal">
+<div class="modal" *ngIf="(meService.get$() | async) as me">
 
     <div class="header">
         <!-- <app-solid-button label="Back" (click)="modalManagerService.hideModal()" /> -->
         <div></div>
-        <h1>Ansel's Quests</h1>
+        <h1>{{me.username}}'s Quests</h1>
         <div></div>
 
     </div>
 
     <div class="quest-content">
-        <div class="quests" *ngIf="(meService.get$() | async) as me">
+        <div class="quests">
             <app-quest class="quest" *ngFor="let questID of QuestIDs" [questID]="questID"
                 [status]="getQuestStatus(me, questID)"
                 />
