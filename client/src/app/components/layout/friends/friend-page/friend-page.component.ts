@@ -5,6 +5,7 @@ import { FriendsService } from 'src/app/services/state/friends.service';
 import { InvitationsService } from 'src/app/services/state/invitations.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
+import { LoginMethod } from 'src/app/shared/models/db-user';
 import { FriendInfo } from 'src/app/shared/models/friends';
 import { Invitation, InvitationType } from 'src/app/shared/models/invitation';
 
@@ -25,6 +26,7 @@ export class FriendPageComponent {
 
   readonly ButtonColor = ButtonColor;
   readonly FriendSort = FriendSort;
+  readonly LoginMethod = LoginMethod;
 
   public showAddFriendDialog$ = new BehaviorSubject(false);
   

@@ -1,12 +1,11 @@
-<div class="buttons">
+<div class="buttons" *ngIf="(meService.get$() | async) as me">
     <app-solid-button class="add-friend-button" [disabled]="!(meService.get$() | async)"
     [paddingVertical]="9"
-    label="Add Friend" [color]="ButtonColor.GREEN"
-    icon="./assets/img/friend-status-icons/not-friend.svg"
-    [tooltip]="(meService.get$() | async) ? '' : 'Login to add friends!'"
-    (click)="toggleFriendDialog($event)" />
+    [label]="me.login_method === LoginMethod.GUEST ? 'Login to play with friends!' : 'Add Friend'" [color]="ButtonColor.GREEN"
+    [icon]="me.login_method === LoginMethod.GUEST ? undefined : './assets/img/friend-status-icons/not-friend.svg'"
+    (smartClick)="me.login_method === LoginMethod.GUEST ? websocketService.leaveGuestAndLogin() : toggleFriendDialog($event)" />
 
-    <app-solid-selector
+    <app-solid-selector *ngIf="me.login_method !== LoginMethod.GUEST"
         [labels]="['Sort by highscore', 'Sort by trophies', 'Sort by puzzle elo']"
         [icons]="['./assets/img/tab-icons/play.svg', './assets/img/button-icons/trophy.svg', './assets/img/tab-icons/puzzles.svg']"
         [color]="ButtonColor.GREY"

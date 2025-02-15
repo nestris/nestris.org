@@ -36,14 +36,14 @@ export class SolidButtonComponent {
 
   @Input() action: (() => Promise<void>) | null = null;
 
-  @Output() smartClick = new EventEmitter<void>();
+  @Output() smartClick = new EventEmitter<MouseEvent>();
 
   @HostBinding('class.stretchHost') get stretchHost() { return this.stretch; }
 
   actionLoading$ = new BehaviorSubject<boolean>(false);
 
   // Click only if not disabled or loading
-  async onClick() {
+  async onClick(event: MouseEvent) {
     if (!this.disabled && !this.loading && !this.actionLoading$.getValue()) {
 
       if (this.action) {
@@ -53,7 +53,7 @@ export class SolidButtonComponent {
         this.actionLoading$.next(false);
       }
 
-      this.smartClick.emit();
+      this.smartClick.emit(event);
     }
   }
 

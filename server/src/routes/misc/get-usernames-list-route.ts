@@ -14,6 +14,6 @@ export class GetUsernamesListRoute extends GetRoute<{userid: string, username: s
         const pattern: string = (pathParams.pattern as string) ?? "";
 
         // Get the usernames matching the pattern
-        return LeaderboardManager.getFullLeaderboard(FullHighscoreLeaderboard).getUsernamesMatchingPattern(pattern, 50);
+        return LeaderboardManager.getFullLeaderboard(FullHighscoreLeaderboard).getNonGuestUsernamesMatchingPattern(pattern, 50);
     }
 }
