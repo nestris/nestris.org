@@ -29,7 +29,8 @@ export class QuestConsumer extends EventConsumer {
     public async updateQuestCategory(
         userid: string,
         category: QuestCategory,
-        progress: number | ((questID: QuestID) => number)
+        progress: number | ((questID: QuestID) => number),
+        allowNegativeProgress: boolean = false,
     ) {
 
         // Get the existing quest progress for the user
@@ -55,6 +56,12 @@ export class QuestConsumer extends EventConsumer {
 
                 // if newly completed quest, mark as completed to add xp and display alert
                 if (!previousStatus.completed && newProgress >= quest.targetScore) completedQuestIDs.push(questID);
+            }
+
+            if (allowNegativeProgress && newProgress < previousStatus.currentScore) {
+                console.log(`${userid}: NEGATIVE progress made on quest ${quest.name}: ${previousStatus.currentScore} -> ${newProgress}`);
+                questProgress[questID] = newProgress;
+                progressMade = true;
             }
         }
 

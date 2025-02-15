@@ -33,6 +33,7 @@ export enum QuestID {
     QUICKSILVER,
     JUGGERNAUT,
     SOCIAL_BUTTERFLY,
+    EAGER_CATERPILLAR,
 }
 
 export enum QuestCategory {
@@ -41,7 +42,8 @@ export enum QuestCategory {
     PUZZLER = "Puzzler",
     CHAMPION = "Champion",
     EFFICIENCY = "Efficiency",
-    PERFECTION = "Perfection"
+    PERFECTION = "Perfection",
+    FRIENDS = "Friends"
 }
 
 export enum QuestDifficulty {
@@ -361,13 +363,23 @@ export const QUESTS: Record<QuestID, Quest> = {
         xp: 10000,
         targetScore: 100
     },
-    [QuestID.SOCIAL_BUTTERFLY]: {
-        id: QuestID.SOCIAL_BUTTERFLY,
-        name: "Social butterfly",
-        description: "Be friends with 5 other players on the site",
+    [QuestID.EAGER_CATERPILLAR]: {
+        id: QuestID.EAGER_CATERPILLAR,
+        category: QuestCategory.FRIENDS,
+        name: "Eager caterpillar",
+        description: "Find some pals to play with and make friends with 5 other players",
         difficulty: QuestDifficulty.EASY,
         xp: 10,
         targetScore: 5
+    },
+    [QuestID.SOCIAL_BUTTERFLY]: {
+        id: QuestID.SOCIAL_BUTTERFLY,
+        category: QuestCategory.FRIENDS,
+        name: "Social butterfly",
+        description: "Achieve legendary status by befriending a sizable squad of 20 players",
+        difficulty: QuestDifficulty.INTERMEDIATE,
+        xp: 20,
+        targetScore: 20
     }
 };
 

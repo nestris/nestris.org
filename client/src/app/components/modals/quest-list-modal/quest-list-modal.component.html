@@ -10,9 +10,7 @@
 
     <div class="quest-content">
         <div class="quests">
-            <app-quest class="quest" *ngFor="let questID of QuestIDs" [questID]="questID"
-                [status]="getQuestStatus(me, questID)"
-                />
+            <app-quest class="quest" *ngFor="let questID of QuestIDs" [questID]="questID" [status]="getQuestStatus(me, questID)" />
         </div>
     </div>
     
