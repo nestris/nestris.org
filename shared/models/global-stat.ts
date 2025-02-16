@@ -9,4 +9,4 @@ export enum GlobalStat {
     TOTAL_MATCH_HOURS = 'total_match_hours',
 }
 
-export type GlobalStats = { [stat: string]: number };
+export type GlobalStats = { [stat in GlobalStat]: number };
