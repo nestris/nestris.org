@@ -212,7 +212,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
             // On alter quest progress, update quest progress
             case DBQuestProgressEvent:
                 const questArgs = (event as DBQuestProgressEvent).args;
-                this.inMemoryObject.quest_progress = questArgs.questProgress;
+                this.inMemoryObject.quest_progress = [...questArgs.questProgress];
                 break;
             
             // On alter trophies, add trophyDelta to trophies, ensuring trophies is non-negative

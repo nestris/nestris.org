@@ -448,7 +448,7 @@ export class RatedPuzzleConsumer extends EventConsumer<RatedPuzzleConfig> {
         this.updatePuzzleStats(dbPuzzle, submission, isCorrect);
 
         // Update puzzle quests
-        EventConsumerManager.getInstance().getConsumer(QuestConsumer).updateQuestCategory(userid, QuestCategory.PUZZLER, newElo);
+        await EventConsumerManager.getInstance().getConsumer(QuestConsumer).updateQuestCategory(userid, QuestCategory.PUZZLER, newElo);
 
         // After some time seconds, decrement the puzzle count. Waiting approximates the time the user looks at the solution
         setTimeout(() => {

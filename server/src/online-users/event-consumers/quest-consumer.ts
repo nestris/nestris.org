@@ -59,7 +59,6 @@ export class QuestConsumer extends EventConsumer {
 
             // if progress made, update quest progress
             if (newProgress > previousStatus.currentScore) {
-                console.log(`${userid}: Progress made on quest ${quest.name}: ${previousStatus.currentScore} -> ${newProgress}`);
                 questProgress[questID] = newProgress;
                 progressMade = true;
 
@@ -68,7 +67,6 @@ export class QuestConsumer extends EventConsumer {
             }
 
             if (allowNegativeProgress && newProgress < previousStatus.currentScore) {
-                console.log(`${userid}: NEGATIVE progress made on quest ${quest.name}: ${previousStatus.currentScore} -> ${newProgress}`);
                 questProgress[questID] = newProgress;
                 progressMade = true;
             }
