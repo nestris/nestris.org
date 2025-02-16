@@ -159,15 +159,12 @@ export class PlayPageComponent implements OnDestroy{
 
       if (questStatus.completed) return false; // Completed quests are not ongoing 
 
-      console.log(quest.name);
       const isTooAdvanced = () => {
         if (!quest.category) return false;
         const difficultyIndex = QUEST_DIFFICULTY_ORDER.indexOf(quest.difficulty);
         if (difficultyIndex === 0) return false;
         const easierDifficulty = QUEST_DIFFICULTY_ORDER[difficultyIndex - 1];
-        console.log(easierDifficulty);
         const easierQuestID = getQuestIdByCategoryAndDifficulty(quest.category, easierDifficulty);
-        if (easierQuestID) console.log("eaiser", getQuest(easierQuestID).name);
 
         // is too advanced if even the easier version of the quest hasn't been completed yet
         return easierQuestID && !getQuestStatus(me.quest_progress, easierQuestID).completed;

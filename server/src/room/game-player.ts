@@ -166,6 +166,8 @@ export class GamePlayer {
 
         } else if (packet.opcode === PacketOpcode.GAME_PLACEMENT) {
             if (!this.gameState) throw new Error("Cannot add game placement packet without game start packet");
+
+            // Update game state with placement
             const gamePlacement = (packet.content as GamePlacementSchema);
             this.hasAtLeastOnePlacement = true;
             const { numLinesCleared } = this.gameState.onPlacement(gamePlacement.mtPose, gamePlacement.nextNextType, gamePlacement.pushdown);
@@ -173,6 +175,21 @@ export class GamePlayer {
             // Check if any progress on 'Efficiency' quests for number of consecutive tetrises
             if (numLinesCleared === 4) this.consecTetrises.increment();
             else if (numLinesCleared > 0) this.consecTetrises.reset();
+
+            // Check if any progress on score or line quests on line clear
+            if (numLinesCleared > 0) {
+                const questConsumer = EventConsumerManager.getInstance().getConsumer(QuestConsumer);
+                const snapshot = this.gameState.getSnapshotWithoutBoard();
+
+                questConsumer.updateQuestCategory(this.userid, QuestCategory.SCORE, snapshot.score);
+                questConsumer.updateQuestCategory(this.userid, QuestCategory.SURVIVOR, (questID => {
+                    // Survivor I tracks lines
+                    if (questID === QuestID.SURVIVOR_I) return snapshot.lines;
+                    // Survivor II+ tracks level from non-29 start
+                    else return this.gameState!.startLevel >= 29 ? 0 : snapshot.level;
+                }));
+                if (this.gameState!.startLevel === 29) questConsumer.updateQuestCategory(this.userid, QuestCategory.LINES29, snapshot.lines);
+            }
         }
 
         else if (packet.opcode === PacketOpcode.STACKRABBIT_PLACEMENT) {
@@ -263,7 +280,6 @@ export class GamePlayer {
 
         } else console.log(`Not saving game for player ${this.username} because no placements were made`);
         
-
         // Emit the game end event
         this.gameEnd$.next(
             {
@@ -275,26 +291,12 @@ export class GamePlayer {
                 isPersonalBest: state.score > previousHighscore,
                 forced
             }
-        );
-
-        // Update score and lines quests
-        const questConsumer = EventConsumerManager.getInstance().getConsumer(QuestConsumer);
-        questConsumer.updateQuestCategory(this.userid, QuestCategory.SCORE, state.score);
-        questConsumer.updateQuestCategory(this.userid, QuestCategory.SURVIVOR, (questID => {
-            // Survivor I tracks lines
-            if (questID === QuestID.SURVIVOR_I) return state.lines;
-            // Survivor II+ tracks level from non-29 start
-            else return gameState.startLevel >= 29 ? 0 : state.level;
-        }));
+        );        
 
         // For full games to level 29, update accuracy quests
         if (gameState.startLevel < 29 && state.level >= 29) {
+            const questConsumer = EventConsumerManager.getInstance().getConsumer(QuestConsumer);
             questConsumer.updateQuestCategory(this.userid, QuestCategory.ACCURACY, accuracyStats.overallAccuracy);
-        }
-
-        // Update 29 start quests
-        if (gameState.startLevel === 29) {
-            questConsumer.updateQuestCategory(this.userid, QuestCategory.LINES29, state.lines);
         }
 
         return gameID;
