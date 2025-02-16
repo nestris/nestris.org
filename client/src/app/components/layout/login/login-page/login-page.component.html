@@ -9,7 +9,7 @@
         <div class="top-panel-content">
 
             <h1 class="score">{{stats.gameCount}}</h1>
-            <h2 class="label">games played</h2>
+            <h2 class="label">{{stats.gameCount === 1 ? 'game' : 'games'}} played</h2>
 
             <h3 class="leaderboard-label">Ranked Leaderboard</h3>
             <div class="leaderboard">
@@ -44,7 +44,7 @@
                     </div>
                     <img class="logo" src="./assets/img/branding/tetrisfish_logo.svg" [attr.width]="(reallySmall$ | async) ? '60px' : ((big$ | async) ? '140px' : '100px')" />
                 </div>
-                <p class="online-text">{{stats.onlineUserCount}} players online!</p>
+                <p class="online-text">{{stats.onlineUserCount}} {{stats.onlineUserCount === 1 ? 'player' : 'players'}} online!</p>
 
                 <div class="info-container">
                     <div class="info-rows">
