@@ -7,6 +7,8 @@ import { RoomError } from "../online-users/event-consumers/room-consumer";
 import { soloXPStrategy } from "./solo-room";
 import { EventConsumerManager } from "../online-users/event-consumer";
 import { GlobalStatConsumer } from "../online-users/event-consumers/global-stat-consumer";
+import { QuestConsumer } from "../online-users/event-consumers/quest-consumer";
+import { QuestCategory, QuestID } from "../../shared/nestris-org/quest-system";
 
 
 export class RankedMultiplayerRoom extends MultiplayerRoom {
@@ -37,6 +39,8 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
     protected async onMatchEnd(state: MultiplayerRoomState): Promise<void> {
 
         if (state.matchWinner === null) throw new RoomError('Match winner must be defined');
+        
+        const questConsumer = EventConsumerManager.getInstance().getConsumer(QuestConsumer);
 
         // Iterate through each player in the game to update trophies and XP
         this.iterateGamePlayers(async (player, playerIndex) => {
@@ -51,13 +55,16 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
             const newTrophies = state.players[playerIndex].trophies + trophyChange;
             const xpBonusIfWin = Math.floor(newTrophies * 0.1);
 
-            // Update each player's trophies and XP after the match, and calculate quest progress
-            await DBUserObject.alter(player.userid, new DBRankedMatchEndEvent({
+            // Update each player's trophies and XP after the match
+            const updatedUser = await DBUserObject.alter(player.userid, new DBRankedMatchEndEvent({
                 xpGained: state.matchWinner === playerIndex ? xpBonusIfWin : 0, // solo xp gain handled by GamePlayer
                 win: state.matchWinner === playerIndex,
                 lose: state.matchWinner !== playerIndex && state.matchWinner !== PlayerIndex.DRAW,
                 trophyChange: trophyChange,
             }), false);
+
+            // Update quest progress
+            questConsumer.updateChampionQuestCategory(player.userid, updatedUser.wins, updatedUser.highest_trophies);
         });
 
         // Update global stats for how long the match took

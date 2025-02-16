@@ -19,6 +19,16 @@ console.log(QuestIDs.map(id => QUESTS[id].name));
 // Handles events related to quests
 export class QuestConsumer extends EventConsumer {
 
+    override async init() {
+
+        // Set some default quest values when a user is created
+        DBUserObject.onCreate().subscribe(({ id: userid , object: dbUser }) => {
+
+            // Users start with some positive trophy count, so update Champion quests which have trophy targets
+            this.updateChampionQuestCategory(userid, dbUser.wins, dbUser.highest_trophies);
+        });
+    }
+
     /**
      * Check for quest progress updates for each quest in a given category. If progress results in multiple quests being completed
      * at once, only the highest score quest will display a message to the user
@@ -82,5 +92,17 @@ export class QuestConsumer extends EventConsumer {
         // If there was at least one quest completed, send a message to the user for the hardest quest completed
         if (completedQuestIDs.length > 0) this.users.sendToUser(userid, new QuestCompleteMessage(completedQuestIDs[0]));
 
+    }
+
+    public async updateChampionQuestCategory(userid: string, wins: number, trophies: number) {
+
+        await this.updateQuestCategory(userid, QuestCategory.CHAMPION, (questID: QuestID) => {
+
+            // Champion I is the number of matches won
+            if (questID === QuestID.CHAMPION_I) return wins;
+
+            // Champion II+ are trophy count
+            return trophies;
+        });
     }
 }
