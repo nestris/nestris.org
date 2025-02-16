@@ -6,7 +6,7 @@
         <section class="stats">
             <div class="left">
                 <div class="panel score-histogram" *ngIf="histogram$ | async as histogram">
-                    <h1>Your scores</h1>
+                    <h1>Your lifetime scores</h1>
                     <div class="histogram">
                         <div class="column" *ngFor="let scoreRange of HISTOGRAM_SCORE_RANGES; let i = index">
                             <p>{{histogramValue(histogram[i].count)}}</p>
@@ -21,7 +21,7 @@
                     </div>
                 </div>
                 <div class="panel player-stats">
-                    <h1>Your stats</h1>
+                    <h1>Your overall stats</h1>
                     <div class="stat-list" *ngIf="me$ | async as me">
                         <div class="stat">
                             <h2>Highest score</h2>
@@ -43,7 +43,14 @@
                 </div>
             </div>
             <div class="right panel games-graph">
-
+                <div class="header">
+                    <div class="arrow left prevent-select" (click)="monthNavigator.previousMonth()"><img src="./assets/img/ui-icons/arrow.svg" height="7px"></div>
+                    <div class="arrow right prevent-select" (click)="monthNavigator.nextMonth()"><img src="./assets/img/ui-icons/arrow.svg" height="7px"></div>
+                    <h1>Your games in {{(monthNavigator.month$ | async)?.string}}</h1>
+                </div>
+                <div class="graph">
+                    <p class="coming-soon">Coming soon!</p>
+                </div>
             </div>
         </section>
 

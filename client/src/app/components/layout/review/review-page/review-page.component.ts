@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { BehaviorSubject, concat, distinctUntilChanged, from, map, Observable, of, switchMap, tap } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-selector/solid-selector.component';
+import { MonthNavigator } from 'src/app/scripts/month-navigator';
 import { ApiService, GameSortKey } from 'src/app/services/api.service';
 import { FetchService, Method } from 'src/app/services/fetch.service';
 import { MeService } from 'src/app/services/state/me.service';
@@ -62,6 +63,7 @@ export class ReviewPageComponent implements OnInit {
     )
   );
 
+  public readonly monthNavigator = new MonthNavigator();
   private DEFAULT_CHART: DBGame[] = [];
   public chart$ = concat(
     of(this.DEFAULT_CHART),
