@@ -287,6 +287,16 @@ export class GamePlayer {
             else return gameState.startLevel >= 29 ? 0 : state.level;
         }));
 
+        // For full games to level 29, update accuracy quests
+        if (gameState.startLevel < 29 && state.level >= 29) {
+            questConsumer.updateQuestCategory(this.userid, QuestCategory.ACCURACY, accuracyStats.overallAccuracy);
+        }
+
+        // Update 29 start quests
+        if (gameState.startLevel === 29) {
+            questConsumer.updateQuestCategory(this.userid, QuestCategory.LINES29, state.lines);
+        }
+
         return gameID;
     }
 

@@ -43,7 +43,9 @@ export enum QuestCategory {
     CHAMPION = "Champion",
     EFFICIENCY = "Efficiency",
     PERFECTION = "Perfection",
-    FRIENDS = "Friends"
+    FRIENDS = "Friends",
+    ACCURACY = "Accuracy",
+    LINES29 = "Lines29"
 }
 
 export enum QuestDifficulty {
@@ -341,6 +343,7 @@ export const QUESTS: Record<QuestID, Quest> = {
     },
     [QuestID.AUTOMATON]: {
         id: QuestID.AUTOMATON,
+        category: QuestCategory.ACCURACY,
         name: "Automaton",
         description: "Maintain 95% accuracy on a full game to level 29",
         difficulty: QuestDifficulty.IMPOSSIBLE,
@@ -349,6 +352,7 @@ export const QUESTS: Record<QuestID, Quest> = {
     },
     [QuestID.QUICKSILVER]: {
         id: QuestID.QUICKSILVER,
+        category: QuestCategory.LINES29,
         name: "Quicksilver",
         description: "Survive for 100 lines on level 29 start",
         difficulty: QuestDifficulty.IMPOSSIBLE,

@@ -1,7 +1,7 @@
 import { QuestCompleteMessage } from "../../../shared/network/json-message";
 import { EventConsumer } from "../event-consumer";
 import { DBQuestProgressEvent, DBUserObject } from "../../database/db-objects/db-user";
-import { getQuest, getQuestStatus, QuestCategory, QuestID, QUESTS } from "../../../shared/nestris-org/quest-system";
+import { getQuestStatus, QuestCategory, QuestID, QUESTS } from "../../../shared/nestris-org/quest-system";
 
 // Sort quest IDs first by category, then by descending xp gain.
 // This means that when traversing QuestIDs, it is guaranteed that harder quests will be encountered first
@@ -18,7 +18,6 @@ console.log(QuestIDs.map(id => QUESTS[id].name));
 
 // Handles events related to quests
 export class QuestConsumer extends EventConsumer {
-
 
     /**
      * Check for quest progress updates for each quest in a given category. If progress results in multiple quests being completed
