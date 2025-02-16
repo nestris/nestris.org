@@ -5,6 +5,7 @@ import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 import { GameOverMode } from '../../nes-board/nes-board.component';
 import { RatedMove } from 'src/app/components/ui/eval-bar/eval-bar.component';
 import { Observable } from 'rxjs';
+import { EVALUATION_TO_COLOR, overallAccuracyRating } from 'src/app/shared/evaluation/evaluation';
 
 @Component({
   selector: 'app-layout-one',
@@ -23,10 +24,12 @@ export class LayoutOneComponent extends AbstractNesLayoutComponent implements On
   @Input() trt: number = 0;
   @Input() drought: number | null = null; // if undefined, not in drought and hidden. if drought, replace trt
   @Input() das?: number = undefined; // if undefined, not in das and hidden. if das, replace trt
+  @Input() accuracy: number = 0;
   @Input() gameOver? : GameOverMode;
   @Input() gameOverShowNext: boolean = false;
   @Input() keybinds?: string;
   @Input() showEvalBar: boolean = false;
+  @Input() showAccuracy: boolean = false;
   @Input() ratedMove: RatedMove = { bestEval: null, playerEval: null };
   @Input() dimmed: boolean = false;
   @Output() clickNext = new EventEmitter<void>();
@@ -38,6 +41,15 @@ export class LayoutOneComponent extends AbstractNesLayoutComponent implements On
 
   padScore(score: number): string {
     return score.toString().padStart(6, '0');
+  }
+
+  accuracyLabel(accuracy: number): string {
+    return `${Math.round(accuracy * 1000) / 10}%`;
+  }
+
+  accuracyColor(accuracy: number): string {
+    const rating = overallAccuracyRating(accuracy * 100);
+    return EVALUATION_TO_COLOR[rating];
   }
 
 }

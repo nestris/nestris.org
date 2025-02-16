@@ -46,6 +46,14 @@ app-eval-bar {
     width: 90px;
 }
 
+.spacer {
+    flex-grow: 1;
+}
+
+.accuracy-panel {
+    height: 70px;
+}
+
 .board-column {
     display: flex;
     flex-direction: column;

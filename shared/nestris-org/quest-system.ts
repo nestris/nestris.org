@@ -74,6 +74,13 @@ export const QUEST_COLORS = {
     [QuestDifficulty.IMPOSSIBLE]: "#FFA500"
 };
 
+export enum QuestRedirect {
+    SOLO = "solo",
+    SOLO_ACCURACY = "solo_accuracy",
+    RANKED = "ranked",
+    PUZZLES = "puzzles",
+}
+
 export interface Quest {
     id: QuestID;
     category?: QuestCategory;
@@ -82,6 +89,7 @@ export interface Quest {
     difficulty: QuestDifficulty;
     xp: number;
     targetScore: number;
+    redirect?: QuestRedirect;
 }
 
 export interface QuestStatus {

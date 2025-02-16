@@ -33,9 +33,11 @@
             <h2 class="prevent-select">{{drought ?? ((trt*100).toFixed(0) + '%')}}</h2>
         </app-nes-panel>
 
-        <app-nes-panel class="das-panel" *ngIf="das !== undefined">
-            <p class="prevent-select">DAS</p>
-            <h2 class="prevent-select">{{das}}</h2>
+        <!-- <div class="spacer"></div> -->
+
+        <app-nes-panel class="accuracy-panel" *ngIf="showAccuracy">
+            <p class="prevent-select">Accuracy</p>
+            <h2 class="prevent-select" [ngStyle]="{'color': accuracyColor(accuracy)}">{{accuracyLabel(accuracy)}}</h2>
         </app-nes-panel>
 
 

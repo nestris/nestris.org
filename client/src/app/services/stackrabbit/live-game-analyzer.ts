@@ -50,7 +50,9 @@ export class LiveGameAnalyzer {
         private readonly stackrabbit: StackrabbitService, // For making Stackrabbit API calls
         private readonly platform: PlatformInterfaceService | null, // For sending placement accuracy scores to the server
         private readonly startLevel: number,
-    ) {}
+    ) {
+        this.platform?.setOverallAccuracy(null);
+    }
 
     public destroy() {
         this.placementEvaluation$.complete();
@@ -141,6 +143,8 @@ export class LiveGameAnalyzer {
         const accuracyScore = calculatePlacementScore(response.bestPlacementScore, response.playerPlacementScore);
         this.placementScores.push(accuracyScore);
         console.log("PLACEMENT SCORE:", accuracyScore);
+
+        this.platform?.setOverallAccuracy(this.placementScores.reduce((a, b) => a + b) / this.placementScores.length);
 
         // Send the accuracy score to the server
         if (this.platform) this.platform.sendPacket(new StackRabbitPlacementPacket().toBinaryEncoder({ 

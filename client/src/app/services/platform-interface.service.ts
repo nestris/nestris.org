@@ -41,6 +41,8 @@ export class PlatformInterfaceService extends PacketSender {
   private polledGameData$ = new BehaviorSubject<GameDisplayData>(DEFAULT_POLLED_GAME_DATA);
   private polledGameBoard$ = new BehaviorSubject<TetrisBoard>(new TetrisBoard());
 
+  private overallAccuracy$ = new BehaviorSubject<number | null>(null);
+
   private assembler = new PacketAssembler();
   private numBatchedPackets: number = 0;
 
@@ -97,6 +99,10 @@ export class PlatformInterfaceService extends PacketSender {
     return this.platform$.asObservable();
   }
 
+  getOverallAccuracy(): Observable<number | null> {
+    return this.overallAccuracy$.asObservable();
+  }
+
 
   // called by emulator/game-state service to update the game data
   updateGameData(data: GameDisplayData) {
@@ -118,6 +124,10 @@ export class PlatformInterfaceService extends PacketSender {
     if (boardChanged) this.polledGameBoard$.next(data.board);
     if (nonBoardChanged) this.polledGameDataWithoutBoard$.next(data);
     if (boardChanged || nonBoardChanged) this.polledGameData$.next(data);
+  }
+
+  setOverallAccuracy(accuracy: number | null) {
+    this.overallAccuracy$.next(accuracy);
   }
 
   // called by emulator/game-state service to send a packet encoded as a BinaryEncoder

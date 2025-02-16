@@ -10,10 +10,12 @@
         [countdown]="data.countdown"
         [trt]="data.trt"
         [drought]="data.drought"
+        [accuracy]="(platform.getOverallAccuracy() | async) ?? 0"
         [gameOver]="(soloClientRoom.getSoloState$() | async) === SoloClientState.TOPOUT ? GameOverMode.TOPOUT : undefined"
         [gameOverShowNext]="true"
         (clickNext)="clickNextOnTopout()"
         [showEvalBar]="showAnalysis"
+        [showAccuracy]="showAnalysis"
         [ratedMove]="getRatedMove(emulator.getCurrentPlacementEvaluation$() | async)"
         [keybinds]="getKeybinds()"
 />
