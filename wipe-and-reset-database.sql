@@ -39,9 +39,7 @@ CREATE TABLE "public"."users" (
     "notify_on_friend_online" boolean NOT NULL,
     "enable_runahead" boolean NOT NULL,
     "show_live_analysis" boolean NOT NULL,
-
-    "solo_chat_permission" text NOT NULL,
-    "match_chat_permission" text NOT NULL,
+    "disable_midgame_quests" boolean NOT NULL,
 
     "keybind_emu_move_left" text NOT NULL,
     "keybind_emu_move_right" text NOT NULL,
@@ -50,6 +48,7 @@ CREATE TABLE "public"."users" (
     "keybind_emu_up" text NOT NULL,
     "keybind_emu_down" text NOT NULL,
     "keybind_emu_start" text NOT NULL,
+    "keybind_emu_reset" text NOT NULL,
     "keybind_puzzle_rot_left" text NOT NULL,
     "keybind_puzzle_rot_right" text NOT NULL,
 

@@ -134,9 +134,8 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
             notify_on_friend_online: true,
             enable_runahead: false,
             show_live_analysis: false,
+            disable_midgame_quests: false,
 
-            solo_chat_permission: 'everyone',
-            match_chat_permission: 'everyone',
             keybind_emu_move_left: 'ArrowLeft',
             keybind_emu_move_right: 'ArrowRight',
             keybind_emu_rot_left: 'Z',
@@ -144,6 +143,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
             keybind_emu_up: 'ArrowUp',
             keybind_emu_down: 'ArrowDown',
             keybind_emu_start: 'Enter',
+            keybind_emu_reset: 'R',
             keybind_puzzle_rot_left: 'Z',
             keybind_puzzle_rot_right: 'X',
 

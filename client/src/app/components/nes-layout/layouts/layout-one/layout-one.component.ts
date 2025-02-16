@@ -24,7 +24,7 @@ export class LayoutOneComponent extends AbstractNesLayoutComponent implements On
   @Input() trt: number = 0;
   @Input() drought: number | null = null; // if undefined, not in drought and hidden. if drought, replace trt
   @Input() das?: number = undefined; // if undefined, not in das and hidden. if das, replace trt
-  @Input() accuracy: number = 0;
+  @Input() accuracy: number | null = null;
   @Input() gameOver? : GameOverMode;
   @Input() gameOverShowNext: boolean = false;
   @Input() keybinds?: string;
@@ -43,11 +43,13 @@ export class LayoutOneComponent extends AbstractNesLayoutComponent implements On
     return score.toString().padStart(6, '0');
   }
 
-  accuracyLabel(accuracy: number): string {
+  accuracyLabel(accuracy: number | null): string {
+    if (accuracy === null) return '-';
     return `${Math.round(accuracy * 1000) / 10}%`;
   }
 
-  accuracyColor(accuracy: number): string {
+  accuracyColor(accuracy: number | null): string {
+    if (accuracy === null) return 'white';
     const rating = overallAccuracyRating(accuracy * 100);
     return EVALUATION_TO_COLOR[rating];
   }

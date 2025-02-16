@@ -44,9 +44,9 @@ export class SoloClientRoom extends ClientRoom {
     protected override async onStateUpdate(oldState: SoloRoomState, newState: SoloRoomState): Promise<void> {
         
         // if topout, go to TOPOUT mode
-        if (oldState.serverInGame && !newState.serverInGame) {
-            this.setSoloState(SoloClientState.TOPOUT);
-        }
+        // if (oldState.serverInGame && !newState.serverInGame) {
+        //     this.setSoloState(SoloClientState.TOPOUT);
+        // }
 
     }
 
@@ -67,7 +67,7 @@ export class SoloClientRoom extends ClientRoom {
     }
 
 
-    public startGame() {
+    public startGame(countdown = 3) {
         const startLevel = SoloClientRoom.startLevel$.getValue();
         console.log('Starting game with start level', startLevel);
 
@@ -75,7 +75,7 @@ export class SoloClientRoom extends ClientRoom {
         this.setSoloState(SoloClientState.IN_GAME);
 
         // Start the game
-        this.emulator.startGame(startLevel, true);
+        this.emulator.startGame(startLevel, true, undefined, this, countdown);
     }
 
     public getSoloState$(): Observable<SoloClientState> {

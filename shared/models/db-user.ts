@@ -53,8 +53,7 @@ export interface DBUser {
   notify_on_friend_online: boolean,
   enable_runahead: boolean,
   show_live_analysis: boolean,
-  solo_chat_permission: string,
-  match_chat_permission: string,
+  disable_midgame_quests: boolean,
 
   keybind_emu_move_left: string,
   keybind_emu_move_right: string,
@@ -63,6 +62,7 @@ export interface DBUser {
   keybind_emu_up: string,
   keybind_emu_down: string,
   keybind_emu_start: string,
+  keybind_emu_reset: string,
   keybind_puzzle_rot_left: string,
   keybind_puzzle_rot_right: string,
 
@@ -104,8 +104,7 @@ export const DBUserAttributes = [
   'notify_on_friend_online',
   'enable_runahead',
   'show_live_analysis',
-  'solo_chat_permission',
-  'match_chat_permission',
+  'disable_midgame_quests',
   
   'keybind_emu_move_left',
   'keybind_emu_move_right',
@@ -114,6 +113,7 @@ export const DBUserAttributes = [
   'keybind_emu_up',
   'keybind_emu_down',
   'keybind_emu_start',
+  'keybind_emu_reset',
   'keybind_puzzle_rot_left',
   'keybind_puzzle_rot_right',
 

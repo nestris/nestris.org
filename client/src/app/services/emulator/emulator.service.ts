@@ -18,6 +18,8 @@ import { EMULATOR_FPS, EmulatorGameState } from 'src/app/shared/emulator/emulato
 import { Keybind, Keybinds } from 'src/app/shared/emulator/keybinds';
 import { KeyManager } from 'src/app/shared/emulator/currently-pressed-keys';
 import { TimeDelta } from 'src/app/shared/scripts/time-delta';
+import { ClientRoom } from '../room/client-room';
+import { SoloClientRoom, SoloClientState } from '../room/solo-client-room';
 
 
 /*
@@ -54,6 +56,8 @@ export class EmulatorService {
 
   private runaheadFrames: number = 0;
   private currentPlacementEvaluation$ = new BehaviorSubject<PlacementEvaluation | null>(null);
+
+  private clientRoom?: ClientRoom;
 
   constructor(
     private platform: PlatformInterfaceService,
@@ -98,8 +102,9 @@ export class EmulatorService {
 
   // starting game will create a game object and execute game frames at 60fps
   // if slowmode, will execute games at 5ps instead
-  startGame(startLevel: number, sendPacketsToServer: boolean, seed?: string) {
+  startGame(startLevel: number, sendPacketsToServer: boolean, seed?: string, clientRoom?: ClientRoom, countdown = 3) {
     this.sendPacketsToServer = sendPacketsToServer;
+    this.clientRoom = clientRoom;
 
     if (this.sendPacketsToServer) this.wakeLockService.enableWakeLock();
 
@@ -116,7 +121,7 @@ export class EmulatorService {
 
     // generate initial game state
     const gymSeed = seed ?? GymRNG.generateRandomSeed();
-    this.currentState = new EmulatorGameState(startLevel, new GymRNG(gymSeed));
+    this.currentState = new EmulatorGameState(startLevel, new GymRNG(gymSeed), countdown);
     this.analyzer = new LiveGameAnalyzer(this.stackrabbitService, sendPacketsToServer ? this.platform : null, startLevel);
     
     // subscribe to placement evaluation updates
@@ -293,6 +298,8 @@ export class EmulatorService {
     if (this.currentState.isToppedOut()) {
       this.stopGame();
       this.onTopout$.next();
+
+      if (this.clientRoom instanceof SoloClientRoom) this.clientRoom.setSoloState(SoloClientState.TOPOUT);
     }
 
   }
@@ -336,6 +343,18 @@ export class EmulatorService {
   handleKeydown(event: KeyboardEvent) {
 
     if (eventIsForInput(event)) return;
+
+    // If reset key pressed, stop current game and start new one
+    if (
+      this.clientRoom instanceof SoloClientRoom && // must be a solo game
+      this.currentState && // must be in game
+      this.currentState.getCountdown() === undefined && // cannot reset until countdown is over
+      this.meService.getSync()!.keybind_emu_reset.toLowerCase() === event.key.toLowerCase() // must have reset key pressed
+    ) {
+      this.stopGame();
+      this.clientRoom.startGame(2);
+      return;
+    }
 
     const keybind = this.keybinds.stringToKeybind(event.key);
     if (keybind) {

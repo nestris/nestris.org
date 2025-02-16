@@ -113,7 +113,7 @@ export class MultiplayerClientRoom extends ClientRoom {
 
         // If client is a player, and going from BEFORE_GAME -> IN_GAME, start game
         if (this.myIndex !== null && oldState.status === MultiplayerRoomStatus.BEFORE_GAME && newState.status === MultiplayerRoomStatus.IN_GAME) {
-            this.emulator.startGame(newState.startLevel, true, newState.currentSeed);
+            this.emulator.startGame(newState.startLevel, true, newState.currentSeed, this);
         }
 
         // if going to AFTER_MATCH and resigned, show after match modal

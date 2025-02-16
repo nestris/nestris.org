@@ -10,7 +10,7 @@
         [countdown]="data.countdown"
         [trt]="data.trt"
         [drought]="data.drought"
-        [accuracy]="(platform.getOverallAccuracy() | async) ?? 0"
+        [accuracy]="(platform.getOverallAccuracy() | async)"
         [gameOver]="(soloClientRoom.getSoloState$() | async) === SoloClientState.TOPOUT ? GameOverMode.TOPOUT : undefined"
         [gameOverShowNext]="true"
         (clickNext)="clickNextOnTopout()"
