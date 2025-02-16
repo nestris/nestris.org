@@ -72,7 +72,7 @@ export class SettingsPageComponent implements OnDestroy {
         new BooleanSetting(
           'disable_midgame_quests',
           'Disable mid-game quest popups',
-          'Delay quest completions from showing until the end of the game'
+          'Delay potentially-distracting quest completion popups from showing until the end of the game'
         ),
         new BooleanSetting(
           'show_live_analysis',

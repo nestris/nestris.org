@@ -20,6 +20,7 @@ import { KeyManager } from 'src/app/shared/emulator/currently-pressed-keys';
 import { TimeDelta } from 'src/app/shared/scripts/time-delta';
 import { ClientRoom } from '../room/client-room';
 import { SoloClientRoom, SoloClientState } from '../room/solo-client-room';
+import { QuestService } from '../quest.service';
 
 
 /*
@@ -65,6 +66,7 @@ export class EmulatorService {
     private stackrabbitService: StackrabbitService,
     private gamepadService: GamepadService,
     private wakeLockService: WakeLockService,
+    private questService: QuestService,
 ) {}
 
   // tick function that advances the emulator state during the game loop
@@ -107,6 +109,7 @@ export class EmulatorService {
     this.clientRoom = clientRoom;
 
     if (this.sendPacketsToServer) this.wakeLockService.enableWakeLock();
+    this.questService.setInGame(true);
 
     console.log("starting game at level", startLevel, "with seed", seed);
 
@@ -311,6 +314,7 @@ export class EmulatorService {
     if (this.currentState === undefined) return;
 
     this.wakeLockService.disableWakeLock();
+    this.questService.setInGame(false);
 
     // stop game loop
     console.log("game stopped");

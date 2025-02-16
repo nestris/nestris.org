@@ -7,7 +7,6 @@ import { QuestAlertComponent } from '../components/alerts/quest-alert/quest-aler
 import { QuestID } from '../shared/nestris-org/quest-system';
 import { TrophyAlertComponent } from '../components/alerts/trophy-alert/trophy-alert.component';
 
-const QUEST_ALERT_DURATION = 4;
 const TROPHY_ALERT_DURATION = 4;
 
 /*
@@ -27,15 +26,6 @@ export class MiscMessageHandlerService {
 
     this.websocket.onEvent<RedirectMessage>(JsonMessageType.REDIRECT).subscribe((message) => {
       this.router.navigate([message.route]);
-    });
-
-    this.websocket.onEvent<QuestCompleteMessage>(JsonMessageType.QUEST_COMPLETE).subscribe((message) => {
-      this.alertService.addAlert(
-        QuestAlertComponent,
-        `quest-${message.questID}`,
-        {questID: message.questID},
-        QUEST_ALERT_DURATION
-      );
     });
 
     this.websocket.onEvent<TrophyChangeMessage>(JsonMessageType.TROPHY_CHANGE).subscribe((message) => {

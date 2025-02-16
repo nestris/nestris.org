@@ -5,7 +5,7 @@ import { ButtonColor } from '../solid-button/solid-button.component';
 import { BehaviorSubject } from 'rxjs';
 import { FetchService, Method } from 'src/app/services/fetch.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
-import { ActiveQuestService } from 'src/app/services/active-quest.service';
+import { QuestService } from 'src/app/services/quest.service';
 import { ModalManagerService } from 'src/app/services/modal-manager.service';
 import { RankedQueueService } from 'src/app/services/room/ranked-queue.service';
 import { Router } from '@angular/router';
@@ -33,7 +33,7 @@ export class QuestComponent implements OnInit {
   constructor(
     private readonly websocketService: WebsocketService,
     private readonly fetchService: FetchService,
-    private readonly activeQuestService: ActiveQuestService,
+    private readonly activeQuestService: QuestService,
     private readonly modalManagerService: ModalManagerService,
     private readonly rankedQueueService: RankedQueueService,
     private router: Router,

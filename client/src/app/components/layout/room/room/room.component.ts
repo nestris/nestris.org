@@ -4,7 +4,7 @@ import { BehaviorSubject, Subscription } from 'rxjs';
 import { RoomType } from 'src/app/shared/room/room-models';
 import { Router } from '@angular/router';
 import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
-import { ActiveQuestService } from 'src/app/services/active-quest.service';
+import { QuestService } from 'src/app/services/quest.service';
 
 export enum RoomModal {
   SOLO_BEFORE_GAME = 'SOLO_BEFORE_GAME',
@@ -28,7 +28,7 @@ export class RoomComponent implements OnInit, OnDestroy {
   constructor(
     public readonly roomService: RoomService,
     private readonly platform: PlatformInterfaceService,
-    private activeQuestService: ActiveQuestService,
+    private activeQuestService: QuestService,
     private readonly router: Router,
     private readonly cdr: ChangeDetectorRef,
   ) {}

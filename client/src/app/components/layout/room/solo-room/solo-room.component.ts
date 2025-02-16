@@ -3,7 +3,7 @@ import { map } from 'rxjs';
 import { GameOverMode } from 'src/app/components/nes-layout/nes-board/nes-board.component';
 import { getDisplayKeybind } from 'src/app/components/ui/editable-keybind/editable-keybind.component';
 import { RatedMove } from 'src/app/components/ui/eval-bar/eval-bar.component';
-import { ActiveQuestService } from 'src/app/services/active-quest.service';
+import { QuestService } from 'src/app/services/quest.service';
 import { EmulatorService } from 'src/app/services/emulator/emulator.service';
 import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { RoomService } from 'src/app/services/room/room.service';
@@ -35,7 +35,7 @@ export class SoloRoomComponent {
     public readonly emulator: EmulatorService,
     private readonly roomService: RoomService,
     private readonly meService: MeService,
-    private readonly activeQuestService: ActiveQuestService,
+    private readonly activeQuestService: QuestService,
   ) {
 
     const activeQuestID = this.activeQuestService.activeQuestID$.getValue();

@@ -4,7 +4,7 @@ import { RoomModal } from "src/app/components/layout/room/room/room.component";
 import { BehaviorSubject, Observable } from "rxjs";
 import { EmulatorService } from "../emulator/emulator.service";
 import { PlatformInterfaceService } from "../platform-interface.service";
-import { ActiveQuestService } from "../active-quest.service";
+import { QuestService } from "../quest.service";
 import { getQuest, QuestCategory } from "src/app/shared/nestris-org/quest-system";
 
 export enum SoloClientState {
@@ -18,7 +18,7 @@ export class SoloClientRoom extends ClientRoom {
 
     readonly emulator = this.injector.get(EmulatorService);
     readonly platformInterface = this.injector.get(PlatformInterfaceService);
-    readonly activeQuestService = this.injector.get(ActiveQuestService);
+    readonly activeQuestService = this.injector.get(QuestService);
 
     // The level at which the game starts, persisted across games
     public static startLevel$: BehaviorSubject<number> = new BehaviorSubject(18);
