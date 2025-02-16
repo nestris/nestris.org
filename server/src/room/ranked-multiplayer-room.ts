@@ -4,7 +4,6 @@ import { MultiplayerRoom } from "./multiplayer-room";
 import { v4 as uuid } from 'uuid';
 import { DBRankedMatchEndEvent, DBUserObject } from "../database/db-objects/db-user";
 import { RoomError } from "../online-users/event-consumers/room-consumer";
-import { soloXPStrategy } from "./solo-room";
 import { EventConsumerManager } from "../online-users/event-consumer";
 import { GlobalStatConsumer } from "../online-users/event-consumers/global-stat-consumer";
 import { QuestConsumer } from "../online-users/event-consumers/quest-consumer";

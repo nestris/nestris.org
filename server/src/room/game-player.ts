@@ -12,6 +12,7 @@ import { calculatePlacementScore, EvaluationRating, placementScoreRating } from 
 import { EventConsumerManager } from "../online-users/event-consumer";
 import { QuestConsumer } from "../online-users/event-consumers/quest-consumer";
 import { QuestCategory, QuestID } from "../../shared/nestris-org/quest-system";
+import { XPStrategy } from "../../shared/nestris-org/xp-system";
 
 // Event that is emitted when a game starts
 export interface GameStartEvent {
@@ -29,11 +30,6 @@ export interface GameEndEvent {
     xpGained: number;
     isPersonalBest: boolean;
     forced: boolean; // If the game was forced to end due to onDelete() call, this is true
-}
-
-// Strategy for calculating XP gained for a game
-export interface XPStrategy {
-    (score: number): number;
 }
 
 // By default, no XP is gained

@@ -117,7 +117,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "First blood",
         description: "Score at least 100,000 points in a game",
         difficulty: QuestDifficulty.EASY,
-        xp: 10,
+        xp: 500,
         targetScore: 100000,
     },
     [QuestID.RISING_STAR]: {
@@ -126,7 +126,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Rising star",
         description: "Score at least 500,000 points in a game",
         difficulty: QuestDifficulty.INTERMEDIATE,
-        xp: 20,
+        xp: 1500,
         targetScore: 500000,
     },
     [QuestID.MAXOUT_CITY]: {
@@ -135,7 +135,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Maxout city",
         description: "Score at least 1,000,000 points in a game, known as a 'maxout'",
         difficulty: QuestDifficulty.ADVANCED,
-        xp: 1000,
+        xp: 5000,
         targetScore: 1000000
     },
     [QuestID.HARRY_HONG]: {
@@ -144,7 +144,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Harry Hong",
         description: "Score at least 1,200,000 points in a game",
         difficulty: QuestDifficulty.ADVANCED,
-        xp: 2000,
+        xp: 7500,
         targetScore: 1200000
     },
     [QuestID.JOSEPH_SALEE]: {
@@ -153,7 +153,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Joseph Salee",
         description: "Score at least 1,400,000 points in a game",
         difficulty: QuestDifficulty.EXPERT,
-        xp: 5000,
+        xp: 25000,
         targetScore: 1400000
     },
     [QuestID.GAME_BREAKER]: {
@@ -162,7 +162,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Game breaker",
         description: "Rollover the score by scoring at least 1,600,000 points in a game",
         difficulty: QuestDifficulty.IMPOSSIBLE,
-        xp: 5000,
+        xp: 50000,
         targetScore: 1600000
     },
     [QuestID.SURVIVOR_I]: {
@@ -171,7 +171,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Survivor I",
         description: "Survive for 100 lines in a game",
         difficulty: QuestDifficulty.EASY,
-        xp: 100,
+        xp: 750,
         targetScore: 100
     },
     [QuestID.SURVIVOR_II]: {
@@ -180,7 +180,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Survivor II",
         description: "Reach the lovingly named 'killscreen' at level 29",
         difficulty: QuestDifficulty.INTERMEDIATE,
-        xp: 100,
+        xp: 2000,
         targetScore: 29
     },
     [QuestID.SURVIVOR_III]: {
@@ -189,7 +189,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Survivor III",
         description: "Survive past the killscreen and reach level 30!",
         difficulty: QuestDifficulty.ADVANCED,
-        xp: 100,
+        xp: 5000,
         targetScore: 30
     },
     [QuestID.SURVIVOR_IV]: {
@@ -198,7 +198,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Survivor IV",
         description: "Survive 100 lines on killscreen and reach level 39",
         difficulty: QuestDifficulty.EXPERT,
-        xp: 100,
+        xp: 15000,
         targetScore: 30
     },
     [QuestID.PUZZLER_I]: {
@@ -207,7 +207,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Puzzler I",
         description: "Reach a high of 1000 elo in puzzles",
         difficulty: QuestDifficulty.EASY,
-        xp: 10,
+        xp: 500,
         targetScore: 1000
     },
     [QuestID.PUZZLER_II]: {
@@ -216,7 +216,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Puzzler II",
         description: "Reach a high of 2000 elo in puzzles",
         difficulty: QuestDifficulty.INTERMEDIATE,
-        xp: 10,
+        xp: 1200,
         targetScore: 2000
     },
     [QuestID.PUZZLER_III]: {
@@ -225,7 +225,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Puzzler III",
         description: "Reach a high of 3000 elo in puzzles",
         difficulty: QuestDifficulty.ADVANCED,
-        xp: 10,
+        xp: 3000,
         targetScore: 3000
     },
     [QuestID.PUZZLER_IV]: {
@@ -234,7 +234,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Puzzler IV",
         description: "Reach a high of 4000 elo in puzzles",
         difficulty: QuestDifficulty.EXPERT,
-        xp: 10,
+        xp: 10000,
         targetScore: 4000
     },
     [QuestID.PUZZLER_V]: {
@@ -243,7 +243,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Puzzler V",
         description: "Reach a high of 5000 elo in puzzles",
         difficulty: QuestDifficulty.IMPOSSIBLE,
-        xp: 10,
+        xp: 30000,
         targetScore: 5000
     },
     [QuestID.CHAMPION_I]: {
@@ -252,7 +252,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Champion I",
         description: "Win 10 games in ranked mode",
         difficulty: QuestDifficulty.EASY,
-        xp: 10,
+        xp: 750,
         targetScore: 10
     },
     [QuestID.CHAMPION_II]: {
@@ -261,7 +261,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Champion II",
         description: "Reach 2000 trophies in ranked mode",
         difficulty: QuestDifficulty.INTERMEDIATE,
-        xp: 10,
+        xp: 2000,
         targetScore: 2000
     },
     [QuestID.CHAMPION_III]: {
@@ -270,7 +270,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Champion III",
         description: "Reach 2500 trophies in ranked mode",
         difficulty: QuestDifficulty.ADVANCED,
-        xp: 10,
+        xp: 5000,
         targetScore: 2500
     },
     [QuestID.CHAMPION_IV]: {
@@ -279,7 +279,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Champion IV",
         description: "Reach 3000 trophies in ranked mode",
         difficulty: QuestDifficulty.EXPERT,
-        xp: 10,
+        xp: 15000,
         targetScore: 3000
     },
     [QuestID.EFFICIENCY_I]: {
@@ -288,7 +288,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Efficiency I",
         description: "Score back-to-back quads in a game",
         difficulty: QuestDifficulty.EASY,
-        xp: 10,
+        xp: 200,
         targetScore: 2
     },
     [QuestID.EFFICIENCY_II]: {
@@ -297,7 +297,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Efficiency II",
         description: "Score five back-to-back quads in a game",
         difficulty: QuestDifficulty.INTERMEDIATE,
-        xp: 10,
+        xp: 1000,
         targetScore: 5
     },
     [QuestID.EFFICIENCY_III]: {
@@ -306,7 +306,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Efficiency III",
         description: "Score 10 back-to-back quads in a game",
         difficulty: QuestDifficulty.ADVANCED,
-        xp: 10,
+        xp: 4000,
         targetScore: 10
     },
     [QuestID.EFFICIENCY_IV]: {
@@ -315,7 +315,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Efficiency IV",
         description: "Score 20 back-to-back quads in a game",
         difficulty: QuestDifficulty.EXPERT,
-        xp: 10,
+        xp: 12000,
         targetScore: 20
     },
     [QuestID.EFFICIENCY_V]: {
@@ -324,7 +324,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Efficiency V",
         description: "Score 50 back-to-back quads in a game",
         difficulty: QuestDifficulty.IMPOSSIBLE,
-        xp: 10,
+        xp: 50000,
         targetScore: 50
     },
     [QuestID.PERFECTION_I]: {
@@ -333,7 +333,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Perfection I",
         description: "Make 5 best placements in a row",
         difficulty: QuestDifficulty.EASY,
-        xp: 10,
+        xp: 300,
         targetScore: 5
     },
     [QuestID.PERFECTION_II]: {
@@ -342,7 +342,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Perfection II",
         description: "Make 10 best placements in a row",
         difficulty: QuestDifficulty.INTERMEDIATE,
-        xp: 10,
+        xp: 1200,
         targetScore: 10,
     },
     [QuestID.PERFECTION_III]: {
@@ -351,7 +351,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Perfection III",
         description: "Make 20 best placements in a row",
         difficulty: QuestDifficulty.ADVANCED,
-        xp: 10,
+        xp: 4000,
         targetScore: 20
     },
     [QuestID.PERFECTION_IV]: {
@@ -360,7 +360,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Perfection IV",
         description: "Make 50 best placements in a row",
         difficulty: QuestDifficulty.EXPERT,
-        xp: 10,
+        xp: 20000,
         targetScore: 50
     },
     [QuestID.PERFECTION_V]: {
@@ -369,7 +369,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Perfection V",
         description: "Make 100 best placements in a row",
         difficulty: QuestDifficulty.IMPOSSIBLE,
-        xp: 10,
+        xp: 30000,
         targetScore: 100
     },
     [QuestID.AUTOMATON]: {
@@ -378,7 +378,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Automaton",
         description: "Maintain 95% accuracy on a full game to level 29",
         difficulty: QuestDifficulty.IMPOSSIBLE,
-        xp: 10000,
+        xp: 100000,
         targetScore: 95
     },
     [QuestID.FAST_FINGERS]: {
@@ -387,7 +387,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Fast fingers",
         description: "Make some noise on the 'killscreen' and clear 5 lines on level 29 start",
         difficulty: QuestDifficulty.INTERMEDIATE,
-        xp: 20,
+        xp: 1500,
         targetScore: 5
     },
     [QuestID.FASTER_FINGERS]: {
@@ -396,7 +396,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Faster fingers",
         description: "Survive deep into the 'killscreen', clearing 25 lines on level 29 start",
         difficulty: QuestDifficulty.ADVANCED,
-        xp: 20,
+        xp: 3000,
         targetScore: 25
     },
     [QuestID.QUICKSILVER]: {
@@ -405,7 +405,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Quicksilver",
         description: "Do the impossible on the 'killscreen' and survive for 500 lines on level 29 start",
         difficulty: QuestDifficulty.IMPOSSIBLE,
-        xp: 10000,
+        xp: 75000,
         targetScore: 500
     },
     [QuestID.EAGER_CATERPILLAR]: {
@@ -414,7 +414,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Eager caterpillar",
         description: "Find some pals to play with and make friends with 5 other players",
         difficulty: QuestDifficulty.EASY,
-        xp: 10,
+        xp: 500,
         targetScore: 5
     },
     [QuestID.SOCIAL_BUTTERFLY]: {
@@ -423,7 +423,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Social butterfly",
         description: "Achieve legendary status by befriending a sizable squad of 20 players",
         difficulty: QuestDifficulty.INTERMEDIATE,
-        xp: 20,
+        xp: 1000,
         targetScore: 20
     }
 };

@@ -1,4 +1,5 @@
 import { OnlineUserActivityType } from "../../shared/models/activity";
+import { soloXPStrategy } from "../../shared/nestris-org/xp-system";
 import { PacketAssembler } from "../../shared/network/stream-packets/packet-assembler";
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
 import { RoomType } from "../../shared/room/room-models";
@@ -6,17 +7,8 @@ import { SoloRoomState } from "../../shared/room/solo-room-models";
 import { DBSoloGamesListAddEvent, DBSoloGamesListView } from "../database/db-views/db-solo-games-list";
 import { Room } from "../online-users/event-consumers/room-consumer";
 import { UserSessionID } from "../online-users/online-user";
-import { GameEndEvent, GamePlayer, GameStartEvent, XPStrategy } from "./game-player";
+import { GameEndEvent, GamePlayer, GameStartEvent } from "./game-player";
 
-/**
- * Strategy for calculating XP gained for a solo game
- * @param score 
- * @returns 
- */
-export const soloXPStrategy: XPStrategy = (score: number) => {
-    // https://www.desmos.com/calculator/g5tyne6y40
-    return Math.round(Math.pow(score / 25000, 1.6));
-};
 
 export class SoloRoom extends Room<SoloRoomState> {
 
