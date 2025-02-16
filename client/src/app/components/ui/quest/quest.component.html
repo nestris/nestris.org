@@ -1,10 +1,11 @@
 <div class="quest prevent-select" *ngIf="getQuest(questID) as quest"
-    (mouseenter)="hovering$.next(true)" (mouseleave)="hovering$.next(false)"
+    (mouseenter)="setHovering(true)" (mouseleave)="setHovering(false)"
     [ngClass]="{
         'impossible' : quest.difficulty === QuestDifficulty.IMPOSSIBLE,
         'not-impossible' : quest.difficulty !== QuestDifficulty.IMPOSSIBLE,
         'not-completed' : status !== true,
-        'completed' : status === true
+        'completed' : status === true,
+        'hover' : (hovering$ | async),
     }"
     [ngStyle]="quest.difficulty === QuestDifficulty.IMPOSSIBLE ? {} : {
         'borderColor': hexWithAlpha(QUEST_COLORS[quest.difficulty], status === true ? 1 : (hovering$ | async) ? 0.6 : 0.3),

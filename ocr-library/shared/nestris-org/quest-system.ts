@@ -36,6 +36,8 @@ export enum QuestID {
     EAGER_CATERPILLAR,
 }
 
+export const ALL_QUEST_IDS = Object.values(QuestID).filter(id => typeof id === 'number') as QuestID[];
+
 export enum QuestCategory {
     SCORE = "Score",
     SURVIVOR = "Survivor",
@@ -55,6 +57,14 @@ export enum QuestDifficulty {
     EXPERT = "Expert",
     IMPOSSIBLE = "Impossible"
 }
+
+export const QUEST_DIFFICULTY_ORDER = [
+    QuestDifficulty.EASY,
+    QuestDifficulty.INTERMEDIATE,
+    QuestDifficulty.ADVANCED,
+    QuestDifficulty.EXPERT,
+    QuestDifficulty.IMPOSSIBLE
+];
 
 export const QUEST_COLORS = {
     [QuestDifficulty.EASY]: "#58D774",
@@ -405,4 +415,12 @@ export function getQuestStatus(quest_progress: number[], questID: QuestID): Ques
         currentScore: currentScore,
         completed: currentScore >= quest.targetScore
     };
+}
+
+export function getQuestIdByCategoryAndDifficulty(
+    category: QuestCategory, 
+    difficulty: QuestDifficulty
+): QuestID | undefined {
+    const quest = Object.values(QUESTS).find(q => q.category === category && q.difficulty === difficulty);
+    return quest?.id;
 }

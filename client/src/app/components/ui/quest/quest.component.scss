@@ -17,7 +17,7 @@
     color: rgba(255, 255, 255, 0.7);
 }
 
-.quest.not-completed:hover {
+.quest.not-completed.hover {
     color: white;
 }
 
@@ -29,7 +29,7 @@
     100% { transform: rotate(0deg) scale(1.02); }
 }
 
-.quest.completed:hover {
+.quest.completed.hover {
     filter: brightness(1.2) contrast(1.1);
     transform: scale(1.02);
     cursor: pointer;
@@ -76,7 +76,7 @@ border-radius: 10px;
     background: linear-gradient(90deg, rgba(255, 47, 0, 0.05), rgba(255, 165, 0, 0.05));
 }
 
-.quest.impossible.quest.not-completed:hover {
+.quest.impossible.quest.not-completed.hover {
     background: linear-gradient(90deg, rgba(255, 47, 0, 0.07), rgba(255, 165, 0, 0.07));
 }
 
@@ -85,7 +85,7 @@ border-radius: 10px;
     opacity: 0.4;
 }
 
-.quest.impossible.not-completed:hover::before {
+.quest.impossible.not-completed.hover::before {
     opacity: 0.6;
 }
 
@@ -162,7 +162,7 @@ border-radius: 10px;
     transition: all 0.3s;
 }
 
-.quest:hover .progress-bar {
+.quest.hover .progress-bar {
     opacity: 1;
 }
 
@@ -210,7 +210,7 @@ border-radius: 10px;
     opacity: 0.5;
 }
 
-.quest:hover:not(.completed) .go {
+.quest.hover:not(.completed) .go {
     opacity: 0.9;
 }
 
