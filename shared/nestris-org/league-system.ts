@@ -17,21 +17,21 @@ export enum League {
 }
 
 export const LEAGUE_NAMES = {
-    [League.MINO_5]: "Mino 5",
-    [League.MINO_4]: "Mino 4",
-    [League.MINO_3]: "Mino 3",
-    [League.MINO_2]: "Mino 2",
-    [League.MINO_1]: "Mino 1",
-    [League.BETTA_5]: "Betta 5",
-    [League.BETTA_4]: "Betta 4",
-    [League.BETTA_3]: "Betta 3",
-    [League.BETTA_2]: "Betta 2",
-    [League.BETTA_1]: "Betta 1",
-    [League.RUBY_5]: "Ruby 5",
-    [League.RUBY_4]: "Ruby 4",
-    [League.RUBY_3]: "Ruby 3",
-    [League.RUBY_2]: "Ruby 2",
-    [League.RUBY_1]: "Ruby 1",
+    [League.MINO_5]: "Mino V",
+    [League.MINO_4]: "Mino IV",
+    [League.MINO_3]: "Mino III",
+    [League.MINO_2]: "Mino II",
+    [League.MINO_1]: "Mino I",
+    [League.BETTA_5]: "Betta V",
+    [League.BETTA_4]: "Betta IV",
+    [League.BETTA_3]: "Betta III",
+    [League.BETTA_2]: "Betta II",
+    [League.BETTA_1]: "Betta I",
+    [League.RUBY_5]: "Ruby V",
+    [League.RUBY_4]: "Ruby IV",
+    [League.RUBY_3]: "Ruby III",
+    [League.RUBY_2]: "Ruby II",
+    [League.RUBY_1]: "Ruby I",
 }
 
 // The amount of xp needed to advance from this league to the next league

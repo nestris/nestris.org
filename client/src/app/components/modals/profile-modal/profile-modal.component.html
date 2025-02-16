@@ -5,7 +5,7 @@
             <div class="top">
                 <div class="left">
                     <h2 class="username">{{data.dbUser.username}}</h2>
-                    <app-online-indicator [isOnline]="true" />
+                    <app-online-indicator [isOnline]="data.online" />
                 </div>
                 <h2 class="league-name" [ngStyle]="{'color' : leagueColor(data.dbUser.league)}">{{leagueName(data.dbUser)}}</h2>
             </div>
@@ -13,6 +13,10 @@
 
             <app-league-icon [height]="140" [league]="data.dbUser.league" />
             <app-xp-info [league]="data.dbUser.league" [xp]="data.dbUser.xp" />
+        </div>
+
+        <div class="other">
+            <p class="coming-soon">Coming soon!</p>
         </div>
 
     </div>
@@ -29,5 +33,6 @@
     <div class="text-row">
         <h1>History</h1>
     </div>
+    <p class="coming-soon">Coming soon!</p>
 
 </div>

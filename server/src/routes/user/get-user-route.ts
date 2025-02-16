@@ -1,20 +1,26 @@
-import { Authentication, DBUser } from "../../../shared/models/db-user";
+import { Authentication, DBUser, DBUserWithOnlineStatus } from "../../../shared/models/db-user";
 import { DBObjectNotFoundError } from "../../database/db-object-error";
 import { DBUserObject } from "../../database/db-objects/db-user";
+import { EventConsumerManager } from "../../online-users/event-consumer";
 import { GetRoute, RouteError, UserInfo } from "../route";
 
 /**
  * Route for getting the logged in user's information
  */
-export class GetUserRoute extends GetRoute<DBUser> {
+export class GetUserRoute extends GetRoute<DBUserWithOnlineStatus> {
     route = "/api/v2/user/:userid";
 
-    override async get(userInfo: UserInfo | undefined, pathParams: any): Promise<DBUser> {
+    override async get(userInfo: UserInfo | undefined, pathParams: any): Promise<DBUserWithOnlineStatus> {
         const userid = pathParams.userid as string;
+
+        const users = EventConsumerManager.getInstance().getUsers();
         
         try {
-            // get the user object from either the in-memory cache or the database
-            return await DBUserObject.get(userid);
+            // get user from cache/database, and check if online
+            return Object.assign({},
+                await DBUserObject.get(userid),
+                 { online: users.isUserOnline(userid) }
+            );
 
         } catch (error: any) {
             // if the user is not found, return a 404 error

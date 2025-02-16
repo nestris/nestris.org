@@ -3,7 +3,7 @@ import { FetchService, Method } from './fetch.service';
 import { DBGame } from '../shared/models/db-game';
 import { SortOrder } from '../shared/models/query';
 import { MeService } from './state/me.service';
-import { DBUser } from '../shared/models/db-user';
+import { DBUserWithOnlineStatus } from '../shared/models/db-user';
 
 export enum GameSortKey {
   TIME = 'created_at',
@@ -66,8 +66,8 @@ export class ApiService {
     return this.decodeGame(game);
   }
 
-  public async getUserByID(userid: string): Promise<DBUser> {
-    const dbUser = await this.fetchService.fetch<DBUser>(Method.GET, `/api/v2/user/${userid}`);
+  public async getUserByID(userid: string): Promise<DBUserWithOnlineStatus> {
+    const dbUser = await this.fetchService.fetch<DBUserWithOnlineStatus>(Method.GET, `/api/v2/user/${userid}`);
     dbUser.created_at = new Date(dbUser.created_at);
     dbUser.last_online = new Date(dbUser.last_online);
     return dbUser;

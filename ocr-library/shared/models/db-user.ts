@@ -69,6 +69,10 @@ export interface DBUser {
   quest_progress: number[],
 }
 
+export interface DBUserWithOnlineStatus extends DBUser {
+  online: boolean;
+}
+
 // list of all DBUser attributes
 export const DBUserAttributes = [
   'userid',

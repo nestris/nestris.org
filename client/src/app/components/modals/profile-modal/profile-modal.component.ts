@@ -3,7 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import { FetchService, Method } from 'src/app/services/fetch.service';
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
 import { MeService } from 'src/app/services/state/me.service';
-import { DBUser } from 'src/app/shared/models/db-user';
+import { DBUser, DBUserWithOnlineStatus } from 'src/app/shared/models/db-user';
 import { League, LEAGUE_NAMES, leagueColor } from 'src/app/shared/nestris-org/league-system';
 import { ALL_QUEST_IDS, getQuest, getQuestStatus, QuestID } from 'src/app/shared/nestris-org/quest-system';
 import { QuestListModalConfig } from '../quest-list-modal/quest-list-modal.component';
@@ -11,6 +11,7 @@ import { ApiService } from 'src/app/services/api.service';
 
 export interface ModalData {
   dbUser: DBUser;
+  online: boolean;
 }
 
 export interface ProfileModalConfig {
@@ -64,9 +65,9 @@ export class ProfileModalComponent implements OnInit {
 
   private async getData(): Promise<ModalData> {
 
-    const dbUser = this.config?.userid ? (await this.apiService.getUserByID(this.config.userid)) : (await this.meService.get());
-
-    return { dbUser };
+    const dbUser: DBUser | DBUserWithOnlineStatus = this.config?.userid ? (await this.apiService.getUserByID(this.config.userid)) : (await this.meService.get());
+    const online = this.config?.userid ? (dbUser as DBUserWithOnlineStatus).online : true;
+    return { dbUser, online };
   }
 
   // Show the 6 best completed quests by the user

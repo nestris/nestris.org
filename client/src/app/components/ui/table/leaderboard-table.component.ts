@@ -94,7 +94,6 @@ export class LeaderboardTableComponent implements OnChanges {
 
   viewProfile(userid: string) {
     const config: ProfileModalConfig = { userid };
-    console.log("view profile", userid);
     this.modalManagerService.showModal(ModalType.PROFILE, config);
   }
 
