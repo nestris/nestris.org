@@ -72,8 +72,13 @@ section.profile {
     transform: scale(0.85);
 }
 
+app-quest {
+    transition: all 0.2s;
+}
+
 app-quest:hover {
-    opacity: 0.85;
+    opacity: 0.9;
+    transform: scale(1.01);
 }
 
 .mode-select {
