@@ -38,8 +38,6 @@ export class ProfileModalComponent implements OnInit {
 
   public data$ = new BehaviorSubject<ModalData | null>(null);
 
-  static previousData?: { userid: string, data: ModalData };
-
   constructor(
     public readonly meService: MeService,
     public readonly modalManagerService: ModalManagerService,
@@ -47,20 +45,8 @@ export class ProfileModalComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-
-    const userid = this.config?.userid ?? await this.meService.getUserID();
-
-    // Use cached profile if exists
-    if (ProfileModalComponent.previousData?.userid === userid) {
-      this.data$.next(ProfileModalComponent.previousData.data);
-      console.log(`Using cached profile data for userid ${userid}`);
-      return;
-    }
-
     const data = await this.getData();
     this.data$.next(data);
-    ProfileModalComponent.previousData = { userid, data };
-    console.log(`Fetched profile data for userid ${userid}`, data);
   }
 
   private async getData(): Promise<ModalData> {
