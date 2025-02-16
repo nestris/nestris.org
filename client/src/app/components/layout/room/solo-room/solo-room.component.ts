@@ -3,12 +3,14 @@ import { map } from 'rxjs';
 import { GameOverMode } from 'src/app/components/nes-layout/nes-board/nes-board.component';
 import { getDisplayKeybind } from 'src/app/components/ui/editable-keybind/editable-keybind.component';
 import { RatedMove } from 'src/app/components/ui/eval-bar/eval-bar.component';
+import { ActiveQuestService } from 'src/app/services/active-quest.service';
 import { EmulatorService } from 'src/app/services/emulator/emulator.service';
 import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { RoomService } from 'src/app/services/room/room.service';
 import { SoloClientRoom, SoloClientState } from 'src/app/services/room/solo-client-room';
 import { PlacementEvaluation } from 'src/app/services/stackrabbit/live-game-analyzer';
 import { MeService } from 'src/app/services/state/me.service';
+import { CATEGORY_REDIRECT, getQuest, QuestRedirect } from 'src/app/shared/nestris-org/quest-system';
 import { SoloGameInfo, SoloRoomState } from 'src/app/shared/room/solo-room-models';
 
 @Component({
@@ -33,8 +35,14 @@ export class SoloRoomComponent {
     public readonly emulator: EmulatorService,
     private readonly roomService: RoomService,
     private readonly meService: MeService,
+    private readonly activeQuestService: ActiveQuestService,
   ) {
-    this.showAnalysis = this.meService.getSync()?.show_live_analysis ?? false;
+
+    const activeQuestID = this.activeQuestService.activeQuestID$.getValue();
+    const isAccuracyQuest = activeQuestID !== null && (CATEGORY_REDIRECT[getQuest(activeQuestID).category] === QuestRedirect.SOLO_ACCURACY);
+    console.log("Active quest", activeQuestID ? getQuest(activeQuestID).name : 'none');
+    console.log("is Accuracy quest", isAccuracyQuest);
+    this.showAnalysis = this.meService.getSync()?.show_live_analysis || isAccuracyQuest;
   }
 
   @HostListener('window:keydown', ['$event'])

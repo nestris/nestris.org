@@ -31,6 +31,6 @@
     </div>
     <div class="footer">
         <div class="definition-container prevent-select"><p class="definition prevent-select">{{quest.description}}</p></div>
-        <app-solid-button class="go" label="Go!" [color]="QUEST_COLORS[quest.difficulty]" [fontSize]="12" [paddingHorizontal]="12" [paddingVertical]="5" /> 
+        <app-solid-button class="go" (smartClick)="go()" label="Go!" [color]="QUEST_COLORS[quest.difficulty]" [fontSize]="12" [paddingHorizontal]="12" [paddingVertical]="5" /> 
     </div>
 </div>

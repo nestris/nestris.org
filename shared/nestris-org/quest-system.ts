@@ -29,9 +29,10 @@ export enum QuestID {
     PERFECTION_III,
     PERFECTION_IV,
     PERFECTION_V,
-    AUTOMATON,
+    FAST_FINGERS,
+    FASTER_FINGERS,
     QUICKSILVER,
-    JUGGERNAUT,
+    AUTOMATON,
     SOCIAL_BUTTERFLY,
     EAGER_CATERPILLAR,
 }
@@ -79,17 +80,29 @@ export enum QuestRedirect {
     SOLO_ACCURACY = "solo_accuracy",
     RANKED = "ranked",
     PUZZLES = "puzzles",
+    FRIENDS = "friends",
+}
+
+export const CATEGORY_REDIRECT: {[key in QuestCategory] : QuestRedirect} = {
+    [QuestCategory.ACCURACY]: QuestRedirect.SOLO_ACCURACY,
+    [QuestCategory.CHAMPION]: QuestRedirect.RANKED,
+    [QuestCategory.EFFICIENCY]: QuestRedirect.SOLO,
+    [QuestCategory.LINES29]: QuestRedirect.SOLO,
+    [QuestCategory.FRIENDS]: QuestRedirect.FRIENDS,
+    [QuestCategory.PERFECTION]: QuestRedirect.SOLO_ACCURACY,
+    [QuestCategory.PUZZLER]: QuestRedirect.PUZZLES,
+    [QuestCategory.SCORE]: QuestRedirect.SOLO,
+    [QuestCategory.SURVIVOR]: QuestRedirect.SOLO,
 }
 
 export interface Quest {
     id: QuestID;
-    category?: QuestCategory;
+    category: QuestCategory;
     name: string;
     description: string;
     difficulty: QuestDifficulty;
     xp: number;
     targetScore: number;
-    redirect?: QuestRedirect;
 }
 
 export interface QuestStatus {
@@ -368,22 +381,32 @@ export const QUESTS: Record<QuestID, Quest> = {
         xp: 10000,
         targetScore: 95
     },
+    [QuestID.FAST_FINGERS]: {
+        id: QuestID.FAST_FINGERS,
+        category: QuestCategory.LINES29,
+        name: "Fast fingers",
+        description: "Make some noise on the 'killscreen' and clear 5 lines on level 29 start",
+        difficulty: QuestDifficulty.INTERMEDIATE,
+        xp: 20,
+        targetScore: 5
+    },
+    [QuestID.FASTER_FINGERS]: {
+        id: QuestID.FASTER_FINGERS,
+        category: QuestCategory.LINES29,
+        name: "Faster fingers",
+        description: "Survive deep into the 'killscreen', clearing 25 lines on level 29 start",
+        difficulty: QuestDifficulty.ADVANCED,
+        xp: 20,
+        targetScore: 25
+    },
     [QuestID.QUICKSILVER]: {
         id: QuestID.QUICKSILVER,
-        category: QuestCategory.LINES29,
+        category: QuestCategory.LINES29, 
         name: "Quicksilver",
-        description: "Survive for 100 lines on level 29 start",
+        description: "Do the impossible on the 'killscreen' and survive for 500 lines on level 29 start",
         difficulty: QuestDifficulty.IMPOSSIBLE,
         xp: 10000,
-        targetScore: 100
-    },
-    [QuestID.JUGGERNAUT]: {
-        id: QuestID.JUGGERNAUT,
-        name: "Juggernaut",
-        description: "Maintain a 100-0 win-loss record in ranked mode",
-        difficulty: QuestDifficulty.IMPOSSIBLE,
-        xp: 10000,
-        targetScore: 100
+        targetScore: 500
     },
     [QuestID.EAGER_CATERPILLAR]: {
         id: QuestID.EAGER_CATERPILLAR,
