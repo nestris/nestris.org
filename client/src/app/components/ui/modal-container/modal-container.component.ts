@@ -22,7 +22,7 @@ export class ModalContainerComponent {
 
     this.modalManager.getModal$().subscribe((modal) => {
 
-      console.log("Modal changed to " + modal);
+      console.log("Modal changed to " + modal, this.modalManager.getModalConfig());
 
       const newVisibility = modal !== null;
 

@@ -1,0 +1,28 @@
+import { Authentication, DBUser } from "../../../shared/models/db-user";
+import { DBObjectNotFoundError } from "../../database/db-object-error";
+import { DBUserObject } from "../../database/db-objects/db-user";
+import { GetRoute, RouteError, UserInfo } from "../route";
+
+/**
+ * Route for getting the logged in user's information
+ */
+export class GetUserRoute extends GetRoute<DBUser> {
+    route = "/api/v2/user/:userid";
+
+    override async get(userInfo: UserInfo | undefined, pathParams: any): Promise<DBUser> {
+        const userid = pathParams.userid as string;
+        
+        try {
+            // get the user object from either the in-memory cache or the database
+            return await DBUserObject.get(userid);
+
+        } catch (error: any) {
+            // if the user is not found, return a 404 error
+            if (error instanceof DBObjectNotFoundError) {
+                throw new RouteError(404, "User not found");
+            } else {
+                throw new RouteError(500, `Unexpected error: ${error.message}`);
+            }
+        }
+    }
+}

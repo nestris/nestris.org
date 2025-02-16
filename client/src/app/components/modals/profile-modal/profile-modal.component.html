@@ -1,0 +1,33 @@
+<div class="modal" *ngIf="data$ | async as data">
+    <div class="top-row">
+
+        <div class="profile panel" [ngStyle]="{'borderColor' : leagueColor(data.dbUser.league)}">
+            <div class="top">
+                <div class="left">
+                    <h2 class="username">{{data.dbUser.username}}</h2>
+                    <app-online-indicator [isOnline]="true" />
+                </div>
+                <h2 class="league-name" [ngStyle]="{'color' : leagueColor(data.dbUser.league)}">{{leagueName(data.dbUser)}}</h2>
+            </div>
+            <p class="join-date">Joined {{dateString(data.dbUser.created_at)}}</p>
+
+            <app-league-icon [height]="140" [league]="data.dbUser.league" />
+            <app-xp-info [league]="data.dbUser.league" [xp]="data.dbUser.xp" />
+        </div>
+
+    </div>
+
+    <div class="text-row">
+        <h1>Completed Quests</h1>
+        <app-solid-button label="Show All" [fontSize]="12" [paddingHorizontal]="10" [paddingVertical]="5" (smartClick)="showQuests()" />
+    </div>
+
+    <div class="quests">
+        <app-quest *ngFor="let questID of getCompletedQuests(data.dbUser)" [questID]="questID" [status]="true" />
+    </div>
+
+    <div class="text-row">
+        <h1>History</h1>
+    </div>
+
+</div>

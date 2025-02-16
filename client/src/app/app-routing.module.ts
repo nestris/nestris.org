@@ -4,7 +4,6 @@ import { MainLayoutComponent } from './components/layout/root/main-layout/main-l
 import { PlayPageComponent } from './components/layout/play/play-page/play-page.component';
 import { FullscreenLayoutComponent } from './components/layout/root/fullscreen-layout/fullscreen-layout.component';
 import { PlayPuzzlePageComponent } from './components/layout/play-puzzle/play-puzzle-page/play-puzzle-page.component';
-import { ProfilePageComponent } from './components/layout/profile/profile-page/profile-page.component';
 import { FriendPageComponent } from './components/layout/friends/friend-page/friend-page.component';
 import { ReviewPageComponent } from './components/layout/review/review-page/review-page.component';
 import { LearnPageComponent } from './components/layout/learn/learn-page/learn-page.component';
@@ -42,7 +41,6 @@ const routes: Routes = [
     component: MainLayoutComponent,
     children: [
             
-      { path: "profile", component: ProfilePageComponent },
       { path: "control-panel" , component: ControlPanelPageComponent },
       { path: "friends", component: FriendPageComponent },
       { path: "settings", component: SettingsPageComponent },

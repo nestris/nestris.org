@@ -1,4 +1,8 @@
-<div class="quest prevent-select" *ngIf="getQuest(questID) as quest"
+<div class="placeholder dimensions" *ngIf="questID === undefined">
+    <p>Future completed quest goes here!</p>
+</div>
+
+<div class="quest dimensions prevent-select" *ngIf="(questID !== undefined ? getQuest(questID) : undefined) as quest"
     (mouseenter)="setHovering(true)" (mouseleave)="setHovering(false)"
     [ngClass]="{
         'impossible' : quest.difficulty === QuestDifficulty.IMPOSSIBLE,

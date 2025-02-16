@@ -4,6 +4,8 @@ import { ResourceIDType, T200LeaderboardRow } from 'src/app/shared/models/leader
 import { League } from 'src/app/shared/nestris-org/league-system';
 import { ButtonColor } from '../solid-button/solid-button.component';
 import { FriendsService } from 'src/app/services/state/friends.service';
+import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
+import { ProfileModalConfig } from '../../modals/profile-modal/profile-modal.component';
 
 
 @Component({
@@ -43,6 +45,7 @@ export class LeaderboardTableComponent implements OnChanges {
 
   constructor(
     private readonly friendService: FriendsService,
+    private readonly modalManagerService: ModalManagerService,
   ) {}
 
   ngOnChanges(): void {
@@ -87,6 +90,12 @@ export class LeaderboardTableComponent implements OnChanges {
   getDigitClassname(num: number): string {
     const numDigits = num.toString().length;
     return `digit-${numDigits}`;
+  }
+
+  viewProfile(userid: string) {
+    const config: ProfileModalConfig = { userid };
+    console.log("view profile", userid);
+    this.modalManagerService.showModal(ModalType.PROFILE, config);
   }
 
 

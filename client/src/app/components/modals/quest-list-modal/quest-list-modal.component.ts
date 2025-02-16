@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ModalManagerService } from 'src/app/services/modal-manager.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { DBUser } from 'src/app/shared/models/db-user';
@@ -15,6 +15,10 @@ QuestIDs.sort((a, b) => {
   return questDifficultyOrder.indexOf(questA.difficulty) - questDifficultyOrder.indexOf(questB.difficulty);
 });
 
+export interface QuestListModalConfig {
+  user?: DBUser; // if undefined, get logged in user
+}
+
 @Component({
   selector: 'app-quest-list-modal',
   templateUrl: './quest-list-modal.component.html',
@@ -22,6 +26,7 @@ QuestIDs.sort((a, b) => {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuestListModalComponent {
+  @Input() config: QuestListModalConfig = { user: undefined };
 
   readonly QuestIDs = QuestIDs;
   readonly QuestDifficulty = QuestDifficulty;
@@ -30,6 +35,10 @@ export class QuestListModalComponent {
     public readonly modalManagerService: ModalManagerService,
     public readonly meService: MeService,
   ) {}
+
+  getMe(me: DBUser | null): DBUser | null {
+    return this.config?.user ?? me;
+  }
 
   getQuestStatus(me: DBUser, questID: QuestID): number | true {
     const status = getQuestStatus(me.quest_progress, questID)

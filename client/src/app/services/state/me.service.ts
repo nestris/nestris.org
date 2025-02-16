@@ -12,9 +12,15 @@ import { BannerManagerService, BannerPriority, BannerType } from '../banner-mana
 export class MeService extends StateService<DBUser>() {
 
   constructor(
-    private readonly bannerManager: BannerManagerService
+    private readonly bannerManager: BannerManagerService,
   ) {
     super([JsonMessageType.ME], "Me");
+  }
+
+  private decode(user: DBUser) {
+    user.created_at = new Date(user.created_at);
+    user.last_online = new Date(user.last_online);
+    return user;
   }
 
   protected async fetch(): Promise<DBUser> {
@@ -22,7 +28,7 @@ export class MeService extends StateService<DBUser>() {
     let me: DBUser;
     try {
       // Fetch the user's information
-      me = await this.fetchService.fetch<DBUser>(Method.GET, '/api/v2/me');
+      me = this.decode(await this.fetchService.fetch<DBUser>(Method.GET, '/api/v2/me'));
     } catch (e) {
       // If cannot fetch me, redirect to login
       if (location.pathname !== '/login') location.href = '/login';
@@ -37,7 +43,7 @@ export class MeService extends StateService<DBUser>() {
 
   // ME message contains updated DBUser object
   protected override onEvent(event: JsonMessage, oldState: DBUser): DBUser {
-    return (event as MeMessage).me;
+    return this.decode((event as MeMessage).me);
   }
 
   protected override onFetch(me: DBUser): void {

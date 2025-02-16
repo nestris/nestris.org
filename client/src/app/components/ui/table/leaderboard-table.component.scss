@@ -130,7 +130,14 @@ td:first-child, th:first-child {
     align-items: center;
 }
 
+.username {
+    cursor: pointer;
 
+}
+
+.username:hover {
+    opacity: 0.8;
+}
 
 .ranking {
     width: 25px;

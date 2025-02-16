@@ -45,7 +45,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { FullscreenLayoutComponent } from './components/layout/root/fullscreen-layout/fullscreen-layout.component';
 import { MainLayoutComponent } from './components/layout/root/main-layout/main-layout.component';
 import { RouterModule } from '@angular/router';
-import { ProfilePageComponent } from './components/layout/profile/profile-page/profile-page.component';
 import { ReviewPageComponent } from './components/layout/review/review-page/review-page.component';
 import { TabSelectorComponent } from './components/ui/tab-selector/tab-selector.component';
 import { AuthModalComponent } from './components/modals/auth-modal/auth-modal.component';
@@ -105,6 +104,7 @@ import { PageTitleComponent } from './components/ui/page-title/page-title.compon
 import { GameAnalysisComponent } from './components/layout/game-analysis/game-analysis/game-analysis.component';
 import { XpStatusComponent } from './components/ui/xp-status/xp-status.component';
 import { QuestListModalComponent } from './components/modals/quest-list-modal/quest-list-modal.component';
+import { ProfileModalComponent } from './components/modals/profile-modal/profile-modal.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -188,7 +188,6 @@ const customNotifierOptions: NotifierOptions = {
     EloGraphComponent,
     FullscreenLayoutComponent,
     MainLayoutComponent,
-    ProfilePageComponent,
     ReviewPageComponent,
     TabSelectorComponent,
     AuthModalComponent,
@@ -246,6 +245,7 @@ const customNotifierOptions: NotifierOptions = {
     GameAnalysisComponent,
     XpStatusComponent,
     QuestListModalComponent,
+    ProfileModalComponent,
   ],
   imports: [
     BrowserModule,

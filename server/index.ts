@@ -65,6 +65,7 @@ import { OnlineUserCacheConsumer } from './src/online-users/event-consumers/onli
 import { TestUserCache } from './src/online-user-cache/test-user-cache';
 import { GetScoreHistogramRoute } from './src/routes/user-stats/get-score-histogram-route';
 import { QuestConsumer } from './src/online-users/event-consumers/quest-consumer';
+import { GetUserRoute } from './src/routes/user/get-user-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -165,6 +166,7 @@ async function main() {
   // initialize routes
   const routes = new RouteManager(app);
   routes.registerRoute(GetMeRoute);
+  routes.registerRoute(GetUserRoute);
   routes.registerRoute(GetOnlineUsersRoute);
   routes.registerRoute(GetFriendsInfoRoute);
   routes.registerRoute(GetAllUsernamesRoute);

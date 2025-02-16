@@ -1,4 +1,4 @@
-<div class="modal" *ngIf="(meService.get$() | async) as me">
+<div class="modal" *ngIf="getMe(meService.get$() | async) as me">
 
     <div class="header">
         <!-- <app-solid-button label="Back" (click)="modalManagerService.hideModal()" /> -->

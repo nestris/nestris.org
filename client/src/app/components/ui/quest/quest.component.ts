@@ -17,7 +17,7 @@ import { Router } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuestComponent implements OnInit {
-  @Input() questID!: QuestID; // name of the quest
+  @Input() questID?: QuestID; // name of the quest. If not defined, show empty placeholder
   @Input() status!: number | true; // if number, is current xp. if true, quest is complete
   @Input() forceHover: boolean = false;
 
@@ -55,10 +55,10 @@ export class QuestComponent implements OnInit {
     this.modalManagerService.hideModal();
 
     // Update active quest to this one
-    this.activeQuestService.activeQuestID$.next(this.questID);
+    this.activeQuestService.activeQuestID$.next(this.questID!);
 
     // Redirect based on quest category
-    const redirect = CATEGORY_REDIRECT[getQuest(this.questID).category];
+    const redirect = CATEGORY_REDIRECT[getQuest(this.questID!).category];
     switch (redirect) {
       case QuestRedirect.SOLO:
       case QuestRedirect.SOLO_ACCURACY:

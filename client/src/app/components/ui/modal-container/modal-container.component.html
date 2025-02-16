@@ -3,6 +3,7 @@
         <app-calibrate-ocr-modal *ngIf="modal === ModalType.CALIBRATE_OCR" />
         <app-auth-modal *ngIf="modal === ModalType.AUTH" />
         <app-challenge-modal *ngIf="modal === ModalType.CHALLENGE_PLAYER" [config]="modalManager.getModalConfig()" />
-        <app-quest-list-modal *ngIf="modal === ModalType.QUEST_LIST" />
+        <app-quest-list-modal *ngIf="modal === ModalType.QUEST_LIST" [config]="modalManager.getModalConfig()" />
+        <app-profile-modal *ngIf="modal === ModalType.PROFILE" [config]="modalManager.getModalConfig()" />
     </app-modal>
 </div>
