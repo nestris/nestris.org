@@ -33,6 +33,7 @@ export enum JsonMessageType {
     REDIRECT = 'go_to_page',
     INVITATION = 'invitation',
     QUEST_COMPLETE = 'quest_complete',
+    TROPHY_CHANGE = 'trophy_change',
 }
 
 export abstract class JsonMessage {
@@ -237,5 +238,14 @@ export class QuestCompleteMessage extends JsonMessage {
         public readonly questID: QuestID
     ) {
         super(JsonMessageType.QUEST_COMPLETE)
+    }
+}
+
+export class TrophyChangeMessage extends JsonMessage {
+    constructor(
+        public readonly startTrophies: number,
+        public readonly trophyDelta: number,
+    ) {
+        super(JsonMessageType.TROPHY_CHANGE)
     }
 }

@@ -9,6 +9,7 @@ import { EventConsumerManager } from "../online-users/event-consumer";
 import { GlobalStatConsumer } from "../online-users/event-consumers/global-stat-consumer";
 import { QuestConsumer } from "../online-users/event-consumers/quest-consumer";
 import { QuestCategory, QuestID } from "../../shared/nestris-org/quest-system";
+import { TrophyChangeMessage } from "../../shared/network/json-message";
 
 
 export class RankedMultiplayerRoom extends MultiplayerRoom {
@@ -52,8 +53,14 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
             else if (state.matchWinner === playerIndex) trophyChange = trophyDelta.trophyGain;
             else trophyChange = trophyDelta.trophyLoss;
 
-            const newTrophies = state.players[playerIndex].trophies + trophyChange;
+            const startTrophies = state.players[playerIndex].trophies;
+            const newTrophies = startTrophies + trophyChange;
             const xpBonusIfWin = Math.floor(newTrophies * 0.1);
+
+            // Send trophy change message to display alert
+            RankedMultiplayerRoom.Users.sendToUserSession(player.sessionID, new TrophyChangeMessage(
+                startTrophies, trophyChange
+            ))
 
             // Update each player's trophies and XP after the match
             const updatedUser = await DBUserObject.alter(player.userid, new DBRankedMatchEndEvent({
