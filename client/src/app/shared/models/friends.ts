@@ -1,5 +1,5 @@
 import { League } from "../nestris-org/league-system";
-import { OnlineUserActivityType } from "./activity";
+import { OnlineUserActivityType } from "./online-activity";
 
 // the relationship status between one user and another user
 export enum FriendStatus {

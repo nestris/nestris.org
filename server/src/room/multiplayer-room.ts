@@ -4,11 +4,11 @@ import { ClientRoomEvent, RoomType } from "../../shared/room/room-models";
 import { Room } from "../online-users/event-consumers/room-consumer";
 import { UserSessionID } from "../online-users/online-user";
 import { calculateScoreForPlayer, MatchPoint, MultiplayerRoomEventType, MultiplayerRoomState, MultiplayerRoomStatus, PlayerIndex, PlayerInfo, TrophyDelta } from "../../shared/room/multiplayer-room-models";
-import { GameEndEvent, GamePlayer, GameStartEvent, NO_XP_STRATEGY } from "./game-player";
+import { GameEndEvent, GamePlayer, GameStartEvent } from "./game-player";
 import { GymRNG } from "../../shared/tetris/piece-sequence-generation/gym-rng";
 import { DBUserObject } from "../database/db-objects/db-user";
 import { PacketAssembler } from "../../shared/network/stream-packets/packet-assembler";
-import { OnlineUserActivityType } from "../../shared/models/activity";
+import { OnlineUserActivityType } from "../../shared/models/online-activity";
 import { DBGameType } from "../../shared/models/db-game";
 
 export class MultiplayerRoom extends Room<MultiplayerRoomState> {

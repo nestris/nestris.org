@@ -151,6 +151,7 @@ CREATE TABLE "public"."games" (
 );
 
 -- index by end_score, created_at, accuracy
+CREATE INDEX game_userid_index ON games (userid DESC);
 CREATE INDEX end_score_index ON games (end_score DESC);
 CREATE INDEX created_at_index ON games (created_at DESC);
 CREATE INDEX accuracy_index ON games (accuracy DESC);
@@ -181,6 +182,16 @@ CREATE TABLE "public"."global_stats" (
     PRIMARY KEY ("stat")
 );
 
+-- ACTIVITIES TABLE
+-- Stores the timestamped activities each user has done
+DROP TABLE IF EXISTS "public"."activities" CASCADE;
+CREATE TABLE "public"."activities" (
+    "id" SERIAL PRIMARY KEY,
+    "userid" text NOT NULL REFERENCES "public"."users"("userid"),
+    "created_at" timestamp NOT NULL DEFAULT now(),
+    "data" jsonb NOT NULL
+);
+CREATE INDEX activities_userid_index ON activities (userid DESC);
 
 -- LOG table that logs message with timestamp
 DROP TABLE IF EXISTS "public"."logs" CASCADE;

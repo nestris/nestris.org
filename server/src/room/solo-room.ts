@@ -1,4 +1,4 @@
-import { OnlineUserActivityType } from "../../shared/models/activity";
+import { OnlineUserActivityType } from "../../shared/models/online-activity";
 import { DBGameType } from "../../shared/models/db-game";
 import { soloXPStrategy } from "../../shared/nestris-org/xp-system";
 import { PacketAssembler } from "../../shared/network/stream-packets/packet-assembler";

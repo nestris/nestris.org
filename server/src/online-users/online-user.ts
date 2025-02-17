@@ -1,4 +1,4 @@
-import { OnlineUserActivityType } from "../../shared/models/activity";
+import { OnlineUserActivityType } from "../../shared/models/online-activity";
 import { JsonMessage } from "../../shared/network/json-message";
 import { BotUser } from "../bot/bot-user";
 

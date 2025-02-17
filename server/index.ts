@@ -67,6 +67,7 @@ import { GetScoreHistogramRoute } from './src/routes/user-stats/get-score-histog
 import { QuestConsumer } from './src/online-users/event-consumers/quest-consumer';
 import { GetUserRoute } from './src/routes/user/get-user-route';
 import { GetRatedPuzzleRoute } from './src/routes/puzzles/get-rated-puzzle-route';
+import { ActivityConsumer } from './src/online-users/event-consumers/activity-consumer';
 
 // Load environment variables
 require('dotenv').config();
@@ -137,6 +138,7 @@ async function main() {
   consumers.registerConsumer(RankedQueueConsumer, {});
   consumers.registerConsumer(InvitationConsumer, {});
   consumers.registerConsumer(RatedPuzzleConsumer, {batchSize: NODE_ENV === DeploymentEnvironment.DEV ? 3 : 97});
+  consumers.registerConsumer(ActivityConsumer, {});
   consumers.registerConsumer(ServerRestartWarningConsumer, {});
   consumers.registerConsumer(GlobalStatConsumer, {});
   await consumers.init();

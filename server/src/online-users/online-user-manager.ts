@@ -7,7 +7,7 @@ import { decodeMessage, MessageType } from "../../shared/network/ws-message";
 import { OnlineUserEvent, OnlineUserEventType, OnSessionBinaryMessageEvent, OnSessionConnectEvent, OnSessionDisconnectEvent, OnSessionJsonMessageEvent, OnUserActivityChangeEvent, OnUserConnectEvent, OnUserDisconnectEvent } from "./online-user-events";
 import { BotOnlineUserSession, HumanOnlineUserSession, OnlineUser, OnlineUserActivity, OnlineUserInfo, OnlineUserSession, SessionSocket } from "./online-user";
 import { WebSocketServer } from "ws";
-import { OnlineUserActivityType } from "../../shared/models/activity";
+import { OnlineUserActivityType } from "../../shared/models/online-activity";
 import { BotUser } from "../bot/bot-user";
 
 /*

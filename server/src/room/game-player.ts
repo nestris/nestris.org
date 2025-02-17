@@ -14,6 +14,8 @@ import { QuestConsumer } from "../online-users/event-consumers/quest-consumer";
 import { QuestCategory, QuestID } from "../../shared/nestris-org/quest-system";
 import { XPStrategy } from "../../shared/nestris-org/xp-system";
 import { DBGameType } from "../../shared/models/db-game";
+import { ActivityConsumer } from "../online-users/event-consumers/activity-consumer";
+import { ActivityType, PersonalBestActivity } from "../../shared/models/activity";
 
 // Event that is emitted when a game starts
 export interface GameStartEvent {
@@ -280,6 +282,7 @@ export class GamePlayer {
         } else console.log(`Not saving game for player ${this.username} because no placements were made`);
         
         // Emit the game end event
+        const isPersonalBest = state.score > previousHighscore;
         this.gameEnd$.next(
             {
                 gameID,
@@ -287,7 +290,7 @@ export class GamePlayer {
                 accuracy: accuracyStats.overallAccuracy,
                 packets,
                 xpGained,
-                isPersonalBest: state.score > previousHighscore,
+                isPersonalBest,
                 forced
             }
         );        
@@ -296,6 +299,17 @@ export class GamePlayer {
         if (gameState.startLevel < 29 && state.level >= 29) {
             const questConsumer = EventConsumerManager.getInstance().getConsumer(QuestConsumer);
             await questConsumer.updateQuestCategory(this.userid, QuestCategory.ACCURACY, accuracyStats.overallAccuracy);
+        }
+
+        // If personal best, log activity without waiting for database insertion to complete
+        if (isPersonalBest) {
+            const activityConsumer = EventConsumerManager.getInstance().getConsumer(ActivityConsumer);
+            activityConsumer.createActivity(this.userid, {
+                type: ActivityType.PERSONAL_BEST,
+                score: state.score,
+                startLevel: gameState.startLevel,
+                gameID: gameID
+            });
         }
 
         return gameID;

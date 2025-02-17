@@ -8,7 +8,7 @@ import { EventConsumer, EventConsumerManager } from "../event-consumer";
 import { OnSessionDisconnectEvent } from "../online-user-events";
 import { RoomAbortError, RoomConsumer } from "./room-consumer";
 import { NotificationType } from "../../../shared/models/notifications";
-import { OnlineUserActivityType } from "../../../shared/models/activity";
+import { OnlineUserActivityType } from "../../../shared/models/online-activity";
 import { DBUser } from "../../../shared/models/db-user";
 import { getEloChange } from "../../../shared/nestris-org/elo-system";
 
