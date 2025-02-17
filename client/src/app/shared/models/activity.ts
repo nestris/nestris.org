@@ -30,6 +30,7 @@ export type RankedMatchActivity = {
 export type Activity = PersonalBestActivity | RankedMatchActivity;
 
 export interface TimestampedActivity {
+    id: number,
     timestamp: string,
     activity: Activity,
 }
