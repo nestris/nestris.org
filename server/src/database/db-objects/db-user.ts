@@ -133,7 +133,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
             enable_receive_friend_requests: true,
             notify_on_friend_online: true,
             enable_runahead: false,
-            show_live_analysis: false,
+            show_live_analysis: true,
             disable_midgame_quests: false,
 
             keybind_emu_move_left: 'ArrowLeft',
