@@ -68,6 +68,7 @@ import { QuestConsumer } from './src/online-users/event-consumers/quest-consumer
 import { GetUserRoute } from './src/routes/user/get-user-route';
 import { GetRatedPuzzleRoute } from './src/routes/puzzles/get-rated-puzzle-route';
 import { ActivityConsumer } from './src/online-users/event-consumers/activity-consumer';
+import { GetAllActivitiesRoute } from './src/routes/user/get-all-activities-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -172,6 +173,7 @@ async function main() {
   routes.registerRoute(GetUserRoute);
   routes.registerRoute(GetOnlineUsersRoute);
   routes.registerRoute(GetFriendsInfoRoute);
+  routes.registerRoute(GetAllActivitiesRoute);
   routes.registerRoute(GetAllUsernamesRoute);
   routes.registerRoute(GetRelativeLeaderboardsRoute);
   routes.registerRoute(GetT200LeaderboardRoute);

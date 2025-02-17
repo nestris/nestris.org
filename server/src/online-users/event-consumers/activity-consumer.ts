@@ -16,7 +16,7 @@ class GetActivitiesForUserQuery extends DBQuery<TimestampedActivity[]> {
     public override readonly query = `
         SELECT id, created_at, data
         FROM activities
-        WHERE $userid = $1
+        WHERE userid = $1
         ORDER BY created_at DESC
     `;
 
