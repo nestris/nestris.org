@@ -28,6 +28,7 @@ class GetActivitiesForUserQuery extends DBQuery<TimestampedActivity[]> {
 
     public override parseResult(resultRows: any[]): TimestampedActivity[] {
         return resultRows.map((row) => ({
+            id: row.id,
             timestamp: row.created_at,
             activity: row.data as Activity,
         }));
