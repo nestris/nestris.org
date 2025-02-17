@@ -66,6 +66,7 @@ import { TestUserCache } from './src/online-user-cache/test-user-cache';
 import { GetScoreHistogramRoute } from './src/routes/user-stats/get-score-histogram-route';
 import { QuestConsumer } from './src/online-users/event-consumers/quest-consumer';
 import { GetUserRoute } from './src/routes/user/get-user-route';
+import { GetRatedPuzzleRoute } from './src/routes/puzzles/get-rated-puzzle-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -189,6 +190,7 @@ async function main() {
   routes.registerRoute(ClearUserCacheRoute);
   routes.registerRoute(RequestRatedPuzzleRoute);
   routes.registerRoute(SubmitRatedPuzzleRoute);
+  routes.registerRoute(GetRatedPuzzleRoute);
   routes.registerRoute(GetGlobalStatRoute);
   routes.registerRoute(GetScoreHistogramRoute);
 

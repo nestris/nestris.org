@@ -234,6 +234,7 @@ export class PlayPuzzlePageComponent implements OnInit {
     } else {
       // Submit the puzzle based on the strategy
       solution = await this.strategy.submitPuzzle(currentState.data.puzzleID, submission);
+      console.log("puzzle solution", solution);
     }
 
     // Check which submission index corresponds to the user's submission

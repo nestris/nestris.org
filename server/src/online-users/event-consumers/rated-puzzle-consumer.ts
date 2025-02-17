@@ -497,6 +497,8 @@ export class RatedPuzzleConsumer extends EventConsumer<RatedPuzzleConfig> {
         else if (puzzle.current_4 === submission.current && puzzle.next_4 === submission.next) updatedPuzzle.guesses_4++;
         else if (puzzle.current_5 === submission.current && puzzle.next_5 === submission.next) updatedPuzzle.guesses_5++;
 
+        console.log("update puzzle stats", JSON.stringify(updatedPuzzle));
+
         await Database.query(UpdatePuzzleStatsQuery, updatedPuzzle);
     }
 
