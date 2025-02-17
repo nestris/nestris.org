@@ -11,6 +11,6 @@ export class StatPanelComponent {
   @Input() value: number = 0;
 
   numberWithCommas(x: number) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return Math.round(x).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 }

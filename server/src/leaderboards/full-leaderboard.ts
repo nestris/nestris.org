@@ -131,9 +131,14 @@ export abstract class FullLeaderboard {
      * @param pattern The search pattern to match usernames against
      * @param limit The maximum number of usernames to return
      */
-    public getUsernamesMatchingPattern(pattern: string, limit: number): {userid: string, username: string}[] {
+    public getNonGuestUsernamesMatchingPattern(pattern: string, limit: number): {userid: string, username: string}[] {
+
+        const isGuestUsername = (username: string): boolean => {
+            return /^guest\d+$/.test(username);
+        };
+
         return this.leaderboard
-            .filter((user) => user.username.toLowerCase().includes(pattern.toLowerCase()))
+            .filter((user) => !isGuestUsername(user.username) && user.username.toLowerCase().includes(pattern.toLowerCase()))
             .slice(0, limit)
             .map((user) => ({userid: user.userid, username: user.username}))
             .sort((a, b) => a.username.localeCompare(b.username));

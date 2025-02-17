@@ -1,5 +1,5 @@
 <div class="modal" *ngIf="multiplayerState$ | async as state">
-    <div class="banner-container" [ngClass]="getIndexColorWithTie(state.matchWinner!)">
+    <div class="banner-container" [ngClass]="getIndexColorWithTie(state.matchWinner)">
         <h1>{{
             calculateScoreForPlayer(state.points, getColorIndex("blue"))
             }}-{{
@@ -7,7 +7,7 @@
             }} {{getMatchText(state)}}</h1>
     </div>
     <div class="body">
-        <div class="content">
+        <div class="content" [ngStyle]="{opacity : state.matchWinner === null ? 0 : 1}">
             <div class="players">
                 <div class="player" *ngFor="let playerIndex of getPlayerIndices()" [ngClass]="getIndexColor(playerIndex)">
                     <h1>{{state.players[playerIndex].username + ((state.wonByResignation && state.matchWinner !== playerIndex) ? ' (Aborted)' : '')}}</h1>

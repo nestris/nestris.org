@@ -116,10 +116,10 @@ export class T200HighscoreLeaderboard extends T200Leaderboard {
     public override readonly resourceIDType = ResourceIDType.GAME;
     public override readonly attributes = {
         highest_score: 'Score',
-        highscore_level: 'Level',
         highscore_lines: 'Lines',
         highscore_start_level: 'Start level',
         highscore_accuracy: 'Accuracy',
+        games_played: 'Games played',
     };
 
     protected async populateLeaderboard(): Promise<T200LeaderboardRow[]> {
@@ -128,7 +128,7 @@ export class T200HighscoreLeaderboard extends T200Leaderboard {
         class T200HighscoreLeaderboardQuery extends DBQuery<T200LeaderboardRow[]> {
             public override query = `
                 SELECT
-                    users.userid, username, league, games.end_score as highscore, games.end_level as highscore_level, games.end_lines as highscore_lines, games.start_level as highscore_start_level, games.accuracy as highscore_accuracy, games.id as game_id
+                    users.userid, username, league, games_played, games.end_score as highscore, games.end_lines as highscore_lines, games.start_level as highscore_start_level, games.accuracy as highscore_accuracy, games.id as game_id
                 FROM
                     users
                 INNER JOIN
@@ -153,10 +153,10 @@ export class T200HighscoreLeaderboard extends T200Leaderboard {
                     league: row.league,
                     
                     highest_score: row.highscore,
-                    highscore_level: row.highscore_level,
                     highscore_lines: row.highscore_lines,
                     highscore_start_level: row.highscore_start_level,
                     highscore_accuracy: row.highscore_accuracy / 10000,
+                    games_played: row.games_played,
 
                     resourceID: row.game_id,
                     score: row.highscore,

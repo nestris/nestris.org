@@ -28,11 +28,13 @@ services:
       - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
       - DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
       - NODE_ENV=production
+      - CPP_SERVICE_PORT=4500
     ports:
       - "3000:3000" # Expose port 3000 for production server
       - "9229:9229"  # Node.js debugger port
     depends_on:
       - postgres
+      - cpp-service
     command: node --inspect=0.0.0.0:9229 -r ts-node/register index.ts
 
   cpp-service:

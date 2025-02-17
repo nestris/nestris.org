@@ -3,6 +3,57 @@
 
     <div class="centered">
 
+        <section class="stats">
+            <div class="left">
+                <div class="panel score-histogram" *ngIf="histogram$ | async as histogram">
+                    <h1>Your lifetime scores</h1>
+                    <div class="histogram">
+                        <div class="column" *ngFor="let scoreRange of HISTOGRAM_SCORE_RANGES; let i = index">
+                            <p>{{histogramValue(histogram[i].count)}}</p>
+                            <div class="bar" [ngStyle]="{
+                                'backgroundColor' : HISTOGRAM_COLORS[i],
+                                'height' : ((histogram[i].height) * 80 + 1) + '%'
+                            }"></div>
+                            <h1 [ngStyle]="{
+                                'opacity' : (i % 2) ? 0 : 1
+                            }">{{histogramLabel(i)}}</h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel player-stats">
+                    <h1>Your overall stats</h1>
+                    <div class="stat-list" *ngIf="me$ | async as me">
+                        <div class="stat">
+                            <h2>Highest score</h2>
+                            <p>{{numbersWithCommas(me.highest_score)}}</p>
+                        </div>
+                        <div class="stat">
+                            <h2>Best score into 19</h2>
+                            <p>{{me.highest_transition_into_19 ? numbersWithCommas(me.highest_transition_into_19) : '-'}}</p>
+                        </div>
+                        <div class="stat">
+                            <h2>Best score into 29</h2>
+                            <p>{{me.highest_transition_into_29 ? numbersWithCommas(me.highest_transition_into_29) : '-'}}</p>
+                        </div>
+                        <div class="stat">
+                            <h2>Games played</h2>
+                            <p>{{numbersWithCommas(me.games_played)}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="right panel games-graph">
+                <div class="header">
+                    <div class="arrow left prevent-select" (click)="monthNavigator.previousMonth()"><img src="./assets/img/ui-icons/arrow.svg" height="7px"></div>
+                    <div class="arrow right prevent-select" (click)="monthNavigator.nextMonth()"><img src="./assets/img/ui-icons/arrow.svg" height="7px"></div>
+                    <h1>Your games in {{(monthNavigator.month$ | async)?.string}}</h1>
+                </div>
+                <div class="graph">
+                    <p class="coming-soon">Coming soon!</p>
+                </div>
+            </div>
+        </section>
+
         <div class="section-header">
             <h1>History</h1>
             <app-solid-selector [labels]="sortLabels" (selectedChange)="sortIndex$.next($event)"
@@ -25,7 +76,7 @@
             <div class="row game" *ngFor="let game of games">
                 <div>{{timeAgo(game.created_at)}}</div>
                 <div>{{game.start_level}}</div>
-                <div>{{game.end_score}}</div>
+                <div>{{numbersWithCommas(game.end_score)}}</div>
                 <div>{{game.end_level}}</div>
                 <div>{{game.end_lines}}</div>
                 <div>{{(game.tetris_rate * 100).toFixed(0)}}%</div>

@@ -6,7 +6,7 @@ import { ButtonColor as SelectorColor } from 'src/app/components/ui/solid-select
 import { ApiService } from 'src/app/services/api.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
-import { calculatePlacementScore, EVALUATION_TO_COLOR, overallAccuracyRating, placementScoreRating } from 'src/app/shared/evaluation/evaluation';
+import { calculatePlacementScore, EVALUATION_ORDER, EVALUATION_TO_COLOR, EvaluationRating, overallAccuracyRating, placementScoreRating } from 'src/app/shared/evaluation/evaluation';
 import { DBGame } from 'src/app/shared/models/db-game';
 import { NotificationType } from 'src/app/shared/models/notifications';
 import { MemoryGameStatus } from 'src/app/shared/tetris/memory-game-status';
@@ -76,6 +76,8 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly timeAgo = timeAgo;
   readonly numberWithCommas = numberWithCommas;
   readonly addSignPrefix = addSignPrefix;
+  readonly EVALUATION_ORDER = EVALUATION_ORDER;
+  readonly EVALUATION_TO_COLOR = EVALUATION_TO_COLOR;
 
   // The HTTP request for game metadata
   public game?: DBGame;
@@ -632,4 +634,20 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     return placement;
   }
 
+  getAverageEvalLoss(): number {
+    return 0 - Math.round(this.game!.average_eval_loss * 10) / 10;
+  }
+
+  getRatingCount(rating: EvaluationRating): number {
+    switch (rating) {
+      case EvaluationRating.BRILLIANT: return this.game!.brilliant_count;
+      case EvaluationRating.BEST: return this.game!.best_count;
+      case EvaluationRating.EXCELLENT: return this.game!.excellent_count;
+      case EvaluationRating.GOOD: return this.game!.good_count;
+      case EvaluationRating.INACCURACY: return this.game!.inaccurate_count;
+      case EvaluationRating.MISTAKE: return this.game!.mistake_count;
+      case EvaluationRating.BLUNDER: return this.game!.blunder_count;
+      default: return 0;
+    }
+  }
 }

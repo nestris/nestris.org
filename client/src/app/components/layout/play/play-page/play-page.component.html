@@ -9,11 +9,9 @@
         <div class="quest-container">
             <div class="quest-header">
                 <h1>Ongoing quests</h1>
+                <app-solid-button icon="./assets/img/button-icons/quest.svg" (click)="showMyQuests()" />
             </div>
-            <div class="quest" *ngFor="let quest of (quests$ | async)"
-                [ngStyle]="{'borderColor' : questColor(quest) , 'backgroundColor': hexWithAlpha(questColor(quest), 0.03) }">
-                <app-quest [name]="quest.name" [status]="quest.currentScore" />
-            </div>
+            <app-quest *ngFor="let quest of (ongoingQuests$ | async)" [questID]="quest.questID" [status]="quest.progress" [forceHover]="true" />
         </div>
     </section>
 

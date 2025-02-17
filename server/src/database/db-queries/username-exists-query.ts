@@ -20,8 +20,6 @@ export class UsernameExistsQuery extends DBQuery<boolean> {
 
     public override parseResult(resultRows: any[]): boolean {
 
-        console.log(`UsernameExistsQuery ${this.username}: ${resultRows} with length ${resultRows.length}`);
-
         // If the query returns at least one row, the username exists
         return resultRows.length > 0;
     }

@@ -8,9 +8,9 @@
     <div class="row content" *ngFor="let row of rows; let i = index" [ngStyle]="{gridTemplateColumns: gridTemplateColumns()}"
         [ngClass]="{'me': row.userid === myID, 'top' : i === 0, 'first' : row.rank === 1, 'second' : row.rank === 2, 'third' : row.rank === 3}">
         <div class="cell player">
-            <div class="ranking prevent-select">#{{ row.rank }}</div>
+            <div class="ranking prevent-select" [ngClass]="getDigitClassname(row.rank)">#{{ row.rank }}</div>
             <app-league-icon [league]="row.league" [height]="22" />
-            <p class="prevent-select">{{row.username}}</p>
+            <p class="username prevent-select" [tooltip]="'View ' + row.username + '\'s profile'" (click)="viewProfile(row.userid)">{{row.username}}</p>
             <app-online-indicator [isOnline]="row.isOnline || row.userid === myID" [inActivity]="row.inActivity" />
         </div>
         <ng-container *ngFor="let item of attributes | keyvalue: originalOrder">

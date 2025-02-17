@@ -22,11 +22,15 @@ import { StackrabbitService } from 'src/app/services/stackrabbit/stackrabbit.ser
 import { RatedPuzzleStrategy } from './puzzle-states/rated-puzzle-strategy';
 import { SinglePuzzleStrategy } from './puzzle-states/single-puzzle-strategy';
 import { PUZZLE_THEME_TEXT } from 'src/app/shared/puzzles/puzzle-theme';
+import { getDisplayKeybind } from 'src/app/components/ui/editable-keybind/editable-keybind.component';
 
 const RIGHT_ANSWER_COMMENTS = [
   "You got it!",
   "Stack-tastic!",
-  "Superb solving!"
+  "Superb solving!",
+  "Bullseye!",
+  "Sharp as a tack!",
+  "Nailed it with style!"
 ]
 
 const WRONG_ANSWER_COMMENTS = [
@@ -42,6 +46,7 @@ const WRONG_ANSWER_COMMENTS = [
   "Is your GPS off today?",
   "Your accuracy's on vacation.",
   "I guess perfection's too mainstream for you.",
+  "Whoops, better luck next time!"
 ]
 
 enum PuzzleStateID {
@@ -78,6 +83,7 @@ interface PuzzleState {
 })
 export class PlayPuzzlePageComponent implements OnInit {
 
+  readonly getDisplayKeybind = getDisplayKeybind;
   readonly EloMode = EloMode;
   readonly ButtonColor = ButtonColor;
   readonly PUZZLE_THEME_TEXT = PUZZLE_THEME_TEXT;
@@ -106,16 +112,27 @@ export class PlayPuzzlePageComponent implements OnInit {
 
   private timerInterval?: any;
 
+  public rotateLeftKeybind = 'z';
+  public rotateRightKeybind = 'x';
+
 
   constructor(
     private route: ActivatedRoute,
     public router: Router,
     private notifier: NotificationService,
     private injector: Injector,
+    private me: MeService,
   ) {}
 
 
   async ngOnInit() {
+
+    // Update keybinds based on user settings
+    const me = this.me.getSync();
+    if (me) {
+      this.rotateLeftKeybind = me.keybind_puzzle_rot_left
+      this.rotateRightKeybind = me.keybind_puzzle_rot_right
+    }
 
     // 'mode' query parameter determines the puzzle strategy
     const params = this.route.snapshot.queryParamMap;
@@ -217,6 +234,7 @@ export class PlayPuzzlePageComponent implements OnInit {
     } else {
       // Submit the puzzle based on the strategy
       solution = await this.strategy.submitPuzzle(currentState.data.puzzleID, submission);
+      console.log("puzzle solution", solution);
     }
 
     // Check which submission index corresponds to the user's submission

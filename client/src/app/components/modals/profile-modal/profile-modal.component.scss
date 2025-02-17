@@ -1,0 +1,145 @@
+@import "../../../../styles.scss";
+
+.modal {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+
+    margin-bottom: 80px;
+}
+
+@media screen and (max-width: 1150px) {
+    .modal {
+        zoom: 0.8;
+    }
+}
+
+@media screen and (max-width: 1000px) {
+    .modal {
+        zoom: 0.7;
+    }
+}
+
+@media screen and (max-width: 900px) {
+    .modal {
+        zoom: 0.6;
+    }
+}
+
+.top-row {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+}
+
+.panel {
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.profile.panel {
+    border-width: 2px;
+    border-style: solid;
+    padding: 10px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.profile.panel .top {
+    min-width: 300px;
+    gap: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.profile.panel .top .left {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1px;
+}
+
+.username {
+    font-family: $main-font;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    padding: 0;
+}
+
+.join-date {
+    font-family: $main-font;
+    font-size: 11px;
+    font-weight: 300;
+    margin: 0;
+    padding: 0;
+    margin-top: -3px;
+    margin-bottom: 3px;
+}
+
+.league-name {
+    font-family: $main-font;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    padding: 0;
+    text-wrap: nowrap;
+}
+
+app-league-icon {
+    align-self: center;
+    margin-block: 10px;
+}
+
+app-xp-info {
+    align-self: center;
+    margin-bottom: 5px;
+}
+
+.text-row {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    height: 40px;
+    margin-top: 7px;
+}
+
+.text-row h1 {
+    font-family: $main-font;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 0;
+    margin: 0;
+}
+
+.quests {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+app-quest {
+    zoom: 0.9;
+}
+
+.coming-soon {
+    font-family: $main-font;
+    font-size: 11px;
+    font-weight: 500;
+    font-style: italic;
+    padding: 0;
+    margin: 0;
+}
+
+.other {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

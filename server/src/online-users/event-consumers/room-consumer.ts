@@ -7,7 +7,7 @@ import { ClientRoomEvent, RoomInfo, RoomState } from "../../../shared/room/room-
 import { v4 as uuid } from 'uuid';
 import { NotificationType } from "../../../shared/models/notifications";
 import { UserSessionID } from "../online-user";
-import { OnlineUserActivityType } from "../../../shared/models/activity";
+import { OnlineUserActivityType } from "../../../shared/models/online-activity";
 
 export class RoomError extends Error {
     constructor(message: string) {
@@ -213,6 +213,10 @@ export abstract class Room<T extends RoomState = RoomState> {
         return this.roomState;
     }
 
+    public getPlayerByUserID(userid: string): RoomPlayer | undefined {
+        return this.players.find(player => player.userid === userid);
+    }
+
     // ======================== PUBLIC METHODS ========================
 
 
@@ -299,13 +303,13 @@ export abstract class Room<T extends RoomState = RoomState> {
         // Trigger the onCreate hook that may be implemented by subclasses
         await this.onCreate();
 
-        // Send IN_ROOM_STATUS messages to all players in the room to indicate that they are players in the room,
-        // including the room info
-        this.sendToAll(new InRoomStatusMessage(InRoomStatus.PLAYER, this.roomInfo, this.roomState));
-
         // Log the creation of the room
         const playerUsernames = this.roomInfo.players.map(player => player.username).join(", ");
         console.log(`Created room ${this.id} of type ${this.roomState.type} with players ${playerUsernames}`);
+
+        // Send IN_ROOM_STATUS messages to all players in the room to indicate that they are players in the room,
+        // including the room info
+        this.sendToAll(new InRoomStatusMessage(InRoomStatus.PLAYER, this.roomInfo, this.roomState));
     }
 
     /**
@@ -519,6 +523,8 @@ export class RoomConsumer extends EventConsumer {
 
             // Trigger the onPlayerLeave hook
             await room._onPlayerLeave(userid, sessionID);
+            const player = room.getPlayerByUserID(userid);
+            console.log(`Player ${player?.username} left room ${room.id}`);
 
             // If that was the last player in the room, delete the room entirely
             if (room.playerSessionIDsInRoom.length === 0) {

@@ -7,6 +7,7 @@ export interface GameDisplayDataWithoutBoard {
     lines: number;
     score: number;
     trt: number;
+    drought: number | null;
     countdown: number | undefined;
 }
 
@@ -21,5 +22,6 @@ export const DEFAULT_POLLED_GAME_DATA: GameDisplayData = {
     lines: 0,
     score: 0,
     trt: 0,
+    drought: null,
     countdown: undefined
 };

@@ -8,7 +8,7 @@
         borderTopLeftRadius: (item.isFirst) ? borderRadius + 'px' : '0px', borderTopRightRadius: (item.isFirst) ? borderRadius + 'px' : '0px',
         borderBottomLeftRadius: (item.isLast) ? borderRadius + 'px' : '0px', borderBottomRightRadius: (item.isLast) ? borderRadius + 'px' : '0px',
         }"
-        [ngClass]="{'active' : selected === item.index}"
+        [ngClass]="{'active' : selected === item.index, 'multiple' : labels.length > 1}"
     >
 
         <div class="left" [ngStyle]="{gap : gap + 'px',}">

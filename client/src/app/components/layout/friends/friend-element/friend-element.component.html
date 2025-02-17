@@ -1,7 +1,7 @@
 <div class="container">
     <div class="container-left">
         <app-league-icon [league]="friendInfo.league" [height]="27" />
-        <p class="username">{{friendInfo.username}}</p>
+        <p class="username" (click)="viewProfile()">{{friendInfo.username}}</p>
         <app-online-indicator class="online-indicator" [isOnline]="friendInfo.isOnline" [inActivity]="!!friendInfo.activity" />
 
         <div class="stats">
@@ -15,6 +15,8 @@
     <div class="container-right">
 
         <ng-container>
+
+            <app-solid-button icon="./assets/img/tab-icons/profile.svg" [color]="ButtonColor.GREY" tooltip="View profile" (smartClick)="viewProfile()"/>
 
             <app-solid-button icon="./assets/img/button-icons/eye.svg" [color]="ButtonColor.GREY" [disabled]="true" tooltip="Coming soon!"
                 />

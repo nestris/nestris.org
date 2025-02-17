@@ -1,4 +1,21 @@
-<div class="quest prevent-select" *ngIf="QuestDefinitions.getQuestDefinition(name) as quest">
+<div class="placeholder dimensions prevent-select" *ngIf="questID === undefined">
+    <p>Future completed quest goes here!</p>
+</div>
+
+<div class="quest dimensions prevent-select" *ngIf="(questID !== undefined ? getQuest(questID) : undefined) as quest"
+    (mouseenter)="setHovering(true)" (mouseleave)="setHovering(false)"
+    [ngClass]="{
+        'impossible' : quest.difficulty === QuestDifficulty.IMPOSSIBLE,
+        'not-impossible' : quest.difficulty !== QuestDifficulty.IMPOSSIBLE,
+        'not-completed' : status !== true,
+        'completed' : status === true,
+        'hover' : (hovering$ | async),
+    }"
+    [ngStyle]="quest.difficulty === QuestDifficulty.IMPOSSIBLE ? {} : {
+        'borderColor': hexWithAlpha(QUEST_COLORS[quest.difficulty], status === true ? 1 : (hovering$ | async) ? 0.6 : 0.3),
+        'backgroundColor': hexWithAlpha(QUEST_COLORS[quest.difficulty], status === true ? 0.11 : (hovering$ | async) ? 0.06 : 0.02),
+    }"
+>
     <div class="header prevent-select">
         <div class="left prevent-select">
             <h1 class="name prevent-select">{{quest.name}}</h1>
@@ -6,7 +23,18 @@
         </div>
 
         <h2 class="complete prevent-select" *ngIf="status === true" [ngStyle]="{'color' : QUEST_COLORS[quest.difficulty]}">Complete!</h2>
+        
+        <div class="progress-container" *ngIf="status !== true">
+            <div class="progress-bar">
+                <div class="background"></div>
+                <div class="progress" *ngIf="status" [ngStyle]="{'width' : (100 * status / quest.targetScore) + '%'}"></div>
+            </div>
+            <p class="progress-label">{{numberWithCommas(status)}} of {{numberWithCommas(quest.targetScore)}}</p>
+        </div>
 
     </div>
-    <div class="definition-container prevent-select"><p class="definition prevent-select">{{quest.description}}</p></div>
+    <div class="footer">
+        <div class="definition-container prevent-select"><p class="definition prevent-select">{{quest.description}}</p></div>
+        <app-solid-button class="go" (smartClick)="go()" label="Go!" [color]="QUEST_COLORS[quest.difficulty]" [fontSize]="12" [paddingHorizontal]="12" [paddingVertical]="5" /> 
+    </div>
 </div>

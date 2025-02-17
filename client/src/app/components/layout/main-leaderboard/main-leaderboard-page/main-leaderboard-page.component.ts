@@ -9,6 +9,11 @@ import { EVALUATION_TO_COLOR, overallAccuracyRating } from 'src/app/shared/evalu
 import { GlobalStat, GlobalStats } from 'src/app/shared/models/global-stat';
 import { T200LeaderboardData, T200LeaderboardType } from 'src/app/shared/models/leaderboard';
 
+interface GlobalStatDisplay {
+  icon: string;
+  label: string;
+  stat: GlobalStat;
+}
 
 @Component({
   selector: 'app-main-leaderboard-page',
@@ -41,6 +46,27 @@ export class MainLeaderboardPageComponent implements OnDestroy {
     [T200LeaderboardType.RANKED]: './assets/img/tab-icons/play.svg',
     [T200LeaderboardType.PUZZLES]: './assets/img/tab-icons/puzzles.svg',
   }
+
+  readonly globalStatDisplays: { [key in Mode]: GlobalStatDisplay[] } = {
+    [Mode.SOLO]: [
+      { icon: './assets/img/tab-icons/profile.svg', label: 'Players', stat: GlobalStat.TOTAL_USER_COUNT },
+      { icon: './assets/img/puzzle-button-icons/play.svg', label: 'Games played', stat: GlobalStat.TOTAL_GAMES_PLAYED },
+      { icon: './assets/img/tab-icons/play.svg', label: 'Pieces placed', stat: GlobalStat.TOTAL_PIECES_PLACED },
+
+    ],
+    [Mode.RANKED]: [
+      { icon: './assets/img/tab-icons/profile.svg', label: 'Players', stat: GlobalStat.TOTAL_USER_COUNT },
+      { icon: './assets/img/button-icons/trophy.svg', label: 'Matches played', stat: GlobalStat.TOTAL_MATCHES_PLAYED },
+      { icon: './assets/img/tab-icons/time.svg', label: 'Hours played', stat: GlobalStat.TOTAL_MATCH_HOURS },
+    ],
+    [Mode.PUZZLES]: [
+      { icon: './assets/img/tab-icons/profile.svg', label: 'Players', stat: GlobalStat.TOTAL_USER_COUNT },
+      { icon: './assets/img/tab-icons/puzzles.svg', label: 'Puzzles solved', stat: GlobalStat.TOTAL_PUZZLES_SOLVED },
+      { icon: './assets/img/tab-icons/time.svg', label: 'Hours played', stat: GlobalStat.TOTAL_PUZZLE_HOURS },
+
+    ],
+  };
+
 
   readonly getLabelsForMode = (mode: Mode) => this.leaderboardTypes[mode].map(type => this.leaderboardTypeLabels[type]);
   readonly getIconsForMode = (mode: Mode) => this.leaderboardTypes[mode].map(type => this.leaderboardTypeIcon[type]);
@@ -75,7 +101,7 @@ export class MainLeaderboardPageComponent implements OnDestroy {
     distinctUntilChanged(), // Only react when the type actually changes
     switchMap(type =>
       // On type change, start a timer that fires immediately and then every 5s
-      timer(0, 50000).pipe(
+      timer(0, 5000).pipe(
         switchMap(() =>
           from(this.fetchLeaderboard(type)).pipe(
             catchError(error => {

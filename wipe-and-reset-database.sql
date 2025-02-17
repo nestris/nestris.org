@@ -32,20 +32,14 @@ CREATE TABLE "public"."users" (
     "highest_level" int2 NOT NULL,
     "highest_lines" int2 NOT NULL,
 
-
     "highest_transition_into_19" int4 NOT NULL,
     "highest_transition_into_29" int4 NOT NULL,
-
-    "has_perfect_transition_into_19" boolean NOT NULL,
-    "has_perfect_transition_into_29" boolean NOT NULL,
 
     "enable_receive_friend_requests" boolean NOT NULL,
     "notify_on_friend_online" boolean NOT NULL,
     "enable_runahead" boolean NOT NULL,
     "show_live_analysis" boolean NOT NULL,
-
-    "solo_chat_permission" text NOT NULL,
-    "match_chat_permission" text NOT NULL,
+    "disable_midgame_quests" boolean NOT NULL,
 
     "keybind_emu_move_left" text NOT NULL,
     "keybind_emu_move_right" text NOT NULL,
@@ -54,9 +48,11 @@ CREATE TABLE "public"."users" (
     "keybind_emu_up" text NOT NULL,
     "keybind_emu_down" text NOT NULL,
     "keybind_emu_start" text NOT NULL,
+    "keybind_emu_reset" text NOT NULL,
     "keybind_puzzle_rot_left" text NOT NULL,
     "keybind_puzzle_rot_right" text NOT NULL,
 
+    "quest_progress" int4[] NOT NULL DEFAULT '{}',
 
     PRIMARY KEY ("userid")
 );
@@ -133,6 +129,7 @@ CREATE INDEX rating_index ON rated_puzzles (rating DESC); -- for fetching puzzle
 DROP TABLE IF EXISTS "public"."games" CASCADE;
 CREATE TABLE "public"."games" (
     "id" text NOT NULL,
+    "type" text NOT NULL,
     "created_at" timestamp NOT NULL DEFAULT now(),
     "userid" text NOT NULL REFERENCES "public"."users"("userid"),
     "start_level" int2 NOT NULL,
@@ -142,10 +139,19 @@ CREATE TABLE "public"."games" (
     "accuracy" int2,
     "tetris_rate" int2 NOT NULL,
     "xp_gained" int4 NOT NULL,
+    "average_eval_loss" real NOT NULL,
+    "brilliant_count" int2 NOT NULL,
+    "best_count" int2 NOT NULL,
+    "excellent_count" int2 NOT NULL,
+    "good_count" int2 NOT NULL,
+    "inaccurate_count" int2 NOT NULL,
+    "mistake_count" int2 NOT NULL,
+    "blunder_count" int2 NOT NULL,
     PRIMARY KEY ("id")
 );
 
 -- index by end_score, created_at, accuracy
+CREATE INDEX game_userid_index ON games (userid DESC);
 CREATE INDEX end_score_index ON games (end_score DESC);
 CREATE INDEX created_at_index ON games (created_at DESC);
 CREATE INDEX accuracy_index ON games (accuracy DESC);
@@ -167,27 +173,25 @@ CREATE TABLE "public"."highscore_games" (
     PRIMARY KEY ("userid")
 );
 
--- MATCH TABLE
--- ranked match between two users
-DROP TABLE IF EXISTS "public"."matches" CASCADE;
-CREATE TABLE "public"."matches" (
-    "id" text NOT NULL,
+
+-- Table that maps global stat to value
+DROP TABLE IF EXISTS "public"."global_stats" CASCADE;
+CREATE TABLE "public"."global_stats" (
+    "stat" text NOT NULL,
+    "value" double precision NOT NULL,
+    PRIMARY KEY ("stat")
+);
+
+-- ACTIVITIES TABLE
+-- Stores the timestamped activities each user has done
+DROP TABLE IF EXISTS "public"."activities" CASCADE;
+CREATE TABLE "public"."activities" (
+    "id" SERIAL PRIMARY KEY,
+    "userid" text NOT NULL REFERENCES "public"."users"("userid"),
     "created_at" timestamp NOT NULL DEFAULT now(),
-    "userid1" text NOT NULL REFERENCES "public"."users"("userid"),
-    "userid2" text NOT NULL REFERENCES "public"."users"("userid"),
-    "userid1_trophies" int2 NOT NULL,
-    "userid2_trophies" int2 NOT NULL,
-    PRIMARY KEY ("id")
+    "data" jsonb NOT NULL
 );
-
--- Table relating a game to a match. 1-to-1 relationship
-DROP TABLE IF EXISTS "public"."match_games" CASCADE;
-CREATE TABLE "public"."match_games" (
-    "match_id" text NOT NULL REFERENCES "public"."matches"("id"),
-    "game_id" text NOT NULL REFERENCES "public"."games"("id"),
-    PRIMARY KEY ("match_id", "game_id")
-);
-
+CREATE INDEX activities_userid_index ON activities (userid DESC);
 
 -- LOG table that logs message with timestamp
 DROP TABLE IF EXISTS "public"."logs" CASCADE;

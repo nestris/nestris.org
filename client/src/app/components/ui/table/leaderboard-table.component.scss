@@ -130,7 +130,14 @@ td:first-child, th:first-child {
     align-items: center;
 }
 
+.username {
+    cursor: pointer;
 
+}
+
+.username:hover {
+    opacity: 0.8;
+}
 
 .ranking {
     width: 25px;
@@ -147,12 +154,12 @@ td:first-child, th:first-child {
 }
 
 // Two-digit ranks have smaller font size
-.content.row:nth-child(n+10) td .ranking {
+.digit-2 {
     font-size: 10.5px;
 }
 
 // Three-digit ranks have even smaller font size
-.content.row:nth-child(n+100) td .ranking {
+.digit-3 {
     font-size: 9px;
 }
 
@@ -184,18 +191,6 @@ tr:last-child td .ranking {
 }
 
 
-
-tbody tr.me {
+.content.row.me {
     background-color: #264D2A;
-}
-
-tbody tr.click {
-    cursor: pointer;
-}
-
-.td-content {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }

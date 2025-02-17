@@ -1,21 +1,19 @@
-<a routerLink="/profile" routerLinkActive="selected">
-    <div class="tab">
+<div class="tab" (click)="openProfile()">
 
-        <div class="tab-left">
-            <img class="icon" [src]="tabIcon" width="20px">
-            <div class="user-info">
-                <h1 class="label">{{ (meService.get$() | async)?.username }}</h1>
-                <div class="ping-container" *ngIf="pingService.onPingUpdate() | async as ping">
-                    <app-ping-icon [speed]="ping.pingSpeed" />
-                    <p class="ping" [ngStyle]="{color: ping.pingColor}">{{ping.pingString}}</p>
-                </div>
+    <div class="tab-left">
+        <img class="icon prevent-select" [src]="tabIcon" width="20px">
+        <div class="user-info">
+            <h1 class="label prevent-select">{{ (meService.get$() | async)?.username }}</h1>
+            <div class="ping-container" *ngIf="pingService.onPingUpdate() | async as ping">
+                <app-ping-icon [speed]="ping.pingSpeed" />
+                <p class="ping prevent-select" [ngStyle]="{color: ping.pingColor}">{{ping.pingString}}</p>
             </div>
-            
         </div>
-
-        <div class="tab-right">
-            <img class="profile-arrow" src="./assets/img/ui-icons/arrow.svg" width="8px">
-        </div>
-
+        
     </div>
-</a>
+
+    <div class="tab-right">
+        <img class="profile-arrow prevent-select" src="./assets/img/ui-icons/arrow.svg" width="8px">
+    </div>
+
+</div>

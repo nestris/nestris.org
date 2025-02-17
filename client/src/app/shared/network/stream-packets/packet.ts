@@ -315,20 +315,23 @@ export class GameCountdownPacket extends Packet<GameCountdownSchema> {
 PACKET_MAP[PacketOpcode.GAME_COUNTDOWN] = new GameCountdownPacket();
 
 // ================================ STACKRABBIT_PLACEMENT =================================
-PACKET_CONTENT_LENGTH[PacketOpcode.STACKRABBIT_PLACEMENT] = 10;
+PACKET_CONTENT_LENGTH[PacketOpcode.STACKRABBIT_PLACEMENT] = 64;
 export interface StackRabbitPlacementSchema extends PacketSchema {
-  accuracyScore: number; // 10 bits, placement accuracy score 0-1, stored by multiplying by 1000 and rounding to nearest integer
+  playerEval: number; // 32 bit float eval of player's placement
+  bestEval: number; // 32 bit float eval of best placement
 }
 export class StackRabbitPlacementPacket extends Packet<StackRabbitPlacementSchema> {
   constructor() { super(PacketOpcode.STACKRABBIT_PLACEMENT); }
   protected override _decodePacketContent(content: BinaryDecoder): StackRabbitPlacementSchema {
     return {
-      accuracyScore: content.nextUnsignedInteger(10) / 1000,
+      playerEval: content.nextFloat(),
+      bestEval: content.nextFloat(),
     };
   }
   protected override _toBinaryEncoderWithoutOpcode(content: StackRabbitPlacementSchema): BinaryEncoder {
     const encoder = new BinaryEncoder();
-    encoder.addUnsignedInteger(Math.round(content.accuracyScore * 1000), 10);
+    encoder.addFloat(content.playerEval);
+    encoder.addFloat(content.bestEval);
     return encoder;
   }
 }

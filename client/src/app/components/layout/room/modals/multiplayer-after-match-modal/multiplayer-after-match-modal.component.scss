@@ -32,6 +32,10 @@
     background-color: $multiplayer-red-color;
 }
 
+.banner-container.aborted {
+    background-color: rgb(100, 100, 100);
+}
+
 .banner-container h1 {
     font-family: 'NES';
     font-size: 30px;

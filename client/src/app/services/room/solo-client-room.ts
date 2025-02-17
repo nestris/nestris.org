@@ -4,6 +4,8 @@ import { RoomModal } from "src/app/components/layout/room/room/room.component";
 import { BehaviorSubject, Observable } from "rxjs";
 import { EmulatorService } from "../emulator/emulator.service";
 import { PlatformInterfaceService } from "../platform-interface.service";
+import { QuestService } from "../quest.service";
+import { getQuest, QuestCategory } from "src/app/shared/nestris-org/quest-system";
 
 export enum SoloClientState {
     BEFORE_GAME_MODAL = 'BEFORE_GAME_MODAL',
@@ -16,6 +18,7 @@ export class SoloClientRoom extends ClientRoom {
 
     readonly emulator = this.injector.get(EmulatorService);
     readonly platformInterface = this.injector.get(PlatformInterfaceService);
+    readonly activeQuestService = this.injector.get(QuestService);
 
     // The level at which the game starts, persisted across games
     public static startLevel$: BehaviorSubject<number> = new BehaviorSubject(18);
@@ -29,6 +32,10 @@ export class SoloClientRoom extends ClientRoom {
         // Get the original games already completed in the room
         this.originalGames = state.previousGames;
 
+        // Set level to 29 if doing a level 29 quest
+        const activeQuestID = this.activeQuestService.activeQuestID$.getValue();
+        if (activeQuestID && getQuest(activeQuestID).category === QuestCategory.LINES29) SoloClientRoom.startLevel$.next(29);
+
         // When entering play page, show the before game modal
         this.modal$.next(RoomModal.SOLO_BEFORE_GAME);
 
@@ -37,9 +44,9 @@ export class SoloClientRoom extends ClientRoom {
     protected override async onStateUpdate(oldState: SoloRoomState, newState: SoloRoomState): Promise<void> {
         
         // if topout, go to TOPOUT mode
-        if (oldState.serverInGame && !newState.serverInGame) {
-            this.setSoloState(SoloClientState.TOPOUT);
-        }
+        // if (oldState.serverInGame && !newState.serverInGame) {
+        //     this.setSoloState(SoloClientState.TOPOUT);
+        // }
 
     }
 
@@ -60,7 +67,7 @@ export class SoloClientRoom extends ClientRoom {
     }
 
 
-    public startGame() {
+    public startGame(countdown = 3) {
         const startLevel = SoloClientRoom.startLevel$.getValue();
         console.log('Starting game with start level', startLevel);
 
@@ -68,7 +75,7 @@ export class SoloClientRoom extends ClientRoom {
         this.setSoloState(SoloClientState.IN_GAME);
 
         // Start the game
-        this.emulator.startGame(startLevel, true);
+        this.emulator.startGame(startLevel, true, undefined, this, countdown);
     }
 
     public getSoloState$(): Observable<SoloClientState> {

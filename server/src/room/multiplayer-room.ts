@@ -4,11 +4,12 @@ import { ClientRoomEvent, RoomType } from "../../shared/room/room-models";
 import { Room } from "../online-users/event-consumers/room-consumer";
 import { UserSessionID } from "../online-users/online-user";
 import { calculateScoreForPlayer, MatchPoint, MultiplayerRoomEventType, MultiplayerRoomState, MultiplayerRoomStatus, PlayerIndex, PlayerInfo, TrophyDelta } from "../../shared/room/multiplayer-room-models";
-import { GameEndEvent, GamePlayer, GameStartEvent, NO_XP_STRATEGY } from "./game-player";
+import { GameEndEvent, GamePlayer, GameStartEvent } from "./game-player";
 import { GymRNG } from "../../shared/tetris/piece-sequence-generation/gym-rng";
 import { DBUserObject } from "../database/db-objects/db-user";
 import { PacketAssembler } from "../../shared/network/stream-packets/packet-assembler";
-import { OnlineUserActivityType } from "../../shared/models/activity";
+import { OnlineUserActivityType } from "../../shared/models/online-activity";
+import { DBGameType } from "../../shared/models/db-game";
 
 export class MultiplayerRoom extends Room<MultiplayerRoomState> {
 
@@ -46,8 +47,8 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         const player1Username = MultiplayerRoom.Users.getUserInfo(player1SessionID.userid)!.username;
         const player2Username = MultiplayerRoom.Users.getUserInfo(player2SessionID.userid)!.username;
         this.gamePlayers = {
-            [PlayerIndex.PLAYER_1]: new GamePlayer(MultiplayerRoom.Users, player1SessionID.userid, player1Username, player1SessionID.sessionID),
-            [PlayerIndex.PLAYER_2]: new GamePlayer(MultiplayerRoom.Users, player2SessionID.userid, player2Username, player2SessionID.sessionID)
+            [PlayerIndex.PLAYER_1]: new GamePlayer(MultiplayerRoom.Users, player1SessionID.userid, player1Username, player1SessionID.sessionID, DBGameType.RANKED_MATCH),
+            [PlayerIndex.PLAYER_2]: new GamePlayer(MultiplayerRoom.Users, player2SessionID.userid, player2Username, player2SessionID.sessionID, DBGameType.RANKED_MATCH),
         };
 
         // Reset previousGame when a new game starts
@@ -274,9 +275,19 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
      * @returns 
      */
     protected override async onPlayerLeave(userid: string, sessionID: string): Promise<void> {
+        const roomState = this.getRoomState();
 
         // If match already ended, do nothing
-        if (this.getRoomState().status === MultiplayerRoomStatus.AFTER_MATCH) return;
+        if (roomState.status === MultiplayerRoomStatus.AFTER_MATCH) return;
+
+        // If a player left before any game even started, abort the match
+        if (roomState.status === MultiplayerRoomStatus.BEFORE_GAME && roomState.points.length === 0) {
+            const state = this.getRoomState();
+            state.status = MultiplayerRoomStatus.ABORTED;
+            this.updateRoomState(state);
+            console.log('Match aborted because a player left before any game started');
+            return;
+        }
 
         // Update multiplayer room state with player leaving
         const state = this.getRoomState();

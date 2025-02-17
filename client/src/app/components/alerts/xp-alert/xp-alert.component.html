@@ -1,6 +1,0 @@
-<app-alert [hide]="hide" [borderColor]="leagueColor(league)">
-    <div class="xp-alert">
-        <app-league-icon [league]="league" [height]="40" />
-        <app-xp-info [league]="league" [xp]="(displayXP$ | async) ?? 0" />
-    </div>
-</app-alert>

@@ -11,16 +11,13 @@ import { CacheableRequestService } from './services/cacheable-request.service';
 import { MeService } from './services/state/me.service';
 import { RoomService } from './services/room/room.service';
 import { AlertService } from './services/alert.service';
-import { TestAlertComponent } from './components/alerts/test-alert/test-alert.component';
-import { XPAlertComponent } from './components/alerts/xp-alert/xp-alert.component';
-import { League } from './shared/nestris-org/league-system';
-import { XPAlertService } from './services/xp-alert.service';
-import { QuestAlertComponent } from './components/alerts/quest-alert/quest-alert.component';
 import { InvitationsService } from './services/state/invitations.service';
 import { StackrabbitService } from './services/stackrabbit/stackrabbit.service';
-import { sleep } from './util/misc';
-import { TrophyAlertComponent } from './components/alerts/trophy-alert/trophy-alert.component';
 import { GamepadService } from './services/gamepad.service';
+import { TrophyAlertComponent } from './components/alerts/trophy-alert/trophy-alert.component';
+import { QuestAlertComponent } from './components/alerts/quest-alert/quest-alert.component';
+import { QuestID } from './shared/nestris-org/quest-system';
+import { sleep } from './util/misc';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
@@ -39,7 +36,6 @@ export class AppComponent implements OnInit {
     private meService: MeService,
     private roomService: RoomService,
     private alertService: AlertService,
-    private xpAlertService: XPAlertService,
     private invitationsService: InvitationsService,
     private stackrabbitService: StackrabbitService,
     private gamepadService: GamepadService,
@@ -57,10 +53,11 @@ export class AppComponent implements OnInit {
 
     console.log("DEV MODE", isDevMode());
 
+    // await sleep(1000);
     // this.alertService.addAlert(TrophyAlertComponent, "trophyAlert", {startTrophies: 1300, trophyDelta: -23});
 
-    // this.alertService.addAlert(XPAlertComponent, "xpAlert", {league: League.MINO_1, currentXP: 0});
-    // this.alertService.addAlert(QuestAlertComponent, "questAlert", {name : "Ok Noah Dengler"});
+    // // this.alertService.addAlert(XPAlertComponent, "xpAlert", {league: League.MINO_1, currentXP: 0});
+    //this.alertService.addAlert(QuestAlertComponent, "questAlert", {questID: QuestID.AUTOMATON}, 2);
     
   }
 }

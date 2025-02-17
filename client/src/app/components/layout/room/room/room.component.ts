@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { RoomService } from 'src/app/services/room/room.service';
-import { BehaviorSubject, map, Subscription } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 import { RoomType } from 'src/app/shared/room/room-models';
 import { Router } from '@angular/router';
 import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
+import { QuestService } from 'src/app/services/quest.service';
 
 export enum RoomModal {
   SOLO_BEFORE_GAME = 'SOLO_BEFORE_GAME',
@@ -27,6 +28,7 @@ export class RoomComponent implements OnInit, OnDestroy {
   constructor(
     public readonly roomService: RoomService,
     private readonly platform: PlatformInterfaceService,
+    private activeQuestService: QuestService,
     private readonly router: Router,
     private readonly cdr: ChangeDetectorRef,
   ) {}
@@ -57,6 +59,9 @@ export class RoomComponent implements OnInit, OnDestroy {
   async ngOnDestroy() {
     await this.roomService.leaveRoom();
     this.gameDataSubscription?.unsubscribe();
+
+    // Reset any active quest
+    this.activeQuestService.activeQuestID$.next(null);
   }
 
 }

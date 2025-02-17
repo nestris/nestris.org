@@ -3,7 +3,7 @@ import { StackrabbitService, TopMovesHybridResponse } from "./stackrabbit.servic
 import { TetrominoType } from "src/app/shared/tetris/tetromino-type";
 import MoveableTetromino from "src/app/shared/tetris/moveable-tetromino";
 import { SmartGameStatus } from "src/app/shared/tetris/smart-game-status";
-import { calculatePlacementScore } from "src/app/shared/evaluation/evaluation";
+import { calculatePlacementScore, EvaluationRating, placementScoreRating } from "src/app/shared/evaluation/evaluation";
 import { PlatformInterfaceService } from "../platform-interface.service";
 import { StackRabbitPlacementPacket } from "src/app/shared/network/stream-packets/packet";
 import { Subject } from "rxjs";
@@ -50,7 +50,9 @@ export class LiveGameAnalyzer {
         private readonly stackrabbit: StackrabbitService, // For making Stackrabbit API calls
         private readonly platform: PlatformInterfaceService | null, // For sending placement accuracy scores to the server
         private readonly startLevel: number,
-    ) {}
+    ) {
+        this.platform?.setOverallAccuracy(null);
+    }
 
     public destroy() {
         this.placementEvaluation$.complete();
@@ -142,8 +144,13 @@ export class LiveGameAnalyzer {
         this.placementScores.push(accuracyScore);
         console.log("PLACEMENT SCORE:", accuracyScore);
 
+        this.platform?.setOverallAccuracy(this.placementScores.reduce((a, b) => a + b) / this.placementScores.length);
+
         // Send the accuracy score to the server
-        if (this.platform) this.platform.sendPacket(new StackRabbitPlacementPacket().toBinaryEncoder({ accuracyScore }));
+        if (this.platform) this.platform.sendPacket(new StackRabbitPlacementPacket().toBinaryEncoder({ 
+            bestEval: response.bestPlacementScore,
+            playerEval: response.playerPlacementScore,
+         }));
     }
 
     /**

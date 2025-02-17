@@ -1,11 +1,13 @@
 import { FriendUpdateData, FriendUpdateMessage } from "../../../shared/network/json-message";
 import { DBObjectNotFoundError } from "../../database/db-object-error";
 import { Database, DBQuery, WriteDBQuery } from "../../database/db-query";
-import { EventConsumer } from "../event-consumer";
+import { EventConsumer, EventConsumerManager } from "../event-consumer";
 import { OnUserActivityChangeEvent, OnUserConnectEvent, OnUserDisconnectEvent } from "../online-user-events";
 import { DBUserObject } from "../../database/db-objects/db-user";
 import { FriendInfo } from "../../../shared/models/friends";
 import { DBUser } from "../../../shared/models/db-user";
+import { QuestConsumer } from "./quest-consumer";
+import { QuestCategory } from "../../../shared/nestris-org/quest-system";
 
 // Gets the list of friend userids for a given user
 class GetFriendsQuery extends DBQuery<string[]> {
@@ -142,6 +144,10 @@ export class FriendEventConsumer extends EventConsumer {
         this.users.sendToUser(userid2, new FriendUpdateMessage(userid2, {
             create: this.getFriendInfoForUser(user1Request)
         }));
+
+        // Update friend count quests
+        this.updateFriendCountforQuest(userid1);
+        this.updateFriendCountforQuest(userid2);
     }
 
     /**
@@ -157,6 +163,10 @@ export class FriendEventConsumer extends EventConsumer {
         // Send friend update messages to both users to remove the friend
         this.users.sendToUser(userid1, new FriendUpdateMessage(userid2, {} ));
         this.users.sendToUser(userid2, new FriendUpdateMessage(userid1, {} ));
+
+        // Update friend count quests
+        this.updateFriendCountforQuest(userid1);
+        this.updateFriendCountforQuest(userid2);
     }
 
 
@@ -200,5 +210,15 @@ export class FriendEventConsumer extends EventConsumer {
             userid,
             data
         )));
+    }
+
+    // Count the number of friends for a user and update friend count quests
+    private async updateFriendCountforQuest(userid: string) {
+        const numFriends = (await Database.query(GetFriendsQuery, userid)).length;
+        console.log(`${userid} has ${numFriends} friends`);
+
+        // Update number of friends for friend count quests, allowing progress to revert
+        const questConsumer = EventConsumerManager.getInstance().getConsumer(QuestConsumer);
+        await questConsumer.updateQuestCategory(userid, QuestCategory.FRIENDS, numFriends, true);
     }
 }

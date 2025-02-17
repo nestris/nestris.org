@@ -6,6 +6,7 @@ import { League } from "../nestris-org/league-system";
 import { TrophyDelta, XPDelta } from "../room/multiplayer-room-models"
 import { FriendInfo, FriendInfoUpdate } from "../models/friends";
 import { Invitation, InvitationCancellationReason } from "../models/invitation";
+import { QuestID } from "../nestris-org/quest-system";
 
 /*
 Data sent over websocket as JSON. type is the only required field and specifies
@@ -27,11 +28,12 @@ export enum JsonMessageType {
     IN_ROOM_STATUS = 'in_room_status',
     ROOM_STATE_UPDATE = 'room_state_update',
     CLIENT_ROOM_EVENT = 'client_room_event',
-    XP_GAIN = 'xp_gain',
     NUM_QUEUING_PLAYERS = 'num_queuing_players',
     FOUND_OPPONENT = 'found_opponent',
     REDIRECT = 'go_to_page',
     INVITATION = 'invitation',
+    QUEST_COMPLETE = 'quest_complete',
+    TROPHY_CHANGE = 'trophy_change',
 }
 
 export abstract class JsonMessage {
@@ -171,19 +173,6 @@ export class ClientRoomEventMessage extends JsonMessage {
     }
 }
 
-// sent from server to client to indicate an amount of XP has been gained, as well as any quests completed, to trigger client-side animation
-export class XPGainMessage extends JsonMessage {
-    constructor(
-        public readonly startLeague: League,
-        public readonly startXP: number,
-        public readonly normalXPGain: number,
-        public readonly completedQuests: string[], // list of quest names that were completed and should have XP added
-        public readonly trophyInfo?: { initial: number, change: number, winBonus: number }
-    ) {
-        super(JsonMessageType.XP_GAIN)
-    }
-}
-
 // sent from server to client to update the number of players queuing for multiplayer
 export class NumQueuingPlayersMessage extends JsonMessage {
     constructor(
@@ -241,5 +230,22 @@ export class InvitationMessage extends JsonMessage {
         public readonly cancelReason?: InvitationCancellationReason
     ) {
         super(JsonMessageType.INVITATION)
+    }
+}
+
+export class QuestCompleteMessage extends JsonMessage {
+    constructor(
+        public readonly questID: QuestID
+    ) {
+        super(JsonMessageType.QUEST_COMPLETE)
+    }
+}
+
+export class TrophyChangeMessage extends JsonMessage {
+    constructor(
+        public readonly startTrophies: number,
+        public readonly trophyDelta: number,
+    ) {
+        super(JsonMessageType.TROPHY_CHANGE)
     }
 }

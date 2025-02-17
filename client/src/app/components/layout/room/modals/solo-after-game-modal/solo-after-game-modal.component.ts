@@ -69,8 +69,6 @@ export class SoloAfterGameModalComponent implements OnDestroy {
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
     this.onKeyDown(event.key);
-    event.preventDefault();
-    event.stopImmediatePropagation();
   }
 
   private onKeyDown(key: string) {

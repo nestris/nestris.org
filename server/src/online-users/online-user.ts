@@ -1,32 +1,75 @@
-import { OnlineUserActivityType } from "../../shared/models/activity";
+import { OnlineUserActivityType } from "../../shared/models/online-activity";
 import { JsonMessage } from "../../shared/network/json-message";
+import { BotUser } from "../bot/bot-user";
 
 export interface UserSessionID {
     userid: string,
     sessionID: string,
 }
 
-export class OnlineUserSession {
-
+export abstract class OnlineUserSession {
     public readonly sessionStart = Date.now();
+    public user!: OnlineUser;
 
     constructor(
-        public readonly user: OnlineUser,
         public readonly sessionID: string,
-        public readonly socket: WebSocket,
-    ) { }
+    ) {}
+
+    // Initialize the session with the user
+    public init(user: OnlineUser) {
+        this.user = user;
+        console.log(`Session ${this.sessionID} created for user ${user.username} (${this.constructor.name})`);
+
+    }   
+
+    public abstract sendMessage(message: JsonMessage | Uint8Array): void;
+    public terminateSession(code?: number, reason?: string): void {}
+    
+}
+
+export class SessionSocket extends WebSocket {
+    session: OnlineUserSession | undefined;
+}
+
+export class HumanOnlineUserSession extends OnlineUserSession {
+    private readonly socket: SessionSocket;
+
+    constructor(sessionID: string, socket: WebSocket,
+    ) {
+        super(sessionID);
+
+        // Assign the socket a reference to this session, so that session can be derived from the socket in the future
+        this.socket = socket as SessionSocket;
+        this.socket.session = this;
+    }
 
     // Sends a binary or JsonMessage to the connected client for this session
-    sendMessage(message: JsonMessage | Uint8Array) {
+    public override sendMessage(message: JsonMessage | Uint8Array) {
         if (message instanceof Uint8Array) this.socket.send(message);
         else this.socket.send(JSON.stringify(message));
     }
 
-    closeSocket(code?: number, reason?: string) {
+    public override terminateSession(code?: number, reason?: string) {
         this.socket.close(code, reason);
     }
 }
 
+export class BotOnlineUserSession extends OnlineUserSession {
+    
+    constructor(sessionID: string, private readonly bot: BotUser) {
+        super(sessionID);
+    }
+
+    // Route the message to the bot
+    public override sendMessage(message: JsonMessage | Uint8Array): void {
+        // Don't log binary messages to reduce log spam
+        if (message instanceof Uint8Array) this.bot.onBinaryMessageFromServer(message);
+        else {
+            console.log(`Sending message to bot ${this.bot.username}: ${JSON.stringify(message)}`);
+            this.bot.onJsonMessageFromServer(message);
+        }
+    }
+}
 
 // The type of activity the user is currently doing and the sessionID of the session that is doing it
 export interface OnlineUserActivity {
@@ -58,10 +101,9 @@ export class OnlineUser {
     constructor(
         public readonly userid: string, // unique identifier for the user
         public readonly username: string, // username of the user
-        sessionID: string, // unique identifier for the first session created for the user
-        socket: WebSocket, // websocket connection
+        session: OnlineUserSession,
     ) {
-        this.sessions.set(sessionID, new OnlineUserSession(this, sessionID, socket));
+        this.addSession(session);
     }
 
     // Get debug information about the user
@@ -90,8 +132,9 @@ export class OnlineUser {
     }
 
     // add a new session to the user
-    addSession(sessionID: string, socket: WebSocket) {
-        this.sessions.set(sessionID, new OnlineUserSession(this, sessionID, socket));
+    addSession(session: OnlineUserSession) {
+        session.init(this);
+        this.sessions.set(session.sessionID, session);
     }
 
     // using the live websocket connection, send a JsonMessage to all the sessions of the client
@@ -115,7 +158,7 @@ export class OnlineUser {
         const session = this.getSessionByID(sessionID);
         if (!session) throw new Error(`Session ${sessionID} not found for user ${this.username}`);
 
-        session.closeSocket(code, reason);
+        session.terminateSession(code, reason);
         
         // remove the session from the map
         this.sessions.delete(sessionID);
@@ -128,16 +171,6 @@ export class OnlineUser {
 
     getSessionByID(sessionID: string): OnlineUserSession | undefined {
         return this.sessions.get(sessionID);
-    }
-
-    // Finds the session ID for the given socket, or undefined if not found
-    getSessionBySocket(socket: WebSocket): OnlineUserSession | undefined {
-        for (const session of this.sessions.values()) {
-            if (session.socket === socket) {
-                return session;
-            }
-        }
-        return undefined;
     }
 
     // Sets the activity of the user

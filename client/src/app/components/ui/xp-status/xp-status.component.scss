@@ -1,0 +1,15 @@
+.xp-status {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    margin: 10px;
+
+    width: 280px;
+    box-sizing: border-box;
+
+    border-radius: 10px;
+    border-width: 1.5px;
+    border-style: solid;
+    padding: 10px 15px;
+}

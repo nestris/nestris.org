@@ -1,4 +1,4 @@
-<div class="button prevent-select" (click)="onClick()"
+<div class="button prevent-select" (click)="onClick($event)"
     [ngStyle]="{backgroundColor: color, paddingInline: !label ? 0 : paddingHorizontal + 'px',
     borderRadius: borderRadius + 'px', gap : gap + 'px'}"
     [ngClass]="{

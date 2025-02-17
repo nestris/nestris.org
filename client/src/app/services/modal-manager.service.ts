@@ -5,7 +5,9 @@ export enum ModalType {
   CALIBRATE_OCR = "CALIBRATE_OCR",
   CREATE_PUZZLE = "CREATE_PUZZLE",
   AUTH = "AUTH",
-  CHALLENGE_PLAYER = "CHALLENGE_PLAYER"
+  CHALLENGE_PLAYER = "CHALLENGE_PLAYER",
+  QUEST_LIST = "QUEST_LIST",
+  PROFILE = "PROFILE",
 }
 
 /*
@@ -25,6 +27,8 @@ export class ModalManagerService {
 
   private modalConfig: any = undefined;
 
+  private hideModalCallback?: () => void;
+
   constructor() { }
 
   getModal$(): Observable<ModalType | null> {
@@ -41,11 +45,12 @@ export class ModalManagerService {
     return this.modalConfig;
   }
 
-  showModal(modalType: ModalType, modalConfig: any = undefined) {
+  showModal(modalType: ModalType, modalConfig: any = undefined, hideModalCallback?: () => void) {
 
     // delay to next cycle to prevent immediate close
     setTimeout(() => {
       this.modalConfig = modalConfig;
+      this.hideModalCallback = hideModalCallback;
       this.activeModal$.next(modalType);
     }, 0);
   }
@@ -55,7 +60,9 @@ export class ModalManagerService {
     if (lastModal !== null) {
       this.lastShownModal$.next(lastModal);
     }
-    this.activeModal$.next(null);
+
+    if (this.hideModalCallback) this.hideModalCallback();
+    else this.activeModal$.next(null);
   }
 
   onHideModal$(): Observable<ModalType> {

@@ -3,6 +3,7 @@ import MoveableTetromino, { MTPose } from "../tetris/moveable-tetromino";
 import { TetrisBoard } from "../tetris/tetris-board";
 import { TetrominoType } from "../tetris/tetromino-type";
 import { SmartGameStatus } from "../tetris/smart-game-status";
+import { DroughtCounter } from "./drought-counter";
 
 export interface GameStateSnapshotWithoutBoard {
   level: number,
@@ -10,15 +11,20 @@ export interface GameStateSnapshotWithoutBoard {
   score: number,
   next: TetrominoType,
   tetrisRate: number,
+  droughtCount: number | null,
   countdown: number | undefined,
   transitionInto19: number | null,
   transitionInto29: number | null,
-  perfectInto19: boolean,
-  perfectInto29: boolean
+  numPlacements: number
 }
 
 export interface GameStateSnapshot extends GameStateSnapshotWithoutBoard {
   board: TetrisBoard
+}
+
+export interface PlacementInfo {
+  numLinesCleared: number;
+
 }
 
 // Keeps track of state within a legal game
@@ -37,11 +43,12 @@ export class GameState {
 
   private numTetrises: number = 0;
   private numLines: number = 0;
+  private numPlacements: number = 0;
 
   private transitionInto19: number | null = null;
   private transitionInto29: number | null = null;
-  private perfectInto19: boolean = false;
-  private perfectInto29: boolean = false
+
+  private droughtCounter = new DroughtCounter();
 
   constructor(public readonly startLevel: number, current: TetrominoType, next: TetrominoType, initialCountdown: number | undefined = undefined) {
     this.status = new SmartGameStatus(startLevel);
@@ -51,6 +58,7 @@ export class GameState {
 
     this.currentBoard = new TetrisBoard();
     this.countdown = initialCountdown;
+    this.droughtCounter.onPiece(current);
   }
 
   static fromRecovery(recovery: GameRecoverySchema): GameState {
@@ -110,6 +118,8 @@ export class GameState {
     this.current = recovery.current;
     this.next = recovery.next;
     this.countdown = recovery.countdown;
+    this.droughtCounter.reset();
+    this.droughtCounter.onPiece(this.current);
   }
 
   // when a packet for the full board recieved. updates current board
@@ -134,7 +144,7 @@ export class GameState {
   // called whenever a new piece is placed on the board. Updates board and counters
   // nextNextPiece is the piece in the next box after the piece is placed and the new piece spawns
   // pushdown is the number of pushdown points scored with this placement
-  onPlacement(mtPose: MTPose, nextNextPiece: TetrominoType, pushdown: number = 0) {
+  onPlacement(mtPose: MTPose, nextNextPiece: TetrominoType, pushdown: number = 0): PlacementInfo {
 
     const placement = MoveableTetromino.fromMTPose(this.current, mtPose);
 
@@ -157,11 +167,9 @@ export class GameState {
     // calculate transitions, if any
     if (levelBefore === 18 && this.status.level === 19) {
       this.transitionInto19 = this.status.score;
-      this.perfectInto19 = this.getTetrisRate() === 1;
     }
     if (levelBefore === 28 && this.status.level === 29) {
       this.transitionInto29 = this.status.score;
-      this.perfectInto29 = this.getTetrisRate() === 1;
     }
 
 
@@ -169,8 +177,16 @@ export class GameState {
     this.current = this.next;
     this.next = nextNextPiece;
 
+    this.droughtCounter.onPiece(this.current);
+
     // increment pushdown into score, if any
     this.status.onPushdown(pushdown);
+
+    this.numPlacements++;
+
+    return {
+      numLinesCleared: linesCleared
+    }
   }
 
   setCountdown(countdown: number) {
@@ -190,11 +206,11 @@ export class GameState {
       score: this.status.score,
       next: this.next,
       tetrisRate: this.getTetrisRate(),
+      droughtCount: this.droughtCounter.getDroughtCount(),
       countdown: this.countdown,
       transitionInto19: this.transitionInto19,
       transitionInto29: this.transitionInto29,
-      perfectInto19: this.perfectInto19,
-      perfectInto29: this.perfectInto29
+      numPlacements: this.numPlacements
     };
   }
 }

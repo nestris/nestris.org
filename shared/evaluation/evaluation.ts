@@ -20,6 +20,16 @@ export const EVALUATION_TO_COLOR: { [key in EvaluationRating]: string } = {
     [EvaluationRating.BLUNDER]: '#D75858',
 };
 
+export const EVALUATION_ORDER = [
+    EvaluationRating.BRILLIANT,
+    EvaluationRating.BEST,
+    EvaluationRating.EXCELLENT,
+    EvaluationRating.GOOD,
+    EvaluationRating.INACCURACY,
+    EvaluationRating.MISTAKE,
+    EvaluationRating.BLUNDER,
+]
+
 
 // Given a Stackrabbit evaluation, rescale it so that large differences in large negative evals are reduced
 // https://www.desmos.com/calculator/gvfheeg8rc

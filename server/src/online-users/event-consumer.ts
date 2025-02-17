@@ -15,11 +15,12 @@ export abstract class ConsumerEvent {
  * EventConsumers are singletons that listen to events from the OnlineUserManager. Different consumers
  * can communicate with each other by sending and listening to ConsumerEvents.
  */
-export class EventConsumer {
+export class EventConsumer<Config extends {} = {}> {
 
     constructor(
         protected readonly users: OnlineUserManager,
-        private readonly consumerEvent$: Subject<ConsumerEvent>
+        private readonly consumerEvent$: Subject<ConsumerEvent>,
+        protected readonly config: Config,
     ) {
         
         // Only subscribe to events that have been implemented by the subclass
@@ -116,12 +117,13 @@ export class EventConsumerManager {
 
     // Register a new online user event consumer
     // Takes in a class that extends EventConsumer, and creates a new instance of it
-    public registerConsumer(
-        eventConsumerClass: new (users: OnlineUserManager, consumerEvent$: Subject<ConsumerEvent>) => EventConsumer
+    public registerConsumer<C extends {}>(
+        eventConsumerClass: new (users: OnlineUserManager, consumerEvent$: Subject<ConsumerEvent>, config: C) => EventConsumer<C>,
+        config: C
     ) {
 
         // Instantiate consumer object
-        const consumer = new eventConsumerClass(this.users, this.consumerEvent$);
+        const consumer = new eventConsumerClass(this.users, this.consumerEvent$, config);
         let initPromise = consumer.init();
         this.consumerInitPromises.push(initPromise);
 
@@ -132,7 +134,7 @@ export class EventConsumerManager {
 
         // Register consumer
         this.consumerInstances.set(eventConsumerClass.name, consumer);
-        console.log(`Registered consumer: ${eventConsumerClass.name}`);
+        console.log(`Registered consumer: ${eventConsumerClass.name} ${JSON.stringify(config)}`);
     }
 
     // Retrieve a specific consumer by class name

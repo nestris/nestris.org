@@ -269,8 +269,8 @@ export class WebsocketService {
     // First, log out
     await this.fetchService.fetch(Method.POST, '/api/v2/logout');
 
-    // Then, login
-    await this.login();
+    // Then, go to login page
+    this.router.navigate(['/login']);
   }
 
 

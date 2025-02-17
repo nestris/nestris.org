@@ -9,6 +9,7 @@ import { sleep } from 'src/app/util/misc';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TrophyAlertComponent implements OnInit {
+  @Input() alertID!: string;
   @Input() hide: boolean = false;
   @Input() startTrophies: number = 1000;
   @Input() trophyDelta: number = 30;

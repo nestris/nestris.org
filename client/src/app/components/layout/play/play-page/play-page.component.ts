@@ -12,11 +12,17 @@ import { RankedQueueService } from 'src/app/services/room/ranked-queue.service';
 import { ServerStatsService } from 'src/app/services/server-stats.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
+import { DBUser } from 'src/app/shared/models/db-user';
 import { RelativeLeaderboards } from 'src/app/shared/models/leaderboard';
 import { NotificationType } from 'src/app/shared/models/notifications';
 import { DeploymentEnvironment } from 'src/app/shared/models/server-stats';
-import { QUEST_COLORS, QuestDefinitions, QuestResult } from 'src/app/shared/nestris-org/quest-system';
+import { ALL_QUEST_IDS, getQuest, getQuestIdByCategoryAndDifficulty, getQuestStatus, QUEST_COLORS, QUEST_DIFFICULTY_ORDER, QuestDifficulty, QuestID } from 'src/app/shared/nestris-org/quest-system';
 import { capitalize, hexWithAlpha } from 'src/app/util/misc';
+
+interface OngoingQuest {
+  questID: QuestID,
+  progress: number;
+}
 
 @Component({
   selector: 'app-play-page',
@@ -33,6 +39,7 @@ export class PlayPageComponent implements OnDestroy{
   readonly modes = Object.values(Mode);
   readonly hexWithAlpha = hexWithAlpha;
   readonly capitalize = capitalize;
+  readonly QUEST_COLORS = QUEST_COLORS;
 
   public me$ = this.meService.get$();
   public leaderboards$ = new BehaviorSubject<RelativeLeaderboards>({
@@ -42,10 +49,10 @@ export class PlayPageComponent implements OnDestroy{
   });
   private leaderboardInterval: any;
 
-  public quests$ = this.me$.pipe(
-    map(me => QuestDefinitions.getClosestIncompleteQuests(me, 2))
+  public ongoingQuests$ = this.me$.pipe(
+    map(me => this.getOngoingQuests(me))
   );
-  
+
   constructor(
     public platformService: PlatformInterfaceService,
     public videoCapture: VideoCaptureService,
@@ -103,8 +110,6 @@ export class PlayPageComponent implements OnDestroy{
   async playSolo() {
     const sessionID = this.websocketService.getSessionID();
     this.fetchService.fetch(Method.POST, `/api/v2/create-solo-room/${sessionID}`);
-
-    console.log(QuestDefinitions.getClosestIncompleteQuests(this.meService.getSync()!, 20));
   }
 
   async playRanked() {
@@ -129,7 +134,6 @@ export class PlayPageComponent implements OnDestroy{
   }
 
 
-
   comingSoon() {
     this.notifier.notify(NotificationType.ERROR, "This feature is currently in development. Coming soon!");
   }
@@ -142,8 +146,52 @@ export class PlayPageComponent implements OnDestroy{
     return this.meService.getUserIDSync() === userid;
   }
 
-  questColor(quest: QuestResult): string {
-    return QUEST_COLORS[quest.difficulty];
+  showMyQuests() {
+    this.modalManager.showModal(ModalType.QUEST_LIST);
+  }
+
+  private getOngoingQuests(me: DBUser): OngoingQuest[] {
+
+    // Find the two ongoing quests closest to complete
+    const questIDs = ALL_QUEST_IDS.filter(questID => {
+      const quest = getQuest(questID);
+      const questStatus = getQuestStatus(me.quest_progress, questID);
+
+      if (questStatus.completed) return false; // Completed quests are not ongoing 
+
+      const isTooAdvanced = () => {
+        if (!quest.category) return false;
+        const difficultyIndex = QUEST_DIFFICULTY_ORDER.indexOf(quest.difficulty);
+        if (difficultyIndex === 0) return false;
+        const easierDifficulty = QUEST_DIFFICULTY_ORDER[difficultyIndex - 1];
+        const easierQuestID = getQuestIdByCategoryAndDifficulty(quest.category, easierDifficulty);
+
+        // is too advanced if even the easier version of the quest hasn't been completed yet
+        return easierQuestID && !getQuestStatus(me.quest_progress, easierQuestID).completed;
+      }
+      if (isTooAdvanced()) return false;
+
+      return true;
+    });
+
+
+    const getDifficultyIndex = (questID: QuestID) => {
+      const quest = getQuest(questID);
+      return QUEST_DIFFICULTY_ORDER.indexOf(quest.difficulty);
+    }
+
+    const getPercentDone = (questID: QuestID) => {
+      const quest = getQuest(questID);
+      const status = getQuestStatus(me.quest_progress, questID);
+      return status.currentScore / quest.targetScore;
+    }
+
+    // Sort by closest to complete, and tiebreaker easiest to hardest
+    questIDs.sort((questIDA, questIDB) => getDifficultyIndex(questIDA) - getDifficultyIndex(questIDB));
+    questIDs.sort((questIDA, questIDB) => getPercentDone(questIDB) - getPercentDone(questIDA));
+
+    // Get the two closest ongoing quests
+    return questIDs.slice(0, 2).map(questID => ({ questID, progress: getQuestStatus(me.quest_progress, questID).currentScore }) );
   }
 
 }

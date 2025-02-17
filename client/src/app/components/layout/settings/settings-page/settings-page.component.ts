@@ -69,7 +69,16 @@ export class SettingsPageComponent implements OnDestroy {
         new BooleanSetting('notify_on_friend_online', 'Notify me when friends go online'),
       ]),
       new Category('Emulator', [
-        new BooleanSetting('show_live_analysis', 'Show live analysis'),
+        new BooleanSetting(
+          'disable_midgame_quests',
+          'Disable mid-game quest popups',
+          'Delay potentially-distracting quest completion popups from showing until the end of the game'
+        ),
+        new BooleanSetting(
+          'show_live_analysis',
+          'Show live analysis',
+          'Enables a live evaluation bar and accuracy panel'
+        ),
         new BooleanSetting(
           'enable_runahead',
           'Enable emulator runahead',
@@ -84,6 +93,7 @@ export class SettingsPageComponent implements OnDestroy {
         new KeybindSetting('keybind_emu_move_right', 'Move Right'),
         new KeybindSetting('keybind_emu_rot_left', 'Rotate Left'),
         new KeybindSetting('keybind_emu_rot_right', 'Rotate Right'),
+        new KeybindSetting('keybind_emu_reset', 'Restart'),
         
       ]),
       new Category('Puzzle Keybinds', [

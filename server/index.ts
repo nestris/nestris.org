@@ -53,6 +53,22 @@ import { RequestRatedPuzzleRoute } from './src/routes/puzzles/request-rated-puzz
 import { SubmitRatedPuzzleRoute } from './src/routes/puzzles/submit-rated-puzzle-route';
 import { GlobalStatConsumer } from './src/online-users/event-consumers/global-stat-consumer';
 import { GetGlobalStatRoute } from './src/routes/misc/get-global-stat-route';
+import { getTopMovesHybrid, testStackrabbit } from './src/scripts/stackrabbit';
+import { TetrisBoard } from './shared/tetris/tetris-board';
+import { TetrominoType } from './shared/tetris/tetromino-type';
+import { INPUT_SPEED_TO_TIMELINE, InputSpeed } from './shared/models/input-speed';
+import { generateRandomUsername } from './src/authentication/username-generation';
+import { BotManager } from './src/bot/bot-manager';
+import { BotUser } from './src/bot/bot-user';
+import { RankedBotUser } from './src/bot/ranked-bot-user';
+import { OnlineUserCacheConsumer } from './src/online-users/event-consumers/online-user-cache-consumer';
+import { TestUserCache } from './src/online-user-cache/test-user-cache';
+import { GetScoreHistogramRoute } from './src/routes/user-stats/get-score-histogram-route';
+import { QuestConsumer } from './src/online-users/event-consumers/quest-consumer';
+import { GetUserRoute } from './src/routes/user/get-user-route';
+import { GetRatedPuzzleRoute } from './src/routes/puzzles/get-rated-puzzle-route';
+import { ActivityConsumer } from './src/online-users/event-consumers/activity-consumer';
+import { GetAllActivitiesRoute } from './src/routes/user/get-all-activities-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -77,7 +93,12 @@ async function main() {
   // cors middleware
   app.use(cors());
 
-  const NODE_ENV = process.env.NODE_ENV!;
+  // Make sure the server is running in a valid environment
+  const NODE_ENV = process.env.NODE_ENV as DeploymentEnvironment;
+  if (!Object.values(DeploymentEnvironment).includes(NODE_ENV)) {
+    throw new Error(`Invalid NODE_ENV: ${NODE_ENV}, must be one of ${Object.values(DeploymentEnvironment)}`);
+  }
+
   const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET!;
   console.log(`Starting ${NODE_ENV} server`);
 
@@ -108,17 +129,24 @@ async function main() {
 
   // Register consumers
   const consumers = EventConsumerManager.getInstance();
-  consumers.registerConsumer(UserConsumer);
-  consumers.registerConsumer(FriendEventConsumer);
-  consumers.registerConsumer(PingConsumer);
-  consumers.registerConsumer(GuestConsumer);
-  consumers.registerConsumer(RoomConsumer);
-  consumers.registerConsumer(RankedQueueConsumer);
-  consumers.registerConsumer(InvitationConsumer);
-  consumers.registerConsumer(RatedPuzzleConsumer);
-  consumers.registerConsumer(ServerRestartWarningConsumer);
-  consumers.registerConsumer(GlobalStatConsumer);
+  consumers.registerConsumer(UserConsumer, {});
+  consumers.registerConsumer(OnlineUserCacheConsumer, {});
+  consumers.registerConsumer(QuestConsumer, {});
+  consumers.registerConsumer(FriendEventConsumer, {});
+  consumers.registerConsumer(PingConsumer, {});
+  consumers.registerConsumer(GuestConsumer, {});
+  consumers.registerConsumer(RoomConsumer, {});
+  consumers.registerConsumer(RankedQueueConsumer, {});
+  consumers.registerConsumer(InvitationConsumer, {});
+  consumers.registerConsumer(RatedPuzzleConsumer, {batchSize: NODE_ENV === DeploymentEnvironment.DEV ? 3 : 97});
+  consumers.registerConsumer(ActivityConsumer, {});
+  consumers.registerConsumer(ServerRestartWarningConsumer, {});
+  consumers.registerConsumer(GlobalStatConsumer, {});
   await consumers.init();
+
+  // Initialize OnlineUserCaches
+  const onlineUserCacheConsumer = consumers.getConsumer(OnlineUserCacheConsumer);
+  onlineUserCacheConsumer.registerCache(TestUserCache, 5);
 
   // Initialize InvitationManagers
   const invitationConsumer = consumers.getConsumer(InvitationConsumer);
@@ -142,8 +170,10 @@ async function main() {
   // initialize routes
   const routes = new RouteManager(app);
   routes.registerRoute(GetMeRoute);
+  routes.registerRoute(GetUserRoute);
   routes.registerRoute(GetOnlineUsersRoute);
   routes.registerRoute(GetFriendsInfoRoute);
+  routes.registerRoute(GetAllActivitiesRoute);
   routes.registerRoute(GetAllUsernamesRoute);
   routes.registerRoute(GetRelativeLeaderboardsRoute);
   routes.registerRoute(GetT200LeaderboardRoute);
@@ -164,7 +194,14 @@ async function main() {
   routes.registerRoute(ClearUserCacheRoute);
   routes.registerRoute(RequestRatedPuzzleRoute);
   routes.registerRoute(SubmitRatedPuzzleRoute);
+  routes.registerRoute(GetRatedPuzzleRoute);
   routes.registerRoute(GetGlobalStatRoute);
+  routes.registerRoute(GetScoreHistogramRoute);
+
+  const bots = new BotManager();
+  //bots.registerBot(new RankedBotUser('bot'));
+  await bots.init();
+
 
   app.get('/api/v2/server-stats', (req: Request, res: Response) => {
     const stats: ServerStats = {

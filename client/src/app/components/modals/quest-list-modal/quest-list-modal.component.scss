@@ -1,0 +1,64 @@
+@import "../../../../styles.scss";
+
+.header {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+h1 {
+  font-family: Montserrat;
+  font-size: 30px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  text-align: center;
+  text-wrap: nowrap;
+}
+
+.quest-content {
+  height: 80dvh;
+  overflow-y: scroll;
+  box-sizing: border-box;
+  zoom: 0.9;
+}
+
+.quests {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding-inline: 25px;
+  margin-block: 5px;
+  box-sizing: border-box;
+}
+
+// If screen is small enough, 2 columns
+@media screen and (max-width: 1800px) {
+  .quests {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+// If screen is small enough, 2 columns
+@media screen and (max-width: 1200px) {
+  .quest-content {
+    zoom: 0.8;
+  }
+}
+
+// If screen is small enough, 2 columns
+@media screen and (max-width: 1000px) {
+  .quests {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+// If screen is small enough, 2 columns
+@media screen and (max-width: 650px) {
+  .quests {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}

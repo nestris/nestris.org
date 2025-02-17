@@ -19,7 +19,7 @@ import { DBCacheMonitor } from "./db-cache-monitor";
  * @template CreateParams The parameters needed to create the object
  * @template Event An enum of events that can be emitted to alter the object
  */
-export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxCacheSize: number = 1000) {
+export function DBObject<InMemoryObject extends {}, CreateParams, Event>(name: string, maxCacheSize: number = 1000) {
 
     // Ensure maxCacheSize is valid
     if (maxCacheSize < 0) throw new Error("maxCacheSize must be nonnegative");
@@ -198,8 +198,6 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
 
             // If the object is in-memory, return the in-memory object
             if (existingDBObject) {
-                console.log(`Got ${name} object with ID ${id} from cache`);
-
                 // Notify the cache monitor of the cache hit
                 DBCacheMonitor.recordCacheHit(name);
 
@@ -223,7 +221,6 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
             DBCacheMonitor.recordCacheMiss(name, ms);
 
             // Return the in-memory object
-            console.log(`Got ${name} object with ID ${id} from database`);
             return dbObject;
         }
 
@@ -234,11 +231,28 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
          * This will be fast if the object is already in-memory, but slow if the object is not in-memory.
          * @param id The ID of the object to get
          * @returns The in-memory object, whether it was cached, and the time it took to fetch the object
-         * @throws DBError
+         * @throws DBError if the object does not exist
          */
         static async get<T extends DBObject>(this: new (id: string) => T, id: string): Promise<InMemoryObject> {
             const dbObject = await DBObject.getDBObject.call(this, id);
             return dbObject.get();
+        }
+
+        /**
+         * Gets the object from the cache or the database, otherwise returns null if the object does not exist.
+         * @param id The ID of the object to get
+         * @returns The in-memory object, or null if the object does not exist
+         */
+        static async getOrNull<T extends DBObject>(this: new (id: string) => T, id: string): Promise<InMemoryObject | null> {
+            try {
+                return await DBObject.get.call(this, id);
+            } catch (error: any) {
+                if (error instanceof DBObjectNotFoundError) {
+                    return null;
+                } else {
+                    throw error;
+                }
+            }
         }
 
         /**
@@ -365,13 +379,29 @@ export function DBObject<InMemoryObject, CreateParams, Event>(name: string, maxC
          */
         public async alter(event: Event, waitForDB: boolean) {
 
+            const inMemoryCopy = Object.assign({}, this.inMemoryObject);
+
+            // If altering object with event causes error, revert to old object and log error
+            const revert = (error: any) => {
+                console.error(
+                    `Failed to alter ${name} object with ID ${this.id}, and will revert to old object\n`,
+                    `Event: ${JSON.stringify(event)}\n`,
+                    `Old object: ${JSON.stringify(inMemoryCopy)}\n`,
+                    `New object: ${JSON.stringify(this.inMemoryObject)}\n`,
+                    error
+                );
+                this.inMemoryObject = inMemoryCopy;
+            }
+
             // First, alter the object in-memory
             this.alterInMemory(event);
 
             // Second, update database. If waitForDB is true, wait for the database to finish writing before returning
             const saveToDatabase = this.saveToDatabase();
-            if (waitForDB) await saveToDatabase;
-            else saveToDatabase.catch(console.error);
+            if (waitForDB) {
+                try { await saveToDatabase; }
+                catch (error: any) { revert(error); }
+            } else saveToDatabase.catch((error) => revert(error));
         }
 
         /**

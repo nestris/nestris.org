@@ -40,6 +40,7 @@ export class MultiplayerClientRoom extends ClientRoom {
             score: 0,
             nextPiece: TetrominoType.ERROR_TYPE,
             trt: 0,
+            drought: null,
             countdown: undefined
         })
 
@@ -103,6 +104,7 @@ export class MultiplayerClientRoom extends ClientRoom {
                         score: 0,
                         nextPiece: TetrominoType.ERROR_TYPE,
                         trt: 0,
+                        drought: null,
                         countdown: undefined
                     })
                 }
@@ -111,12 +113,17 @@ export class MultiplayerClientRoom extends ClientRoom {
 
         // If client is a player, and going from BEFORE_GAME -> IN_GAME, start game
         if (this.myIndex !== null && oldState.status === MultiplayerRoomStatus.BEFORE_GAME && newState.status === MultiplayerRoomStatus.IN_GAME) {
-            this.emulator.startGame(newState.startLevel, true, newState.currentSeed);
+            this.emulator.startGame(newState.startLevel, true, newState.currentSeed, this);
         }
 
         // if going to AFTER_MATCH and resigned, show after match modal
         if (oldState.status !== MultiplayerRoomStatus.AFTER_MATCH && newState.status === MultiplayerRoomStatus.AFTER_MATCH) {
             if (newState.wonByResignation) this.showAfterMatchModal();
+        }
+
+        // If aborted, show after match modal
+        if (oldState.status !== MultiplayerRoomStatus.AFTER_MATCH && newState.status === MultiplayerRoomStatus.ABORTED) {
+            this.showAfterMatchModal();
         }
 
     }
@@ -133,6 +140,10 @@ export class MultiplayerClientRoom extends ClientRoom {
      */
     public showAfterMatchModal() {
         this.modal$.next(RoomModal.MULTIPLAYER_AFTER_MATCH);
+    }
+
+    public showingAfterMatchModal(): boolean {
+        return this.modal$.getValue() === RoomModal.MULTIPLAYER_AFTER_MATCH;
     }
 
     public override destroy(): void {

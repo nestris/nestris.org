@@ -1,9 +1,7 @@
 import { ChangeDetectionStrategy, Component, HostListener } from '@angular/core';
-import { map } from 'rxjs';
 import { GameOverMode } from 'src/app/components/nes-layout/nes-board/nes-board.component';
 import { EmulatorService } from 'src/app/services/emulator/emulator.service';
 import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
-import { MultiplayerClientRoom } from 'src/app/services/room/multiplayer-client-room';
 import { RoomService } from 'src/app/services/room/room.service';
 import { calculateScoreForPlayer, MultiplayerRoomState, MultiplayerRoomStatus, PlayerIndex } from 'src/app/shared/room/multiplayer-room-models';
 import { MultiplayerComponent } from './multiplayer-component';
@@ -49,6 +47,9 @@ export class MultiplayerRoomComponent extends MultiplayerComponent {
   }
 
   getGameOverMode(state: MultiplayerRoomState, index: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2): GameOverMode | undefined {
+
+    if (this.multiplayerClientRoom.showingAfterMatchModal()) return undefined;
+
     if (state.status === MultiplayerRoomStatus.BEFORE_GAME) {
 
       // if before first game, show ready

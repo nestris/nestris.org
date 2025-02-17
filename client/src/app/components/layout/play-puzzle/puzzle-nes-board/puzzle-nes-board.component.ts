@@ -14,8 +14,6 @@ Smart component that handles the logic for the puzzle board.
 Takes in a puzzle definition, and emits a puzzle submission when the puzzle is completed.
 Takes in an undo$ subject, and subscribes to it to undo the first piece placement when it emits.
 */
-
-
 @Component({
   selector: 'app-puzzle-nes-board',
   templateUrl: './puzzle-nes-board.component.html',
@@ -30,6 +28,8 @@ export class PuzzleNesBoardComponent implements OnInit, OnDestroy {
   @Input() level: number = 18;
 
   @Input() puzzle!: PuzzleData;
+  @Input() rotateLeftKeybind: string = 'z';
+  @Input() rotateRightKeybind: string = 'x';
   @Output() submitPuzzle = new EventEmitter<PuzzleSubmission>();
 
   @Input() undo$?: Subject<void>;
@@ -46,6 +46,7 @@ export class PuzzleNesBoardComponent implements OnInit, OnDestroy {
   rotation: number = 0;
 
   undoSubscription?: any;
+
 
   ngOnInit(): void {
 
@@ -79,10 +80,10 @@ export class PuzzleNesBoardComponent implements OnInit, OnDestroy {
 
     const key = event.key.toLowerCase();
 
-    if (key === 'z') {
+    if (key === this.rotateLeftKeybind.toLowerCase()) {
       this.rotation = (this.rotation + 3) % 4;
       this.computeHoveredPiece();
-    } else if (key === 'x') {
+    } else if (key === this.rotateRightKeybind.toLowerCase()) {
       this.rotation = (this.rotation + 1) % 4;
       this.computeHoveredPiece();
     }

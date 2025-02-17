@@ -92,7 +92,7 @@ export class ServerPlayer {
 
       // Update the snapshot
       this.snapshot$.next(this.state?.getSnapshotWithoutBoard() ?? this.previousSnapshot ?? this.getDefaultSnapshot());
-      this.board$.next(this.state?.getCurrentBoard() ?? new TetrisBoard());
+      this.board$.next(this.state?.getCurrentBoard() ?? this.previousSnapshot?.board ?? new TetrisBoard());
     }
   
     /**
@@ -135,10 +135,10 @@ export class ServerPlayer {
         next: TetrominoType.ERROR_TYPE,
         countdown: 0,
         tetrisRate: 0,
+        droughtCount: null,
         transitionInto19: null,
         transitionInto29: null,
-        perfectInto19: false,
-        perfectInto29: false,
+        numPlacements: 0,
       }
     };
 }

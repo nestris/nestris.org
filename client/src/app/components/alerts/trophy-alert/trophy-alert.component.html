@@ -1,4 +1,4 @@
-<app-alert [hide]="hide" borderColor="#FFAF2C">
+<app-alert [hide]="hide" [alertID]="alertID">
     <div class="trophy-alert">
         <app-trophies class="trophies" [size]="30" [scaleIcon]="1.8" [scaleGap]="1.8" [trophies]="(trophies$ | async) ?? 0" textWidth="75px" />
         <app-trophies class="delta" [size]="30" [reverse]="true" [trophies]="getDeltaString()"

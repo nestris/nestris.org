@@ -3,27 +3,27 @@
     <p>nestris.org</p>
 </header>
 
-<div class="content">
+<div class="content" *ngIf="stats$ | async as stats">
     <div class="top-panel">
         <app-loading-screen [blockSize]="30" [blockSpeed]="0.4" [maxBlocks]="20" [resolution]="2" />
         <div class="top-panel-content">
 
-            <h1 class="score">35,256,127</h1>
-            <h2 class="label">games played</h2>
+            <h1 class="score">{{stats.gameCount}}</h1>
+            <h2 class="label">{{stats.gameCount === 1 ? 'game' : 'games'}} played</h2>
 
             <h3 class="leaderboard-label">Ranked Leaderboard</h3>
             <div class="leaderboard">
-                <ng-container *ngFor="let i of [0,1,2]">
+                <ng-container *ngFor="let player of stats.leaderboard; index as i">
                     <div class="leaderboard-item" *ngIf="LEADERBOARD_COLORS[i] as color"
                     [ngStyle]="{borderColor: color}"
                     >
                         <div class="left">
                             <div class="rank" [ngStyle]="{ color }">#{{i+1}}</div>
-                            <div class="username" [ngStyle]="{ color }">Username</div>
+                            <div class="username" [ngStyle]="{ color }">{{player.username}}</div>
                         </div>
 
                         <div class="right">
-                            <div class="trophies" [ngStyle]="{ color }">2984</div>
+                            <div class="trophies" [ngStyle]="{ color }">{{player.score}}</div>
                         </div>
 
                     </div>
@@ -44,7 +44,7 @@
                     </div>
                     <img class="logo" src="./assets/img/branding/tetrisfish_logo.svg" [attr.width]="(reallySmall$ | async) ? '60px' : ((big$ | async) ? '140px' : '100px')" />
                 </div>
-                <p class="online-text">24 players online!</p>
+                <p class="online-text">{{stats.onlineUserCount}} {{stats.onlineUserCount === 1 ? 'player' : 'players'}} online!</p>
 
                 <div class="info-container">
                     <div class="info-rows">

@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener } from '@angular/core';
 import { RoomService } from 'src/app/services/room/room.service';
 import { calculateScoreForPlayer, MultiplayerRoomState, PlayerIndex, pointWinner } from 'src/app/shared/room/multiplayer-room-models';
 import { MultiplayerComponent } from '../../multiplayer-room/multiplayer-component';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { Router } from '@angular/router';
 import { RankedQueueService } from 'src/app/services/room/ranked-queue.service';
+import { MeService } from 'src/app/services/state/me.service';
 
 @Component({
   selector: 'app-multiplayer-after-match-modal',
@@ -17,6 +18,7 @@ export class MultiplayerAfterMatchModalComponent extends MultiplayerComponent {
   constructor(
     roomService: RoomService,
     private readonly queueService: RankedQueueService,
+    private readonly meService: MeService,
     private readonly router: Router,
   ) {
     super(roomService);
@@ -34,6 +36,7 @@ export class MultiplayerAfterMatchModalComponent extends MultiplayerComponent {
   }
 
   getMatchText(state: MultiplayerRoomState): string {
+    if (state.matchWinner === null) return 'Match Aborted';
     if (state.matchWinner === PlayerIndex.DRAW) return 'Draw';
     if (state.matchWinner === this.getColorIndex("blue")) return 'Victory';
     return 'Defeat';
@@ -51,6 +54,17 @@ export class MultiplayerAfterMatchModalComponent extends MultiplayerComponent {
   async exit() {
     await this.roomService.leaveRoom();
     this.router.navigate(['/']);
+  }
+
+  // Pressing "space" or "enter" should also trigger the next button
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    const me = this.meService.getSync();
+    if (!me) return;
+
+    if (event.key === me.keybind_emu_start) {
+      this.playNewMatch();
+    }
   }
 
 

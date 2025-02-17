@@ -18,12 +18,7 @@ class DBSoloGamesListQuery extends DBQuery<SoloGameInfo[]> {
     public override query = `
         SELECT g.id, g.end_score, g.xp_gained
         FROM games g
-        WHERE g.userid = $1
-        AND NOT EXISTS (
-            SELECT 1 
-            FROM match_games mg 
-            WHERE mg.game_id = g.id
-        )
+        WHERE g.userid = $1 AND g.type = 'solo'
         ORDER BY g.created_at DESC
         LIMIT 10;
     `;

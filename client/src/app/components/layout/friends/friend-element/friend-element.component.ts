@@ -4,6 +4,7 @@ import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.com
 import { FriendsService } from 'src/app/services/state/friends.service';
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
 import { FriendInfo, FriendStatus } from 'src/app/shared/models/friends';
+import { ProfileModalConfig } from 'src/app/components/modals/profile-modal/profile-modal.component';
 
 @Component({
   selector: 'app-friend-element',
@@ -20,6 +21,7 @@ export class FriendElementComponent {
   constructor(
     private modalService: ModalManagerService,
     private friendsService: FriendsService,
+    private modalManagerService: ModalManagerService,
   ) {}
 
 
@@ -39,5 +41,10 @@ export class FriendElementComponent {
   // get the current room the friend is in and spectate it
   async spectate() {
     // TODO
+  }
+
+  viewProfile() {
+    const config: ProfileModalConfig = { userid: this.friendInfo.userid };
+    this.modalManagerService.showModal(ModalType.PROFILE, config);
   }
 }

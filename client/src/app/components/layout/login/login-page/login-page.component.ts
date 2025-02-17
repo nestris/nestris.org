@@ -2,9 +2,18 @@ import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { GameOverMode } from 'src/app/components/nes-layout/nes-board/nes-board.component';
 import { EmulatorService } from 'src/app/services/emulator/emulator.service';
+import { FetchService, Method } from 'src/app/services/fetch.service';
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
 import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
+import { GlobalStat, GlobalStats } from 'src/app/shared/models/global-stat';
+import { T200LeaderboardData, T200LeaderboardRow, T200LeaderboardType } from 'src/app/shared/models/leaderboard';
+
+interface LoginPageStats {
+  leaderboard: T200LeaderboardRow[],
+  gameCount: number,
+  onlineUserCount: number,
+};
 
 @Component({
   selector: 'app-login-page',
@@ -20,6 +29,7 @@ export class LoginPageComponent implements OnInit, OnDestroy {
   public reallySmall$ = new BehaviorSubject<boolean>(false);
   public big$ = new BehaviorSubject<boolean>(false);
 
+  public stats$ = new BehaviorSubject<LoginPageStats | undefined>(undefined);
 
   readonly LEADERBOARD_COLORS = ["#FFB938", "#C9C9C9", "#E59650"];
 
@@ -35,13 +45,20 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     public readonly websocketService: WebsocketService,
     public readonly emulator: EmulatorService,
     public readonly platform: PlatformInterfaceService,
-    private modalManager: ModalManagerService,
+    private readonly modalManager: ModalManagerService,
+    private readonly fetchService: FetchService,
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit() {
+
+    
+
+    this.modalManager.hideModal();
+
     this.windowWidth = window.innerWidth;
     this.calculateSmall();
 
+    this.stats$.next(await this.getLoginPageStats())
 
     // Start the emulator for login page
     this.emulator.startGame(5, false);
@@ -52,6 +69,19 @@ export class LoginPageComponent implements OnInit, OnDestroy {
       this.inGame$.next(false);
     });
 
+  }
+
+  private async getLoginPageStats(): Promise<LoginPageStats> {
+    const dataPromise = this.fetchService.fetch<T200LeaderboardData>(Method.GET, `/api/v2/leaderboard/top/${T200LeaderboardType.RANKED}`)
+    const statsPromise = this.fetchService.fetch<GlobalStats>(Method.GET, "/api/v2/global-stats");
+    const onlineUsersPromise = this.fetchService.fetch<any[]>(Method.GET, "api/v2/online-users");
+    const [ data, stats, onlineUsers ] = await Promise.all([dataPromise, statsPromise, onlineUsersPromise]);
+    
+    return {
+      leaderboard: data.leaderboard.slice(0, 3), // Get first 3 rows of leaderboard
+      gameCount: stats[GlobalStat.TOTAL_GAMES_PLAYED],
+      onlineUserCount: onlineUsers.length,
+    }
   }
 
   @HostListener('window:resize', ['$event'])

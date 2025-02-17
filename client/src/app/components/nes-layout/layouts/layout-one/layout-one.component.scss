@@ -38,6 +38,22 @@ app-eval-bar {
     height: 80px;
 }
 
+.level-panel {
+    width: 75px; // prevent panel from stretching when level number increases
+}
+
+.lines-panel {
+    width: 90px;
+}
+
+.spacer {
+    flex-grow: 1;
+}
+
+.accuracy-panel {
+    height: 70px;
+}
+
 .board-column {
     display: flex;
     flex-direction: column;
@@ -68,4 +84,17 @@ app-eval-bar {
     transition: opacity 0.5s ease;
     transition-delay: 1s;
     opacity: 0;
+}
+
+.trt-panel {
+    width: 70px;
+}
+
+.trt-panel p, .trt-panel h2 {
+    color: white;
+    transition: color 1.5s;
+}
+
+.trt-panel.drought p, .trt-panel.drought h2 {
+    color: red;
 }
