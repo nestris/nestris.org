@@ -1,20 +1,22 @@
+import { DBGameType } from "../../../shared/models/db-game";
 import { encodeDecimal } from "../db-misc";
 import { WriteDBQuery } from "../db-query";
 
 export class CreateGameQuery extends WriteDBQuery {
     public override query = `
         WITH ins_games AS (
-            INSERT INTO games (id, userid, start_level, end_score, end_level, end_lines, accuracy, tetris_rate, xp_gained,
+            INSERT INTO games (id, type, userid, start_level, end_score, end_level, end_lines, accuracy, tetris_rate, xp_gained,
             average_eval_loss, brilliant_count, best_count, excellent_count, good_count, inaccurate_count, mistake_count, blunder_count)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
         )
-        INSERT INTO game_data (game_id, data) VALUES ($1, $18)
+        INSERT INTO game_data (game_id, data) VALUES ($1, $19)
     `;
 
     public override warningMs = null;
 
     constructor(game: {
         id: string,
+        type: DBGameType,
         userid: string,
         start_level: number,
         end_score: number,
@@ -35,6 +37,7 @@ export class CreateGameQuery extends WriteDBQuery {
     }) {
         super([
             game.id,
+            game.type,
             game.userid,
             game.start_level,
             game.end_score,

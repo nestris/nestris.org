@@ -13,6 +13,7 @@ import { EventConsumerManager } from "../online-users/event-consumer";
 import { QuestConsumer } from "../online-users/event-consumers/quest-consumer";
 import { QuestCategory, QuestID } from "../../shared/nestris-org/quest-system";
 import { XPStrategy } from "../../shared/nestris-org/xp-system";
+import { DBGameType } from "../../shared/models/db-game";
 
 // Event that is emitted when a game starts
 export interface GameStartEvent {
@@ -102,6 +103,7 @@ export class GamePlayer {
         public readonly userid: string,
         public readonly username: string,
         public readonly sessionID: string,
+        public readonly type: DBGameType,
         private readonly xpStrategy: XPStrategy = NO_XP_STRATEGY
     ) {
         this.consecBestPlacements = new ConsecutiveTracker(this.userid, QuestCategory.PERFECTION);
@@ -243,6 +245,7 @@ export class GamePlayer {
             console.log(`Saving game with bytes: ${binary.byteLength}`);
             await Database.query(CreateGameQuery, {
                 id: gameID,
+                type: this.type,
                 data: binary,
                 userid: this.userid,
                 start_level: gameState.startLevel,

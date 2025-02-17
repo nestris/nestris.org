@@ -1,5 +1,11 @@
+export enum DBGameType {
+    SOLO = 'solo',
+    RANKED_MATCH = 'ranked_match'
+}
+
 export interface DBGame {
     id: string,
+    type: DBGameType,
     created_at: Date,
     userid: string,
     start_level: number,
@@ -25,6 +31,7 @@ export interface DBGame {
 
 export const DBGameAttributes = [
     'id',
+    'type',
     'created_at',
     'userid',
     'start_level',

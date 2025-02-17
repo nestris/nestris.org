@@ -1,4 +1,5 @@
 import { OnlineUserActivityType } from "../../shared/models/activity";
+import { DBGameType } from "../../shared/models/db-game";
 import { soloXPStrategy } from "../../shared/nestris-org/xp-system";
 import { PacketAssembler } from "../../shared/network/stream-packets/packet-assembler";
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
@@ -26,7 +27,7 @@ export class SoloRoom extends Room<SoloRoomState> {
 
         const username = SoloRoom.Users.getUserInfo(playerSessionID.userid)!.username;
 
-        this.player = new GamePlayer(SoloRoom.Users, playerSessionID.userid, username, playerSessionID.sessionID, soloXPStrategy);
+        this.player = new GamePlayer(SoloRoom.Users, playerSessionID.userid, username, playerSessionID.sessionID, DBGameType.SOLO, soloXPStrategy);
         
         // Handle solo-room-specific behavior when the game starts
         this.player.onGameStart$().subscribe(async (event: GameStartEvent) => {
