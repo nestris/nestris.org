@@ -332,7 +332,8 @@ export class GamePlayer {
 
         // Calculate the average eval loss
         const evalLosses = placementEvaluations.map(pe => pe.bestEval - pe.playerEval);
-        const average_eval_loss = evalLosses.reduce((a, b) => a + b) / evalLosses.length;
+        let average_eval_loss = evalLosses.reduce((a, b) => a + b) / evalLosses.length;
+        average_eval_loss = Math.round(average_eval_loss * 10) / 10; // round to 1 decimal place
 
         // Calculate the average accuracy score
         let overallAccuracy = placementScores.reduce((a, b) => a + b) / placementScores.length;
