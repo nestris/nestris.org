@@ -199,7 +199,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         description: "Survive 100 lines on killscreen and reach level 39",
         difficulty: QuestDifficulty.EXPERT,
         xp: 15000,
-        targetScore: 30
+        targetScore: 39
     },
     [QuestID.PUZZLER_I]: {
         id: QuestID.PUZZLER_I,

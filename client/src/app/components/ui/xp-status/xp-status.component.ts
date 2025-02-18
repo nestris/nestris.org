@@ -49,7 +49,7 @@ export class XpStatusComponent implements OnDestroy {
       }
   
       // if sufficiently close, just set to target
-      if (Math.abs(targetXP - next) < 1) {
+      if (targetXP - next < 1) {
         this.displayXP$.next(targetXP);
         return;
       }
