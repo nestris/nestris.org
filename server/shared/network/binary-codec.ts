@@ -148,6 +148,10 @@ export class BinaryDecoder {
         this.currentBitIndex = startBitIndex;
     }
 
+    get remainingBits(): string {
+        return this.bits.slice(this.currentBitIndex);
+    }
+
     copy(): BinaryDecoder {
         return new BinaryDecoder(this.bits, this.currentBitIndex);
     }

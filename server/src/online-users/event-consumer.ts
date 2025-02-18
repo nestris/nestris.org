@@ -1,6 +1,6 @@
 import { OnlineUserEventType, OnSessionBinaryMessageEvent, OnSessionConnectEvent, OnSessionDisconnectEvent, OnSessionJsonMessageEvent, OnUserActivityChangeEvent, OnUserConnectEvent, OnUserDisconnectEvent } from "./online-user-events";
 import { OnlineUserManager } from "./online-user-manager";
-import { filter, map, Observable, Subject } from "rxjs";
+import { concatMap, filter, map, Observable, Subject } from "rxjs";
 
 // Consumer events are events that can be sent across different consumers
 export enum ConsumerEventType {
@@ -25,33 +25,47 @@ export class EventConsumer<Config extends {} = {}> {
         
         // Only subscribe to events that have been implemented by the subclass
         if (this.onUserConnect) {
-            this.users.onEvent$<OnUserConnectEvent>(OnlineUserEventType.ON_USER_CONNECT)
-                .subscribe(event => this.onUserConnect!(event).catch(console.error));
+            this.users.onEvent$<OnUserConnectEvent>(OnlineUserEventType.ON_USER_CONNECT).pipe(
+                concatMap(event => this.onUserConnect!(event))
+            ).subscribe({ error: console.error });
         }
+        
         if (this.onUserDisconnect) {
-            this.users.onEvent$<OnUserDisconnectEvent>(OnlineUserEventType.ON_USER_DISCONNECT)
-                .subscribe(event => this.onUserDisconnect!(event).catch(console.error));
+            this.users.onEvent$<OnUserDisconnectEvent>(OnlineUserEventType.ON_USER_DISCONNECT).pipe(
+                concatMap(event => this.onUserDisconnect!(event))
+            ).subscribe({ error: console.error });
         }
+        
         if (this.onUserActivityChange) {
-            this.users.onEvent$<OnUserActivityChangeEvent>(OnlineUserEventType.ON_USER_ACTIVITY_CHANGE)
-                .subscribe(event => this.onUserActivityChange!(event).catch(console.error));
+            this.users.onEvent$<OnUserActivityChangeEvent>(OnlineUserEventType.ON_USER_ACTIVITY_CHANGE).pipe(
+                concatMap(event => this.onUserActivityChange!(event))
+            ).subscribe({ error: console.error });
         }
+        
         if (this.onSessionConnect) {
-            this.users.onEvent$<OnSessionConnectEvent>(OnlineUserEventType.ON_SESSION_CONNECT)
-                .subscribe(event => this.onSessionConnect!(event).catch(console.error));
+            this.users.onEvent$<OnSessionConnectEvent>(OnlineUserEventType.ON_SESSION_CONNECT).pipe(
+                concatMap(event => this.onSessionConnect!(event))
+            ).subscribe({ error: console.error });
         }
+        
         if (this.onSessionDisconnect) {
-            this.users.onEvent$<OnSessionDisconnectEvent>(OnlineUserEventType.ON_SESSION_DISCONNECT)
-                .subscribe(event => this.onSessionDisconnect!(event).catch(console.error));
+            this.users.onEvent$<OnSessionDisconnectEvent>(OnlineUserEventType.ON_SESSION_DISCONNECT).pipe(
+                concatMap(event => this.onSessionDisconnect!(event))
+            ).subscribe({ error: console.error });
         }
+        
         if (this.onSessionJsonMessage) {
-            this.users.onEvent$<OnSessionJsonMessageEvent>(OnlineUserEventType.ON_SESSION_JSON_MESSAGE)
-                .subscribe(event => this.onSessionJsonMessage!(event).catch(console.error));
+            this.users.onEvent$<OnSessionJsonMessageEvent>(OnlineUserEventType.ON_SESSION_JSON_MESSAGE).pipe(
+                concatMap(event => this.onSessionJsonMessage!(event))
+            ).subscribe({ error: console.error });
         }
+        
         if (this.onSessionBinaryMessage) {
-            this.users.onEvent$<OnSessionBinaryMessageEvent>(OnlineUserEventType.ON_SESSION_BINARY_MESSAGE)
-                .subscribe(event => this.onSessionBinaryMessage!(event).catch(console.error));
+            this.users.onEvent$<OnSessionBinaryMessageEvent>(OnlineUserEventType.ON_SESSION_BINARY_MESSAGE).pipe(
+                concatMap(event => this.onSessionBinaryMessage!(event))
+            ).subscribe({ error: console.error });
         }
+
     }
 
     // Override to initialize consumer

@@ -1,4 +1,4 @@
-import { GameAbbrBoardSchema, GameCountdownSchema, GameFullBoardSchema, GamePlacementSchema, GameStartSchema, PacketContent, PacketOpcode } from "src/app/shared/network/stream-packets/packet";
+import { GameAbbrBoardSchema, GameCountdownSchema, GameFullBoardSchema, GamePlacementSchema, GameStartSchema, PACKET_NAME, PacketContent, PacketOpcode } from "src/app/shared/network/stream-packets/packet";
 import { BufferTranscoder } from "src/app/shared/network/tetris-board-transcoding/buffer-transcoder";
 import GameStatus from "src/app/shared/tetris/game-status";
 import { MemoryGameStatus } from "src/app/shared/tetris/memory-game-status";
@@ -155,6 +155,8 @@ export function interpretPackets(packets: PacketContent[]): InterpretedGame {
     for (let i = firstEmptyRowFrameIndex; i < packets.length; i++) {
         const packet = packets[i];
 
+        // console.log("placement", placements.length, "frame", frames.length, PACKET_NAME[packet.opcode], JSON.stringify(packet.content));
+
         if (packet.opcode === PacketOpcode.GAME_START) throw new Error('Multiple GameStart packets found');
 
         // Add a full board frame
@@ -213,7 +215,9 @@ export function interpretPackets(packets: PacketContent[]): InterpretedGame {
             if (!placementPiece.isValidPlacement(isolatedBoard)) {
                 isolatedBoard.print();
                 placementPiece.print();
-                throw new Error('Placement is not legal on the current board');
+                //throw new Error('Placement is not legal on the current board');
+                // If not valid, something went wrong. But, salvage earlier parts of the game and just cutoff here.
+                return { placements, status, totalMs: msSinceStart };
             }
 
             // Place piece on board and clear lines, and update pushdown points

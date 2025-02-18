@@ -28,6 +28,10 @@ export class PacketDisassembler {
     console.log(this.decoder.bits);
   }
 
+  printRemainingBits() {
+    console.log(this.decoder.remainingBits);
+  }
+
   // only specified if containsPlayerIndexPrefix is true
   getPlayerIndex(): number | undefined {
     return this.playerIndex;
