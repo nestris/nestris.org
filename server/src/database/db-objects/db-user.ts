@@ -29,7 +29,7 @@ class GenericEvent<T extends {}> extends DBUserEvent {
     constructor(public readonly args: T) { super(); }
 
     override toString(): string {
-        return `${super.toString()} with args ${this.args}`;
+        return `${super.toString()} with args ${JSON.stringify(this.args)}`;
     }
 }
 
@@ -92,7 +92,11 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
                 if (resultRows.length === 0) {
                     throw new DBObjectNotFoundError('User not found');
                 }
-                return resultRows[0];
+                const user: DBUser = resultRows[0];
+
+                // int8 are returned as strings due to possible overflow, cast to number
+                user.puzzle_seconds_played = Number(user.puzzle_seconds_played);
+                return user;
             }
         }
 
