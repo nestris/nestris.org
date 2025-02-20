@@ -49,7 +49,17 @@ export class HumanOnlineUserSession extends OnlineUserSession {
         else this.socket.send(JSON.stringify(message));
     }
 
+    private static VALID_CLOSE_CODES = new Set([
+        1000, 1001, 1002, 1003, 1005, 1006, 1007, 1008, 1009, 1010, 
+        1011, 1012, 1013, 1014, 1015
+    ]);
     public override terminateSession(code?: number, reason?: string) {
+        // Ensure code is a valid number; default to 1000 if invalid
+        if (typeof code !== "number" || !HumanOnlineUserSession.VALID_CLOSE_CODES.has(code)) {
+            console.warn(`Invalid WebSocket close code: ${code}. Defaulting to 1000.`);
+            code = 1000;
+        }
+
         this.socket.close(code, reason);
     }
 }

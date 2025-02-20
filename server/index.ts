@@ -146,7 +146,7 @@ async function main() {
 
   // Initialize OnlineUserCaches
   const onlineUserCacheConsumer = consumers.getConsumer(OnlineUserCacheConsumer);
-  onlineUserCacheConsumer.registerCache(TestUserCache, 5);
+  //onlineUserCacheConsumer.registerCache(TestUserCache, 5);
 
   // Initialize InvitationManagers
   const invitationConsumer = consumers.getConsumer(InvitationConsumer);
