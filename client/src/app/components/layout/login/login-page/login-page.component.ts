@@ -8,6 +8,7 @@ import { PlatformInterfaceService } from 'src/app/services/platform-interface.se
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { GlobalStat, GlobalStats } from 'src/app/shared/models/global-stat';
 import { T200LeaderboardData, T200LeaderboardRow, T200LeaderboardType } from 'src/app/shared/models/leaderboard';
+import { numberWithCommas } from 'src/app/util/misc';
 
 interface LoginPageStats {
   leaderboard: T200LeaderboardRow[],
@@ -40,6 +41,8 @@ export class LoginPageComponent implements OnInit, OnDestroy {
     "Analyze full games with the StackRabbit engine",
     "Plug in your NES console to play others online!"
   ]
+
+  readonly numbersWithCommas = numberWithCommas;
 
   constructor(
     public readonly websocketService: WebsocketService,

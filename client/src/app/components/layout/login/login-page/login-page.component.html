@@ -8,7 +8,7 @@
         <app-loading-screen [blockSize]="30" [blockSpeed]="0.4" [maxBlocks]="20" [resolution]="2" />
         <div class="top-panel-content">
 
-            <h1 class="score">{{stats.gameCount}}</h1>
+            <h1 class="score">{{numbersWithCommas(stats.gameCount)}}</h1>
             <h2 class="label">{{stats.gameCount === 1 ? 'game' : 'games'}} played</h2>
 
             <h3 class="leaderboard-label">Ranked Leaderboard</h3>
