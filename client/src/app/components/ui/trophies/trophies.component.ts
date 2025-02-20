@@ -14,4 +14,5 @@ export class TrophiesComponent {
   @Input() scaleIcon: number = 1; // Scale the trophy icon
   @Input() scaleGap: number = 1; // Gap between icon and text
   @Input() textWidth: number | string = 'auto'; // Width of the text container
+
 }

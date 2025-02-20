@@ -4,10 +4,11 @@ import { FetchService, Method } from 'src/app/services/fetch.service';
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { DBUser, DBUserWithOnlineStatus } from 'src/app/shared/models/db-user';
-import { League, LEAGUE_NAMES, leagueColor } from 'src/app/shared/nestris-org/league-system';
-import { ALL_QUEST_IDS, getQuest, getQuestStatus, QuestID } from 'src/app/shared/nestris-org/quest-system';
+import { League, LEAGUE_NAMES, leagueColor, previousLeague } from 'src/app/shared/nestris-org/league-system';
+import { ALL_QUEST_IDS, getQuest, getQuestStatus, QUEST_COLORS, QuestID } from 'src/app/shared/nestris-org/quest-system';
 import { QuestListModalConfig } from '../quest-list-modal/quest-list-modal.component';
 import { ApiService } from 'src/app/services/api.service';
+import { Activity, ActivityType, TimestampedActivity } from 'src/app/shared/models/activity';
 
 export interface ModalData {
   dbUser: DBUser;
@@ -16,6 +17,11 @@ export interface ModalData {
 
 export interface ProfileModalConfig {
   userid?: string;
+}
+
+interface ActivityGroup {
+  date: Date,
+  activities: Activity[],
 }
 
 @Component({
@@ -28,25 +34,33 @@ export class ProfileModalComponent implements OnInit {
   @Input() config?: ProfileModalConfig;
 
   readonly leagueColor = leagueColor;
+  readonly previousLeague = previousLeague;
+  readonly ActivityType = ActivityType;
+  readonly abs = Math.abs;
 
   readonly dateString = (date: Date) => date.toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
-  readonly leagueName = (user: DBUser) => LEAGUE_NAMES[user.league as League];
+  readonly leagueName = (league: League) => LEAGUE_NAMES[league];
+  readonly questName = (questID: QuestID) => getQuest(questID).name;
+  readonly questXP = (questID: QuestID) => getQuest(questID).xp;
+  readonly questColor = (questID: QuestID) => QUEST_COLORS[getQuest(questID).difficulty];
 
   public data$ = new BehaviorSubject<ModalData | null>(null);
+  public activities$ = new BehaviorSubject<ActivityGroup[] | null>(null);
 
   constructor(
     public readonly meService: MeService,
     public readonly modalManagerService: ModalManagerService,
     public readonly apiService: ApiService,
+    private readonly fetchService: FetchService,
   ) {}
 
-  async ngOnInit() {
-    const data = await this.getData();
-    this.data$.next(data);
+  ngOnInit() {
+    this.getData().then(data => this.data$.next(data))
+    this.fetchActivities().then(activities => this.activities$.next(activities));
   }
 
   private async getData(): Promise<ModalData> {
@@ -55,6 +69,34 @@ export class ProfileModalComponent implements OnInit {
     const online = this.config?.userid ? (dbUser as DBUserWithOnlineStatus).online : true;
     return { dbUser, online };
   }
+
+  private async fetchActivities(): Promise<ActivityGroup[]> {
+    const activities = await this.fetchService.fetch<TimestampedActivity[]>(Method.GET, "/api/v2/activities");
+    console.log("activities", activities);
+
+    // Group activities by local date
+    const activityMap = new Map<string, Activity[]>();
+    
+    for (const { timestamp, activity } of activities) {
+        const localDate = new Date(timestamp).toLocaleDateString();
+        if (!activityMap.has(localDate)) {
+            activityMap.set(localDate, []);
+        }
+        activityMap.get(localDate)!.push(activity);
+    }
+    
+    // Convert map to array and ensure ordering from most recent to least recent
+    const activityGroups = Array.from(activityMap.entries())
+      .sort((a, b) => new Date(b[0]).getTime() - new Date(a[0]).getTime())
+      .map(([date, activities]) => ({
+          date: new Date(date),
+          activities
+      }));
+      
+    console.log("activity groups", activityGroups);
+    return activityGroups;
+  
+}
 
   // Show the 6 best completed quests by the user
   getCompletedQuests(user: DBUser): QuestID[] {
@@ -69,7 +111,7 @@ export class ProfileModalComponent implements OnInit {
 
     // Get the 6 hardest completed quests
     const completed = questIDs.slice(0, 6);
-    console.log("completed", completed);
+
     if (completed.length <= 3) completed.length = 3;
     else completed.length = 6;
     return completed;
@@ -84,6 +126,16 @@ export class ProfileModalComponent implements OnInit {
     this.modalManagerService.showModal(ModalType.QUEST_LIST, config, () => {
       this.modalManagerService.showModal(ModalType.PROFILE, {userid : this.config?.userid});
     });
+  }
+
+  activityDateString(date: Date): string {
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (date.toLocaleDateString() === today.toLocaleDateString()) return "Today";
+    if (date.toLocaleDateString() === yesterday.toLocaleDateString()) return "Yesterday";
+    return this.dateString(date);
   }
 
 }

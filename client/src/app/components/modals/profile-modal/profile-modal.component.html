@@ -7,7 +7,7 @@
                     <h2 class="username">{{data.dbUser.username}}</h2>
                     <app-online-indicator [isOnline]="data.online" />
                 </div>
-                <h2 class="league-name" [ngStyle]="{'color' : leagueColor(data.dbUser.league)}">{{leagueName(data.dbUser)}}</h2>
+                <h2 class="league-name" [ngStyle]="{'color' : leagueColor(data.dbUser.league)}">{{leagueName(data.dbUser.league)}}</h2>
             </div>
             <p class="join-date">Joined {{dateString(data.dbUser.created_at)}}</p>
 
@@ -33,6 +33,49 @@
     <div class="text-row">
         <h1>Activity</h1>
     </div>
-    <p class="coming-soon">Coming soon!</p>
+    <div class="activity-panel">
+        <ng-container *ngFor="let activityGroup of (this.activities$ | async)">
+            <h2>{{activityDateString(activityGroup.date)}}</h2>
+            <div class="activity-row" *ngFor="let activity of activityGroup.activities">
+
+                <ng-container *ngIf="activity.type === ActivityType.PERSONAL_BEST">
+                    <p>Scored a new personal best of</p>
+                    <app-highest-score [highestScore]="activity.score" [size]="10" />
+                    <p>on level {{activity.startLevel}} start</p>
+                </ng-container>
+
+                <ng-container *ngIf="activity.type === ActivityType.RANKED_MATCH">
+                    <p>{{activity.trophyDelta >= 0 ? 'Gained' : 'Lost'}}</p>
+                    <app-trophies [trophies]="abs(activity.trophyDelta)" [size]="10" [color]="activity.trophyDelta >= 0 ? '#58D774' : '#D75858'" />
+                    <p>in a ranked match against</p>
+                    <p class="highlight">{{activity.opponentName}}</p>
+                    <p>with score</p>
+                    <p class="highlight">{{activity.myScore}}</p>
+                    <p>to</p>
+                    <p class="highlight">{{activity.opponentScore}}</p>
+                </ng-container>
+
+                <ng-container *ngIf="activity.type === ActivityType.QUEST_COMPLETION">
+                    <p>Completed quest</p>
+                    <p class="highlight" [ngStyle]="{'color' : questColor(activity.questID)}">{{questName(activity.questID)}}</p>
+                    <p>and gained {{questXP(activity.questID)}} xp</p>
+                </ng-container>
+
+                <ng-container *ngIf="activity.type === ActivityType.LEAGUE_PROMOTION">
+                    <p>Promoted from</p>
+                    <p class="highlight" [ngStyle]="{'color' : leagueColor(previousLeague(activity.league))}">{{leagueName(previousLeague(activity.league))}}</p>
+                    <p>to</p>
+                    <p class="highlight" [ngStyle]="{'color' : leagueColor(activity.league)}">{{leagueName(activity.league)}}</p>
+                </ng-container>
+
+                <ng-container *ngIf="activity.type === ActivityType.PUZZLE_ELO">
+                    <p>Reached a rating of</p>
+                    <app-puzzle-elo [puzzleElo]="activity.elo" [size]="10" />
+                    <p>in puzzles</p>
+                </ng-container>
+
+            </div>
+        </ng-container>
+    </div>
 
 </div>

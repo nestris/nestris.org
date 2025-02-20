@@ -9,6 +9,8 @@ import { GlobalStatConsumer } from "../online-users/event-consumers/global-stat-
 import { QuestConsumer } from "../online-users/event-consumers/quest-consumer";
 import { QuestCategory, QuestID } from "../../shared/nestris-org/quest-system";
 import { TrophyChangeMessage } from "../../shared/network/json-message";
+import { ActivityConsumer } from "../online-users/event-consumers/activity-consumer";
+import { ActivityType } from "../../shared/models/activity";
 
 
 export class RankedMultiplayerRoom extends MultiplayerRoom {
@@ -41,6 +43,7 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
         if (state.matchWinner === null) throw new RoomError('Match winner must be defined');
         
         const questConsumer = EventConsumerManager.getInstance().getConsumer(QuestConsumer);
+        const activityConsumer = EventConsumerManager.getInstance().getConsumer(ActivityConsumer);
 
         // Iterate through each player in the game to update trophies and XP
         this.iterateGamePlayers(async (player, playerIndex) => {
@@ -69,8 +72,21 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
                 trophyChange: trophyChange,
             }), false);
 
-            // Update quest progress
+            // Update quest progress non-blocking
             questConsumer.updateChampionQuestCategory(player.userid, updatedUser.wins, updatedUser.highest_trophies);
+
+            // Update activity non-blocking
+            const otherIndex = playerIndex === PlayerIndex.PLAYER_1 ? PlayerIndex.PLAYER_2 : PlayerIndex.PLAYER_1;
+            if (state.points.length === 1) activityConsumer.createActivity(player.userid, {
+                type: ActivityType.RANKED_MATCH,
+                opponentID: state.players[otherIndex].userid,
+                opponentName: state.players[otherIndex].username,
+                trophyDelta: trophyChange,
+                myGameID: state.points[0].game[playerIndex].gameID,
+                myScore: state.points[0].game[playerIndex].score,
+                opponentGameID: state.points[0].game[otherIndex].gameID,
+                opponentScore: state.points[0].game[otherIndex].score,
+            })
         });
 
         // Update global stats for how long the match took

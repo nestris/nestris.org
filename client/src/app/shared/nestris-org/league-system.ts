@@ -36,8 +36,8 @@ export const LEAGUE_NAMES = {
 
 // The amount of xp needed to advance from this league to the next league
 export const LEAGUE_XP_REQUIREMENTS = {
-    [League.MINO_1]: 1000,
-    [League.MINO_2]: 2000,
+    [League.MINO_1]: 2000,
+    [League.MINO_2]: 3000,
     [League.MINO_3]: 4000,
     [League.MINO_4]: 6000,
     [League.MINO_5]: 8000,
@@ -94,4 +94,9 @@ export function leagueColor(league: League) {
     if (league <= League.MINO_5) return "#00CAFF";
     if (league <= League.BETTA_5) return "#F67C1B";
     else return "#FF354D";
+}
+
+export function previousLeague(league: League) {
+    if (league === LOWEST_LEAGUE) throw new Error('No previous league');
+    return (league - 1) as League;
 }

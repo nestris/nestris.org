@@ -1,3 +1,4 @@
+import { ActivityType } from "../../../shared/models/activity";
 import { QuestCategory } from "../../../shared/nestris-org/quest-system";
 import { DBPuzzle } from "../../../shared/puzzles/db-puzzle";
 import { PuzzleRating } from "../../../shared/puzzles/puzzle-rating";
@@ -7,6 +8,7 @@ import { DBPuzzleSubmitEvent, DBUserObject } from "../../database/db-objects/db-
 import { Database, DBQuery, WriteDBQuery } from "../../database/db-query";
 import { EventConsumer, EventConsumerManager } from "../event-consumer";
 import { OnSessionDisconnectEvent } from "../online-user-events";
+import { ActivityConsumer } from "./activity-consumer";
 import { QuestConsumer } from "./quest-consumer";
 
 /**
@@ -436,6 +438,8 @@ export class RatedPuzzleConsumer extends EventConsumer<RatedPuzzleConfig> {
 
         // Calculate the xp gained for the user, which is 1 xp for every 200 elo gained
         const xpGained = isCorrect ? Math.floor(newElo / 200) + 1 : 0;
+
+        const previousHighestElo = (await DBUserObject.get(userid)).highest_puzzle_elo;
         
         // Update the in-memory user's rating, but don't wait for database call to finish
         await DBUserObject.alter(userid, new DBPuzzleSubmitEvent({
@@ -449,6 +453,13 @@ export class RatedPuzzleConsumer extends EventConsumer<RatedPuzzleConfig> {
 
         // Update puzzle quests
         await EventConsumerManager.getInstance().getConsumer(QuestConsumer).updateQuestCategory(userid, QuestCategory.PUZZLER, newElo);
+
+        // If user has reached a new 1000 elo milestone, add activity. i.e. 2983 -> 3005 elo
+        const milestone = (elo: number) => Math.floor(elo / 1000);
+        if (milestone(newElo) > milestone(previousHighestElo)) {
+            const activityConsumer = EventConsumerManager.getInstance().getConsumer(ActivityConsumer);
+            activityConsumer.createActivity(userid, { type: ActivityType.PUZZLE_ELO, elo: newElo });
+        }
 
         // After some time seconds, decrement the puzzle count. Waiting approximates the time the user looks at the solution
         setTimeout(() => {

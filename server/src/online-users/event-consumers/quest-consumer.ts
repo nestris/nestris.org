@@ -1,7 +1,9 @@
 import { QuestCompleteMessage } from "../../../shared/network/json-message";
-import { EventConsumer } from "../event-consumer";
+import { EventConsumer, EventConsumerManager } from "../event-consumer";
 import { DBQuestProgressEvent, DBUserObject } from "../../database/db-objects/db-user";
 import { getQuestStatus, QuestCategory, QuestID, QUESTS } from "../../../shared/nestris-org/quest-system";
+import { ActivityConsumer } from "./activity-consumer";
+import { ActivityType } from "../../../shared/models/activity";
 
 // Sort quest IDs first by category, then by descending xp gain.
 // This means that when traversing QuestIDs, it is guaranteed that harder quests will be encountered first
@@ -89,6 +91,15 @@ export class QuestConsumer extends EventConsumer {
 
         // If there was at least one quest completed, send a message to the user for the hardest quest completed
         if (completedQuestIDs.length > 0) this.users.sendToUser(userid, new QuestCompleteMessage(completedQuestIDs[0]));
+
+        // Add activity for each quest completed, from easiest to hardest. Do in sequential order, without blocking this function
+        const addQuestCompletionActivities = async () => {
+            const activityConsumer = EventConsumerManager.getInstance().getConsumer(ActivityConsumer);
+            for (let questID of completedQuestIDs.slice().reverse()) {
+                await activityConsumer.createActivity(userid, { type: ActivityType.QUEST_COMPLETION, questID });
+            }
+        }
+        if (completedQuestIDs.length > 0) addQuestCompletionActivities();
 
     }
 
