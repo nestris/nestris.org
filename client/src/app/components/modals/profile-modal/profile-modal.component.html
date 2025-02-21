@@ -33,7 +33,7 @@
     <div class="text-row">
         <h1>Activity</h1>
     </div>
-    <div class="activity-panel">
+    <div class="activity-panel" *ngIf="false">
         <ng-container *ngFor="let activityGroup of (this.activities$ | async)">
             <h2>{{activityDateString(activityGroup.date)}}</h2>
             <div class="activity-row" *ngFor="let activity of activityGroup.activities">
