@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { distinctUntilChanged, filter, map, Observable } from 'rxjs';
+import { BehaviorSubject, debounceTime, distinctUntilChanged, filter, map, Observable } from 'rxjs';
 import { FriendInfo } from '../../shared/models/friends';
 import { FriendUpdateMessage, JsonMessageType } from '../../shared/network/json-message';
 import { Method } from '../fetch.service';
@@ -45,8 +45,10 @@ export class FriendsService extends StateService<FriendInfo[]>() {
     
       const friendIndex = state.findIndex(friend => friend.userid === event.userid);
       if (friendIndex !== -1) {
+        const previousOnline = state[friendIndex].isOnline;
         state[friendIndex] = { ...state[friendIndex], ...event.data.update };
-        if (event.data.update.isOnline !== undefined) this.notifyUserOnline(state[friendIndex].username, event.data.update.isOnline);
+        const nowOnline = state[friendIndex].isOnline;
+        if (previousOnline !== nowOnline) this.notifyUserOnline(state[friendIndex].username, nowOnline);
       }
     }
 
@@ -70,14 +72,32 @@ export class FriendsService extends StateService<FriendInfo[]>() {
     await this.fetchService.fetch(Method.POST, `/api/v2/remove-friend/${userid}`)
   }
 
+  private userOnline$ = new Map<string, BehaviorSubject<boolean>>();
   private notifyUserOnline(username: string, online: boolean) {
+
+    const notify = (isOnline: boolean) => {
+      // Notify user that friend is online
+      const type = isOnline ? NotificationType.SUCCESS : NotificationType.ERROR;
+      const message = isOnline ? `${username} is now online!` : `${username} went offline.`;
+      this.notificationService.notify(type, message);
+    }
 
     // If friend online notification setting is disabled, do not notify
     if (!this.meService.getSync()?.notify_on_friend_online) return;
 
-    // Notify user that friend is online
-    const type = online ? NotificationType.SUCCESS : NotificationType.ERROR;
-    const message = online ? `${username} is now online!` : `${username} went offline.`;
-    this.notificationService.notify(type, message);
+    // Debouncing online status for each user prevents things like screen refreshes from spamming changes in online status
+    if (!this.userOnline$.has(username)) {
+      const online$ = new BehaviorSubject<boolean>(online);
+      this.userOnline$.set(username, online$);
+
+      online$.pipe(
+        debounceTime(2000),
+        distinctUntilChanged(),
+      ).subscribe(newOnline => notify(newOnline));
+      return;
+    }
+
+    // If already exists, notify change
+    this.userOnline$.get(username)!.next(online);
   }
 }
