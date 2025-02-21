@@ -303,7 +303,8 @@ export class OnlineUserManager {
         const onlineUser = session.user;
 
         // close the session 
-        onlineUser.removeSession(session.sessionID, code, reason);
+        const success = onlineUser.removeSession(session.sessionID, code, reason);
+        if (!success) console.error(`Could not delete session ${session.sessionID} with code ${code} reason ${reason}, session does not exist`);
 
         // remove the sessionID to userid mapping
         this.sessions.delete(session.sessionID);

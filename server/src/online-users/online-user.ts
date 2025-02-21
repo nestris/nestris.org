@@ -154,24 +154,27 @@ export class OnlineUser {
     }
 
     // using the live websocket connection, send a JsonMessage to the specified session
-    sendMessageToSession(message: JsonMessage | Uint8Array, sessionID: string) {
+    // returns whether sending the message was successful
+    sendMessageToSession(message: JsonMessage | Uint8Array, sessionID: string): boolean {
         const session = this.getSessionByID(sessionID);
-        if (!session) throw new Error(`Session ${sessionID} not found for user ${this.username}`);
+        if (!session) return false;
 
         //console.log(`Sending message to ${this.username} on session ${sessionID}: ${JSON.stringify(message)}`);
         session.sendMessage(message);
+        return true;
     }
 
     // close the websocket connection with the specified close code.
-    // returns true if there are no more sessions for the user
-    removeSession(sessionID: string, code?: number, reason?: string) {
+    // returns whether removing the session was successful
+    removeSession(sessionID: string, code?: number, reason?: string): boolean {
         const session = this.getSessionByID(sessionID);
-        if (!session) throw new Error(`Session ${sessionID} not found for user ${this.username}`);
+        if (!session) return false;
 
         session.terminateSession(code, reason);
         
         // remove the session from the map
         this.sessions.delete(sessionID);
+        return true;
     }
 
     // Gets list of all session IDs for this user
