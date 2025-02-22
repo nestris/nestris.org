@@ -298,7 +298,9 @@ export class GamePlayer {
         // For full games to level 29, update accuracy quests
         if (gameState.startLevel < 29 && state.level >= 29) {
             const questConsumer = EventConsumerManager.getInstance().getConsumer(QuestConsumer);
-            await questConsumer.updateQuestCategory(this.userid, QuestCategory.ACCURACY, accuracyStats.overallAccuracy);
+            // TEMPORARY: accuracy must be rounded down because quest_progress can only store ints.
+            // Find a better solution later
+            await questConsumer.updateQuestCategory(this.userid, QuestCategory.ACCURACY, Math.floor(accuracyStats.overallAccuracy));
         }
 
         // If personal best, log activity without waiting for database insertion to complete
