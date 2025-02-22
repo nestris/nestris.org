@@ -7,6 +7,9 @@
 
     max-height: 90dvh;
     overflow-y: scroll;
+
+    margin-inline: -5px;
+    padding-inline: 5px;
 }
 
 @media screen and (max-width: 1150px) {

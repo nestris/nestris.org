@@ -10,6 +10,10 @@ export enum ModalType {
   PROFILE = "PROFILE",
 }
 
+export const HIDE_X_MODALS: ModalType[] = [
+  ModalType.PROFILE,
+];
+
 /*
 Manages creation of modals and the modal components automatically.
 Call showModal() to show a modal, and hideModal() to hide it.

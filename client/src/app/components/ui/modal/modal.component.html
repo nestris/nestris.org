@@ -1,4 +1,4 @@
 <div class="modal" *ngIf="visibility$ | async" (clickOutside)="visibility$.next(false)">
-    <app-x class="x" (click)="visibility$.next(false)" />
+    <app-x *ngIf="showX" class="x" (click)="visibility$.next(false)" />
     <ng-content></ng-content>
 </div>

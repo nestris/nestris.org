@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
+import { HIDE_X_MODALS, ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
 
 @Component({
   selector: 'app-modal-container',
@@ -39,7 +39,10 @@ export class ModalContainerComponent {
         console.log("Hide modal");
       }
     });
+  }
 
+  showX(type: ModalType) {
+    return !HIDE_X_MODALS.includes(type);
   }
 
 
