@@ -155,27 +155,51 @@ app-quest {
     min-height: 50px;
 }
 
+
 .activity-panel h2 {
     font-family: $main-font;
     font-weight: 500;
-    font-size: 12px;
+    font-size: 14px;
     color: $gold-color;
     padding: 0;
     margin: 0;
 }
 
+.activity-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-block: 5px;
+    position: relative;
+    // gap: 3px;
+
+    width: 100%;
+    box-sizing: border-box;
+}
+
 .activity-row {
     display: flex;
     flex-direction: row;
-    gap: 3px;
+    gap: 5px;
+    align-items: center;
+
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 10px;
+
+    padding-block: 3px;
+    transition: background-color 0.3s;
+}
+
+.activity-row:hover {
+    background-color: rgba(255,255,255, 0.02);
 }
 
 .activity-row p {
     font-family: $main-font;
-    font-weight: 500;
-    font-size: 10px;
+    font-weight: 400;
+    font-size: 14px;
     color: white;
-    opacity: 0.8;
     padding: 0;
     margin: 0;
 }
@@ -185,7 +209,47 @@ app-quest {
     opacity: 1;
 }
 
-.activity-row p.highlight:hover {
+.clickable:hover {
     cursor: pointer;
-    opacity: 0.9;
+    opacity: 0.85 !important;
+}
+
+.clickable:active {
+    opacity: 0.75 !important;
+}
+
+.icon {
+    width: 34px;
+    height: 34px;
+    box-sizing: border-box;
+    border-radius: 50%;
+    border: 2px solid $gold-color;
+    background-color: $dark-color;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    margin-right: 20px;
+    margin-left: 10px;
+    z-index: 10;
+}
+
+.icon img {
+    display: block;
+    width: 18px;
+    height: 16px;
+    object-fit: contain;
+    margin: 0 auto;
+}
+
+.activity-group .under {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 26px;
+    border-right: 2px solid $gold-color;
+    z-index: 1;
+    border-radius: 1px;
 }

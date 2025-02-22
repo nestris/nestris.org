@@ -128,6 +128,12 @@ export class ProfileModalComponent implements OnInit {
     });
   }
 
+  goToProfile(userid: string) {
+    this.modalManagerService.hideModal();
+    const config: ProfileModalConfig = { userid }
+    this.modalManagerService.showModal(ModalType.PROFILE, config);
+  }
+
   activityDateString(date: Date): string {
     const today = new Date();
     const yesterday = new Date();
@@ -136,6 +142,18 @@ export class ProfileModalComponent implements OnInit {
     if (date.toLocaleDateString() === today.toLocaleDateString()) return "Today";
     if (date.toLocaleDateString() === yesterday.toLocaleDateString()) return "Yesterday";
     return this.dateString(date);
+  }
+
+  static readonly ACTIVITY_ICONS: {[type in ActivityType] : string} = {
+    [ActivityType.LEAGUE_PROMOTION] : 'league',
+    [ActivityType.PERSONAL_BEST] : 'pb',
+    [ActivityType.PUZZLE_ELO] : 'puzzle',
+    [ActivityType.QUEST_COMPLETION] : 'quest',
+    [ActivityType.RANKED_MATCH] : 'trophies'
+  };
+  getIcon(activityType: ActivityType) {
+    const name = ProfileModalComponent.ACTIVITY_ICONS[activityType];
+    return `./assets/img/activity-icons/${name}.svg`
   }
 
 }
