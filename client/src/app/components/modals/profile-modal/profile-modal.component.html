@@ -62,11 +62,11 @@
                         <p class="highlight clickable" (click)="goToProfile(activity.opponentID)">{{activity.opponentName}}</p>
                         <p>with score</p>
                         <a [routerLink]="['/game', activity.myGameID]" target="_blank">
-                            <p class="highlight clickable">{{activity.myScore}}</p>
+                            <p class="highlight clickable">{{numberWithCommas(activity.myScore)}}</p>
                         </a>
                         <p>to</p>
                         <a [routerLink]="['/game', activity.opponentGameID]" target="_blank">
-                            <p class="highlight clickable">{{activity.opponentScore}}</p>
+                            <p class="highlight clickable">{{numberWithCommas(activity.opponentScore)}}</p>
                         </a>
                     </ng-container>
 

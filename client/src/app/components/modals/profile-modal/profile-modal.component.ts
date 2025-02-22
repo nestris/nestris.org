@@ -9,6 +9,7 @@ import { ALL_QUEST_IDS, getQuest, getQuestStatus, QUEST_COLORS, QuestID } from '
 import { QuestListModalConfig } from '../quest-list-modal/quest-list-modal.component';
 import { ApiService } from 'src/app/services/api.service';
 import { Activity, ActivityType, TimestampedActivity } from 'src/app/shared/models/activity';
+import { numberWithCommas } from 'src/app/util/misc';
 
 export interface ModalData {
   dbUser: DBUser;
@@ -37,6 +38,7 @@ export class ProfileModalComponent implements OnInit {
   readonly previousLeague = previousLeague;
   readonly ActivityType = ActivityType;
   readonly abs = Math.abs;
+  readonly numberWithCommas = numberWithCommas;
 
   readonly dateString = (date: Date) => date.toLocaleDateString("en-US", {
     year: "numeric",
