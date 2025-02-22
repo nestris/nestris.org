@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Location } from '@angular/common';
 import { BehaviorSubject } from 'rxjs';
 import { FetchService, Method } from 'src/app/services/fetch.service';
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
@@ -18,6 +19,7 @@ export interface ModalData {
 
 export interface ProfileModalConfig {
   userid?: string;
+  originalUrl?: string; // The url to redirect to when modal closes. Defaults to the existing url when the modal was opened
 }
 
 interface ActivityGroup {
@@ -31,7 +33,7 @@ interface ActivityGroup {
   styleUrls: ['./profile-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProfileModalComponent implements OnInit {
+export class ProfileModalComponent implements OnInit, OnDestroy {
   @Input() config?: ProfileModalConfig;
 
   readonly leagueColor = leagueColor;
@@ -50,19 +52,36 @@ export class ProfileModalComponent implements OnInit {
   readonly questXP = (questID: QuestID) => getQuest(questID).xp;
   readonly questColor = (questID: QuestID) => QUEST_COLORS[getQuest(questID).difficulty];
 
+  private userid!: string;
+
   public data$ = new BehaviorSubject<ModalData | null>(null);
   public activities$ = new BehaviorSubject<ActivityGroup[] | null>(null);
+
+  private originalUrl!: string;
 
   constructor(
     public readonly meService: MeService,
     public readonly modalManagerService: ModalManagerService,
     public readonly apiService: ApiService,
     private readonly fetchService: FetchService,
+    private location: Location
   ) {}
 
   ngOnInit() {
+    // userid of the shown profile
+    this.userid = this.config?.userid ?? this.meService.getUserIDSync()!;
+
     this.getData().then(data => this.data$.next(data))
     this.fetchActivities().then(activities => this.activities$.next(activities));
+    
+    // Temporarily change to profile url
+    this.originalUrl = this.config?.originalUrl ?? this.location.path();
+    this.location.replaceState(`user/${this.userid}`);
+  }
+
+  ngOnDestroy(): void {
+    // Go back to original url
+    this.location.replaceState(this.originalUrl);
   }
 
   private async getData(): Promise<ModalData> {
@@ -73,8 +92,7 @@ export class ProfileModalComponent implements OnInit {
   }
 
   private async fetchActivities(): Promise<ActivityGroup[]> {
-    const userid = this.config?.userid ?? this.meService.getUserIDSync();
-    const activities = await this.fetchService.fetch<TimestampedActivity[]>(Method.GET, `/api/v2/activities/${userid}`);
+    const activities = await this.fetchService.fetch<TimestampedActivity[]>(Method.GET, `/api/v2/activities/${this.userid}`);
 
     // Group activities by local date
     const activityMap = new Map<string, Activity[]>();

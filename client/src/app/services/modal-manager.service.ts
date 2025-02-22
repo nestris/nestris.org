@@ -73,6 +73,10 @@ export class ModalManagerService {
     return this.lastShownModal$.asObservable();
   }
 
+  isModal(): boolean {
+    return this.activeModal$.getValue() !== null;
+  }
+
   
 
 }

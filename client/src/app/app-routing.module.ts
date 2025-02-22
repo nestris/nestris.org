@@ -47,6 +47,7 @@ const routes: Routes = [
       { path: "play", component: PlayPageComponent, },
       { path: "review", component: ReviewPageComponent },
 
+      { path: 'user/:userid', component: PlayPageComponent },
       { path: "game/:id", component: GameAnalysisComponent },
 
       { path: "learn", component: LearnPageComponent,

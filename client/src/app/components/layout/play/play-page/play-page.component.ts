@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, map} from 'rxjs';
+import { ProfileModalConfig } from 'src/app/components/modals/profile-modal/profile-modal.component';
 import { Mode } from 'src/app/components/ui/mode-icon/mode-icon.component';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { FetchService, Method } from 'src/app/services/fetch.service';
@@ -30,7 +31,7 @@ interface OngoingQuest {
   styleUrls: ['./play-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PlayPageComponent implements OnDestroy{
+export class PlayPageComponent implements OnInit, OnDestroy {
 
   readonly ButtonColor = ButtonColor;
   readonly Platform = Platform;
@@ -63,7 +64,8 @@ export class PlayPageComponent implements OnDestroy{
     private websocketService: WebsocketService,
     private notifier: NotificationService,
     private rankedQueueService: RankedQueueService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute,
   ) {
 
     const updateLeaderboards = async () => {
@@ -74,6 +76,18 @@ export class PlayPageComponent implements OnDestroy{
     // Update leaderboards every 5 seconds
     this.leaderboardInterval = setInterval(updateLeaderboards, 5000);
     updateLeaderboards();
+  }
+
+  /**
+   * We want urls like '/user/450748389001265186' to open up the profile modal. The routing module redirects /user
+   * urls to this page, so that when profile closes, it should go back to regular play page
+   */
+  ngOnInit(): void {
+    const userid = this.route.snapshot.paramMap.get('userid');
+    if (userid && !this.modalManager.isModal()) {
+      const config: ProfileModalConfig = { userid, originalUrl: "/play" };
+      this.modalManager.showModal(ModalType.PROFILE, config);
+    }
   }
 
   async setupCalibration(event: MouseEvent | undefined = undefined) {
