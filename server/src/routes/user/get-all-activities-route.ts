@@ -10,11 +10,12 @@ import { GetRoute, UserInfo } from "../route";
  * Get all past activities for the logged in user
  */
 export class GetAllActivitiesRoute extends GetRoute<TimestampedActivity[]> {
-  route = "/api/v2/activities";
-  authentication = Authentication.USER;
+  route = "/api/v2/activities/:userid";
 
-  override async get(userInfo: UserInfo | undefined): Promise<TimestampedActivity[]> {
+  override async get(userInfo: UserInfo | undefined, pathParams: any): Promise<TimestampedActivity[]> {
+    const userid = pathParams.userid as string;
+
     const activityConsumer = EventConsumerManager.getInstance().getConsumer(ActivityConsumer);
-    return await activityConsumer.getActivitiesForUser(userInfo!.userid);
+    return await activityConsumer.getActivitiesForUser(userid);
   }
 }

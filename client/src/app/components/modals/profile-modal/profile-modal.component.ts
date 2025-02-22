@@ -71,7 +71,8 @@ export class ProfileModalComponent implements OnInit {
   }
 
   private async fetchActivities(): Promise<ActivityGroup[]> {
-    const activities = await this.fetchService.fetch<TimestampedActivity[]>(Method.GET, "/api/v2/activities");
+    const userid = this.config?.userid ?? this.meService.getUserIDSync();
+    const activities = await this.fetchService.fetch<TimestampedActivity[]>(Method.GET, `/api/v2/activities/${userid}`);
     console.log("activities", activities);
 
     // Group activities by local date
