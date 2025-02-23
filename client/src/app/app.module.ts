@@ -105,6 +105,7 @@ import { GameAnalysisComponent } from './components/layout/game-analysis/game-an
 import { XpStatusComponent } from './components/ui/xp-status/xp-status.component';
 import { QuestListModalComponent } from './components/modals/quest-list-modal/quest-list-modal.component';
 import { ProfileModalComponent } from './components/modals/profile-modal/profile-modal.component';
+import { OcrButtonComponent } from './components/ui/ocr-button/ocr-button.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -246,6 +247,7 @@ const customNotifierOptions: NotifierOptions = {
     XpStatusComponent,
     QuestListModalComponent,
     ProfileModalComponent,
+    OcrButtonComponent,
   ],
   imports: [
     BrowserModule,

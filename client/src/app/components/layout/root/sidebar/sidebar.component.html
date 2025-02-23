@@ -30,6 +30,7 @@
         <app-sidebar-tab [tab]="TabID.LEADERBOARD"/>
     </div>
     <div class="sidebar-bottom">
+        <app-ocr-button />
         <app-sign-out *ngIf="(websocketService.onSignInUpdate() | async)" />
     </div>
     

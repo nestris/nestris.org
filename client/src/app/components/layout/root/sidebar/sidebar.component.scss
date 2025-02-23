@@ -10,7 +10,7 @@
     background-color: $section-color;
     height: 100%;
 
-    width: 230px;
+    width: 250px;
 
     display: flex;
     flex-direction: column;
@@ -90,6 +90,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+app-ocr-button {
+    margin-bottom: 30px;
 }
 
 @media only screen and (max-width: 1000px) {
