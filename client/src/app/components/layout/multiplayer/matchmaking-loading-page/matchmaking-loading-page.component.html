@@ -2,7 +2,7 @@
 
     <app-fullscreen-exit-button />
 
-    <app-loading-screen (score)="setScore($event)" [resolution]="2" [blockSize]="50" [blockSpeed]="1.5"
+    <app-loading-screen (score)="setScore($event)" [resolution]="2" [blockSize]="50" [blockSpeed]="3"
         [explodeEverything]="!!(foundOpponent$ | async)"
     />
 

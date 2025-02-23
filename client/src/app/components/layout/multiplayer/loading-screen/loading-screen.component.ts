@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 
 interface MousePosition {
   x: number;
@@ -33,21 +33,21 @@ interface TetrisBlock {
   templateUrl: './loading-screen.component.html',
   styleUrls: ['./loading-screen.component.scss']
 })
-export class LoadingScreenComponent implements OnInit, AfterViewInit, OnChanges {
+export class LoadingScreenComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   @ViewChild('canvasElement') canvasElement!: ElementRef<HTMLCanvasElement>;
   @Input() blockSize: number = 25;
   @Input() scaleCircles: number = 1;
   @Input() blockSpeed: number = 1;
-  @Input() maxBlocks: number = 50;
+  @Input() maxBlocks: number = 30;
   @Input() resolution: number = 1;
   @Input() explodeEverything: boolean = false;
   @Output() score = new EventEmitter<number>();
 
-  readonly CIRCLE_PERSISTENCE = 200;
-  readonly NUM_CIRCLES = 30;
-  readonly CIRCLE_SPEED = 0.7;
+  readonly CIRCLE_PERSISTENCE = 100;
+  readonly NUM_CIRCLES = 3;
+  readonly CIRCLE_SPEED = 3;
   readonly MOUSE_POSITIONS_TO_TRACK = 5;
-  readonly LINE_PERSISTENCE = 40;
+  readonly LINE_PERSISTENCE = 20;
   readonly TETRIS_BLOCK_SPAWN_INTERVAL = 300; // ms
 
   private canvas!: HTMLCanvasElement;
@@ -59,6 +59,8 @@ export class LoadingScreenComponent implements OnInit, AfterViewInit, OnChanges 
   private mousePositions: MousePosition[] = [];
 
   private totalScore: number = 0;
+
+  private destroyed = false;
 
   private readonly tetrisShapes = [
     [[1, 1, 1, 1]],  // I
@@ -92,6 +94,10 @@ export class LoadingScreenComponent implements OnInit, AfterViewInit, OnChanges 
     this.c = this.canvas.getContext('2d')!;
     this.resizeCanvas();
     this.animate();
+  }
+
+  ngOnDestroy(): void {
+    this.destroyed = true;
   }
 
   // If change to explodeEverything, explode all tetris blocks
@@ -390,7 +396,11 @@ export class LoadingScreenComponent implements OnInit, AfterViewInit, OnChanges 
   }
 
   private animate() {
-    requestAnimationFrame(() => this.animate());
+
+    if (this.destroyed) return;
+
+    console.log("animate");
+
     this.frame += 1;
     this.c.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -414,6 +424,9 @@ export class LoadingScreenComponent implements OnInit, AfterViewInit, OnChanges 
     // Update and draw Tetris blocks
     this.updateTetrisBlocks();
     this.drawTetrisBlocks();
+
+    setTimeout(() => requestAnimationFrame(() => this.animate()), 10);
+    
   }
 }
 
