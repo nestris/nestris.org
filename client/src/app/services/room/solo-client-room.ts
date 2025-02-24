@@ -107,6 +107,7 @@ export class SoloClientRoom extends ClientRoom {
 
     public override destroy(): void {
         this.emulator.stopGame(true);
+        this.ocr.stopGame();
     }
 
 }

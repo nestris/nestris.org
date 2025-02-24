@@ -51,6 +51,8 @@ export class OcrGameService {
   }
 
   stopGame() {
+    if (!this.stateMachine) return;
+
     this.stateMachine = undefined;
     this.videoCapture.stopCapture();
     console.log("Ending OCR game");

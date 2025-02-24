@@ -210,8 +210,6 @@ export class EmulatorService {
     };
     this.platform.updateGameData(data);
 
-    // console.log("update display");
-
   }
 
   // run emulator for one tick
