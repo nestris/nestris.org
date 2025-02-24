@@ -21,6 +21,7 @@ export class PreviewCanvasComponent implements AfterViewInit, OnDestroy {
   readonly CANVAS_HEIGHT = 300;
 
   private mouseClickListener: Function | null = null;
+  public hasCaptureSource$ = this.videoCapture.hasCaptureSource$;
 
   constructor(
     private videoCapture: VideoCaptureService,

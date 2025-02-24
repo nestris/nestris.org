@@ -1,5 +1,9 @@
-<div #canvasParentElement
+<div *ngIf="hasCaptureSource$ | async" #canvasParentElement
 (mouseenter)="onMouseEnter()"
 (mouseleave)="onMouseLeave()"
 (mousemove)="onMouseMove($event)"
 ></div>
+
+<div class="placeholder" *ngIf="!(hasCaptureSource$ | async)">
+    <p>No source selected</p>
+</div>

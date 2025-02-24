@@ -44,6 +44,7 @@
 
     </div>
     <div class="buttons">
+        <app-solid-button [color]="ButtonColor.RED" label="Play on browser instead" class="cancel" />
         <app-solid-button [color]="ButtonColor.GREY" label="Back"
             [disabled]="!previousAllowed()" (click)="previous()" />
         <app-solid-button [color]="ButtonColor.BLUE" [label]="isLastStep() ? 'Finish' : 'Next'"

@@ -1,4 +1,25 @@
+@import "../../../../../styles.scss";
+
 #canvasParentElement {
     width: 400px;
     height: 300px;
+}
+
+.placeholder {
+    width: 350px;
+    height: 250px;
+    border: 2px dashed white;
+    border-radius: 10px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+p {
+    font-family: $main-font;
+    font-weight: 600px;
+    font-size: 12px;
+    margin: 0;
+    padding: 0;
 }
