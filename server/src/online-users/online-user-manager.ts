@@ -34,12 +34,20 @@ export class OnlineUserManager {
 
             // forward websocket messages to the online user manager
             ws.on('message', (message: string) => {
-                this.onSocketMessage(ws, message);
+                try {
+                    this.onSocketMessage(ws, message);
+                } catch (error: any) {
+                    console.error("TOP-LEVEL WS MESSAGE ERROR:", error);
+                }
             });
 
             // forward websocket close events to the online user manager
             ws.on('close', (code: number, reason: string) => {
-                this.onSocketClose(ws, code, reason);
+                try {
+                    this.onSocketClose(ws, code, reason);
+                } catch (error: any) {
+                    console.error("TOP-LEVEL WS CLOSE ERROR:", error);
+                }
             });
         });
 
