@@ -366,6 +366,11 @@ export class EmulatorService {
       event.stopPropagation();
       event.preventDefault();
     }
+
+    // Prevent tab key from changing focus to chat
+    if (event.key === 'Tab') {
+      event.preventDefault();
+    }
   }
 
   // if matching keybind, update currently pressed keys on keyup
