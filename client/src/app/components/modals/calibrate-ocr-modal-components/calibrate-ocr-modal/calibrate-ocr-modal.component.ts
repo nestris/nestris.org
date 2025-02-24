@@ -56,7 +56,6 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
   constructor(
     public videoCapture: VideoCaptureService,
     private modalManager: ModalManagerService,
-    private platformService: PlatformInterfaceService
   ) {
 
     // subscribe to frame updates to get level
@@ -69,8 +68,6 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit() {
-
-    console.log("calibrate ocr model oninit");
 
     // start initializing digit classifier
     this.videoCapture.initDigitClassifier();
@@ -132,7 +129,6 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
       // if at the last step, mark as valid, switch to this platform, and hide modal
       if (this.isLastStep()) {
         this.videoCapture.setCalibrationValid(true);
-        this.platformService.setPlatform(Platform.OCR);
         this.modalManager.hideModal();
       }
 
@@ -214,12 +210,10 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
   }
 
   ngOnDestroy() {
-    console.log("calibrate ocr model ondestroy");
     this.videoCapture.stopCapture(); // don't capture when not necessary to save processing time
     this.frameUpdateSubscription?.unsubscribe();
 
     if (!this.videoCapture.getCalibrationValid()) {
-      console.log("Didn't finish calibration and not valid, reset");
       this.videoCapture.setCaptureSource(null);
     }
   }

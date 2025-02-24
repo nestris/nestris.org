@@ -53,7 +53,6 @@ export class FloodFill {
     ): void {
 
         const startColor = frame.getPixelAt(point);
-        console.log("startColor", startColor);
         if (!startColor) return;
     
         const stack: Point[] = [];

@@ -11,6 +11,7 @@ import { Rectangle } from 'src/app/ocr/util/rectangle';
 import { ColorType } from 'src/app/shared/tetris/tetris-board';
 import { DigitClassifier } from 'src/app/ocr/digit-classifier/digit-classifier';
 import { BrowserDigitClassifer } from 'src/app/scripts/browser-digit-classifier';
+import { Platform, PlatformInterfaceService } from '../platform-interface.service';
 
 export interface FrameWithContext {
   ctx: CanvasRenderingContext2D,
@@ -63,6 +64,7 @@ export class VideoCaptureService {
   private digitClassifier: DigitClassifier = new BrowserDigitClassifer();
 
   constructor(
+    private readonly platform: PlatformInterfaceService,
     rendererFactory: RendererFactory2,
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
@@ -82,8 +84,9 @@ export class VideoCaptureService {
   }
 
   setCalibrationValid(isValid: boolean) {
-    console.log("calibration valid", isValid);
     this.isCalibrationValid$.next(isValid);
+
+    this.platform.setPlatform(isValid ? Platform.OCR : Platform.ONLINE);
   }
 
   getCalibrationValid$(): Observable<boolean> {
@@ -153,7 +156,6 @@ export class VideoCaptureService {
     this.canvasElement.style.width = displayWidth + 'px';
     this.canvasElement.style.height = displayHeight + 'px';
     this.showBoundingBoxes = showBoundingBoxes;
-    console.log("setCanvasLocation with showBoundingBoxes", showBoundingBoxes)
   }
 
   getCanvasElement(): HTMLCanvasElement {
@@ -164,7 +166,6 @@ export class VideoCaptureService {
   resetCanvasLocation() {
     this.moveCanvasToDOM(this.defaultCanvasParent, true);
     this.showBoundingBoxes = false;
-    console.log("resetCanvasLocation");
   }
 
   /**

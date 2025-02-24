@@ -94,7 +94,6 @@ export class GameState {
 
         // Send the game placement packet
         this.packetSender.bufferPacket(new GamePlacementPacket().toBinaryEncoder({
-            delta: 0, // TODO
             nextNextType: nextType,
             mtPose: mt.getMTPose(),
             pushdown: 0, // TODO
@@ -148,6 +147,8 @@ export class GameState {
             lines: this.status.lines,
             score: this.status.score,
             countdown: 0,
+            trt: 0,
+            drought: 0,
         }
     }
 

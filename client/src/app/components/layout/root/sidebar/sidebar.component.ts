@@ -3,9 +3,8 @@ import { BehaviorSubject, map } from 'rxjs';
 import { OCRState } from 'src/app/components/ui/ocr-button/ocr-button.component';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { TabID } from 'src/app/models/tabs';
-import { FetchService, Method } from 'src/app/services/fetch.service';
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
-import { VideoCaptureService } from 'src/app/services/ocr/video-capture.service';
+import { Platform, PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { ServerStatsService } from 'src/app/services/server-stats.service';
 import { FriendsService } from 'src/app/services/state/friends.service';
 import { MeService } from 'src/app/services/state/me.service';
@@ -34,13 +33,13 @@ export class SidebarComponent {
     public websocketService: WebsocketService,
     public modalService: ModalManagerService,
     public serverStatsService: ServerStatsService,
-    public videoCaptureService: VideoCaptureService,
+    public platform: PlatformInterfaceService,
     public meService: MeService,
   ) {}
 
   numOnlineFriends$ = this.friendsService.getNumOnlineFriends$();
-  ocrState$ = this.videoCaptureService.getCalibrationValid$().pipe(
-    map(valid => valid ? OCRState.CONNECTED : OCRState.DISCONNECTED)
+  ocrState$ = this.platform.getPlatform$().pipe(
+    map(platform => platform === Platform.OCR ? OCRState.CONNECTED : OCRState.DISCONNECTED)
   );
 
   openAuthModal(): void {

@@ -81,6 +81,8 @@ export class PlatformInterfaceService extends PacketSender {
 
   setPlatform(platform: Platform) {
 
+    if (this.platform$.getValue() === platform) return;
+
     if (platform === Platform.OCR && !(this.websocket.isSignedIn())) {
       this.notificationService.notify(NotificationType.ERROR, "You must be signed in to use the OCR platform.");
       return;

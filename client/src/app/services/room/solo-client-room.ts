@@ -3,9 +3,10 @@ import { ClientRoom } from "./client-room";
 import { RoomModal } from "src/app/components/layout/room/room/room.component";
 import { BehaviorSubject, Observable } from "rxjs";
 import { EmulatorService } from "../emulator/emulator.service";
-import { PlatformInterfaceService } from "../platform-interface.service";
+import { Platform, PlatformInterfaceService } from "../platform-interface.service";
 import { QuestService } from "../quest.service";
 import { getQuest, QuestCategory } from "src/app/shared/nestris-org/quest-system";
+import { OcrGameService } from "../ocr/ocr-game.service";
 
 export enum SoloClientState {
     BEFORE_GAME_MODAL = 'BEFORE_GAME_MODAL',
@@ -17,6 +18,7 @@ export enum SoloClientState {
 export class SoloClientRoom extends ClientRoom {
 
     readonly emulator = this.injector.get(EmulatorService);
+    readonly ocr = this.injector.get(OcrGameService);
     readonly platformInterface = this.injector.get(PlatformInterfaceService);
     readonly activeQuestService = this.injector.get(QuestService);
 
@@ -36,9 +38,8 @@ export class SoloClientRoom extends ClientRoom {
         const activeQuestID = this.activeQuestService.activeQuestID$.getValue();
         if (activeQuestID && getQuest(activeQuestID).category === QuestCategory.LINES29) SoloClientRoom.startLevel$.next(29);
 
-        // When entering play page, show the before game modal
-        this.modal$.next(RoomModal.SOLO_BEFORE_GAME);
-
+        // Initialize at before game
+        this.setSoloState(SoloClientState.BEFORE_GAME_MODAL);
     }
 
     protected override async onStateUpdate(oldState: SoloRoomState, newState: SoloRoomState): Promise<void> {
@@ -51,6 +52,12 @@ export class SoloClientRoom extends ClientRoom {
     }
 
     public setSoloState(state: SoloClientState) {
+
+        // IF OCR platform, skip before-game modal and go straight to game
+        if (state === SoloClientState.BEFORE_GAME_MODAL && this.platformInterface.getPlatform() === Platform.OCR) {
+            state = SoloClientState.IN_GAME;
+        }
+
         this.soloState$.next(state);
 
         // Set the corresponding modal
@@ -64,10 +71,18 @@ export class SoloClientRoom extends ClientRoom {
             default:
                 this.modal$.next(null);
         }
+
+        // If going into solo mode game and in ocr, start capturing
+        if (state === SoloClientState.IN_GAME && this.platformInterface.getPlatform() === Platform.OCR) {
+            this.ocr.startGame(null);
+        }
     }
 
 
     public startGame(countdown = 3) {
+
+        if (this.platformInterface.getPlatform() === Platform.OCR) throw new Error(`Cannot start emulator game on OCR`);
+
         const startLevel = SoloClientRoom.startLevel$.getValue();
         console.log('Starting game with start level', startLevel);
 
