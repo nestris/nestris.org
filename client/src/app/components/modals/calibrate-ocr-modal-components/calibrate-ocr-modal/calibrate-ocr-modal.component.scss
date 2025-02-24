@@ -2,11 +2,26 @@
 
 .modal {
     width: 750px;
-    height: 400px;
+    height: 450px;
 
     display: flex;
     flex-direction: column;
 }
+
+.description {
+    font-family: $main-font;
+    font-size: 12px;
+    font-weight: 500;
+    margin: 0;
+    padding: 0;
+    line-height: 1.7;
+    text-align: center;
+
+    margin-top: 20px;
+    width: 80%;
+    align-self: center;
+}
+
 
 .stepper {
     

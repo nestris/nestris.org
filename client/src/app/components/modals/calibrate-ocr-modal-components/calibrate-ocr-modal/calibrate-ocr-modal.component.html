@@ -1,14 +1,18 @@
 <div class="modal">
     <app-stepper class="stepper" [steps]="ALL_CALIBRATION_STEPS" [activeStep]="stepIndex" />
+
+    <p class="description">{{DESCRIPTIONS[currentStep]}}</p>
+
     <div class="content">
 
         <div class="select-video-source" *ngIf="currentStep === CalibrationStep.SELECT_VIDEO_SOURCE">
             <div class="col left">
+
                 <app-solid-button [color]="ButtonColor.BLUE" label="Screen Capture"
                     tooltip="Capture gameplay from an emulator on this computer through screen capture"
                     (click)="setScreenCapture()" />
                 
-                <select [(ngModel)]="videoCapture.selectedDevice" (change)="setVideoCapture()">
+                <select [ngModel]="videoCapture.selectedDevice$ | async" (ngModelChange)="videoCapture.selectedDevice$.next($event)" (change)="setVideoCapture()">
                     <option *ngFor="let device of (videoCapture.getVideoDevices$() | async)" [ngValue]="device">
                         {{ (device === null) ? "...or select a video device" : device.label }}
                     </option>
@@ -34,7 +38,7 @@
                 </app-nes-board>
 
                 <!-- If no OCRFrame, show an empty board with text to click on empty part of tetris board -->
-                <app-nes-board *ngIf="!((videoCapture.getCurrentFrame$() | async)?.ocrFrame)" [hide]="true">
+                <app-nes-board *ngIf="!((videoCapture.getCurrentFrame$() | async)?.ocrFrame)" [hide]="true" [scale]="1.65">
                     <h2 class="no-board-text">Click on an empty part of the tetris board!</h2>
                 </app-nes-board>
             </div>
@@ -44,12 +48,12 @@
 
     </div>
     <div class="buttons">
-        <app-solid-button [color]="ButtonColor.RED" label="Play on browser instead" class="cancel" />
+        <app-solid-button [color]="ButtonColor.RED" label="Play on browser instead" class="cancel" (smartClick)="cancel()" />
         <app-solid-button [color]="ButtonColor.GREY" label="Back"
             [disabled]="!previousAllowed()" (click)="previous()" />
-        <app-solid-button [color]="ButtonColor.BLUE" [label]="isLastStep() ? 'Finish' : 'Next'"
+        <app-solid-button [color]="ButtonColor.BLUE" [label]="isLastStep() ? 'Save' : 'Next'"
             *ngIf="nextAllowed() as allowed"
             [tooltip]="allowed === true ? '' : allowed"
-            [disabled]="allowed !== true" (click)="next()" />
+            [disabled]="allowed !== true" (smartClick)="next()" />
     </div>
 </div>

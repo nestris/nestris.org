@@ -18,17 +18,11 @@ export class OcrButtonComponent {
   readonly OCRState = OCRState;
 
   constructor(
-    private readonly modalManager: ModalManagerService
+    private readonly modalManager: ModalManagerService,
   ) {}
 
   onClick() {
-    //if (this.state === OCRState.DISCONNECTED) this.state = OCRState.CONNECTED;
-    //else this.state = OCRState.DISCONNECTED;
-
-    if (this.state === OCRState.DISCONNECTED) {
-      this.modalManager.showModal(ModalType.CALIBRATE_OCR);
-    }
-
+    this.modalManager.showModal(ModalType.CALIBRATE_OCR);
   }
 
 }

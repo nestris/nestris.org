@@ -25,11 +25,11 @@ export class VideoCaptureService {
 
   private renderer: Renderer2;
 
-  videoDevices$ = new BehaviorSubject<(MediaDeviceInfo | null)[]>([]);
-  selectedDevice: MediaDeviceInfo | null = null;
-  permissionError: string | null = null;
+  captureSource$ = new BehaviorSubject<MediaStream | null>(null);
 
-  hasCaptureSource$ = new BehaviorSubject<boolean>(false);
+  videoDevices$ = new BehaviorSubject<(MediaDeviceInfo | null)[]>([]);
+  selectedDevice$ = new BehaviorSubject<MediaDeviceInfo | null>(null);
+  permissionError: string | null = null;
 
   // we hold a reference to hidden global video and canvas elements from VideoCaptureComponent
   private videoElement!: HTMLVideoElement;
@@ -67,6 +67,7 @@ export class VideoCaptureService {
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
     this.canvasElement = this.renderer.createElement('canvas');
+
   }
 
   async initDigitClassifier() {
@@ -81,6 +82,7 @@ export class VideoCaptureService {
   }
 
   setCalibrationValid(isValid: boolean) {
+    console.log("calibration valid", isValid);
     this.isCalibrationValid$.next(isValid);
   }
 
@@ -195,7 +197,7 @@ export class VideoCaptureService {
     if (mediaStream === null) {
       this.videoElement.srcObject = null;
       this.permissionError$.next(null);
-      this.hasCaptureSource$.next(false);
+      this.captureSource$.next(null);
       return;
     }
 
@@ -210,7 +212,7 @@ export class VideoCaptureService {
       this.canvasElement.height = settings.height!;
 
       console.log("set media stream with video resolution", settings.width, settings.height);
-      this.hasCaptureSource$.next(true);
+      this.captureSource$.next(mediaStream);
 
     } catch (err) {
       this.permissionError$.next((err as Error).message);

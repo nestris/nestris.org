@@ -41,6 +41,18 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
     return this.ALL_CALIBRATION_STEPS[this.stepIndex];
   }
 
+  public DESCRIPTIONS: {[step in CalibrationStep] : string} = {
+    [CalibrationStep.SELECT_VIDEO_SOURCE] : `
+        If you have a NES console and the ability to capture your gameplay,
+        you can play directly on your console by calibrating your game capture to stream your real-time
+        game data in the site. If all this is foreign to you, just play on the browser instead!
+    `,
+    [CalibrationStep.LOCATE_TETRIS_BOARD] : `
+      You'll need to tell nestris.org where the board is. Click on the empty or near-empty board in the source
+      you're capturing to calibrate.
+    `,
+  }
+
   constructor(
     public videoCapture: VideoCaptureService,
     private modalManager: ModalManagerService,
@@ -156,7 +168,7 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
   async setVideoCapture() {
 
     // fetch the selected device in dropdown
-    const selectedDevice = this.videoCapture.selectedDevice;
+    const selectedDevice = this.videoCapture.selectedDevice$.getValue();
 
     // if no device selected, stop capture
     if (!selectedDevice) {
@@ -194,10 +206,22 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
     });
   }
 
+  cancel() {
+    this.videoCapture.stopCapture();
+    this.videoCapture.setCaptureSource(null);
+    this.videoCapture.setCalibrationValid(false);
+    this.modalManager.hideModal();
+  }
+
   ngOnDestroy() {
     console.log("calibrate ocr model ondestroy");
     this.videoCapture.stopCapture(); // don't capture when not necessary to save processing time
     this.frameUpdateSubscription?.unsubscribe();
+
+    if (!this.videoCapture.getCalibrationValid()) {
+      console.log("Didn't finish calibration and not valid, reset");
+      this.videoCapture.setCaptureSource(null);
+    }
   }
 
 }
