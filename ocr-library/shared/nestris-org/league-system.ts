@@ -36,12 +36,12 @@ export const LEAGUE_NAMES = {
 
 // The amount of xp needed to advance from this league to the next league
 export const LEAGUE_XP_REQUIREMENTS = {
-    [League.MINO_1]: 2000,
-    [League.MINO_2]: 3000,
-    [League.MINO_3]: 4000,
-    [League.MINO_4]: 6000,
-    [League.MINO_5]: 8000,
-    [League.BETTA_1]: 10000,
+    [League.MINO_1]: 1000,
+    [League.MINO_2]: 2000,
+    [League.MINO_3]: 3000,
+    [League.MINO_4]: 5000,
+    [League.MINO_5]: 10000,
+    [League.BETTA_1]: 15000,
     [League.BETTA_2]: 20000,
     [League.BETTA_3]: 30000,
     [League.BETTA_4]: 40000,
