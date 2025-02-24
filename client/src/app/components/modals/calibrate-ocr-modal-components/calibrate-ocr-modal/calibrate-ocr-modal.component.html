@@ -31,11 +31,12 @@
             <div class="col">
 
                 <!-- If OCRFrame, show the current frame's OCR board -->
-                <app-nes-board *ngIf="(videoCapture.getCurrentFrame$() | async)?.ocrFrame as frame"
-                [nextType]="frame.getNextType()"
-                [level]="(ocrLevel$ | async) ?? 18"
-                [scale]="1.65" [board]="frame.getBinaryBoard()">
-                </app-nes-board>
+                <app-layout-one *ngIf="(videoCapture.getCurrentFrame$() | async)?.ocrFrame as frame"
+                    [board]="frame.getBinaryBoard() ?? EMPTY_BOARD"
+                    [nextType]="frame.getNextType() ?? TetrominoType.ERROR_TYPE"
+                    [level]="(ocrFrameData$ | async)?.level ?? 18"
+                    [score]="(ocrFrameData$ | async)?.score ?? 0"
+                />
 
                 <!-- If no OCRFrame, show an empty board with text to click on empty part of tetris board -->
                 <app-nes-board *ngIf="!((videoCapture.getCurrentFrame$() | async)?.ocrFrame)" [hide]="true" [scale]="1.65">

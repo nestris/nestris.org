@@ -28,7 +28,7 @@
             <app-nes-piece [scale]="3" [piece]="nextType" [level]="level" [animateOpacity]="true" [opacity]="dimmed ? 0.4 : 1" />
         </app-nes-panel>
 
-        <app-nes-panel [ngClass]="{'drought' : drought}" class="trt-panel">
+        <app-nes-panel *ngIf="trt !== null" [ngClass]="{'drought' : drought}" class="trt-panel">
             <p class="prevent-select">{{drought ? 'DRT' : 'QUAD'}}</p>
             <h2 class="prevent-select">{{drought ?? ((trt*100).toFixed(0) + '%')}}</h2>
         </app-nes-panel>

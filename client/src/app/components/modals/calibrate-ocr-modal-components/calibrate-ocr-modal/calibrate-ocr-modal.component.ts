@@ -5,6 +5,7 @@ import { OCRFrame } from 'src/app/ocr/state-machine/ocr-frame';
 import { ModalManagerService } from 'src/app/services/modal-manager.service';
 import { FrameWithContext, VideoCaptureService } from 'src/app/services/ocr/video-capture.service';
 import { Platform, PlatformInterfaceService } from 'src/app/services/platform-interface.service';
+import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 
 
@@ -13,6 +14,11 @@ export enum CalibrationStep {
   LOCATE_TETRIS_BOARD = "Locate tetris board",
   // VERIFY_OCR = "Verify OCR",
   // ANTI_CHEAT = "Anti-cheat"
+}
+
+interface OCRFrameData {
+  score: number | undefined;
+  level: number | undefined;
 }
 
 @Component({
@@ -24,13 +30,14 @@ export enum CalibrationStep {
 export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
 
   readonly ButtonColor = ButtonColor;
-
+  readonly TetrominoType = TetrominoType;
   readonly CalibrationStep = CalibrationStep;
   readonly ALL_CALIBRATION_STEPS = Object.values(CalibrationStep);
+  readonly EMPTY_BOARD = new TetrisBoard();
 
   // We do not poll for level every frame, as that is too computationally expensive. Instead,
   // we poll for level every few frames and cache the result here.
-  ocrLevel$ = new BehaviorSubject<number | undefined>(undefined);
+  ocrFrameData$ = new BehaviorSubject<OCRFrameData | undefined>(undefined);
 
   public stepIndex: number = 0;
 
@@ -44,12 +51,13 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
   public DESCRIPTIONS: {[step in CalibrationStep] : string} = {
     [CalibrationStep.SELECT_VIDEO_SOURCE] : `
         If you have a NES console and the ability to capture your gameplay,
-        you can play directly on your console by calibrating your game capture to stream your real-time
-        game data in the site. If all this is foreign to you, just play on the browser instead!
+        you can play directly on your console by streaming your realtime game data in the site.
+        Start by selecting a video or screen capture source connected to your NES.
+        But If all this is foreign to you, just play on the browser instead!
     `,
     [CalibrationStep.LOCATE_TETRIS_BOARD] : `
       You'll need to tell nestris.org where the board is. Click on the empty or near-empty board in the source
-      you're capturing to calibrate.
+      you're capturing to calibrate. Make sure the board, next piece, score, level, and lines are all correct before saving!
     `,
   }
 
@@ -100,7 +108,7 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
         const nextPiece = ocrFrame.getNextType();
         if (nextPiece === undefined || nextPiece === TetrominoType.ERROR_TYPE) return "Valid next piece not detected";
 
-        const level = this.ocrLevel$.getValue();
+        const level = this.ocrFrameData$.getValue()?.level;
         if (level === undefined || level === -1) return "Valid level not detected";
 
         return true;
@@ -188,18 +196,22 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
     this.next();
   }
 
-  // Compute level only when not already computing
-  onFrameUpdate(frame: OCRFrame) {
+  // Periodically update ocr frame data
+  async onFrameUpdate(frame: OCRFrame) {
     if (this.computingLevel) return;
     this.computingLevel = true;
-    frame.getLevel().then(level => {
-      this.ocrLevel$.next(level);
 
-      // wait a short time before allowing another level computation
-      setTimeout(() => {
-        this.computingLevel = false;
-      }, 300);
-    });
+    // Expensive calculation that gets number counters from frame
+    this.ocrFrameData$.next({
+      level: await frame.getLevel(),
+      score: await frame.getScore(),
+    })
+
+    // wait a short time before allowing another computation
+    setTimeout(() => {
+      this.computingLevel = false;
+    }, 300);
+
   }
 
   cancel() {

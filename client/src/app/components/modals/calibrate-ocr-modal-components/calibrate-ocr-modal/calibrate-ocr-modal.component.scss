@@ -16,9 +16,10 @@
     padding: 0;
     line-height: 1.7;
     text-align: center;
+    text-wrap: pretty;
 
     margin-top: 20px;
-    width: 80%;
+    width: 85%;
     align-self: center;
 }
 
@@ -97,4 +98,8 @@
     font-family: $main-font;
     font-size: 16px;
     font-weight: 600;
+}
+
+app-layout-one {
+    zoom: 0.45;
 }

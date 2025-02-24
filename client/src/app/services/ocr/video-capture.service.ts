@@ -308,12 +308,16 @@ export class VideoCaptureService {
   // draw bounding boxes on canvas
   drawBoundingBoxes(ctx: CanvasRenderingContext2D, ocrFrame: OCRFrame) {
 
-    this.drawRect(ctx, ocrFrame.calibration.rects.board, "green");
-    this.drawRect(ctx, ocrFrame.calibration.rects.next, "green");
+    const GREEN = "#00FF00";
+    const RED = "FF0000";
+
+    // Draw bounding box for each rect
+    const rects = ocrFrame.calibration.rects;
+    [rects.board, rects.next, rects.level, rects.score].forEach(rect => this.drawRect(ctx, rect, GREEN));
 
     // Draw dots on each cell of the board representing whether there is a mino there
     for (let {x, y, color} of ocrFrame.getBinaryBoard()!.iterateMinos()) {
-      const minoColor = (color === ColorType.EMPTY) ? "red" : "green";
+      const minoColor = (color === ColorType.EMPTY) ? RED : GREEN;
       const minoCenter = ocrFrame.boardOCRBox.getBlockShine({x, y});
       this.drawCircle(ctx, minoCenter.x, minoCenter.y, 2, minoColor);
     }
@@ -325,7 +329,7 @@ export class VideoCaptureService {
     ctx.strokeStyle = color;
 
     // draw border so that the border is outside the rect
-    const BORDER_WIDTH = 1;
+    const BORDER_WIDTH = 2;
     ctx.lineWidth = BORDER_WIDTH;
     ctx.strokeRect(
       boardRect.left - BORDER_WIDTH,
