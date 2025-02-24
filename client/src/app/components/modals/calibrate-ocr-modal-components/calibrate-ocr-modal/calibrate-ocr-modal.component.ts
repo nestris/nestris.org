@@ -225,6 +225,10 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
 
   }
 
+  getLevelSync(): number | null {
+    return (this.ocrFrameData$.getValue())?.level ?? null;
+  }
+
   cancel() {
     this.videoCapture.stopCapture();
     this.videoCapture.setCaptureSource(null);

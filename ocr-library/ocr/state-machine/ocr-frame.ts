@@ -2,7 +2,7 @@ import { BoardOCRBox } from "../calibration/board-ocr-box";
 import { Calibration } from "../util/calibration";
 import { Frame } from "../util/frame";
 import { ColorType, TetrisBoard } from "../../shared/tetris/tetris-board";
-import { colorDistance } from "../../shared/tetris/tetromino-colors";
+import { averageRGB, classifyColor, colorDistance } from "../../shared/tetris/tetromino-colors";
 import { NextOCRBox } from "../calibration/next-ocr-box";
 import { TetrominoType } from "../../shared/tetris/tetromino-type";
 import { findSimilarTetrominoType } from "../calibration/next-ocr-similarity";
@@ -22,7 +22,7 @@ export class OCRFrame {
     readonly scoreOCRBox: NumberOCRBox;
     readonly linesOCRBox: NumberOCRBox;
 
-    private _boardUncolored: TetrisBoard | undefined;
+    private _board: TetrisBoard | undefined;
     private _boardNoise: number | undefined;
     private _nextType: TetrominoType | undefined;
     private _level: number | undefined;
@@ -51,14 +51,15 @@ export class OCRFrame {
      * block shine to determine if block exists, then uses the mino points to determine the color of the block.
      * 
      * @param loadIfNotLoaded If true, the property will be computed if it has not been loaded yet
+     * @param level If a level is provided, mino colors will be found for that level. Otherwise the blocks will all be white
      * @returns The extracted tetris board
      */
-    getBinaryBoard(loadIfNotLoaded: boolean = true): TetrisBoard | undefined {
-        if (loadIfNotLoaded && this._boardUncolored === undefined) {
+    getBinaryBoard(level: number | null = null, loadIfNotLoaded: boolean = true): TetrisBoard | undefined {
+        if (loadIfNotLoaded && this._board === undefined) {
 
             // Iterate through each mino on the board and determine the block's color if it exists
-            this._boardUncolored = new TetrisBoard();
-            for (let point of this._boardUncolored.iterateMinos()) {
+            this._board = new TetrisBoard();
+            for (let point of this._board.iterateMinos()) {
 
                 // We use the block shine to determine if a block exists at this point
                 const blockShinePosition = this.boardOCRBox.getBlockShine(point);
@@ -67,15 +68,27 @@ export class OCRFrame {
 
                 if (blockShineColor.average > 30) {
                     // If block shine detected, we use the mino points to determine the color of the block
-                    // TODO: Implement color detection
-                    this._boardUncolored.setAt(point.x, point.y, ColorType.PRIMARY);
+                    const minoPoints = this.boardOCRBox.getMinoPoints(point);
+                    const minoColor = averageRGB(minoPoints.map(point => {
+                        const pixel = this.frame.getPixelAt(point);
+                        if (!pixel) throw new Error(`Pixel does not exist at mino ${point.x}, ${point.y})`);
+                        return pixel;
+                    }));
+
+                    // Deduce ColorType for mino
+                    let color: ColorType;
+                    if (level === null) color = ColorType.WHITE; // If no level found, cannot find color, so default to white
+                    else color = classifyColor(level, minoColor);
+
+                    // Set mino color at location
+                    this._board.setAt(point.x, point.y, color);
                 } else {
                     // If block shine not detected, no mino exists at this point
-                    this._boardUncolored.setAt(point.x, point.y, ColorType.EMPTY);
+                    this._board.setAt(point.x, point.y, ColorType.EMPTY);
                 }
             }
         }
-        return this._boardUncolored;
+        return this._board;
     }
 
     /**
@@ -207,7 +220,7 @@ export class OCRFrame {
         if (loadIfNotLoaded && this._lines === undefined) {
             // Predict the digits of the score from the frame, or return -1 if OCR fails
             // console.log("OCRFrame.getScore");
-            this._lines = await this.predictDigits(this.linesOCRBox, true);
+            this._lines = await this.predictDigits(this.linesOCRBox);
             // console.log("OCRFrame.getScore result", this._score);
         }
         return this._lines;
@@ -221,9 +234,11 @@ export class OCRFrame {
      */
     getBoardOnlyTetrominoType(loadIfNotLoaded: boolean = true): TetrominoType | undefined {
         if (loadIfNotLoaded && this._boardOnlyTetrominoType === undefined) {
-            this._boardOnlyTetrominoType = MoveableTetromino.extractFromTetrisBoard(
-                this.getBinaryBoard()!
-            )?.tetrominoType ?? TetrominoType.ERROR_TYPE;
+
+            const board = this.getBinaryBoard();
+            if (board) this._boardOnlyTetrominoType = MoveableTetromino.extractFromTetrisBoard(board)?.tetrominoType ?? TetrominoType.ERROR_TYPE;
+            else this._boardOnlyTetrominoType = TetrominoType.ERROR_TYPE;
+
         }
         return this._boardOnlyTetrominoType;
     }

@@ -1,6 +1,6 @@
 import { PacketSender } from "../util/packet-sender";
 import { DEFAULT_POLLED_GAME_DATA, GameDisplayData } from "../../shared/tetris/game-display-data";
-import { GameAbbrBoardPacket, GameFullBoardPacket, GamePlacementPacket, GameStartPacket } from "../../shared/network/stream-packets/packet";
+import { GameAbbrBoardPacket, GameEndPacket, GameFullBoardPacket, GamePlacementPacket, GameStartPacket } from "../../shared/network/stream-packets/packet";
 import { TetrominoType } from "../../shared/tetris/tetromino-type";
 import { TetrisBoard } from "../../shared/tetris/tetris-board";
 import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
@@ -22,6 +22,11 @@ export class GlobalState {
     startGame(level: number, current: TetrominoType, next: TetrominoType): void {
         this.game = new GameState(this.packetSender, level, current, next);
         this.packetSender.bufferPacket(new GameStartPacket().toBinaryEncoder({level, current, next}));
+    }
+
+    endGame() {
+        this.packetSender.bufferPacket(new GameEndPacket().toBinaryEncoder({}));
+        this.game = undefined;
     }
 
     getGameDisplayData(): GameDisplayData {

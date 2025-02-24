@@ -111,3 +111,20 @@ export function classifyColor(level: number, colorToClassify: RGBColor): ColorTy
 export function colorDistance(color1: RGBColor, color2: RGBColor): number {
     return Math.sqrt(Math.pow(color2.r - color1.r, 2) + Math.pow(color2.g - color1.g, 2) + Math.pow(color2.b - color1.b, 2));
 }
+
+export function averageRGB(colors: RGBColor[]): RGBColor {
+    if (colors.length === 0) {
+        return new RGBColor(0, 0, 0); // Default to black if the list is empty
+    }
+
+    const total = colors.length;
+    const rSum = colors.reduce((sum, color) => sum + color.r, 0);
+    const gSum = colors.reduce((sum, color) => sum + color.g, 0);
+    const bSum = colors.reduce((sum, color) => sum + color.b, 0);
+
+    return new RGBColor(
+        Math.round(rSum / total),
+        Math.round(gSum / total),
+        Math.round(bSum / total)
+    );
+}

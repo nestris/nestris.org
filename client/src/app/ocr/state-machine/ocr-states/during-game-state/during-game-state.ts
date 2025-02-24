@@ -1,25 +1,28 @@
 import { TetrisBoard } from "../../../../shared/tetris/tetris-board";
 import { GlobalState } from "../../global-state";
 import { OCRFrame } from "../../ocr-frame";
-import { OCRState, StateEvent } from "../../ocr-state";
+import { OCRState } from "../../ocr-state";
 import { OCRStateID } from "../ocr-state-id";
 import MoveableTetromino from "../../../../shared/tetris/moveable-tetromino";
 import { LogType, TextLogger } from "../../state-machine-logger";
 import { TETROMINO_CHAR } from "../../../../shared/tetris/tetrominos";
 import { RegularSpawnEvent } from "./regular-spawn-event";
 import { LineClearSpawnEvent } from "./line-clear-spawn-event";
+import { TopoutEvent } from "./topout-event";
 
 export class PieceDroppingState extends OCRState {
 
     // The last known good position of the active piece, calculated by doing a perfect subtraction of stable board
     // from the current board
     private activePiece: MoveableTetromino | undefined = undefined;
+    private activePieceThisFrame: MoveableTetromino | null = null;
         
     constructor(globalState: GlobalState, textLogger: TextLogger) {
         super(OCRStateID.PIECE_DROPPING, globalState, textLogger);
 
         this.registerEvent(new RegularSpawnEvent(this, globalState));
         this.registerEvent(new LineClearSpawnEvent(this, globalState));
+        this.registerEvent(new TopoutEvent(this, globalState));
     }
 
     /**
@@ -31,18 +34,19 @@ export class PieceDroppingState extends OCRState {
         if (this.globalState.game === undefined) throw new Error("Game must be defined in PieceDroppingState");
 
         // We attempt to compute the active piece for this frame
-        const activePieceThisFrame = this.computeActivePiece(ocrFrame);
+        this.activePieceThisFrame = this.computeActivePiece(ocrFrame);
 
-        if (activePieceThisFrame) {
+        if (this.activePieceThisFrame) {
             // We only update the active piece if it was found this frame
-            this.activePiece = activePieceThisFrame;
+            this.activePiece = this.activePieceThisFrame;
 
             // We use the found active piece this frame to send an abbreviated-length packet for just the active piece
-            this.globalState.game!.setAbbreviatedBoard(activePieceThisFrame);
+            this.globalState.game!.setAbbreviatedBoard(this.activePieceThisFrame);
         } else {
             // We didn't find the active piece this frame, so we are forced to send the entire board state
             const colorBoard = ocrFrame.getBinaryBoard()!; // TODO: GET COLORS FROM OCR
             this.globalState.game!.setFullBoard(colorBoard);
+
         }
 
     }
@@ -90,14 +94,6 @@ export class PieceDroppingState extends OCRState {
         return mt;
     }
 
-    private sendFullGameBoardPacket(ocrFrame: OCRFrame) {
-
-    }
-
-    private sendAbbreviatedGameBoardPacket(activePiece: MoveableTetromino) {
-
-    }
-
     /**
      * Returns the active piece, if it exists. The active piece is the piece that is currently falling
      * on the board. This piece is not guaranteed to be found every frame, and may be undefined.
@@ -105,6 +101,10 @@ export class PieceDroppingState extends OCRState {
      */
     getActivePiece(): MoveableTetromino | undefined {
         return this.activePiece;
+    }
+
+    getActivePieceThisFrame(): MoveableTetromino | null {
+        return this.activePieceThisFrame;
     }
 }
 

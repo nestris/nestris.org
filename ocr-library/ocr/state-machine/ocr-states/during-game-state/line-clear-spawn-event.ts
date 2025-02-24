@@ -3,7 +3,7 @@ import MoveableTetromino from "../../../../shared/tetris/moveable-tetromino";
 import { StateEvent } from "../../ocr-state";
 import { PieceDroppingState } from "./during-game-state";
 import { ConsecutivePersistenceStrategy } from "../../persistence-strategy";
-import { ColorType, TetrisBoard } from "../../../../shared/tetris/tetris-board";
+import { TetrisBoard } from "../../../../shared/tetris/tetris-board";
 import { OCRFrame } from "../../ocr-frame";
 import { OCRStateID } from "../ocr-state-id";
 import { TETROMINO_CHAR } from "../../../../shared/tetris/tetrominos";

@@ -88,7 +88,7 @@ export class JsonLogger extends StateMachineLogger {
 
         const typeToChar = (type: TetrominoType | undefined) => type !== undefined ? TETROMINO_CHAR[type] : undefined;
 
-        const binaryBoard = frame.getBinaryBoard(false);
+        const binaryBoard = frame.getBinaryBoard(null, false);
 
         const stableBoard = globalState.game?.getStableBoard();
 

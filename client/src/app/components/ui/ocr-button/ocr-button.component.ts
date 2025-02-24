@@ -14,6 +14,7 @@ export enum OCRState {
 })
 export class OcrButtonComponent {
   @Input() state: OCRState = OCRState.DISCONNECTED;
+  @Input() expanded: boolean = true;
 
   readonly OCRState = OCRState;
 

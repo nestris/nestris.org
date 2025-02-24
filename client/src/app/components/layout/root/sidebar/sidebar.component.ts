@@ -28,6 +28,9 @@ export class SidebarComponent {
   readonly LoginMethod = LoginMethod;
   readonly OCRState = OCRState;
 
+  private _isExpanded = new BehaviorSubject<boolean>(window.innerWidth > 1000);
+  isExpanded$ = this._isExpanded.asObservable();
+
   constructor(
     private friendsService: FriendsService,
     public websocketService: WebsocketService,
@@ -35,7 +38,9 @@ export class SidebarComponent {
     public serverStatsService: ServerStatsService,
     public platform: PlatformInterfaceService,
     public meService: MeService,
-  ) {}
+  ) {
+    window.addEventListener('resize', this.onResize.bind(this));
+  }
 
   numOnlineFriends$ = this.friendsService.getNumOnlineFriends$();
   ocrState$ = this.platform.getPlatform$().pipe(
@@ -51,6 +56,12 @@ export class SidebarComponent {
     return (user.authentication !== Authentication.USER);
   }
 
+  private onResize() {
+    const isWide = window.innerWidth > 1000;
+    if (this._isExpanded.value !== isWide) {
+      this._isExpanded.next(isWide);
+    }
+  }
   
 
 }

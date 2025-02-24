@@ -48,3 +48,28 @@ export class ConsecutivePersistenceStrategy extends PersistenceStrategy {
         return this.consecutiveCount >= this.requiredConsecutive;
     }
 }
+
+export class TimedPersistenceStrategy extends PersistenceStrategy {
+
+    private startSuccess: number | null = null;
+
+    constructor(
+        private readonly requiredMs: number
+    ) { super(); }
+
+    /**
+     * Checks if the precondition has been met for the required number of consecutive frames.
+     * @param preconditionMet Whether the precondition for this event was met this tick
+     * @returns Whether the precondition has been met for the required number of consecutive frames
+     */
+    override meetsPersistenceCondition(preconditionMet: boolean): boolean {
+
+        if (preconditionMet) {
+            if (!this.startSuccess) this.startSuccess = Date.now();
+            else if (Date.now() - this.startSuccess > this.requiredMs) return true;
+
+        } else this.startSuccess = null;
+        
+        return false;
+    }
+}
