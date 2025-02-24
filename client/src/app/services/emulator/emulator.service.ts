@@ -109,7 +109,7 @@ export class EmulatorService {
     this.clientRoom = clientRoom;
 
     if (this.sendPacketsToServer) this.wakeLockService.enableWakeLock();
-    this.questService.setInGame(true);
+    this.questService.setInGame(true, this.clientRoom);
 
     console.log("starting game at level", startLevel, "with seed", seed);
 

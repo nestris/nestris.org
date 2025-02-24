@@ -6,6 +6,8 @@ import { QuestCompleteMessage, JsonMessageType } from '../shared/network/json-me
 import { AlertService } from './alert.service';
 import { WebsocketService } from './websocket.service';
 import { MeService } from './state/me.service';
+import { ClientRoom } from './room/client-room';
+import { MultiplayerClientRoom } from './room/multiplayer-client-room';
 
 const QUEST_ALERT_DURATION = 4;
 
@@ -19,6 +21,8 @@ export class QuestService {
 
   public activeQuestID$ = new BehaviorSubject<QuestID | null>(null);
 
+  private clientRoom?: ClientRoom;
+
   constructor(
     private readonly websocket: WebsocketService,
     private readonly alertService: AlertService,
@@ -27,8 +31,8 @@ export class QuestService {
 
     this.websocket.onEvent<QuestCompleteMessage>(JsonMessageType.QUEST_COMPLETE).subscribe((message) => {
 
-      // If disable_midgame_quests setting flag is enabled, queue the quests until game end
-      if (this.meService.getSync()?.disable_midgame_quests) {
+      // If disable_midgame_quests setting flag is enabled OR in multiplayer room, queue the quests until game end
+      if (this.inGame && (this.meService.getSync()?.disable_midgame_quests || this.clientRoom instanceof MultiplayerClientRoom)) {
         this.delayedCompletedQuests.push(message.questID);
       } else {
         this.alertQuestComplete(message.questID);
@@ -37,8 +41,9 @@ export class QuestService {
 
   }
 
-  setInGame(inGame: boolean) {
+  setInGame(inGame: boolean, clientRoom?: ClientRoom) {
     this.inGame = inGame;
+    this.clientRoom = clientRoom;
 
     // When game finished, alert any quests that were queued
     if (!this.inGame) {
