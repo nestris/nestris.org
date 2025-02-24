@@ -15,6 +15,7 @@ export interface Calibration {
         next: Rectangle;
         level: Rectangle;
         score: Rectangle;
+        lines: Rectangle;
     }
     // TODO 
 }

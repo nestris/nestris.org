@@ -2,7 +2,7 @@ import { ElementRef, Injectable, Renderer2, RendererFactory2 } from '@angular/co
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Pixels } from 'src/app/services/ocr/pixels';
 import { Point } from 'src/app/shared/tetris/point';
-import { Calibration } from 'src/app/ocr/util/calibration';
+import { Calibration, CalibrationPlus } from 'src/app/ocr/util/calibration';
 import { calibrate } from 'src/app/ocr/calibration/calibrate';
 import { Frame } from 'src/app/ocr/util/frame';
 import { OCRFrame } from 'src/app/ocr/state-machine/ocr-frame';
@@ -44,6 +44,7 @@ export class VideoCaptureService {
 
   // The calibration, if set
   private calibration?: Calibration;
+  private calibrationPlus?: CalibrationPlus;
   private isCalibrationValid$ = new BehaviorSubject<boolean>(false);
 
   // whether capture source is being polled for pixels every frame
@@ -184,9 +185,9 @@ export class VideoCaptureService {
     }
 
     try {
-      this.calibration = calibrate(rawFrame, mouse)[0];
+      [this.calibration, this.calibrationPlus] = calibrate(rawFrame, mouse);
     } catch {
-      this.calibration = undefined;
+      [this.calibration, this.calibrationPlus] = [undefined, undefined];
     }
     
   }
@@ -317,17 +318,27 @@ export class VideoCaptureService {
   drawBoundingBoxes(ctx: CanvasRenderingContext2D, ocrFrame: OCRFrame) {
 
     const GREEN = "#00FF00";
-    const RED = "FF0000";
+    const RED = "#FF0000";
+    const BLUE = "#0000FF";
 
     // Draw bounding box for each rect
     const rects = ocrFrame.calibration.rects;
-    [rects.board, rects.next, rects.level, rects.score].forEach(rect => this.drawRect(ctx, rect, GREEN));
+    [rects.board, rects.next, rects.level, rects.score, rects.lines].forEach(rect => this.drawRect(ctx, rect, GREEN));
 
     // Draw dots on each cell of the board representing whether there is a mino there
     for (let {x, y, color} of ocrFrame.getBinaryBoard()!.iterateMinos()) {
       const minoColor = (color === ColorType.EMPTY) ? RED : GREEN;
       const minoCenter = ocrFrame.boardOCRBox.getBlockShine({x, y});
       this.drawCircle(ctx, minoCenter.x, minoCenter.y, 2, minoColor);
+    }
+
+    // Draw floodfill points
+    const groups = ['scoreFloodfill', 'linesFloodfill', 'levelFloodfill'];
+    const points = this.calibrationPlus?.points;
+    if (points) {
+      groups.forEach(group => {
+        if (points[group]) points[group].forEach(point => this.drawCircle(ctx, point.x, point.y, 2, BLUE));
+      });
     }
     
   }

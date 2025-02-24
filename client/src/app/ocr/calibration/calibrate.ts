@@ -54,11 +54,22 @@ export function calibrate(frame: Frame, point: Point): [Calibration, Calibration
         SCORE_LOCATION,
         { left: 0.04, top: 0.68, right: 0.94, bottom: 0.82 },
     );
-    if (!nextRect || !inBounds(frame, scoreRect)) {
+    if (!scoreRect || !inBounds(frame, scoreRect)) {
         console.log("Could not floodfill score box");
         scoreRect = {top: 0, bottom: 0, left: 0, right: 0 };
     }
     console.log("calibrated scoreRect", scoreRect);
+
+    const LINES_LOCATION: Point = { x: 0.05, y: -0.125 };
+    let linesRect = calibrateNumberBox(frame, boardRect,
+        LINES_LOCATION,
+        { left: 0.69, top: 0.2, right: 0.96, bottom: 0.8 },
+    );
+    if (!linesRect || !inBounds(frame, linesRect)) {
+        console.log("Could not floodfill lines box");
+        linesRect = {top: 0, bottom: 0, left: 0, right: 0 };
+    }
+    console.log("calibrated linesRect", linesRect);
 
 
     const calibration: Calibration = {
@@ -68,6 +79,7 @@ export function calibrate(frame: Frame, point: Point): [Calibration, Calibration
             next: nextRect,
             level: levelRect,
             score: scoreRect,
+            lines: linesRect
         }
     };
 
@@ -78,6 +90,7 @@ export function calibrate(frame: Frame, point: Point): [Calibration, Calibration
             nextFloodfill: NEXTBOX_LOCATIONS.map(point => scalePointWithinRect(boardRect, point, true)),
             levelFloodfill: [ scalePointWithinRect(boardRect, LEVEL_LOCATION, true) ],
             scoreFloodfill: [ scalePointWithinRect(boardRect, SCORE_LOCATION, true) ],
+            linesFloodfill: [ scalePointWithinRect(boardRect, LINES_LOCATION, true) ],
         }
     )
 

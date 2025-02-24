@@ -19,6 +19,7 @@ export enum CalibrationStep {
 interface OCRFrameData {
   score: number | undefined;
   level: number | undefined;
+  lines: number | undefined;
 }
 
 @Component({
@@ -116,6 +117,7 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
         if (frameData === undefined) return "Loading...";
         if (frameData.level === undefined || frameData.level === -1) return "Valid level not detected";
         if (frameData.score === undefined || frameData.score === -1) return "Valid score not detected";
+        if (frameData.lines === undefined || frameData.lines === -1) return "Valid lines not detected";
 
         return true;
 
@@ -210,9 +212,11 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
     // Expensive calculation that gets number counters from frame
     let level = await frame.getLevel();
     let score = await frame.getScore();
+    let lines = await frame.getLines();
     if (level === -1) level = undefined;
     if (score === -1) score = undefined;
-    this.ocrFrameData$.next({ level, score });
+    if (lines === -1) lines = undefined;
+    this.ocrFrameData$.next({ level, score, lines });
 
     // wait a short time before allowing another computation
     setTimeout(() => {

@@ -36,6 +36,7 @@
                     [nextType]="frame.getNextType() ?? TetrominoType.ERROR_TYPE"
                     [level]="(ocrFrameData$ | async)?.level ?? null"
                     [score]="(ocrFrameData$ | async)?.score ?? null"
+                    [lines]="(ocrFrameData$ | async)?.lines ?? null"
                 />
 
                 <!-- If no OCRFrame, show an empty board with text to click on empty part of tetris board -->

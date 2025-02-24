@@ -20,12 +20,14 @@ export class OCRFrame {
     readonly nextOCRBox: NextOCRBox;
     readonly levelOCRBox: NumberOCRBox;
     readonly scoreOCRBox: NumberOCRBox;
+    readonly linesOCRBox: NumberOCRBox;
 
     private _boardUncolored: TetrisBoard | undefined;
     private _boardNoise: number | undefined;
     private _nextType: TetrominoType | undefined;
     private _level: number | undefined;
     private _score: number | undefined;
+    private _lines: number | undefined;
     private _boardOnlyTetrominoType: TetrominoType | undefined;
 
     /**
@@ -41,6 +43,7 @@ export class OCRFrame {
         this.nextOCRBox = new NextOCRBox(calibration.rects.next);
         this.levelOCRBox = new NumberOCRBox(2, calibration.rects.level, digitClassifier);
         this.scoreOCRBox = new NumberOCRBox(6, calibration.rects.score, digitClassifier);
+        this.linesOCRBox = new NumberOCRBox(3, calibration.rects.lines, digitClassifier);
     }
 
     /**
@@ -139,7 +142,7 @@ export class OCRFrame {
      * returns -1.
      * @param ocrBox 
      */
-    private async predictDigits(ocrBox: NumberOCRBox): Promise<number> {
+    private async predictDigits(ocrBox: NumberOCRBox, debug: boolean = false): Promise<number> {
     
         // Each digit must have a minimum confidence of this value for the OCR to be successful
         const MINIMUM_CONFIDENCE = 0.7;
@@ -149,7 +152,7 @@ export class OCRFrame {
             Array.from({length: ocrBox.numDigits}, (_, i) => ocrBox.predictDigit(i, this.frame))
         );
 
-        // console.log("digits", digits);
+        if (debug) console.log("digits", digits);
     
         // If any digit is not found or has low confidence, we fail OCR
         if (digits.some(digit => digit === undefined)) return -1;
@@ -191,6 +194,23 @@ export class OCRFrame {
             // console.log("OCRFrame.getScore result", this._score);
         }
         return this._score;
+    }
+
+    /**
+     * Gets the lines of the game from the frame by OCRing the score number from the frame. If
+     * there is not sufficient confidence in the OCR, returns null.
+     * @param loadIfNotLoaded If true, the property will be computed if it has not been loaded yet
+     * @returns The score of the game. If the score could not be OCR'd, returns -1. If the score
+     * has not been loaded yet, returns undefined.
+     */
+    async getLines(loadIfNotLoaded: boolean = true): Promise<number | undefined> {
+        if (loadIfNotLoaded && this._lines === undefined) {
+            // Predict the digits of the score from the frame, or return -1 if OCR fails
+            // console.log("OCRFrame.getScore");
+            this._lines = await this.predictDigits(this.linesOCRBox, true);
+            // console.log("OCRFrame.getScore result", this._score);
+        }
+        return this._lines;
     }
 
     /**
