@@ -109,7 +109,7 @@ export class EmulatorService {
     this.clientRoom = clientRoom;
 
     if (this.sendPacketsToServer) this.wakeLockService.enableWakeLock();
-    this.questService.setInGame(true);
+    this.questService.setInGame(true, this.clientRoom);
 
     console.log("starting game at level", startLevel, "with seed", seed);
 
@@ -364,6 +364,11 @@ export class EmulatorService {
     if (keybind) {
       this.keyManager.onPress(keybind);
       event.stopPropagation();
+      event.preventDefault();
+    }
+
+    // Prevent tab key from changing focus to chat
+    if (event.key === 'Tab') {
       event.preventDefault();
     }
   }
