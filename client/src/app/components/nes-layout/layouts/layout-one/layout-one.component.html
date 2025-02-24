@@ -2,7 +2,7 @@
 
     <app-eval-bar *ngIf="showEvalBar" backgroundColor="black" [borderRadius]="5" [ratedMove]="ratedMove" />
 
-    <app-nes-board [scale]="3" [board]="board" [canvasBoard]="canvasBoard" [level]="level" [countdown]="countdown" (clickNext)="clickNext.emit()"
+    <app-nes-board [scale]="3" [board]="board" [canvasBoard]="canvasBoard" [level]="level ?? 18" [countdown]="countdown" (clickNext)="clickNext.emit()"
             [gameOver]="gameOver" [gameOverShowNext]="gameOverShowNext" [animateOpacity]="true" [defaultOpacity]="dimmed ? 0.4 : 1" />
 
 
@@ -16,16 +16,16 @@
         <div class="level-lines">
             <app-nes-panel class="level-panel">
                 <p class="prevent-select">Level</p>
-                <h1 class="prevent-select">{{level}}</h1>
+                <h1 class="prevent-select">{{level === null ? '-' : level}}</h1>
             </app-nes-panel>
             <app-nes-panel class="lines-panel">
                 <p class="prevent-select">Lines</p>
-                <h1 class="prevent-select">{{lines}}</h1>
+                <h1 class="prevent-select">{{lines === null ? '-' : lines}}</h1>
             </app-nes-panel>
         </div>
 
         <app-nes-panel class="next-box-panel">
-            <app-nes-piece [scale]="3" [piece]="nextType" [level]="level" [animateOpacity]="true" [opacity]="dimmed ? 0.4 : 1" />
+            <app-nes-piece [scale]="3" [piece]="nextType" [level]="level ?? 18" [animateOpacity]="true" [opacity]="dimmed ? 0.4 : 1" />
         </app-nes-panel>
 
         <app-nes-panel *ngIf="trt !== null" [ngClass]="{'drought' : drought}" class="trt-panel">

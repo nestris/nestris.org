@@ -5,7 +5,11 @@ import { Point } from "../../shared/tetris/point";
 import { BoardOCRBox } from "./board-ocr-box";
 import { NextOCRBox } from "./next-ocr-box";
 import { Rectangle, scalePointWithinRect } from "../util/rectangle";
-import { NumberOCRBox } from "./number-ocr-box";
+
+// Checks whether a rect is full within the frame's dimensions
+function inBounds(frame: Frame, rect: Rectangle) {
+    return rect.left >= 0 && rect.top >= 0 && rect.right < frame.width && rect.bottom < frame.height;
+}
 
 /**
  * Given a frame and a point, calibrate all the bounding rectangles for all the OCR elements.
@@ -27,25 +31,33 @@ export function calibrate(frame: Frame, point: Point): [Calibration, Calibration
         {x: 1.5, y: 0.58} // bottom of the next box
     ];
     let nextRect = FloodFill.fromRelativeRect(frame, boardRect, NEXTBOX_LOCATIONS).getBoundingRect();
-    if (!nextRect) {
+    if (!nextRect || !inBounds(frame, nextRect)) {
         console.log("Could not floodfill next box");
         nextRect = {top: 0, bottom: 0, left: 0, right: 0 };
     }
     console.log("calibrated nextRect", nextRect);
 
     const LEVEL_LOCATION: Point = { x: 1.3, y: 0.78 };
-    const levelRect = calibrateNumberBox(frame, boardRect,
+    let levelRect = calibrateNumberBox(frame, boardRect,
         LEVEL_LOCATION,
         { left: 0.4, top: 0.48, right: 0.76, bottom: 0.86 }
     );
+    if (!nextRect || !inBounds(frame, levelRect)) {
+        console.log("Could not floodfill level box");
+        levelRect = {top: 0, bottom: 0, left: 0, right: 0 };
+    }
     console.log("calibrated levelRect", levelRect);
 
 
     const SCORE_LOCATION: Point = { x: 1.3, y: 0.18 };
-    const scoreRect = calibrateNumberBox(frame, boardRect,
+    let scoreRect = calibrateNumberBox(frame, boardRect,
         SCORE_LOCATION,
         { left: 0.04, top: 0.68, right: 0.94, bottom: 0.82 },
     );
+    if (!nextRect || !inBounds(frame, scoreRect)) {
+        console.log("Could not floodfill score box");
+        scoreRect = {top: 0, bottom: 0, left: 0, right: 0 };
+    }
     console.log("calibrated scoreRect", scoreRect);
 
 

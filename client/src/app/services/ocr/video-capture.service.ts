@@ -183,7 +183,12 @@ export class VideoCaptureService {
       return;
     }
 
-    this.calibration = calibrate(rawFrame, mouse)[0];
+    try {
+      this.calibration = calibrate(rawFrame, mouse)[0];
+    } catch {
+      this.calibration = undefined;
+    }
+    
   }
 
   // set the video capture source, whether from screen capture or video source
@@ -211,6 +216,9 @@ export class VideoCaptureService {
       const settings = videoTrack.getSettings();
       this.canvasElement.width = settings.width!;
       this.canvasElement.height = settings.height!;
+
+      // Reset calibration
+      this.calibration = undefined;
 
       console.log("set media stream with video resolution", settings.width, settings.height);
       this.captureSource$.next(mediaStream);

@@ -105,11 +105,17 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
         const ocrFrame = this.videoCapture.getCurrentFrame()?.ocrFrame;
         if (!ocrFrame) return "Invalid video frame";
 
-        const nextPiece = ocrFrame.getNextType();
-        if (nextPiece === undefined || nextPiece === TetrominoType.ERROR_TYPE) return "Valid next piece not detected";
-
-        const level = this.ocrFrameData$.getValue()?.level;
-        if (level === undefined || level === -1) return "Valid level not detected";
+        try {
+          const nextPiece = ocrFrame.getNextType();
+          if (nextPiece === undefined || nextPiece === TetrominoType.ERROR_TYPE) return "Valid next piece not detected";
+        } catch {
+          return "An error occured";
+        }
+        
+        const frameData = this.ocrFrameData$.getValue();
+        if (frameData === undefined) return "Loading...";
+        if (frameData.level === undefined || frameData.level === -1) return "Valid level not detected";
+        if (frameData.score === undefined || frameData.score === -1) return "Valid score not detected";
 
         return true;
 
@@ -202,10 +208,11 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
     this.computingLevel = true;
 
     // Expensive calculation that gets number counters from frame
-    this.ocrFrameData$.next({
-      level: await frame.getLevel(),
-      score: await frame.getScore(),
-    })
+    let level = await frame.getLevel();
+    let score = await frame.getScore();
+    if (level === -1) level = undefined;
+    if (score === -1) score = undefined;
+    this.ocrFrameData$.next({ level, score });
 
     // wait a short time before allowing another computation
     setTimeout(() => {

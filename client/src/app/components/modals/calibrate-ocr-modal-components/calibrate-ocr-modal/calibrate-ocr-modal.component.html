@@ -34,12 +34,12 @@
                 <app-layout-one *ngIf="(videoCapture.getCurrentFrame$() | async)?.ocrFrame as frame"
                     [board]="frame.getBinaryBoard() ?? EMPTY_BOARD"
                     [nextType]="frame.getNextType() ?? TetrominoType.ERROR_TYPE"
-                    [level]="(ocrFrameData$ | async)?.level ?? 18"
-                    [score]="(ocrFrameData$ | async)?.score ?? 0"
+                    [level]="(ocrFrameData$ | async)?.level ?? null"
+                    [score]="(ocrFrameData$ | async)?.score ?? null"
                 />
 
                 <!-- If no OCRFrame, show an empty board with text to click on empty part of tetris board -->
-                <app-nes-board *ngIf="!((videoCapture.getCurrentFrame$() | async)?.ocrFrame)" [hide]="true" [scale]="1.65">
+                <app-nes-board *ngIf="!((videoCapture.getCurrentFrame$() | async)?.ocrFrame)" [hide]="true" [scale]="1.3">
                     <h2 class="no-board-text">Click on an empty part of the tetris board!</h2>
                 </app-nes-board>
             </div>

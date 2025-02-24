@@ -17,9 +17,9 @@ export class LayoutOneComponent extends AbstractNesLayoutComponent implements On
   @Input() board: TetrisBoard = new TetrisBoard();
   @Input() canvasBoard?: Observable<TetrisBoard>; // If defined, use canvas instead of svg for faster rendering
   @Input() nextType: TetrominoType = TetrominoType.ERROR_TYPE;
-  @Input() level: number = 0;
-  @Input() lines: number = 0;
-  @Input() score: number = 0;
+  @Input() level: number | null = 0; // if null, show -
+  @Input() lines: number | null = 0; // if null, show -
+  @Input() score: number | null = 0; // if null, show -
   @Input() countdown?: number | string;
   @Input() trt: number | null = null;
   @Input() drought: number | null = null; // if undefined, not in drought and hidden. if drought, replace trt
@@ -39,7 +39,8 @@ export class LayoutOneComponent extends AbstractNesLayoutComponent implements On
     //console.log('frame layout-one changes', changes);
   }
 
-  padScore(score: number): string {
+  padScore(score: number | null): string {
+    if (score === null) return "------";
     return score.toString().padStart(6, '0');
   }
 
