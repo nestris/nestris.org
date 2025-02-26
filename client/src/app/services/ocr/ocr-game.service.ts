@@ -16,23 +16,16 @@ export class OcrGameService {
     private platform: PlatformInterfaceService
   ) {
 
-    let running = false;
-
     // Register a subscriber to the video capture service for processing video frames
     this.videoCapture.registerSubscriber(async (frame) => {
       if (!this.stateMachine) return;
       if (!frame || !frame.ocrFrame) return;
-
-      if (running) return;
-      running = true;
       
       // Every time a new video frame is captured, advance state machine and send display data
       // to PlatformInterfaceService
       await this.stateMachine.advanceFrame(frame.ocrFrame);
       const displayData = this.stateMachine.getGameDisplayData();
       this.platform.updateGameData(displayData);
-
-      running = false;
     })
   }
 

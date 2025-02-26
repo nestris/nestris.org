@@ -248,6 +248,7 @@ export class VideoCaptureService {
 
   // Captures a single frame and stores it
   private async captureFrame() {
+    if (!this.capturing$.getValue()) return;
 
     this.fpsTracker?.tick();
 
