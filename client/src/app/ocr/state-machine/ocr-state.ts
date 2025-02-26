@@ -1,5 +1,6 @@
 import { GlobalState } from "./global-state";
 import { OCRFrame } from "./ocr-frame";
+import { OCRConfig } from "./ocr-state-machine";
 import { OCRStateID } from "./ocr-states/ocr-state-id";
 import { PersistenceStrategy, SingleFramePersistenceStrategy } from "./persistence-strategy";
 import { TextLogger } from "./state-machine-logger";
@@ -15,17 +16,32 @@ export interface EventStatus {
  * and OCRStateMachine determines transitions based on current state and OCRFrame data.
  */
 export abstract class OCRState {
+    public abstract readonly id: OCRStateID;
 
     private events: StateEvent[] = [];
 
     private eventStatuses: EventStatus[] = [];
     private relativeFrameCount = 0;
 
+    private startMs = Date.now();
+
     constructor(
-        public readonly id: OCRStateID,
+        public readonly config: OCRConfig,
         public readonly globalState: GlobalState,
         public readonly textLogger: TextLogger
     ) {}
+
+    /**
+     * The ms that elapsed since transition to this state
+     */
+    get elapsedMs() {
+        return Date.now() - this.startMs;
+    }
+
+    /**
+     * Override this method to define hooks on initialization
+     */
+    public init(): void {}
 
     /**
      * Adds an event to this state. Events define custom logic for transitioning between states when the event
@@ -57,6 +73,7 @@ export abstract class OCRState {
             this.eventStatuses.push(eventStatus);
 
             if (eventStatus.persistenceMet) {
+                console.log(`Conditions for event ${event.constructor.name} met`);
                 return await event.triggerEvent(ocrFrame);
             }
         }
@@ -88,21 +105,19 @@ export abstract class OCRState {
 
 }
 
-
+/**
+ * StateEvents are initialized at the same time the corresponding OCRState is. They define
+ * triggers for transitioning between states based on custom logic using current OCRFrame and GameData. 
+ */
 export abstract class StateEvent {
 
-    /**
-     * StateEvents are initialized at the same time the corresponding OCRState is. They define
-     * triggers for transitioning between states based on custom logic using current OCRFrame and GameData. 
-     * @param name Display name of the event
-     * @param persistence Strategy used for how long precondition=true must persist before the event is
-     * triggered. Default is SingleFramePersistenceStrategy, which triggers the event immediately.
-     */
-    constructor(
-        public readonly name: string,
-        private readonly persistence: PersistenceStrategy = new SingleFramePersistenceStrategy()
-    ) {}
+    /** @param name Display name of the event */
+    public abstract readonly name: string;
 
+    /** @param persistence Strategy used for how long precondition=true must persist before the event is triggered */
+    public abstract readonly persistence: PersistenceStrategy;
+
+    
     /**
      * Checks if the event should be triggered based on the current OCRFrame and GameData.
      * The precondition must be met some number of times based on the persistence strategy

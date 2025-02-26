@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { VideoCaptureService } from './video-capture.service';
-import { OCRStateMachine } from 'src/app/ocr/state-machine/ocr-state-machine';
+import { OCRConfig, OCRStateMachine } from 'src/app/ocr/state-machine/ocr-state-machine';
 import { PlatformInterfaceService } from '../platform-interface.service';
 import { OCRStateID } from 'src/app/ocr/state-machine/ocr-states/ocr-state-id';
 
@@ -32,9 +32,6 @@ export class OcrGameService {
       const displayData = this.stateMachine.getGameDisplayData();
       this.platform.updateGameData(displayData);
 
-      // On reaching game end state, stop polling
-      if (this.stateMachine.getCurrentState() === OCRStateID.GAME_END) this.stopGame();
-
       running = false;
     })
   }
@@ -42,26 +39,26 @@ export class OcrGameService {
   /**
    * Start polling video and performing OCR for exactly one game. If the level is specified, the level
    * must match for the game to start
-   * @param level The level to start the game in
+   * @param config Configuration parameters for the OCR state machine
    */
-  startGame(level: number | null) {
+  startGameCapture(config: OCRConfig) {
 
     if (this.stateMachine) {
       console.error("Game already started");
       return;
     }
 
-    this.stateMachine = new OCRStateMachine(level, this.platform);
+    this.stateMachine = new OCRStateMachine(config, this.platform);
     this.videoCapture.startCapture();
-    console.log("Starting OCR game")
+    console.log("Starting OCR game capture")
   }
 
-  stopGame() {
+  stopGameCapture() {
     if (!this.stateMachine) return;
 
     this.stateMachine = undefined;
     this.videoCapture.stopCapture();
-    console.log("Ending OCR game");
+    console.log("Ending OCR game capture");
   }
 
 }

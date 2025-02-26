@@ -8,19 +8,10 @@ import { LogType, TextLogger } from "../state-machine-logger";
 import { OCRStateID } from "./ocr-state-id";
 
 export class BeforeGameState extends OCRState {
-        
-    /**
-     * @param startLevel If the level is specified, the level must match for the game to start
-     * @param globalState 
-     * @param textLogger 
-     */
-    constructor(
-        startLevel: number | null,
-        globalState: GlobalState, textLogger: TextLogger
-    ) {
-        super(OCRStateID.BEFORE_GAME, globalState, textLogger);
+    public override readonly id = OCRStateID.BEFORE_GAME;
 
-        this.registerEvent(new StartGameEvent(startLevel, globalState, textLogger));
+    public override init() {
+        this.registerEvent(new StartGameEvent(this.config.startLevel, this.globalState, this.textLogger));
     }
 
     /**
@@ -42,6 +33,8 @@ export class BeforeGameState extends OCRState {
  * for the StartGameEvent to trigger, which causes transition BeforeGameState -> InGameState.
  */
 export class StartGameEvent extends StateEvent {
+    public override readonly name = "StartGameEvent";
+    public override readonly persistence = new ConsecutivePersistenceStrategy(5);
 
     /**
      * @param startLevel If the level is specified, the level must match for the game to start
@@ -52,12 +45,7 @@ export class StartGameEvent extends StateEvent {
         private readonly startLevel: number | null,
         private readonly globalState: GlobalState,
         private readonly textLogger: TextLogger
-    ) {
-        super(
-            "StartGameEvent",
-            new ConsecutivePersistenceStrategy(5)
-        );
-    }
+    ) { super(); }
 
     /**
      * Defines the requirements for the StartGameEvent to trigger. The requirements are as follows:

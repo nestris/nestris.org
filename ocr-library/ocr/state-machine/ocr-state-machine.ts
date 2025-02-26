@@ -9,6 +9,11 @@ import { PacketSender } from "../util/packet-sender";
 import { GameDisplayData } from "../../shared/tetris/game-display-data";
 import { OCRStateID } from "./ocr-states/ocr-state-id";
 
+export interface OCRConfig {
+    startLevel: number | null, // Can only transition to game if OCR detects matching start level
+    multipleGames: boolean, // whether OCR can start another game after first game ends
+}
+
 export class OCRStateMachine {
 
     private currentState: OCRState;
@@ -29,12 +34,12 @@ export class OCRStateMachine {
      * @param logger Logs the state of the OCR machine at each advanceFrame() call
      */
     constructor(
-        private readonly startLevel: number | null,
+        public readonly config: OCRConfig,
         private readonly packetSender: PacketSender,
         private readonly logger?: StateMachineLogger,
     ) {
         this.globalState = new GlobalState(this.packetSender);
-        this.currentState = new BeforeGameState(startLevel, this.globalState, this.textLogger);
+        this.currentState = ocrStateFactory(OCRStateID.BEFORE_GAME, this.config, this.globalState, this.textLogger);
     }
 
     /**
@@ -59,7 +64,7 @@ export class OCRStateMachine {
         // Transition to the new state if needed
         if (newStateID !== undefined) {
             this.stateCount++;
-            this.currentState = ocrStateFactory(newStateID, this.globalState, this.textLogger);
+            this.currentState = ocrStateFactory(newStateID, this.config, this.globalState, this.textLogger);
             console.log("Transition to", newStateID);
         }
         

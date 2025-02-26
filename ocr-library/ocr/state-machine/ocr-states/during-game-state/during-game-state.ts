@@ -9,20 +9,22 @@ import { TETROMINO_CHAR } from "../../../../shared/tetris/tetrominos";
 import { RegularSpawnEvent } from "./regular-spawn-event";
 import { LineClearSpawnEvent } from "./line-clear-spawn-event";
 import { TopoutEvent } from "./topout-event";
+import { ConfusionEvent } from "./confusion-event";
 
 export class PieceDroppingState extends OCRState {
 
+    public override readonly id = OCRStateID.GAME_END;
     // The last known good position of the active piece, calculated by doing a perfect subtraction of stable board
     // from the current board
     private activePiece: MoveableTetromino | undefined = undefined;
     private activePieceThisFrame: MoveableTetromino | null = null;
         
-    constructor(globalState: GlobalState, textLogger: TextLogger) {
-        super(OCRStateID.PIECE_DROPPING, globalState, textLogger);
+    public override init() {
 
-        this.registerEvent(new RegularSpawnEvent(this, globalState));
-        this.registerEvent(new LineClearSpawnEvent(this, globalState));
-        this.registerEvent(new TopoutEvent(this, globalState));
+        this.registerEvent(new RegularSpawnEvent(this, this.globalState));
+        this.registerEvent(new LineClearSpawnEvent(this, this.globalState));
+        this.registerEvent(new TopoutEvent(this));
+        this.registerEvent(new ConfusionEvent(this));
     }
 
     /**
@@ -35,6 +37,13 @@ export class PieceDroppingState extends OCRState {
 
         // We attempt to compute the active piece for this frame
         this.activePieceThisFrame = this.computeActivePiece(ocrFrame);
+
+        // If active piece was already found but is different from this frame, then it is a false positive
+        if (
+            this.activePieceThisFrame &&
+            this.activePiece &&
+            this.activePieceThisFrame.tetrominoType !==this.activePiece.tetrominoType
+        ) this.activePieceThisFrame = null;
 
         if (this.activePieceThisFrame) {
             // We only update the active piece if it was found this frame

@@ -5,7 +5,7 @@ DIRS=(
   "shared/ client/src/app/shared"
   "shared/ server/shared"
   "shared/ ocr-library/shared"
-  "ocr-library/ocr client/src/app/ocr"
+  "client/src/app/ocr ocr-library/ocr"
 )
 
 # Loop through each pair

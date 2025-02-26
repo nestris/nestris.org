@@ -74,7 +74,10 @@ export class SoloClientRoom extends ClientRoom {
 
         // If going into solo mode game and in ocr, start capturing
         if (state === SoloClientState.IN_GAME && this.platformInterface.getPlatform() === Platform.OCR) {
-            this.ocr.startGame(null);
+            this.ocr.startGameCapture({
+                startLevel: null, // Player can play on any level in solo mode with OCR
+                multipleGames: true, // Player can play as many games as desired while on solo page
+            });
         }
     }
 
@@ -107,7 +110,7 @@ export class SoloClientRoom extends ClientRoom {
 
     public override destroy(): void {
         this.emulator.stopGame(true);
-        this.ocr.stopGame();
+        this.ocr.stopGameCapture();
     }
 
 }

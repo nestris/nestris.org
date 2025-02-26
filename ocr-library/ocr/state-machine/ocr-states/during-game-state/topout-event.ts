@@ -1,7 +1,7 @@
 import { StateEvent } from "../../ocr-state";
 import { PieceDroppingState } from "./during-game-state";
 import { GlobalState } from "../../global-state";
-import { ConsecutivePersistenceStrategy, TimedPersistenceStrategy } from "../../../state-machine/persistence-strategy";
+import { TimedPersistenceStrategy } from "../../../state-machine/persistence-strategy";
 import { OCRFrame } from "../../../state-machine/ocr-frame";
 import { ALL_TETROMINO_TYPES, TetrominoType } from "../../../../shared/tetris/tetromino-type";
 import MoveableTetromino from "../../../../shared/tetris/moveable-tetromino";
@@ -12,15 +12,12 @@ import { OCRStateID } from "../ocr-state-id";
  * piece being placed, and updating the stable board to reflect the placed piece.
  */
 export class TopoutEvent extends StateEvent {
+    public override readonly name = "TopoutEvent";
+    public override readonly persistence = new TimedPersistenceStrategy(500);
 
-    constructor(private readonly myState: PieceDroppingState, private readonly globalState: GlobalState) {
-            
-        // We require topout conditions to be met for one second
-        super(
-            "TopoutEvent",
-            new TimedPersistenceStrategy(1000)
-        );
-    }
+    constructor(
+        private readonly myState: PieceDroppingState,
+    ) { super(); }
 
     /**
      * Precondition is when the spawn position of one of the seven pieces has been filled by minos, and no
@@ -42,8 +39,23 @@ export class TopoutEvent extends StateEvent {
             return true; // If all exist, then it contains piece
         }
 
-        // if any of the tetromino types are contained in board, then this is precondition for topout
-        if (ALL_TETROMINO_TYPES.some(type => pieceSpawnFilled(type))) return true;
+        for (let type of ALL_TETROMINO_TYPES) {
+            if (pieceSpawnFilled(type)) {
+                // This means there is piece of type at spawn location. Check if there is a block in every row
+                // to make sure that it's not just as floating piece
+                let blockInEveryRow: boolean = true;
+                for (let i = 0; i < 20; i++) {
+                    if (board.isRowEmpty(i)) {
+                        blockInEveryRow = false;
+                        break;
+                    }
+                }
+
+                // If there indeed is a piece of type at spawn location that is connected to the bottom of the board,
+                // then this is a topout
+                if (blockInEveryRow) return true;
+            }
+        }
 
         // No topout
         return false;
@@ -53,7 +65,6 @@ export class TopoutEvent extends StateEvent {
      * On topout, end game
      */
     override async triggerEvent(ocrFrame: OCRFrame): Promise<OCRStateID | undefined> {
-        this.globalState.endGame();
         return OCRStateID.GAME_END;
     }
 

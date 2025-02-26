@@ -5,10 +5,7 @@ import { TextLogger } from "../state-machine-logger";
 import { OCRStateID } from "./ocr-state-id";
 
 export class GameLimboState extends OCRState {
-        
-    constructor(globalState: GlobalState, textLogger: TextLogger) {
-        super(OCRStateID.GAME_LIMBO, globalState, textLogger);
-    }
+    public override readonly id = OCRStateID.GAME_LIMBO;
 
     /**
      * Runs the logic for the BeforeGameState each frame.

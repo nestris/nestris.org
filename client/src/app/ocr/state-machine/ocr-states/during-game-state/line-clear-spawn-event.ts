@@ -14,17 +14,15 @@ import { LogType } from "../../state-machine-logger";
  * piece being placed, and updating the stable board to reflect the placed piece.
  */
 export class LineClearSpawnEvent extends StateEvent {
+    public override readonly name = "LineClearSpawnEvent";
+    public override readonly persistence = new ConsecutivePersistenceStrategy(2);
 
     private validPlacement: MoveableTetromino | undefined = undefined;
 
-    constructor(private readonly myState: PieceDroppingState, private readonly globalState: GlobalState) {
-        
-        // We require two consecutive valid frames to trigger this event
-        super(
-            "LineClearSpawnEvent",
-            new ConsecutivePersistenceStrategy(2)
-        );
-    }
+    constructor(
+        private readonly myState: PieceDroppingState,
+        private readonly globalState: GlobalState)
+    { super(); }
 
     /**
      * This event happens when the current board's mino count is 8 or more the StableBoard's mino count, and
