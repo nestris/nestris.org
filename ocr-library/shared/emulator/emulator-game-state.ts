@@ -73,7 +73,7 @@ export class EmulatorGameState {
     private readonly MAX_DAS = 16;
     private readonly RESET_DAS = 10;
     private readonly FRAMES_PER_LINE_CLEAR_STEP = 4;
-    private readonly MAX_LINE_CLEAR_DELAY = 5 * this.FRAMES_PER_LINE_CLEAR_STEP;
+    private readonly MAX_LINE_CLEAR_DELAY = 6 * this.FRAMES_PER_LINE_CLEAR_STEP;
 
     constructor(
         public readonly startLevel: number,

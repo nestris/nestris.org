@@ -1,6 +1,5 @@
 import { StateEvent } from "../../ocr-state";
 import { PieceDroppingState } from "./during-game-state";
-import { GlobalState } from "../../global-state";
 import { TimedPersistenceStrategy } from "../../../state-machine/persistence-strategy";
 import { OCRFrame } from "../../../state-machine/ocr-frame";
 import { ALL_TETROMINO_TYPES, TetrominoType } from "../../../../shared/tetris/tetromino-type";
