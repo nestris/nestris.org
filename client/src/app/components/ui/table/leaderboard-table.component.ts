@@ -6,6 +6,9 @@ import { ButtonColor } from '../solid-button/solid-button.component';
 import { FriendsService } from 'src/app/services/state/friends.service';
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
 import { ProfileModalConfig } from '../../modals/profile-modal/profile-modal.component';
+import { BehaviorSubject } from 'rxjs';
+
+const EXPANDED_THRESHOLD = 550;
 
 
 @Component({
@@ -43,10 +46,14 @@ export class LeaderboardTableComponent implements OnChanges {
 
   readonly onlineFriends$ = this.friendService.get$();
 
+  isExpanded$ = new BehaviorSubject<boolean>(window.innerWidth > EXPANDED_THRESHOLD);
+
   constructor(
     private readonly friendService: FriendsService,
     private readonly modalManagerService: ModalManagerService,
-  ) {}
+  ) {
+    window.addEventListener('resize', this.onResize.bind(this));
+  }
 
   ngOnChanges(): void {
     console.log('table changes', this.rows);
@@ -81,7 +88,11 @@ export class LeaderboardTableComponent implements OnChanges {
     return 'white';
   }
 
-  gridTemplateColumns(): string {
+  gridTemplateColumns(isExpanded: boolean): string {
+    if (!isExpanded) {
+      if (!this.resourceIDType) return "1fr 100px";
+      return "230px 1fr 50px";
+    }
     let str = `35% repeat(${Object.keys(this.attributes).length}, 1fr)`;
     if (this.resourceIDType) str += ' 40px';
     return str;
@@ -98,6 +109,11 @@ export class LeaderboardTableComponent implements OnChanges {
   }
 
 
-
+  private onResize() {
+    const isWide = window.innerWidth > EXPANDED_THRESHOLD;
+    if (this.isExpanded$.value !== isWide) {
+      this.isExpanded$.next(isWide);
+    }
+  }
 
 }

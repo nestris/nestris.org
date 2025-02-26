@@ -33,3 +33,9 @@ app-solid-selector {
     height: 0;
     z-index: 1;
 }
+
+@media screen and (max-width: 400px) {
+    app-solid-selector {
+        display: none;
+    }
+}

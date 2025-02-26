@@ -258,3 +258,21 @@ app-quest:hover {
         width: 230px;
     }
 }
+
+@media screen and (max-width: 550px) {
+    .leaderboard {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 520px) {
+    .profile {
+        zoom: 0.8;
+    }
+}
+
+@media screen and (max-width: 410px) {
+    .profile {
+        zoom: 0.7;
+    }
+}

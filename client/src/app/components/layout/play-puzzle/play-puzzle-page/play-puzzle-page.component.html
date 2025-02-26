@@ -6,7 +6,7 @@
 
     <app-fullscreen-exit-button [onExit]="this.onExit.bind(this)" />
 
-    <app-xp-status *ngIf="getRatedPuzzleStrategy() as ratedState" />
+    <app-xp-status class="fixed" *ngIf="getRatedPuzzleStrategy() as ratedState" />
 
     <div class="content">
 
@@ -216,6 +216,10 @@
                 </div>
 
             </div>
+
+            <!-- show undo button if in puzzle solving mode and can undo -->
+            <app-outline-button class="undo-button" label="Undo"
+            [ngStyle]="{visibility: 'hidden'}" />
 
         </div>
 

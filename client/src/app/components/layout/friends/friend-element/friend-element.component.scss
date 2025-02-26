@@ -48,6 +48,7 @@ app-league-icon {
     font-style: normal;
     font-weight: 600;
     line-height: normal;
+    text-wrap: nowrap;
 
     cursor: pointer;
 
@@ -62,4 +63,16 @@ app-league-icon {
     flex-direction: row;
     align-items: center;
     gap: 9px;
+}
+
+@media screen and (max-width: 450px) {
+    .container-right app-solid-button:not(.delete) {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .stats {
+        display: none;
+    }
 }

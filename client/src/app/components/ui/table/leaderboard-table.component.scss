@@ -194,3 +194,10 @@ tr:last-child td .ranking {
 .content.row.me {
     background-color: #264D2A;
 }
+
+
+@media screen and (max-width: 550px) {
+    .row div.cell.attribute:nth-of-type(n+3) {
+        display: none;
+    }
+}

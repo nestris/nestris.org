@@ -66,9 +66,9 @@
                 <div></div>
                 <div>Start level</div>
                 <div>Score</div>
-                <div>Level</div>
-                <div>Lines</div>
-                <div>Quad rate</div>
+                <div class="skippable">Level</div>
+                <div class="skippable">Lines</div>
+                <div class="skippable">Quad rate</div>
                 <div>Accuracy</div>
                 <div></div>
             </div>
@@ -77,9 +77,9 @@
                 <div>{{timeAgo(game.created_at)}}</div>
                 <div>{{game.start_level}}</div>
                 <div>{{numbersWithCommas(game.end_score)}}</div>
-                <div>{{game.end_level}}</div>
-                <div>{{game.end_lines}}</div>
-                <div>{{(game.tetris_rate * 100).toFixed(0)}}%</div>
+                <div class="skippable">{{game.end_level}}</div>
+                <div class="skippable">{{game.end_lines}}</div>
+                <div class="skippable">{{(game.tetris_rate * 100).toFixed(0)}}%</div>
                 <div [ngStyle]="{'color' : getAccuracyColor(game.accuracy)}">{{game.accuracy}}%</div>
                 <div>
 

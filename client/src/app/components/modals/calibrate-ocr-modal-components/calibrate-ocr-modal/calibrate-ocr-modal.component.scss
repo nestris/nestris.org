@@ -103,3 +103,27 @@
 app-layout-one {
     zoom: 0.45;
 }
+
+@media screen and (max-width: 800px) {
+    .modal {
+        zoom: 0.7;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .modal {
+        zoom: 0.6;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .modal {
+        zoom: 0.5;
+    }
+}
+
+@media screen and (max-width: 420px) {
+    .modal {
+        zoom: 0.43;
+    }
+}

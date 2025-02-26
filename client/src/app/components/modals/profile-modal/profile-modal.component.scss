@@ -29,6 +29,17 @@
         zoom: 0.6;
     }
 }
+@media screen and (max-width: 600px) {
+    .modal {
+        zoom: 0.4;
+    }
+}
+
+@media screen and (max-width: 420px) {
+    .modal {
+        zoom: 0.35;
+    }
+}
 
 .top-row {
     display: flex;

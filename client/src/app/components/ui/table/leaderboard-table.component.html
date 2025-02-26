@@ -1,11 +1,11 @@
 <div class="table">
-    <div class="row header" [ngStyle]="{gridTemplateColumns: gridTemplateColumns()}">
+    <div class="row header" [ngStyle]="{gridTemplateColumns: gridTemplateColumns((isExpanded$ | async) ?? true)}">
         <div class="cell player"><p class="prevent-select">Player</p></div>
-        <div *ngFor="let item of attributes | keyvalue: originalOrder" class="cell prevent-select">{{item.value}}</div>
+        <div *ngFor="let item of attributes | keyvalue: originalOrder" class="cell attribute prevent-select">{{item.value}}</div>
         <div class="cell resource" *ngIf="!!resourceIDType"></div>
     </div>
 
-    <div class="row content" *ngFor="let row of rows; let i = index" [ngStyle]="{gridTemplateColumns: gridTemplateColumns()}"
+    <div class="row content" *ngFor="let row of rows; let i = index" [ngStyle]="{gridTemplateColumns: gridTemplateColumns((isExpanded$ | async) ?? true)}"
         [ngClass]="{'me': row.userid === myID, 'top' : i === 0, 'first' : row.rank === 1, 'second' : row.rank === 2, 'third' : row.rank === 3}">
         <div class="cell player">
             <div class="ranking prevent-select" [ngClass]="getDigitClassname(row.rank)">#{{ row.rank }}</div>
@@ -15,15 +15,15 @@
         </div>
         <ng-container *ngFor="let item of attributes | keyvalue: originalOrder">
 
-            <div class="cell" *ngIf="item.key === 'highest_score'; else trophies"><app-highest-score class="td-content" [size]="14" [highestScore]="getRowAttribute(row, item.key)" /></div>
+            <div class="cell attribute" *ngIf="item.key === 'highest_score'; else trophies"><app-highest-score class="td-content" [size]="14" [highestScore]="getRowAttribute(row, item.key)" /></div>
             <ng-template #trophies>
-                <div class="cell" *ngIf="['trophies', 'highest_trophies'].includes(item.key); else puzzle_elo"><app-trophies class="td-content" [size]="14" [trophies]="getRowAttribute(row, item.key)" /></div>
+                <div class="cell attribute" *ngIf="['trophies', 'highest_trophies'].includes(item.key); else puzzle_elo"><app-trophies class="td-content" [size]="14" [trophies]="getRowAttribute(row, item.key)" /></div>
             </ng-template>
             <ng-template #puzzle_elo>
-                <div class="cell" *ngIf="['puzzle_elo', 'highest_puzzle_elo'].includes(item.key); else default"><app-puzzle-elo class="td-content" [size]="14" [puzzleElo]="getRowAttribute(row, item.key)" /></div>
+                <div class="cell attribute" *ngIf="['puzzle_elo', 'highest_puzzle_elo'].includes(item.key); else default"><app-puzzle-elo class="td-content" [size]="14" [puzzleElo]="getRowAttribute(row, item.key)" /></div>
             </ng-template>
             <ng-template #default>
-                <div class="cell prevent-select" [ngStyle]="{color: getCellColor(row, item.key)}">{{getRowAttribute(row, item.key)}}</div>
+                <div class="cell attribute prevent-select" [ngStyle]="{color: getCellColor(row, item.key)}">{{getRowAttribute(row, item.key)}}</div>
             </ng-template>
         </ng-container>
 

@@ -111,3 +111,24 @@
         opacity: 1;
     }
 }
+
+@media screen and (max-width: 1000px) {
+    :host {
+        zoom: 0.8;
+    }
+}
+
+@media screen and (max-width: 775px) {
+    .right {
+        display: none;
+    }
+    :host {
+        grid-template-columns: 50px 1fr 50px;
+    }
+}
+
+@media screen and (max-width: 450px) {
+    app-layout-one {
+        zoom: 0.7;
+    }
+}

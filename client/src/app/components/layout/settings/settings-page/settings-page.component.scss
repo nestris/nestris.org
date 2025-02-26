@@ -208,3 +208,9 @@ app-solid-selector {
     font-weight: 600;
     font-size: 30px;
 }
+
+@media screen and (max-width: 500px) {
+    .menu.panel {
+        display: none;
+    }
+}

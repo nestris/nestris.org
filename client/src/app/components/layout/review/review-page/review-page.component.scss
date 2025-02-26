@@ -283,3 +283,22 @@ section.stats .left {
     padding: 0;
     margin: 0;
 }
+
+@media screen and (max-width: 600px) {
+    div.skippable {
+        display: none !important;
+    }
+    .row {
+        grid-template-columns: 35% 1fr 1fr 1fr 30px;
+    }
+}
+
+@media screen and (max-width: 550px) {
+    section.stats {
+        flex-direction: column;
+    }
+
+    .histogram {
+        zoom: 1.2;
+    }
+}

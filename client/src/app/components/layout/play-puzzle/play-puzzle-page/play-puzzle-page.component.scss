@@ -360,3 +360,37 @@ header {
   .padding-above-puzzle-stats {
     height: 10px;
   }
+
+@media screen and (max-height: 800px) {
+  .main-row {
+    zoom: 0.8;
+  }
+}
+
+@media screen and (max-height: 700px) {
+  .root {
+    zoom: 0.9;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .root {
+    zoom: 0.8;
+  }
+
+  app-xp-status.fixed {
+    display: none
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .root {
+    zoom: 0.6;
+  }
+}
+
+@media screen and (max-height: 600px) {
+  .root {
+    zoom: 0.7;
+  }
+}
