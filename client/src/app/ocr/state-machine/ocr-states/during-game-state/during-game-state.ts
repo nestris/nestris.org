@@ -1,4 +1,4 @@
-import { TetrisBoard } from "../../../../shared/tetris/tetris-board";
+import { ColorType, TetrisBoard } from "../../../../shared/tetris/tetris-board";
 import { GlobalState } from "../../global-state";
 import { OCRFrame } from "../../ocr-frame";
 import { OCRState } from "../../ocr-state";
@@ -57,7 +57,7 @@ export class PieceDroppingState extends OCRState {
             this.globalState.game!.setAbbreviatedBoard(this.activePieceThisFrame);
         } else {
             // We didn't find the active piece this frame, so we are forced to send the entire board state
-            const colorBoard = ocrFrame.getColorBoard(this.currentLevel)!; // TODO: GET COLORS FROM OCR
+            const colorBoard = ocrFrame.getColorBoard(this.currentLevel)!;
             this.globalState.game!.setFullBoard(colorBoard);
 
         }
