@@ -20,6 +20,7 @@ import { QuestID } from './shared/nestris-org/quest-system';
 import { sleep } from './util/misc';
 @Component({
   selector: 'app-root',
+  styleUrls: ['./app.component.scss'],
   templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit {

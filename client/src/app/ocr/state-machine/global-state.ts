@@ -6,6 +6,7 @@ import { TetrisBoard } from "../../shared/tetris/tetris-board";
 import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
 import GameStatus from "../../shared/tetris/game-status";
 import { GameState } from "src/app/shared/game-state-from-packets/game-state";
+import { TimeDelta } from "src/app/shared/scripts/time-delta";
 
 /**
  * Stores the state global to the state machine, and sends packets to the injected PacketSender on changes.
@@ -43,6 +44,9 @@ export class GlobalState {
 export class OCRGameState {
 
     private game: GameState;
+
+    // used for calculating time elapsed between frames
+    private timeDelta = new TimeDelta();
 
     constructor(
         private readonly packetSender: PacketSender,
@@ -104,7 +108,7 @@ export class OCRGameState {
         this.game.onFullBoardUpdate(board);
         
         this.packetSender.bufferPacket(new GameFullBoardPacket().toBinaryEncoder({
-            delta: 0,
+            delta: this.timeDelta.getDelta(),
             board: board
         }));
     }
@@ -126,7 +130,7 @@ export class OCRGameState {
 
         // Send the abbreviated packet
         this.packetSender.bufferPacket(new GameAbbrBoardPacket().toBinaryEncoder({
-            delta: 0,
+            delta: this.timeDelta.getDelta(),
             mtPose: activePiece.getMTPose()
         }));
     }
