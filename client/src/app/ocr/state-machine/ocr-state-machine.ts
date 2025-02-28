@@ -8,6 +8,7 @@ import { Profiler, ProfilerResults } from "../../shared/scripts/profiler";
 import { PacketSender } from "../util/packet-sender";
 import { GameDisplayData } from "../../shared/tetris/game-display-data";
 import { OCRStateID } from "./ocr-states/ocr-state-id";
+import { GameAnalyzer } from "src/app/shared/evaluation/game-analyzer";
 
 export interface OCRConfig {
     startLevel: number | null, // Can only transition to game if OCR detects matching start level
@@ -36,9 +37,10 @@ export class OCRStateMachine {
     constructor(
         public readonly config: OCRConfig,
         private readonly packetSender: PacketSender,
+        private readonly analyzerFactory?: (startLevel: number) => GameAnalyzer,
         private readonly logger?: StateMachineLogger,
     ) {
-        this.globalState = new GlobalState(this.packetSender);
+        this.globalState = new GlobalState(this.packetSender, this.analyzerFactory);
         this.currentState = ocrStateFactory(OCRStateID.BEFORE_GAME, this.config, this.globalState, this.textLogger);
     }
 

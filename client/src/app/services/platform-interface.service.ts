@@ -9,6 +9,7 @@ import { DEFAULT_POLLED_GAME_DATA, GameDisplayData, GameDisplayDataWithoutBoard 
 import { PacketSender } from '../ocr/util/packet-sender';
 import { sleep } from '../util/misc';
 import { TetrisBoard } from '../shared/tetris/tetris-board';
+import { RatedMove } from '../components/ui/eval-bar/eval-bar.component';
 
 
 export enum Platform {
@@ -42,6 +43,7 @@ export class PlatformInterfaceService extends PacketSender {
   private polledGameBoard$ = new BehaviorSubject<TetrisBoard>(new TetrisBoard());
 
   private overallAccuracy$ = new BehaviorSubject<number | null>(null);
+  private ratedMove$ = new BehaviorSubject<RatedMove | null>(null);
 
   private assembler = new PacketAssembler();
   private numBatchedPackets: number = 0;
@@ -105,6 +107,10 @@ export class PlatformInterfaceService extends PacketSender {
     return this.overallAccuracy$.asObservable();
   }
 
+  getRatedMove$(): Observable<RatedMove | null> {
+    return this.ratedMove$.asObservable();
+  }
+
 
   // called by emulator/game-state service to update the game data
   updateGameData(data: GameDisplayData) {
@@ -130,6 +136,10 @@ export class PlatformInterfaceService extends PacketSender {
 
   setOverallAccuracy(accuracy: number | null) {
     this.overallAccuracy$.next(accuracy);
+  }
+
+  setRatedMove(ratedMove: RatedMove | null) {
+    this.ratedMove$.next(ratedMove);
   }
 
   // called by emulator/game-state service to send a packet encoded as a BinaryEncoder

@@ -18,16 +18,12 @@ import MoveableTetromino from 'src/app/shared/tetris/moveable-tetromino';
 import { RateMoveResponse, StackrabbitService, TopMovesHybridResponse } from 'src/app/services/stackrabbit/stackrabbit.service';
 import { SmartGameStatus } from 'src/app/shared/tetris/smart-game-status';
 import { InputSpeed } from 'src/app/shared/models/input-speed';
+import { RatedMove } from 'src/app/components/ui/eval-bar/eval-bar.component';
 
 
 interface CurrentFrame {
   placementIndex: number;
   frameIndex: number;
-}
-
-interface RatedMove {
-  bestEval: number | null;
-  playerEval: number | null;
 }
 
 interface RawRecommendation {
@@ -55,7 +51,7 @@ interface RecommendationGroup {
 interface StackRabbit {
   placementIndex: number,
   recommendations: RecommendationGroup[],
-  ratedMove: RatedMove
+  ratedMove: RatedMove | null
 }
 
 
@@ -493,7 +489,7 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
 
     console.log('Getting stackrabbit analysis', placementIndex, "speed", inputSpeed);
 
-    const none = { placementIndex, recommendations: [], ratedMove: { bestEval: null, playerEval: null } };
+    const none = { placementIndex, recommendations: [], ratedMove: null };
 
     if (!this.placements || placementIndex >= this.placements.length) return none;
     const placement = this.placements[placementIndex];
@@ -575,7 +571,7 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
       return {
         placementIndex,
         recommendations,
-        ratedMove: { bestEval: null, playerEval: null }
+        ratedMove: null
       }
     }
 

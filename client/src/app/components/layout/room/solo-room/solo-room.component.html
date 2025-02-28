@@ -16,7 +16,7 @@
         (clickNext)="clickNextOnTopout()"
         [showEvalBar]="showAnalysis"
         [showAccuracy]="showAnalysis"
-        [ratedMove]="getRatedMove(emulator.getCurrentPlacementEvaluation$() | async)"
+        [ratedMove]="platform.getRatedMove$()| async"
         [keybinds]="getKeybinds()"
 />
 </div>

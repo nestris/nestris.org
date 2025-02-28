@@ -30,7 +30,7 @@ export class LayoutOneComponent extends AbstractNesLayoutComponent implements On
   @Input() keybinds?: string;
   @Input() showEvalBar: boolean = false;
   @Input() showAccuracy: boolean = false;
-  @Input() ratedMove: RatedMove = { bestEval: null, playerEval: null };
+  @Input() ratedMove: RatedMove | null = null;
   @Input() dimmed: boolean = false;
   @Output() clickNext = new EventEmitter<void>();
 

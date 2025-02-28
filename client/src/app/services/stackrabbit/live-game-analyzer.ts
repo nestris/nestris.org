@@ -6,28 +6,15 @@ import { SmartGameStatus } from "src/app/shared/tetris/smart-game-status";
 import { calculatePlacementScore, EvaluationRating, placementScoreRating } from "src/app/shared/evaluation/evaluation";
 import { PlatformInterfaceService } from "../platform-interface.service";
 import { StackRabbitPlacementPacket } from "src/app/shared/network/stream-packets/packet";
-import { Subject } from "rxjs";
+import { GameAnalyzer, PlacementEvaluation, Position } from "src/app/shared/evaluation/game-analyzer";
 
 enum Mode {
     AWAITING_POSITION,
     AWAITING_PLACEMENT,
 }
 
-export interface PlacementEvaluation {
-    bestPlacementScore: number,
-    playerPlacementScore: number,
-    info?: string,
-}
 
-export interface Position {
-    board: TetrisBoard,
-    currentPiece: TetrominoType,
-    nextPiece: TetrominoType,
-    level: number,
-    lines: number,
-}
-
-export class LiveGameAnalyzer {
+export class LiveGameAnalyzer extends GameAnalyzer {
 
     // An evaluation score for each piece placement in the game. The server holds the source of truth for
     // all the scores, but we also store them client-side for client-side in-game display.
@@ -44,22 +31,14 @@ export class LiveGameAnalyzer {
 
     private stopAnalyzing: boolean = false;
 
-    public placementEvaluation$ = new Subject<PlacementEvaluation>();
-
     constructor(
         private readonly stackrabbit: StackrabbitService, // For making Stackrabbit API calls
         private readonly platform: PlatformInterfaceService | null, // For sending placement accuracy scores to the server
         private readonly startLevel: number,
     ) {
+        super();
         this.platform?.setOverallAccuracy(null);
-    }
-
-    public destroy() {
-        this.placementEvaluation$.complete();
-    }
-
-    public onPlacementEvaluation(callback: (evaluation: PlacementEvaluation) => void) {
-        this.placementEvaluation$.subscribe(callback);
+        this.platform?.setRatedMove(null);
     }
 
     public onNewPosition(position: Position) {
@@ -122,11 +101,14 @@ export class LiveGameAnalyzer {
         // Get evaluation for best and player placements
         let response: PlacementEvaluation;
         try {
-            const start = new Date().getTime();
             response = await this.ratePlacement(position, topMovesHybrid, placement);
-            const time = new Date().getTime() - start;
-            console.log(JSON.stringify(response, null, 2), `Time: ${time}ms`);
-            this.placementEvaluation$.next(response);
+
+            // If platform, send rated move
+            this.platform?.setRatedMove({
+                bestEval: response.bestPlacementScore,
+                playerEval: response.playerPlacementScore
+            });
+
         } catch (e) {
             // If an error occurs, do not rate the placement
             console.error(`Error rating placement ${index}`, e);
@@ -142,7 +124,7 @@ export class LiveGameAnalyzer {
         // Calculate accuracy score of the placement and add it to the list of scores
         const accuracyScore = calculatePlacementScore(response.bestPlacementScore, response.playerPlacementScore);
         this.placementScores.push(accuracyScore);
-        console.log("PLACEMENT SCORE:", accuracyScore);
+        //console.log("PLACEMENT SCORE:", accuracyScore);
 
         this.platform?.setOverallAccuracy(this.placementScores.reduce((a, b) => a + b) / this.placementScores.length);
 
@@ -158,17 +140,6 @@ export class LiveGameAnalyzer {
      */
     public stopAnalysis() {
         this.stopAnalyzing = true;
-    }
-
-    /**
-     * Get the overall accuracy of the player's placements.
-     * @returns A number between 0 and 1 representing the overall accuracy
-     */
-    public getOverallAccuracy(): number {
-        // Return 0 if no placements have been rated
-        if (this.placementScores.length === 0) return 0;
-
-        return this.placementScores.reduce((a, b) => a + b) / this.placementScores.length;
     }
 
     /**

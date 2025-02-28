@@ -205,7 +205,7 @@ export class StackrabbitService {
 
     const response = await awaitingResponse;
 
-    console.log(`Request ${endpoint} from worker ${workerIndex} took ${Date.now() - startTime}ms`);
+    //console.log(`Request ${endpoint} from worker ${workerIndex} took ${Date.now() - startTime}ms`);
   
     return response;
   }

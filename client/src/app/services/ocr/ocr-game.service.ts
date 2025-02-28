@@ -3,17 +3,22 @@ import { VideoCaptureService } from './video-capture.service';
 import { OCRConfig, OCRStateMachine } from 'src/app/ocr/state-machine/ocr-state-machine';
 import { PlatformInterfaceService } from '../platform-interface.service';
 import { OCRStateID } from 'src/app/ocr/state-machine/ocr-states/ocr-state-id';
+import { LiveGameAnalyzer } from '../stackrabbit/live-game-analyzer';
+import { StackrabbitService } from '../stackrabbit/stackrabbit.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OcrGameService {
 
+  private readonly analyzerFactory = (startLevel: number) => new LiveGameAnalyzer(this.stackrabbit, this.platform, startLevel);
+
   private stateMachine?: OCRStateMachine;
 
   constructor(
-    private videoCapture: VideoCaptureService,
-    private platform: PlatformInterfaceService
+    private readonly videoCapture: VideoCaptureService,
+    private readonly platform: PlatformInterfaceService,
+    private readonly stackrabbit: StackrabbitService,
   ) {
 
     // Register a subscriber to the video capture service for processing video frames
@@ -41,7 +46,7 @@ export class OcrGameService {
       return;
     }
 
-    this.stateMachine = new OCRStateMachine(config, this.platform);
+    this.stateMachine = new OCRStateMachine(config, this.platform, this.analyzerFactory);
     this.videoCapture.startCapture();
     console.log("Starting OCR game capture")
   }

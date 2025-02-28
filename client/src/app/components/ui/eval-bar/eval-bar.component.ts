@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, Input, OnChanges } from '@angular/c
 import { calculatePlacementScore, EVALUATION_TO_COLOR, placementScoreRating } from 'src/app/shared/evaluation/evaluation';
 
 export interface RatedMove {
-  bestEval: number | null;
-  playerEval: number | null;
+  bestEval: number;
+  playerEval: number;
 }
 
 @Component({
@@ -16,7 +16,7 @@ export class EvalBarComponent implements OnChanges{
   @Input() width: number = 30;
   @Input() backgroundColor: string = "#151515";
   @Input() borderRadius: number = 10;
-  @Input() ratedMove: RatedMove = {bestEval: null, playerEval: null};
+  @Input() ratedMove: RatedMove | null = null;
   
 
   bestPercent: number = 0; // percent from 0-1 of height for outline
@@ -25,7 +25,7 @@ export class EvalBarComponent implements OnChanges{
 
   ngOnChanges(): void {
 
-    if (this.ratedMove.bestEval === null || this.ratedMove.playerEval === null) {
+    if (this.ratedMove === null) {
       this.bestPercent = 1;
       this.playerPercent = 0.8;
       this.fillColor = "white";

@@ -5,8 +5,9 @@ import { TetrominoType } from "../../shared/tetris/tetromino-type";
 import { TetrisBoard } from "../../shared/tetris/tetris-board";
 import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
 import GameStatus from "../../shared/tetris/game-status";
-import { GameState } from "src/app/shared/game-state-from-packets/game-state";
-import { TimeDelta } from "src/app/shared/scripts/time-delta";
+import { GameState } from "../../shared/game-state-from-packets/game-state";
+import { TimeDelta } from "../../shared/scripts/time-delta";
+import { GameAnalyzer } from "../../shared/evaluation/game-analyzer";
 
 /**
  * Stores the state global to the state machine, and sends packets to the injected PacketSender on changes.
@@ -18,11 +19,12 @@ export class GlobalState {
     private topoutData: GameDisplayData = DEFAULT_POLLED_GAME_DATA;
 
     constructor(
-        private readonly packetSender: PacketSender
+        private readonly packetSender: PacketSender,
+        private readonly analyzerFactory?: (startLevel: number) => GameAnalyzer
     ) {}
 
     startGame(level: number, current: TetrominoType, next: TetrominoType): void {
-        this.game = new OCRGameState(this.packetSender, level, current, next);
+        this.game = new OCRGameState(this.packetSender, level, current, next, this.analyzerFactory);
         this.packetSender.bufferPacket(new GameStartPacket().toBinaryEncoder({level, current, next}));
     }
 
@@ -43,18 +45,33 @@ export class GlobalState {
  */
 export class OCRGameState {
 
-    private game: GameState;
+    private readonly game: GameState;
 
     // used for calculating time elapsed between frames
-    private timeDelta = new TimeDelta();
+    private readonly timeDelta = new TimeDelta();
+
+    private readonly analyzer?: GameAnalyzer;
 
     constructor(
         private readonly packetSender: PacketSender,
         public readonly startLevel: number,
         currentType: TetrominoType,
-        nextType: TetrominoType
+        nextType: TetrominoType,
+        analyzerFactory?: (startLevel: number) => GameAnalyzer
     ) {
         this.game = new GameState(startLevel, currentType, nextType);
+
+        if (analyzerFactory) {
+            this.analyzer = analyzerFactory(startLevel);
+
+            this.analyzer.onNewPosition({
+                board: new TetrisBoard(),
+                currentPiece: currentType,
+                nextPiece: nextType,
+                level: startLevel,
+                lines: 0,
+            })
+        }
     }
 
     getStableBoard(): TetrisBoard {
@@ -92,6 +109,17 @@ export class OCRGameState {
             mtPose: mt.getMTPose(),
             pushdown,
         }));
+
+        // Analyze placement
+        this.analyzer?.onPlacement(mt);
+        this.analyzer?.onNewPosition({
+            board: this.game.getIsolatedBoard(),
+            currentPiece: this.game.getCurrentType(),
+            nextPiece: this.game.getNextType(),
+            level: this.game.getStatus().level,
+            lines: this.game.getStatus().lines,
+        });
+        
     }
 
     /**

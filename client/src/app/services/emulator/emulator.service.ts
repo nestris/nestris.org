@@ -10,7 +10,7 @@ import { MemoryGameStatus, StatusHistory, StatusSnapshot } from 'src/app/shared/
 import { getFeedback } from 'src/app/util/game-feedback';
 import { MeService } from '../state/me.service';
 import { StackrabbitService } from '../stackrabbit/stackrabbit.service';
-import { LiveGameAnalyzer, PlacementEvaluation } from '../stackrabbit/live-game-analyzer';
+import { LiveGameAnalyzer } from '../stackrabbit/live-game-analyzer';
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { GamepadService } from '../gamepad.service';
 import { WakeLockService } from '../wake-lock.service';
@@ -56,7 +56,6 @@ export class EmulatorService {
   private lastGameFeedback: string | null = null;
 
   private runaheadFrames: number = 0;
-  private currentPlacementEvaluation$ = new BehaviorSubject<PlacementEvaluation | null>(null);
 
   private clientRoom?: ClientRoom;
 
@@ -127,8 +126,6 @@ export class EmulatorService {
     this.currentState = new EmulatorGameState(startLevel, new GymRNG(gymSeed), countdown);
     this.analyzer = new LiveGameAnalyzer(this.stackrabbitService, sendPacketsToServer ? this.platform : null, startLevel);
     
-    // subscribe to placement evaluation updates
-    this.analyzer.onPlacementEvaluation((evaluation) => this.currentPlacementEvaluation$.next(evaluation));
 
     this.analyzer.onNewPosition({
       board: this.currentState.getIsolatedBoard().copy(),
@@ -327,14 +324,10 @@ export class EmulatorService {
     }
 
     this.analyzer!.stopAnalysis();
-    this.currentPlacementEvaluation$.next(null);
-    const overallAccuracy = this.analyzer!.getOverallAccuracy();
-    console.log("Overall accuracy:", overallAccuracy);
     
 
     // Reset game state
     this.currentState = undefined;
-    this.analyzer!.destroy();
     this.analyzer = undefined;
     
     // send game end packet
@@ -395,10 +388,5 @@ export class EmulatorService {
   getLastGameFeedback(): string | null {
     return this.lastGameFeedback;
   }
-
-  getCurrentPlacementEvaluation$(): Observable<PlacementEvaluation | null> {
-    return this.currentPlacementEvaluation$.asObservable();
-  }
-
   
 }
