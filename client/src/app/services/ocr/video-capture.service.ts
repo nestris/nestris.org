@@ -281,7 +281,7 @@ export class VideoCaptureService {
     }
 
     // Queue capturing the next frame
-    requestAnimationFrame(() => this.captureFrame());
+    this.videoElement.requestVideoFrameCallback(() => this.captureFrame());
     
   }
 
