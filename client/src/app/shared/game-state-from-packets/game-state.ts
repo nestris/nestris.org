@@ -99,6 +99,10 @@ export class GameState {
     return this.currentBoard;
   }
 
+  getIsolatedBoard(): TetrisBoard {
+    return this.isolatedBoard;
+  }
+
   getCountdown(): number | undefined {
     return this.countdown;
   }

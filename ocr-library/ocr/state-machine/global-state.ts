@@ -4,16 +4,15 @@ import { GameAbbrBoardPacket, GameEndPacket, GameFullBoardPacket, GamePlacementP
 import { TetrominoType } from "../../shared/tetris/tetromino-type";
 import { TetrisBoard } from "../../shared/tetris/tetris-board";
 import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
-import { SmartGameStatus } from "../../shared/tetris/smart-game-status";
-import GameStatus, { IGameStatus } from "../../shared/tetris/game-status";
-import { LogType, TextLogger } from "./state-machine-logger";
+import GameStatus from "../../shared/tetris/game-status";
+import { GameState } from "src/app/shared/game-state-from-packets/game-state";
 
 /**
  * Stores the state global to the state machine, and sends packets to the injected PacketSender on changes.
  */
 export class GlobalState {
 
-    public game?: GameState;
+    public game?: OCRGameState;
 
     private topoutData: GameDisplayData = DEFAULT_POLLED_GAME_DATA;
 
@@ -22,7 +21,7 @@ export class GlobalState {
     ) {}
 
     startGame(level: number, current: TetrominoType, next: TetrominoType): void {
-        this.game = new GameState(this.packetSender, level, current, next);
+        this.game = new OCRGameState(this.packetSender, level, current, next);
         this.packetSender.bufferPacket(new GameStartPacket().toBinaryEncoder({level, current, next}));
     }
 
@@ -41,70 +40,53 @@ export class GlobalState {
 /**
  * Stores the state global to the state machine for the current game.
  */
-export class GameState {
+export class OCRGameState {
 
-    /**
-     * Represents the board without either the falling piece or the previously-placed piece. At the
-     * start of the game, this is the empty board.
-     */
-    private stableBoard = new TetrisBoard();
-    private stableBoardCount = 0;
-
-    private status: SmartGameStatus;
-
-    // Computed display board this frame
-    private displayBoard = new TetrisBoard();
+    private game: GameState;
 
     constructor(
         private readonly packetSender: PacketSender,
         public readonly startLevel: number,
-        private currentType: TetrominoType,
-        private nextType: TetrominoType
+        currentType: TetrominoType,
+        nextType: TetrominoType
     ) {
-        this.status = new SmartGameStatus(startLevel);
+        this.game = new GameState(startLevel, currentType, nextType);
     }
 
     getStableBoard(): TetrisBoard {
-        return this.stableBoard;
+        return this.game.getIsolatedBoard();
+    }
+
+    getDisplayBoard(): TetrisBoard {
+        return this.game.getCurrentBoard();
     }
 
     getStableBoardCount(): number {
-        return this.stableBoardCount;
+        return this.getStableBoard().count();
     }
 
     getCurrentType(): TetrominoType {
-        return this.currentType;
+        return this.game.getCurrentType();
     }
 
     getNextType(): TetrominoType {
-        return this.nextType;
+        return this.game.getNextType();
     }
 
     getStatus(): GameStatus {
-        return this.status.status;
+        return this.game.getStatus().status;
     }
 
-    placePiece(mt: MoveableTetromino, nextType: TetrominoType, logger: TextLogger) {
+    placePiece(mt: MoveableTetromino, nextType: TetrominoType, pushdown: number) {
 
-        // Place the piece on the stable board and process line clears
-        mt.blitToBoard(this.stableBoard);
-        const linesCleared = this.stableBoard.processLineClears();
-        this.status.onLineClear(linesCleared);
-        this.stableBoardCount = this.stableBoard.count();
-
-        if (linesCleared > 0) {
-            logger.log(LogType.INFO, `${linesCleared} lines cleared. New score: ${this.status.score} at ${this.status.lines} lines, level ${this.status.level}`);
-        }
-
-        // Shift the next piece
-        this.currentType = this.nextType;
-        this.nextType = nextType;
+        // Place piece and update game state
+        this.game.onPlacement(mt.getMTPose(), nextType, pushdown);
 
         // Send the game placement packet
         this.packetSender.bufferPacket(new GamePlacementPacket().toBinaryEncoder({
             nextNextType: nextType,
             mtPose: mt.getMTPose(),
-            pushdown: 0, // TODO
+            pushdown,
         }));
     }
 
@@ -116,9 +98,11 @@ export class GameState {
     setFullBoard(board: TetrisBoard) {
 
         // Duplicate board, do not need to resend
-        if (this.displayBoard.equals(board)) return;
+        if (this.getDisplayBoard().equals(board)) return;
 
-        this.displayBoard = board;
+        // Update game state with full board for this frame
+        this.game.onFullBoardUpdate(board);
+        
         this.packetSender.bufferPacket(new GameFullBoardPacket().toBinaryEncoder({
             delta: 0,
             board: board
@@ -131,14 +115,14 @@ export class GameState {
      * @param activePiece The active piece on the current board for this frame
      */
     setAbbreviatedBoard(activePiece: MoveableTetromino) {
-        // Set display board to the active piece on the stable board
-        const newDisplayBoard = this.stableBoard.copy();
+
+        // If no changes, do not send packet
+        const newDisplayBoard = this.getStableBoard().copy();
         activePiece.blitToBoard(newDisplayBoard);
+        if (this.getDisplayBoard().equals(newDisplayBoard)) return;
 
-        // Duplicate board, do not need to resend
-        if (this.displayBoard.equals(newDisplayBoard)) return;
-
-        this.displayBoard = newDisplayBoard;
+        // Update game state with active piece blitted into pre-existing isolated board
+        this.game.onAbbreviatedBoardUpdate(activePiece.getMTPose());
 
         // Send the abbreviated packet
         this.packetSender.bufferPacket(new GameAbbrBoardPacket().toBinaryEncoder({
@@ -148,15 +132,16 @@ export class GameState {
     }
 
     getDisplayData(): GameDisplayData {
+        const snapshot = this.game.getSnapshot();
         return {
-            board: this.displayBoard,
-            nextPiece: this.nextType,
-            level: this.status.level,
-            lines: this.status.lines,
-            score: this.status.score,
+            board: snapshot.board,
+            nextPiece: snapshot.next,
+            level: snapshot.level,
+            lines: snapshot.lines,
+            score: snapshot.score,
+            trt: snapshot.tetrisRate,
+            drought: snapshot.droughtCount,
             countdown: 0,
-            trt: 0,
-            drought: 0,
         }
     }
 

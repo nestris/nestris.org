@@ -140,7 +140,7 @@ export class LineClearSpawnEvent extends StateEvent {
 
         // Update the stable board to reflect the new piece placement and report the placement of the previous piece
         this.myState.textLogger.log(LogType.INFO, `RegularSpawnEvent: Placed ${TETROMINO_CHAR[this.validPlacement!.tetrominoType]} at ${this.validPlacement!.getTetrisNotation()}`);
-        this.globalState.game!.placePiece(this.validPlacement!, ocrFrame.getNextType()!, this.myState.textLogger);
+        this.globalState.game!.placePiece(this.validPlacement!, ocrFrame.getNextType()!, 0);
 
         // We transition to a new instance of the same state
         return OCRStateID.PIECE_DROPPING;
