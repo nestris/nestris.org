@@ -10,6 +10,12 @@
     overflow-y: scroll;
 }
 
+@media screen and (min-aspect-ratio: 1.8/1) {
+    :host {
+        zoom: 0.88;
+    }
+}
+
 header {
     display: flex;
     flex-direction: row;
