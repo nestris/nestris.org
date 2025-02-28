@@ -15,6 +15,8 @@ export class GlobalState {
 
     public game?: GameState;
 
+    private topoutData: GameDisplayData = DEFAULT_POLLED_GAME_DATA;
+
     constructor(
         private readonly packetSender: PacketSender
     ) {}
@@ -26,11 +28,12 @@ export class GlobalState {
 
     endGame() {
         this.packetSender.bufferPacket(new GameEndPacket().toBinaryEncoder({}));
+        this.topoutData = this.game!.getDisplayData();
         this.game = undefined;
     }
 
     getGameDisplayData(): GameDisplayData {
-        return this.game?.getDisplayData() ?? DEFAULT_POLLED_GAME_DATA;
+        return this.game?.getDisplayData() ?? this.topoutData;
     }
 
 }
