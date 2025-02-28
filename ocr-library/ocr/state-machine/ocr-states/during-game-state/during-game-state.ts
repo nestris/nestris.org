@@ -58,18 +58,6 @@ export class PieceDroppingState extends OCRState {
         } else {
             // We didn't find the active piece this frame, so we are forced to send the entire board state
             const colorBoard = ocrFrame.getColorBoard(this.currentLevel)!;
-
-            // To fight against finnicky color detection, if we know a mino also exists in isolated board, use that color
-            for (let stableMino of this.globalState.game!.getStableBoard().iterateMinos()) {
-                if (
-                    stableMino.color !== ColorType.EMPTY && // mino exists in isolated board
-                    colorBoard.getAt(stableMino.x, stableMino.y) !== ColorType.EMPTY // mino exists in this frame board
-                ) {
-                    // Prefer isolated board's color at that mino
-                    colorBoard.setAt(stableMino.x, stableMino.y, stableMino.color);
-                }
-            }
-
             this.globalState.game!.setFullBoard(colorBoard);
 
         }
