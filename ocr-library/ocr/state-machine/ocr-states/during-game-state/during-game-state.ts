@@ -18,6 +18,9 @@ export class PieceDroppingState extends OCRState {
     // from the current board
     private activePiece: MoveableTetromino | undefined = undefined;
     private activePieceThisFrame: MoveableTetromino | null = null;
+
+    // Level remains the same throughout the piece dropping
+    private readonly currentLevel = this.globalState.game!.getStatus().level;
         
     public override init() {
 
@@ -25,6 +28,7 @@ export class PieceDroppingState extends OCRState {
         this.registerEvent(new LineClearSpawnEvent(this, this.globalState));
         this.registerEvent(new TopoutEvent(this));
         this.registerEvent(new ConfusionEvent(this));
+        
     }
 
     /**
@@ -53,7 +57,7 @@ export class PieceDroppingState extends OCRState {
             this.globalState.game!.setAbbreviatedBoard(this.activePieceThisFrame);
         } else {
             // We didn't find the active piece this frame, so we are forced to send the entire board state
-            const colorBoard = ocrFrame.getBinaryBoard()!; // TODO: GET COLORS FROM OCR
+            const colorBoard = ocrFrame.getColorBoard(this.currentLevel)!; // TODO: GET COLORS FROM OCR
             this.globalState.game!.setFullBoard(colorBoard);
 
         }

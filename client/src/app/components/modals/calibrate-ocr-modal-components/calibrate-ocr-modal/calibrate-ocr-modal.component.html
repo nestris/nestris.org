@@ -32,7 +32,7 @@
 
                 <!-- If OCRFrame, show the current frame's OCR board -->
                 <app-layout-one *ngIf="(videoCapture.getCurrentFrame$() | async)?.ocrFrame as frame"
-                    [board]="frame.getBinaryBoard(17) ?? EMPTY_BOARD"
+                    [board]="frame.getColorBoard(ocrFrameData$.getValue()?.level ?? 18)"
                     [nextType]="frame.getNextType() ?? TetrominoType.ERROR_TYPE"
                     [level]="(ocrFrameData$ | async)?.level ?? null"
                     [score]="(ocrFrameData$ | async)?.score ?? null"

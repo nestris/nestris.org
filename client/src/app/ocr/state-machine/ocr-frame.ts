@@ -30,6 +30,9 @@ export class OCRFrame {
     private _lines: number | undefined;
     private _boardOnlyTetrominoType: TetrominoType | undefined;
 
+    // Map of level to board
+    private _colorBoard = new Map<number, TetrisBoard>();
+
     /**
      * @param frame The singular frame to extract OCR information from
      * @param calibration The calibration data for the frame to use for OCR
@@ -51,44 +54,65 @@ export class OCRFrame {
      * block shine to determine if block exists, then uses the mino points to determine the color of the block.
      * 
      * @param loadIfNotLoaded If true, the property will be computed if it has not been loaded yet
-     * @param level If a level is provided, mino colors will be found for that level. Otherwise the blocks will all be white
      * @returns The extracted tetris board
      */
-    getBinaryBoard(level: number | null = null, loadIfNotLoaded: boolean = true): TetrisBoard | undefined {
+    getBinaryBoard(loadIfNotLoaded: boolean = true): TetrisBoard | undefined {
         if (loadIfNotLoaded && this._board === undefined) {
 
             // Iterate through each mino on the board and determine the block's color if it exists
             this._board = new TetrisBoard();
-            for (let point of this._board.iterateMinos()) {
+            for (let mino of this._board.iterateMinos()) {
 
                 // We use the block shine to determine if a block exists at this point
-                const blockShinePosition = this.boardOCRBox.getBlockShine(point);
+                const blockShinePosition = this.boardOCRBox.getBlockShine(mino);
                 const blockShineColor = this.frame.getPixelAt(blockShinePosition);
                 if (!blockShineColor) throw new Error(`Block shine color not found at ${blockShinePosition.x}, ${blockShinePosition.y}`);
 
-                if (blockShineColor.average > 30) {
-                    // If block shine detected, we use the mino points to determine the color of the block
-                    const minoPoints = this.boardOCRBox.getMinoPoints(point);
-                    const minoColor = averageRGB(minoPoints.map(point => {
-                        const pixel = this.frame.getPixelAt(point);
-                        if (!pixel) throw new Error(`Pixel does not exist at mino ${point.x}, ${point.y})`);
-                        return pixel;
-                    }));
-
-                    // Deduce ColorType for mino
-                    let color: ColorType;
-                    if (level === null) color = ColorType.WHITE; // If no level found, cannot find color, so default to white
-                    else color = classifyColor(level, minoColor);
+                if (blockShineColor.average > 30) { // Whether mino is dark enough
 
                     // Set mino color at location
-                    this._board.setAt(point.x, point.y, color);
+                    this._board.setAt(mino.x, mino.y, ColorType.WHITE);
                 } else {
                     // If block shine not detected, no mino exists at this point
-                    this._board.setAt(point.x, point.y, ColorType.EMPTY);
+                    this._board.setAt(mino.x, mino.y, ColorType.EMPTY);
                 }
             }
         }
         return this._board;
+    }
+
+    /**
+     * Get the tetris board with color information by finding the closest color to the level's three colors.
+     * Caches computations for the board with each given level to find colors for
+     * @param level 
+     * @returns 
+     */
+    getColorBoard(level: number): TetrisBoard {
+
+        if (this._colorBoard.get(level) === undefined) {
+            const colorBoard = new TetrisBoard();
+
+            const binaryBoard = this.getBinaryBoard()!;
+            for (let mino of binaryBoard.iterateMinos()) {
+
+                // If mino is empty, do not assign a color
+                if (mino.color === ColorType.EMPTY) continue;
+
+                // Find closest matching color corresponding to level
+                const minoPoints = this.boardOCRBox.getMinoPoints(mino);
+                const minoColor = averageRGB(minoPoints.map(point => {
+                    const pixel = this.frame.getPixelAt(point);
+                    if (!pixel) throw new Error(`Pixel does not exist at mino ${point.x}, ${point.y})`);
+                    return pixel;
+                }));
+
+                // Set color at mino location
+                colorBoard.setAt(mino.x, mino.y, classifyColor(level, minoColor));
+            };
+
+            this._colorBoard.set(level, colorBoard);
+        }
+        return this._colorBoard.get(level)!;
     }
 
     /**
