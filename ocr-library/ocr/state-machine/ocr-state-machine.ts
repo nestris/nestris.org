@@ -31,12 +31,12 @@ export class OCRStateMachine {
      * Dependency injection for videoSource and logger allows for easy swapping of inputs.
      * 
      * @param startLevel If the level is specified, the level must match for the game to start
-     * @param packetSender Sends packets to the game server
+     * @param packetSender Sends packets to the game server, if provided
      * @param logger Logs the state of the OCR machine at each advanceFrame() call
      */
     constructor(
         public readonly config: OCRConfig,
-        private readonly packetSender: PacketSender,
+        private readonly packetSender?: PacketSender,
         private readonly analyzerFactory?: (startLevel: number) => GameAnalyzer,
         private readonly logger?: StateMachineLogger,
     ) {
@@ -57,11 +57,11 @@ export class OCRStateMachine {
         const eventStatuses = this.currentState.getEventStatusesThisFrame();
 
         // Send all the packets that were accumulated this frame
-        const packets = this.packetSender.sendBufferedPackets();
+        const packets = this.packetSender?.sendBufferedPackets();
 
         // Log the current state of the OCR machine
         const logs = this.textLogger.popLogs();
-        await this.logger?.log(this.stateCount, ocrFrame, this.currentState, eventStatuses, packets, this.globalState, logs);
+        await this.logger?.log(this.stateCount, ocrFrame, this.currentState, eventStatuses, packets ?? [], this.globalState, logs);
 
         // Transition to the new state if needed
         if (newStateID !== undefined) {

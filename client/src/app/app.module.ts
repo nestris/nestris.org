@@ -106,6 +106,8 @@ import { XpStatusComponent } from './components/ui/xp-status/xp-status.component
 import { QuestListModalComponent } from './components/modals/quest-list-modal/quest-list-modal.component';
 import { ProfileModalComponent } from './components/modals/profile-modal/profile-modal.component';
 import { OcrButtonComponent } from './components/ui/ocr-button/ocr-button.component';
+import { OcrLayoutComponent } from './components/modals/calibrate-ocr-modal-components/ocr-layout/ocr-layout.component';
+import { CorrectnessIconComponent } from './components/ui/correctness-icon/correctness-icon.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -248,6 +250,8 @@ const customNotifierOptions: NotifierOptions = {
     QuestListModalComponent,
     ProfileModalComponent,
     OcrButtonComponent,
+    OcrLayoutComponent,
+    CorrectnessIconComponent,
   ],
   imports: [
     BrowserModule,

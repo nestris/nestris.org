@@ -173,6 +173,9 @@ export class PlayPageComponent implements OnInit, OnDestroy {
 
       if (questStatus.completed) return false; // Completed quests are not ongoing 
 
+      // Edge case: if automaton isn't at 93+, do not display
+      if (questID === QuestID.AUTOMATON && questStatus.currentScore < 93) return false;
+
       const isTooAdvanced = () => {
         if (!quest.category) return false;
         const difficultyIndex = QUEST_DIFFICULTY_ORDER.indexOf(quest.difficulty);

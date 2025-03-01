@@ -1,0 +1,13 @@
+<app-layout-one *ngIf="frameWithContext?.ocrFrame as frame; else noFrame"
+    [board]="frame.getColorBoard(ocrFrameData?.level ?? 18)"
+    [nextType]="frame.getNextType() ?? TetrominoType.ERROR_TYPE"
+    [level]="ocrFrameData?.level ?? null"
+    [score]="ocrFrameData?.score ?? null"
+    [lines]="ocrFrameData?.lines ?? null"
+/>
+
+<ng-template #noFrame>
+    <app-nes-board [hide]="true" [scale]="1.3">
+        <h2 class="no-board-text">{{error}}</h2>
+    </app-nes-board>
+</ng-template>

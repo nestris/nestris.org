@@ -20,33 +20,72 @@
 
             </div>
             <div class="col">
-                <app-preview-canvas />
+                <app-preview-canvas [enableCalibrationClick]="false" />
             </div>
         </div>
 
         <div class="locate-tetris-board" *ngIf="currentStep === CalibrationStep.LOCATE_TETRIS_BOARD">
             <div class="col">
-                <app-preview-canvas [showBoundingBoxes]="true" />
+                <app-preview-canvas [showBoundingBoxes]="true" [enableCalibrationClick]="true" />
             </div>
             <div class="col">
-
-                <!-- If OCRFrame, show the current frame's OCR board -->
-                <app-layout-one *ngIf="(videoCapture.getCurrentFrame$() | async)?.ocrFrame as frame"
-                    [board]="frame.getColorBoard(ocrFrameData$.getValue()?.level ?? 18)"
-                    [nextType]="frame.getNextType() ?? TetrominoType.ERROR_TYPE"
-                    [level]="(ocrFrameData$ | async)?.level ?? null"
-                    [score]="(ocrFrameData$ | async)?.score ?? null"
-                    [lines]="(ocrFrameData$ | async)?.lines ?? null"
+                <app-ocr-layout
+                    [frameWithContext]="videoCapture.getCurrentFrame$() | async"
+                    [ocrFrameData]="ocrFrameData$ | async"
+                    error="Click on an empty part of the tetris board!"
                 />
-
-                <!-- If no OCRFrame, show an empty board with text to click on empty part of tetris board -->
-                <app-nes-board *ngIf="!((videoCapture.getCurrentFrame$() | async)?.ocrFrame)" [hide]="true" [scale]="1.3">
-                    <h2 class="no-board-text">Click on an empty part of the tetris board!</h2>
-                </app-nes-board>
             </div>
         </div>
 
-        <!-- <div class="verify-ocr" *ngIf="currentStep === CalibrationStep.VERIFY_OCR"></div> -->
+        <div class="verify-ocr" *ngIf="currentStep === CalibrationStep.VERIFY_OCR">
+
+            <ng-container *ngIf="ocrVerifier?.getStatus$() | async as status">
+
+                <div class="col">
+
+                    <ng-container *ngIf="status.newGame">
+                        <app-layout-one class="game" *ngIf="(platform.getGameDataWithoutBoard$() | async) as data"
+                            [canvasBoard]="platform.getGameBoard$()"
+                            [nextType]="data.nextPiece"
+                            [level]="data.level"
+                            [lines]="data.lines"
+                            [score]="data.score"
+                        />
+                    </ng-container>
+                    
+                    <app-ocr-layout *ngIf="!status.newGame"
+                        [frameWithContext]="videoCapture.getCurrentFrame$() | async"
+                        [ocrFrameData]="ocrFrameData$ | async"
+                        error="An error occured. Please go back to the previous step."
+                    />
+                </div>
+
+                <div class="col checklist">
+                    <h1>Verification checklist</h1>
+                    <div class="item">
+                        <app-correctness-icon width="10px" [correct]="(ocrFrameData$ | async)?.level === 0" />
+                        <p>Level 0 start</p>
+                    </div>
+                    <div class="item">
+                        <app-correctness-icon width="10px" [correct]="status.newGame" />
+                        <p>Start new game</p>
+                    </div>
+                    <div class="item">
+                        <app-correctness-icon width="10px" [correct]="status.firstPiece" />
+                        <p>First piece placed correctly</p>
+                    </div>
+                    <div class="item">
+                        <app-correctness-icon width="10px" [correct]="status.nextPiece" />
+                        <p>Second piece placed correctly</p>
+                    </div>
+                    
+                </div>
+
+            </ng-container>
+
+            
+
+        </div>
 
     </div>
     <div class="buttons">

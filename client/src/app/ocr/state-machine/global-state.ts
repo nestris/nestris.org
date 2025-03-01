@@ -19,17 +19,17 @@ export class GlobalState {
     private topoutData: GameDisplayData = DEFAULT_POLLED_GAME_DATA;
 
     constructor(
-        private readonly packetSender: PacketSender,
+        private readonly packetSender?: PacketSender,
         private readonly analyzerFactory?: (startLevel: number) => GameAnalyzer
     ) {}
 
     startGame(level: number, current: TetrominoType, next: TetrominoType): void {
         this.game = new OCRGameState(this.packetSender, level, current, next, this.analyzerFactory);
-        this.packetSender.bufferPacket(new GameStartPacket().toBinaryEncoder({level, current, next}));
+        this.packetSender?.bufferPacket(new GameStartPacket().toBinaryEncoder({level, current, next}));
     }
 
     endGame() {
-        this.packetSender.bufferPacket(new GameEndPacket().toBinaryEncoder({}));
+        this.packetSender?.bufferPacket(new GameEndPacket().toBinaryEncoder({}));
         this.topoutData = this.game!.getDisplayData();
         this.game = undefined;
     }
@@ -53,7 +53,7 @@ export class OCRGameState {
     private readonly analyzer?: GameAnalyzer;
 
     constructor(
-        private readonly packetSender: PacketSender,
+        private readonly packetSender: PacketSender | undefined,
         public readonly startLevel: number,
         currentType: TetrominoType,
         nextType: TetrominoType,
@@ -104,7 +104,7 @@ export class OCRGameState {
         this.game.onPlacement(mt.getMTPose(), nextType, pushdown);
 
         // Send the game placement packet
-        this.packetSender.bufferPacket(new GamePlacementPacket().toBinaryEncoder({
+        this.packetSender?.bufferPacket(new GamePlacementPacket().toBinaryEncoder({
             nextNextType: nextType,
             mtPose: mt.getMTPose(),
             pushdown,
@@ -135,7 +135,7 @@ export class OCRGameState {
         // Update game state with full board for this frame
         this.game.onFullBoardUpdate(board);
         
-        this.packetSender.bufferPacket(new GameFullBoardPacket().toBinaryEncoder({
+        this.packetSender?.bufferPacket(new GameFullBoardPacket().toBinaryEncoder({
             delta: this.timeDelta.getDelta(),
             board: board
         }));
@@ -157,7 +157,7 @@ export class OCRGameState {
         this.game.onAbbreviatedBoardUpdate(activePiece.getMTPose());
 
         // Send the abbreviated packet
-        this.packetSender.bufferPacket(new GameAbbrBoardPacket().toBinaryEncoder({
+        this.packetSender?.bufferPacket(new GameAbbrBoardPacket().toBinaryEncoder({
             delta: this.timeDelta.getDelta(),
             mtPose: activePiece.getMTPose()
         }));

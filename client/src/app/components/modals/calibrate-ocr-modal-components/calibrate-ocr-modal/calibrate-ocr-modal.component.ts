@@ -7,16 +7,18 @@ import { FrameWithContext, VideoCaptureService } from 'src/app/services/ocr/vide
 import { Platform, PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
+import { OCRVerifier } from '../ocr-verifier';
+import { OcrGameService } from 'src/app/services/ocr/ocr-game.service';
 
 
 export enum CalibrationStep {
   SELECT_VIDEO_SOURCE = "Select video source",
   LOCATE_TETRIS_BOARD = "Locate tetris board",
-  // VERIFY_OCR = "Verify OCR",
+  VERIFY_OCR = "Verify capture",
   // ANTI_CHEAT = "Anti-cheat"
 }
 
-interface OCRFrameData {
+export interface OCRFrameData {
   score: number | undefined;
   level: number | undefined;
   lines: number | undefined;
@@ -45,6 +47,8 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
   frameUpdateSubscription: Subscription | undefined;
   private computingLevel = false;
 
+  public ocrVerifier?: OCRVerifier;
+
   get currentStep(): CalibrationStep {
     return this.ALL_CALIBRATION_STEPS[this.stepIndex];
   }
@@ -60,11 +64,17 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
       You'll need to tell nestris.org where the board is. Click on the empty or near-empty board in the source
       you're capturing to calibrate. Make sure the board, next piece, score, level, and lines are all correct before saving!
     `,
+    [CalibrationStep.VERIFY_OCR] : `
+      Just one last step to verify that your capture is live and working! Start a game at level 0, then follow the instructions
+      on where to place the two pieces. Remember that cheating is strictly prohibited and can result in a ban.
+    `
   }
 
   constructor(
     public videoCapture: VideoCaptureService,
     private modalManager: ModalManagerService,
+    private readonly ocrGameService: OcrGameService,
+    public readonly platform: PlatformInterfaceService,
   ) {
 
     // subscribe to frame updates to get level
@@ -77,6 +87,8 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit() {
+
+    this.initStep(this.ALL_CALIBRATION_STEPS[0]);
 
     // start initializing digit classifier
     this.videoCapture.initDigitClassifier();
@@ -121,9 +133,14 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
 
         return true;
 
-      // case CalibrationStep.VERIFY_OCR:
-      //   return true;
+      case CalibrationStep.VERIFY_OCR:
+        const status = this.ocrVerifier!.getStatus();
+        if (!status.newGame && this.ocrFrameData$.getValue()?.level !== 0) return "You aren't playing on level level 0";
+        if (!status.newGame) return "You didn't start a new game at level 0";
+        if (!status.firstPiece) return "You didn't place the first piece as instructed";
+        if (!status.nextPiece) return "You didn't place the next piece as instructed";
 
+        return true;
       // case CalibrationStep.ANTI_CHEAT:
       //   return true;
     }
@@ -138,6 +155,24 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
     return this.stepIndex === this.ALL_CALIBRATION_STEPS.length - 1;
   }
 
+  initStep(step: CalibrationStep) {
+    console.log("init step", step);
+
+    if (step === CalibrationStep.VERIFY_OCR) {
+      this.ocrVerifier = new OCRVerifier(this.ocrGameService);
+    }
+
+  }
+
+  deinitStep(step: CalibrationStep) {
+    console.log("deinit step", step);
+
+    if (step === CalibrationStep.VERIFY_OCR) {
+      this.ocrVerifier!.destroy();
+      this.ocrVerifier = undefined;
+    }
+  }
+
   // go to next step of stepper for calibration
   next() {
     if (this.nextAllowed()) {
@@ -149,15 +184,21 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
       }
 
       // otherwise, go to next step
-      else this.stepIndex++;
+      else this.setStepIndex(this.stepIndex + 1);
     }
   }
 
   // go to previous step of stepper for calibration
   previous() {
     if (this.previousAllowed()) {
-      this.stepIndex--;
+      this.setStepIndex(this.stepIndex - 1);
     }
+  }
+
+  private setStepIndex(newIndex: number) {
+    this.deinitStep(this.currentStep);
+    this.stepIndex = newIndex;
+    this.initStep(this.currentStep);
   }
 
 
@@ -237,6 +278,8 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
   }
 
   ngOnDestroy() {
+    this.deinitStep(this.currentStep);
+
     this.videoCapture.stopCapture(); // don't capture when not necessary to save processing time
     this.frameUpdateSubscription?.unsubscribe();
 

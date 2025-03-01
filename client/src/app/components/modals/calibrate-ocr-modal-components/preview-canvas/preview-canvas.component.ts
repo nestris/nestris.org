@@ -12,6 +12,7 @@ export class PreviewCanvasComponent implements AfterViewInit, OnDestroy {
 
   // whether to display the bounding boxes of the different OCR elements, if they exist
   @Input() showBoundingBoxes: boolean = false;
+  @Input() enableCalibrationClick: boolean = false;
 
   private isMouseOnVideo: boolean = false;
   private mouseX: number = 0;
@@ -64,6 +65,9 @@ export class PreviewCanvasComponent implements AfterViewInit, OnDestroy {
   }
 
   private onMouseClick(): void {
+
+    if (!this.enableCalibrationClick) return;
+
     if (this.isMouseOnVideo) {
       this.videoCapture.calibrateOnMouseClick({x : this.mouseX, y : this.mouseY});
     }

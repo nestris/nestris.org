@@ -5,6 +5,7 @@ import { PlatformInterfaceService } from '../platform-interface.service';
 import { OCRStateID } from 'src/app/ocr/state-machine/ocr-states/ocr-state-id';
 import { LiveGameAnalyzer } from '../stackrabbit/live-game-analyzer';
 import { StackrabbitService } from '../stackrabbit/stackrabbit.service';
+import { PacketSender } from 'src/app/ocr/util/packet-sender';
 
 @Injectable({
   providedIn: 'root'
@@ -39,14 +40,16 @@ export class OcrGameService {
    * must match for the game to start
    * @param config Configuration parameters for the OCR state machine
    */
-  startGameCapture(config: OCRConfig) {
+  startGameCapture(config: OCRConfig, packetSender: PacketSender | undefined = this.platform, analyzePlacements: boolean = true) {
 
     if (this.stateMachine) {
       console.error("Game already started");
       return;
     }
 
-    this.stateMachine = new OCRStateMachine(config, this.platform, this.analyzerFactory);
+    const analyzerFactory = analyzePlacements ? this.analyzerFactory : undefined;
+    this.stateMachine = new OCRStateMachine(config, packetSender, analyzerFactory);
+
     this.videoCapture.startCapture();
     console.log("Starting OCR game capture")
   }
