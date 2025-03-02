@@ -423,7 +423,7 @@ export class EmulatorGameState {
         }
 
         // only update DAS/translation/rotation if piece is active (not during lock)
-        if (this.placementFrameCount >= 0) {
+        if (this.placementFrameCount > 0) {
             this.handleTranslate(pressedKeys);
             this.handleRotate(pressedKeys);
         }
