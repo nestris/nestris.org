@@ -399,8 +399,6 @@ export class LoadingScreenComponent implements OnInit, AfterViewInit, OnChanges,
 
     if (this.destroyed) return;
 
-    console.log("animate");
-
     this.frame += 1;
     this.c.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
