@@ -17,17 +17,24 @@ export class FpsTracker {
     private averageTickBusyDuration = new RollingAverage(20);
     private averageTickIdleDuration = new RollingAverage(20);
 
+    private tickLengths = new RollingAverage(100);
+
     private lastTick = Date.now();
 
     private i = 0;
 
-    constructor(private readonly printEvery: number | undefined = undefined) {
+    constructor(private readonly printEvery: number | undefined = undefined, private readonly printStats: boolean = false) {
         this.timestamps = [];
     }
 
     tick(): void {
         const now = Date.now();
         this.timestamps.push(now);
+
+        if (this.timestamps.length >= 2) {
+            const tickLength = now - this.timestamps[this.timestamps.length - 2];
+            this.tickLengths.push(tickLength);
+        }
 
         // Clean up timestamps older than 1 second
         while (this.timestamps.length > 0 && now - this.timestamps[0] > 1000) {
@@ -43,6 +50,7 @@ export class FpsTracker {
             this.i++;
             if (this.i == this.printEvery) {
                 console.log("FPS:", this.getFPS());
+                if (this.printStats) console.log(this.getTickDurationStatistics());
                 this.i = 0;
             }
         }
@@ -79,5 +87,9 @@ export class FpsTracker {
     // returns the average duration of the idle time between ticks in milliseconds
     getTickIdleDuration(): number {
         return this.averageTickIdleDuration.get();
+    }
+
+    getTickDurationStatistics() {
+        return this.tickLengths.getStatistics();
     }
 }

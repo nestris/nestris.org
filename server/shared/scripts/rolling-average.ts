@@ -65,4 +65,21 @@ export class RollingAverage {
     isFull(): boolean {
         return this.count === this.size;
     }
+
+    getStatistics(): { mean: number; min: number; max: number; sd: number } {
+        const values = this.getValues();
+        const count = values.length;
+    
+        if (count === 0) {
+            return { mean: 0, min: 0, max: 0, sd: 0 };
+        }
+    
+        const mean = values.reduce((sum, val) => sum + val, 0) / count;
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        const variance = values.reduce((sum, val) => sum + (val - mean) ** 2, 0) / count;
+        const sd = Math.sqrt(variance);
+    
+        return { mean, min, max, sd };
+    }
 }

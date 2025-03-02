@@ -36,7 +36,7 @@ export class LayoutOneComponent extends AbstractNesLayoutComponent implements On
 
 
   ngOnChanges(changes: SimpleChanges): void {
-    //console.log('frame layout-one changes', changes);
+    // console.log('frame layout-one changes', changes);
   }
 
   padScore(score: number | null): string {

@@ -21,6 +21,7 @@ import { TimeDelta } from 'src/app/shared/scripts/time-delta';
 import { ClientRoom } from '../room/client-room';
 import { SoloClientRoom, SoloClientState } from '../room/solo-client-room';
 import { QuestService } from '../quest.service';
+import { FpsTracker } from 'src/app/shared/scripts/fps-tracker';
 
 
 /*
@@ -58,6 +59,8 @@ export class EmulatorService {
   private runaheadFrames: number = 0;
 
   private clientRoom?: ClientRoom;
+
+  private fps?: FpsTracker;
 
   constructor(
     private platform: PlatformInterfaceService,
@@ -126,7 +129,6 @@ export class EmulatorService {
     this.currentState = new EmulatorGameState(startLevel, new GymRNG(gymSeed), countdown);
     this.analyzer = new LiveGameAnalyzer(this.stackrabbitService, sendPacketsToServer ? this.platform : null, startLevel);
     
-
     this.analyzer.onNewPosition({
       board: this.currentState.getIsolatedBoard().copy(),
       currentPiece: this.currentState.getCurrentPieceType(),
@@ -171,6 +173,8 @@ export class EmulatorService {
     };
     this.keybinds.configureKeybinds(keybinds);
 
+    this.fps = new FpsTracker(500, true);
+
     // start game loop
     // this.zone.runOutsideAngular(() => {
     //   this.loop = setInterval(() => this.tick(), 0);
@@ -214,6 +218,10 @@ export class EmulatorService {
   // if topped out, stop game
   private advanceEmulatorState() {
 
+    if (!this.currentState) return;
+
+    this.fps?.tick();
+
     // Poll gamepad and update pressed gamepad keys
     const gamepadKeybinds = this.keybinds.geGamepadKeybinds();
     const gamepadPressed = this.gamepadService.getPressedButtons();
@@ -222,8 +230,6 @@ export class EmulatorService {
     }
     
     const pressedKeys = this.keyManager.generate();
-
-    if (!this.currentState) return;
 
     // console.log("frame");
 
@@ -300,6 +306,7 @@ export class EmulatorService {
       if (this.clientRoom instanceof SoloClientRoom) this.clientRoom.setSoloState(SoloClientState.TOPOUT);
     }
 
+    this.fps?.endTick();
   }
 
 
@@ -307,6 +314,8 @@ export class EmulatorService {
 
     // if game is already stopped, do nothing
     if (this.currentState === undefined) return;
+
+    this.fps = undefined;
 
     this.wakeLockService.disableWakeLock();
     this.questService.setInGame(false);
