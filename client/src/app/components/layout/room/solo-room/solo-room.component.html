@@ -2,7 +2,7 @@
 
 <div class="main">
     <app-layout-one class="game" *ngIf="(platform.getGameDataWithoutBoard$() | async) as data"
-        [canvasBoard]="platform.getGameBoard$()"
+        [canvasBoard]="platform.gameBoard$"
         [nextType]="data.nextPiece"
         [level]="data.level"
         [lines]="data.lines"

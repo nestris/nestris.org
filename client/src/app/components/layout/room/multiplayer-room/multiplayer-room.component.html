@@ -7,7 +7,7 @@
             <!-- Show client gameplay directly if it's the player's board -->
             <ng-container *ngIf="isMyIndex(playerIndex)">
                 <app-layout-one *ngIf="(platform.getGameDataWithoutBoard$() | async) as myData"
-                    [canvasBoard]="platform.getGameBoard$()"
+                    [canvasBoard]="platform.gameBoard$"
                     [nextType]="myData.nextPiece"
                     [level]="myData.level"
                     [lines]="myData.lines"

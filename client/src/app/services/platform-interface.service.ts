@@ -42,6 +42,8 @@ export class PlatformInterfaceService extends PacketSender {
   private polledGameData$ = new BehaviorSubject<GameDisplayData>(DEFAULT_POLLED_GAME_DATA);
   private polledGameBoard$ = new BehaviorSubject<TetrisBoard>(new TetrisBoard());
 
+  public gameBoard$ = this.polledGameBoard$.asObservable();
+
   private overallAccuracy$ = new BehaviorSubject<number | null>(null);
   private ratedMove$ = new BehaviorSubject<RatedMove | null>(null);
 
@@ -66,10 +68,6 @@ export class PlatformInterfaceService extends PacketSender {
 
   getGameData$(): Observable<GameDisplayData> {
     return this.polledGameData$.asObservable();
-  }
-
-  getGameBoard$(): Observable<TetrisBoard> {
-    return this.polledGameBoard$.asObservable();
   }
 
   getGameDataWithoutBoard$(): Observable<GameDisplayDataWithoutBoard> {
