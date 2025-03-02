@@ -111,6 +111,10 @@ export class GameState {
     return this.numTetrises;
   }
 
+  getNumPlacements(): number {
+    return this.numPlacements;
+  }
+
   // Get what percentage of lines cleared were tetrises
   getTetrisRate(): number {
     return this.numLines === 0 ? 0 : (this.numTetrises * 4) / this.numLines;

@@ -98,6 +98,10 @@ export class OCRGameState {
         return this.game.getStatus().status;
     }
 
+    getNumPlacements(): number {
+        return this.game.getNumPlacements();
+    }
+
     placePiece(mt: MoveableTetromino, nextType: TetrominoType, pushdown: number) {
 
         // Place piece and update game state

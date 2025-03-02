@@ -10,6 +10,7 @@ import { RegularSpawnEvent } from "./regular-spawn-event";
 import { LineClearSpawnEvent } from "./line-clear-spawn-event";
 import { TopoutEvent } from "./topout-event";
 import { ConfusionEvent } from "./confusion-event";
+import { RestartGameEvent } from "./restart-game-event";
 
 export class PieceDroppingState extends OCRState {
 
@@ -24,11 +25,11 @@ export class PieceDroppingState extends OCRState {
         
     public override init() {
 
+        this.registerEvent(new RestartGameEvent(this.config.startLevel, this.globalState, this.textLogger));
         this.registerEvent(new RegularSpawnEvent(this, this.globalState));
         this.registerEvent(new LineClearSpawnEvent(this, this.globalState));
         this.registerEvent(new TopoutEvent(this));
         this.registerEvent(new ConfusionEvent(this));
-        
     }
 
     /**

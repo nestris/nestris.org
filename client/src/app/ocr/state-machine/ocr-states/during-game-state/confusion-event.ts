@@ -10,7 +10,7 @@ import { OCRStateID } from "../ocr-state-id";
  */
 export class ConfusionEvent extends StateEvent {
     public override readonly name = "ConfusionEvent";
-    public override readonly persistence = new TimedPersistenceStrategy(3000);
+    public override readonly persistence = new TimedPersistenceStrategy(2000);
 
     constructor(private readonly myState: PieceDroppingState) { super() }
 

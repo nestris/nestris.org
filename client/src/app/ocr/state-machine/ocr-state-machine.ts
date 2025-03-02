@@ -1,5 +1,4 @@
 import { OCRState } from "./ocr-state";
-import { BeforeGameState } from "./ocr-states/before-game-state";
 import { GlobalState } from "./global-state";
 import { StateMachineLogger, TextLogger } from "./state-machine-logger";
 import { OCRFrame } from "./ocr-frame";
@@ -8,7 +7,7 @@ import { Profiler, ProfilerResults } from "../../shared/scripts/profiler";
 import { PacketSender } from "../util/packet-sender";
 import { GameDisplayData } from "../../shared/tetris/game-display-data";
 import { OCRStateID } from "./ocr-states/ocr-state-id";
-import { GameAnalyzer } from "src/app/shared/evaluation/game-analyzer";
+import { GameAnalyzer } from "../../shared/evaluation/game-analyzer";
 
 export interface OCRConfig {
     startLevel: number | null, // Can only transition to game if OCR detects matching start level

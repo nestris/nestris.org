@@ -42,9 +42,9 @@ export class StartGameEvent extends StateEvent {
      * @param textLogger 
      */
     constructor(
-        private readonly startLevel: number | null,
-        private readonly globalState: GlobalState,
-        private readonly textLogger: TextLogger
+        protected readonly startLevel: number | null,
+        protected readonly globalState: GlobalState,
+        protected readonly textLogger: TextLogger
     ) { super(); }
 
     /**
@@ -59,10 +59,9 @@ export class StartGameEvent extends StateEvent {
      */
     protected override async precondition(ocrFrame: OCRFrame): Promise<boolean> {
 
-        // A high noise indicates that the frame may not be capturing a tetris board correctly
-        const noise = ocrFrame.getBoardNoise()!;
-        if (noise > 20) {
-            this.textLogger.log(LogType.VERBOSE, `StartGameEvent: Noise too high: ${noise}, required < 20`);
+        // Check that the board must have exactly 4 minos with an identifiable MoveableTetromino
+        if (ocrFrame.getBoardOnlyTetrominoType()! === TetrominoType.ERROR_TYPE) {
+            this.textLogger.log(LogType.VERBOSE, "StartGameEvent: Board does not have exactly 4 minos with an identifiable MoveableTetromino");
             return false;
         }
 
@@ -80,7 +79,7 @@ export class StartGameEvent extends StateEvent {
             return false;
         }
 
-        if (this.startLevel && level !== this.startLevel) {
+        if (this.startLevel !== null && level !== this.startLevel) {
             this.textLogger.log(LogType.VERBOSE, `StartGameEvent: Starting level ${level} does not match required level ${this.startLevel}`);
             return false;
         }
@@ -96,9 +95,10 @@ export class StartGameEvent extends StateEvent {
             return false;
         }
 
-        // Check that the board must have exactly 4 minos with an identifiable MoveableTetromino
-        if (ocrFrame.getBoardOnlyTetrominoType()! === TetrominoType.ERROR_TYPE) {
-            this.textLogger.log(LogType.VERBOSE, "StartGameEvent: Board does not have exactly 4 minos with an identifiable MoveableTetromino");
+        // A high noise indicates that the frame may not be capturing a tetris board correctly
+        const noise = ocrFrame.getBoardNoise()!;
+        if (noise > 20) {
+            this.textLogger.log(LogType.VERBOSE, `StartGameEvent: Noise too high: ${noise}, required < 20`);
             return false;
         }
 

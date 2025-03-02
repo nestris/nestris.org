@@ -16,6 +16,7 @@ import { PacketDisassembler } from "src/app/shared/network/stream-packets/packet
 import { TetrominoType } from "src/app/shared/tetris/tetromino-type";
 
 export interface OCRVerificationStatus {
+    startLevel: boolean,
     newGame: boolean,
     firstPiece: boolean,
     nextPiece: boolean
@@ -32,7 +33,7 @@ export class OCRVerifier {
     constructor(
         private readonly ocrGameService: OcrGameService
     ) {
-        const config: OCRConfig = { startLevel: 0, multipleGames: true };
+        const config: OCRConfig = { startLevel: null, multipleGames: true };
         this.ocrGameService.startGameCapture(config, this.packetSender);
     }
 
@@ -57,6 +58,7 @@ export class OCRVerifier {
 }
 
 interface GameData {
+    startLevel: number;
     current: TetrominoType;
     next: TetrominoType;
 }
@@ -64,6 +66,7 @@ interface GameData {
 class OCRPacketSender extends PacketSender {
     
     public readonly status$ = new BehaviorSubject<OCRVerificationStatus>({
+        startLevel: false,
         newGame: false,
         firstPiece: false,
         nextPiece: false
@@ -79,11 +82,13 @@ class OCRPacketSender extends PacketSender {
             case PacketOpcode.GAME_START:
                 const gameStartPacket = packet.content as GameStartSchema;
                 this.gameData = {
+                    startLevel: gameStartPacket.level,
                     current: gameStartPacket.current,
                     next: gameStartPacket.next
                 };
 
                 this.status$.next({
+                    startLevel: gameStartPacket.level === 0,
                     newGame: true,
                     firstPiece: false,
                     nextPiece: false,
@@ -94,14 +99,13 @@ class OCRPacketSender extends PacketSender {
                 this.gameData = null;
 
                 this.status$.next({
+                    startLevel: false,
                     newGame: false,
                     firstPiece: false,
                     nextPiece: false,
                 });
                 return;
         };
-
-        console.log("packet received", packet);
     }
 
 }

@@ -63,7 +63,7 @@
                 <div class="col checklist">
                     <h1>Verification checklist</h1>
                     <div class="item">
-                        <app-correctness-icon width="10px" [correct]="(ocrFrameData$ | async)?.level === 0" />
+                        <app-correctness-icon width="10px" [correct]="status.startLevel || (ocrFrameData$ | async)?.level === 0" />
                         <p>Level 0 start</p>
                     </div>
                     <div class="item">
