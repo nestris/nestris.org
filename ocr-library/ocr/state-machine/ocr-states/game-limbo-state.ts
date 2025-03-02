@@ -30,7 +30,6 @@ export class GameLimboState extends OCRState {
  * If been in limbo state for too long, game is unrecoverable. End game.
  */
 export class TimeoutEvent extends StateEvent {
-    public override readonly name = "TimeoutEvent";
     public override readonly persistence = new TimedPersistenceStrategy(3000);
 
     /**

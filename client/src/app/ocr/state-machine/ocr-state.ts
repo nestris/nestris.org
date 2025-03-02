@@ -111,12 +111,8 @@ export abstract class OCRState {
  */
 export abstract class StateEvent {
 
-    /** @param name Display name of the event */
-    public abstract readonly name: string;
-
     /** @param persistence Strategy used for how long precondition=true must persist before the event is triggered */
     public abstract readonly persistence: PersistenceStrategy;
-
     
     /**
      * Checks if the event should be triggered based on the current OCRFrame and GameData.
@@ -128,7 +124,7 @@ export abstract class StateEvent {
     async checkForEvent(ocrFrame: OCRFrame): Promise<EventStatus> {
         const preconditionMet = await this.precondition(ocrFrame);
         const persistenceMet = this.persistence.meetsPersistenceCondition(preconditionMet);
-        return { name: this.name, preconditionMet, persistenceMet };
+        return { name: this.constructor.name, preconditionMet, persistenceMet };
     }
 
     /**

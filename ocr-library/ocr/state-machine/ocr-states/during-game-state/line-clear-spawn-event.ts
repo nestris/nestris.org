@@ -14,7 +14,6 @@ import { LogType } from "../../state-machine-logger";
  * piece being placed, and updating the stable board to reflect the placed piece.
  */
 export class LineClearSpawnEvent extends StateEvent {
-    public override readonly name = "LineClearSpawnEvent";
     public override readonly persistence = new ConsecutivePersistenceStrategy(2);
 
     private validPlacement: MoveableTetromino | undefined = undefined;

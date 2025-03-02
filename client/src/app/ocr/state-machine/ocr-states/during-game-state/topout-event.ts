@@ -11,7 +11,6 @@ import { OCRStateID } from "../ocr-state-id";
  * piece being placed, and updating the stable board to reflect the placed piece.
  */
 export class TopoutEvent extends StateEvent {
-    public override readonly name = "TopoutEvent";
     public override readonly persistence = new TimedPersistenceStrategy(500);
 
     constructor(

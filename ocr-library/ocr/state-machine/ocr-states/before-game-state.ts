@@ -33,7 +33,6 @@ export class BeforeGameState extends OCRState {
  * for the StartGameEvent to trigger, which causes transition BeforeGameState -> InGameState.
  */
 export class StartGameEvent extends StateEvent {
-    public override readonly name = "StartGameEvent";
     public override readonly persistence = new ConsecutivePersistenceStrategy(5);
 
     /**

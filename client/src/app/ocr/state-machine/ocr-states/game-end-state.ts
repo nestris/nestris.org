@@ -29,7 +29,6 @@ export class GameEndState extends OCRState {
  * Restart game immediately if config allows for multiple games
  */
 class GameRestartEvent extends StateEvent {
-    public override readonly name = "GameRestartEvent";
     public override readonly persistence = new SingleFramePersistenceStrategy();
 
     constructor(private readonly config: OCRConfig) { super(); }
