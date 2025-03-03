@@ -68,7 +68,7 @@ export class SettingsPageComponent implements OnDestroy {
         new BooleanSetting('enable_receive_friend_requests', 'Allow people to send me friend requests'),
         new BooleanSetting('notify_on_friend_online', 'Notify me when friends go online'),
       ]),
-      new Category('Emulator', [
+      new Category('Gameplay', [
         new BooleanSetting(
           'disable_midgame_quests',
           'Disable mid-game quest popups',
