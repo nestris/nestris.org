@@ -8,6 +8,7 @@ import { OCRFrame } from "../../ocr-frame";
 import { OCRStateID } from "../ocr-state-id";
 import { TETROMINO_CHAR } from "../../../../shared/tetris/tetrominos";
 import { LogType } from "../../state-machine-logger";
+import { calculatePushdown } from "./regular-spawn-event";
 
 /**
  * Event that triggers when a new piece is spawned without a line clear. This should result in the previous
@@ -137,9 +138,18 @@ export class LineClearSpawnEvent extends StateEvent {
      */
     override async triggerEvent(ocrFrame: OCRFrame): Promise<OCRStateID | undefined> {
 
+        // Calculate what would be score after line clear
+        const board = this.globalState.game!.getStableBoard().copy();
+        const numLineClears = board.processLineClears();
+        const stableStatus = this.globalState.game!.getMemoryStatus().copy();
+        stableStatus.onLineClear(numLineClears);
+        const scoreAfterLineClear = stableStatus.score;
+
+        const pushdown = await calculatePushdown(ocrFrame, scoreAfterLineClear);
+
         // Update the stable board to reflect the new piece placement and report the placement of the previous piece
         this.myState.textLogger.log(LogType.INFO, `RegularSpawnEvent: Placed ${TETROMINO_CHAR[this.validPlacement!.tetrominoType]} at ${this.validPlacement!.getTetrisNotation()}`);
-        this.globalState.game!.placePiece(this.validPlacement!, ocrFrame.getNextType()!, 0);
+        this.globalState.game!.placePiece(this.validPlacement!, ocrFrame.getNextType()!, pushdown);
 
         // We transition to a new instance of the same state
         return OCRStateID.PIECE_DROPPING;

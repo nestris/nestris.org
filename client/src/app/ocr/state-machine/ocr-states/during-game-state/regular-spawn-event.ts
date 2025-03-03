@@ -104,12 +104,24 @@ export class RegularSpawnEvent extends StateEvent {
      */
     override async triggerEvent(ocrFrame: OCRFrame): Promise<OCRStateID | undefined> {
 
+        // Look for pushdown. If the OCR'ed score is not more than 50 more than stable score, consider it as pushdown
+        const stableScore = this.globalState.game!.getStatus().score;
+        const pushdown = await calculatePushdown(ocrFrame, stableScore);
+
         // Update the stable board to reflect the new piece placement and report the placement of the previous piece
-        this.globalState.game!.placePiece(this.validPlacement!, ocrFrame.getNextType()!, 0);
+        this.globalState.game!.placePiece(this.validPlacement!, ocrFrame.getNextType()!, pushdown);
         this.myState.textLogger.log(LogType.INFO, `RegularSpawnEvent: Placed ${TETROMINO_CHAR[this.validPlacement!.tetrominoType]} at ${this.validPlacement!.getTetrisNotation()}`);
 
         // We transition to a new instance of the same state
         return OCRStateID.PIECE_DROPPING;
     }
 
+}
+
+export async function calculatePushdown(ocrFrame: OCRFrame, stableScore: number): Promise<number> {
+    const ocrScore = (await ocrFrame.getScore())!;
+    if (ocrScore !== -1 && ocrScore > stableScore && ocrScore < stableScore + 50) {
+        return ocrScore - stableScore;
+    }
+    return 0;
 }
