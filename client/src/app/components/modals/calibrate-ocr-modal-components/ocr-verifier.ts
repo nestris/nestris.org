@@ -33,7 +33,7 @@ export class OCRVerifier {
     constructor(
         private readonly ocrGameService: OcrGameService
     ) {
-        const config: OCRConfig = { startLevel: null, multipleGames: true };
+        const config: OCRConfig = { startLevel: null, seed: null, multipleGames: true };
         this.ocrGameService.startGameCapture(config, this.packetSender);
     }
 

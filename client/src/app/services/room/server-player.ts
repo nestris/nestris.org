@@ -1,5 +1,6 @@
-import { BehaviorSubject, map, Observable } from "rxjs";
+import { BehaviorSubject, Observable } from "rxjs";
 import { GameState, GameStateSnapshot, GameStateSnapshotWithoutBoard } from "src/app/shared/game-state-from-packets/game-state";
+import { Platform } from "src/app/shared/models/platform";
 import { GameAbbrBoardSchema, GameCountdownSchema, GameFullBoardSchema, GamePlacementSchema, GameRecoverySchema, GameStartSchema, PACKET_NAME, PacketContent, PacketOpcode } from "src/app/shared/network/stream-packets/packet";
 import MoveableTetromino from "src/app/shared/tetris/moveable-tetromino";
 import { TetrisBoard } from "src/app/shared/tetris/tetris-board";
@@ -24,7 +25,11 @@ export class ServerPlayer {
     private previousSnapshot: GameStateSnapshot | null;
   
     // The constructor initializes the ServerPlayer with a buffer delay (in ms) for the PacketReplayer
-    constructor(private readonly defaultLevel: number = 18, bufferDelay: number = 300) {
+    constructor(
+      private readonly defaultLevel: number,
+      private readonly platform: Platform | null,
+      bufferDelay: number = 300
+    ) {
 
         // No ongoing game at initialization
         this.state = null;
@@ -59,7 +64,8 @@ export class ServerPlayer {
  
       if (packet.opcode === PacketOpcode.GAME_START) {
         const gameStart = packet.content as GameStartSchema;
-        this.state = new GameState(gameStart.level, gameStart.current, gameStart.next, 3);
+        const countdown = this.platform === Platform.OCR ? undefined : 3;
+        this.state = new GameState(gameStart.level, gameStart.current, gameStart.next, countdown);
 
       } else if (packet.opcode === PacketOpcode.GAME_RECOVERY) {
         const gameRecovery = packet.content as GameRecoverySchema;

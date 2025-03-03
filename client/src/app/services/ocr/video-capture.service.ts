@@ -11,7 +11,8 @@ import { Rectangle } from 'src/app/ocr/util/rectangle';
 import { ColorType } from 'src/app/shared/tetris/tetris-board';
 import { DigitClassifier } from 'src/app/ocr/digit-classifier/digit-classifier';
 import { BrowserDigitClassifer } from 'src/app/scripts/browser-digit-classifier';
-import { Platform, PlatformInterfaceService } from '../platform-interface.service';
+import { PlatformInterfaceService } from '../platform-interface.service';
+import { Platform } from 'src/app/shared/models/platform';
 
 export interface FrameWithContext {
   ctx: CanvasRenderingContext2D,

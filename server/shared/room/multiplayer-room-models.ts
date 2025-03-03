@@ -1,3 +1,4 @@
+import { Platform } from "../models/platform";
 import { RoomState, RoomType } from "./room-models";
 
 export enum PlayerIndex {
@@ -55,6 +56,7 @@ export interface PlayerInfo {
     trophies: number;
     leftRoom: boolean;
     trophyDelta: TrophyDelta;
+    platform: Platform | null;
 }
 
 export interface MultiplayerRoomState extends RoomState {

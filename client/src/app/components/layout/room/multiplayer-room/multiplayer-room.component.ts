@@ -5,6 +5,8 @@ import { PlatformInterfaceService } from 'src/app/services/platform-interface.se
 import { RoomService } from 'src/app/services/room/room.service';
 import { calculateScoreForPlayer, MultiplayerRoomState, MultiplayerRoomStatus, PlayerIndex } from 'src/app/shared/room/multiplayer-room-models';
 import { MultiplayerComponent } from './multiplayer-component';
+import { Platform } from 'src/app/shared/models/platform';
+import { OCRStatus } from 'src/app/services/room/multiplayer-client-room';
 
 @Component({
   selector: 'app-multiplayer-room',
@@ -13,6 +15,12 @@ import { MultiplayerComponent } from './multiplayer-component';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MultiplayerRoomComponent extends MultiplayerComponent {
+
+  readonly MultiplayerRoomStatus = MultiplayerRoomStatus;
+  readonly Platform = Platform;
+  readonly OCRStatus = OCRStatus;
+
+  public ocrStatus$ = this.multiplayerClientRoom.getOCRStatus$();
 
   constructor(
     public readonly platform: PlatformInterfaceService,
@@ -36,12 +44,14 @@ export class MultiplayerRoomComponent extends MultiplayerComponent {
     return calculateScoreForPlayer(state.points, index);
   }
 
-  showBoardText(state: MultiplayerRoomState, index: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2): string | undefined {
+  showBoardText(state: MultiplayerRoomState, index: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2, ocrStatus: OCRStatus | null = null): string | undefined {
     if (state.players[index].leftRoom && state.status === MultiplayerRoomStatus.IN_GAME) return "RESIGNED";
     if (state.status === MultiplayerRoomStatus.BEFORE_GAME) {
       if (state.ready[index]) return 'READY';
       if (!this.isMyIndex(index) && state.lastGameWinner === null) return 'NOT READY';
     }
+
+    if (state.status === MultiplayerRoomStatus.IN_GAME && ocrStatus === OCRStatus.OCR_BEFORE_GAME) return "Detecting game...";
     
     return undefined;
   }

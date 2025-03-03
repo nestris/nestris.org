@@ -12,7 +12,7 @@ export class GameLimboState extends OCRState {
 
     public override init() {
 
-        this.registerEvent(new RestartGameEvent(this.config.startLevel, this.globalState, this.textLogger));
+        this.registerEvent(new RestartGameEvent(this.config, this.globalState, this.textLogger));
         this.registerEvent(new ExitEvent());
         this.registerEvent(new TimeoutEvent());
     }

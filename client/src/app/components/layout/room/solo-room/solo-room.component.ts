@@ -11,6 +11,7 @@ import { SoloClientRoom, SoloClientState } from 'src/app/services/room/solo-clie
 import { MeService } from 'src/app/services/state/me.service';
 import { CATEGORY_REDIRECT, getQuest, QuestRedirect } from 'src/app/shared/nestris-org/quest-system';
 import { SoloGameInfo, SoloRoomState } from 'src/app/shared/room/solo-room-models';
+import { Platform } from 'src/app/shared/models/platform';
 
 @Component({
   selector: 'app-solo-room',
@@ -25,8 +26,11 @@ export class SoloRoomComponent {
 
   readonly SoloClientState = SoloClientState;
   readonly GameOverMode = GameOverMode;
+  readonly Platform = Platform;
 
   public showAnalysis: boolean = false;
+
+  public readonly OCR_INSTRUCTIONS = 'Start a game on your console! Check your calibration if it fails.';
 
 
   constructor(
@@ -42,6 +46,12 @@ export class SoloRoomComponent {
     console.log("Active quest", activeQuestID ? getQuest(activeQuestID).name : 'none');
     console.log("is Accuracy quest", isAccuracyQuest);
     this.showAnalysis = this.meService.getSync()?.show_live_analysis || isAccuracyQuest;
+
+    // Reset analysis
+    this.platform.setRatedMove(null);
+    this.platform.setOverallAccuracy(null);
+
+    this.soloClientRoom.detectingOCR$.subscribe((value) => console.log("detecting ocr", value));
   }
 
   @HostListener('window:keydown', ['$event'])

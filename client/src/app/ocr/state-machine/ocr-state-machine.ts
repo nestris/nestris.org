@@ -8,15 +8,17 @@ import { PacketSender } from "../util/packet-sender";
 import { GameDisplayData } from "../../shared/tetris/game-display-data";
 import { OCRStateID } from "./ocr-states/ocr-state-id";
 import { GameAnalyzer } from "../../shared/evaluation/game-analyzer";
+import { BehaviorSubject, Observable } from "rxjs";
 
 export interface OCRConfig {
     startLevel: number | null, // Can only transition to game if OCR detects matching start level
+    seed: string | null, // If defined, must set rng to this seed
     multipleGames: boolean, // whether OCR can start another game after first game ends
 }
 
 export class OCRStateMachine {
 
-    private currentState: OCRState;
+    private currentState$: BehaviorSubject<OCRState>;
     private globalState: GlobalState;
 
     private profiler = new Profiler();
@@ -40,7 +42,7 @@ export class OCRStateMachine {
         private readonly logger?: StateMachineLogger,
     ) {
         this.globalState = new GlobalState(this.packetSender, this.analyzerFactory);
-        this.currentState = ocrStateFactory(OCRStateID.BEFORE_GAME, this.config, this.globalState, this.textLogger);
+        this.currentState$ = new BehaviorSubject<OCRState>(ocrStateFactory(OCRStateID.BEFORE_GAME, this.config, this.globalState, this.textLogger));
     }
 
     /**
@@ -51,29 +53,31 @@ export class OCRStateMachine {
         // Get the next frame from the video source
         this.profiler.start();
 
+        const currentState = this.currentState$.getValue();
+
         // Advance the current OCR state
-        const newStateID = await this.currentState.advanceState(ocrFrame);
-        const eventStatuses = this.currentState.getEventStatusesThisFrame();
+        const newStateID = await currentState.advanceState(ocrFrame);
+        const eventStatuses = currentState.getEventStatusesThisFrame();
 
         // Send all the packets that were accumulated this frame
         const packets = this.packetSender?.sendBufferedPackets();
 
         // Log the current state of the OCR machine
         const logs = this.textLogger.popLogs();
-        await this.logger?.log(this.stateCount, ocrFrame, this.currentState, eventStatuses, packets ?? [], this.globalState, logs);
+        await this.logger?.log(this.stateCount, ocrFrame, currentState, eventStatuses, packets ?? [], this.globalState, logs);
 
         // Transition to the new state if needed
         if (newStateID !== undefined) {
             this.stateCount++;
-            this.currentState = ocrStateFactory(newStateID, this.config, this.globalState, this.textLogger);
+            this.currentState$.next(ocrStateFactory(newStateID, this.config, this.globalState, this.textLogger));
             console.log("Transition to", newStateID);
         }
         
         this.profiler.stop();
     }
 
-    getCurrentState(): OCRStateID {
-        return this.currentState.id;
+    getCurrentState$(): Observable<OCRState> {
+        return this.currentState$.asObservable();
     }
 
     getGameDisplayData(): GameDisplayData {

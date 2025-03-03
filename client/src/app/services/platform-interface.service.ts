@@ -10,12 +10,8 @@ import { PacketSender } from '../ocr/util/packet-sender';
 import { sleep } from '../util/misc';
 import { TetrisBoard } from '../shared/tetris/tetris-board';
 import { RatedMove } from '../components/ui/eval-bar/eval-bar.component';
+import { Platform } from '../shared/models/platform';
 
-
-export enum Platform {
-  ONLINE = "ONLINE",
-  OCR = "OCR"
-}
 
 /*
 The purpose of this service is to poll game data from the online platform or the OCR platform

@@ -56,3 +56,36 @@ app-xp-status {
     top: 0;
     right: 0;
 }
+
+.my-game {
+    position: relative;
+}
+
+.ocr-config {
+    position: absolute;
+    width: 53.4%;
+    height: 40%;
+    bottom: 0;
+    left: 0;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.ocr-config p, .ocr-config h1 {
+    font-family: 'NES';
+    color: white;
+    margin: 0;
+    padding: 0;
+}
+
+.ocr-config h1 {
+    font-size: 25px;
+}
+
+.ocr-config p {
+    font-size: 21px;
+}

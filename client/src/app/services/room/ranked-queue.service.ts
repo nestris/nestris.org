@@ -6,6 +6,7 @@ import { FetchService, HTTPError, Method } from '../fetch.service';
 import { NotificationService } from '../notification.service';
 import { NotificationType } from 'src/app/shared/models/notifications';
 import { Router } from '@angular/router';
+import { PlatformInterfaceService } from '../platform-interface.service';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +23,7 @@ export class RankedQueueService {
     private websocketService: WebsocketService,
     private fetchService: FetchService,
     private notifier: NotificationService,
+    private platform: PlatformInterfaceService,
     private router: Router
   ) {
 
@@ -59,7 +61,7 @@ export class RankedQueueService {
     // Send a request to join the queue
     const sessionID = this.websocketService.getSessionID();
     try {
-      await this.fetchService.fetch(Method.POST, `/api/v2/enter-ranked-queue/${sessionID}`);
+      await this.fetchService.fetch(Method.POST, `/api/v2/enter-ranked-queue/${sessionID}/${this.platform.getPlatform()}`);
 
       // If successful, set isInQueue to true
       this.isInQueue = true;

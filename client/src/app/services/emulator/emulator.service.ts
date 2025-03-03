@@ -1,12 +1,12 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { GameStartPacket, GameCountdownPacket, GamePlacementPacket, GameAbbrBoardPacket, GameFullBoardPacket, GameEndPacket } from 'src/app/shared/network/stream-packets/packet';
-import { PlatformInterfaceService, Platform } from '../platform-interface.service';
+import { PlatformInterfaceService } from '../platform-interface.service';
 import { GameDisplayData } from 'src/app/shared/tetris/game-display-data';
 import { GymRNG } from 'src/app/shared/tetris/piece-sequence-generation/gym-rng';
 import { BinaryEncoder } from 'src/app/shared/network/binary-codec';
-import { BehaviorSubject, first, Observable, Subject } from 'rxjs';
+import {  Observable, Subject } from 'rxjs';
 import { eventIsForInput } from 'src/app/util/misc';
-import { MemoryGameStatus, StatusHistory, StatusSnapshot } from 'src/app/shared/tetris/memory-game-status';
+import { MemoryGameStatus } from 'src/app/shared/tetris/memory-game-status';
 import { getFeedback } from 'src/app/util/game-feedback';
 import { MeService } from '../state/me.service';
 import { StackrabbitService } from '../stackrabbit/stackrabbit.service';

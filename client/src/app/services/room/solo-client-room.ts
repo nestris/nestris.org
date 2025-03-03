@@ -1,12 +1,14 @@
 import { SoloGameInfo, SoloRoomState } from "src/app/shared/room/solo-room-models";
 import { ClientRoom } from "./client-room";
 import { RoomModal } from "src/app/components/layout/room/room/room.component";
-import { BehaviorSubject, Observable } from "rxjs";
+import { BehaviorSubject, Observable, Subscription } from "rxjs";
 import { EmulatorService } from "../emulator/emulator.service";
-import { Platform, PlatformInterfaceService } from "../platform-interface.service";
+import { PlatformInterfaceService } from "../platform-interface.service";
 import { QuestService } from "../quest.service";
 import { getQuest, QuestCategory } from "src/app/shared/nestris-org/quest-system";
 import { OcrGameService } from "../ocr/ocr-game.service";
+import { Platform } from "src/app/shared/models/platform";
+import { OCRStateID } from "src/app/ocr/state-machine/ocr-states/ocr-state-id";
 
 export enum SoloClientState {
     BEFORE_GAME_MODAL = 'BEFORE_GAME_MODAL',
@@ -28,6 +30,9 @@ export class SoloClientRoom extends ClientRoom {
     private soloState$ = new BehaviorSubject<SoloClientState>(SoloClientState.BEFORE_GAME_MODAL);
 
     private originalGames!: SoloGameInfo[];
+
+    private ocrSubscription?: Subscription;
+    public detectingOCR$ = new BehaviorSubject<boolean>(false);
 
     public override async init(state: SoloRoomState): Promise<void> {
 
@@ -74,9 +79,20 @@ export class SoloClientRoom extends ClientRoom {
 
         // If going into solo mode game and in ocr, start capturing
         if (state === SoloClientState.IN_GAME && this.platformInterface.getPlatform() === Platform.OCR) {
-            this.ocr.startGameCapture({
+
+            console.log("going into solo ocr");
+
+            this.detectingOCR$.next(true);
+
+            const currentState$ = this.ocr.startGameCapture({
                 startLevel: null, // Player can play on any level in solo mode with OCR
+                seed: null, // No required seed
                 multipleGames: true, // Player can play as many games as desired while on solo page
+            });
+
+            this.ocrSubscription = currentState$?.subscribe(state => {
+                if (state.id === OCRStateID.PIECE_DROPPING && this.detectingOCR$.getValue()) this.detectingOCR$.next(false);
+                if (state.id === OCRStateID.GAME_END) this.detectingOCR$.next(true);
             });
         }
     }
@@ -111,6 +127,7 @@ export class SoloClientRoom extends ClientRoom {
     public override destroy(): void {
         this.emulator.stopGame(true);
         this.ocr.stopGameCapture();
+        this.ocrSubscription?.unsubscribe();
     }
 
 }

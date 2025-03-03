@@ -13,7 +13,17 @@ import { TetrisBoard } from "src/app/shared/tetris/tetris-board";
 import { TetrominoType } from "src/app/shared/tetris/tetromino-type";
 import { AlertService } from "../alert.service";
 import { TrophyAlertComponent } from "src/app/components/alerts/trophy-alert/trophy-alert.component";
+import { OcrGameService } from "../ocr/ocr-game.service";
+import { OCRConfig } from "src/app/ocr/state-machine/ocr-state-machine";
+import { Platform } from "src/app/shared/models/platform";
+import { OCRStateID } from "src/app/ocr/state-machine/ocr-states/ocr-state-id";
 
+export enum OCRStatus {
+    NOT_OCR,
+    OCR_BEFORE_GAME,
+    OCR_IN_GAME,
+    OCR_AFTER_GAME,
+}
 
 export class MultiplayerClientRoom extends ClientRoom {
 
@@ -21,7 +31,7 @@ export class MultiplayerClientRoom extends ClientRoom {
     private readonly websocket = this.injector.get(WebsocketService);
     private readonly emulator = this.injector.get(EmulatorService);
     private readonly platform = this.injector.get(PlatformInterfaceService);
-    private readonly alerts = this.injector.get(AlertService);
+    private readonly ocr = this.injector.get(OcrGameService);
 
     private serverPlayers!: {[PlayerIndex.PLAYER_1]: ServerPlayer, [PlayerIndex.PLAYER_2]: ServerPlayer};
 
@@ -29,6 +39,9 @@ export class MultiplayerClientRoom extends ClientRoom {
     private myIndex!: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2 | null;
 
     private packetGroupSubscription?: Subscription;
+    private ocrStateSubscription?: Subscription;
+
+    private ocrStatus$ = new BehaviorSubject<OCRStatus>(OCRStatus.NOT_OCR);
 
     public override async init(state: MultiplayerRoomState): Promise<void> {
 
@@ -53,8 +66,13 @@ export class MultiplayerClientRoom extends ClientRoom {
         // Initialize serverPlayers
         const defaultLevel = state.startLevel;
         this.serverPlayers = {
-            [PlayerIndex.PLAYER_1]: new ServerPlayer(defaultLevel),
-            [PlayerIndex.PLAYER_2]: new ServerPlayer(defaultLevel),
+            [PlayerIndex.PLAYER_1]: new ServerPlayer(defaultLevel, state.players[PlayerIndex.PLAYER_1].platform),
+            [PlayerIndex.PLAYER_2]: new ServerPlayer(defaultLevel, state.players[PlayerIndex.PLAYER_2].platform),
+        }
+
+        // Initialize my OCRStatus
+        if (this.myIndex !== null && this.platform.getPlatform() === Platform.OCR) {
+            this.ocrStatus$.next(OCRStatus.OCR_BEFORE_GAME);
         }
 
         // Subscribe to websocket binary messages
@@ -113,7 +131,17 @@ export class MultiplayerClientRoom extends ClientRoom {
 
         // If client is a player, and going from BEFORE_GAME -> IN_GAME, start game
         if (this.myIndex !== null && oldState.status === MultiplayerRoomStatus.BEFORE_GAME && newState.status === MultiplayerRoomStatus.IN_GAME) {
-            this.emulator.startGame(newState.startLevel, true, newState.currentSeed, this);
+            if (this.platform.getPlatform() === Platform.ONLINE) {
+                this.emulator.startGame(newState.startLevel, true, newState.currentSeed, this);
+            } else {
+                const config: OCRConfig = { startLevel: newState.startLevel, seed: newState.currentSeed, multipleGames: false };
+                const stateObservable$ = this.ocr.startGameCapture(config, this.platform, true);
+                if (!stateObservable$) throw new Error(`Game capture already started`);
+                this.ocrStateSubscription = stateObservable$.subscribe((state) => {
+                    if (state.id === OCRStateID.PIECE_DROPPING) this.ocrStatus$.next(OCRStatus.OCR_IN_GAME);
+                    if (state.id === OCRStateID.GAME_END) this.ocrStatus$.next(OCRStatus.OCR_AFTER_GAME);
+                })
+            }
         }
 
         // if going to AFTER_MATCH and resigned, show after match modal
@@ -146,8 +174,14 @@ export class MultiplayerClientRoom extends ClientRoom {
         return this.modal$.getValue() === RoomModal.MULTIPLAYER_AFTER_MATCH;
     }
 
+    public getOCRStatus$(): Observable<OCRStatus> {
+        return this.ocrStatus$.asObservable();
+    }
+
     public override destroy(): void {
         this.emulator.stopGame(true);
+        this.ocr.stopGameCapture();
+        this.ocrStateSubscription?.unsubscribe();
         this.packetGroupSubscription?.unsubscribe();
     }
 

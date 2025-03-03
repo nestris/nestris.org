@@ -92,8 +92,8 @@ export class RankedBotUser extends BotUser {
      */
     private async handleFindMatch() {
 
-        // Join the ranked queue
-        this.queueConsumer.joinRankedQueue(this.sessionID);
+        // Join the ranked queue as a bot
+        this.queueConsumer.joinRankedQueue(this.sessionID, null);
         console.log(`Bot ${this.username} joined the ranked queue, waiting for room...`);
 
         // Wait until the bot is in the ranked room
@@ -157,7 +157,8 @@ export class RankedBotUser extends BotUser {
         // Initialize AI and start calculating first placement
         const onPlacementComputed: (placement: AIPlacement) => void = (placement) => 
             packetBatcher.sendPacket(new StackRabbitPlacementPacket().toBinaryEncoder({
-                accuracyScore: placement.accuracyScore,
+                bestEval: placement.bestEval,
+                playerEval: placement.playerEval,
             }));
         const placementAI = new SRPlacementAI(onPlacementComputed);
         placementAI.registerPlacementPosition(0, state.getIsolatedBoard(), state.getCurrentPieceType(), state.getNextPieceType(), state.getStatus().level, state.getStatus().lines);

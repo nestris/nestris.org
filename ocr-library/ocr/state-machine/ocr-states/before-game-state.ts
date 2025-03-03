@@ -6,6 +6,8 @@ import { OCRState, StateEvent } from "../ocr-state";
 import { ConsecutivePersistenceStrategy } from "../persistence-strategy";
 import { LogType, TextLogger } from "../state-machine-logger";
 import { OCRStateID } from "./ocr-state-id";
+import { OCRConfig } from "../ocr-state-machine";
+import { GymRNG } from "src/app/shared/tetris/piece-sequence-generation/gym-rng";
 
 export const NOISE_THRESHOLD = 20;
 
@@ -13,7 +15,7 @@ export class BeforeGameState extends OCRState {
     public override readonly id = OCRStateID.BEFORE_GAME;
 
     public override init() {
-        this.registerEvent(new StartGameEvent(this.config.startLevel, this.globalState, this.textLogger));
+        this.registerEvent(new StartGameEvent(this.config, this.globalState, this.textLogger));
     }
 
     /**
@@ -43,7 +45,7 @@ export class StartGameEvent extends StateEvent {
      * @param textLogger 
      */
     constructor(
-        protected readonly startLevel: number | null,
+        protected readonly config: OCRConfig,
         protected readonly globalState: GlobalState,
         protected readonly textLogger: TextLogger
     ) { super(); }
@@ -61,7 +63,8 @@ export class StartGameEvent extends StateEvent {
     protected override async precondition(ocrFrame: OCRFrame): Promise<boolean> {
 
         // Check that the board must have exactly 4 minos with an identifiable MoveableTetromino
-        if (ocrFrame.getBoardOnlyTetrominoType()! === TetrominoType.ERROR_TYPE) {
+        const currentType = ocrFrame.getBoardOnlyTetrominoType()!;
+        if (currentType === TetrominoType.ERROR_TYPE) {
             this.textLogger.log(LogType.VERBOSE, "StartGameEvent: Board does not have exactly 4 minos with an identifiable MoveableTetromino");
             return false;
         }
@@ -73,6 +76,17 @@ export class StartGameEvent extends StateEvent {
             return false;
         }
 
+        // If there is a seed, check seed
+        if (this.config.seed) {
+            const rng = new GymRNG(this.config.seed);
+            const seedFirstPiece = rng.getNextPiece();
+            const seedNextPiece = rng.getNextPiece();
+            if (currentType !== seedFirstPiece || nextType !== seedNextPiece) {
+                this.textLogger.log(LogType.VERBOSE, "StartGameEvent: First and next piece do not correspond to seed");
+                return false;
+            }
+        }
+
         // A level of -1 means that OCR was unable to extract the level from the frame
         const level = await ocrFrame.getLevel()!;
         if (level === -1) {
@@ -80,8 +94,8 @@ export class StartGameEvent extends StateEvent {
             return false;
         }
 
-        if (this.startLevel !== null && level !== this.startLevel) {
-            this.textLogger.log(LogType.VERBOSE, `StartGameEvent: Starting level ${level} does not match required level ${this.startLevel}`);
+        if (this.config.startLevel !== null && level !== this.config.startLevel) {
+            this.textLogger.log(LogType.VERBOSE, `StartGameEvent: Starting level ${level} does not match required level ${this.config.startLevel}`);
             return false;
         }
 

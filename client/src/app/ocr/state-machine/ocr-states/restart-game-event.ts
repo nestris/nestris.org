@@ -15,6 +15,9 @@ export class RestartGameEvent extends StartGameEvent {
      */
     protected override async precondition(ocrFrame: OCRFrame): Promise<boolean> {
 
+        // Only if multiple games allowed
+        if (!this.config.multipleGames) return false;
+
         // If in a game but haven't made a placement yet, so can't be sure it's a new game
         if (this.globalState.game && this.globalState.game.getNumPlacements() === 0) return false;
 

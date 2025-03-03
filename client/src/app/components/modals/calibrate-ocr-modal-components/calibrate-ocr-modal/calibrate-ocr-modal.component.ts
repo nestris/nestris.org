@@ -1,10 +1,10 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { BehaviorSubject, from, Observable, Subscription } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { OCRFrame } from 'src/app/ocr/state-machine/ocr-frame';
 import { ModalManagerService } from 'src/app/services/modal-manager.service';
 import { FrameWithContext, VideoCaptureService } from 'src/app/services/ocr/video-capture.service';
-import { Platform, PlatformInterfaceService } from 'src/app/services/platform-interface.service';
+import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 import { OCRVerifier } from '../ocr-verifier';
@@ -191,6 +191,12 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
       else this.setStepIndex(this.stepIndex + 1);
     }
   }
+
+  // Enter is the same as clickign next button
+    @HostListener('window:keydown', ['$event'])
+    handleKeydown(event: KeyboardEvent) {
+      if (event.key === 'Enter') this.next();
+    }
 
   // go to previous step of stepper for calibration
   previous() {

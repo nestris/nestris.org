@@ -5,28 +5,35 @@
             [score]="getScore(state, playerIndex)" [color]="getIndexColor(playerIndex)" />
 
             <!-- Show client gameplay directly if it's the player's board -->
-            <ng-container *ngIf="isMyIndex(playerIndex)">
+            <div class="my-game" *ngIf="isMyIndex(playerIndex)">
                 <app-layout-one *ngIf="(platform.getGameDataWithoutBoard$() | async) as myData"
                     [canvasBoard]="platform.gameBoard$"
                     [nextType]="myData.nextPiece"
-                    [level]="myData.level"
+                    [level]="state.status === MultiplayerRoomStatus.BEFORE_GAME ? state.startLevel : myData.level"
                     [lines]="myData.lines"
                     [score]="myData.score"
                     [trt]="myData.trt"
                     [drought]="myData.drought"
-                    [countdown]="showBoardText(state, playerIndex) ?? myData.countdown"
+                    [countdown]="showBoardText(state, playerIndex, ocrStatus$ | async) ?? myData.countdown"
                     [gameOverShowNext]="true"
                     [gameOver]="getGameOverMode(state, playerIndex)"
                     (clickNext)="clickNext(state)"
-                    />                    
-            </ng-container>
+                    />
+                    
+                <div *ngIf="(ocrStatus$ | async) === OCRStatus.OCR_BEFORE_GAME" class="ocr-config">
+                    <h1>Requirements</h1>
+                    <p>Level: {{state.startLevel}}</p>
+                    <p>Seed: {{state.currentSeed}}</p>
+                </div>
+                    
+            </div>
 
             <!-- Otherwise, show game data from the server for this player -->
             <ng-container *ngIf="!isMyIndex(playerIndex)">
                 <app-layout-one *ngIf="(multiplayerClientRoom.getSnapshotForPlayer$(playerIndex) | async) as playerData"
                     [canvasBoard]="multiplayerClientRoom.getBoardForPlayer$(playerIndex)"
                     [nextType]="playerData.next"
-                    [level]="playerData.level"
+                    [level]="state.status === MultiplayerRoomStatus.BEFORE_GAME ? state.startLevel : playerData.level"
                     [lines]="playerData.lines"
                     [score]="playerData.score"
                     [trt]="playerData.tetrisRate"

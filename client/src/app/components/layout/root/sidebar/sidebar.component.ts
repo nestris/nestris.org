@@ -1,15 +1,16 @@
-import { Component, ChangeDetectionStrategy, OnInit, OnDestroy } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { BehaviorSubject, map } from 'rxjs';
 import { OCRState } from 'src/app/components/ui/ocr-button/ocr-button.component';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { TabID } from 'src/app/models/tabs';
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
-import { Platform, PlatformInterfaceService } from 'src/app/services/platform-interface.service';
+import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { ServerStatsService } from 'src/app/services/server-stats.service';
 import { FriendsService } from 'src/app/services/state/friends.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { DBUser, Authentication, LoginMethod } from 'src/app/shared/models/db-user';
+import { Platform } from 'src/app/shared/models/platform';
 import { DeploymentEnvironment } from 'src/app/shared/models/server-stats';
 
 

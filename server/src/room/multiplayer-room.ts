@@ -10,6 +10,7 @@ import { DBUserObject } from "../database/db-objects/db-user";
 import { PacketAssembler } from "../../shared/network/stream-packets/packet-assembler";
 import { OnlineUserActivityType } from "../../shared/models/online-activity";
 import { DBGameType } from "../../shared/models/db-game";
+import { Platform } from "../../shared/models/platform";
 
 export class MultiplayerRoom extends Room<MultiplayerRoomState> {
 
@@ -33,6 +34,8 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         player2SessionID: UserSessionID,
         protected readonly player1TrophyDelta: TrophyDelta, // How much player 1 will gain/lose
         protected readonly player2TrophyDelta: TrophyDelta, // How much player 2 will gain/lose
+        protected readonly player1Platform: Platform | null,
+        protected readonly player2Platform: Platform | null,
         public readonly ranked: boolean,
         public readonly startLevel: number,
         public readonly winningScore: number,
@@ -100,6 +103,7 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
             trophies: trophies,
             leftRoom: false,
             trophyDelta: playerIndex === PlayerIndex.PLAYER_1 ? this.player1TrophyDelta : this.player2TrophyDelta,
+            platform: playerIndex === PlayerIndex.PLAYER_1 ? this.player1Platform : this.player2Platform,
         };
     }
 

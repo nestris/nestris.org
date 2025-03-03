@@ -11,6 +11,7 @@ import { NotificationType } from "../../../shared/models/notifications";
 import { OnlineUserActivityType } from "../../../shared/models/online-activity";
 import { DBUser } from "../../../shared/models/db-user";
 import { getEloChange } from "../../../shared/nestris-org/elo-system";
+import { Platform } from "../../../shared/models/platform";
 
 export class QueueError extends Error {}
 export class UserUnavailableToJoinQueueError extends QueueError {}
@@ -62,6 +63,7 @@ class QueueUser {
         public readonly username: string,
         public readonly sessionID: string,
         public readonly trophies: number,
+        public readonly platform: Platform | null, // What player is playing on, or null if bot
     ) {}
 
     /**
@@ -137,9 +139,10 @@ export class RankedQueueConsumer extends EventConsumer {
     /**
      * Add a user to the ranked queue
      * @param sessionID The session ID of the user to add to the queue
+     * @param platform The platform the player is playing on, or null if bot
      * @throws UserUnavailableToJoinQueueError if the user is unavailable to join the queue
      */
-    public async joinRankedQueue(sessionID: string) {
+    public async joinRankedQueue(sessionID: string, platform: Platform | null) {
 
         // Get userid from sessionid
         const userid = this.users.getUserIDBySessionID(sessionID);
@@ -166,7 +169,7 @@ export class RankedQueueConsumer extends EventConsumer {
         const dbUser = await DBUserObject.get(userid);
 
         // Add user to the queue, maintaining earliest-joined-first order
-        this.queue.push(new QueueUser(userid, dbUser.username, sessionID, dbUser.trophies));
+        this.queue.push(new QueueUser(userid, dbUser.username, sessionID, dbUser.trophies, platform));
 
         // Send the number of players in the queue to all users in the queue
         this.sendNumQueuingPlayers();
@@ -333,7 +336,7 @@ export class RankedQueueConsumer extends EventConsumer {
         const user2ID = {userid: user2.userid, sessionID: user2.sessionID};
 
         try {
-            const room = new RankedMultiplayerRoom(user1ID, user2ID, player1TrophyDelta, player2TrophyDelta);
+            const room = new RankedMultiplayerRoom(user1ID, user2ID, player1TrophyDelta, player2TrophyDelta, user1.platform, user2.platform);
             await EventConsumerManager.getInstance().getConsumer(RoomConsumer).createRoom(room);
         } catch (error) {
 

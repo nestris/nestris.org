@@ -1,24 +1,36 @@
 <div class="left"></div>
 
 <div class="main">
-    <app-layout-one class="game" *ngIf="(platform.getGameDataWithoutBoard$() | async) as data"
-        [canvasBoard]="platform.gameBoard$"
-        [nextType]="data.nextPiece"
-        [level]="data.level"
-        [lines]="data.lines"
-        [score]="data.score"
-        [countdown]="data.countdown"
-        [trt]="data.trt"
-        [drought]="data.drought"
-        [accuracy]="(platform.getOverallAccuracy() | async)"
-        [gameOver]="(soloClientRoom.getSoloState$() | async) === SoloClientState.TOPOUT ? GameOverMode.TOPOUT : undefined"
-        [gameOverShowNext]="true"
-        (clickNext)="clickNextOnTopout()"
+    <app-layout-one class="game" *ngIf="soloClientRoom.detectingOCR$ | async; else default"
+        [level]="null"
+        [lines]="null"
+        [score]="null"
+        [countdown]="'Detecting game...'"
         [showEvalBar]="showAnalysis"
         [showAccuracy]="showAnalysis"
-        [ratedMove]="platform.getRatedMove$()| async"
-        [keybinds]="getKeybinds()"
-/>
+        [keybinds]="OCR_INSTRUCTIONS"
+    />
+    <ng-template #default>
+        <app-layout-one class="game" *ngIf="(platform.getGameDataWithoutBoard$() | async) as data"
+            [canvasBoard]="platform.gameBoard$"
+            [nextType]="data.nextPiece"
+            [level]="data.level"
+            [lines]="data.lines"
+            [score]="data.score"
+            [countdown]="data.countdown"
+            [trt]="data.trt"
+            [drought]="data.drought"
+            [accuracy]="(platform.getOverallAccuracy() | async)"
+            [gameOver]="(soloClientRoom.getSoloState$() | async) === SoloClientState.TOPOUT ? GameOverMode.TOPOUT : undefined"
+            [gameOverShowNext]="true"
+            (clickNext)="clickNextOnTopout()"
+            [showEvalBar]="showAnalysis"
+            [showAccuracy]="showAnalysis"
+            [ratedMove]="platform.getRatedMove$()| async"
+            [keybinds]="(platform.getPlatform() === Platform.OCR) ? undefined : getKeybinds()"
+        />
+    </ng-template>
+
 </div>
 <div class="right">
     

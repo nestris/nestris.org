@@ -1,5 +1,4 @@
 import { ColorType, TetrisBoard } from "../../../../shared/tetris/tetris-board";
-import { GlobalState } from "../../global-state";
 import { OCRFrame } from "../../ocr-frame";
 import { OCRState } from "../../ocr-state";
 import { OCRStateID } from "../ocr-state-id";
@@ -11,7 +10,7 @@ import { LineClearSpawnEvent } from "./line-clear-spawn-event";
 import { TopoutEvent } from "./topout-event";
 import { ConfusionEvent } from "./confusion-event";
 import { RestartGameEvent } from "../restart-game-event";
-import { getColorTypeForTetromino } from "src/app/shared/tetris/tetromino-colors";
+import { getColorTypeForTetromino } from "../../../../shared/tetris/tetromino-colors";
 
 enum ActivePieceFailure {
     NOT_PLUS_FOUR_MINOS = "NOT_PLUS_FOUR_MINOS",
@@ -22,7 +21,7 @@ enum ActivePieceFailure {
 
 export class PieceDroppingState extends OCRState {
 
-    public override readonly id = OCRStateID.GAME_END;
+    public override readonly id = OCRStateID.PIECE_DROPPING;
     // The last known good position of the active piece, calculated by doing a perfect subtraction of stable board
     // from the current board
     private activePiece: MoveableTetromino | undefined = undefined;
@@ -33,7 +32,7 @@ export class PieceDroppingState extends OCRState {
         
     public override init() {
 
-        this.registerEvent(new RestartGameEvent(this.config.startLevel, this.globalState, this.textLogger));
+        this.registerEvent(new RestartGameEvent(this.config, this.globalState, this.textLogger));
         this.registerEvent(new RegularSpawnEvent(this, this.globalState));
         this.registerEvent(new LineClearSpawnEvent(this, this.globalState));
         this.registerEvent(new TopoutEvent(this));

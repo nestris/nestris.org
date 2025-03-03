@@ -11,7 +11,9 @@ export interface Placement {
 }
 
 export interface AIPlacement {
-    placement: MoveableTetromino | null, accuracyScore: number
+    placement: MoveableTetromino | null,
+    bestEval: number,
+    playerEval: number,
 }
 
 /**

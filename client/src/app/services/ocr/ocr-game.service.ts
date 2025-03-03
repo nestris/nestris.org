@@ -51,7 +51,9 @@ export class OcrGameService {
     this.stateMachine = new OCRStateMachine(config, packetSender, analyzerFactory);
 
     this.videoCapture.startCapture();
-    console.log("Starting OCR game capture")
+    console.log("Starting OCR game capture");
+
+    return this.stateMachine.getCurrentState$();
   }
 
   stopGameCapture() {

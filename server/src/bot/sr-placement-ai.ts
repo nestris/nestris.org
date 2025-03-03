@@ -40,7 +40,8 @@ export class SRPlacementAI extends PlacementAI {
 
         const noPlacement: AIPlacement = {
             placement: null,
-            accuracyScore: 0
+            bestEval: 10,
+            playerEval: 0,
         }
         
         // Try to get the top move from stackrabbit
@@ -56,11 +57,12 @@ export class SRPlacementAI extends PlacementAI {
         if (stackrabbit.nextBox.length === 0) return noPlacement;
 
         // Get best move
-        // score is random number from 0.9 to 1.0
-        const accuracyScore = randomInt(90, 100) / 100;
+        const bestEval = stackrabbit.nextBox[0].score;
+        const playerEval = bestEval - randomInt(0, 300) / 100;
         return {
             placement: stackrabbit.nextBox[0].firstPlacement,
-            accuracyScore: accuracyScore
+            bestEval: stackrabbit.nextBox[0].score,
+            playerEval: playerEval,
         }
 
         // Get a weighted random move from top moves based on score. The better the move, the more likely it is to be chosen.

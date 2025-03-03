@@ -1,13 +1,13 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnDestroy, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { map } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { GamepadService } from 'src/app/services/gamepad.service';
-import { Platform, PlatformInterfaceService } from 'src/app/services/platform-interface.service';
+import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { RoomService } from 'src/app/services/room/room.service';
 import { SoloClientRoom, SoloClientState } from 'src/app/services/room/solo-client-room';
 import { MeService } from 'src/app/services/state/me.service';
-import { RoomType } from 'src/app/shared/room/room-models';
+import { Platform } from 'src/app/shared/models/platform';
 import { SoloRoomState } from 'src/app/shared/room/solo-room-models';
 
 @Component({
