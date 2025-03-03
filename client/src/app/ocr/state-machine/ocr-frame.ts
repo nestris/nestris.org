@@ -107,7 +107,8 @@ export class OCRFrame {
                 }));
 
                 // Set color at mino location
-                colorBoard.setAt(mino.x, mino.y, classifyColor(level, minoColor));
+                const colorType = classifyColor(level, minoColor);
+                colorBoard.setAt(mino.x, mino.y, colorType);
             };
 
             this._colorBoard.set(level, colorBoard);

@@ -160,7 +160,7 @@ export function getColorForTetrominoAndLevel(tetrominoType: TetrominoType, level
     return getColorForLevel(getColorTypeForTetromino(tetrominoType), level);
 }
 
-function findMostSimilarColor(color1: RGBColor, color2: RGBColor, color3: RGBColor, targetColor: RGBColor): RGBColor {
+function findMostSimilarColor(color1: RGBColor, color2: RGBColor, targetColor: RGBColor): RGBColor {
     // Function to calculate the Euclidean distance between two colors
     const colorDistance = (c1: RGBColor, c2: RGBColor): number => {
 
@@ -173,28 +173,23 @@ function findMostSimilarColor(color1: RGBColor, color2: RGBColor, color3: RGBCol
     // Calculating the distance of each color to the target color
     const distance1 = colorDistance(color1, targetColor);
     const distance2 = colorDistance(color2, targetColor);
-    const distance3 = colorDistance(color3, targetColor);
 
     // Determining the color with the minimum distance
-    const minDistance = Math.min(distance1, distance2, distance3);
-    if (minDistance === distance1) return color1;
-    if (minDistance === distance2) return color2;
-    return color3;
+    return (distance1 < distance2) ? color1 : color2;
 }
 
 // given a raw RGB color and a level, find closest color in level that matches
 export function classifyColor(level: number, colorToClassify: RGBColor): ColorType {
-    
-    level = level % 10;
 
-    const colorWhite = new RGBColor(255, 255, 255);
+    if (colorToClassify.average > 245) return ColorType.WHITE;
+
+    level = level % 10;
     const colorFirst = COLOR_FIRST_COLORS_RGB[level];
     const colorSecond = COLOR_SECOND_COLORS_RGB[level];
 
-    const mostSimilarColor = findMostSimilarColor(colorWhite, colorFirst, colorSecond, colorToClassify);
+    const mostSimilarColor = findMostSimilarColor(colorFirst, colorSecond, colorToClassify);
 
-    if (mostSimilarColor === colorWhite) return ColorType.WHITE;
-    else if (mostSimilarColor === colorFirst) return ColorType.PRIMARY;
+    if (mostSimilarColor === colorFirst) return ColorType.PRIMARY;
     else return ColorType.SECONDARY;
 }
 
