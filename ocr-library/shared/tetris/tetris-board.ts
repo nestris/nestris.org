@@ -1,3 +1,5 @@
+import MoveableTetromino from "./moveable-tetromino";
+
 /*
  A board is represented by a 20x10 grid of cells. A cell can be empty or be filled with one of two color types.
  We can efficiently encode this in 400 bits (20 rows * 10 columns * 2 bits per cell).
@@ -256,6 +258,38 @@ export class TetrisBoard {
         }
 
         return components;
+    }
+
+    /**
+     * Attempt to find the active piece as a seperate entity from the rest of the board
+     * @returns the seperated board and piece, or null if a valid seperation is not found
+     */
+    seperateBoardAndPiece(): [MoveableTetromino, TetrisBoard] | null {
+        const cc = this.extractAllConnectedComponents();
+
+        let piece: MoveableTetromino | undefined = undefined;
+
+        for (const component of cc) {
+            // Check if the component is a valid tetromino
+            const maybePiece = MoveableTetromino.extractFromTetrisBoard(component);
+
+            // Multiple components in the shape of tetrominos is ambiguous
+            if (piece && maybePiece) return null;
+
+            // Valid tetromino found
+            if (maybePiece) piece = maybePiece;
+        }
+
+        // No tetromino found
+        if (!piece) return null;
+
+        // Tetromino found, so we can subtract piece from board to get seperation
+        const pieceBoard = new TetrisBoard();
+        piece.blitToBoard(pieceBoard);
+        const remainingBoard = TetrisBoard.subtract(this, pieceBoard, true);
+        if (!remainingBoard) throw Error(`Logic error, cannot subtract piece from remaining board`);
+
+        return [piece, remainingBoard];
     }
 
     getAverageHeight(): number {

@@ -1,6 +1,6 @@
 import { PacketSender } from "../util/packet-sender";
 import { DEFAULT_POLLED_GAME_DATA, GameDisplayData } from "../../shared/tetris/game-display-data";
-import { GameAbbrBoardPacket, GameEndPacket, GameFullBoardPacket, GamePlacementPacket, GameStartPacket } from "../../shared/network/stream-packets/packet";
+import { GameAbbrBoardPacket, GameEndPacket, GameFullBoardPacket, GamePlacementPacket, GameRecoveryPacket, GameRecoverySchema, GameStartPacket } from "../../shared/network/stream-packets/packet";
 import { TetrominoType } from "../../shared/tetris/tetromino-type";
 import { TetrisBoard } from "../../shared/tetris/tetris-board";
 import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
@@ -55,7 +55,7 @@ export class OCRGameState {
     private readonly game: GameState;
 
     // used for calculating time elapsed between frames
-    private readonly timeDelta = new TimeDelta();
+    private readonly timeDelta = new TimeDelta(true);
 
     private readonly analyzer?: GameAnalyzer;
 
@@ -176,6 +176,18 @@ export class OCRGameState {
             delta: this.timeDelta.getDelta(),
             mtPose: activePiece.getMTPose()
         }));
+    }
+
+    /**
+     * Sent when the state machine reached an invalid state, but was able to recover and continue the same game.
+     * @param recovery 
+     */
+    setRecovery(recovery: GameRecoverySchema) {
+        // Set game state from recovery
+        this.game.onRecovery(recovery);
+
+        // Send recovery packet
+        this.packetSender?.bufferPacket(new GameRecoveryPacket().toBinaryEncoder(recovery));
     }
 
     getDisplayData(): GameDisplayData {

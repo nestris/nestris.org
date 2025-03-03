@@ -157,6 +157,10 @@ export class GameState {
   // pushdown is the number of pushdown points scored with this placement
   onPlacement(mtPose: MTPose, nextNextPiece: TetrominoType, pushdown: number = 0): PlacementInfo {
 
+    if (nextNextPiece === TetrominoType.ERROR_TYPE) {
+      throw new Error("nextNextPiece must be a valid Tetromino type");
+    }
+
     const placement = MoveableTetromino.fromMTPose(this.current, mtPose);
 
     // assert that placement is valid

@@ -9,6 +9,7 @@ import { OCRStateID } from "../ocr-state-id";
 import { TETROMINO_CHAR } from "../../../../shared/tetris/tetrominos";
 import { LogType } from "../../state-machine-logger";
 import { calculatePushdown } from "./regular-spawn-event";
+import { TetrominoType } from "src/app/shared/tetris/tetromino-type";
 
 /**
  * Event that triggers when a new piece is spawned without a line clear. This should result in the previous
@@ -38,7 +39,7 @@ export class LineClearSpawnEvent extends StateEvent {
         }
 
         // Next box piece must be valid
-        if (ocrFrame.getNextType() === undefined) {
+        if (ocrFrame.getNextType() === TetrominoType.ERROR_TYPE) {
             this.myState.textLogger.log(LogType.VERBOSE, "LineClearSpawnEvent: Next piece is undefined");
             return false;
         }

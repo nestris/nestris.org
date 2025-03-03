@@ -8,6 +8,7 @@ import { OCRFrame } from "../../../state-machine/ocr-frame";
 import { OCRStateID } from "../ocr-state-id";
 import { TETROMINO_CHAR } from "../../../../shared/tetris/tetrominos";
 import { LogType } from "../../state-machine-logger";
+import { TetrominoType } from "src/app/shared/tetris/tetromino-type";
 
 /**
  * Event that triggers when a new piece is spawned without a line clear. This should result in the previous
@@ -37,7 +38,7 @@ export class RegularSpawnEvent extends StateEvent {
         }
 
         // Next box piece must be valid
-        if (ocrFrame.getNextType() === undefined) {
+        if (ocrFrame.getNextType() === TetrominoType.ERROR_TYPE) {
             this.myState.textLogger.log(LogType.VERBOSE, "RegularSpawnEvent: Next piece is undefined");
             return false;
         }
@@ -119,6 +120,10 @@ export class RegularSpawnEvent extends StateEvent {
 }
 
 export async function calculatePushdown(ocrFrame: OCRFrame, stableScore: number): Promise<number> {
+
+    // Do not attempt pushdown calculation once score ocr gets unpredictable
+    if (stableScore > 999000) return 0;
+
     const ocrScore = (await ocrFrame.getScore())!;
     if (ocrScore !== -1 && ocrScore > stableScore && ocrScore < stableScore + 50) {
         return ocrScore - stableScore;

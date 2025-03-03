@@ -8,8 +8,10 @@
 export class TimeDelta {
     private initialTime: number;
     private lastTime: number;
+
+    private first: boolean = true;
   
-    constructor() {
+    constructor(private readonly startOnFirstGet: boolean = false) {
       this.initialTime = this.getCurrentTime();
       this.lastTime = this.initialTime;
     }
@@ -30,6 +32,12 @@ export class TimeDelta {
      * @returns The time delta in milliseconds, rounded to the nearest integer.
      */
     public getDelta(): number {
+
+      if (this.startOnFirstGet && this.first) {
+        this.resetDelta();
+        this.first = false;
+      }
+
       const currentTime = this.getCurrentTime();
       const totalDelta = currentTime - this.initialTime;
       const lastDelta = this.lastTime - this.initialTime;

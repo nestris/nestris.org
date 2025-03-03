@@ -1,7 +1,7 @@
 import { Subject, Observable } from "rxjs";
 import { GameState } from "../../shared/game-state-from-packets/game-state";
 import { MeMessage } from "../../shared/network/json-message";
-import { PacketContent, PacketOpcode, GameStartSchema, GamePlacementSchema, StackRabbitPlacementSchema } from "../../shared/network/stream-packets/packet";
+import { PacketContent, PacketOpcode, GameStartSchema, GamePlacementSchema, StackRabbitPlacementSchema, GameRecoverySchema } from "../../shared/network/stream-packets/packet";
 import { PacketAssembler } from "../../shared/network/stream-packets/packet-assembler";
 import { DBUserObject, DBGameEndEvent } from "../database/db-objects/db-user";
 import { CreateGameQuery } from "../database/db-queries/create-game-query";
@@ -190,6 +190,15 @@ export class GamePlayer {
                 }));
                 if (this.gameState!.startLevel === 29) await questConsumer.updateQuestCategory(this.userid, QuestCategory.LINES29, snapshot.lines);
             }
+        }
+
+        else if (packet.opcode === PacketOpcode.GAME_RECOVERY) {
+            if (!this.gameState) throw new Error("Cannot process recovery packet without game start packet");
+
+            // Handle packet recovery by updating game state
+            const recoveryPacket = (packet.content as GameRecoverySchema);
+            console.log(`Recovery packet from player ${this.username}: ${JSON.stringify(recoveryPacket)}`);
+            this.gameState.onRecovery(recoveryPacket);
         }
 
         else if (packet.opcode === PacketOpcode.STACKRABBIT_PLACEMENT) {

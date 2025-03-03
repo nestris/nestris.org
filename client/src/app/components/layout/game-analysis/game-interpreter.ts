@@ -1,4 +1,4 @@
-import { GameAbbrBoardSchema, GameCountdownSchema, GameFullBoardSchema, GamePlacementSchema, GameStartSchema, PACKET_NAME, PacketContent, PacketOpcode } from "src/app/shared/network/stream-packets/packet";
+import { GameAbbrBoardSchema, GameCountdownSchema, GameFullBoardSchema, GamePlacementSchema, GameRecoverySchema, GameStartSchema, PACKET_NAME, PacketContent, PacketOpcode } from "src/app/shared/network/stream-packets/packet";
 import { BufferTranscoder } from "src/app/shared/network/tetris-board-transcoding/buffer-transcoder";
 import GameStatus from "src/app/shared/tetris/game-status";
 import { MemoryGameStatus } from "src/app/shared/tetris/memory-game-status";
@@ -175,6 +175,15 @@ export function interpretPackets(packets: PacketContent[]): InterpretedGame {
         else if (packet.opcode === PacketOpcode.GAME_COUNTDOWN) {
             const countdown = packet.content as GameCountdownSchema;
             addSpacerFrame(countdown.delta);
+        }
+
+        else if (packet.opcode === PacketOpcode.GAME_RECOVERY) {
+            const recovery = packet.content as GameRecoverySchema;
+
+            isolatedBoard = recovery.isolatedBoard;
+            current = recovery.current;
+            next = recovery.next;
+            status.onRecovery(recovery.level, recovery.lines, recovery.score);
         }
 
         // If the packet contains a placement, create the new placement with all the accumulated frames
