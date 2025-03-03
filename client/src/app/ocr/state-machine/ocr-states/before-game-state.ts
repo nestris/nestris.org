@@ -7,6 +7,8 @@ import { ConsecutivePersistenceStrategy } from "../persistence-strategy";
 import { LogType, TextLogger } from "../state-machine-logger";
 import { OCRStateID } from "./ocr-state-id";
 
+export const NOISE_THRESHOLD = 20;
+
 export class BeforeGameState extends OCRState {
     public override readonly id = OCRStateID.BEFORE_GAME;
 
@@ -96,8 +98,8 @@ export class StartGameEvent extends StateEvent {
 
         // A high noise indicates that the frame may not be capturing a tetris board correctly
         const noise = ocrFrame.getBoardNoise()!;
-        if (noise > 20) {
-            this.textLogger.log(LogType.VERBOSE, `StartGameEvent: Noise too high: ${noise}, required < 20`);
+        if (noise > NOISE_THRESHOLD) {
+            this.textLogger.log(LogType.VERBOSE, `StartGameEvent: Noise too high: ${noise}, required < ${NOISE_THRESHOLD}`);
             return false;
         }
 

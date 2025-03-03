@@ -11,6 +11,14 @@ import { LineClearSpawnEvent } from "./line-clear-spawn-event";
 import { TopoutEvent } from "./topout-event";
 import { ConfusionEvent } from "./confusion-event";
 import { RestartGameEvent } from "../restart-game-event";
+import { getColorTypeForTetromino } from "src/app/shared/tetris/tetromino-colors";
+
+enum ActivePieceFailure {
+    NOT_PLUS_FOUR_MINOS = "NOT_PLUS_FOUR_MINOS",
+    CANNOT_ISOLATE_PIECE = "CANNOT_ISOLATE_PIECE",
+    NO_PIECE_FOUND = "NO_PIECE_FOUND",
+    PIECE_INCORRECT_TYPE = "PIECE_INCORRECT_TYPE",
+}
 
 export class PieceDroppingState extends OCRState {
 
@@ -41,7 +49,8 @@ export class PieceDroppingState extends OCRState {
         if (this.globalState.game === undefined) throw new Error("Game must be defined in PieceDroppingState");
 
         // We attempt to compute the active piece for this frame
-        this.activePieceThisFrame = this.computeActivePiece(ocrFrame);
+        const maybeActivePiece = this.computeActivePiece(ocrFrame);
+        this.activePieceThisFrame = (maybeActivePiece instanceof MoveableTetromino) ? maybeActivePiece : null;
 
         // If active piece was already found but is different from this frame, then it is a false positive
         if (
@@ -56,11 +65,34 @@ export class PieceDroppingState extends OCRState {
 
             // We use the found active piece this frame to send an abbreviated-length packet for just the active piece
             this.globalState.game!.setAbbreviatedBoard(this.activePieceThisFrame);
+
         } else {
             // We didn't find the active piece this frame, so we are forced to send the entire board state
             const colorBoard = ocrFrame.getColorBoard(this.currentLevel)!;
-            this.globalState.game!.setFullBoard(colorBoard);
 
+            // Try to correct colors if it was a perfect subtraction
+            if (maybeActivePiece !== ActivePieceFailure.CANNOT_ISOLATE_PIECE) {
+                const isolatedBoard = this.globalState.game!.getStableBoard();
+                for (let mino of colorBoard.iterateMinos()) {
+                    if (mino.color !== ColorType.EMPTY) {
+                        const isolatedColor = isolatedBoard.getAt(mino.x, mino.y);
+                        
+                        let adjustedColor: ColorType;
+                        if (isolatedColor !== ColorType.EMPTY) {
+                            // Use the color from the isolated board if it exists
+                            adjustedColor = isolatedColor;
+                        }
+                        else {
+                            // Otherwise, it is probably the current piece. Use current piece color
+                            const currentType = this.globalState.game!.getCurrentType();;
+                            adjustedColor = getColorTypeForTetromino(currentType);
+                        }
+                        colorBoard.setAt(mino.x, mino.y, adjustedColor);
+                    }
+                }
+            }
+            // Update entire board
+            this.globalState.game!.setFullBoard(colorBoard);
         }
 
     }
@@ -72,35 +104,36 @@ export class PieceDroppingState extends OCRState {
      * to help determine the final placement of the falling piece, though a fallback is necessary if not found.
      * @param ocrFrame The current OCR frame to use for updating the active piece
      */
-    private computeActivePiece(ocrFrame: OCRFrame): MoveableTetromino | null {
+    private computeActivePiece(ocrFrame: OCRFrame): MoveableTetromino | ActivePieceFailure {
         
+
+        // Do a perfect subtraction, subtracting the stable board from the current board to get the active piece
+        const diffBoard = TetrisBoard.subtract(ocrFrame.getBinaryBoard()!, this.globalState.game!.getStableBoard(), true);
+        if (diffBoard === null) {
+            this.textLogger.log(LogType.VERBOSE, "Active piece not updated: Failed to subtract stable board from current board");
+            return ActivePieceFailure.CANNOT_ISOLATE_PIECE;
+        }
+
         // If the current board's count is not exactly 4 minos more than the stable board, then we cannot determine
         // the active piece
         const stableCount = this.globalState.game!.getStableBoardCount();
         const currentCount = ocrFrame.getBinaryBoard()!.count();
         if (currentCount !== stableCount + 4) {
             this.textLogger.log(LogType.VERBOSE, "Active piece not updated: Current board count is not 4 more than stable board count");
-            return null;
-        }
-
-        // Do a perfect subtraction, subtracting the stable board from the current board to get the active piece
-        const diffBoard = TetrisBoard.subtract(ocrFrame.getBinaryBoard()!, this.globalState.game!.getStableBoard(), true);
-        if (diffBoard === null) {
-            this.textLogger.log(LogType.VERBOSE, "Active piece not updated: Failed to subtract stable board from current board");
-            return null;
+            return ActivePieceFailure.NOT_PLUS_FOUR_MINOS;
         }
 
         // Extract the active piece from the diff board, if it exists
         const mt = MoveableTetromino.extractFromTetrisBoard(diffBoard);
         if (mt === null) {
             this.textLogger.log(LogType.VERBOSE, "Active piece not updated: Failed to extract MoveableTetromino from diff board");
-            return null;
+            return ActivePieceFailure.NO_PIECE_FOUND;
         }
 
         // Check that the extracted piece is of the correct type
         if (mt.tetrominoType !== this.globalState.game!.getCurrentType()) {
             this.textLogger.log(LogType.VERBOSE, "Active piece not updated: Extracted piece is not of the correct type");
-            return null;
+            return ActivePieceFailure.PIECE_INCORRECT_TYPE;
         }
 
         // We have found a valid active piece
