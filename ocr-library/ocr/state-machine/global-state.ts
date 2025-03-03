@@ -1,6 +1,6 @@
 import { PacketSender } from "../util/packet-sender";
 import { DEFAULT_POLLED_GAME_DATA, GameDisplayData } from "../../shared/tetris/game-display-data";
-import { GameAbbrBoardPacket, GameEndPacket, GameFullBoardPacket, GamePlacementPacket, GameRecoveryPacket, GameRecoverySchema, GameStartPacket } from "../../shared/network/stream-packets/packet";
+import { GameAbbrBoardPacket, GameEndPacket, GameFullBoardPacket, GameFullStatePacket, GameFullStateSchema, GamePlacementPacket, GameRecoveryPacket, GameRecoverySchema, GameStartPacket } from "../../shared/network/stream-packets/packet";
 import { TetrominoType } from "../../shared/tetris/tetromino-type";
 import { TetrisBoard } from "../../shared/tetris/tetris-board";
 import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
@@ -177,6 +177,17 @@ export class OCRGameState {
             delta: this.timeDelta.getDelta(),
             mtPose: activePiece.getMTPose()
         }));
+    }
+
+    setFullState(board: TetrisBoard, next: TetrominoType, level: number, lines: number, score: number) {
+        const delta = this.timeDelta.getDelta();
+        const fullState: GameFullStateSchema = { delta, board, next, level, lines, score };
+
+        // Set game state in limbo
+        this.game.onFullState(fullState);
+
+        // Send full state packet
+        this.packetSender?.bufferPacket(new GameFullStatePacket().toBinaryEncoder(fullState));
     }
 
     /**

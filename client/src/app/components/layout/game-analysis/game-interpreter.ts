@@ -1,4 +1,4 @@
-import { GameAbbrBoardSchema, GameCountdownSchema, GameFullBoardSchema, GamePlacementSchema, GameRecoverySchema, GameStartSchema, PACKET_NAME, PacketContent, PacketOpcode } from "src/app/shared/network/stream-packets/packet";
+import { GameAbbrBoardSchema, GameCountdownSchema, GameFullBoardSchema, GameFullStateSchema, GamePlacementSchema, GameRecoverySchema, GameStartSchema, PACKET_NAME, PacketContent, PacketOpcode } from "src/app/shared/network/stream-packets/packet";
 import { BufferTranscoder } from "src/app/shared/network/tetris-board-transcoding/buffer-transcoder";
 import GameStatus from "src/app/shared/tetris/game-status";
 import { MemoryGameStatus } from "src/app/shared/tetris/memory-game-status";
@@ -13,6 +13,7 @@ import { TetrominoType } from "src/app/shared/tetris/tetromino-type";
  */
 export interface Frame {
     delta: number; // time in ms since the previous frame
+    fullState?: GameFullStateSchema; // If present, overrides everything else and sets frame to this state
     encodedBoard?: Uint8Array; // if present, this is the board encoded as Uint8Array to be displayed for this frame
     mtPose?: MTPose; // if present, this is the MoveableTetromino to be placed on the isolated board for this frame
     ms: number; // the time in ms since the start of the game
@@ -95,9 +96,13 @@ export function interpretPackets(packets: PacketContent[]): InterpretedGame {
     let msSinceStart: number = 0;
 
     // Add a frame, which can contain a board state or a MoveableTetromino, incrementing the time since the start
-    const addFrame = (delta: number, encodedBoard?: Uint8Array, mtPose?: MTPose) => {
+    const addFrame = (delta: number, encodedBoard?: Uint8Array, mtPose?: MTPose, fullState?: GameFullStateSchema) => {
         frames.push({ delta, encodedBoard, mtPose, ms: msSinceStart });
         msSinceStart += delta;
+    }
+
+    const addFullStateFrame = (fullState: GameFullStateSchema) => {
+        addFrame(fullState.delta, undefined, undefined, fullState);
     }
 
     // Add a frame with a full board
@@ -177,13 +182,18 @@ export function interpretPackets(packets: PacketContent[]): InterpretedGame {
             addSpacerFrame(countdown.delta);
         }
 
+        else if (packet.opcode === PacketOpcode.GAME_FULL_STATE) {
+            const fullState = packet.content as GameFullStateSchema;
+            addFullStateFrame(fullState);
+        }
+
         else if (packet.opcode === PacketOpcode.GAME_RECOVERY) {
             const recovery = packet.content as GameRecoverySchema;
 
             isolatedBoard = recovery.isolatedBoard;
             current = recovery.current;
             next = recovery.next;
-            status.onRecovery(recovery.level, recovery.lines, recovery.score);
+            status.setStatus(recovery.level, recovery.lines, recovery.score);
         }
 
         // If the packet contains a placement, create the new placement with all the accumulated frames
@@ -242,6 +252,9 @@ export function interpretPackets(packets: PacketContent[]): InterpretedGame {
             next = placement.nextNextType;
         }
     }
+
+    // Add any remaining frames to the end of the last placement
+    if (placements.length > 0) placements[placements.length - 1].frames.push(...frames);
 
     return { placements, status, totalMs: msSinceStart };
 }

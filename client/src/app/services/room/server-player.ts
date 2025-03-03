@@ -1,7 +1,7 @@
 import { BehaviorSubject, Observable } from "rxjs";
 import { GameState, GameStateSnapshot, GameStateSnapshotWithoutBoard } from "src/app/shared/game-state-from-packets/game-state";
 import { Platform } from "src/app/shared/models/platform";
-import { GameAbbrBoardSchema, GameCountdownSchema, GameFullBoardSchema, GamePlacementSchema, GameRecoverySchema, GameStartSchema, PACKET_NAME, PacketContent, PacketOpcode } from "src/app/shared/network/stream-packets/packet";
+import { GameAbbrBoardSchema, GameCountdownSchema, GameFullBoardSchema, GameFullStateSchema, GamePlacementSchema, GameRecoverySchema, GameStartSchema, PACKET_NAME, PacketContent, PacketOpcode } from "src/app/shared/network/stream-packets/packet";
 import MoveableTetromino from "src/app/shared/tetris/moveable-tetromino";
 import { TetrisBoard } from "src/app/shared/tetris/tetris-board";
 import { TetrominoType } from "src/app/shared/tetris/tetromino-type";
@@ -71,6 +71,10 @@ export class ServerPlayer {
         const gameRecovery = packet.content as GameRecoverySchema;
         if (this.state === null) this.state = GameState.fromRecovery(gameRecovery);
         else this.state.onRecovery(gameRecovery);
+
+      } else if (packet.opcode === PacketOpcode.GAME_FULL_STATE) {
+        const fullState = packet.content as GameFullStateSchema;
+        this.state!.onFullState(fullState); 
 
       } else if (packet.opcode === PacketOpcode.GAME_PLACEMENT) {
         const placement = (packet.content as GamePlacementSchema);

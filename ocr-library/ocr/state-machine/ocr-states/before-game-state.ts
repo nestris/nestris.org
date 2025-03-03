@@ -22,7 +22,7 @@ export class BeforeGameState extends OCRState {
      * Runs the logic for the BeforeGameState each frame.
      * @param ocrFrame 
      */
-    protected override onAdvanceFrame(ocrFrame: OCRFrame): void {
+    protected override async onAdvanceFrame(ocrFrame: OCRFrame) {
         
         // trigger lazy-loading of the board properties
         const frame = ocrFrame.getBinaryBoard();

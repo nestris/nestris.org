@@ -11,7 +11,7 @@ import { DBGame } from 'src/app/shared/models/db-game';
 import { NotificationType } from 'src/app/shared/models/notifications';
 import { MemoryGameStatus } from 'src/app/shared/tetris/memory-game-status';
 import { addSignPrefix, numberWithCommas, timeAgo } from 'src/app/util/misc';
-import { AnalysisPlacement, interpretPackets } from '../game-interpreter';
+import { AnalysisPlacement, Frame, interpretPackets } from '../game-interpreter';
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { BufferTranscoder } from 'src/app/shared/network/tetris-board-transcoding/buffer-transcoder';
 import MoveableTetromino from 'src/app/shared/tetris/moveable-tetromino';
@@ -297,13 +297,15 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  nextFrame(): boolean {
+  nextFrame(debug: boolean = false): boolean {
     let current = this.current$.getValue();
     const next = this.incrementCurrent(current);
 
     if (next == null) return false;
-
     this.current$.next(next);
+
+    if (debug) console.log(next, this.getCurrentFrame(next));
+
     return true;
   }
 
@@ -360,7 +362,7 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     if (event.key === 'ArrowLeft') this.previousPlacement();
     else if (event.key === 'ArrowRight') this.nextPlacement();
     else if (event.key === ",") this.previousFrame();
-    else if (event.key === ".") this.nextFrame();
+    else if (event.key === ".") this.nextFrame(true);
     else if (event.key === " ") {
       if (this.playing$.getValue()) this.stopPlaying();
       else this.play();
@@ -402,21 +404,45 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.placements![current.placementIndex];
   }
 
+  getCurrentFrame(current: CurrentFrame): { placement: AnalysisPlacement, frame: Frame } {
+    const placement = this.getCurrentPlacement(current);
+    const frame = placement.frames[current.frameIndex];
+    return { placement, frame }
+  }
+
   getIsolatedBoard(current: CurrentFrame): TetrisBoard {
-    return BufferTranscoder.decode(this.getCurrentPlacement(current).encodedIsolatedBoard);
+    const { placement, frame } = this.getCurrentFrame(current);
+    if (frame.fullState) return frame.fullState.board;
+    return BufferTranscoder.decode(placement.encodedIsolatedBoard);
   }
 
   getActivePiece(current: CurrentFrame): MoveableTetromino | null {
-    const placement = this.getCurrentPlacement(current);
-    const frame = placement.frames[current.frameIndex];
+    const { placement, frame } = this.getCurrentFrame(current);
     if (frame.mtPose) return MoveableTetromino.fromMTPose(placement.current, frame.mtPose);
     return null;
   }
 
+  getLevel(current: CurrentFrame): number {
+    const { placement, frame } = this.getCurrentFrame(current);
+    if (frame.fullState) return frame.fullState.level;
+    return placement.level;
+  }
+
+  getLines(current: CurrentFrame): number {
+    const { placement, frame } = this.getCurrentFrame(current);
+    if (frame.fullState) return frame.fullState.lines;
+    return placement.lines;
+  }
+
+  getScore(current: CurrentFrame): number {
+    const { placement, frame } = this.getCurrentFrame(current);
+    if (frame.fullState) return frame.fullState.score;
+    return placement.score;
+  }
+
   // Get the board to display for the current frame
   getDisplayBoard(current: CurrentFrame): TetrisBoard {
-    const placement = this.getCurrentPlacement(current);
-    const frame = placement.frames[current.frameIndex];
+    const { placement, frame } = this.getCurrentFrame(current);
 
     // If full board is specified, decode and return that
     if (frame.encodedBoard) return BufferTranscoder.decode(frame.encodedBoard);
@@ -451,8 +477,7 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getTimeString(current: CurrentFrame): string {
-    const placement = this.getCurrentPlacement(current);
-    const frame = placement.frames[current.frameIndex];
+    const { frame } = this.getCurrentFrame(current);
     return `${this.msToTimestamp(frame.ms)} of ${this.finalTimestampString}`;
   }
 
@@ -585,8 +610,7 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!hoveredRecommendation) return null;
 
     // If current frame is not a MT frame, cannot display hovered board
-    const placement = this.getCurrentPlacement(current);
-    const frame = placement.frames[current.frameIndex];
+    const { frame } = this.getCurrentFrame(current);
     if (!frame.mtPose) return null;
 
     return hoveredRecommendation;

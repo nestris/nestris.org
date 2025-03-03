@@ -10,11 +10,16 @@ import { RestartGameEvent } from "./restart-game-event";
 import { TetrisBoard } from "src/app/shared/tetris/tetris-board";
 import { GameRecoverySchema } from "src/app/shared/network/stream-packets/packet";
 import { TetrominoType } from "src/app/shared/tetris/tetromino-type";
+import { Counter } from "src/app/shared/scripts/counter";
 
 export class GameLimboState extends OCRState {
     public override readonly id = OCRStateID.GAME_LIMBO;
 
-    private readonly currentLevel = this.globalState.game!.getStatus().level;
+    private ocrCounter = new Counter(10);
+    private next: TetrominoType = this.globalState.game!.getNextType();
+    private level = this.globalState.game!.getStatus().level;
+    private lines = this.globalState.game!.getStatus().lines;
+    private score = this.globalState.game!.getStatus().score;
 
     public override init() {
 
@@ -29,12 +34,27 @@ export class GameLimboState extends OCRState {
      * @param gameData 
      * @param ocrFrame 
      */
-    protected override onAdvanceFrame(ocrFrame: OCRFrame): void {
+    protected override async onAdvanceFrame(ocrFrame: OCRFrame) {
+
+        // If OCR text is -1, don't use, and use previous value
+        const ignoreIfInvalid = (value: number, original: number, ignore: any = -1) => value === ignore ? original : value;
+
+        // Poll for next, level, lines, and score every few frames to avoid too much computation
+        if (this.ocrCounter.next()) {
+            this.next = ignoreIfInvalid(ocrFrame.getNextType()!, this.next, TetrominoType.ERROR_TYPE);
+            this.level = ignoreIfInvalid((await ocrFrame.getLevel())!, this.level);
+            this.lines = ignoreIfInvalid((await ocrFrame.getLines())!, this.lines);
+            this.score = ignoreIfInvalid((await ocrFrame.getScore())!, this.score);
+        }
 
         // As we have no guarantees about what is going on, just keep sending the raw OCR board each frame
-        const colorBoard = ocrFrame.getColorBoard(this.currentLevel)!;
-        this.globalState.game!.setFullBoard(colorBoard);
-
+        this.globalState.game!.setFullState(
+            ocrFrame.getColorBoard(this.level)!,
+            this.next,
+            this.level,
+            this.lines,
+            this.score,
+        );
     }
 }
 

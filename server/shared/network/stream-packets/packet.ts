@@ -14,6 +14,7 @@ export enum PacketOpcode {
   GAME_RECOVERY = 7, // encapsulates all state during a game for a full recovery
   GAME_COUNTDOWN = 9, // stores the current countdown value, or not in countdown if value is 0
   STACKRABBIT_PLACEMENT = 10, // a SR evalaution for a piece placement
+  GAME_FULL_STATE = 11, // Self-sufficient frame for all state in a frame, sent during limbo
 }
 
 // map of opcode to packet name
@@ -27,6 +28,7 @@ export const PACKET_NAME: {[key in PacketOpcode]: string} = {
   [PacketOpcode.GAME_RECOVERY]: "GAME_RECOVERY",
   [PacketOpcode.GAME_COUNTDOWN]: "GAME_COUNTDOWN",
   [PacketOpcode.STACKRABBIT_PLACEMENT]: "STACKRABBIT_PLACEMENT",
+  [PacketOpcode.GAME_FULL_STATE] : "GAME_FULL_STATE",
 };
 
 
@@ -247,6 +249,40 @@ export class GameAbbrBoardPacket extends Packet<GameAbbrBoardSchema> {
 }
 PACKET_MAP[PacketOpcode.GAME_ABBR_BOARD] = new GameAbbrBoardPacket();
 
+// ================================ GAME_FULL_STATE ===============================
+PACKET_CONTENT_LENGTH[PacketOpcode.GAME_FULL_STATE] = 465;
+export interface GameFullStateSchema extends TimedPacketSchema {
+  // inherited 12 bit delta in ms
+  board: TetrisBoard; // 400 bits board state, 2 bits per mino
+  next: TetrominoType; // 3 bits next piece type
+  score: number; // 26 bits score, cap at 67,108,863
+  level: number; // 8 bits level, cap at 255
+  lines: number; // 16 bits lines, cap at 65,535
+}
+export class GameFullStatePacket extends Packet<GameFullStateSchema> {
+  constructor() { super(PacketOpcode.GAME_FULL_STATE); }
+  protected override _decodePacketContent(content: BinaryDecoder): GameFullStateSchema {
+    return {
+      delta: content.nextUnsignedInteger(12),
+      board: content.nextTetrisBoard(),
+      next: content.nextTetrominoType(),
+      score: content.nextUnsignedInteger(26),
+      level: content.nextUnsignedInteger(8),
+      lines: content.nextUnsignedInteger(16),
+    };
+  }
+  protected override _toBinaryEncoderWithoutOpcode(content: GameFullStateSchema): BinaryEncoder {
+    const encoder = new BinaryEncoder();
+    encoder.addUnsignedInteger(content.delta, 12);
+    encoder.addTetrisBoard(content.board);
+    encoder.addTetrominoType(content.next);
+    encoder.addUnsignedInteger(content.score, 26);
+    encoder.addUnsignedInteger(content.level, 8);
+    encoder.addUnsignedInteger(content.lines, 16);
+    return encoder;
+  }
+}
+PACKET_MAP[PacketOpcode.GAME_FULL_STATE] = new GameFullStatePacket();
 
 // ================================ GAME_RECOVERY =================================
 PACKET_CONTENT_LENGTH[PacketOpcode.GAME_RECOVERY] = 468;

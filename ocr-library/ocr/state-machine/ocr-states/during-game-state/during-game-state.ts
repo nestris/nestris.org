@@ -44,7 +44,7 @@ export class PieceDroppingState extends OCRState {
      * @param gameData 
      * @param ocrFrame 
      */
-    protected override onAdvanceFrame(ocrFrame: OCRFrame): void {
+    protected override async onAdvanceFrame(ocrFrame: OCRFrame) {
         if (this.globalState.game === undefined) throw new Error("Game must be defined in PieceDroppingState");
 
         // We attempt to compute the active piece for this frame

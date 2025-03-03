@@ -71,7 +71,7 @@ export class SmartGameStatus implements IGameStatus {
         this.gameStatus.score += pushdown;
     }
 
-    public onRecovery(level: number, lines: number, score: number) {
+    public setStatus(level: number, lines: number, score: number) {
         this.gameStatus.level = level;
         this.gameStatus.lines = lines;
         this.gameStatus.score = score;

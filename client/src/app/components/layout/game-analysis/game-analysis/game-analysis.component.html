@@ -46,7 +46,7 @@
                         
                         <app-nes-board *ngIf="displayHoveredBoard(current, hoveredRecommendation$ | async) as hovered; else notHovered" [scale]="2.2"
                             [board]="getIsolatedBoard(current)"
-                            [level]="placement.level"
+                            [level]="getLevel(current)"
                             [activePiece]="hovered.firstPlacement"
                             [activePieceOpacity]="1"
                             [nextPiece]="hovered.secondPlacement"
@@ -56,7 +56,7 @@
                         <ng-template #notHovered>
                             <app-nes-board *ngIf="emphasizePlacement$ | async; else default" [scale]="2.2"
                                 [board]="getIsolatedBoard(current)"
-                                [level]="placement.level"
+                                [level]="getLevel(current)"
                                 [activePiece]="getActivePiece(current) ?? undefined"
                                 [activePieceOpacity]="1"
                                 [defaultOpacity]="0.6"
@@ -65,7 +65,7 @@
                         <ng-template #default>
                             <app-nes-board *ngIf="!(emphasizePlacement$ | async)" [scale]="2.2"
                                 [board]="getDisplayBoard(current)"
-                                [level]="placement.level"
+                                [level]="getLevel(current)"
                                 [enginePiece]="showEngineMove(stackrabbit, showEngineMove$ | async)"
                             />
                         </ng-template>
@@ -74,16 +74,16 @@
                             <div class="top">
                                 <div class="board-stat">
                                     <p class="label">Score</p>
-                                    <p class="value">{{numberWithCommas(placement.score)}}</p>
+                                    <p class="value">{{numberWithCommas(getScore(current))}}</p>
                                 </div>
                                 <div class="level-lines">
                                     <div class="board-stat">
                                         <p class="label">Level</p>
-                                        <p class="value">{{placement.level}}</p>
+                                        <p class="value">{{getLevel(current)}}</p>
                                     </div>
                                     <div class="board-stat">
                                         <p class="label">Lines</p>
-                                        <p class="value">{{placement.lines}}</p>
+                                        <p class="value">{{getLines(current)}}</p>
                                     </div>
                                 </div>
                             </div>

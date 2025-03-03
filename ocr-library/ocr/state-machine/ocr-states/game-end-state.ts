@@ -18,7 +18,7 @@ export class GameEndState extends OCRState {
     /**
      * On the first frame, set global state game to ended, which sends GameEnd packet to server
      */
-    protected override onAdvanceFrame(ocrFrame: OCRFrame): void {
+    protected override async onAdvanceFrame(ocrFrame: OCRFrame) {
         if (this.isFirstFrame) this.globalState.endGame();
         else this.isFirstFrame = false;
     }

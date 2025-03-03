@@ -62,7 +62,7 @@ export abstract class OCRState {
         this.relativeFrameCount++;    
 
         // Update this state before checking for events
-        this.onAdvanceFrame(ocrFrame);
+        await this.onAdvanceFrame(ocrFrame);
 
         // Check for events and trigger the first one that is met
         // And, keep a record of the state of each event for debugging purposes
@@ -101,7 +101,7 @@ export abstract class OCRState {
      * custom logic for the state to execute at each frame before checking for events.
      * @param ocrFrame The current OCR frame
      */
-    protected onAdvanceFrame(ocrFrame: OCRFrame): void {}
+    protected async onAdvanceFrame(ocrFrame: OCRFrame): Promise<void> {}
 
 }
 

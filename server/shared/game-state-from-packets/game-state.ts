@@ -1,4 +1,4 @@
-import { GameRecoverySchema } from "../network/stream-packets/packet";
+import { GameFullStateSchema, GameRecoverySchema } from "../network/stream-packets/packet";
 import MoveableTetromino, { MTPose } from "../tetris/moveable-tetromino";
 import { TetrisBoard } from "../tetris/tetris-board";
 import { TetrominoType } from "../tetris/tetromino-type";
@@ -50,6 +50,8 @@ export class GameState {
   private transitionInto29: number | null = null;
 
   private droughtCounter = new DroughtCounter();
+
+  private limbo = false;
 
   constructor(
     public readonly startLevel: number,
@@ -129,6 +131,12 @@ export class GameState {
     return this.numLines === 0 ? 0 : (this.numTetrises * 4) / this.numLines;
   }
 
+  onFullState(fullState: GameFullStateSchema) {
+    this.limbo = true;
+    this.currentBoard = fullState.board;
+    this.status.setStatus(fullState.level, fullState.lines, fullState.score);
+  }
+
   onRecovery(recovery: GameRecoverySchema) {
 
     this.status = (
@@ -142,15 +150,19 @@ export class GameState {
     this.countdown = recovery.countdown;
     this.droughtCounter.reset();
     this.droughtCounter.onPiece(this.current);
+
+    this.limbo = false;
   }
 
   // when a packet for the full board recieved. updates current board
   onFullBoardUpdate(board: TetrisBoard) {
+    if (this.limbo) throw new Error("Cannot full board update on limbo");
     this.currentBoard = board;
   }
 
   // when a packet for the active piece's location recieved. updates current board by placing active piece on isolated board
   onAbbreviatedBoardUpdate(mtPose: MTPose) {
+    if (this.limbo) throw new Error("Cannot abbr board update on limbo");
 
     const piece = MoveableTetromino.fromMTPose(this.current, mtPose);
 

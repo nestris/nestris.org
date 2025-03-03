@@ -171,7 +171,7 @@ function generateVerificationPlacement(board: TetrisBoard, piece: TetrominoType)
     // Find rotation and x position
     const placement = MoveableTetromino.fromSpawnPose(piece);
     const rotation = randomInt(0, 3);
-    const translation = randomInt(-2, -2);
+    const translation = randomInt(-2, 2);
     placement.moveBy(rotation, translation, 5);
 
     // Drop piece until valid placement
