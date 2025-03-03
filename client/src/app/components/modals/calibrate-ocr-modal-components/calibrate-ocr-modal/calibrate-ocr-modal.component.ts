@@ -135,9 +135,6 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
 
       case CalibrationStep.VERIFY_OCR:
 
-        // TESTING ONLY
-        return true;
-
         const status = this.ocrVerifier!.getStatus();
         if (!status.newGame && this.ocrFrameData$.getValue()?.level !== 0) return "You aren't playing on level level 0";
         if (!status.newGame) return "You didn't start a new game at level 0";

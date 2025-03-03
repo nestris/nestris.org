@@ -34,6 +34,7 @@ export class GlobalState {
         this.packetSender?.bufferPacket(new GameEndPacket().toBinaryEncoder({}));
         this.topoutData = this.game!.getDisplayData();
         this.lastMemoryStatus = this.game!.getMemoryStatus() as MemoryGameStatus;
+        console.log("save lastMemoryStatus", this.lastMemoryStatus);
         this.game = undefined;
     }
 

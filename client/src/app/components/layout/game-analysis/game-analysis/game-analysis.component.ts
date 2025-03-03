@@ -162,8 +162,6 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
       tap(() => this.hoveredRecommendation$.next(null)) // clear hovered recommendation
     );
 
-
-    this.currentPlacement$.subscribe(placement => console.log('Current placement', placement));
     // this.stackrabbit$.subscribe(analysis => console.log('Stackrabbit analysis', analysis));
     // this.hoveredRecommendation$.subscribe(recommendation => console.log('Hovered recommendation', recommendation));
 

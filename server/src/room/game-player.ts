@@ -197,7 +197,7 @@ export class GamePlayer {
 
             // Handle packet recovery by updating game state
             const recoveryPacket = (packet.content as GameRecoverySchema);
-            console.log(`Recovery packet from player ${this.username}: ${JSON.stringify(recoveryPacket)}`);
+            console.log(`Recovery packet from player ${this.username}`);
             this.gameState.onRecovery(recoveryPacket);
         }
 

@@ -51,8 +51,8 @@ export class RecoveryEvent extends StateEvent {
     private recovery?: GameRecoverySchema;
 
     constructor(
-            private readonly globalState: GlobalState)
-        { super(); }
+        private readonly globalState: GlobalState)
+    { super(); }
 
     protected override async precondition(ocrFrame: OCRFrame): Promise<boolean> {
 
@@ -62,7 +62,7 @@ export class RecoveryEvent extends StateEvent {
 
         // Try to seperate board from active piece
         const previousSeperation = this.previousSeperation;
-        const board = ocrFrame.getBinaryBoard()!;
+        const board = ocrFrame.getColorBoard(this.globalState.game!.getStatus().level)!;
         const seperation = board.seperateBoardAndPiece();
         this.previousSeperation = seperation;
 

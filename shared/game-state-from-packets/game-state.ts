@@ -51,9 +51,15 @@ export class GameState {
 
   private droughtCounter = new DroughtCounter();
 
-  constructor(public readonly startLevel: number, current: TetrominoType, next: TetrominoType, initialCountdown: number | undefined = undefined, storeMemory: boolean = false) {
+  constructor(
+    public readonly startLevel: number,
+    current: TetrominoType,
+    next: TetrominoType,
+    initialCountdown: number | undefined = undefined,
+    private readonly storeMemory: boolean = false
+  ) {
     
-    this.status = storeMemory ? new MemoryGameStatus(true, startLevel) : new SmartGameStatus(startLevel);
+    this.status = this.storeMemory ? new MemoryGameStatus(true, startLevel) : new SmartGameStatus(startLevel);
     
     this.isolatedBoard = new TetrisBoard(); // the board without the active piece. updated every placement
     this.current = current;
@@ -64,8 +70,8 @@ export class GameState {
     this.droughtCounter.onPiece(current);
   }
 
-  static fromRecovery(recovery: GameRecoverySchema): GameState {
-    const state = new GameState(recovery.startLevel, recovery.current, recovery.next);
+  static fromRecovery(recovery: GameRecoverySchema, storeMemory: boolean = false): GameState {
+    const state = new GameState(recovery.startLevel, recovery.current, recovery.next, undefined, storeMemory);
     state.onRecovery(recovery);
     return state;
   }
@@ -124,7 +130,12 @@ export class GameState {
   }
 
   onRecovery(recovery: GameRecoverySchema) {
-    this.status = new SmartGameStatus(recovery.startLevel, recovery.lines, recovery.score, recovery.level);
+
+    this.status = (
+      this.storeMemory
+      ? new MemoryGameStatus(true, recovery.startLevel, recovery.lines, recovery.score, recovery.level)
+      : new SmartGameStatus(recovery.startLevel, recovery.lines, recovery.score, recovery.level)
+    );
     this.isolatedBoard = recovery.isolatedBoard;
     this.current = recovery.current;
     this.next = recovery.next;
