@@ -1,5 +1,5 @@
 <app-layout-one *ngIf="frameWithContext?.ocrFrame as frame; else noFrame"
-    [board]="frame.getColorBoard(ocrFrameData?.level ?? 18)"
+    [board]="colorBoard"
     [nextType]="frame.getNextType() ?? TetrominoType.ERROR_TYPE"
     [level]="ocrFrameData?.level ?? null"
     [score]="ocrFrameData?.score ?? null"

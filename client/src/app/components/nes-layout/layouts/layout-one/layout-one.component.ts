@@ -6,6 +6,7 @@ import { GameOverMode } from '../../nes-board/nes-board.component';
 import { RatedMove } from 'src/app/components/ui/eval-bar/eval-bar.component';
 import { Observable } from 'rxjs';
 import { EVALUATION_TO_COLOR, overallAccuracyRating } from 'src/app/shared/evaluation/evaluation';
+import MoveableTetromino from 'src/app/shared/tetris/moveable-tetromino';
 
 @Component({
   selector: 'app-layout-one',
@@ -32,6 +33,7 @@ export class LayoutOneComponent extends AbstractNesLayoutComponent implements On
   @Input() showAccuracy: boolean = false;
   @Input() ratedMove: RatedMove | null = null;
   @Input() dimmed: boolean = false;
+  @Input() enginePiece?: MoveableTetromino;
   @Output() clickNext = new EventEmitter<void>();
 
 

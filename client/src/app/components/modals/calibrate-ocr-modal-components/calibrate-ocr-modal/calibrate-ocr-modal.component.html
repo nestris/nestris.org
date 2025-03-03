@@ -50,6 +50,7 @@
                             [level]="data.level"
                             [lines]="data.lines"
                             [score]="data.score"
+                            [enginePiece]="status.firstPiece ? status.secondPlacement : status.firstPlacement"
                         />
                     </ng-container>
                     
@@ -75,7 +76,7 @@
                         <p>First piece placed correctly</p>
                     </div>
                     <div class="item">
-                        <app-correctness-icon width="10px" [correct]="status.nextPiece" />
+                        <app-correctness-icon width="10px" [correct]="status.secondPiece" />
                         <p>Second piece placed correctly</p>
                     </div>
                     

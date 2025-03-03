@@ -96,6 +96,9 @@ export class NesBoardComponent implements OnChanges, OnInit, OnDestroy {
     if (changes['level']) {
       this.level$.next(this.level);
     }
+    if (changes['enginePiece']) {
+      this.enginePiece$.next(this.enginePiece);
+    }
   }
 
   ngOnInit(): void {
@@ -184,7 +187,11 @@ export class NesBoardComponent implements OnChanges, OnInit, OnDestroy {
     // Draw the engine piece
     if (data.enginePiece) {
       for (let block of data.enginePiece.getCurrentBlockSet().blocks) {
-        this.drawCanvasEngineBlock(ctx, scale, canvasCoord(block.x), canvasCoord(block.y));
+
+        // Make sure the board is empty at that mino
+        if (!data.board.exists(block.x, block.y)) {
+          this.drawCanvasEngineBlock(ctx, scale, canvasCoord(block.x), canvasCoord(block.y));
+        }
       }
     }
 

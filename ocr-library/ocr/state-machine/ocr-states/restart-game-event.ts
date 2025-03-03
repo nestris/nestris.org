@@ -19,7 +19,14 @@ export class RestartGameEvent extends StartGameEvent {
         if (!this.config.multipleGames) return false;
 
         // If in a game but haven't made a placement yet, so can't be sure it's a new game
-        if (this.globalState.game && this.globalState.game.getNumPlacements() === 0) return false;
+        if (this.globalState.game && this.globalState.game.getNumPlacements() === 0) {
+
+            // Can't be sure if the next box is the same. but if next box has changed, then it's fine to assume new game
+            const nextType = ocrFrame.getNextType();
+            if (this.globalState.game.getNextType() === nextType) {
+                return false;
+            }
+        }
 
         return await super.precondition(ocrFrame);
     }

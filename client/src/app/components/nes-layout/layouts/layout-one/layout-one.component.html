@@ -3,7 +3,7 @@
     <app-eval-bar *ngIf="showEvalBar" backgroundColor="black" [borderRadius]="5" [ratedMove]="ratedMove" />
 
     <app-nes-board [scale]="3" [board]="board" [canvasBoard]="canvasBoard" [level]="level ?? 18" [countdown]="countdown" (clickNext)="clickNext.emit()"
-            [gameOver]="gameOver" [gameOverShowNext]="gameOverShowNext" [animateOpacity]="true" [defaultOpacity]="dimmed ? 0.4 : 1" />
+            [gameOver]="gameOver" [gameOverShowNext]="gameOverShowNext" [animateOpacity]="true" [defaultOpacity]="dimmed ? 0.4 : 1" [enginePiece]="enginePiece" />
 
 
     <div class="panels">

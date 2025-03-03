@@ -135,14 +135,11 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
 
       case CalibrationStep.VERIFY_OCR:
 
-        // TESTING ONLY: bypass verification
-        return true;
-
         const status = this.ocrVerifier!.getStatus();
         if (!status.newGame && this.ocrFrameData$.getValue()?.level !== 0) return "You aren't playing on level level 0";
         if (!status.newGame) return "You didn't start a new game at level 0";
         if (!status.firstPiece) return "You didn't place the first piece as instructed";
-        if (!status.nextPiece) return "You didn't place the next piece as instructed";
+        if (!status.secondPiece) return "You didn't place the next piece as instructed";
 
         return true;
       // case CalibrationStep.ANTI_CHEAT:

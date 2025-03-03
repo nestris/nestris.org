@@ -109,6 +109,11 @@ app-layout-one {
     zoom: 0.45;
 }
 
+@media screen and (min-width: 1200px) and (min-height: 700px) {
+    .modal {
+        zoom: 1.2;
+    }
+}
 
 @media screen and (max-width: 800px) {
     .modal {
