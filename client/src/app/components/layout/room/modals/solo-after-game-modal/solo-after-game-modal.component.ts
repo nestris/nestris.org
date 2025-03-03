@@ -4,11 +4,16 @@ import { filter, map, Observable } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { EmulatorService } from 'src/app/services/emulator/emulator.service';
 import { GamepadService } from 'src/app/services/gamepad.service';
+import { OcrGameService } from 'src/app/services/ocr/ocr-game.service';
+import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { RoomService } from 'src/app/services/room/room.service';
 import { SoloClientRoom, SoloClientState } from 'src/app/services/room/solo-client-room';
 import { MeService } from 'src/app/services/state/me.service';
 import { EVALUATION_TO_COLOR, overallAccuracyRating } from 'src/app/shared/evaluation/evaluation';
+import { Platform } from 'src/app/shared/models/platform';
 import { GameSummary, SoloRoomState } from 'src/app/shared/room/solo-room-models';
+import { MemoryGameStatus } from 'src/app/shared/tetris/memory-game-status';
+import { getFeedback } from 'src/app/util/game-feedback';
 import { numberWithCommas } from 'src/app/util/misc';
 
 @Component({
@@ -32,9 +37,14 @@ export class SoloAfterGameModalComponent implements OnDestroy {
 
   private gamepadSubscription: any;
 
+  public lastGameStatus: MemoryGameStatus;
+  public lastGameFeedback: string;
+
   constructor(
     private readonly roomService: RoomService,
-    public readonly emulatorService: EmulatorService,
+    private readonly emulatorService: EmulatorService,
+    private readonly ocrService: OcrGameService,
+    private readonly platformService: PlatformInterfaceService,
     private readonly meService: MeService,
     private readonly gamepadService: GamepadService,
     private readonly router: Router,
@@ -42,7 +52,11 @@ export class SoloAfterGameModalComponent implements OnDestroy {
 
     this.gamepadSubscription = this.gamepadService.onPress().subscribe(key => this.onKeyDown(key));
 
-    const history = this.emulatorService.getLastGameStatus()!.getHistory();
+    this.lastGameStatus = this.platformService.getPlatform() === Platform.OCR ? this.ocrService.getMemoryStatus()! : this.emulatorService.getLastGameStatus()!;
+    console.log("last game status", this.lastGameStatus);
+    this.lastGameFeedback = getFeedback(this.lastGameStatus, this.meService.getSync()!.highest_lines);
+
+    const history = this.lastGameStatus.getHistory();
 
     const snapshots = [];
     for (let i = 0; i < history.length(); i++) {

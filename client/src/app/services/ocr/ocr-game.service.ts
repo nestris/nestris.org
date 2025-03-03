@@ -6,6 +6,7 @@ import { OCRStateID } from 'src/app/ocr/state-machine/ocr-states/ocr-state-id';
 import { LiveGameAnalyzer } from '../stackrabbit/live-game-analyzer';
 import { StackrabbitService } from '../stackrabbit/stackrabbit.service';
 import { PacketSender } from 'src/app/ocr/util/packet-sender';
+import { MemoryGameStatus } from 'src/app/shared/tetris/memory-game-status';
 
 @Injectable({
   providedIn: 'root'
@@ -62,6 +63,10 @@ export class OcrGameService {
     this.stateMachine = undefined;
     this.videoCapture.stopCapture();
     console.log("Ending OCR game capture");
+  }
+
+  getMemoryStatus(): MemoryGameStatus | undefined {
+    return this.stateMachine?.getMemoryStatus();
   }
 
 }

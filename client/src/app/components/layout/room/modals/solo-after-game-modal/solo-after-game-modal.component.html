@@ -1,6 +1,6 @@
 <div class="modal" *ngIf="summary$ | async as summary">
     <div class="content">
-        <p class="phrase">{{emulatorService.getLastGameFeedback()}}</p>
+        <p class="phrase">{{lastGameFeedback}}</p>
 
         <div class="group">
             <p class="score">{{numberWithCommas(summary.score)}}</p>
@@ -27,7 +27,7 @@
 
         </div>
 
-        <app-game-summary-graph [game]="emulatorService.getLastGameStatus()!" />
+        <app-game-summary-graph [game]="lastGameStatus" />
 
     </div>
 

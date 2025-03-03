@@ -4,6 +4,7 @@ import { TetrisBoard } from "../tetris/tetris-board";
 import { TetrominoType } from "../tetris/tetromino-type";
 import { SmartGameStatus } from "../tetris/smart-game-status";
 import { DroughtCounter } from "./drought-counter";
+import { MemoryGameStatus } from "../tetris/memory-game-status";
 
 export interface GameStateSnapshotWithoutBoard {
   level: number,
@@ -50,8 +51,10 @@ export class GameState {
 
   private droughtCounter = new DroughtCounter();
 
-  constructor(public readonly startLevel: number, current: TetrominoType, next: TetrominoType, initialCountdown: number | undefined = undefined) {
-    this.status = new SmartGameStatus(startLevel);
+  constructor(public readonly startLevel: number, current: TetrominoType, next: TetrominoType, initialCountdown: number | undefined = undefined, storeMemory: boolean = false) {
+    
+    this.status = storeMemory ? new MemoryGameStatus(true, startLevel) : new SmartGameStatus(startLevel);
+    
     this.isolatedBoard = new TetrisBoard(); // the board without the active piece. updated every placement
     this.current = current;
     this.next = next;

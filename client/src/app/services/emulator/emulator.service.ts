@@ -54,7 +54,6 @@ export class EmulatorService {
   private onTopout$ = new Subject<void>();
 
   private lastGameStatus: MemoryGameStatus | null = null;
-  private lastGameFeedback: string | null = null;
 
   private runaheadFrames: number = 0;
 
@@ -326,10 +325,8 @@ export class EmulatorService {
     this.loop = undefined;
 
     // Set last game snapshots
-    const highestLines = this.meService.getSync()?.highest_lines;
-    if (this.sendPacketsToServer && highestLines != undefined && !force) {
+    if (this.sendPacketsToServer && !force) {
       this.lastGameStatus = this.currentState.getStatus();
-      this.lastGameFeedback = getFeedback(this.currentState.getStatus(), highestLines);
     }
 
     this.analyzer!.stopAnalysis();
@@ -392,10 +389,6 @@ export class EmulatorService {
 
   getLastGameStatus(): MemoryGameStatus | null {
     return this.lastGameStatus;
-  }
-
-  getLastGameFeedback(): string | null {
-    return this.lastGameFeedback;
   }
   
 }

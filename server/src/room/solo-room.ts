@@ -33,7 +33,7 @@ export class SoloRoom extends Room<SoloRoomState> {
         this.player.onGameStart$().subscribe(async (event: GameStartEvent) => {
 
             // Send message to player indicating that the game has started
-            this.updateRoomState(Object.assign({}, this.getRoomState(), { serverInGame: true }));
+            this.updateRoomState(Object.assign({}, this.getRoomState(), { serverInGame: true, lastGameSummary: null }));
         });
 
         // Handle solo-room-specific behavior when the game ends

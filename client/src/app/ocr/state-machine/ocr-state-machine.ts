@@ -9,6 +9,7 @@ import { GameDisplayData } from "../../shared/tetris/game-display-data";
 import { OCRStateID } from "./ocr-states/ocr-state-id";
 import { GameAnalyzer } from "../../shared/evaluation/game-analyzer";
 import { BehaviorSubject, Observable } from "rxjs";
+import { MemoryGameStatus, StatusHistory } from "src/app/shared/tetris/memory-game-status";
 
 export interface OCRConfig {
     startLevel: number | null, // Can only transition to game if OCR detects matching start level
@@ -86,5 +87,9 @@ export class OCRStateMachine {
 
     getProfilerResults(): ProfilerResults {
         return this.profiler.getResults();
+    }
+
+    getMemoryStatus(): MemoryGameStatus | undefined {
+        return this.globalState.getLastMemoryStatus();
     }
 }

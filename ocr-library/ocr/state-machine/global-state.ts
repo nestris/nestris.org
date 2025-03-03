@@ -8,6 +8,7 @@ import GameStatus from "../../shared/tetris/game-status";
 import { GameState } from "../../shared/game-state-from-packets/game-state";
 import { TimeDelta } from "../../shared/scripts/time-delta";
 import { GameAnalyzer } from "../../shared/evaluation/game-analyzer";
+import { MemoryGameStatus, StatusHistory } from "src/app/shared/tetris/memory-game-status";
 
 /**
  * Stores the state global to the state machine, and sends packets to the injected PacketSender on changes.
@@ -17,6 +18,7 @@ export class GlobalState {
     public game?: OCRGameState;
 
     private topoutData: GameDisplayData = DEFAULT_POLLED_GAME_DATA;
+    private lastMemoryStatus?: MemoryGameStatus;
 
     constructor(
         private readonly packetSender?: PacketSender,
@@ -31,11 +33,16 @@ export class GlobalState {
     endGame() {
         this.packetSender?.bufferPacket(new GameEndPacket().toBinaryEncoder({}));
         this.topoutData = this.game!.getDisplayData();
+        this.lastMemoryStatus = this.game!.getMemoryStatus() as MemoryGameStatus;
         this.game = undefined;
     }
 
     getGameDisplayData(): GameDisplayData {
         return this.game?.getDisplayData() ?? this.topoutData;
+    }
+
+    getLastMemoryStatus() {
+        return this.lastMemoryStatus;
     }
 
 }
@@ -59,7 +66,7 @@ export class OCRGameState {
         nextType: TetrominoType,
         analyzerFactory?: (startLevel: number) => GameAnalyzer
     ) {
-        this.game = new GameState(startLevel, currentType, nextType);
+        this.game = new GameState(startLevel, currentType, nextType, undefined, true);
 
         if (analyzerFactory) {
             this.analyzer = analyzerFactory(startLevel);
@@ -96,6 +103,10 @@ export class OCRGameState {
 
     getStatus(): GameStatus {
         return this.game.getStatus().status;
+    }
+
+    getMemoryStatus(): MemoryGameStatus {
+        return this.game.getStatus() as MemoryGameStatus;
     }
 
     getNumPlacements(): number {

@@ -33,6 +33,7 @@ export class SoloClientRoom extends ClientRoom {
 
     private ocrSubscription?: Subscription;
     public detectingOCR$ = new BehaviorSubject<boolean>(false);
+    private inGame: boolean = false;
 
     public override async init(state: SoloRoomState): Promise<void> {
 
@@ -45,6 +46,26 @@ export class SoloClientRoom extends ClientRoom {
 
         // Initialize at before game
         this.setSoloState(SoloClientState.BEFORE_GAME_MODAL);
+
+        // If going into solo mode game and in ocr, start capturing
+        if (this.platformInterface.getPlatform() === Platform.OCR) {
+
+            this.detectingOCR$.next(true);
+
+            const currentState$ = this.ocr.startGameCapture({
+                startLevel: null, // Player can play on any level in solo mode with OCR
+                seed: null, // No required seed
+                multipleGames: true, // Player can play as many games as desired while on solo page
+            });
+
+            this.ocrSubscription = currentState$?.subscribe(state => {
+                if (state.id === OCRStateID.PIECE_DROPPING && !this.inGame) {
+                    this.setSoloState(SoloClientState.IN_GAME);
+                    this.detectingOCR$.next(false);
+                    this.inGame = true;
+                } if (state.id === OCRStateID.GAME_END) this.inGame = false;
+            });
+        }
     }
 
     protected override async onStateUpdate(oldState: SoloRoomState, newState: SoloRoomState): Promise<void> {
@@ -54,6 +75,16 @@ export class SoloClientRoom extends ClientRoom {
         //     this.setSoloState(SoloClientState.TOPOUT);
         // }
 
+        if (
+            this.platformInterface.getPlatform() === Platform.OCR &&
+            !this.inGame &&
+            oldState.lastGameSummary === null
+            && newState.lastGameSummary
+        ) {
+            this.setSoloState(SoloClientState.AFTER_GAME_MODAL);
+            this.detectingOCR$.next(true);
+        }
+
     }
 
     public setSoloState(state: SoloClientState) {
@@ -61,6 +92,7 @@ export class SoloClientRoom extends ClientRoom {
         // IF OCR platform, skip before-game modal and go straight to game
         if (state === SoloClientState.BEFORE_GAME_MODAL && this.platformInterface.getPlatform() === Platform.OCR) {
             state = SoloClientState.IN_GAME;
+            
         }
 
         this.soloState$.next(state);
@@ -75,25 +107,6 @@ export class SoloClientRoom extends ClientRoom {
                 break;
             default:
                 this.modal$.next(null);
-        }
-
-        // If going into solo mode game and in ocr, start capturing
-        if (state === SoloClientState.IN_GAME && this.platformInterface.getPlatform() === Platform.OCR) {
-
-            console.log("going into solo ocr");
-
-            this.detectingOCR$.next(true);
-
-            const currentState$ = this.ocr.startGameCapture({
-                startLevel: null, // Player can play on any level in solo mode with OCR
-                seed: null, // No required seed
-                multipleGames: true, // Player can play as many games as desired while on solo page
-            });
-
-            this.ocrSubscription = currentState$?.subscribe(state => {
-                if (state.id === OCRStateID.PIECE_DROPPING && this.detectingOCR$.getValue()) this.detectingOCR$.next(false);
-                if (state.id === OCRStateID.GAME_END) this.detectingOCR$.next(true);
-            });
         }
     }
 
