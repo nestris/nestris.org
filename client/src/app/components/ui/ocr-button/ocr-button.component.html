@@ -1,7 +1,8 @@
 <div class="button prevent-select" (click)="onClick()" [ngClass]="[state, expanded ? 'expanded' : '']">
     <img src="./assets/img/ocr-icons/nes.svg" [attr.height]="expanded ? '14px' : '12px'">
-    <p *ngIf="state === OCRState.DISCONNECTED && expanded">Connect console</p>
+    <p *ngIf="state === OCRState.OFF && expanded">Connect console</p>
     <p *ngIf="state === OCRState.CONNECTED && expanded">Console connected</p>
+    <p *ngIf="state === OCRState.DISCONNECTED && expanded">Console disconnected</p>
     <!-- <img *ngIf="state === OCRState.CONNECTED" src="./assets/img/tab-icons/settings.svg" height="14px"> -->
 
     <svg *ngIf="expanded" width="14" viewBox="0 0 24 27" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -13,6 +13,8 @@ import { DigitClassifier } from 'src/app/ocr/digit-classifier/digit-classifier';
 import { BrowserDigitClassifer } from 'src/app/scripts/browser-digit-classifier';
 import { PlatformInterfaceService } from '../platform-interface.service';
 import { Platform } from 'src/app/shared/models/platform';
+import { NotificationService } from '../notification.service';
+import { NotificationType } from 'src/app/shared/models/notifications';
 
 export interface FrameWithContext {
   ctx: CanvasRenderingContext2D,
@@ -67,6 +69,7 @@ export class VideoCaptureService {
 
   constructor(
     private readonly platform: PlatformInterfaceService,
+    private readonly notifier: NotificationService,
     rendererFactory: RendererFactory2,
   ) {
     this.renderer = rendererFactory.createRenderer(null, null);
@@ -221,6 +224,15 @@ export class VideoCaptureService {
 
       // Reset calibration
       this.calibration = undefined;
+
+
+      videoTrack.addEventListener('ended', () => {
+        console.log('Video source disconnected');
+        this.calibration = undefined;
+        this.isCalibrationValid$.next(false);
+        this.captureSource$.next(null);
+        this.notifier.notify(NotificationType.ERROR, "Video capture disconnected!");
+      });
 
       console.log("set media stream with video resolution", settings.width, settings.height);
       this.captureSource$.next(mediaStream);

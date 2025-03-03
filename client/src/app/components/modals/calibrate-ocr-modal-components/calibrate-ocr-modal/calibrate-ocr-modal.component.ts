@@ -42,15 +42,16 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
   // we poll for level every few frames and cache the result here.
   ocrFrameData$ = new BehaviorSubject<OCRFrameData | undefined>(undefined);
 
-  public stepIndex: number = 0;
+  public stepIndex$ = new BehaviorSubject<number>(0);
 
+  captureSourceSubscription: Subscription | undefined;
   frameUpdateSubscription: Subscription | undefined;
   private computingLevel = false;
 
   public ocrVerifier?: OCRVerifier;
 
   get currentStep(): CalibrationStep {
-    return this.ALL_CALIBRATION_STEPS[this.stepIndex];
+    return this.ALL_CALIBRATION_STEPS[this.stepIndex$.getValue()];
   }
 
   public DESCRIPTIONS: {[step in CalibrationStep] : string} = {
@@ -83,6 +84,10 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
         if (frame?.ocrFrame) this.onFrameUpdate(frame.ocrFrame);
       }
     );
+
+    this.captureSourceSubscription = this.videoCapture.captureSource$.subscribe((source) => {
+      if (source === null) this.setStepIndex(0);
+    })
 
   }
 
@@ -149,11 +154,11 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
 
   // whether allowed to go to previous step of stepper for calibration
   previousAllowed(): boolean {
-    return this.stepIndex > 0;
+    return this.stepIndex$.getValue() > 0;
   }
 
   isLastStep(): boolean {
-    return this.stepIndex === this.ALL_CALIBRATION_STEPS.length - 1;
+    return this.stepIndex$.getValue() === this.ALL_CALIBRATION_STEPS.length - 1;
   }
 
   initStep(step: CalibrationStep) {
@@ -185,7 +190,7 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
       }
 
       // otherwise, go to next step
-      else this.setStepIndex(this.stepIndex + 1);
+      else this.setStepIndex(this.stepIndex$.getValue() + 1);
     }
   }
 
@@ -198,13 +203,13 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
   // go to previous step of stepper for calibration
   previous() {
     if (this.previousAllowed()) {
-      this.setStepIndex(this.stepIndex - 1);
+      this.setStepIndex(this.stepIndex$.getValue() - 1);
     }
   }
 
   private setStepIndex(newIndex: number) {
     this.deinitStep(this.currentStep);
-    this.stepIndex = newIndex;
+    this.stepIndex$.next(newIndex);
     this.initStep(this.currentStep);
   }
 
@@ -289,10 +294,11 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
 
     this.videoCapture.stopCapture(); // don't capture when not necessary to save processing time
     this.frameUpdateSubscription?.unsubscribe();
+    this.captureSourceSubscription?.unsubscribe();
 
-    if (!this.videoCapture.getCalibrationValid()) {
-      this.videoCapture.setCaptureSource(null);
-    }
+    // if (!this.videoCapture.getCalibrationValid()) {
+    //   this.videoCapture.setCaptureSource(null);
+    // }
   }
 
 }

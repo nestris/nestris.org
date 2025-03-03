@@ -1,5 +1,5 @@
 <div class="modal">
-    <app-stepper class="stepper" [steps]="ALL_CALIBRATION_STEPS" [activeStep]="stepIndex" />
+    <app-stepper class="stepper" [steps]="ALL_CALIBRATION_STEPS" [activeStep]="(stepIndex$ | async) ?? 0" />
 
     <p class="description">{{DESCRIPTIONS[currentStep]}}</p>
 

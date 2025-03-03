@@ -1,9 +1,9 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { BehaviorSubject, map } from 'rxjs';
-import { OCRState } from 'src/app/components/ui/ocr-button/ocr-button.component';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { TabID } from 'src/app/models/tabs';
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
+import { VideoCaptureService } from 'src/app/services/ocr/video-capture.service';
 import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { ServerStatsService } from 'src/app/services/server-stats.service';
 import { FriendsService } from 'src/app/services/state/friends.service';
@@ -27,7 +27,7 @@ export class SidebarComponent {
 
   readonly DeploymentEnvironment = DeploymentEnvironment;
   readonly LoginMethod = LoginMethod;
-  readonly OCRState = OCRState;
+  readonly Platform = Platform;
 
   private _isExpanded = new BehaviorSubject<boolean>(window.innerWidth > 1000);
   isExpanded$ = this._isExpanded.asObservable();
@@ -35,6 +35,7 @@ export class SidebarComponent {
   constructor(
     private friendsService: FriendsService,
     public websocketService: WebsocketService,
+    public videoCaptureService: VideoCaptureService,
     public modalService: ModalManagerService,
     public serverStatsService: ServerStatsService,
     public platform: PlatformInterfaceService,
@@ -44,9 +45,6 @@ export class SidebarComponent {
   }
 
   numOnlineFriends$ = this.friendsService.getNumOnlineFriends$();
-  ocrState$ = this.platform.getPlatform$().pipe(
-    map(platform => platform === Platform.OCR ? OCRState.CONNECTED : OCRState.DISCONNECTED)
-  );
 
   openAuthModal(): void {
     this.modalService.showModal(ModalType.AUTH);

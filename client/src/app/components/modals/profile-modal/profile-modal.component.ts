@@ -144,7 +144,7 @@ export class ProfileModalComponent implements OnInit, OnDestroy {
     };
     this.modalManagerService.showModal(ModalType.QUEST_LIST, config, () => {
       this.modalManagerService.showModal(ModalType.PROFILE, {userid : this.config?.userid});
-    });
+    }, false);
   }
 
   goToProfile(userid: string) {

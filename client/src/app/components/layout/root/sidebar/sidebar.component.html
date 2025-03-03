@@ -31,7 +31,9 @@
     </div>
     <div class="sidebar-bottom">
         <app-ocr-button *ngIf="(meService.get$() | async)?.login_method !== LoginMethod.GUEST"
-            [state]="(ocrState$ | async) ?? OCRState.DISCONNECTED" [expanded]="(isExpanded$ | async) ?? true" />
+            [platform]="(platform.getPlatform$() | async) ?? Platform.ONLINE"
+            [connected]="(videoCaptureService.getCalibrationValid$() | async) ?? false"
+            [expanded]="(isExpanded$ | async) ?? true" />
         <app-sign-out *ngIf="(websocketService.onSignInUpdate() | async)" />
     </div>
     

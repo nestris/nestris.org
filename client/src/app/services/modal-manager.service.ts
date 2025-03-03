@@ -32,6 +32,7 @@ export class ModalManagerService {
   private modalConfig: any = undefined;
 
   private hideModalCallback?: () => void;
+  private hideAfterCallback: boolean = false;
 
   constructor() { }
 
@@ -49,12 +50,13 @@ export class ModalManagerService {
     return this.modalConfig;
   }
 
-  showModal(modalType: ModalType, modalConfig: any = undefined, hideModalCallback?: () => void) {
+  showModal(modalType: ModalType, modalConfig: any = undefined, hideModalCallback?: () => void, hideAfterCallback: boolean = true) {
 
     // delay to next cycle to prevent immediate close
     setTimeout(() => {
       this.modalConfig = modalConfig;
       this.hideModalCallback = hideModalCallback;
+      this.hideAfterCallback = hideAfterCallback;
       this.activeModal$.next(modalType);
     }, 0);
   }
@@ -66,7 +68,7 @@ export class ModalManagerService {
     }
 
     if (this.hideModalCallback) this.hideModalCallback();
-    else this.activeModal$.next(null);
+    if (this.hideAfterCallback) this.activeModal$.next(null);
   }
 
   onHideModal$(): Observable<ModalType> {

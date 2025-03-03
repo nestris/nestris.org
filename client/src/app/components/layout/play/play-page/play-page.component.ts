@@ -9,6 +9,7 @@ import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.s
 import { NotificationService } from 'src/app/services/notification.service';
 import { VideoCaptureService } from 'src/app/services/ocr/video-capture.service';
 import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
+import { PlayService } from 'src/app/services/play.service';
 import { RankedQueueService } from 'src/app/services/room/ranked-queue.service';
 import { ServerStatsService } from 'src/app/services/server-stats.service';
 import { MeService } from 'src/app/services/state/me.service';
@@ -62,10 +63,8 @@ export class PlayPageComponent implements OnInit, OnDestroy {
     private modalManager: ModalManagerService,
     private serverStats: ServerStatsService,
     private fetchService: FetchService,
-    private websocketService: WebsocketService,
     private notifier: NotificationService,
-    private rankedQueueService: RankedQueueService,
-    private router: Router,
+    private playService: PlayService,
     private route: ActivatedRoute,
   ) {
 
@@ -122,29 +121,12 @@ export class PlayPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  async playSolo() {
-    const sessionID = this.websocketService.getSessionID();
-    this.fetchService.fetch(Method.POST, `/api/v2/create-solo-room/${sessionID}`);
-  }
-
-  async playRanked() {
-
-    // Attempt to join the ranked queue
-    await this.rankedQueueService.joinQueue();
-  }
-
-  async playPuzzles() {
-    this.router.navigate(['/online/puzzle'], { 
-      queryParams: { mode: 'rated' } 
-    });
-  }
-
 
   onClickMode(mode: Mode) {
     switch (mode) {
-      case Mode.SOLO: return this.playSolo();
-      case Mode.RANKED: return this.playRanked();
-      case Mode.PUZZLES: return this.playPuzzles();
+      case Mode.SOLO: return this.playService.playSolo();
+      case Mode.RANKED: return this.playService.playRanked();
+      case Mode.PUZZLES: return this.playService.playPuzzles();
     }
   }
 
