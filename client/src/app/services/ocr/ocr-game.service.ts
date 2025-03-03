@@ -7,6 +7,7 @@ import { LiveGameAnalyzer } from '../stackrabbit/live-game-analyzer';
 import { StackrabbitService } from '../stackrabbit/stackrabbit.service';
 import { PacketSender } from 'src/app/ocr/util/packet-sender';
 import { MemoryGameStatus } from 'src/app/shared/tetris/memory-game-status';
+import { WakeLockService } from '../wake-lock.service';
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +22,7 @@ export class OcrGameService {
     private readonly videoCapture: VideoCaptureService,
     private readonly platform: PlatformInterfaceService,
     private readonly stackrabbit: StackrabbitService,
+    private readonly wakeLockService: WakeLockService,
   ) {
 
     // Register a subscriber to the video capture service for processing video frames
@@ -48,6 +50,8 @@ export class OcrGameService {
       return;
     }
 
+    this.wakeLockService.enableWakeLock();
+
     const analyzerFactory = analyzePlacements ? this.analyzerFactory : undefined;
     this.stateMachine = new OCRStateMachine(config, packetSender, analyzerFactory);
 
@@ -59,6 +63,8 @@ export class OcrGameService {
 
   stopGameCapture() {
     if (!this.stateMachine) return;
+
+    this.wakeLockService.disableWakeLock();
 
     this.stateMachine = undefined;
     this.videoCapture.stopCapture();
