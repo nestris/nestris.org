@@ -9,6 +9,7 @@ import { QuestService } from 'src/app/services/quest.service';
 import { ModalManagerService } from 'src/app/services/modal-manager.service';
 import { RankedQueueService } from 'src/app/services/room/ranked-queue.service';
 import { Router } from '@angular/router';
+import { PlayService } from 'src/app/services/play.service';
 
 @Component({
   selector: 'app-quest',
@@ -31,11 +32,9 @@ export class QuestComponent implements OnInit {
   hovering$ = new BehaviorSubject<boolean>(false);
 
   constructor(
-    private readonly websocketService: WebsocketService,
-    private readonly fetchService: FetchService,
     private readonly activeQuestService: QuestService,
     private readonly modalManagerService: ModalManagerService,
-    private readonly rankedQueueService: RankedQueueService,
+    private readonly playService: PlayService,
     private router: Router,
   ) {}
 
@@ -62,13 +61,13 @@ export class QuestComponent implements OnInit {
     switch (redirect) {
       case QuestRedirect.SOLO:
       case QuestRedirect.SOLO_ACCURACY:
-        this.fetchService.fetch(Method.POST, `/api/v2/create-solo-room/${this.websocketService.getSessionID()}`);
+        this.playService.playSolo();
         return;
       case QuestRedirect.RANKED:
-        await this.rankedQueueService.joinQueue();
+        await this.playService.playRanked();
         return;
       case QuestRedirect.PUZZLES:
-        this.router.navigate(['/online/puzzle'], { queryParams: { mode: 'rated' } });
+        this.playService.playPuzzles();
         return;
       case QuestRedirect.FRIENDS:
         this.router.navigate(['/friends']);

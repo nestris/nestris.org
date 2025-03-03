@@ -44,7 +44,7 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
 
   public stepIndex$ = new BehaviorSubject<number>(0);
 
-  captureSourceSubscription: Subscription | undefined;
+  captureDisconnectedSubscription: Subscription | undefined;
   frameUpdateSubscription: Subscription | undefined;
   private computingLevel = false;
 
@@ -66,8 +66,8 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
       you're capturing to calibrate. Make sure the board, next piece, score, level, and lines are all correct before saving!
     `,
     [CalibrationStep.VERIFY_OCR] : `
-      Just one last step to verify that your capture is live and working! Start a game at level 0, then follow the instructions
-      on where to place the two pieces. Remember that cheating is strictly prohibited and can result in a ban.
+      One last step to verify your capture! Start a game at level 0, then place the two pieces as indicated on the preview screen.
+      Remember that cheating is strictly prohibited and can result in a ban.
     `
   }
 
@@ -85,10 +85,7 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
       }
     );
 
-    this.captureSourceSubscription = this.videoCapture.captureSource$.subscribe((source) => {
-      if (source === null) this.setStepIndex(0);
-    })
-
+    this.captureDisconnectedSubscription = this.videoCapture.captureDisconnected$.subscribe(() => this.setStepIndex(0));
   }
 
   ngOnInit() {
@@ -294,7 +291,7 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
 
     this.videoCapture.stopCapture(); // don't capture when not necessary to save processing time
     this.frameUpdateSubscription?.unsubscribe();
-    this.captureSourceSubscription?.unsubscribe();
+    this.captureDisconnectedSubscription?.unsubscribe();
 
     // if (!this.videoCapture.getCalibrationValid()) {
     //   this.videoCapture.setCaptureSource(null);

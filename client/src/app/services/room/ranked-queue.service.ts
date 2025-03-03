@@ -7,6 +7,7 @@ import { NotificationService } from '../notification.service';
 import { NotificationType } from 'src/app/shared/models/notifications';
 import { Router } from '@angular/router';
 import { PlatformInterfaceService } from '../platform-interface.service';
+import { VideoCaptureService } from '../ocr/video-capture.service';
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +25,7 @@ export class RankedQueueService {
     private fetchService: FetchService,
     private notifier: NotificationService,
     private platform: PlatformInterfaceService,
+    private videoCapture: VideoCaptureService,
     private router: Router
   ) {
 
@@ -36,6 +38,12 @@ export class RankedQueueService {
     this.websocketService.onEvent<FoundOpponentMessage>(JsonMessageType.FOUND_OPPONENT).subscribe(
       (message) => this.foundOpponent$.next(message)
     );
+
+    // Capture disconnect triggers leaving queue
+    videoCapture.captureDisconnected$.subscribe(() => {
+      this.leaveQueue();
+      this.router.navigate(['/']);
+    });
 
   }
 

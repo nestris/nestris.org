@@ -51,6 +51,32 @@ class TrophyRange {
     }
 }
 
+class QueueMatch {
+    private abortedId: string | null = null;
+
+    constructor(
+        public readonly userid1: string,
+        public readonly userid2: string,
+    ) {}
+
+    public get aborted(): boolean {
+        return this.abortedId !== null;
+    }
+
+    public get aborteeUserid(): string | null {
+        return this.abortedId;
+    }
+
+    public contains(userid: string): boolean {
+        return this.userid1 === userid || this.userid2 === userid;
+    }
+
+    public abort(abortedId: string) {
+        this.abortedId = abortedId;
+        console.log(`${abortedId} aborted match between ${this.userid1} and ${this.userid2}`);
+    }
+}
+
 /**
  * Represents a user in the ranked queue
  */
@@ -106,6 +132,8 @@ export class RankedQueueConsumer extends EventConsumer {
 
     // Map of previous opponent's userid for each userid, used to discourage rematches     
     private previousOpponent: Map<string, string> = new Map();
+
+    private matches: QueueMatch[] = [];
 
     public override async init() {
 
@@ -182,6 +210,9 @@ export class RankedQueueConsumer extends EventConsumer {
      * @param userid The userid of the user to remove from the queue
      */
     public async leaveRankedQueue(userid: string) {
+
+        // Abort any matches about to start
+        this.matches.filter(match => match.contains(userid)).forEach(match => match.abort(userid));
 
         // if user is not in the queue, do nothing
         if (!this.getQueueUser(userid)) return;
@@ -297,6 +328,10 @@ export class RankedQueueConsumer extends EventConsumer {
      */
     private async match(user1: QueueUser, user2: QueueUser) {
 
+        // Add match to list
+        const match = new QueueMatch(user1.userid, user2.userid);
+        this.matches.push(match);
+
         // Remove users from the queue before awaiting the match
         this.queue = this.queue.filter(user => user !== user1 && user !== user2);
 
@@ -336,17 +371,18 @@ export class RankedQueueConsumer extends EventConsumer {
         const user2ID = {userid: user2.userid, sessionID: user2.sessionID};
 
         try {
+            if (match.aborted) throw new RoomAbortError(match.aborteeUserid!, 'Left room');
+
             const room = new RankedMultiplayerRoom(user1ID, user2ID, player1TrophyDelta, player2TrophyDelta, user1.platform, user2.platform);
             await EventConsumerManager.getInstance().getConsumer(RoomConsumer).createRoom(room);
         } catch (error) {
 
             // If room aborted, send push notification to notify
             if (error instanceof RoomAbortError) {
-                [user1ID, user2ID].forEach(user => {
-                    this.users.sendToUserSession(user.sessionID, new SendPushNotificationMessage(
-                        NotificationType.ERROR, "Match aborted by opponent"
-                    ));
-                });
+                const otherUser = error.userid === user1ID.userid ? user2ID : user1ID;
+                this.users.sendToUserSession(otherUser.sessionID, new SendPushNotificationMessage(
+                    NotificationType.ERROR, "Match aborted by opponent"
+                ));
             }
 
             // Redirect users back to the home page
@@ -356,6 +392,8 @@ export class RankedQueueConsumer extends EventConsumer {
             
         }
         
+        // Remove match from list
+        this.matches = this.matches.filter(m => m !== match);
     }
 
     /**

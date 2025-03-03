@@ -1,5 +1,5 @@
 import { ElementRef, Injectable, Renderer2, RendererFactory2 } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { Pixels } from 'src/app/services/ocr/pixels';
 import { Point } from 'src/app/shared/tetris/point';
 import { Calibration, CalibrationPlus } from 'src/app/ocr/util/calibration';
@@ -66,6 +66,8 @@ export class VideoCaptureService {
   private showBoundingBoxes: boolean = false;
 
   private digitClassifier: DigitClassifier = new BrowserDigitClassifer();
+
+  public captureDisconnected$ = new Subject<void>();
 
   constructor(
     private readonly platform: PlatformInterfaceService,
@@ -231,6 +233,7 @@ export class VideoCaptureService {
         this.calibration = undefined;
         this.isCalibrationValid$.next(false);
         this.captureSource$.next(null);
+        this.captureDisconnected$.next();
         this.notifier.notify(NotificationType.ERROR, "Video capture disconnected!");
       });
 

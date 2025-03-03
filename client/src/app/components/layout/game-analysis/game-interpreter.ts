@@ -98,6 +98,7 @@ export function interpretPackets(packets: PacketContent[]): InterpretedGame {
     // Add a frame, which can contain a board state or a MoveableTetromino, incrementing the time since the start
     const addFrame = (delta: number, encodedBoard?: Uint8Array, mtPose?: MTPose, fullState?: GameFullStateSchema) => {
         frames.push({ delta, encodedBoard, mtPose, ms: msSinceStart });
+        console.log("added frame", frames[frames.length - 1]);
         msSinceStart += delta;
     }
 
@@ -160,7 +161,7 @@ export function interpretPackets(packets: PacketContent[]): InterpretedGame {
     for (let i = firstEmptyRowFrameIndex; i < packets.length; i++) {
         const packet = packets[i];
 
-        // console.log("placement", placements.length, "frame", frames.length, PACKET_NAME[packet.opcode], JSON.stringify(packet.content));
+        console.log(PACKET_NAME[packet.opcode], packet.content);
 
         if (packet.opcode === PacketOpcode.GAME_START) throw new Error('Multiple GameStart packets found');
 
