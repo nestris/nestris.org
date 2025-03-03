@@ -140,11 +140,11 @@ export class LineClearSpawnEvent extends StateEvent {
 
         // Calculate what would be score after line clear
         const board = this.globalState.game!.getStableBoard().copy();
+        this.validPlacement!.blitToBoard(board);
         const numLineClears = board.processLineClears();
         const stableStatus = this.globalState.game!.getMemoryStatus().copy();
         stableStatus.onLineClear(numLineClears);
         const scoreAfterLineClear = stableStatus.score;
-
         const pushdown = await calculatePushdown(ocrFrame, scoreAfterLineClear);
 
         // Update the stable board to reflect the new piece placement and report the placement of the previous piece
