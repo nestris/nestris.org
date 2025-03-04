@@ -109,9 +109,20 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     map(([current, playing]) => {
       if (!this.placements) return false;
       if (playing) return false;
-      return current.frameIndex === this.placements[current.placementIndex].placementFrameIndex;
+
+      const placementIndex = this.placements[current.placementIndex].placementFrameIndex;
+      if (current.frameIndex !== placementIndex) return false;
+      const { frame } = this.getCurrentFrame(current);
+      return !frame.fullState;
     })
-  )
+  );
+
+  public isLimbo$ = this.current$.pipe(
+    map(current => {
+      const { frame } = this.getCurrentFrame(current);
+      return frame.fullState !== undefined;
+    })
+  );
 
   // Terrible hack to make app-game-summary-graph component fit the width of content div
   public contentRect$ = new BehaviorSubject<DOMRect | null>(null);
@@ -304,7 +315,7 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     if (next == null) return false;
     this.current$.next(next);
 
-    if (debug) console.log(next, this.getCurrentFrame(next));
+    if (debug) console.log(this.getCurrentFrame(next).frame);
 
     return true;
   }
@@ -411,8 +422,7 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getIsolatedBoard(current: CurrentFrame): TetrisBoard {
-    const { placement, frame } = this.getCurrentFrame(current);
-    if (frame.fullState) return frame.fullState.board;
+    const placement = this.getCurrentPlacement(current);
     return BufferTranscoder.decode(placement.encodedIsolatedBoard);
   }
 
@@ -443,6 +453,8 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
   // Get the board to display for the current frame
   getDisplayBoard(current: CurrentFrame): TetrisBoard {
     const { placement, frame } = this.getCurrentFrame(current);
+
+    if (frame.fullState) return frame.fullState.board;
 
     // If full board is specified, decode and return that
     if (frame.encodedBoard) return BufferTranscoder.decode(frame.encodedBoard);

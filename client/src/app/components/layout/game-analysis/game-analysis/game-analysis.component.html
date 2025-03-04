@@ -113,8 +113,8 @@
                         </div>
                     </div>
 
-                    <div class="panels">
-                        <div class="recommendation-panel">
+                    <div class="panels" [tooltip]="(isLimbo$ | async) ? 'Unable to identify this placement' : ''">
+                        <div class="recommendation-panel" [ngClass]="(isLimbo$ | async) ? 'limbo' : ''">
 
                             <app-solid-selector class="hz-selector" [labels]="inputSpeedLabels" [duplicateSelected]="true"
                                 [selected]="(inputSpeedIndex$ | async) ?? 0" (selectedChange)="setInputSpeedIndex($event)" [updateInternally]="false"

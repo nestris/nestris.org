@@ -180,6 +180,16 @@ export class OCRGameState {
     }
 
     setFullState(board: TetrisBoard, next: TetrominoType, level: number, lines: number, score: number) {
+        
+        // If no changes, do not send packet
+        if (
+            level === this.getStatus().level &&
+            lines === this.getStatus().lines &&
+            score === this.getStatus().score &&
+            next === this.getNextType() &&
+            board.equals(this.getDisplayBoard())
+        ) return;
+
         const delta = this.timeDelta.getDelta();
         const fullState: GameFullStateSchema = { delta, board, next, level, lines, score };
 

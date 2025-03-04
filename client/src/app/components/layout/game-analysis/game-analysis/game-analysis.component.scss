@@ -262,6 +262,13 @@ app-game-summary-graph {
 
     width: fit-content;
     box-sizing: border-box;
+
+    transition: opacity 0.3s;
+}
+
+.recommendation-panel.limbo {
+    opacity: 0.5;
+    pointer-events: none;
 }
 
 .hz-selector {

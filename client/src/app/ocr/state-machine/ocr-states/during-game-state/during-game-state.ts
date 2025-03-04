@@ -58,6 +58,7 @@ export class PieceDroppingState extends OCRState {
             this.activePieceThisFrame.tetrominoType !==this.activePiece.tetrominoType
         ) this.activePieceThisFrame = null;
 
+
         if (this.activePieceThisFrame) {
             // We only update the active piece if it was found this frame
             this.activePiece = this.activePieceThisFrame;
@@ -69,27 +70,6 @@ export class PieceDroppingState extends OCRState {
             // We didn't find the active piece this frame, so we are forced to send the entire board state
             const colorBoard = ocrFrame.getColorBoard(this.currentLevel)!;
 
-            // Try to correct colors if it was a perfect subtraction
-            if (maybeActivePiece !== ActivePieceFailure.CANNOT_ISOLATE_PIECE) {
-                const isolatedBoard = this.globalState.game!.getStableBoard();
-                for (let mino of colorBoard.iterateMinos()) {
-                    if (mino.color !== ColorType.EMPTY) {
-                        const isolatedColor = isolatedBoard.getAt(mino.x, mino.y);
-                        
-                        let adjustedColor: ColorType;
-                        if (isolatedColor !== ColorType.EMPTY) {
-                            // Use the color from the isolated board if it exists
-                            adjustedColor = isolatedColor;
-                        }
-                        else {
-                            // Otherwise, it is probably the current piece. Use current piece color
-                            const currentType = this.globalState.game!.getCurrentType();;
-                            adjustedColor = getColorTypeForTetromino(currentType);
-                        }
-                        colorBoard.setAt(mino.x, mino.y, adjustedColor);
-                    }
-                }
-            }
             // Update entire board
             this.globalState.game!.setFullBoard(colorBoard);
         }
@@ -134,6 +114,7 @@ export class PieceDroppingState extends OCRState {
             this.textLogger.log(LogType.VERBOSE, "Active piece not updated: Extracted piece is not of the correct type");
             return ActivePieceFailure.PIECE_INCORRECT_TYPE;
         }
+
 
         // We have found a valid active piece
         this.textLogger.log(LogType.VERBOSE, `Active piece updated: ${TETROMINO_CHAR[mt.tetrominoType]} at ${mt.getTetrisNotation()}`);

@@ -40,7 +40,7 @@ export class RankedQueueService {
     );
 
     // Capture disconnect triggers leaving queue
-    videoCapture.captureDisconnected$.subscribe(() => {
+    this.videoCapture.captureDisconnected$.subscribe(() => {
       this.leaveQueue();
       this.router.navigate(['/']);
     });
