@@ -178,7 +178,7 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
 
   // go to next step of stepper for calibration
   next() {
-    if (this.nextAllowed()) {
+    if (this.nextAllowed() === true) {
 
       // if at the last step, mark as valid, switch to this platform, and hide modal
       if (this.isLastStep()) {

@@ -20,6 +20,16 @@ function inBounds(frame: Frame, rect: Rectangle) {
  */
 export function calibrate(frame: Frame, point: Point): [Calibration, CalibrationPlus] {
 
+    // console.log("calibrate", frame);
+
+    // for (let y = point.y - 10; y < point.y + 10; y++) {
+    //     let row = "" + y;
+    //     for (let x = point.x - 10; x < point.x + 10; x++) {
+    //         row += ((frame.getPixelAt({x, y})?.average ?? 0) / 256 * 9).toFixed(0) + ",";
+    //     }
+    //     console.log(row);
+    // }
+
     // Floodfill at the given point to derive the main board
     const boardRect = FloodFill.fromFrame(frame, point).getBoundingRect();
     if (!boardRect) throw new Error("Could not floodfill main board");

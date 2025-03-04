@@ -135,8 +135,9 @@ export class StartGameEvent extends StateEvent {
         // Start the game
         const current = ocrFrame.getBoardOnlyTetrominoType()!;
         const next = ocrFrame.getNextType()!;
-        this.globalState.startGame((await ocrFrame.getLevel())!, current, next);
-        this.textLogger.log(LogType.INFO, `Start game with level ${ocrFrame.getLevel()!}, current piece ${TETROMINO_CHAR[current]}, next piece ${TETROMINO_CHAR[next]}`);
+        const level = (await ocrFrame.getLevel())!;
+        this.globalState.startGame(level, current, next);
+        this.textLogger.log(LogType.INFO, `Start game with level ${level}, current piece ${TETROMINO_CHAR[current]}, next piece ${TETROMINO_CHAR[next]}`);
         return OCRStateID.PIECE_DROPPING;
     }
 

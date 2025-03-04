@@ -40,9 +40,7 @@ export class FloodFill {
     }
 
     private isSimilar(colorA: RGBColor, colorB: RGBColor): boolean {
-        return Math.abs(colorA.r - colorB.r) < 30 &&
-            Math.abs(colorA.g - colorB.g) < 30 &&
-            Math.abs(colorA.b - colorB.b) < 30;
+        return Math.abs(colorA.average - colorB.average) < 30;
     }
 
     // floodfill from a given point. Does not reset the filled matrix, so that you can
@@ -52,7 +50,7 @@ export class FloodFill {
         point: Point
     ): void {
 
-        const startColor = frame.getPixelAt(point);
+        const startColor = new RGBColor(0, 0, 0);
         if (!startColor) return;
     
         const stack: Point[] = [];

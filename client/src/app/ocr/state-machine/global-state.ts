@@ -28,6 +28,7 @@ export class GlobalState {
     startGame(level: number, current: TetrominoType, next: TetrominoType): void {
         this.game = new OCRGameState(this.packetSender, level, current, next, this.analyzerFactory);
         this.packetSender?.bufferPacket(new GameStartPacket().toBinaryEncoder({level, current, next}));
+        console.log("started OCR game");
     }
 
     endGame() {
