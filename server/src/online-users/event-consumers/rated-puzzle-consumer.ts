@@ -442,7 +442,7 @@ export class RatedPuzzleConsumer extends EventConsumer<RatedPuzzleConfig> {
         const previousHighestElo = (await DBUserObject.get(userid)).highest_puzzle_elo;
         
         // Update the in-memory user's rating, but don't wait for database call to finish
-        await DBUserObject.alter(userid, new DBPuzzleSubmitEvent({
+        const newUser = await DBUserObject.alter(userid, new DBPuzzleSubmitEvent({
             newElo, isCorrect, xpGained,
             seconds: clamp(submission.seconds, 0, 30),
         }), false);
@@ -452,7 +452,9 @@ export class RatedPuzzleConsumer extends EventConsumer<RatedPuzzleConfig> {
         this.updatePuzzleStats(dbPuzzle, submission, isCorrect);
 
         // Update puzzle quests
-        await EventConsumerManager.getInstance().getConsumer(QuestConsumer).updateQuestCategory(userid, QuestCategory.PUZZLER, newElo);
+        const questConsumer = await EventConsumerManager.getInstance().getConsumer(QuestConsumer)
+        questConsumer.updateQuestCategory(userid, QuestCategory.PUZZLER, newElo);
+        if (isCorrect) questConsumer.updateQuestCategory(userid, QuestCategory.PUZZLE_COUNT, newUser.puzzles_solved);
 
         // If user has reached a new 1000 elo milestone, add activity. i.e. 2983 -> 3005 elo
         const milestone = (elo: number) => Math.floor(elo / 1000);

@@ -35,6 +35,9 @@ export enum QuestID {
     AUTOMATON,
     SOCIAL_BUTTERFLY,
     EAGER_CATERPILLAR,
+    AUTOMATON_JR,
+    HUNDRED_PUZZLES,
+    THOUSAND_PUZZLES,
 }
 
 export const ALL_QUEST_IDS = Object.values(QuestID).filter(id => typeof id === 'number') as QuestID[];
@@ -48,7 +51,8 @@ export enum QuestCategory {
     PERFECTION = "Perfection",
     FRIENDS = "Friends",
     ACCURACY = "Accuracy",
-    LINES29 = "Lines29"
+    LINES29 = "Lines29",
+    PUZZLE_COUNT = "PuzzleCount",
 }
 
 export enum QuestDifficulty {
@@ -90,6 +94,7 @@ export const CATEGORY_REDIRECT: {[key in QuestCategory] : QuestRedirect} = {
     [QuestCategory.LINES29]: QuestRedirect.SOLO,
     [QuestCategory.FRIENDS]: QuestRedirect.FRIENDS,
     [QuestCategory.PERFECTION]: QuestRedirect.SOLO_ACCURACY,
+    [QuestCategory.PUZZLE_COUNT]: QuestRedirect.PUZZLES,
     [QuestCategory.PUZZLER]: QuestRedirect.PUZZLES,
     [QuestCategory.SCORE]: QuestRedirect.SOLO,
     [QuestCategory.SURVIVOR]: QuestRedirect.SOLO,
@@ -201,13 +206,31 @@ export const QUESTS: Record<QuestID, Quest> = {
         xp: 12000,
         targetScore: 39
     },
+    [QuestID.HUNDRED_PUZZLES]: {
+        id: QuestID.HUNDRED_PUZZLES,
+        category: QuestCategory.PUZZLE_COUNT,
+        name: "Hundred puzzles",
+        description: "Solve 100 puzzles correctly",
+        difficulty: QuestDifficulty.EASY,
+        xp: 200,
+        targetScore: 100
+    },
+    [QuestID.THOUSAND_PUZZLES]: {
+        id: QuestID.HUNDRED_PUZZLES,
+        category: QuestCategory.PUZZLE_COUNT,
+        name: "Thousand puzzles",
+        description: "Solve 1000 puzzles correctly",
+        difficulty: QuestDifficulty.INTERMEDIATE,
+        xp: 1000,
+        targetScore: 1000
+    },
     [QuestID.PUZZLER_I]: {
         id: QuestID.PUZZLER_I,
         category: QuestCategory.PUZZLER,
         name: "Puzzler I",
         description: "Reach a high of 1000 elo in puzzles",
         difficulty: QuestDifficulty.EASY,
-        xp: 200,
+        xp: 400,
         targetScore: 1000
     },
     [QuestID.PUZZLER_II]: {
@@ -261,7 +284,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Champion II",
         description: "Reach 2000 trophies in ranked mode",
         difficulty: QuestDifficulty.INTERMEDIATE,
-        xp: 1000,
+        xp: 1500,
         targetScore: 2000
     },
     [QuestID.CHAMPION_III]: {
@@ -333,7 +356,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         name: "Perfection I",
         description: "Make 5 best placements in a row",
         difficulty: QuestDifficulty.EASY,
-        xp: 200,
+        xp: 300,
         targetScore: 5
     },
     [QuestID.PERFECTION_II]: {
@@ -371,6 +394,15 @@ export const QUESTS: Record<QuestID, Quest> = {
         difficulty: QuestDifficulty.IMPOSSIBLE,
         xp: 20000,
         targetScore: 100
+    },
+    [QuestID.AUTOMATON_JR]: {
+        id: QuestID.AUTOMATON_JR,
+        category: QuestCategory.ACCURACY,
+        name: "Automaton Jr.",
+        description: "Maintain 90% accuracy on a full game to level 29",
+        difficulty: QuestDifficulty.EXPERT,
+        xp: 10000,
+        targetScore: 90
     },
     [QuestID.AUTOMATON]: {
         id: QuestID.AUTOMATON,
