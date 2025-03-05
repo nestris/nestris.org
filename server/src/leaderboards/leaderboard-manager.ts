@@ -1,4 +1,5 @@
 import { T200LeaderboardData, T200LeaderboardRow, T200LeaderboardType } from "../../shared/models/leaderboard";
+import { errorHandler } from "../errors/error-handler";
 import { OnlineUserManager } from "../online-users/online-user-manager";
 import { FullLeaderboard } from "./full-leaderboard";
 import { T200Leaderboard } from "./t200-leaderboard";
@@ -38,11 +39,16 @@ export class LeaderboardManager {
 
         // Periodically update t200 leaderboards
         setInterval(async () => {
-            const start = Date.now();
-            for (const t200Leaderboard of LeaderboardManager.t200Leaderboards.values()) {
-                await t200Leaderboard.updateLeaderboard();
+            try {
+                const start = Date.now();
+                for (const t200Leaderboard of LeaderboardManager.t200Leaderboards.values()) {
+                    await t200Leaderboard.updateLeaderboard();
+                }
+                console.log(`Updated all t200 leaderboards in ${Date.now() - start}ms`);
+            } catch (error) {
+                errorHandler.logError(error, "leaderboard");
             }
-            console.log(`Updated all t200 leaderboards in ${Date.now() - start}ms`);
+
         }, 1000 * 20); // 20 seconds
 
         LeaderboardManager.initialized = true;

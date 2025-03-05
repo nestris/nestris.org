@@ -69,6 +69,7 @@ import { GetUserRoute } from './src/routes/user/get-user-route';
 import { GetRatedPuzzleRoute } from './src/routes/puzzles/get-rated-puzzle-route';
 import { ActivityConsumer } from './src/online-users/event-consumers/activity-consumer';
 import { GetAllActivitiesRoute } from './src/routes/user/get-all-activities-route';
+import { GetErrorsRoute } from './src/routes/misc/get-errors-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -121,6 +122,7 @@ async function main() {
 
   app.post('/api/v2/password-register', passwordRegister);
   app.post('/api/v2/password-login', passwordLogin);
+
 
 
   // Initialize singletons
@@ -197,6 +199,7 @@ async function main() {
   routes.registerRoute(GetRatedPuzzleRoute);
   routes.registerRoute(GetGlobalStatRoute);
   routes.registerRoute(GetScoreHistogramRoute);
+  routes.registerRoute(GetErrorsRoute);
 
   const bots = new BotManager();
   //bots.registerBot(new RankedBotUser('bot'));
@@ -219,5 +222,7 @@ async function main() {
     console.log(`Server is running on port ${port}`);
     // sayHello();
   });
+
 }
+
 main();

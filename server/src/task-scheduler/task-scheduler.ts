@@ -1,3 +1,5 @@
+import { errorHandler } from "../errors/error-handler";
+
 export abstract class Task {
   // Abstract method to be implemented by subclasses
   abstract run(): Promise<void>;
@@ -25,10 +27,14 @@ export class TaskScheduler {
     const task = new taskClass(); // Instantiate the task class
     const timeInMs = this.convertToMilliseconds(interval, unit);
     const taskId = setInterval(async () => {
-      const startTime = Date.now();
-      await task.run();
-      const endTime = Date.now();
-      console.log(`Finished running task ${taskClass.name} (period = ${interval} ${unit}) in ${endTime - startTime}ms`);
+      try {
+        const startTime = Date.now();
+        await task.run();
+        const endTime = Date.now();
+        console.log(`Finished running task ${taskClass.name} (period = ${interval} ${unit}) in ${endTime - startTime}ms`);
+      } catch (e) {
+        errorHandler.logError(e, task.constructor.name);
+      }
     }, timeInMs);
 
     this.tasks.push({

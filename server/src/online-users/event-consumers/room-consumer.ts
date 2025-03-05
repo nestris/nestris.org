@@ -249,6 +249,7 @@ export abstract class Room<T extends RoomState = RoomState> {
      */
     public updateRoomState(state: T) {
         this.roomState = state;
+        console.log("Updating room state", state);
         this.sendToAll(new RoomStateUpdateMessage(state));
     }
 

@@ -1,6 +1,7 @@
 import { Express, Request, Response } from 'express';
 import { Authentication, AUTHENTICATION_LEVEL } from '../../shared/models/db-user';
 import { UserSession } from '../authentication/session-util';
+import { errorHandler } from '../errors/error-handler';
 
 
 export interface UserInfo {
@@ -66,7 +67,8 @@ abstract class Route {
                 }
                 
                 // Otherwise, this is an unexpected error. Send a 500 error
-                else res.status(500).send({error: e.message});
+                errorHandler.logError(e, this.constructor.name);
+                res.status(500).send({error: e.message});
             }
         });
     }

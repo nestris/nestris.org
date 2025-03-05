@@ -1,6 +1,7 @@
-import { OnlineUserEventType, OnSessionBinaryMessageEvent, OnSessionConnectEvent, OnSessionDisconnectEvent, OnSessionJsonMessageEvent, OnUserActivityChangeEvent, OnUserConnectEvent, OnUserDisconnectEvent } from "./online-user-events";
+import { errorHandler } from "../errors/error-handler";
+import { OnlineUserEvent, OnlineUserEventType, OnSessionBinaryMessageEvent, OnSessionConnectEvent, OnSessionDisconnectEvent, OnSessionJsonMessageEvent, OnUserActivityChangeEvent, OnUserConnectEvent, OnUserDisconnectEvent, UserEvent } from "./online-user-events";
 import { OnlineUserManager } from "./online-user-manager";
-import { concatMap, filter, map, Observable, Subject } from "rxjs";
+import { catchError, concatMap, EMPTY, filter, from, map, Observable, Subject } from "rxjs";
 
 // Consumer events are events that can be sent across different consumers
 export enum ConsumerEventType {
@@ -17,54 +18,34 @@ export abstract class ConsumerEvent {
  */
 export class EventConsumer<Config extends {} = {}> {
 
+    private registerEvent<Event extends OnlineUserEvent>(type: OnlineUserEventType, onEvent?: (event: Event) => Promise<void>) {
+
+        if (onEvent) {
+            this.users.onEvent$<Event>(type).pipe(
+                concatMap(event => 
+                    from(onEvent!(event)).pipe(
+                        catchError(error => {
+                            errorHandler.logError(error, event);
+                            return EMPTY;
+                        })
+                    )
+                )
+            ).subscribe();
+        }
+    }
+
     constructor(
         protected readonly users: OnlineUserManager,
         private readonly consumerEvent$: Subject<ConsumerEvent>,
         protected readonly config: Config,
     ) {
-        
-        // Only subscribe to events that have been implemented by the subclass
-        if (this.onUserConnect) {
-            this.users.onEvent$<OnUserConnectEvent>(OnlineUserEventType.ON_USER_CONNECT).pipe(
-                concatMap(event => this.onUserConnect!(event))
-            ).subscribe({ error: console.error });
-        }
-        
-        if (this.onUserDisconnect) {
-            this.users.onEvent$<OnUserDisconnectEvent>(OnlineUserEventType.ON_USER_DISCONNECT).pipe(
-                concatMap(event => this.onUserDisconnect!(event))
-            ).subscribe({ error: console.error });
-        }
-        
-        if (this.onUserActivityChange) {
-            this.users.onEvent$<OnUserActivityChangeEvent>(OnlineUserEventType.ON_USER_ACTIVITY_CHANGE).pipe(
-                concatMap(event => this.onUserActivityChange!(event))
-            ).subscribe({ error: console.error });
-        }
-        
-        if (this.onSessionConnect) {
-            this.users.onEvent$<OnSessionConnectEvent>(OnlineUserEventType.ON_SESSION_CONNECT).pipe(
-                concatMap(event => this.onSessionConnect!(event))
-            ).subscribe({ error: console.error });
-        }
-        
-        if (this.onSessionDisconnect) {
-            this.users.onEvent$<OnSessionDisconnectEvent>(OnlineUserEventType.ON_SESSION_DISCONNECT).pipe(
-                concatMap(event => this.onSessionDisconnect!(event))
-            ).subscribe({ error: console.error });
-        }
-        
-        if (this.onSessionJsonMessage) {
-            this.users.onEvent$<OnSessionJsonMessageEvent>(OnlineUserEventType.ON_SESSION_JSON_MESSAGE).pipe(
-                concatMap(event => this.onSessionJsonMessage!(event))
-            ).subscribe({ error: console.error });
-        }
-        
-        if (this.onSessionBinaryMessage) {
-            this.users.onEvent$<OnSessionBinaryMessageEvent>(OnlineUserEventType.ON_SESSION_BINARY_MESSAGE).pipe(
-                concatMap(event => this.onSessionBinaryMessage!(event))
-            ).subscribe({ error: console.error });
-        }
+        this.registerEvent<OnUserConnectEvent>(OnlineUserEventType.ON_USER_CONNECT, this.onUserConnect?.bind(this));
+        this.registerEvent<OnUserDisconnectEvent>(OnlineUserEventType.ON_USER_DISCONNECT, this.onUserDisconnect?.bind(this));
+        this.registerEvent<OnUserActivityChangeEvent>(OnlineUserEventType.ON_USER_ACTIVITY_CHANGE, this.onUserActivityChange?.bind(this));
+        this.registerEvent<OnSessionConnectEvent>(OnlineUserEventType.ON_SESSION_CONNECT, this.onSessionConnect?.bind(this));
+        this.registerEvent<OnSessionDisconnectEvent>(OnlineUserEventType.ON_SESSION_DISCONNECT, this.onSessionDisconnect?.bind(this));
+        this.registerEvent<OnSessionJsonMessageEvent>(OnlineUserEventType.ON_SESSION_JSON_MESSAGE, this.onSessionJsonMessage?.bind(this));
+        this.registerEvent<OnSessionBinaryMessageEvent>(OnlineUserEventType.ON_SESSION_BINARY_MESSAGE, this.onSessionBinaryMessage?.bind(this));
 
     }
 

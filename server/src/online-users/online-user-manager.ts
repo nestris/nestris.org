@@ -9,6 +9,7 @@ import { BotOnlineUserSession, HumanOnlineUserSession, OnlineUser, OnlineUserAct
 import { WebSocketServer } from "ws";
 import { OnlineUserActivityType } from "../../shared/models/online-activity";
 import { BotUser } from "../bot/bot-user";
+import { errorHandler } from "../errors/error-handler";
 
 /*
 Manages the users that are online right now and thus are connected to socket with websocket.
@@ -33,20 +34,26 @@ export class OnlineUserManager {
         wss.on('connection', (ws: any) => {
 
             // forward websocket messages to the online user manager
-            ws.on('message', (message: string) => {
+            ws.on('message', async (message: string) => {
                 try {
-                    this.onSocketMessage(ws, message);
+                    await this.onSocketMessage(ws, message);
                 } catch (error: any) {
-                    console.error("TOP-LEVEL WS MESSAGE ERROR:", error);
+                    let msg: any;
+                    try {
+                        msg = await decodeMessage(message, false);
+                    } catch {
+                        msg = message;
+                    }
+                    errorHandler.logError(error, "on ws message", msg);
                 }
             });
 
             // forward websocket close events to the online user manager
-            ws.on('close', (code: number, reason: string) => {
+            ws.on('close', async (code: number, reason: string) => {
                 try {
                     this.onSocketClose(ws, code, reason);
                 } catch (error: any) {
-                    console.error("TOP-LEVEL WS CLOSE ERROR:", error);
+                    errorHandler.logError(error, "on ws close", code, reason);
                 }
             });
         });
