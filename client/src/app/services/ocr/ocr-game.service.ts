@@ -29,10 +29,13 @@ export class OcrGameService {
     this.videoCapture.registerSubscriber(async (frame) => {
       if (!this.stateMachine) return;
       if (!frame || !frame.ocrFrame) return;
+
+      // console.log("executing ocr frame");
       
       // Every time a new video frame is captured, advance state machine and send display data
       // to PlatformInterfaceService
       await this.stateMachine.advanceFrame(frame.ocrFrame);
+      if (!this.stateMachine) return; // It's possible capture ends in the middle of a frame
       const displayData = this.stateMachine.getGameDisplayData();
       this.platform.updateGameData(displayData);
     })

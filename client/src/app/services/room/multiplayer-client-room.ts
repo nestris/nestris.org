@@ -139,13 +139,17 @@ export class MultiplayerClientRoom extends ClientRoom {
                 if (!stateObservable$) throw new Error(`Game capture already started`);
                 this.ocrStateSubscription = stateObservable$.subscribe((state) => {
                     if (state.id === OCRStateID.PIECE_DROPPING) this.ocrStatus$.next(OCRStatus.OCR_IN_GAME);
-                    if (state.id === OCRStateID.GAME_END) this.ocrStatus$.next(OCRStatus.OCR_AFTER_GAME);
+                    if (state.id === OCRStateID.GAME_END) {
+                        this.ocrStatus$.next(OCRStatus.OCR_AFTER_GAME);
+                    }
                 })
             }
         }
 
-        // if going to AFTER_MATCH and resigned, show after match modal
         if (oldState.status !== MultiplayerRoomStatus.AFTER_MATCH && newState.status === MultiplayerRoomStatus.AFTER_MATCH) {
+            this.ocr.stopGameCapture();
+
+            // If resigned, imediately show after match modal
             if (newState.wonByResignation) this.showAfterMatchModal();
         }
 

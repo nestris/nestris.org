@@ -214,6 +214,7 @@ export class GamePlayer {
 
         else if (packet.opcode === PacketOpcode.GAME_END) {
             console.log(`Received game end packet from player ${this.username}`);
+            if (!this.gameState) throw new Error(`Cannot process gane end packet without game start packet for ${this.username}`);
 
             // Handle the end of the game
             await this.onGameEnd(this.packets, this.gameState!, this.placementEvaluations, false);
