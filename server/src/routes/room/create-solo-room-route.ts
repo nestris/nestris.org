@@ -1,6 +1,6 @@
 import { Authentication } from "../../../shared/models/db-user";
 import { EventConsumerManager } from "../../online-users/event-consumer";
-import { RoomConsumer } from "../../online-users/event-consumers/room-consumer";
+import { RoomAbortError, RoomConsumer } from "../../online-users/event-consumers/room-consumer";
 import { SoloRoom } from "../../room/solo-room";
 import { PostRoute, RouteError, UserInfo } from "../route";
 
@@ -22,8 +22,15 @@ export class CreateSoloRoomRoute extends PostRoute {
         }
         
         // Create a solo room
-        const soloRoom = new SoloRoom({userid: userInfo!.userid, sessionID: sessionID});
-        await EventConsumerManager.getInstance().getConsumer(RoomConsumer).createRoom(soloRoom);
+        try {
+            const soloRoom = new SoloRoom({userid: userInfo!.userid, sessionID: sessionID});
+            await EventConsumerManager.getInstance().getConsumer(RoomConsumer).createRoom(soloRoom);
+        } catch (error: any) {
+            if (error instanceof RoomAbortError) {
+                throw new RouteError(404, `Unable to create room for ${error.name}: ${error.message}`);
+            } else throw error;
+        }
+        
 
 
         return {success: true};

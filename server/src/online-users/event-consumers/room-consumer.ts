@@ -112,7 +112,7 @@ export abstract class Room<T extends RoomState = RoomState> {
                     "You are already in an activity!"
                 ));
 
-                throw new RoomAbortError(player.userid, `User ${player.userid} is already in an activity: ${Room.Users.getUserActivity(player.userid)}`);
+                throw new RoomAbortError(player.userid, `User ${player.userid} is already in an activity: ${Room.Users.getUserActivity(player.userid)?.type}`);
             }
         });
 

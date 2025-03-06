@@ -452,9 +452,9 @@ export class RatedPuzzleConsumer extends EventConsumer<RatedPuzzleConfig> {
         this.updatePuzzleStats(dbPuzzle, submission, isCorrect);
 
         // Update puzzle quests
-        const questConsumer = await EventConsumerManager.getInstance().getConsumer(QuestConsumer)
-        questConsumer.updateQuestCategory(userid, QuestCategory.PUZZLER, newElo);
-        if (isCorrect) questConsumer.updateQuestCategory(userid, QuestCategory.PUZZLE_COUNT, newUser.puzzles_solved);
+        const questConsumer = EventConsumerManager.getInstance().getConsumer(QuestConsumer);
+        await questConsumer.updateQuestCategory(userid, QuestCategory.PUZZLER, newElo);
+        if (isCorrect) await questConsumer.updateQuestCategory(userid, QuestCategory.PUZZLE_COUNT, newUser.puzzles_solved);
 
         // If user has reached a new 1000 elo milestone, add activity. i.e. 2983 -> 3005 elo
         const milestone = (elo: number) => Math.floor(elo / 1000);
