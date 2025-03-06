@@ -69,7 +69,7 @@ function numDifferences(grid1: number[][], grid2: number[][]): number {
  */
 export function findSimilarTetrominoType(nextGrid: number[][]): TetrominoType | undefined {
 
-    const MAXIMUM_DIFFERENCE_ALLOWED = 2;
+    const MAXIMUM_DIFFERENCE_ALLOWED = 1;
 
     let lowestDiff: number | undefined = undefined;
     let lowestDiffType: TetrominoType = TetrominoType.ERROR_TYPE;

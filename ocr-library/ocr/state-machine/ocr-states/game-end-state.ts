@@ -20,7 +20,7 @@ export class GameEndState extends OCRState {
      */
     protected override async onAdvanceFrame(ocrFrame: OCRFrame) {
         if (this.isFirstFrame) this.globalState.endGame();
-        else this.isFirstFrame = false;
+        this.isFirstFrame = false;
     }
 
 }

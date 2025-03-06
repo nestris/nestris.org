@@ -148,15 +148,11 @@ export class OCRFrame {
      */
     getNextGrid(): number[][] {
 
-        // A pixel is considered "bright" if its average color is above this threshold
-        const BRIGHTNESS_THRESHOLD = 30;
-
         return this.nextOCRBox.getGridPoints().map(row => {
             return row.map(point => {
                 const pixel = this.frame.getPixelAt(point);
                 if (!pixel) throw new Error(`Pixel not found at ${point.x}, ${point.y}`);
-
-                return pixel.average > BRIGHTNESS_THRESHOLD ? 1 : 0;
+                return pixel.average;
             })
         });
     }
@@ -168,9 +164,21 @@ export class OCRFrame {
      * @returns The type of the next tetromino
      */
     getNextType(loadIfNotLoaded: boolean = true): TetrominoType | undefined {
+
+        // A pixel is considered "bright" if its average color is above this threshold
+        const START_BRIGHTNESS_THRESHOLD = 30;
+
         if (loadIfNotLoaded && this._nextType === undefined) {
             const nextGrid = this.getNextGrid();
-            this._nextType = findSimilarTetrominoType(nextGrid);
+
+            // Try thresholding at decreasing values until a valid next piece is found
+            let threshold = START_BRIGHTNESS_THRESHOLD;
+            this._nextType = TetrominoType.ERROR_TYPE;
+            while (this._nextType === TetrominoType.ERROR_TYPE && threshold >= 5) {
+                const nextMask = nextGrid.map(row => row.map(value => value >= threshold ? 1 : 0));
+                this._nextType = findSimilarTetrominoType(nextMask);
+                threshold -= 5;
+            }
         }
         return this._nextType;
     }
