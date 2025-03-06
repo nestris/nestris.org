@@ -9,6 +9,7 @@ import { OCRStateID } from "../ocr-state-id";
  * possible recovery or game end.
  */
 export class ConfusionEvent extends StateEvent {
+    public override readonly name = "ConfusionEvent";
     public override readonly persistence = new TimedPersistenceStrategy(2000);
 
     constructor(private readonly myState: PieceDroppingState) { super() }

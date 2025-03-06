@@ -7,6 +7,7 @@ import { OCRStateID } from "./ocr-state-id";
  * it isn't just the same game, and if it is a new game, ends the previous one before starting the new one
  */
 export class RestartGameEvent extends StartGameEvent {
+    public override readonly name = "RestartGameEvent";
 
     /**
      * In addition to meeting normal game start requirements, make sure this isn't the same game. We can only

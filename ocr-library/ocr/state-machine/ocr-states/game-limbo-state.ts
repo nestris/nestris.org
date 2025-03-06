@@ -66,6 +66,7 @@ export class GameLimboState extends OCRState {
  * current game status.
  */
 export class RecoveryEvent extends StateEvent {
+    public override readonly name = "RecoveryEvent";
     public override readonly persistence = new SingleFramePersistenceStrategy();
 
     private previousSeperation: [MoveableTetromino, TetrisBoard] | null = null;
@@ -155,7 +156,8 @@ export class RecoveryEvent extends StateEvent {
  * If OCR does not detect a tetris board at all, end game.
  */
 export class ExitEvent extends StateEvent {
-    public override readonly persistence = new ConsecutivePersistenceStrategy(3);
+    public override readonly name = "ExitEvent";
+    public override readonly persistence = new ConsecutivePersistenceStrategy(5);
 
     /**
      * If noisy levels are high, that the board is showing is unlikely
@@ -178,7 +180,8 @@ export class ExitEvent extends StateEvent {
  * If been in limbo state for too long, game is unrecoverable. End game.
  */
 export class TimeoutEvent extends StateEvent {
-    public override readonly persistence = new TimedPersistenceStrategy(5000);
+    public override readonly name = "TimeoutEvent";
+    public override readonly persistence = new TimedPersistenceStrategy(10000);
 
     /**
      * No preconditions besides the persistence threshold of the limbo state reached

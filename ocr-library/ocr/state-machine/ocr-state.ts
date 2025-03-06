@@ -73,7 +73,7 @@ export abstract class OCRState {
             this.eventStatuses.push(eventStatus);
 
             if (eventStatus.persistenceMet) {
-                console.log(`Conditions for event ${event.constructor.name} met`);
+                console.log(`Conditions for event ${event.name} met`);
                 return await event.triggerEvent(ocrFrame);
             }
         }
@@ -110,6 +110,8 @@ export abstract class OCRState {
  * triggers for transitioning between states based on custom logic using current OCRFrame and GameData. 
  */
 export abstract class StateEvent {
+
+    public abstract readonly name: string;
 
     /** @param persistence Strategy used for how long precondition=true must persist before the event is triggered */
     public abstract readonly persistence: PersistenceStrategy;

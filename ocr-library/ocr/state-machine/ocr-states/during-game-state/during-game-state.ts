@@ -10,7 +10,7 @@ import { LineClearSpawnEvent } from "./line-clear-spawn-event";
 import { TopoutEvent } from "./topout-event";
 import { ConfusionEvent } from "./confusion-event";
 import { RestartGameEvent } from "../restart-game-event";
-import { getColorTypeForTetromino } from "../../../../shared/tetris/tetromino-colors";
+import { getColorTypeForTetromino } from "src/app/shared/tetris/tetromino-colors";
 
 enum ActivePieceFailure {
     NOT_PLUS_FOUR_MINOS = "NOT_PLUS_FOUR_MINOS",
@@ -69,6 +69,18 @@ export class PieceDroppingState extends OCRState {
         } else {
             // We didn't find the active piece this frame, so we are forced to send the entire board state
             const colorBoard = ocrFrame.getColorBoard(this.currentLevel)!;
+
+            // If subtracting isolated board is a perfect substraction, use isolated board colors
+            const stableBoard = this.globalState.game!.getStableBoard();
+            const activePieceColor = getColorTypeForTetromino(this.globalState.game!.getCurrentType());
+            if (TetrisBoard.subtract(colorBoard, stableBoard, true) !== null) {
+                for (let {x, y, color} of stableBoard.iterateMinos()) {
+                    if (color !== ColorType.EMPTY) colorBoard.setAt(x, y, color);
+
+                    // This is probably the active piece, set to active piece color
+                    else if (colorBoard.exists(x, y)) colorBoard.setAt(x, y, activePieceColor);
+                }
+            }
 
             // Update entire board
             this.globalState.game!.setFullBoard(colorBoard);
