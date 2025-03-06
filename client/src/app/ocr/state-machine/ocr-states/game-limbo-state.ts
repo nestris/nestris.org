@@ -36,12 +36,14 @@ export class GameLimboState extends OCRState {
      */
     protected override async onAdvanceFrame(ocrFrame: OCRFrame) {
 
-        // If OCR text is -1, don't use, and use previous value
-        const ignoreIfInvalid = (value: number, original: number, ignore: any = -1) => value === ignore ? original : value;
+        // If OCR text is less than the current value or -1, don't use, and use previous value
+        const ignoreIfInvalid = (value: number, original: number) => (value === -1 || value < original) ? original : value;
 
         // Poll for next, level, lines, and score every few frames to avoid too much computation
         if (this.ocrCounter.next()) {
-            this.next = ignoreIfInvalid(ocrFrame.getNextType()!, this.next, TetrominoType.ERROR_TYPE);
+            const next = ocrFrame.getNextType()!;
+            if (next !== TetrominoType.ERROR_TYPE) this.next = next;
+
             this.level = ignoreIfInvalid((await ocrFrame.getLevel())!, this.level);
             this.lines = ignoreIfInvalid((await ocrFrame.getLines())!, this.lines);
             this.score = ignoreIfInvalid((await ocrFrame.getScore())!, this.score);
