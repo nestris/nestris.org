@@ -69,8 +69,7 @@ export class ServerPlayer {
 
       } else if (packet.opcode === PacketOpcode.GAME_RECOVERY) {
         const gameRecovery = packet.content as GameRecoverySchema;
-        if (this.state === null) this.state = GameState.fromRecovery(gameRecovery);
-        else this.state.onRecovery(gameRecovery);
+        this.state!.onRecovery(gameRecovery);
 
       } else if (packet.opcode === PacketOpcode.GAME_FULL_STATE) {
         const fullState = packet.content as GameFullStateSchema;

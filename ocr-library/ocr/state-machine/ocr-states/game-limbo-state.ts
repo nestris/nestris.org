@@ -164,6 +164,7 @@ export class ExitEvent extends StateEvent {
      */
     protected override async precondition(ocrFrame: OCRFrame): Promise<boolean> {
         const noise = ocrFrame.getBoardNoise()!;
+        console.log("board noise", noise);
         return noise > NOISE_THRESHOLD;
     };
 

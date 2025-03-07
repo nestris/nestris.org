@@ -139,11 +139,8 @@ export class GameState {
 
   onRecovery(recovery: GameRecoverySchema) {
 
-    this.status = (
-      this.storeMemory
-      ? new MemoryGameStatus(true, recovery.startLevel, recovery.lines, recovery.score, recovery.level)
-      : new SmartGameStatus(recovery.startLevel, recovery.lines, recovery.score, recovery.level)
-    );
+    this.status.setStatus(recovery.level, recovery.lines, recovery.score);
+
     this.isolatedBoard = recovery.isolatedBoard;
     this.current = recovery.current;
     this.next = recovery.next;
