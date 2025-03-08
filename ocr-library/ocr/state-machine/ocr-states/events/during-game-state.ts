@@ -9,7 +9,7 @@ import { RegularSpawnEvent } from "./regular-spawn-event";
 import { LineClearSpawnEvent } from "./line-clear-spawn-event";
 import { TopoutEvent } from "./topout-event";
 import { ConfusionEvent } from "./confusion-event";
-import { RestartGameEvent } from "../restart-game-event";
+import { RestartGameEvent } from "./restart-game-event";
 import { getColorTypeForTetromino } from "src/app/shared/tetris/tetromino-colors";
 
 enum ActivePieceFailure {

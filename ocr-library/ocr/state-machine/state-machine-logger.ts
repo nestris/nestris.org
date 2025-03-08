@@ -99,7 +99,7 @@ export class JsonLogger extends StateMachineLogger {
             nextGrid: frame.getNextGrid().flat().join(""),
             nextType: typeToChar(frame.getNextType(false)),
             level: await frame.getLevel(false),
-            score: await frame.getScore(false),
+            score: await frame.getScore(false, false),
             boardOnlyType: typeToChar(frame.getBoardOnlyTetrominoType(false)),
 
             // State data

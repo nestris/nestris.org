@@ -1,10 +1,10 @@
-import { GlobalState } from "../../../state-machine/global-state";
+import { GlobalState } from "../../global-state";
 import MoveableTetromino from "../../../../shared/tetris/moveable-tetromino";
-import { StateEvent } from "../../../state-machine/ocr-state";
+import { StateEvent } from "../../ocr-state";
 import { PieceDroppingState } from "./during-game-state";
-import { ConsecutivePersistenceStrategy } from "../../../state-machine/persistence-strategy";
+import { ConsecutivePersistenceStrategy } from "../../persistence-strategy";
 import { TetrisBoard } from "../../../../shared/tetris/tetris-board";
-import { OCRFrame } from "../../../state-machine/ocr-frame";
+import { OCRFrame } from "../../ocr-frame";
 import { OCRStateID } from "../ocr-state-id";
 import { TETROMINO_CHAR } from "../../../../shared/tetris/tetrominos";
 import { LogType } from "../../state-machine-logger";
@@ -108,7 +108,7 @@ export class RegularSpawnEvent extends StateEvent {
 
         // Look for pushdown. If the OCR'ed score is not more than 50 more than stable score, consider it as pushdown
         const stableScore = this.globalState.game!.getStatus().score;
-        const pushdown = await calculatePushdown(ocrFrame, stableScore);
+        const pushdown = await calculatePushdown(this.globalState, ocrFrame, stableScore);
 
         // Update the stable board to reflect the new piece placement and report the placement of the previous piece
         this.globalState.game!.placePiece(this.validPlacement!, ocrFrame.getNextType()!, pushdown);
@@ -120,14 +120,36 @@ export class RegularSpawnEvent extends StateEvent {
 
 }
 
-export async function calculatePushdown(ocrFrame: OCRFrame, stableScore: number): Promise<number> {
+export async function calculatePushdown(globalState: GlobalState, ocrFrame: OCRFrame, stableScore: number): Promise<number> {
+    const profile = globalState.game!.profile;
 
-    // Do not attempt pushdown calculation once score ocr gets unpredictable
-    if (stableScore > 999000) return 0;
+    // If haven't yet figured out if score is capped, but reached maxout and score shouldn't end in 99999
+    if (profile.isMaxoutCapped === undefined && stableScore > 999999 && stableScore % 100000 !== 99999) {
+        // Try to figure out if game's score is capped or not
+        const scoreWithoutFirstDigit = (await ocrFrame.getScore(true))!
+        if (scoreWithoutFirstDigit !== -1) {
+            profile.isMaxoutCapped = scoreWithoutFirstDigit === 99999;
+        }
+    }
 
-    const ocrScore = (await ocrFrame.getScore())!;
-    if (ocrScore !== -1 && ocrScore > stableScore && ocrScore < stableScore + 50) {
+    // Do not attempt pushdown calculation if score is capped
+    if (profile.isMaxoutCapped) return 0;
+
+    // Do not attempt pushdown calculation if cannot read score
+    const ocrScore = (await ocrFrame.getScore(true))!
+    if (ocrScore === -1) return 0;
+
+    const stableScoreWithoutFirstDigit = stableScore % 100000;
+    
+    // If pushdown would have caused the hundred-thousands digit to go up, then keep the positive difference
+    let ocrScoreWithoutFirstDigit = ocrScore % 100000;
+    if (ocrScoreWithoutFirstDigit < stableScoreWithoutFirstDigit) ocrScoreWithoutFirstDigit += 100000;
+
+    // If reasonable pushdown range, register as pushdown
+    if (ocrScore > stableScore && ocrScore < stableScore + 50) {
         return ocrScore - stableScore;
     }
+
+    // Not a reasonable pushdown range, ignore
     return 0;
 }

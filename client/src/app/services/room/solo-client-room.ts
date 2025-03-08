@@ -9,6 +9,7 @@ import { getQuest, QuestCategory } from "src/app/shared/nestris-org/quest-system
 import { OcrGameService } from "../ocr/ocr-game.service";
 import { Platform } from "src/app/shared/models/platform";
 import { OCRStateID } from "src/app/ocr/state-machine/ocr-states/ocr-state-id";
+import { CONFIG } from "src/app/config";
 
 export enum SoloClientState {
     BEFORE_GAME_MODAL = 'BEFORE_GAME_MODAL',
@@ -56,6 +57,7 @@ export class SoloClientRoom extends ClientRoom {
                 startLevel: null, // Player can play on any level in solo mode with OCR
                 seed: null, // No required seed
                 multipleGames: true, // Player can play as many games as desired while on solo page
+                midGameStart: CONFIG.allowOCRMidGameStart,
             });
 
             this.ocrSubscription = currentState$?.subscribe(state => {

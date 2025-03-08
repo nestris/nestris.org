@@ -1,6 +1,6 @@
-import { OCRFrame } from "../ocr-frame";
-import { StartGameEvent } from "./before-game-state";
-import { OCRStateID } from "./ocr-state-id";
+import { OCRFrame } from "../../ocr-frame";
+import { StartGameEvent } from "../states/before-game-state";
+import { OCRStateID } from "../ocr-state-id";
 
 /**
  * Defines an event to start a new game when conditions are met, while already in a game or in limbo. Checks that

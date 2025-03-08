@@ -1,7 +1,7 @@
 import { StateEvent } from "../../ocr-state";
 import { PieceDroppingState } from "./during-game-state";
-import { TimedPersistenceStrategy } from "../../../state-machine/persistence-strategy";
-import { OCRFrame } from "../../../state-machine/ocr-frame";
+import { TimedPersistenceStrategy } from "../../persistence-strategy";
+import { OCRFrame } from "../../ocr-frame";
 import { ALL_TETROMINO_TYPES, TetrominoType } from "../../../../shared/tetris/tetromino-type";
 import MoveableTetromino from "../../../../shared/tetris/moveable-tetromino";
 import { OCRStateID } from "../ocr-state-id";

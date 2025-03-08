@@ -26,12 +26,12 @@ export class OCRFrame {
     private _boardNoise: number | undefined;
     private _nextType: TetrominoType | undefined;
     private _level: number | undefined;
-    private _score: number | undefined;
-    private _lines: number | undefined;
     private _boardOnlyTetrominoType: TetrominoType | undefined;
 
     // Map of level to board
     private _colorBoard = new Map<number, TetrisBoard>();
+    private _score = new Map<boolean, number>();
+    private _lines = new Map<boolean, number>();
 
     /**
      * @param frame The singular frame to extract OCR information from
@@ -188,15 +188,13 @@ export class OCRFrame {
      * returns -1.
      * @param ocrBox 
      */
-    private async predictDigits(ocrBox: NumberOCRBox, debug: boolean = false): Promise<number> {
+    private async predictDigits(ocrBox: NumberOCRBox, ignoreFirstDigit: boolean = false, debug: boolean = false): Promise<number> {
     
         // Each digit must have a minimum confidence of this value for the OCR to be successful
         const MINIMUM_CONFIDENCE = 0.7;
 
         // Predict each digit from the frame
-        const digits = await Promise.all(
-            Array.from({length: ocrBox.numDigits}, (_, i) => ocrBox.predictDigit(i, this.frame))
-        );
+        const digits = await ocrBox.predictDigits(this.frame, ignoreFirstDigit);
 
         if (debug) console.log("digits", digits);
     
@@ -218,9 +216,7 @@ export class OCRFrame {
     async getLevel(loadIfNotLoaded: boolean = true): Promise<number | undefined> {
         if (loadIfNotLoaded && this._level === undefined) {
             // Predict the digits of the level from the frame, or return -1 if OCR fails
-            // console.log("OCRFrame.getLevel");
             this._level = await this.predictDigits(this.levelOCRBox);
-            // console.log("OCRFrame.getLevel result", this._level);
         }
         return this._level;
     }
@@ -232,14 +228,12 @@ export class OCRFrame {
      * @returns The score of the game. If the score could not be OCR'd, returns -1. If the score
      * has not been loaded yet, returns undefined.
      */
-    async getScore(loadIfNotLoaded: boolean = true): Promise<number | undefined> {
-        if (loadIfNotLoaded && this._score === undefined) {
+    async getScore(ignoreFirstDigit: boolean, loadIfNotLoaded: boolean = true): Promise<number | undefined> {
+        if (loadIfNotLoaded && !this._score.has(ignoreFirstDigit)) {
             // Predict the digits of the score from the frame, or return -1 if OCR fails
-            // console.log("OCRFrame.getScore");
-            this._score = await this.predictDigits(this.scoreOCRBox);
-            // console.log("OCRFrame.getScore result", this._score);
+            this._score.set(ignoreFirstDigit, await this.predictDigits(this.scoreOCRBox));
         }
-        return this._score;
+        return this._score.get(ignoreFirstDigit);
     }
 
     /**
@@ -249,14 +243,12 @@ export class OCRFrame {
      * @returns The score of the game. If the score could not be OCR'd, returns -1. If the score
      * has not been loaded yet, returns undefined.
      */
-    async getLines(loadIfNotLoaded: boolean = true): Promise<number | undefined> {
-        if (loadIfNotLoaded && this._lines === undefined) {
+    async getLines(ignoreFirstDigit: boolean, loadIfNotLoaded: boolean = true): Promise<number | undefined> {
+        if (loadIfNotLoaded && !this._lines.has(ignoreFirstDigit)) {
             // Predict the digits of the score from the frame, or return -1 if OCR fails
-            // console.log("OCRFrame.getScore");
-            this._lines = await this.predictDigits(this.linesOCRBox);
-            // console.log("OCRFrame.getScore result", this._score);
+            this._lines.set(ignoreFirstDigit, await this.predictDigits(this.linesOCRBox));
         }
-        return this._lines;
+        return this._lines.get(ignoreFirstDigit);
     }
 
     /**

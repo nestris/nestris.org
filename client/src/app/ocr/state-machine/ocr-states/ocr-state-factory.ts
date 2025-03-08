@@ -1,10 +1,10 @@
 import { GlobalState } from "../global-state";
 import { OCRConfig } from "../ocr-state-machine";
 import { TextLogger } from "../state-machine-logger";
-import { BeforeGameState } from "./before-game-state";
-import { PieceDroppingState } from "./during-game-state/during-game-state";
-import { GameEndState } from "./game-end-state";
-import { GameLimboState } from "./game-limbo-state";
+import { BeforeGameState } from "./states/before-game-state";
+import { PieceDroppingState } from "./events/during-game-state";
+import { GameEndState } from "./states/game-end-state";
+import { GameLimboState } from "./states/game-limbo-state";
 import { OCRStateID } from "./ocr-state-id";
 
 export function OcrStateFactory(ocrStateID: OCRStateID, config: OCRConfig, globalState: GlobalState, textLogger: TextLogger) {

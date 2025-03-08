@@ -9,6 +9,7 @@ import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 import { OCRVerifier } from '../ocr-verifier';
 import { OcrGameService } from 'src/app/services/ocr/ocr-game.service';
+import { CONFIG } from 'src/app/config';
 
 
 export enum CalibrationStep {
@@ -35,8 +36,17 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
   readonly ButtonColor = ButtonColor;
   readonly TetrominoType = TetrominoType;
   readonly CalibrationStep = CalibrationStep;
-  readonly ALL_CALIBRATION_STEPS = Object.values(CalibrationStep);
   readonly EMPTY_BOARD = new TetrisBoard();
+
+  readonly ALL_CALIBRATION_STEPS: CalibrationStep[] = CONFIG.requireOCRVerifier ? 
+  [
+    CalibrationStep.SELECT_VIDEO_SOURCE,
+    CalibrationStep.LOCATE_TETRIS_BOARD
+  ] :
+  [
+    CalibrationStep.SELECT_VIDEO_SOURCE,
+    CalibrationStep.LOCATE_TETRIS_BOARD
+  ];
 
   // We do not poll for level every frame, as that is too computationally expensive. Instead,
   // we poll for level every few frames and cache the result here.
@@ -261,8 +271,8 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
 
     // Expensive calculation that gets number counters from frame
     let level = await frame.getLevel();
-    let score = await frame.getScore();
-    let lines = await frame.getLines();
+    let score = await frame.getScore(false);
+    let lines = await frame.getLines(false);
     if (level === -1) level = undefined;
     if (score === -1) score = undefined;
     if (lines === -1) lines = undefined;

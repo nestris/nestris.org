@@ -82,5 +82,22 @@ export class NumberOCRBox {
         return await this.digitClassifier.predictDigit(this.getDigitMatrix(digit, frame));
     }
 
+    async predictDigits(frame: Frame, ignoreFirstDigit: boolean = false): Promise<(Prediction | undefined)[]>{
+
+        // Determine starting index based on ignoreFirstDigit flag
+        const startIndex = ignoreFirstDigit ? 1 : 0;
+        
+        // Create array of indices to process
+        const indices = Array.from(
+            {length: this.numDigits - startIndex}, 
+            (_, i) => i + startIndex
+        );
+        
+        // Process each digit in parallel and return results
+        return await Promise.all(
+            indices.map(i => this.predictDigit(i, frame))
+        );
+    }
+
 
 }

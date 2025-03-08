@@ -10,6 +10,17 @@ import { TimeDelta } from "../../shared/scripts/time-delta";
 import { GameAnalyzer } from "../../shared/evaluation/game-analyzer";
 import { MemoryGameStatus, StatusHistory } from "src/app/shared/tetris/memory-game-status";
 
+export enum RolloverState {
+    BELOW_800K,
+    ABOVE_800K
+}
+
+class OCRProfile {
+    public isMaxoutCapped: boolean | undefined = undefined;
+    public numRollovers: number = 0;
+    public rolloverState: RolloverState = RolloverState.BELOW_800K;
+}
+
 /**
  * Stores the state global to the state machine, and sends packets to the injected PacketSender on changes.
  */
@@ -60,6 +71,8 @@ export class OCRGameState {
     private readonly timeDelta = new TimeDelta(true);
 
     private readonly analyzer?: GameAnalyzer;
+
+    public readonly profile = new OCRProfile();
 
     constructor(
         private readonly packetSender: PacketSender | undefined,

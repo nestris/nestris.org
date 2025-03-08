@@ -1,13 +1,14 @@
-import { TETROMINO_CHAR } from "../../../shared/tetris/tetrominos";
-import { TetrominoType } from "../../../shared/tetris/tetromino-type";
-import { GlobalState } from "../global-state";
-import { OCRFrame } from "../ocr-frame";
-import { OCRState, StateEvent } from "../ocr-state";
-import { ConsecutivePersistenceStrategy } from "../persistence-strategy";
-import { LogType, TextLogger } from "../state-machine-logger";
-import { OCRStateID } from "./ocr-state-id";
-import { OCRConfig } from "../ocr-state-machine";
+import { TETROMINO_CHAR } from "../../../../shared/tetris/tetrominos";
+import { TetrominoType } from "../../../../shared/tetris/tetromino-type";
+import { GlobalState } from "../../global-state";
+import { OCRFrame } from "../../ocr-frame";
+import { OCRState, StateEvent } from "../../ocr-state";
+import { ConsecutivePersistenceStrategy } from "../../persistence-strategy";
+import { LogType, TextLogger } from "../../state-machine-logger";
+import { OCRStateID } from "../ocr-state-id";
+import { OCRConfig } from "../../ocr-state-machine";
 import { GymRNG } from "src/app/shared/tetris/piece-sequence-generation/gym-rng";
+import { RecoveryEvent } from "../events/recovery-event";
 
 export const NOISE_THRESHOLD = 20;
 
@@ -16,6 +17,7 @@ export class BeforeGameState extends OCRState {
 
     public override init() {
         this.registerEvent(new StartGameEvent(this.config, this.globalState, this.textLogger));
+        this.registerEvent(new MidGameStartEvent(this.config, this.globalState));
     }
 
     /**
@@ -100,7 +102,7 @@ export class StartGameEvent extends StateEvent {
             return false;
         }
 
-        const score = await ocrFrame.getScore()!;
+        const score = await ocrFrame.getScore(false)!;
         if (score === -1) {
             this.textLogger.log(LogType.VERBOSE, "StartGameEvent: Score is not defined");
             return false;
@@ -142,4 +144,36 @@ export class StartGameEvent extends StateEvent {
         return OCRStateID.PIECE_DROPPING;
     }
 
+}
+
+/**
+ * If midGameStart config flag enabled, allow game start to be mid-game, as long as recovery conditions are met
+ */
+export class MidGameStartEvent extends RecoveryEvent {
+    public override readonly name = "MidGameStartEvent";
+
+    constructor(
+        private readonly config: OCRConfig,
+        globalState: GlobalState
+    ) {
+        super(globalState);
+    }
+
+    protected override async precondition(ocrFrame: OCRFrame): Promise<boolean> {
+
+        // Only allowed if flag is enabled
+        if (!this.config.midGameStart) return false;
+
+        return super.precondition(ocrFrame);
+    }
+
+    override async triggerEvent(ocrFrame: OCRFrame): Promise<OCRStateID | undefined> {
+        
+        // First, start the game
+        const level = Math.min(this.recovery!.level, 18);
+        this.globalState.startGame(level, this.recovery!.current, this.recovery!.next);
+        
+        // Then, set to the mid-game start conditions
+        return super.triggerEvent(ocrFrame);
+    }
 }

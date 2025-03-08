@@ -1,9 +1,9 @@
-import { GlobalState } from "../global-state";
-import { OCRFrame } from "../ocr-frame";
-import { OCRState, StateEvent } from "../ocr-state";
-import { OCRConfig } from "../ocr-state-machine";
-import { SingleFramePersistenceStrategy } from "../persistence-strategy";
-import { OCRStateID } from "./ocr-state-id";
+import { GlobalState } from "../../global-state";
+import { OCRFrame } from "../../ocr-frame";
+import { OCRState, StateEvent } from "../../ocr-state";
+import { OCRConfig } from "../../ocr-state-machine";
+import { SingleFramePersistenceStrategy } from "../../persistence-strategy";
+import { OCRStateID } from "../ocr-state-id";
 
 
 export class GameEndState extends OCRState {
